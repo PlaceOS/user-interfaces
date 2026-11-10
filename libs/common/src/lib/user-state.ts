@@ -7,6 +7,7 @@ import {
 } from '@placeos/ts-client';
 import { BehaviorSubject, combineLatest, defer, of, timer } from 'rxjs';
 import { catchError, map, retry } from 'rxjs/operators';
+import { mockModeRequested, placeSetupDone } from './placeos';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
 import { EMPTY_USER, isEmptyUser, StaffUser } from './types/user.class';
@@ -247,8 +248,11 @@ export function initialiseUser() {
     if (!is_public_mode) applyCachedUserData();
     // Defer so that each retry sends a new request. A promise passed
     // directly gives the same rejection to every retry.
+    // In mock mode, wait for the mocks: an app that loads them on demand can
+    // still be loading them now, and the request would go to the real backend
+    const ready = mockModeRequested() ? placeSetupDone() : Promise.resolve();
     const user_request = combineLatest([
-        defer(() => showUser('current')),
+        defer(() => ready.then(() => showUser('current'))),
         _change,
     ]).pipe(map(([i]) => new StaffUser(i)));
     if (is_public_mode) {

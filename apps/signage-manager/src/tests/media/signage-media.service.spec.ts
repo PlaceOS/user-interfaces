@@ -1220,6 +1220,135 @@ describe('SignageMediaService', () => {
                 {},
             );
         });
+
+        describe('dropped onto a playlist', () => {
+            /** Close the next upload modal once it has added `count` files */
+            function uploadInModal(count = Infinity) {
+                dialog.open.mockImplementation((_component, config) => ({
+                    afterClosed: () => ({
+                        subscribe: (handler: (value?: unknown) => void) => {
+                            (async () => {
+                                // Closes after the caller subscribes
+                                await Promise.resolve();
+                                if (config.data.onAdd) {
+                                    await config.data.onAdd(
+                                        config.data.file,
+                                        new SignageMedia({}),
+                                        config.data.file_metadata,
+                                    );
+                                } else {
+                                    const data: BulkMediaUploadModalData =
+                                        config.data;
+                                    for (const item of data.items.slice(
+                                        0,
+                                        count,
+                                    )) {
+                                        await data.onUpload(item, () => {});
+                                    }
+                                }
+                                handler();
+                            })();
+                            return { unsubscribe: vi.fn() };
+                        },
+                    }),
+                }));
+            }
+
+            function stubAddToPlaylist() {
+                return vi
+                    .spyOn(
+                        TestBed.inject(SignagePlaylistService),
+                        'addMediaItemsToPlaylist',
+                    )
+                    .mockResolvedValue(true);
+            }
+
+            it('adds the uploaded files to the playlist, in upload order', async () => {
+                uploadInModal();
+                const add = stubAddToPlaylist();
+                const service = createBulkService();
+
+                await expect(
+                    service.uploadFilesToPlaylist('playlist-1', pickedFiles()),
+                ).resolves.toBe(true);
+
+                expect(add).toHaveBeenCalledWith(
+                    'playlist-1',
+                    ['media-new-1', 'media-new-2'],
+                    [
+                        expect.objectContaining({ id: 'media-new-1' }),
+                        expect.objectContaining({ id: 'media-new-2' }),
+                    ],
+                );
+            });
+
+            it('adds a single file once its edit modal saves it', async () => {
+                uploadInModal();
+                const add = stubAddToPlaylist();
+                const service = createBulkService();
+
+                await service.uploadFilesToPlaylist('playlist-1', [
+                    pickedFiles()[0],
+                ]);
+
+                expect(dialog.open).toHaveBeenCalledWith(
+                    MediaEditModalComponent,
+                    expect.anything(),
+                );
+                expect(add).toHaveBeenCalledWith(
+                    'playlist-1',
+                    ['media-new-1'],
+                    [expect.objectContaining({ id: 'media-new-1' })],
+                );
+            });
+
+            it('adds only the files that uploaded', async () => {
+                uploadInModal(1);
+                const add = stubAddToPlaylist();
+                const service = createBulkService();
+
+                await service.uploadFilesToPlaylist(
+                    'playlist-1',
+                    pickedFiles(),
+                );
+
+                expect(add).toHaveBeenCalledWith(
+                    'playlist-1',
+                    ['media-new-1'],
+                    expect.anything(),
+                );
+            });
+
+            it('leaves the playlist alone when nothing uploads', async () => {
+                uploadInModal(0);
+                const add = stubAddToPlaylist();
+                const service = createBulkService();
+
+                await expect(
+                    service.uploadFilesToPlaylist('playlist-1', pickedFiles()),
+                ).resolves.toBe(false);
+
+                expect(add).not.toHaveBeenCalled();
+            });
+
+            it('uploads nothing when the user cannot change playlists', async () => {
+                const add = stubAddToPlaylist();
+                const service = createBulkService();
+                vi.mocked(
+                    TestBed.inject(SignageContextService).requirePermission,
+                ).mockImplementation(
+                    (_allowed, key) =>
+                        key !== 'SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS',
+                );
+
+                await expect(
+                    service.uploadFilesToPlaylist('playlist-1', pickedFiles()),
+                ).resolves.toBe(false);
+
+                expect(dialog.open).not.toHaveBeenCalled();
+                expect(add).not.toHaveBeenCalled();
+            });
+        });
     });
 
     describe('PDF upload', () => {

@@ -99,7 +99,9 @@ interface Candidate {
                 </button>
             </header>
 
-            <div class="flex min-h-0 flex-1 flex-col gap-2 px-2 pb-2 md:flex-row">
+            <div
+                class="flex min-h-0 flex-1 flex-col gap-2 px-2 pb-2 md:flex-row"
+            >
                 <!-- the picture, given the room -->
                 <section
                     class="flex min-h-48 min-w-0 flex-1 flex-col gap-2 md:min-h-0"

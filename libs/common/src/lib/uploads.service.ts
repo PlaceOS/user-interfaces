@@ -169,15 +169,32 @@ export class UploadsService extends AsyncHandler {
         }
     }
 
-    private async _initUploads() {
+    private _uploads_setup: Promise<void> | null = null;
+
+    /**
+     * Set up the upload manager, once. Setting it up again ends the hash
+     * workers, which leaves any upload being hashed waiting forever. The
+     * credential is read on each request, so a refreshed token needs no
+     * new setup.
+     */
+    private _initUploads() {
+        this._uploads_setup ||= this._setupUploads().catch((error) => {
+            this._uploads_setup = null;
+            throw error;
+        });
+        return this._uploads_setup;
+    }
+
+    private async _setupUploads() {
         const { initUploads } = await loadCloudUploads();
-        const api_key = apiKey();
         initUploads({
             auto_start: true,
             // token() returns the literal string "x-api-key" when the session
             // is authenticated with an API key, which is not a usable bearer
             // token; the uploads API needs the key in its own header.
-            ...(api_key ? { api_key } : { token: token() }),
+            ...(apiKey()
+                ? { api_key: () => apiKey() }
+                : { token: () => token() }),
             endpoint: '/api/engine/v2/uploads',
             worker_url: 'assets/md5_worker.js',
             // Drop each upload from the manager once it completes. It keeps

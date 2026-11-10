@@ -59,18 +59,59 @@ describe('UploadsService', () => {
     });
 
     it('should refresh the token and retry a failed upload', async () => {
+        let current = 'expired-token';
         vi.mocked(ts_client.token).mockImplementation((return_expired) =>
-            return_expired === false ? '' : 'expired-token',
+            return_expired === false && current === 'expired-token'
+                ? ''
+                : current,
         );
+        vi.mocked(ts_client.authorise).mockImplementation(async () => {
+            current = 'new-token';
+            return current;
+        });
         const promise = spectator.service.uploadFile(new File([], 'test.png'));
         await flush();
         state.next({ status: 'FAILED', progress: 10 });
         await flush();
         expect(ts_client.authorise).toHaveBeenCalled();
-        expect(cloud_uploads.initUploads).toHaveBeenCalledTimes(2);
+        // The manager reads the token on each request, so it is not set up
+        // again, which would end the hash workers of other uploads
+        expect(cloud_uploads.initUploads).toHaveBeenCalledOnce();
+        const { token } = vi.mocked(cloud_uploads.initUploads).mock
+            .calls[0][0] as { token: () => string };
+        expect(token()).toBe('new-token');
         expect(mock_upload.resume).toHaveBeenCalled();
         state.next({ status: 'COMPLETED', progress: 100 });
         expect(await promise).toBe('up-1');
+    });
+
+    // Setting the manager up again ends its hash workers, and an upload
+    // being hashed then waits forever
+    it('should set up the upload manager only once', async () => {
+        spectator.service.init();
+        const first = spectator.service.uploadFile(new File([], 'one.png'));
+        const second = spectator.service.uploadFile(new File([], 'two.png'));
+        await flush();
+        spectator.service.init();
+        await flush();
+        state.next({ status: 'COMPLETED', progress: 100 });
+        await Promise.all([first, second]);
+        expect(cloud_uploads.initUploads).toHaveBeenCalledOnce();
+    });
+
+    it('should set up the upload manager again after setup fails', async () => {
+        vi.mocked(cloud_uploads.initUploads)
+            .mockImplementationOnce(() => {
+                throw new Error('No workers');
+            })
+            .mockReturnValue(undefined);
+        const failed = spectator.service.uploadFile(new File([], 'one.png'));
+        await expect(failed).rejects.toThrow('No workers');
+        const promise = spectator.service.uploadFile(new File([], 'two.png'));
+        await flush();
+        state.next({ status: 'COMPLETED', progress: 100 });
+        expect(await promise).toBe('up-1');
+        expect(cloud_uploads.initUploads).toHaveBeenCalledTimes(2);
     });
 
     it('should retry a failed upload a few times before giving up', async () => {
@@ -135,9 +176,9 @@ describe('UploadsService', () => {
             await flush();
             state.next({ status: 'COMPLETED', progress: 100 });
             await promise;
-            expect(cloud_uploads.initUploads).toHaveBeenCalledWith(
-                expect.objectContaining({ api_key: 'secret-key' }),
-            );
+            const { api_key } = vi.mocked(cloud_uploads.initUploads).mock
+                .calls[0][0] as { api_key: () => string };
+            expect(api_key()).toBe('secret-key');
             // "x-api-key" is not a usable bearer token
             expect(cloud_uploads.initUploads).not.toHaveBeenCalledWith(
                 expect.objectContaining({ token: expect.anything() }),

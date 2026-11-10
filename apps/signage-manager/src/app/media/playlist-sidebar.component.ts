@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,11 +14,13 @@ import {
 } from '@placeos/components';
 import { SignageMedia, SignagePlaylist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { FileDropDirective } from '../shared/file-drop.directive';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistStatusBadgeComponent } from '../shared/playlist-status-badge.component';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import { playlistStatus } from '../signage-playlist.util';
+import { SignageMediaService } from './signage-media.service';
 
 @Component({
     selector: 'playlist-sidebar',
@@ -88,6 +90,8 @@ import { playlistStatus } from '../signage-playlist.util';
                                 [cdkDropListConnectedTo]="['media-list']"
                                 [cdkDropListData]="playlist"
                                 (cdkDropListDropped)="onDrop(playlist, $event)"
+                                (fileDrop)="uploadFiles(playlist, $event)"
+                                [fileDropDisabled]="!can_upload()"
                                 class="border-base-300 mb-2 flex items-center gap-3 rounded-lg border p-0.5 transition-colors"
                                 matRipple
                             >
@@ -168,7 +172,8 @@ import { playlistStatus } from '../signage-playlist.util';
             }
 
             .cdk-drop-list-dragging,
-            .cdk-drop-list-receiving {
+            .cdk-drop-list-receiving,
+            .file-drop-over {
                 border-color: var(--color-primary) !important;
                 background-color: color-mix(
                     in srgb,
@@ -181,6 +186,7 @@ import { playlistStatus } from '../signage-playlist.util';
     imports: [
         PlaylistStatusBadgeComponent,
         DragDropModule,
+        FileDropDirective,
         FormsModule,
         MatFormFieldModule,
         MatInputModule,
@@ -198,8 +204,13 @@ import { playlistStatus } from '../signage-playlist.util';
 export class PlaylistSidebarComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _media_service = inject(SignageMediaService);
 
     public readonly can_create = this._context.can_create;
+    /** Files dropped on a playlist upload, then join the playlist */
+    public readonly can_upload = computed(
+        () => this._context.can_create() && this._context.can_update(),
+    );
     public readonly loading = this._playlist_service.playlists_loading;
     /** Whether the last page of playlists failed to load */
     public readonly error = this._playlist_service.playlists_error;
@@ -237,6 +248,11 @@ export class PlaylistSidebarComponent {
             media.id,
             media,
         );
+    }
+
+    /** Upload files dropped on a playlist, then add them to it */
+    public async uploadFiles(playlist: SignagePlaylist, files: File[]) {
+        await this._media_service.uploadFilesToPlaylist(playlist.id, files);
     }
 
     public getStatus(playlist: SignagePlaylist) {

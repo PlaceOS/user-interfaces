@@ -357,6 +357,11 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
     });
 
     test('edits and toggles the schedule validity start', async ({ page }) => {
+        // Midday, so times are left to pick today. Late in the evening the
+        // time field has none and is disabled.
+        const midday = new Date();
+        midday.setHours(12, 0, 0, 0);
+        await page.clock.setFixedTime(midday);
         await navigateWithMock(page, PLAYLISTS_URL);
         await page
             .getByRole('button', { name: /create new playlist/i })
@@ -367,7 +372,8 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
                 .locator('[schedule-validity]')
                 .getByRole('combobox', { name: 'Timezone', exact: true }),
         ).toBeVisible();
-        const valid_from = schedule.getByRole('button', {
+        // A settings toggle is a checkbox for assistive technology
+        const valid_from = schedule.getByRole('checkbox', {
             name: /^valid from$/i,
         });
         const time_field = schedule.locator('a-time-field button[time-field]');
@@ -384,7 +390,9 @@ test.describe('US-SGM-006: Browse and Create Playlists', () => {
         await valid_from.click();
         await expect(time_field).toHaveText(selected_time);
 
-        await schedule.getByRole('button', { name: /^valid until$/i }).click();
+        await schedule
+            .getByRole('checkbox', { name: /^valid until$/i })
+            .click();
         await expect(time_field).toHaveCount(2);
         await time_field.last().click();
         await page.getByRole('menuitem').first().click();
@@ -851,8 +859,10 @@ test.describe('US-SGM-014 and US-SGM-015: Group Users, Zones, and Permissions', 
         await expect(
             page.getByRole('heading', { name: /user permissions/i }),
         ).toBeVisible();
+        // Each permission is a settings toggle, a checkbox for assistive
+        // technology
         await expect(
-            page.getByRole('button', { name: /^read$/i }),
+            page.getByRole('checkbox', { name: /^read$/i }),
         ).toBeVisible();
         await closeDialog(page);
 

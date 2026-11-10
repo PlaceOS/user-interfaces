@@ -1030,9 +1030,10 @@ export class PlaylistItemsComponent {
     public async deleteSelected() {
         const playlist = this.selected_playlist();
         if (!playlist?.id) return;
-        const selected_items = this.selected_items().map(
-            ({ item, index }) => ({ id: this._itemId(item, index), index }),
-        );
+        const selected_items = this.selected_items().map(({ item, index }) => ({
+            id: this._itemId(item, index),
+            index,
+        }));
         if (
             await this._playlist_service.removeMediaItemsFromPlaylist(
                 playlist.id,

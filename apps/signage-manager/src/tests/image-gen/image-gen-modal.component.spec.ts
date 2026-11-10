@@ -639,7 +639,9 @@ describe('ImageGenModalComponent', () => {
         await component.start();
 
         expect(
-            image_gen.generate.mock.calls.map(([request]) => request.include_logo),
+            image_gen.generate.mock.calls.map(
+                ([request]) => request.include_logo,
+            ),
         ).toEqual([false, true]);
     });
 

@@ -168,6 +168,8 @@ These stories cover the current app workflows:
 - Users with update permission can remove media from the playlist.
 - Adding media to a distribution playlist always asks for the item schedule first. When adding media fails, an error shows.
 - When media is already in the playlist, adding one item asks for confirmation, and adding many items skips it. In a distribution playlist, media that has an item schedule is in the playlist.
+- Users who can create media and update playlists can drop files from their computer onto a playlist: in the media page sidebar, in the playlist list, or on the open playlist. The playlist highlights while files are over it. The files upload to the selected group through the same dialogs as a drop on the media library, then join the end of the playlist, as "Add to playlist" does. An open playlist shows its new items once they are added.
+- Files dropped elsewhere on the playlists page are ignored, so the browser does not open them.
 - Users can expand, collapse, and edit item schedules.
 - Keyboard selection is supported for playlist items. Enter and Space on the checkbox or the actions button of a row operate that control.
 

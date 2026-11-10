@@ -8,7 +8,11 @@ import {
 describe('PagedSearch', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
 
-    const pageOf = (ids: string[], total = ids.length, next: unknown = null) => ({
+    const pageOf = (
+        ids: string[],
+        total = ids.length,
+        next: unknown = null,
+    ) => ({
         data: ids.map((id) => ({ id, name: id })),
         total,
         next: next ? () => Promise.resolve(next) : null,
@@ -66,7 +70,9 @@ describe('PagedSearch', () => {
 
     it('pages through the results as more are requested', async () => {
         query.mockReturnValue(
-            Promise.resolve(pageOf(['a'], 3, pageOf(['b'], 3, pageOf(['c'], 3)))),
+            Promise.resolve(
+                pageOf(['a'], 3, pageOf(['b'], 3, pageOf(['c'], 3))),
+            ),
         );
         const list = await make();
         expect(list.has_more()).toBe(true);
@@ -81,7 +87,9 @@ describe('PagedSearch', () => {
     });
 
     it('ignores a request for more while a page is in flight', async () => {
-        query.mockReturnValue(Promise.resolve(pageOf(['a'], 2, pageOf(['b'], 2))));
+        query.mockReturnValue(
+            Promise.resolve(pageOf(['a'], 2, pageOf(['b'], 2))),
+        );
         const list = await make();
 
         list.loadMore();

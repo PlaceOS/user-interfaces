@@ -133,6 +133,25 @@ describe('setupPlace', () => {
     });
 });
 
+describe('placeSetupDone', () => {
+    beforeEach(() => vi.resetModules());
+
+    it('resolves once setup settles, also when setup fails', async () => {
+        const { placeSetupDone, setupPlace: setup_place } =
+            await import('../lib/placeos');
+        let finished = false;
+        placeSetupDone().then(() => (finished = true));
+        await Promise.resolve();
+        expect(finished).toBe(false);
+
+        vi.mocked(ts_client.setup).mockRejectedValueOnce(new Error('down'));
+        await expect(setup_place(base_settings, 0)).rejects.toThrow('down');
+
+        await placeSetupDone();
+        expect(finished).toBe(true);
+    });
+});
+
 describe('storeApiKeyFromUrl', () => {
     const start = location.href;
 

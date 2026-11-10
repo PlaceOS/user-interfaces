@@ -1,4 +1,10 @@
-import { Component, ElementRef, inject, viewChildren } from '@angular/core';
+import {
+    Component,
+    computed,
+    ElementRef,
+    inject,
+    viewChildren,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -11,10 +17,13 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { SignagePlaylist } from '@placeos/ts-client';
+import { SignageMediaService } from '../media/signage-media.service';
+import { FileDropDirective } from '../shared/file-drop.directive';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistStatusBadgeComponent } from '../shared/playlist-status-badge.component';
 import { PlaylistThumbnailComponent } from '../shared/playlist-thumbnail.component';
 import { scrollSelectionIntoView } from '../shared/scroll-selection.util';
+import { SignageContextService } from '../signage-context.service';
 import { playlistStatus } from '../signage-playlist.util';
 import { SignagePlaylistService } from './signage-playlist.service';
 
@@ -64,6 +73,8 @@ import { SignagePlaylistService } from './signage-playlist.service';
                         "
                         [routerLink]="['/playlists', playlist.id]"
                         queryParamsHandling="merge"
+                        (fileDrop)="uploadFiles(playlist, $event)"
+                        [fileDropDisabled]="!can_upload()"
                         [attr.data-disabled-playlist]="
                             !playlist.enabled ? true : null
                         "
@@ -157,6 +168,12 @@ import { SignagePlaylistService } from './signage-playlist.service';
                 flex-direction: column;
                 height: 100%;
             }
+
+            /* currentColor shows on the selected playlist too */
+            .file-drop-over {
+                outline: 2px dashed currentColor;
+                outline-offset: -4px;
+            }
         `,
     ],
     imports: [
@@ -172,10 +189,13 @@ import { SignagePlaylistService } from './signage-playlist.service';
         TranslatePipe,
         IntersectDirective,
         PlaylistThumbnailComponent,
+        FileDropDirective,
     ],
 })
 export class PlaylistListComponent {
     private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _context = inject(SignageContextService);
+    private readonly _media_service = inject(SignageMediaService);
     private readonly _playlist_items =
         viewChildren<ElementRef<HTMLAnchorElement>>('playlist_item');
 
@@ -191,6 +211,10 @@ export class PlaylistListComponent {
     public readonly has_more = this._playlist_service.playlists_has_more;
     public readonly loading = this._playlist_service.playlists_loading;
     public readonly error = this._playlist_service.playlists_error;
+    /** Files dropped on a playlist upload, then join the playlist */
+    public readonly can_upload = computed(
+        () => this._context.can_create() && this._context.can_update(),
+    );
 
     constructor() {
         scrollSelectionIntoView(
@@ -206,6 +230,11 @@ export class PlaylistListComponent {
 
     public reload() {
         this._playlist_service.reloadPlaylists();
+    }
+
+    /** Upload files dropped on a playlist, then add them to it */
+    public async uploadFiles(playlist: SignagePlaylist, files: File[]) {
+        await this._media_service.uploadFilesToPlaylist(playlist.id, files);
     }
 
     public getStatus(playlist: SignagePlaylist) {

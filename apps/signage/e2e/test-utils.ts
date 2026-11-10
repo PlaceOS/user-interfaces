@@ -394,7 +394,7 @@ export async function selectDisplay(
     page: Page,
     display_name?: string,
 ): Promise<void> {
-    const select = page.locator('mat-select').first();
+    const select = page.locator('mat-select[name="display"]');
     await select.click();
     await page.waitForTimeout(200);
 

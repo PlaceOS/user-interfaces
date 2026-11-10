@@ -28,7 +28,9 @@ test.describe('US-SIG-001: Select a Signage Display', () => {
     }) => {
         await openCleanBootstrap(page);
 
-        await expect(page.locator('[bootstrap] mat-select')).toBeVisible({
+        await expect(
+            page.locator('[bootstrap] mat-select[name="display"]'),
+        ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
         await expect(page.locator('[bootstrap] button[btn]')).toBeDisabled();
@@ -39,7 +41,7 @@ test.describe('US-SIG-001: Select a Signage Display', () => {
     }) => {
         await openCleanBootstrap(page);
 
-        await page.locator('[bootstrap] mat-select').click();
+        await page.locator('[bootstrap] mat-select[name="display"]').click();
         const options = page.locator('mat-option');
 
         await expect(options.first()).toBeVisible({ timeout: LOAD_TIMEOUT });
@@ -140,6 +142,8 @@ test.describe('US-SIG-003: Bootstrap via URL Parameters', () => {
         await expect(page.locator('app-root')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        await expect(page).toHaveURL(/#\/signage\/display-1/);
+        await expect(page).toHaveURL(/#\/signage\/display-1/, {
+            timeout: LOAD_TIMEOUT,
+        });
     });
 });

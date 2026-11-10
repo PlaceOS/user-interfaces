@@ -1,6 +1,7 @@
 import { expect, Locator, Page, test } from '@playwright/test';
 import { buildPdf } from './pdf-fixture';
 import { MEDIA_URL, navigateWithMock } from './test-utils';
+import { mockUploads } from './upload-mocks';
 
 const RED: [number, number, number] = [1, 0, 0];
 const GREEN: [number, number, number] = [0, 0.6, 0];
@@ -12,82 +13,6 @@ const DECK = buildPdf([
     { width: 595, height: 842, colour: GREEN, label: 'Two' },
     { width: 960, height: 540, colour: BLUE, label: 'Three' },
 ]);
-
-const SIGNED_UPLOAD_HOST = 'https://uploads.e2e.test';
-
-interface CapturedUpload {
-    name: string;
-    mime: string;
-    body: Buffer;
-}
-
-/**
- * Stand in for the uploads API and the storage it signs requests for. Mock
- * mode does not cover uploads, which go straight to the network. Resolves
- * with each file that reached storage. Storage holds each file until
- * `release` is called, so the upload can be checked while it runs.
- */
-async function mockUploads(page: Page) {
-    const uploads = new Map<string, { name: string; mime: string }>();
-    const stored: CapturedUpload[] = [];
-    let count = 0;
-    let release: () => void;
-    const released = new Promise<void>((resolve) => (release = resolve));
-    await page.route('**/api/engine/v2/uploads**', async (route) => {
-        const request = route.request();
-        const url = new URL(request.url());
-        if (url.pathname.endsWith('/uploads/new')) {
-            return route.fulfill({ json: { residence: 'AmazonS3' } });
-        }
-        if (request.method() === 'POST' && url.pathname.endsWith('/uploads')) {
-            const params = request.postDataJSON();
-            count += 1;
-            const upload_id = `upload-pdf-${count}`;
-            uploads.set(upload_id, {
-                name: params.file_name,
-                mime: params.file_mime,
-            });
-            return route.fulfill({
-                json: {
-                    type: 'direct_upload',
-                    upload_id,
-                    residence: 'AmazonS3',
-                    signature: {
-                        verb: 'PUT',
-                        url: `${SIGNED_UPLOAD_HOST}/${upload_id}`,
-                        headers: {},
-                    },
-                },
-            });
-        }
-        return route.fulfill({ json: {} });
-    });
-    await page.route(`${SIGNED_UPLOAD_HOST}/**`, async (route) => {
-        const request = route.request();
-        if (request.method() === 'OPTIONS') {
-            return route.fulfill({
-                headers: {
-                    'access-control-allow-origin': '*',
-                    'access-control-allow-methods': 'PUT',
-                    'access-control-allow-headers': '*',
-                },
-            });
-        }
-        await released;
-        const upload_id = new URL(request.url()).pathname.slice(1);
-        const details = uploads.get(upload_id);
-        stored.push({
-            name: details?.name || upload_id,
-            mime: details?.mime || '',
-            body: request.postDataBuffer() || Buffer.alloc(0),
-        });
-        return route.fulfill({
-            headers: { 'access-control-allow-origin': '*', etag: '"1"' },
-            body: '',
-        });
-    });
-    return { stored, release: () => release() };
-}
 
 /** Width and height from the header of a PNG */
 function pngSize(png: Buffer) {
@@ -285,7 +210,7 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
     test('uploads the selected pages named and tagged after the PDF', async ({
         page,
     }) => {
-        const { stored, release } = await mockUploads(page);
+        const { stored, release } = await mockUploads(page, { hold: true });
         await navigateWithMock(page, MEDIA_URL);
         const dialog = await openPdf(page);
         await expect(pageItems(dialog).locator('img')).toHaveCount(3);

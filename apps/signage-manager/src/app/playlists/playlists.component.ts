@@ -1,8 +1,10 @@
-import { Component, effect, inject, input } from '@angular/core';
+import { Component, computed, effect, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { Router } from '@angular/router';
 import { i18n, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { SignageMediaService } from '../media/signage-media.service';
+import { FileDropDirective, isFileDrag } from '../shared/file-drop.directive';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { routedTab } from '../shared/routed-tab.util';
@@ -27,7 +29,11 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
 @Component({
     selector: 'playlists-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
+        <div
+            class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row"
+            (window:dragover)="blockMissedFileDrop($event)"
+            (window:drop)="blockMissedFileDrop($event)"
+        >
             <nav-sidebar class="sm:h-full" />
             <div class="flex min-h-0 flex-1 flex-col">
                 <playlist-header class="relative z-10" />
@@ -92,6 +98,10 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
                                 aria-labelledby="playlist-items-tab"
                                 class="w-px max-w-full flex-1"
                                 [class.tablet-hidden]="view_tab() === 'details'"
+                                (fileDrop)="uploadFiles($event)"
+                                [fileDropDisabled]="
+                                    !selected_playlist() || !can_upload()
+                                "
                             />
                             <playlist-item-details
                                 id="playlist-details-panel"
@@ -108,7 +118,21 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
             <nav-footer />
         </div>
     `,
+    styles: [
+        `
+            playlist-items.file-drop-over {
+                outline: 2px dashed var(--color-primary);
+                outline-offset: -4px;
+                background-color: color-mix(
+                    in srgb,
+                    var(--color-primary) 10%,
+                    transparent
+                );
+            }
+        `,
+    ],
     imports: [
+        FileDropDirective,
         NavSidebarComponent,
         NavFooterComponent,
         PlaylistHeaderComponent,
@@ -125,6 +149,7 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
 export class PlaylistsSectionComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
+    private readonly _media_service = inject(SignageMediaService);
     private readonly _router = inject(Router);
 
     public readonly id = input('');
@@ -139,6 +164,10 @@ export class PlaylistsSectionComponent {
     ];
     public readonly selected_playlist =
         this._playlist_service.selected_playlist;
+    /** Files dropped on a playlist upload, then join the playlist */
+    public readonly can_upload = computed(
+        () => this._context.can_create() && this._context.can_update(),
+    );
 
     private readonly _playlists = this._playlist_service.playlists;
     private readonly _playlist_items =
@@ -229,6 +258,23 @@ export class PlaylistsSectionComponent {
         this._playlist_service.selected_playlist_item.set(null);
         this._playlist_service.selected_playlist_item_index.set(null);
         this._router.navigate(['/playlists'], {});
+    }
+
+    /** Upload files dropped on the selected playlist, then add them to it */
+    public async uploadFiles(files: File[]) {
+        const playlist = this.selected_playlist();
+        if (!playlist) return;
+        await this._media_service.uploadFilesToPlaylist(playlist.id, files);
+    }
+
+    /**
+     * Stop the browser opening files dropped outside a playlist, which
+     * would leave the app. A playlist that takes a drop handles it first.
+     */
+    public blockMissedFileDrop(event: DragEvent) {
+        if (!isFileDrag(event) || event.defaultPrevented) return;
+        event.preventDefault();
+        if (event.dataTransfer) event.dataTransfer.dropEffect = 'none';
     }
 
     public setViewTab(tab: PlaylistTab) {

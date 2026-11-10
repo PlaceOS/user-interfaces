@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PlaylistSidebarComponent } from '../../app/media/playlist-sidebar.component';
+import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
 
@@ -39,6 +40,10 @@ describe('PlaylistSidebarComponent', () => {
             providers: [
                 { provide: SignageContextService, useValue: context_stub },
                 { provide: SignagePlaylistService, useValue: playlist_stub },
+                {
+                    provide: SignageMediaService,
+                    useValue: { uploadFilesToPlaylist: vi.fn() },
+                },
             ],
         })
             .overrideComponent(PlaylistSidebarComponent, {
@@ -129,6 +134,10 @@ describe('PlaylistSidebarComponent', () => {
             providers: [
                 { provide: SignageContextService, useValue: context_stub },
                 { provide: SignagePlaylistService, useValue: playlist_stub },
+                {
+                    provide: SignageMediaService,
+                    useValue: { uploadFilesToPlaylist: vi.fn() },
+                },
             ],
         }).compileComponents();
         const fixture = TestBed.createComponent(PlaylistSidebarComponent);

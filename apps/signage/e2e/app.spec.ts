@@ -40,15 +40,15 @@ test.describe('Signage App Initialization', () => {
         await initializeAppWithMock(page);
         await waitForAppReady(page);
 
-        const url = page.url();
-        expect(url).toContain('#');
+        // The router redirects once the access check is done
+        await expect(page).toHaveURL(/#\//, { timeout: LOAD_TIMEOUT });
     });
 
     test('should load Angular Material controls', async ({ page }) => {
         await initializeAppWithMock(page);
         await waitForAppReady(page);
 
-        await expect(page.locator('mat-select')).toBeVisible({
+        await expect(page.locator('mat-select[name="display"]')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });
