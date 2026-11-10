@@ -1,3 +1,5 @@
+import { PlaceSettings } from '../lib/placeos';
+import { EMPTY_USER, StaffUser } from '../lib/types/user.class';
 import {
     cachedUserData,
     currentUser,
@@ -13,16 +15,13 @@ import {
     user_permissions,
     userSignal,
 } from '../lib/user-state';
-import { EMPTY_USER, StaffUser } from '../lib/types/user.class';
 
 import * as ts_client from '@placeos/ts-client';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 function setGroups(subsystems: string[], permissions: number) {
-    user_groups.set([
-        { group: { subsystems }, permissions } as any,
-    ]);
+    user_groups.set([{ group: { subsystems }, permissions } as any]);
 }
 
 describe('user-state', () => {
@@ -144,9 +143,7 @@ describe('user-state', () => {
 
         it('should list granted permissions', () => {
             setGroups(['bookings'], GroupPermission.Read);
-            expect(getPermissions('bookings')).toEqual([
-                GroupPermission.Read,
-            ]);
+            expect(getPermissions('bookings')).toEqual([GroupPermission.Read]);
             expect(getPermissions('other')).toEqual([]);
         });
 
@@ -172,6 +169,33 @@ describe('user-state', () => {
             expect(permissions.read).toEqual(['bookings', 'catering']);
             expect(permissions.update).toEqual(['bookings', 'catering']);
             expect(permissions.delete).toEqual([]);
+        });
+    });
+
+    describe('loading the user in mock mode', () => {
+        beforeEach(() => {
+            vi.resetModules();
+            localStorage.setItem('mock', 'true');
+            vi.mocked(ts_client.setup).mockResolvedValue(undefined);
+            vi.mocked(ts_client.showUser).mockReturnValue(
+                new Promise(() => undefined) as ReturnType<
+                    typeof ts_client.showUser
+                >,
+            );
+        });
+
+        it('waits for setup, so the request reaches the mocks', async () => {
+            const { initialiseUser } = await import('../lib/user-state');
+            const { setupPlace } = await import('../lib/placeos');
+
+            initialiseUser();
+            await new Promise((resolve) => setTimeout(resolve));
+            expect(ts_client.showUser).not.toHaveBeenCalled();
+
+            await setupPlace({ mock: true } as PlaceSettings, 0);
+            await vi.waitFor(() =>
+                expect(ts_client.showUser).toHaveBeenCalledWith('current'),
+            );
         });
     });
 });

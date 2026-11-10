@@ -144,6 +144,18 @@ export function mockModeRequested(): boolean {
     );
 }
 
+let _markSetupDone: () => void = () => {};
+const _setup_done = new Promise<void>((resolve) => (_markSetupDone = resolve));
+
+/**
+ * Resolves once `setupPlace` has set up the API library, whether or not
+ * setup succeeded. Until then, a request in mock mode goes to the real
+ * backend, as the mocks are not registered yet.
+ */
+export function placeSetupDone(): Promise<void> {
+    return _setup_done;
+}
+
 /**
  * Initialise the PlaceOS API library
  */
@@ -205,6 +217,7 @@ export async function setupPlace(
         VERSION.hash,
     );
     const setup_promise = setup(config);
+    setup_promise.then(_markSetupDone, _markSetupDone);
     if (timeout_ms <= 0) return setup_promise;
     return new Promise<void>((resolve, reject) => {
         const timer = setTimeout(
