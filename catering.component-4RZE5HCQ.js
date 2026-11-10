@@ -20,7 +20,7 @@ import {
 } from "./chunk-Q3H3AIWF.js";
 import {
   CustomTooltipComponent
-} from "./chunk-J2YX5FNO.js";
+} from "./chunk-TESCSA72.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -45,7 +45,7 @@ import {
   orderLocation,
   requestSpacesForZone,
   subDays
-} from "./chunk-TYOQFOYP.js";
+} from "./chunk-OVZYBMNN.js";
 import {
   FORM_FIELD,
   FormField,
@@ -54,13 +54,13 @@ import {
 } from "./chunk-VD6276C2.js";
 import {
   TranslatePipe
-} from "./chunk-5GSN5WE2.js";
+} from "./chunk-GC5NRK5E.js";
 import {
   Clipboard,
   OrganisationService,
   PushNotificationService,
   toQueryString
-} from "./chunk-2YMKP7GM.js";
+} from "./chunk-HBCTLP7G.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -146,7 +146,7 @@ import {
   up,
   user_group_names,
   warnOrThrowProtectedError
-} from "./chunk-PVAOAPJ2.js";
+} from "./chunk-UCBJIZO6.js";
 import {
   DefaultValueAccessor,
   FormGroupDirective,
@@ -2446,6 +2446,7 @@ var UploadsService = class _UploadsService extends AsyncHandler {
     );
     this.upload_list = this._upload_list.asReadonly();
     this._uploads_setup = null;
+    this._uploads_use_api_key = false;
     this._token_refresh = null;
     if (localStorage) {
       this._upload_list.set(JSON.parse(localStorage.getItem("BACKOFFICE.uploads") || "[]"));
@@ -2515,23 +2516,29 @@ var UploadsService = class _UploadsService extends AsyncHandler {
     }
   }
   /**
-   * Set up the upload manager, once. Setting it up again ends the hash
-   * workers, which leaves any upload being hashed waiting forever. The
-   * credential is read on each request, so a refreshed token needs no
-   * new setup.
+   * Set up the upload manager, once for each auth mode. Setting it up
+   * again ends the hash workers, which leaves any upload being hashed
+   * waiting forever. The credential is read on each request, so a
+   * refreshed token needs no new setup. A change between API key and
+   * token auth does, as the manager picks the header at setup.
    */
   _initUploads() {
-    this._uploads_setup ||= this._setupUploads().catch((error) => {
+    const use_api_key = !!et();
+    if (use_api_key !== this._uploads_use_api_key) {
+      this._uploads_setup = null;
+      this._uploads_use_api_key = use_api_key;
+    }
+    this._uploads_setup ||= this._setupUploads(use_api_key).catch((error) => {
       this._uploads_setup = null;
       throw error;
     });
     return this._uploads_setup;
   }
-  async _setupUploads() {
+  async _setupUploads(use_api_key) {
     const { initUploads } = await loadCloudUploads();
     initUploads(__spreadProps(__spreadValues({
       auto_start: true
-    }, et() ? { api_key: () => et() } : { token: () => J() }), {
+    }, use_api_key ? { api_key: () => et() } : { token: () => J() }), {
       endpoint: "/api/engine/v2/uploads",
       worker_url: "assets/md5_worker.js",
       // Drop each upload from the manager once it completes. It keeps
@@ -22732,5 +22739,5 @@ var CateringComponent = class _CateringComponent {
 export {
   CateringComponent
 };
-//# debugId=ff8d7cef-c857-5930-85f2-e4ca969c6df0
-//# sourceMappingURL=catering.component-COYO5QNB.js.map
+//# debugId=3baeb5ce-e94d-5681-94d1-b918d014461f
+//# sourceMappingURL=catering.component-4RZE5HCQ.js.map

@@ -5,11 +5,11 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-TYOQFOYP.js";
+} from "./chunk-OVZYBMNN.js";
 import "./chunk-VD6276C2.js";
 import {
   TranslatePipe
-} from "./chunk-5GSN5WE2.js";
+} from "./chunk-GC5NRK5E.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -24,7 +24,7 @@ import {
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks
-} from "./chunk-2YMKP7GM.js";
+} from "./chunk-HBCTLP7G.js";
 import {
   AsyncHandler,
   Bp,
@@ -59,7 +59,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-PVAOAPJ2.js";
+} from "./chunk-UCBJIZO6.js";
 import "./chunk-S5QE6ZCJ.js";
 import {
   IconComponent
@@ -9943,11 +9943,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-LRRVWVT3.js").then((m) => m.ChatComponent)
+  import("./chat.component-M7O4THF7.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-CWEJT27V.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-YJ3HZVEO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10008,9 +10008,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-LRRVWVT3.js").then((m) => m.ChatComponent),
+    import("./chat.component-M7O4THF7.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-CWEJT27V.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-YJ3HZVEO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10050,7 +10050,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-COYO5QNB.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-4RZE5HCQ.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
