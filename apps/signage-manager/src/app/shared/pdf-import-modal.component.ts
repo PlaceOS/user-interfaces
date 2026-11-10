@@ -130,7 +130,9 @@ const BACKGROUND_COLOURS: Record<
                 <label for="pdf-import-name">
                     {{ 'SIGNAGE_MANAGER.PDF_IMPORT_NAME' | translate }}
                 </label>
-                <mat-form-field appearance="outline">
+                <!-- The example name can wrap, so the hint takes the height
+                     it needs rather than overlapping the next field -->
+                <mat-form-field appearance="outline" subscriptSizing="dynamic">
                     <input
                         matInput
                         id="pdf-import-name"
@@ -139,7 +141,7 @@ const BACKGROUND_COLOURS: Record<
                         [disabled]="importing()"
                         aria-describedby="pdf-import-name-hint"
                     />
-                    <mat-hint id="pdf-import-name-hint">
+                    <mat-hint id="pdf-import-name-hint" class="name-hint">
                         {{
                             'SIGNAGE_MANAGER.PDF_IMPORT_NAME_HINT'
                                 | translate: { example: example_name() }
@@ -526,6 +528,10 @@ const BACKGROUND_COLOURS: Record<
             .import-options {
                 width: 16rem;
                 overflow: auto;
+            }
+            /* Names without spaces still wrap within the sidebar */
+            .name-hint {
+                overflow-wrap: anywhere;
             }
             @media (min-width: 768px) {
                 .import-layout {
