@@ -1,0 +1,39 @@
+# Updates templates.demo.place.tech once per day.
+# Vercel deploys only the templates-demo branch (see vercel.json). This workflow
+# moves that branch to develop when develop changed since the last run.
+name: 'Templates Demo'
+
+on:
+    schedule:
+        - cron: '0 17 * * *' # daily at 17:00 UTC (3–4 am Sydney)
+    workflow_dispatch: # manual run: updates now if develop changed
+
+permissions:
+    contents: write
+
+concurrency:
+    group: templates-demo
+    cancel-in-progress: false
+
+jobs:
+    update_templates_demo:
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        steps:
+            - uses: actions/checkout@v6
+              with:
+                  ref: develop
+
+            - name: Move templates-demo to develop
+              shell: bash
+              run: |
+                  develop="$(git rev-parse HEAD)"
+                  current="$(git ls-remote origin refs/heads/templates-demo | cut -f1)"
+                  if [[ "${current}" == "${develop}" ]]; then
+                      echo "templates-demo is already at develop (${develop})."
+                      exit 0
+                  fi
+                  # The lease makes the push fail if templates-demo moved after the check.
+                  git push --force-with-lease="refs/heads/templates-demo:${current}" \
+                      origin "HEAD:refs/heads/templates-demo"
+                  echo "Moved templates-demo from ${current:-nothing} to ${develop}."
