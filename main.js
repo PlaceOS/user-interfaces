@@ -1,11 +1,11 @@
-import "./chunk-IB55RWEM.js";
+import "./chunk-7Q3TJBIV.js";
 import {
   AnnounceDirective
-} from "./chunk-PCZXCEZH.js";
+} from "./chunk-QNDZMD2F.js";
 import "./chunk-FD4Q55GA.js";
 import {
   TranslatePipe
-} from "./chunk-ZMTPS464.js";
+} from "./chunk-LFPKA45P.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -20,7 +20,7 @@ import {
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks
-} from "./chunk-JVV3FXYE.js";
+} from "./chunk-PVIHZ73R.js";
 import "./chunk-G4SULFFY.js";
 import {
   AsyncHandler,
@@ -56,7 +56,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-3OUVGTML.js";
+} from "./chunk-PNZ4UDID.js";
 import {
   IconComponent
 } from "./chunk-M3PVS74Y.js";
@@ -10333,7 +10333,7 @@ function mocksInit() {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-XNSEGJAT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-RE5VDAPQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10372,7 +10372,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-XNSEGJAT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-RE5VDAPQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10425,22 +10425,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-QTR55NFM.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-SD7DZXOS.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-HCAEI3ED.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-3ICR6QBL.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-E5CFACWT.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-6WYRYRQE.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-4CZZQWZY.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-LSYPWIUA.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
