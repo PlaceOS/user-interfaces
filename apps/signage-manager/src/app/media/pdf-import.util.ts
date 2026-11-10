@@ -30,6 +30,13 @@ export interface PdfPlacement extends PdfSize {
 }
 
 export const PDF_TRANSPARENT_BACKGROUND = 'transparent';
+
+/**
+ * Most pages a PDF can have to be imported. The modal keeps a preview of each
+ * page (about 50 KB of PNG, so about 10 MB at the limit), and each imported
+ * page becomes one row of the bulk upload.
+ */
+export const MAX_PDF_PAGES = 200;
 /** WebP quality, the same as other converted images */
 const WEBP_QUALITY = 0.92;
 

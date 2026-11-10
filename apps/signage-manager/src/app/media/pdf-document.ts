@@ -32,16 +32,29 @@ function assetUrl(path: string) {
 
 let pdfjs_module: Promise<typeof import('pdfjs-dist')> | undefined;
 
-/** pdf.js, loaded on first use as it is large and only the PDF import needs it */
+/**
+ * pdf.js, loaded on first use as it is large and only the PDF import needs it.
+ * A failed load is not kept, so the next PDF tries the download again.
+ */
 function loadPdfJs() {
-    pdfjs_module ??= import('pdfjs-dist').then((pdfjs) => {
-        pdfjs.GlobalWorkerOptions.workerSrc = assetUrl('pdf.worker.min.mjs');
-        return pdfjs;
-    });
+    pdfjs_module ??= import('pdfjs-dist').then(
+        (pdfjs) => {
+            pdfjs.GlobalWorkerOptions.workerSrc =
+                assetUrl('pdf.worker.min.mjs');
+            return pdfjs;
+        },
+        (error: unknown) => {
+            pdfjs_module = undefined;
+            throw error;
+        },
+    );
     return pdfjs_module;
 }
 
-/** Open a PDF file. Rejects with a `PdfOpenError` when it cannot be read. */
+/**
+ * Open a PDF file. Rejects with a `PdfOpenError` when the file cannot be read,
+ * and with the load error when pdf.js cannot load.
+ */
 export async function openPdfDocument(file: File): Promise<PdfDocumentHandle> {
     const pdfjs = await loadPdfJs();
     let loading_task: PDFDocumentLoadingTask | undefined;

@@ -24,6 +24,7 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
+import { MAX_PDF_PAGES } from '../../app/media/pdf-import.util';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import type { BulkMediaUploadModalData } from '../../app/shared/bulk-media-upload-modal.component';
@@ -1596,13 +1597,22 @@ describe('SignageMediaService', () => {
         });
 
         it.each([
-            ['password', 'deck.pdf is password protected.'],
-            ['invalid', 'Could not read deck.pdf.'],
+            [
+                'password',
+                { reason: 'password' },
+                'deck.pdf is password protected.',
+            ],
+            ['invalid', { reason: 'invalid' }, 'Could not read deck.pdf.'],
+            [
+                'pdf.js did not load',
+                new Error('Failed to fetch dynamically imported module'),
+                'Could not load the PDF reader for deck.pdf.',
+            ],
         ])(
             'names a PDF it cannot open (%s) and keeps the other files',
-            async (reason, message) => {
+            async (_name, error, message) => {
                 const service = createPdfService(
-                    vi.fn().mockRejectedValue({ reason }),
+                    vi.fn().mockRejectedValue(error),
                 );
                 const opened = stubDialogs([]);
 
@@ -1620,6 +1630,28 @@ describe('SignageMediaService', () => {
                 ).toEqual(['photo.png']);
             },
         );
+
+        it('closes a PDF with too many pages without opening it', async () => {
+            const pdf = { ...fakePdf(), page_count: MAX_PDF_PAGES + 1 };
+            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+            const opened = stubDialogs([]);
+
+            void service.previewFiles([pdfFile(), photo()]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+            expect(opened.pdf).toHaveLength(0);
+            expect(pdf.destroy).toHaveBeenCalledOnce();
+            expect(notify_open).toHaveBeenCalledWith(
+                expect.stringContaining(
+                    `deck.pdf has ${MAX_PDF_PAGES + 1} pages.`,
+                ),
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            expect(opened.bulk.items.map((item) => item.file?.name)).toEqual([
+                'photo.png',
+            ]);
+        });
 
         it('opens no upload when every PDF is cancelled', async () => {
             const service = createPdfService(
