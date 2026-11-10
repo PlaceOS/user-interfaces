@@ -2225,6 +2225,7 @@
         "DISPLAY_NO_ZONES": "此显示屏不在任何区域中。",
         "DISPLAY_SELECT_DETAILS": "选择显示屏以查看其详情。",
         "DRAG_MEDIA_HINT": "将媒体拖到播放列表中以添加",
+        "DRAG_MEDIA_OR_FILES_HINT": "将媒体或文件拖到播放列表中以添加",
         "DURATION_DAY": "{{ count }} 天",
         "DURATION_DAY_1": "{{ count }} 天",
         "DURATION_HOUR": "{{ count }} 小时",
