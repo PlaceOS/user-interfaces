@@ -403,8 +403,8 @@ export class CalendarEvent {
             (data.creator || _default_user.email)?.toLowerCase() || '';
         this.host = (
             data.host ||
-            this.creator ||
             (data as any).host_email ||
+            this.creator ||
             _default_user.email ||
             ''
         ).toLowerCase();

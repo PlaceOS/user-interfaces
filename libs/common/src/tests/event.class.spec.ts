@@ -4,7 +4,9 @@ import {
     CalendarEvent,
     eventStatus,
     parseRecurrence,
+    setDefaultCreator,
 } from '../lib/types/event.class';
+import { EMPTY_USER, User } from '../lib/types/user.class';
 
 const HOUR = 60 * 60;
 
@@ -96,6 +98,55 @@ describe('parseRecurrence', () => {
 });
 
 describe('CalendarEvent', () => {
+    describe('host lookup', () => {
+        beforeEach(() => {
+            setDefaultCreator(new User({ email: 'concierge@example.com' }));
+        });
+
+        afterEach(() => setDefaultCreator(EMPTY_USER));
+
+        it('should use the linked event host instead of the logged-in user', () => {
+            const linked_event = {
+                event_start: unixNow(),
+                host_email: 'Booking.Host@example.com',
+            };
+            const event = new CalendarEvent(linked_event);
+
+            expect(event.host).toBe('booking.host@example.com');
+        });
+
+        it('should prefer the linked event host to its creator', () => {
+            const linked_event = {
+                event_start: unixNow(),
+                host_email: 'host@example.com',
+                creator: 'booked.by@example.com',
+            };
+
+            expect(new CalendarEvent(linked_event).host).toBe(
+                'host@example.com',
+            );
+        });
+
+        it('should preserve an explicit host', () => {
+            const linked_event = {
+                host: 'override@example.com',
+                host_email: 'host@example.com',
+                creator: 'booked.by@example.com',
+            };
+
+            expect(new CalendarEvent(linked_event).host).toBe(
+                'override@example.com',
+            );
+        });
+
+        it('should fall back to the creator or logged-in user without a host', () => {
+            expect(
+                new CalendarEvent({ creator: 'booked.by@example.com' }).host,
+            ).toBe('booked.by@example.com');
+            expect(new CalendarEvent().host).toBe('concierge@example.com');
+        });
+    });
+
     it('should default to a 30 minute meeting starting soon', () => {
         const event = new CalendarEvent();
         expect(event.duration).toBe(30);
