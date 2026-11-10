@@ -195,7 +195,9 @@ export interface TimePeriod extends Record<string, any> {
     breakdown_time?: number;
 }
 
-type CalendarEventExtended = CalendarEvent & EventExtensionData;
+/** Constructor input. `host_email` comes from a booking's `linked_event`. */
+type CalendarEventExtended = CalendarEvent &
+    EventExtensionData & { host_email?: string };
 
 type Visibility = 'normal' | 'personal' | 'public' | 'private' | 'confidential';
 
@@ -403,8 +405,8 @@ export class CalendarEvent {
             (data.creator || _default_user.email)?.toLowerCase() || '';
         this.host = (
             data.host ||
+            data.host_email ||
             this.creator ||
-            (data as any).host_email ||
             _default_user.email ||
             ''
         ).toLowerCase();
