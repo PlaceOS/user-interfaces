@@ -1,10 +1,10 @@
 import {
   AnnounceDirective
-} from "./chunk-CDMZN2KT.js";
+} from "./chunk-ZFWQD5SM.js";
 import "./chunk-ANJLJUSR.js";
 import {
   TranslatePipe
-} from "./chunk-7FKGYTW6.js";
+} from "./chunk-ZGYUTLNS.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -19,7 +19,7 @@ import {
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks
-} from "./chunk-HLWWG36N.js";
+} from "./chunk-2UGG36RH.js";
 import {
   AsyncHandler,
   Bp,
@@ -54,7 +54,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-65MXIXDQ.js";
+} from "./chunk-KVIV26E5.js";
 import "./chunk-7XSGCOAX.js";
 import {
   IconComponent
@@ -10254,11 +10254,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-7PQQ3MQV.js").then((m) => m.ChatComponent)
+  import("./chat.component-6SIWHOC4.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-GMRRCWSQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-YGDRYKZL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10318,9 +10318,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-7PQQ3MQV.js").then((m) => m.ChatComponent),
+    import("./chat.component-6SIWHOC4.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-GMRRCWSQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-YGDRYKZL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10362,12 +10362,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-UPUO6KWB.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-RTYPJS6W.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-FU65QKN2.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-IGAH4WO5.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
