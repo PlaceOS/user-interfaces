@@ -2224,6 +2224,7 @@
         "DISPLAY_NO_ZONES": "Este ecrã não está em nenhuma zona.",
         "DISPLAY_SELECT_DETAILS": "Selecione um ecrã para ver os detalhes.",
         "DRAG_MEDIA_HINT": "Arraste multimédia para uma lista de reprodução para adicionar",
+        "DRAG_MEDIA_OR_FILES_HINT": "Arraste multimédia ou ficheiros para uma lista de reprodução para adicionar",
         "DURATION_DAY": "{{ count }} dias",
         "DURATION_DAY_1": "{{ count }} dia",
         "DURATION_HOUR": "{{ count }} horas",
