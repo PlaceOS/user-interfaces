@@ -30,6 +30,13 @@ export interface PdfPlacement extends PdfSize {
 }
 
 export const PDF_TRANSPARENT_BACKGROUND = 'transparent';
+
+/**
+ * Most pages a PDF can have to be imported. The modal keeps a preview of each
+ * page (about 50 KB of PNG, so about 10 MB at the limit), and each imported
+ * page becomes one row of the bulk upload.
+ */
+export const MAX_PDF_PAGES = 200;
 /** WebP quality, the same as other converted images */
 const WEBP_QUALITY = 0.92;
 
@@ -241,12 +248,13 @@ export async function renderPdfPageImage(
     file_name: string,
     signal?: AbortSignal,
 ): Promise<PdfPageImage> {
-    const page_size = rotatedSize(
-        await document_handle.pageSize(page_number),
-        options.rotation,
+    const page_size = await document_handle.pageSize(page_number);
+    // The same size the import modal sends as the media metadata
+    const output = pdfPageImageSize(page_size, options);
+    const placement = pdfPagePlacement(
+        rotatedSize(page_size, options.rotation),
+        output,
     );
-    const output = pdfOutputSize(page_size, options.fit, options.resolution);
-    const placement = pdfPagePlacement(page_size, output);
     const layer = await document_handle.renderLayer(
         page_number,
         options.rotation,

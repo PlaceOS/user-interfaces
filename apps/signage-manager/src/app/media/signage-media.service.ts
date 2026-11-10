@@ -186,10 +186,11 @@ interface StoredMediaUpload {
 
 interface SignageUploadOptions {
     on_progress?: (progress: number) => void;
-    /** Upload from an earlier attempt, so a retry only creates the record */
-    stored?: StoredMediaUpload;
-    /** Called when the file and thumbnail are stored */
+    /** Called when the file and thumbnail are stored, so a retry of the
+     * record can reuse them */
     on_stored?: (stored: StoredMediaUpload) => void;
+    /** Whether creating the record reloads the tag counts. Default true. */
+    reload_tags?: boolean;
     /** Thumbnail already rendering for the file, such as for its edit modal */
     thumbnail?: Promise<string | null>;
 }
@@ -221,10 +222,6 @@ export class SignageMediaService {
         import('./pdf-document').then(({ openPdfDocument }) =>
             openPdfDocument(file),
         );
-    /** Set while the bulk upload modal is open. Tag counts reload once it
-     * closes, rather than once for each tagged item. */
-    private _bulk_upload_open = false;
-    private _bulk_tags_changed = false;
 
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
@@ -352,9 +349,13 @@ export class SignageMediaService {
 
     /**
      * Create a media record and add it to the loaded list. Empty fields are
-     * left out, so the backend applies its defaults.
+     * left out, so the backend applies its defaults. With `reload_tags`
+     * false, the caller reloads the tag counts.
      */
-    private async _createMedia(fields: Partial<SignageMedia>) {
+    private async _createMedia(
+        fields: Partial<SignageMedia>,
+        reload_tags = true,
+    ) {
         const data = { ...new SignageMedia(fields) };
         for (const key in data) {
             if (!data[key]) delete data[key];
@@ -363,7 +364,7 @@ export class SignageMediaService {
         const result = await retryMediaRequest(() =>
             addSignageMedia(data, query_params),
         );
-        this._addMediaToList(result);
+        this._addMediaToList(result, reload_tags);
         return result;
     }
 
@@ -372,7 +373,7 @@ export class SignageMediaService {
      * loses the item whenever the backend index lags the write, which reads as
      * a failed upload.
      */
-    private _addMediaToList(media: SignageMedia) {
+    private _addMediaToList(media: SignageMedia, reload_tags = true) {
         if (!media?.id) return;
         const item = decodeEntityNames(media);
         if (!this._media_list.items().some(({ id }) => id === item.id)) {
@@ -383,11 +384,8 @@ export class SignageMediaService {
                 (a, b) => b.created_at - a.created_at,
             ),
         );
-        // Only an item with tags changes the tag counts. A bulk upload of
-        // PDF pages tags every page, so it reloads them once when it ends.
-        if (!item.tags?.length) return;
-        if (this._bulk_upload_open) this._bulk_tags_changed = true;
-        else this._media_tags.reload();
+        // Only an item with tags changes the tag counts
+        if (reload_tags && item.tags?.length) this._media_tags.reload();
     }
 
     /** Take deleted media out of the loaded list and its total, in place, as
@@ -609,18 +607,34 @@ export class SignageMediaService {
             items,
             auto_start,
             onUpload: async (item, on_progress) => {
-                const media = await this._addMedia(
-                    // A file made at upload time is let go once it is stored
-                    await loadBulkItemFile(item),
-                    new SignageMedia({ name: item.name, tags: item.tags }),
-                    item.metadata,
-                    undefined,
-                    {
-                        on_progress,
-                        stored: stored.get(item),
-                        on_stored: (upload) => stored.set(item, upload),
-                    },
-                );
+                const media_item = new SignageMedia({
+                    name: bulkItemName(item),
+                    tags: item.tags,
+                });
+                const upload = stored.get(item);
+                const media = upload
+                    ? // A retry after the file is stored only creates the
+                      // record, so a PDF page does not render again
+                      await this._createStoredMedia(
+                          media_item,
+                          upload,
+                          item.media_type,
+                          item.metadata.is_landscape,
+                          false,
+                      )
+                    : await this._addMedia(
+                          // A file made at upload time is let go once it is
+                          // stored
+                          await loadBulkItemFile(item),
+                          media_item,
+                          item.metadata,
+                          undefined,
+                          {
+                              on_progress,
+                              on_stored: (result) => stored.set(item, result),
+                              reload_tags: false,
+                          },
+                      );
                 created.set(item, media);
                 return media;
             },
@@ -631,15 +645,12 @@ export class SignageMediaService {
             data,
             panelClass: 'mobile-fullscreen',
         });
-        this._bulk_upload_open = true;
-        try {
-            await dialogClosed(ref);
-        } finally {
-            this._bulk_upload_open = false;
-            if (this._bulk_tags_changed) this._media_tags.reload();
-            this._bulk_tags_changed = false;
-        }
-        return items.flatMap((item) => created.get(item) ?? []);
+        await dialogClosed(ref);
+        const media = items.flatMap((item) => created.get(item) ?? []);
+        // A bulk upload of PDF pages tags every page, so the tag counts
+        // reload once when it closes, not once for each page
+        if (media.some((item) => item.tags?.length)) this._media_tags.reload();
+        return media;
     }
 
     public async addMediaFromLink(url: string) {
@@ -980,21 +991,39 @@ export class SignageMediaService {
         }
         const { file: upload_file, media_type, metadata } = prepared;
         const { is_landscape } = metadata;
-        let stored = upload_options?.stored;
-        if (!stored) {
-            stored = await this._storeMediaUpload(upload_file, upload_options);
-            upload_options?.on_stored?.(stored);
-        }
-        const { media_id, thumbnail_id } = stored;
-        return this._createMedia({
-            ...media_item,
-            name: media_item.name || upload_file.name,
-            media_id,
-            media_uri: absoluteUploadUrl(media_id),
+        const stored = await this._storeMediaUpload(
+            upload_file,
+            upload_options,
+        );
+        upload_options?.on_stored?.(stored);
+        return this._createStoredMedia(
+            { ...media_item, name: media_item.name || upload_file.name },
+            stored,
             media_type,
-            orientation: is_landscape ? 'landscape' : 'portrait',
-            thumbnail_id,
-        });
+            is_landscape,
+            upload_options?.reload_tags,
+        );
+    }
+
+    /** Create the media record of a file and thumbnail that are stored */
+    private _createStoredMedia(
+        media_item: Partial<SignageMedia>,
+        { media_id, thumbnail_id }: StoredMediaUpload,
+        media_type: SignageMedia['media_type'],
+        is_landscape: boolean,
+        reload_tags?: boolean,
+    ) {
+        return this._createMedia(
+            {
+                ...media_item,
+                media_id,
+                media_uri: absoluteUploadUrl(media_id),
+                media_type,
+                orientation: is_landscape ? 'landscape' : 'portrait',
+                thumbnail_id,
+            },
+            reload_tags,
+        );
     }
 
     /** Upload a media file and its generated thumbnail. */

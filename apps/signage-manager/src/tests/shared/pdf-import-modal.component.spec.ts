@@ -1,5 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import type { MatSnackBar } from '@angular/material/snack-bar';
 import { setNotifyOutlet } from '@placeos/common';
 import type {
     PdfDocumentHandle,
@@ -41,7 +42,7 @@ const render_page = vi.fn<typeof renderPdfPageImage>();
 const object_urls = new Map<string, Blob>();
 
 describe('PdfImportModalComponent', () => {
-    const dialog_ref = { close: vi.fn() };
+    const dialog_ref = { close: vi.fn(), disableClose: false };
     let data: PdfImportModalData;
 
     /** Contents of the blob behind a preview URL */
@@ -92,7 +93,7 @@ describe('PdfImportModalComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         object_urls.clear();
-        setNotifyOutlet({ open: notify_open } as any, true);
+        setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
         render_page.mockImplementation(
             async (_document, page_number, options, name) => ({
                 file: new File(
@@ -316,6 +317,31 @@ describe('PdfImportModalComponent', () => {
         );
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(component.importing()).toBe(false);
+        expect(dialog_ref.disableClose).toBe(false);
+        // Previews stop for the import, and continue after it fails
+        await vi.waitFor(() =>
+            expect(component.pages().every((page) => page.preview)).toBe(
+                true,
+            ),
+        );
+    });
+
+    it('cannot close while it reads the page sizes', async () => {
+        const document_handle = fakeDocument(1);
+        let resolve_size: (size: { width: number; height: number }) => void =
+            () => {};
+        vi.mocked(document_handle.pageSize).mockReturnValueOnce(
+            new Promise((resolve) => (resolve_size = resolve)),
+        );
+        const component = await createComponent({ document: document_handle });
+
+        const done = component.importPages();
+        expect(dialog_ref.disableClose).toBe(true);
+
+        resolve_size({ width: 960, height: 540 });
+        await done;
+        expect(dialog_ref.close).toHaveBeenCalledOnce();
+        expect(dialog_ref.disableClose).toBe(false);
     });
 
     it('does not import without a name or any page', async () => {

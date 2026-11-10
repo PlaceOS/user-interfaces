@@ -38,6 +38,7 @@ import type { BulkMediaUploadItem } from './bulk-media-upload.util';
 
 export interface PdfImportModalData {
     file_name: string;
+    /** Has at most `MAX_PDF_PAGES` pages, as the modal keeps a preview of each */
     document: PdfDocumentHandle;
     /** Whether this browser can write WebP images */
     webp_supported: boolean;
@@ -500,6 +501,7 @@ const BACKGROUND_COLOURS: Record<
                 type="button"
                 class="inverse w-32"
                 mat-dialog-close
+                [disabled]="importing()"
             >
                 {{ 'COMMON.CANCEL' | translate }}
             </button>
@@ -762,53 +764,63 @@ export class PdfImportModalComponent implements OnInit {
      * Close with the selected pages, ready for the bulk upload. Pages are not
      * rendered here: each one renders at full size just before it uploads,
      * so a long PDF never holds more than one page image in memory.
+     *
+     * The modal cannot close while page sizes are read, as closing destroys
+     * the document they are read from.
      */
     public async importPages() {
         const base_name = this.base_name();
         const selected = this.pages().filter((page) => page.selected);
         if (this.importing() || !selected.length || !base_name) return;
         this.importing.set(true);
+        const disable_close = this._dialog_ref.disableClose;
+        this._dialog_ref.disableClose = true;
         try {
             const document_handle = this._data.document;
             const render_page = this._renderPage;
-            const items = await Promise.all(
-                selected.map(async (page): Promise<BulkMediaUploadItem> => {
-                    const options = this._renderOptions(page);
-                    const name = pdfPageName(base_name, page.number);
-                    const { width, height } = pdfPageImageSize(
-                        await document_handle.pageSize(page.number),
-                        options,
-                    );
-                    return {
-                        media_type: 'image',
-                        name,
-                        tags: [base_name],
-                        metadata: {
-                            width,
-                            height,
-                            is_landscape: width > height,
-                            duration: 0,
-                        },
-                        loadFile: async () =>
-                            (
-                                await render_page(
-                                    document_handle,
-                                    page.number,
-                                    options,
-                                    name,
-                                )
-                            ).file,
-                    };
-                }),
-            );
+            const items: BulkMediaUploadItem[] = [];
+            // One page at a time, so a long PDF does not queue a request
+            // for every page on the pdf.js worker at once
+            for (const page of selected) {
+                const options = this._renderOptions(page);
+                const name = pdfPageName(base_name, page.number);
+                const { width, height } = pdfPageImageSize(
+                    await document_handle.pageSize(page.number),
+                    options,
+                );
+                items.push({
+                    media_type: 'image',
+                    name,
+                    tags: [base_name],
+                    metadata: {
+                        width,
+                        height,
+                        is_landscape: width > height,
+                        duration: 0,
+                    },
+                    loadFile: async () =>
+                        (
+                            await render_page(
+                                document_handle,
+                                page.number,
+                                options,
+                                name,
+                            )
+                        ).file,
+                });
+            }
             this._dialog_ref.close(items);
         } catch {
+            this.importing.set(false);
+            // Previews stop while importing, so continue the ones not done
+            void this.renderPreviews();
             notifyError(
                 i18n('SIGNAGE_MANAGER.PDF_IMPORT_ERR_INVALID', {
                     name: this.file_name,
                 }),
             );
         } finally {
+            this._dialog_ref.disableClose = disable_close;
             this.importing.set(false);
         }
     }

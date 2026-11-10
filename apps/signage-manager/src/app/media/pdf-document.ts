@@ -32,16 +32,48 @@ function assetUrl(path: string) {
 
 let pdfjs_module: Promise<typeof import('pdfjs-dist')> | undefined;
 
-/** pdf.js, loaded on first use as it is large and only the PDF import needs it */
+/**
+ * pdf.js and its worker, loaded on first use as they are large and only the
+ * PDF import needs them. A failed load is not kept, so the next PDF tries the
+ * download again.
+ *
+ * The worker is downloaded here, before pdf.js uses it. When pdf.js cannot
+ * load the worker itself, it keeps that failure until a page reload.
+ */
 function loadPdfJs() {
-    pdfjs_module ??= import('pdfjs-dist').then((pdfjs) => {
-        pdfjs.GlobalWorkerOptions.workerSrc = assetUrl('pdf.worker.min.mjs');
-        return pdfjs;
-    });
+    pdfjs_module ??= Promise.all([
+        import('pdfjs-dist'),
+        fetchWorker(assetUrl('pdf.worker.min.mjs')),
+    ]).then(
+        ([pdfjs, worker_src]) => {
+            pdfjs.GlobalWorkerOptions.workerSrc = worker_src;
+            return pdfjs;
+        },
+        (error: unknown) => {
+            pdfjs_module = undefined;
+            throw error;
+        },
+    );
     return pdfjs_module;
 }
 
-/** Open a PDF file. Rejects with a `PdfOpenError` when it cannot be read. */
+/** Download the worker into the browser cache, so pdf.js can start it */
+async function fetchWorker(url: string) {
+    const response = await fetch(url);
+    if (!response.ok) {
+        throw new Error(`PDF worker did not load: ${response.status}`);
+    }
+    await response.arrayBuffer();
+    return url;
+}
+
+/** pdf.js message when it cannot start its worker */
+const WORKER_FAILED = 'Setting up fake worker failed';
+
+/**
+ * Open a PDF file. Rejects with a `PdfOpenError` when the file cannot be read,
+ * and with the load error when pdf.js or its worker cannot load.
+ */
 export async function openPdfDocument(file: File): Promise<PdfDocumentHandle> {
     const pdfjs = await loadPdfJs();
     let loading_task: PDFDocumentLoadingTask | undefined;
@@ -59,6 +91,10 @@ export async function openPdfDocument(file: File): Promise<PdfDocumentHandle> {
         document_proxy = await loading_task.promise;
     } catch (error) {
         await loading_task?.destroy().catch(() => undefined);
+        // A worker that did not start is a load error, not a damaged file
+        if ((error as Error | null)?.message?.startsWith(WORKER_FAILED)) {
+            throw error;
+        }
         const name = (error as { name?: string } | null)?.name;
         throw new PdfOpenError(
             name === 'PasswordException' ? 'password' : 'invalid',

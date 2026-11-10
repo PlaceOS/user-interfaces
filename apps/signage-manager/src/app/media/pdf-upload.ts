@@ -7,7 +7,12 @@ import {
     type PdfImportModalResult,
 } from '../shared/pdf-import-modal.component';
 import { dialogClosed } from '../signage-service.util';
-import { canEncodeWebp, type PdfDocumentHandle } from './pdf-import.util';
+import type { PdfOpenErrorReason } from './pdf-document';
+import {
+    canEncodeWebp,
+    MAX_PDF_PAGES,
+    type PdfDocumentHandle,
+} from './pdf-import.util';
 
 export interface PdfPageImport {
     /** Pages to upload. Each renders when it uploads. */
@@ -31,28 +36,47 @@ export async function importPdfPages(
 ): Promise<PdfPageImport> {
     const items: BulkMediaUploadItem[] = [];
     const documents: PdfDocumentHandle[] = [];
-    for (const [index, file] of files.entries()) {
-        const position =
-            files.length > 1
-                ? { current: index + 1, total: files.length }
-                : undefined;
-        const result = await importPdf(dialog, file, position, openDocument);
-        if (!result) continue;
-        items.push(...result.items);
-        documents.push(result.document);
-    }
-    return {
-        items,
-        close: async () => {
-            await Promise.all(
-                documents.map((item) => item.destroy().catch(() => undefined)),
-            );
-        },
+    const close = async () => {
+        await Promise.all(
+            documents.map((item) => item.destroy().catch(() => undefined)),
+        );
     };
+    try {
+        for (const [index, file] of files.entries()) {
+            const position =
+                files.length > 1
+                    ? { current: index + 1, total: files.length }
+                    : undefined;
+            const result = await importPdf(
+                dialog,
+                file,
+                position,
+                openDocument,
+            );
+            if (!result) continue;
+            items.push(...result.items);
+            documents.push(result.document);
+        }
+    } catch (error) {
+        // No caller gets `close` then, so close the PDFs already imported
+        await close();
+        throw error;
+    }
+    return { items, close };
+}
+
+/** Message for a PDF that did not open, by `PdfOpenError` reason. Any other
+ * error means pdf.js did not load, so the file itself can be valid. */
+function openErrorKey(error: unknown) {
+    const reason = (error as { reason?: PdfOpenErrorReason } | null)?.reason;
+    if (reason === 'password') return 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_PASSWORD';
+    if (reason === 'invalid') return 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_INVALID';
+    return 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_LOAD';
 }
 
 /** Pages picked from one PDF, and the open PDF they render from. Undefined
- * when it cannot be read or the user cancels, with the PDF closed. */
+ * when it cannot be read, has too many pages or the user cancels, with the
+ * PDF closed. */
 async function importPdf(
     dialog: MatDialog,
     file: File,
@@ -63,15 +87,18 @@ async function importPdf(
     try {
         pdf_document = await openDocument(file);
     } catch (error) {
-        const reason = (error as { reason?: string } | null)?.reason;
+        notifyError(i18n(openErrorKey(error), { name: file.name }));
+        return undefined;
+    }
+    if (pdf_document.page_count > MAX_PDF_PAGES) {
         notifyError(
-            i18n(
-                reason === 'password'
-                    ? 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_PASSWORD'
-                    : 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_INVALID',
-                { name: file.name },
-            ),
+            i18n('SIGNAGE_MANAGER.PDF_IMPORT_ERR_TOO_MANY_PAGES', {
+                name: file.name,
+                count: pdf_document.page_count,
+                max: MAX_PDF_PAGES,
+            }),
         );
+        await pdf_document.destroy().catch(() => undefined);
         return undefined;
     }
     let items: PdfImportModalResult;
