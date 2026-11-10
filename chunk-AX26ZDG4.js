@@ -1,0 +1,10310 @@
+import {
+  $h,
+  AssetRequest,
+  AsyncHandler,
+  Building,
+  BuildingLevel,
+  CateringItem,
+  Ce,
+  Cn,
+  Et,
+  GoogleAnalyticsService,
+  HotkeysService,
+  J,
+  Jp,
+  LocaleService,
+  MINUTES,
+  Mt,
+  Organisation,
+  Region,
+  SECONDS,
+  SettingsService,
+  Si,
+  Space,
+  Un,
+  V,
+  _c,
+  add,
+  addDays,
+  addHours,
+  addMinutes,
+  addMonths,
+  addWeeks,
+  addYears,
+  bindNativeAuthRedirects,
+  capitalizeFirstLetter,
+  ce,
+  checkUserGroupChanges,
+  clearNativeApiKey,
+  clearNativeDomain,
+  clearNativePkceVerifier,
+  closeNativeBrowser,
+  consumeNativeAuthError,
+  consumeNativeAuthRedirect,
+  createNativeAuthUrl,
+  currentUser,
+  current_user,
+  differenceInCalendarDays,
+  differenceInMinutes,
+  en,
+  endOfDay,
+  endOfDayInTimezone,
+  eo,
+  et,
+  firstTruthyValueFrom,
+  format,
+  getDefaultOptions,
+  getIntuneAccount,
+  getIntuneToken,
+  getNativeApiKey,
+  getNativeDomain,
+  getUnixTime,
+  gs,
+  hideNativeStatusBar,
+  initSentryFromSettings,
+  isAfter,
+  isBefore,
+  isNativeApp,
+  isPublicMode,
+  isSameDay,
+  jt,
+  ki,
+  lazySnackbar,
+  li,
+  log,
+  lookupNativeDomainByEmail,
+  markNativeAuthRedirectConsumed,
+  mockModeRequested,
+  normalizeDates,
+  notifyError,
+  notifySuccess,
+  oo,
+  openNativeBrowser,
+  randomString,
+  removeEmptyFields,
+  restoreNativePkceVerifier,
+  ro,
+  roundToNearestMinutes,
+  scheduleNativeRestart,
+  scoped_log,
+  setAppName,
+  setInternalUserDomain,
+  setNativeAuthError,
+  setNativeDomain,
+  setNativeEmail,
+  setNotifyOutlet,
+  setTranslationService,
+  setupPlace,
+  so,
+  startOfDayInTimezone,
+  syncNativeManagedConfig,
+  toDate,
+  unique,
+  v,
+  vc,
+  wi,
+  withTimeout
+} from "./chunk-4JZMSBTZ.js";
+import {
+  ActivatedRoute,
+  NavigationEnd,
+  Router,
+  TitleStrategy
+} from "./chunk-IR32ILQ7.js";
+import {
+  ApplicationRef,
+  ChangeDetectorRef,
+  DOCUMENT,
+  DestroyRef,
+  Directive,
+  ElementRef,
+  ErrorHandler,
+  EventEmitter,
+  Host,
+  Inject,
+  Injectable,
+  InjectionToken,
+  Injector,
+  Input,
+  Location,
+  NEVER,
+  NgModule,
+  NgZone,
+  Observable,
+  Optional,
+  Output,
+  Renderer2,
+  RuntimeError,
+  Self,
+  Service,
+  SkipSelf,
+  Subject,
+  Subscription,
+  Title,
+  Version,
+  afterNextRender,
+  booleanAttribute,
+  computed,
+  effect,
+  filter,
+  first,
+  forkJoin,
+  formatRuntimeError,
+  forwardRef,
+  from,
+  getDOM,
+  inject,
+  isPromise,
+  isSubscribable,
+  makeEnvironmentProviders,
+  map,
+  provideAppInitializer,
+  registerLocaleData,
+  setClassMetadata,
+  signal,
+  switchMap,
+  take,
+  untracked,
+  ɵɵControlFeature,
+  ɵɵInheritDefinitionFeature,
+  ɵɵNgOnChangesFeature,
+  ɵɵProvidersFeature,
+  ɵɵattribute,
+  ɵɵclassProp,
+  ɵɵdefineDirective,
+  ɵɵdefineInjectable,
+  ɵɵdefineInjector,
+  ɵɵdefineNgModule,
+  ɵɵdefineService,
+  ɵɵdirectiveInject,
+  ɵɵgetInheritedFactory,
+  ɵɵinject,
+  ɵɵlistener
+} from "./chunk-AQIWUFR7.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
+
+// node_modules/@angular/cdk/fesm2022/clipboard.mjs
+var PendingCopy = class {
+  _document;
+  _textarea;
+  constructor(text, _document) {
+    this._document = _document;
+    const textarea = this._textarea = this._document.createElement("textarea");
+    const styles = textarea.style;
+    styles.position = "fixed";
+    styles.top = styles.opacity = "0";
+    styles.left = "-999em";
+    textarea.setAttribute("aria-hidden", "true");
+    textarea.value = text;
+    textarea.readOnly = true;
+    (this._document.fullscreenElement || this._document.body).appendChild(textarea);
+  }
+  copy() {
+    const textarea = this._textarea;
+    let successful = false;
+    try {
+      if (textarea) {
+        const currentFocus = this._document.activeElement;
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        successful = this._document.execCommand("copy");
+        if (currentFocus) {
+          currentFocus.focus();
+        }
+      }
+    } catch {
+    }
+    return successful;
+  }
+  destroy() {
+    const textarea = this._textarea;
+    if (textarea) {
+      textarea.remove();
+      this._textarea = void 0;
+    }
+  }
+};
+var Clipboard = class _Clipboard {
+  _document = inject(DOCUMENT);
+  copy(text) {
+    const pendingCopy = this.beginCopy(text);
+    const successful = pendingCopy.copy();
+    pendingCopy.destroy();
+    return successful;
+  }
+  beginCopy(text) {
+    return new PendingCopy(text, this._document);
+  }
+  static \u0275fac = function Clipboard_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _Clipboard)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _Clipboard,
+    factory: _Clipboard.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(Clipboard, [{
+    type: Service
+  }], null, null);
+})();
+var CDK_COPY_TO_CLIPBOARD_CONFIG = new InjectionToken("CDK_COPY_TO_CLIPBOARD_CONFIG");
+var CdkCopyToClipboard = class _CdkCopyToClipboard {
+  _clipboard = inject(Clipboard);
+  _ngZone = inject(NgZone);
+  text = "";
+  attempts = 1;
+  copied = new EventEmitter();
+  _pending = /* @__PURE__ */ new Set();
+  _destroyed = false;
+  _currentTimeout;
+  constructor() {
+    const config = inject(CDK_COPY_TO_CLIPBOARD_CONFIG, {
+      optional: true
+    });
+    if (config && config.attempts != null) {
+      this.attempts = config.attempts;
+    }
+  }
+  copy(attempts = this.attempts) {
+    attempts = Math.min(attempts, 50);
+    if (attempts > 1) {
+      let remainingAttempts = attempts;
+      const pending = this._clipboard.beginCopy(this.text);
+      this._pending.add(pending);
+      const attempt = () => {
+        const successful = pending.copy();
+        if (!successful && --remainingAttempts && !this._destroyed) {
+          this._currentTimeout = this._ngZone.runOutsideAngular(() => setTimeout(attempt, 1));
+        } else {
+          this._currentTimeout = null;
+          this._pending.delete(pending);
+          pending.destroy();
+          this.copied.emit(successful);
+        }
+      };
+      attempt();
+    } else {
+      this.copied.emit(this._clipboard.copy(this.text));
+    }
+  }
+  ngOnDestroy() {
+    if (this._currentTimeout) {
+      clearTimeout(this._currentTimeout);
+    }
+    this._pending.forEach((copy) => copy.destroy());
+    this._pending.clear();
+    this._destroyed = true;
+  }
+  static \u0275fac = function CdkCopyToClipboard_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _CdkCopyToClipboard)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _CdkCopyToClipboard,
+    selectors: [["", "cdkCopyToClipboard", ""]],
+    hostBindings: function CdkCopyToClipboard_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("click", function CdkCopyToClipboard_click_HostBindingHandler() {
+          return ctx.copy();
+        });
+      }
+    },
+    inputs: {
+      text: [0, "cdkCopyToClipboard", "text"],
+      attempts: [0, "cdkCopyToClipboardAttempts", "attempts"]
+    },
+    outputs: {
+      copied: "cdkCopyToClipboardCopied"
+    }
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CdkCopyToClipboard, [{
+    type: Directive,
+    args: [{
+      selector: "[cdkCopyToClipboard]",
+      host: {
+        "(click)": "copy()"
+      }
+    }]
+  }], () => [], {
+    text: [{
+      type: Input,
+      args: ["cdkCopyToClipboard"]
+    }],
+    attempts: [{
+      type: Input,
+      args: ["cdkCopyToClipboardAttempts"]
+    }],
+    copied: [{
+      type: Output,
+      args: ["cdkCopyToClipboardCopied"]
+    }]
+  });
+})();
+var ClipboardModule = class _ClipboardModule {
+  static \u0275fac = function ClipboardModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ClipboardModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _ClipboardModule,
+    imports: [CdkCopyToClipboard],
+    exports: [CdkCopyToClipboard]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ClipboardModule, [{
+    type: NgModule,
+    args: [{
+      imports: [CdkCopyToClipboard],
+      exports: [CdkCopyToClipboard]
+    }]
+  }], null, null);
+})();
+
+// node_modules/date-fns/differenceInCalendarMonths.js
+function differenceInCalendarMonths(laterDate, earlierDate, options) {
+  const [laterDate_, earlierDate_] = normalizeDates(
+    options?.in,
+    laterDate,
+    earlierDate
+  );
+  const yearsDiff = laterDate_.getFullYear() - earlierDate_.getFullYear();
+  const monthsDiff = laterDate_.getMonth() - earlierDate_.getMonth();
+  return yearsDiff * 12 + monthsDiff;
+}
+
+// node_modules/date-fns/endOfMonth.js
+function endOfMonth(date, options) {
+  const _date = toDate(date, options?.in);
+  const month = _date.getMonth();
+  _date.setFullYear(_date.getFullYear(), month + 1, 0);
+  _date.setHours(23, 59, 59, 999);
+  return _date;
+}
+
+// node_modules/date-fns/endOfWeek.js
+function endOfWeek(date, options) {
+  const defaultOptions = getDefaultOptions();
+  const weekStartsOn = options?.weekStartsOn ?? options?.locale?.options?.weekStartsOn ?? defaultOptions.weekStartsOn ?? defaultOptions.locale?.options?.weekStartsOn ?? 0;
+  const _date = toDate(date, options?.in);
+  const day = _date.getDay();
+  const diff = (day < weekStartsOn ? -7 : 0) + 6 - (day - weekStartsOn);
+  _date.setDate(_date.getDate() + diff);
+  _date.setHours(23, 59, 59, 999);
+  return _date;
+}
+
+// libs/common/src/lib/application.ts
+var _timer;
+var _initial_check;
+var _version_subscription;
+var _unrecoverable_subscription;
+var _new_version = false;
+var _auto_reload = false;
+var _reload_gate = null;
+var _reload_timer;
+var _reload_deferred_since = 0;
+var _init_reload = null;
+var _init_reload_timer;
+var _last_update_check = 0;
+var _update_interval = 0;
+var INIT_RELOAD_KEY = "PlaceOS.initialisation_reloads";
+var INIT_RELOAD_WINDOW_MS = 5 * MINUTES;
+var INIT_RELOAD_LIMIT = 3;
+var INITIALISATION_FAILURE = signal(
+  "",
+  ...ngDevMode ? [{ debugName: "INITIALISATION_FAILURE" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var INITIALISATION_COMPLETE = signal(
+  false,
+  ...ngDevMode ? [{ debugName: "INITIALISATION_COMPLETE" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var RELOAD_RETRY_MS = 5 * SECONDS;
+var MAX_RELOAD_DEFERRAL_MS = 10 * MINUTES;
+var SERVICE_WORKER_UPDATE = signal(
+  null,
+  ...ngDevMode ? [{ debugName: "SERVICE_WORKER_UPDATE" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+function hasNewVersion() {
+  return _new_version;
+}
+function serviceWorkerUpdate() {
+  return SERVICE_WORKER_UPDATE.asReadonly();
+}
+function backendReachable() {
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return false;
+  }
+  return ro();
+}
+function canReloadNow() {
+  if (!backendReachable())
+    return false;
+  try {
+    return _reload_gate ? _reload_gate() : true;
+  } catch (error) {
+    log("CACHE", "Reload gate failed.", error, "warn");
+    return true;
+  }
+}
+function reloadApp() {
+  if (_reload_timer)
+    clearTimeout(_reload_timer);
+  _reload_timer = void 0;
+  if (!_reload_deferred_since)
+    _reload_deferred_since = Date.now();
+  const waited = Date.now() - _reload_deferred_since;
+  if (canReloadNow() || waited >= MAX_RELOAD_DEFERRAL_MS) {
+    location.reload();
+    return;
+  }
+  _reload_timer = setTimeout(reloadApp, RELOAD_RETRY_MS);
+}
+function reloadForNewVersion() {
+  reloadApp();
+}
+function initialisationFailure() {
+  return INITIALISATION_FAILURE.asReadonly();
+}
+function initialisationComplete() {
+  return INITIALISATION_COMPLETE.asReadonly();
+}
+function failInitialisation(message) {
+  INITIALISATION_COMPLETE.set(false);
+  INITIALISATION_FAILURE.set(message);
+}
+function recentInitReloads(now = Date.now()) {
+  try {
+    const stored = JSON.parse(sessionStorage.getItem(INIT_RELOAD_KEY) || "[]");
+    return stored instanceof Array ? stored.filter((at) => typeof at === "number" && now - at >= 0 && now - at < INIT_RELOAD_WINDOW_MS) : [];
+  } catch {
+    return [];
+  }
+}
+function storeInitReloads(at) {
+  try {
+    sessionStorage.setItem(INIT_RELOAD_KEY, JSON.stringify(at));
+  } catch {
+  }
+}
+function markInitialisationComplete() {
+  try {
+    sessionStorage.removeItem(INIT_RELOAD_KEY);
+  } catch {
+  }
+  cancelInitReload();
+  INITIALISATION_FAILURE.set("");
+  INITIALISATION_COMPLETE.set(true);
+}
+function cancelInitReload() {
+  if (_init_reload_timer)
+    clearTimeout(_init_reload_timer);
+  _init_reload_timer = void 0;
+}
+function retryInitialisation() {
+  try {
+    sessionStorage.removeItem(INIT_RELOAD_KEY);
+  } catch {
+  }
+  INITIALISATION_FAILURE.set("");
+  INITIALISATION_COMPLETE.set(false);
+  location.reload();
+}
+function requestInitReload() {
+  if (!backendReachable()) {
+    if (_init_reload_timer)
+      return;
+    log("APP", "Initialisation failed while offline; restarting once online.", void 0, "warn");
+    _init_reload_timer = setTimeout(() => {
+      _init_reload_timer = void 0;
+      requestInitReload();
+    }, RELOAD_RETRY_MS);
+    return;
+  }
+  cancelInitReload();
+  if (_init_reload) {
+    _init_reload();
+    return;
+  }
+  const now = Date.now();
+  const reloads = recentInitReloads(now);
+  if (reloads.length >= INIT_RELOAD_LIMIT) {
+    failInitialisation("The application could not finish starting. Check the connection, then try again.");
+    return;
+  }
+  storeInitReloads([...reloads, now]);
+  location.reload();
+}
+function stopUpdateChecks() {
+  if (_timer)
+    clearInterval(_timer);
+  if (_initial_check)
+    clearTimeout(_initial_check);
+  _timer = void 0;
+  _initial_check = void 0;
+}
+function cacheOptions(options = {}) {
+  return typeof options === "number" ? { interval: options } : options;
+}
+function handleNewVersion() {
+  if (_new_version)
+    return;
+  _new_version = true;
+  stopUpdateChecks();
+  if (_auto_reload)
+    return reloadApp();
+  SERVICE_WORKER_UPDATE.set({
+    message: "New application version available",
+    details: "Refresh to use the latest version.",
+    action: "Refresh"
+  });
+}
+function logVersionUpdate(event) {
+  switch (event.type) {
+    case "VERSION_DETECTED":
+      log("CACHE", `Downloading application version ${event.version.hash}.`);
+      return;
+    case "VERSION_INSTALLATION_FAILED":
+      log("CACHE", `Failed to install application version ${event.version.hash}.`, event.error, "warn");
+      return;
+    case "VERSION_READY":
+      log("CACHE", `Application version ${event.latestVersion.hash} is ready.`, { current_version: event.currentVersion.hash });
+      return;
+    case "NO_NEW_VERSION_DETECTED":
+      log("CACHE", `Application version ${event.version.hash} is up to date.`);
+  }
+}
+function setupCache(cache, options = {}) {
+  const { auto_reload = false, interval = 5 * MINUTES } = cacheOptions(options);
+  _auto_reload = auto_reload;
+  _update_interval = Math.max(interval, 1 * MINUTES);
+  log("CACHE", `Service worker is ${cache.isEnabled ? "enabled" : "disabled"}.`);
+  if (cache.isEnabled) {
+    if (!_version_subscription) {
+      _version_subscription = cache.versionUpdates.subscribe((event) => {
+        logVersionUpdate(event);
+        if (event.type !== "VERSION_READY" || _new_version)
+          return;
+        handleNewVersion();
+      });
+    }
+    if (!_unrecoverable_subscription) {
+      _unrecoverable_subscription = cache.unrecoverable.subscribe((event) => {
+        log("CACHE", `Application cache is unrecoverable: ${event.reason}`, void 0, "error");
+        _new_version = true;
+        stopUpdateChecks();
+        if (_auto_reload)
+          return reloadApp();
+        SERVICE_WORKER_UPDATE.set({
+          message: "Application update failed to load",
+          details: "Reload the app to recover.",
+          action: "Reload"
+        });
+      });
+    }
+    if (_new_version) {
+      if (_auto_reload)
+        reloadApp();
+      return;
+    }
+    stopUpdateChecks();
+    _initial_check = setTimeout(() => {
+      log("CACHE", `Checking for updates...`);
+      checkForUpdate(cache);
+    }, 2 * SECONDS);
+    _timer = setInterval(() => {
+      log("CACHE", `Checking for updates...`);
+      checkForUpdate(cache);
+    }, Math.max(interval, 1 * MINUTES));
+  }
+}
+async function checkForUpdate(cache) {
+  _last_update_check = Date.now();
+  try {
+    if (cache.isEnabled && await cache.checkForUpdate()) {
+      log("CACHE", `Application update detected.`);
+    }
+  } catch (error) {
+    log("CACHE", `Failed to check for application updates.`, error, "warn");
+  }
+}
+
+// node_modules/@angular/service-worker/fesm2022/service-worker.mjs
+/**
+ * @license Angular v22.1.5
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+var ERR_SW_NOT_SUPPORTED = "Service workers are disabled or not supported by this browser";
+var NgswCommChannel = class {
+  serviceWorker;
+  worker;
+  registration;
+  events;
+  constructor(serviceWorker, injector) {
+    this.serviceWorker = serviceWorker;
+    if (!serviceWorker) {
+      this.worker = this.events = this.registration = new Observable((subscriber) => subscriber.error(new RuntimeError(5601, (typeof ngDevMode === "undefined" || ngDevMode) && ERR_SW_NOT_SUPPORTED)));
+    } else {
+      let currentWorker = null;
+      const workerSubject = new Subject();
+      this.worker = new Observable((subscriber) => {
+        if (currentWorker !== null) {
+          subscriber.next(currentWorker);
+        }
+        return workerSubject.subscribe((v2) => subscriber.next(v2));
+      });
+      const updateController = () => {
+        const {
+          controller
+        } = serviceWorker;
+        if (controller === null) {
+          return;
+        }
+        currentWorker = controller;
+        workerSubject.next(currentWorker);
+      };
+      serviceWorker.addEventListener("controllerchange", updateController);
+      updateController();
+      this.registration = this.worker.pipe(switchMap(() => serviceWorker.getRegistration().then((registration) => {
+        if (!registration) {
+          throw new RuntimeError(5601, (typeof ngDevMode === "undefined" || ngDevMode) && ERR_SW_NOT_SUPPORTED);
+        }
+        return registration;
+      })));
+      const _events = new Subject();
+      this.events = _events.asObservable();
+      const messageListener = (event) => {
+        const {
+          data
+        } = event;
+        if (data?.type) {
+          _events.next(data);
+        }
+      };
+      serviceWorker.addEventListener("message", messageListener);
+      const appRef = injector?.get(ApplicationRef, null, {
+        optional: true
+      });
+      appRef?.onDestroy(() => {
+        serviceWorker.removeEventListener("controllerchange", updateController);
+        serviceWorker.removeEventListener("message", messageListener);
+      });
+    }
+  }
+  postMessage(action, payload) {
+    return new Promise((resolve) => {
+      this.worker.pipe(take(1)).subscribe((sw) => {
+        sw.postMessage(__spreadValues({
+          action
+        }, payload));
+        resolve();
+      });
+    });
+  }
+  postMessageWithOperation(type, payload, operationNonce) {
+    const waitForOperationCompleted = this.waitForOperationCompleted(operationNonce);
+    const postMessage = this.postMessage(type, payload);
+    return Promise.all([postMessage, waitForOperationCompleted]).then(([, result]) => result);
+  }
+  generateNonce() {
+    return Math.round(Math.random() * 1e7);
+  }
+  eventsOfType(type) {
+    let filterFn;
+    if (typeof type === "string") {
+      filterFn = (event) => event.type === type;
+    } else {
+      filterFn = (event) => type.includes(event.type);
+    }
+    return this.events.pipe(filter(filterFn));
+  }
+  nextEventOfType(type) {
+    return this.eventsOfType(type).pipe(take(1));
+  }
+  waitForOperationCompleted(nonce) {
+    return new Promise((resolve, reject) => {
+      this.eventsOfType("OPERATION_COMPLETED").pipe(filter((event) => event.nonce === nonce), take(1), map((event) => {
+        if (event.result !== void 0) {
+          return event.result;
+        }
+        throw new Error(event.error);
+      })).subscribe({
+        next: resolve,
+        error: reject
+      });
+    });
+  }
+  get isEnabled() {
+    return !!this.serviceWorker;
+  }
+};
+var SwPush = class _SwPush {
+  sw;
+  messages;
+  notificationClicks;
+  notificationCloses;
+  pushSubscriptionChanges;
+  subscription;
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  pushManager = null;
+  subscriptionChanges = new Subject();
+  constructor(sw) {
+    this.sw = sw;
+    if (!sw.isEnabled) {
+      this.messages = NEVER;
+      this.notificationClicks = NEVER;
+      this.notificationCloses = NEVER;
+      this.pushSubscriptionChanges = NEVER;
+      this.subscription = NEVER;
+      return;
+    }
+    this.messages = this.sw.eventsOfType("PUSH").pipe(map((message) => message.data));
+    this.notificationClicks = this.sw.eventsOfType("NOTIFICATION_CLICK").pipe(map((message) => message.data));
+    this.notificationCloses = this.sw.eventsOfType("NOTIFICATION_CLOSE").pipe(map((message) => message.data));
+    this.pushSubscriptionChanges = this.sw.eventsOfType("PUSH_SUBSCRIPTION_CHANGE").pipe(map((message) => message.data));
+    this.pushManager = this.sw.registration.pipe(map((registration) => registration.pushManager));
+    const workerDrivenSubscriptions = this.pushManager.pipe(switchMap((pm) => pm.getSubscription()));
+    this.subscription = new Observable((subscriber) => {
+      const workerDrivenSubscription = workerDrivenSubscriptions.subscribe(subscriber);
+      const subscriptionChanges = this.subscriptionChanges.subscribe(subscriber);
+      return () => {
+        workerDrivenSubscription.unsubscribe();
+        subscriptionChanges.unsubscribe();
+      };
+    });
+  }
+  requestSubscription(options) {
+    if (!this.sw.isEnabled || this.pushManager === null) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const pushOptions = {
+      userVisibleOnly: true
+    };
+    let key = this.decodeBase64(options.serverPublicKey.replace(/_/g, "/").replace(/-/g, "+"));
+    let applicationServerKey = new Uint8Array(new ArrayBuffer(key.length));
+    for (let i = 0; i < key.length; i++) {
+      applicationServerKey[i] = key.charCodeAt(i);
+    }
+    pushOptions.applicationServerKey = applicationServerKey;
+    return new Promise((resolve, reject) => {
+      this.pushManager.pipe(switchMap((pm) => pm.subscribe(pushOptions)), take(1)).subscribe({
+        next: (sub) => {
+          this.subscriptionChanges.next(sub);
+          resolve(sub);
+        },
+        error: reject
+      });
+    });
+  }
+  unsubscribe() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    const doUnsubscribe = (sub) => {
+      if (sub === null) {
+        throw new RuntimeError(5602, (typeof ngDevMode === "undefined" || ngDevMode) && "Not subscribed to push notifications.");
+      }
+      return sub.unsubscribe().then((success) => {
+        if (!success) {
+          throw new RuntimeError(5603, (typeof ngDevMode === "undefined" || ngDevMode) && "Unsubscribe failed!");
+        }
+        this.subscriptionChanges.next(null);
+      });
+    };
+    return new Promise((resolve, reject) => {
+      this.subscription.pipe(take(1), switchMap(doUnsubscribe)).subscribe({
+        next: resolve,
+        error: reject
+      });
+    });
+  }
+  decodeBase64(input) {
+    return atob(input);
+  }
+  static \u0275fac = function SwPush_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _SwPush)(\u0275\u0275inject(NgswCommChannel));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _SwPush,
+    factory: _SwPush.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwPush, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var SwUpdate = class _SwUpdate {
+  sw;
+  versionUpdates;
+  unrecoverable;
+  get isEnabled() {
+    return this.sw.isEnabled;
+  }
+  ongoingCheckForUpdate = null;
+  constructor(sw) {
+    this.sw = sw;
+    if (!sw.isEnabled) {
+      this.versionUpdates = NEVER;
+      this.unrecoverable = NEVER;
+      return;
+    }
+    this.versionUpdates = this.sw.eventsOfType(["VERSION_DETECTED", "VERSION_INSTALLATION_FAILED", "VERSION_READY", "NO_NEW_VERSION_DETECTED"]);
+    this.unrecoverable = this.sw.eventsOfType("UNRECOVERABLE_STATE");
+  }
+  checkForUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new Error(ERR_SW_NOT_SUPPORTED));
+    }
+    if (this.ongoingCheckForUpdate) {
+      return this.ongoingCheckForUpdate;
+    }
+    const nonce = this.sw.generateNonce();
+    this.ongoingCheckForUpdate = this.sw.postMessageWithOperation("CHECK_FOR_UPDATES", {
+      nonce
+    }, nonce).finally(() => {
+      this.ongoingCheckForUpdate = null;
+    });
+    return this.ongoingCheckForUpdate;
+  }
+  activateUpdate() {
+    if (!this.sw.isEnabled) {
+      return Promise.reject(new RuntimeError(5601, (typeof ngDevMode === "undefined" || ngDevMode) && ERR_SW_NOT_SUPPORTED));
+    }
+    const nonce = this.sw.generateNonce();
+    return this.sw.postMessageWithOperation("ACTIVATE_UPDATE", {
+      nonce
+    }, nonce);
+  }
+  static \u0275fac = function SwUpdate_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _SwUpdate)(\u0275\u0275inject(NgswCommChannel));
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({
+    token: _SwUpdate,
+    factory: _SwUpdate.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SwUpdate, [{
+    type: Injectable
+  }], () => [{
+    type: NgswCommChannel
+  }], null);
+})();
+var SCRIPT = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "NGSW_REGISTER_SCRIPT" : "");
+function ngswAppInitializer() {
+  if (false) {
+    return;
+  }
+  const options = inject(SwRegistrationOptions);
+  if (!("serviceWorker" in navigator && options.enabled !== false)) {
+    return;
+  }
+  const script = inject(SCRIPT);
+  const ngZone = inject(NgZone);
+  const appRef = inject(ApplicationRef);
+  ngZone.runOutsideAngular(() => {
+    const sw = navigator.serviceWorker;
+    const onControllerChange = () => sw.controller?.postMessage({
+      action: "INITIALIZE"
+    });
+    sw.addEventListener("controllerchange", onControllerChange);
+    appRef.onDestroy(() => {
+      sw.removeEventListener("controllerchange", onControllerChange);
+    });
+  });
+  ngZone.runOutsideAngular(() => {
+    let readyToRegister;
+    const {
+      registrationStrategy
+    } = options;
+    if (typeof registrationStrategy === "function") {
+      readyToRegister = new Promise((resolve) => registrationStrategy().subscribe(() => resolve()));
+    } else {
+      const [strategy, ...args] = (registrationStrategy || "registerWhenStable:30000").split(":");
+      switch (strategy) {
+        case "registerImmediately":
+          readyToRegister = Promise.resolve();
+          break;
+        case "registerWithDelay":
+          readyToRegister = delayWithTimeout(+args[0] || 0);
+          break;
+        case "registerWhenStable":
+          readyToRegister = Promise.race([appRef.whenStable(), delayWithTimeout(+args[0])]);
+          break;
+        default:
+          throw new RuntimeError(5600, (typeof ngDevMode === "undefined" || ngDevMode) && `Unknown ServiceWorker registration strategy: ${options.registrationStrategy}`);
+      }
+    }
+    readyToRegister.then(() => {
+      if (appRef.destroyed) {
+        return;
+      }
+      navigator.serviceWorker.register(script, {
+        scope: options.scope,
+        updateViaCache: options.updateViaCache,
+        type: options.type
+      }).catch((err2) => console.error(formatRuntimeError(5604, (typeof ngDevMode === "undefined" || ngDevMode) && "Service worker registration failed with: " + err2)));
+    });
+  });
+}
+function delayWithTimeout(timeout) {
+  return new Promise((resolve) => setTimeout(resolve, timeout));
+}
+function ngswCommChannelFactory() {
+  const opts = inject(SwRegistrationOptions);
+  const injector = inject(Injector);
+  const isBrowser = true;
+  return new NgswCommChannel(isBrowser && opts.enabled !== false ? navigator.serviceWorker : void 0, injector);
+}
+var SwRegistrationOptions = class {
+  enabled;
+  updateViaCache;
+  type;
+  scope;
+  registrationStrategy;
+};
+function provideServiceWorker(script, options = {}) {
+  return makeEnvironmentProviders([SwPush, SwUpdate, {
+    provide: SCRIPT,
+    useValue: script
+  }, {
+    provide: SwRegistrationOptions,
+    useValue: options
+  }, {
+    provide: NgswCommChannel,
+    useFactory: ngswCommChannelFactory
+  }, provideAppInitializer(ngswAppInitializer)]);
+}
+var ServiceWorkerModule = class _ServiceWorkerModule {
+  static register(script, options = {}) {
+    return {
+      ngModule: _ServiceWorkerModule,
+      providers: [provideServiceWorker(script, options)]
+    };
+  }
+  static \u0275fac = function ServiceWorkerModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ServiceWorkerModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _ServiceWorkerModule
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    providers: [SwPush, SwUpdate]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ServiceWorkerModule, [{
+    type: NgModule,
+    args: [{
+      providers: [SwPush, SwUpdate]
+    }]
+  }], null, null);
+})();
+
+// libs/common/src/lib/fixed-device-helpers.ts
+var _wake_lock = null;
+async function requestScreenWakeLock() {
+  if (!gs())
+    return;
+  if (_wake_lock)
+    await _wake_lock.release();
+  if (document.visibilityState === "visible") {
+    _wake_lock = await navigator.wakeLock.request("screen");
+  } else {
+    setTimeout(() => requestScreenWakeLock(), 1e3);
+  }
+}
+document.addEventListener("visibilitychange", async () => {
+  if (_wake_lock !== null && document.visibilityState === "visible") {
+    _wake_lock = await navigator.wakeLock.request("screen");
+  }
+});
+
+// libs/common/src/lib/mapspeople.service.ts
+var MapService;
+(function(MapService2) {
+  MapService2[MapService2["GoogleMaps"] = 0] = "GoogleMaps";
+  MapService2[MapService2["Mapbox"] = 1] = "Mapbox";
+})(MapService || (MapService = {}));
+var MapsPeopleService = class _MapsPeopleService extends AsyncHandler {
+  get map_keys() {
+    return this._settings.get("app.maps_people.keys") || {};
+  }
+  get use_service() {
+    return this._settings.get("app.maps_people.use_zones") || [];
+  }
+  get map_service() {
+    return this._map_service();
+  }
+  get map_token() {
+    return this._map_token();
+  }
+  get is_ready() {
+    return this._ready();
+  }
+  constructor() {
+    super();
+    this._settings = inject(SettingsService);
+    this._org = inject(OrganisationService);
+    this._map_service = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_map_service" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._map_token = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_map_token" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._ready = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._injected = {};
+    this._custom_zone = signal(
+      "",
+      ...ngDevMode ? [{ debugName: "_custom_zone" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.available = computed(
+      () => {
+        const bld = this._org.active_building();
+        const zone = this._custom_zone();
+        if (!this._org.initialised() || !bld?.id)
+          return false;
+        return !!this.map_keys.mapsindoors && (this.use_service.includes(zone || bld.id) || this.use_service.includes("*"));
+      },
+      ...ngDevMode ? [{ debugName: "available" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    effect(() => {
+      if (!this.available())
+        return;
+      this._injectMapsApiKeys();
+    });
+  }
+  setCustomZone(zone_id) {
+    this._custom_zone.set(zone_id);
+  }
+  _injectMapsApiKeys() {
+    log("MapsPeople", "Initializing Maps API Keys");
+    this._ready.set(false);
+    const { mapsindoors, google, mapbox } = this.map_keys;
+    if (!mapsindoors)
+      return;
+    if (mapsindoors && !this._injected.mapsindoors) {
+      const script = document.createElement("script");
+      script.src = `https://app.mapsindoors.com/mapsindoors/js/sdk/4.35.0/mapsindoors-4.35.0.js.gz?apikey=${mapsindoors}`;
+      document.body.appendChild(script);
+      this._injected.mapsindoors = true;
+    }
+    if (google && mapbox) {
+      log("MapsPeople", "Both Google and Mapbox keys provided", void 0, "error");
+      return;
+    }
+    if (google && !this._injected.google) {
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?libraries=geometry&key=${google}`;
+      document.body.appendChild(script);
+      this._map_service.set(MapService.GoogleMaps);
+      this._injected.google = true;
+    } else if (mapbox && !this._injected.mapbox) {
+      const script = document.createElement("script");
+      script.src = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js`;
+      document.body.appendChild(script);
+      const styles = document.createElement("link");
+      styles.rel = "stylesheet";
+      styles.href = `https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css`;
+      document.head.appendChild(styles);
+      this._map_service.set(MapService.Mapbox);
+      this._map_token.set(mapbox);
+      this._injected.mapbox = true;
+    }
+    if (google || mapbox) {
+      log("MapsPeople", `Initialized Maps API Keys for ${google ? "Google Maps" : "Mapbox"}`);
+      this.timeout("ready", () => this._ready.set(true), 300);
+    }
+  }
+  static {
+    this.\u0275fac = function MapsPeopleService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _MapsPeopleService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _MapsPeopleService, factory: _MapsPeopleService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapsPeopleService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// libs/common/src/lib/teams-host.ts
+var TEAMS_HOST_PARAM = "host";
+var AUTH_STORE_KEY = "PLACEOS.teams_auth";
+var INIT_TIMEOUT_MS = 5e3;
+var SSO_TIMEOUT_MS = 1e4;
+var MAX_SIGN_IN_ATTEMPTS = 5;
+var EXPIRY_MARGIN_MS = 5 * 60 * 1e3;
+var _teams = null;
+var _sign_in_resolve = null;
+var SIGN_IN_REQUIRED = signal(
+  false,
+  ...ngDevMode ? [{ debugName: "SIGN_IN_REQUIRED" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+function teamsHostMode(search = location.search, storage = sessionStorage) {
+  const host = new URLSearchParams(search).get(TEAMS_HOST_PARAM);
+  if (host === "teams-auth" || storage.getItem(AUTH_STORE_KEY) === "true") {
+    return "auth";
+  }
+  return host === "teams" ? "tab" : null;
+}
+async function startTeamsHost(mode = teamsHostMode()) {
+  if (!mode)
+    return null;
+  if (mode === "auth")
+    sessionStorage.setItem(AUTH_STORE_KEY, "true");
+  try {
+    const teams = await import("./src-CEU4ZN6F.js");
+    await withTimeout(teams.app.initialize(), INIT_TIMEOUT_MS, "Microsoft Teams host did not respond.");
+    _teams = teams;
+    log("Teams", `Connected to host as ${mode}.`);
+    return mode;
+  } catch (error) {
+    log("Teams", "Host is not available.", error, "warn");
+    return null;
+  }
+}
+async function finishTeamsSignIn(mode) {
+  if (!_teams)
+    throw new Error("Call startTeamsHost() first.");
+  if (mode === "auth") {
+    const place_token = J(false);
+    if (place_token) {
+      sessionStorage.removeItem(AUTH_STORE_KEY);
+      _teams.authentication.notifySuccess(place_token);
+    }
+    return false;
+  }
+  if (J(false))
+    return true;
+  if (await signInTeamsTab(_teams))
+    return true;
+  failInitialisation("Sign in did not finish. Select Try again to sign in.");
+  return false;
+}
+async function signInTeamsTab(teams) {
+  const sso_signed_in = await withTimeout(teams.authentication.getAuthToken(), SSO_TIMEOUT_MS, "Microsoft single sign-on timed out.").then(async (entra_token) => {
+    if (!entra_token)
+      return false;
+    await wi(entra_token);
+    return true;
+  }).catch((error) => {
+    log("Teams", "SSO failed.", error, "warn");
+    return false;
+  });
+  if (sso_signed_in)
+    return true;
+  const url = `${location.origin}${location.pathname}?${TEAMS_HOST_PARAM}=teams-auth`;
+  for (let attempt = 0; attempt < MAX_SIGN_IN_ATTEMPTS; attempt++) {
+    if (attempt > 0) {
+      await new Promise((resolve) => {
+        _sign_in_resolve = resolve;
+        SIGN_IN_REQUIRED.set(true);
+      });
+    }
+    const place_token = await teams.authentication.authenticate({ url, width: 600, height: 600 }).catch((error) => {
+      log("Teams", "Sign-in window failed.", error, "warn");
+      return "";
+    });
+    if (place_token) {
+      Si(place_token, tokenExpiry(place_token));
+      return true;
+    }
+  }
+  return false;
+}
+function tokenExpiry(jwt) {
+  try {
+    const payload = jwt.split(".")[1];
+    if (!payload)
+      return void 0;
+    const claims = JSON.parse(atob(payload.replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof claims.exp === "number" ? claims.exp * 1e3 - EXPIRY_MARGIN_MS : void 0;
+  } catch {
+    return void 0;
+  }
+}
+
+// libs/common/src/lib/placeos.service.ts
+var START_QUERY = location.search;
+var AUTHORITY_WAIT_MS = 10 * 1e3;
+var LOADING_MESSAGE = signal(
+  "Loading...",
+  ...ngDevMode ? [{ debugName: "LOADING_MESSAGE" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var NEEDS_DOMAIN = signal(
+  false,
+  ...ngDevMode ? [{ debugName: "NEEDS_DOMAIN" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var DOMAIN_ERROR = signal(
+  "",
+  ...ngDevMode ? [{ debugName: "DOMAIN_ERROR" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+var AUTO_CONFIRM_DOMAIN = signal(
+  false,
+  ...ngDevMode ? [{ debugName: "AUTO_CONFIRM_DOMAIN" }] : (
+    /* istanbul ignore next */
+    []
+  )
+);
+function getLoadingMessage() {
+  return LOADING_MESSAGE;
+}
+function setLoadingMessage(message) {
+  LOADING_MESSAGE.set(message);
+}
+function needsNativeDomain() {
+  return NEEDS_DOMAIN;
+}
+function nativeDomainError() {
+  return DOMAIN_ERROR;
+}
+function autoConfirmNativeDomain() {
+  return AUTO_CONFIRM_DOMAIN;
+}
+var _mocks = null;
+function setMocks(value) {
+  _mocks = value;
+}
+var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
+  constructor() {
+    super();
+    this._analytics = inject(GoogleAnalyticsService, { optional: true });
+    this._locale = inject(LocaleService, { optional: true });
+    this._settings = inject(SettingsService);
+    this._org = inject(OrganisationService);
+    this._cache = inject(SwUpdate);
+    this._snackbar = lazySnackbar();
+    this._hotkey = inject(HotkeysService);
+    this._clipboard = inject(Clipboard);
+    this._route = inject(ActivatedRoute);
+    this._router = inject(Router);
+    this._location = inject(Location);
+    this._maps = inject(MapsPeopleService);
+    this._error_handler = inject(ErrorHandler);
+    this._zone = "";
+    this._region = "";
+    this._initial_token = "";
+    this._domain_resolve = null;
+    initSentryFromSettings();
+  }
+  async _handleNativeAuthRedirect(url) {
+    const callback_url = new URL(url);
+    const params = callback_url.searchParams;
+    await closeNativeBrowser();
+    markNativeAuthRedirectConsumed(url);
+    const error = params.get("error");
+    if (error || !params.get("code")) {
+      const message = params.get("error_description") || error || "Sign in failed. Please try again.";
+      console.warn("[AUTH] Native sign in failed.", message);
+      setNativeAuthError(message);
+      location.replace(`${location.origin}${location.pathname}`);
+      return;
+    }
+    sessionStorage.setItem("ENGINE.auth.params", JSON.stringify({
+      code: params.get("code"),
+      state: params.get("state")
+    }));
+    console.warn("[AUTH] Reloading webview with auth code...");
+    location.replace(`${location.origin}${location.pathname}?${params.toString()}`);
+  }
+  get debug() {
+    return window.debug && this._settings.get("app.allow_debugging") === true;
+  }
+  get has_chat() {
+    return this._settings.get("app.chat.enabled");
+  }
+  get has_uploads() {
+    return this._settings.get("app.has_uploads") || false;
+  }
+  set mocks(value) {
+    _mocks = value;
+  }
+  setInitialToken(token) {
+    this._initial_token = token || "";
+  }
+  /** Called by the native domain overlay once the user has set a domain. */
+  onNativeDomainSet() {
+    NEEDS_DOMAIN.set(false);
+    DOMAIN_ERROR.set("");
+    AUTO_CONFIRM_DOMAIN.set(false);
+    this._domain_resolve?.();
+    this._domain_resolve = null;
+  }
+  async init(options = {}) {
+    if (isNativeApp()) {
+      hideNativeStatusBar();
+      restoreNativePkceVerifier();
+      await bindNativeAuthRedirects((url) => {
+        this._handleNativeAuthRedirect(url).catch((error) => console.warn("[AUTH] Error handling redirect.", error));
+      });
+      const launch_url = await consumeNativeAuthRedirect();
+      if (launch_url) {
+        await this._handleNativeAuthRedirect(launch_url);
+        return;
+      }
+    }
+    setupCache(this._cache);
+    log("APP", "MOCKS:", _mocks);
+    if (_mocks) {
+      if (mockModeRequested()) {
+        setLoadingMessage("Initializing mocks...");
+        await _mocks();
+      }
+      this._hotkey.listen(["Control", "Alt", "Shift", "KeyM"], () => {
+        localStorage.setItem("mock", `${localStorage.getItem("mock") !== "true"}`);
+        location.reload();
+      });
+    } else {
+      localStorage.removeItem("mock");
+    }
+    this._hotkey.listen(["Control", "Alt", "Shift", "KeyD"], () => {
+      this._settings.saveUserSetting("dark_mode", !this._settings.get("dark_mode"));
+      notifySuccess("Toggled dark mode.");
+    });
+    this._hotkey.listen(["Control", "Alt", "Shift", "KeyC"], () => {
+      this._clipboard.copy(`${J()}|${Et()}`);
+      notifySuccess("Successfully copied token.");
+    });
+    this._hotkey.listen(["Control", "Alt", "Shift", "KeyV"], () => {
+      navigator.clipboard?.readText().then((tkn) => this._pasteToken(tkn));
+    });
+    this._hotkey.listen(["Control", "Alt", "Shift", "KeyF"], () => {
+      navigator.clipboard?.readText().then((tkn) => this._pasteToken(tkn));
+    });
+    window.pasteToken = (t) => this._pasteToken(t);
+    setLoadingMessage("Checking params...");
+    this._route.queryParamMap.subscribe((params) => {
+      if (params.has("hide_nav"))
+        localStorage.setItem("PlaceOS.hide_nav", "true");
+      if (params.has("lang")) {
+        const locale = params.get("lang");
+        this._locale?.setLocale(locale);
+        localStorage.setItem("PLACEOS.locale", locale);
+      }
+      if (params.has("x-api-key")) {
+        so(params.get("x-api-key"));
+      }
+      if (params.has("region_id")) {
+        this._region = params.get("region_id");
+      }
+      if (params.has("building_id")) {
+        this._zone = params.get("building_id");
+      }
+      if (this._region || this._zone)
+        this._setZones();
+    });
+    setLoadingMessage("Initializing settings...");
+    setNotifyOutlet(this._snackbar);
+    setTranslationService(this._locale);
+    await firstTruthyValueFrom(this._settings.initialised);
+    setAppName(this._settings.get("app.short_name"));
+    const settings = this._settings.get("composer") || {};
+    settings.app_name = this._settings.get("app.name") || this._settings.get("app.short_name");
+    settings.mock = !!this._settings.get("mock") || _mocks && location.origin.includes("demo.place.tech");
+    if (START_QUERY) {
+      const query = Ce(START_QUERY.substring(1));
+      const url = this._router.parseUrl(this._location.path() || "/");
+      url.queryParams = __spreadValues(__spreadValues({}, query), url.queryParams);
+      this._router.navigateByUrl(url, { replaceUrl: true });
+    }
+    let confirm_managed = false;
+    if (isNativeApp()) {
+      setLoadingMessage("Checking managed configuration...");
+      const { config: managed, changed } = await syncNativeManagedConfig();
+      if (managed) {
+        if (options.allow_mdm_restart && managed.restart_enabled) {
+          scheduleNativeRestart(managed.restart_time);
+        }
+        confirm_managed = changed && !!managed.domain && !managed.skip_interactive_setup;
+        AUTO_CONFIRM_DOMAIN.set(confirm_managed && !!options.allow_mdm_restart && !!managed.api_key && !!managed.system_id);
+      }
+    }
+    let intune_token = "";
+    if (isNativeApp()) {
+      setLoadingMessage("Checking managed account...");
+      const account = await getIntuneAccount();
+      if (account) {
+        intune_token = await getIntuneToken(account, this._settings.get("app.intune.scopes") || void 0);
+        const email = `${account.username || ""}`.trim();
+        if (email && !getNativeDomain()) {
+          const domain = await lookupNativeDomainByEmail(email).catch(() => "");
+          if (domain) {
+            setNativeDomain(domain);
+            setNativeEmail(email);
+          }
+        }
+      }
+    }
+    while (isNativeApp()) {
+      let domain = getNativeDomain();
+      while (!domain || confirm_managed) {
+        confirm_managed = false;
+        setLoadingMessage("Waiting for server configuration...");
+        NEEDS_DOMAIN.set(true);
+        await new Promise((r) => this._domain_resolve = r);
+        domain = getNativeDomain();
+      }
+      settings.domain = domain;
+      settings.protocol = "https:";
+      settings.use_domain = true;
+      setLoadingMessage("Authenticating...");
+      const auth_error = await setupPlace(settings).then(() => null).catch((_) => _);
+      if (!auth_error) {
+        const api_key = getNativeApiKey();
+        const client_key = `${ki()}_x-api-key`;
+        if (api_key)
+          so(api_key);
+        else if (localStorage.getItem(client_key)) {
+          localStorage.removeItem(client_key);
+          Cn();
+        }
+        if (intune_token)
+          Si(intune_token);
+        break;
+      }
+      log("APP", "Auth failed, resetting domain.", auth_error, "warn");
+      clearNativeDomain();
+      clearNativeApiKey();
+      DOMAIN_ERROR.set(`Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`);
+    }
+    if (isNativeApp() && !J(false)) {
+      const boot_params = new URLSearchParams(START_QUERY);
+      if (boot_params.has("code")) {
+        const state_matches = boot_params.get("state") === localStorage.getItem(`${ki()}_nonce`);
+        console.warn("[AUTH] Auth code was present on load but the token exchange did not complete.", `State matches nonce: ${state_matches}`);
+      }
+    }
+    if (isNativeApp() && !J(false) && !Et() && Mt()) {
+      const auth_error = consumeNativeAuthError();
+      if (auth_error) {
+        setLoadingMessage("Waiting for sign in...");
+        DOMAIN_ERROR.set(auth_error);
+        NEEDS_DOMAIN.set(true);
+        await new Promise((r) => this._domain_resolve = r);
+      }
+      setLoadingMessage("Opening sign in...");
+      const auth_url = await createNativeAuthUrl(settings, ki());
+      console.warn(`[AUTH] Opening sign in: ${auth_url.split("?")[0]}`);
+      await openNativeBrowser(auth_url);
+      return;
+    }
+    if (!isNativeApp()) {
+      const teams_mode = await startTeamsHost();
+      if (teams_mode)
+        settings.local_login = teams_mode === "tab";
+      setLoadingMessage("Authenticating...");
+      await setupPlace(settings, AUTHORITY_WAIT_MS).catch((_) => console.error(_));
+      if (teams_mode) {
+        setLoadingMessage("Waiting for Microsoft sign in...");
+        if (!await finishTeamsSignIn(teams_mode))
+          return;
+      }
+    }
+    if (this._initial_token)
+      Si(this._initial_token);
+    try {
+      await withTimeout(this._org.waitUntilInitialised(), 5e4, "Organisation loading timed out.");
+    } catch (error) {
+      this._error_handler.handleError(error);
+      requestInitReload();
+      return;
+    }
+    if (this._locale) {
+      this._locale.zone_id = this._org.organisation.id;
+      this._locale.init();
+    }
+    setupCache(this._cache, this._settings.get("service_worker") || {});
+    try {
+      await withTimeout(firstTruthyValueFrom(current_user), 3e4, "Current user loading timed out.");
+    } catch (error) {
+      this._error_handler.handleError(error);
+      this.onInitError();
+      return;
+    }
+    clearNativePkceVerifier();
+    this._initLocale();
+    setInternalUserDomain(this._settings.get("app.internal_user_domain") || `@${currentUser()?.email?.split("@")[1]}`);
+    this._initAnalytics();
+    try {
+      this._initFixedDevice();
+    } catch {
+      log("APP", "Failed to initialise background services.", void 0, "warn");
+    }
+    this._setZones();
+    if (this._locale) {
+      await Promise.race([
+        this._locale.loaded(),
+        new Promise((resolve) => setTimeout(resolve, 5e3))
+      ]);
+    }
+    markInitialisationComplete();
+  }
+  onInitError() {
+    if (Un() || currentUser()?.is_logged_in)
+      return;
+    if (isNativeApp() && getNativeApiKey()) {
+      clearNativeApiKey();
+      clearNativeDomain();
+      localStorage.removeItem(`${ki()}_x-api-key`);
+      Cn();
+    } else if (!J(false))
+      Cn();
+    requestInitReload();
+  }
+  _initAnalytics() {
+    const tracking_id = this._settings.get("app.analytics.tracking_id");
+    if (!this._analytics)
+      return;
+    this._analytics.enabled = this._settings.get("app.analytics.enabled") !== false;
+    if (!tracking_id || !this._analytics.enabled)
+      return;
+    setLoadingMessage("Initialising analytics...");
+    try {
+      this._analytics.init(tracking_id);
+      this._analytics.load(tracking_id);
+      this._analytics.setUser(currentUser().id);
+    } catch (error) {
+      log("APP", "Failed to initialise analytics.", error, "warn");
+      return;
+    }
+    if (!tracking_id.startsWith("G-"))
+      return;
+    if (this._router.navigated)
+      this._analytics.page(this._router.url);
+    this.subscription("analytics-router", this._router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe((event) => this._analytics.page(event.urlAfterRedirects)));
+  }
+  _initLocale() {
+    setLoadingMessage("Loading locales...");
+    try {
+      let locale = localStorage.getItem("PLACEOS.locale");
+      const locales = this._settings.get("app.locales") || [];
+      if (locale) {
+        this._locale?.setLocale(locale);
+      } else {
+        const list = navigator.languages;
+        for (const lang of list) {
+          locale = locales.find((_) => _.id === lang);
+          if (!locale)
+            locale = locales.find((_) => lang.includes(_.id));
+          if (locale) {
+            this._locale?.setLocale(lang);
+            localStorage.setItem("PLACEOS.locale", lang);
+            break;
+          }
+        }
+      }
+    } catch {
+      log("APP", "Failed to initialise locale service.", void 0, "warn");
+    }
+  }
+  _pasteToken(tkn) {
+    const parts = tkn.split("|");
+    const id = ki();
+    localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
+    localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
+    localStorage.setItem(`${id}_expires_at`, `${addHours(/* @__PURE__ */ new Date(), 6).valueOf()}`);
+    notifySuccess("Successfully pasted token.");
+    setTimeout(() => location.reload(), 2e3);
+  }
+  _checkReload() {
+    if (!hasNewVersion())
+      return;
+    setLoadingMessage("Checking for updates...");
+    reloadForNewVersion();
+  }
+  async _initFixedDevice() {
+    if (!gs())
+      return;
+    setLoadingMessage("Initialising as fixed device...");
+    this.interval("auto-update-version", () => this._checkReload(), 15 * 1e3);
+    await requestScreenWakeLock();
+  }
+  _setZones() {
+    if (this._region || this._zone) {
+      this._org.skipAutoSelection();
+    }
+    this.timeout("set_building+region", async () => {
+      const building_list = this._org.building_list();
+      let bld = building_list.find((b) => b.id === this._zone);
+      const target_region_id = this._region || bld?.parent_id;
+      const region = this._org.regions.find((b) => b.id === target_region_id);
+      if (region)
+        await this._org.setRegion(region);
+      if (!bld && this._zone) {
+        const building_list2 = this._org.building_list();
+        bld = building_list2.find((b) => b.id === this._zone);
+      }
+      if (bld)
+        this._org.setBuilding(bld, true);
+    }, 1e3);
+  }
+  static {
+    this.\u0275fac = function PlaceOS_Service_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _PlaceOS_Service)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _PlaceOS_Service, factory: _PlaceOS_Service.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PlaceOS_Service, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// libs/common/src/lib/signal.utilities.ts
+function firstValueWhere(value, predicate = (_) => !!_, injector) {
+  const current = untracked(value);
+  if (predicate(current))
+    return Promise.resolve(current);
+  return new Promise((resolve) => {
+    let ref;
+    ref = untracked(() => effect(() => {
+      const current2 = value();
+      if (!predicate(current2))
+        return;
+      ref.destroy();
+      resolve(current2);
+    }, { injector }));
+  });
+}
+
+// libs/common/src/lib/org/organisation.service.ts
+var log2 = scoped_log("ORG");
+var ORG_CACHE_PREFIX = "PLACEOS.org";
+var ZONE_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.zones`;
+var AUTHORITY_CACHE_KEY = `${ORG_CACHE_PREFIX}.authority`;
+var OFFLINE_BOOT_DELAY = 10 * 1e3;
+var ZONE_LOAD_TIMEOUT = 30 * 1e3;
+var GEOLOCATION_TIMEOUT = 10 * 1e3;
+var METADATA_CACHE_PREFIX = `${ORG_CACHE_PREFIX}.metadata`;
+var MAX_CACHE_AGE = 7 * 24 * 60 * 60 * 1e3;
+function cachedAuthority() {
+  const auth = Mt();
+  if (auth?.id) {
+    const details = {
+      id: auth.id,
+      metadata_cache_id: `${auth.config?.["metadata_cache_id"] || ""}`
+    };
+    try {
+      localStorage.setItem(AUTHORITY_CACHE_KEY, JSON.stringify(details));
+    } catch {
+    }
+    return details;
+  }
+  try {
+    return JSON.parse(localStorage.getItem(AUTHORITY_CACHE_KEY) || "null");
+  } catch {
+    return null;
+  }
+}
+var OrganisationService = class _OrganisationService {
+  get _refreshing() {
+    return this.refreshing();
+  }
+  /** Mapping of organisation settings overrides */
+  get settings() {
+    return this._settings;
+  }
+  /** Mapping of regions to settings overrides */
+  get region_settings() {
+    return this._region_settings;
+  }
+  /** Mapping of buildings to settings overrides */
+  get building_settings() {
+    return this._building_settings;
+  }
+  /** Mapping region settings overrides */
+  regionSettings(id = "") {
+    const region = this._active_region();
+    if (!id && region)
+      id = region?.id;
+    return this._region_settings ? this._region_settings[id] || {} : {};
+  }
+  /** Mapping building settings overrides */
+  buildingSettings(bld_id = "") {
+    if (!bld_id && this.building) {
+      bld_id = this.building?.id || this.buildings[0]?.id;
+    }
+    return this._building_settings ? this._building_settings[bld_id] || {} : {};
+  }
+  /** Organisation data for the application */
+  get organisation() {
+    return this._organisation;
+  }
+  /** List of available regions */
+  get regions() {
+    return this._region_list();
+  }
+  /** Currently active region */
+  get region() {
+    return this._active_region();
+  }
+  set region(item) {
+    this.setRegion(item);
+  }
+  /** Prevent automatic building/region selection from overriding externally set values */
+  skipAutoSelection() {
+    this._skip_auto_selection = true;
+  }
+  async setRegion(item) {
+    const active_region = this._active_region();
+    if (!item || active_region?.id === item?.id)
+      return;
+    this._active_region.set(item);
+    await this.loadRegionData(item);
+    this._setBuildingFromTimezone();
+    if (!this._skip_auto_selection && this.building?.parent_id !== item.id && this.buildingsForRegion(item).length) {
+      this.building = this.buildingsForRegion(item)[0];
+    } else
+      this._updateSettingOverrides();
+    localStorage.setItem("PLACEOS.region", item.id);
+  }
+  /** List of available buildings */
+  get buildings() {
+    return this._building_list() || [];
+  }
+  /** Currently active building */
+  get building() {
+    return this._active_building();
+  }
+  set building(bld) {
+    this.setBuilding(bld);
+  }
+  setBuilding(bld, save = false) {
+    if (!(bld instanceof Object))
+      return;
+    this._active_building.set(bld);
+    if (!this._service.get("dont_load_metadata")) {
+      this.loadBuildingData(bld).then(() => this._updateSettingOverrides());
+    }
+    if (this.regions.length && this.region?.id !== bld.parent_id) {
+      this.region = this.regions.find((_) => _.id === this.building.parent_id);
+    }
+    if (save)
+      localStorage.setItem("PLACEOS.building", bld.id);
+  }
+  get timezone() {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+  }
+  get currency_code() {
+    return this._service.get("app.currency") || this.building?.currency || "USD";
+  }
+  /** Get binding value from the building/organisation */
+  binding(name) {
+    return this.building?.bindings[name] || this._organisation?.bindings[name];
+  }
+  module(name, default_mod_id = "System") {
+    const binding = this.binding(name);
+    const system_id = binding instanceof Object ? binding.id || binding.system_id : binding;
+    const mod_id = (binding instanceof Object ? binding.mod || binding.module : "") || default_mod_id;
+    return !system_id || !mod_id ? null : Jp(system_id, mod_id);
+  }
+  /** Get building by id */
+  find(id) {
+    return this._buildings_by_id().get(id);
+  }
+  /** List of available levels */
+  get levels() {
+    return this._level_list();
+  }
+  set limit_init(state) {
+    this._limited_init.set(state);
+  }
+  constructor() {
+    this._service = inject(SettingsService);
+    this._router = inject(Router);
+    this._injector = inject(Injector);
+    this._initialised = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_initialised" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.initialised = this._initialised.asReadonly();
+    this._region_list = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_region_list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._active_region = signal(
+      new Region({ name: "Unknown" }),
+      ...ngDevMode ? [{ debugName: "_active_region" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._building_list = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_building_list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._active_building = signal(
+      new Building({ name: "Unknown" }),
+      ...ngDevMode ? [{ debugName: "_active_building" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._level_list = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_level_list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._regions_by_id = computed(
+      () => new Map(this._region_list().map((region) => [
+        region.id,
+        region
+      ])),
+      ...ngDevMode ? [{ debugName: "_regions_by_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._buildings_by_id = computed(
+      () => new Map(this._building_list().map((building) => [
+        building.id,
+        building
+      ])),
+      ...ngDevMode ? [{ debugName: "_buildings_by_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._levels_by_id = computed(
+      () => new Map(this._level_list().map((level) => [
+        level.id,
+        level
+      ])),
+      ...ngDevMode ? [{ debugName: "_levels_by_id" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._loaded_data = {};
+    this._served_cache = false;
+    this._refresh_count = signal(
+      0,
+      ...ngDevMode ? [{ debugName: "_refresh_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.refreshing = computed(
+      () => this._refresh_count() > 0,
+      ...ngDevMode ? [{ debugName: "refreshing" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._loaded_buildings = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_loaded_buildings" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._limited_init = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "_limited_init" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.app_key = `${(this._service.app_name || "workplace").toLowerCase()}_app`;
+    this.region_list = this._region_list.asReadonly();
+    this.building_list = this._building_list.asReadonly();
+    this.level_list = this._level_list.asReadonly();
+    this.active_region = this._active_region.asReadonly();
+    this.active_building = this._active_building.asReadonly();
+    this.active_building_loaded = computed(
+      () => {
+        if (this._service.get("dont_load_metadata"))
+          return true;
+        const id = this._active_building()?.id;
+        return !id || this._loaded_buildings().includes(id);
+      },
+      ...ngDevMode ? [{ debugName: "active_building_loaded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_buildings = computed(
+      () => {
+        const region = this._active_region();
+        return region ? this.buildingsForRegion(region) : this.buildings;
+      },
+      ...ngDevMode ? [{ debugName: "active_buildings" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_levels = computed(
+      () => {
+        const building = this._active_building();
+        return building ? this.levelsForBuilding(building) : [];
+      },
+      ...ngDevMode ? [{ debugName: "active_levels" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._organisation = new Organisation();
+    this._settings = [];
+    this._region_settings = {};
+    this._building_settings = {};
+    this._skip_auto_selection = false;
+    this._init_timer = null;
+    this._zone_load_timer = null;
+    this._override_timer = null;
+    this._destroyed = false;
+    const online_state = oo();
+    const online = eo(online_state, (_) => _);
+    const start = Promise.race([
+      online,
+      new Promise((resolve) => setTimeout(resolve, OFFLINE_BOOT_DELAY))
+    ]);
+    start.then(() => this._scheduleInit());
+    online_state.subscribe((is_online, was_online) => {
+      if (is_online && !was_online)
+        this._scheduleInit();
+    }, { emitCurrent: false });
+    effect(() => {
+      this._active_region();
+      const building = this._active_building();
+      if (building)
+        this._updateSettingOverrides();
+    });
+  }
+  _scheduleInit() {
+    if (this._init_timer)
+      clearTimeout(this._init_timer);
+    this._init_timer = setTimeout(() => {
+      this._init_timer = null;
+      if (!this._initialised()) {
+        this._startZoneLoadTimer();
+        this.init();
+      }
+    }, 1e3);
+  }
+  _startZoneLoadTimer() {
+    if (this._zone_load_timer)
+      return;
+    this._zone_load_timer = setTimeout(() => {
+      this._zone_load_timer = null;
+      if (!this._initialised())
+        requestInitReload();
+    }, ZONE_LOAD_TIMEOUT);
+  }
+  _completeInit() {
+    if (this._zone_load_timer)
+      clearTimeout(this._zone_load_timer);
+    this._zone_load_timer = null;
+    this._initialised.set(true);
+  }
+  /** Resolve once the organisation data has finished initialising */
+  async waitUntilInitialised() {
+    await firstValueWhere(this.initialised, (state) => state, this._injector);
+  }
+  /**
+   * Get level with a matching ID
+   * @param id_list List of IDs to find a match
+   */
+  levelWithID(id_list) {
+    for (const id of id_list || []) {
+      const level = this._levels_by_id().get(id);
+      if (level)
+        return level;
+    }
+    return void 0;
+  }
+  /** Get the organisation location represented by a list of zone IDs. */
+  locationWithID(id_list) {
+    const level = this.levelWithID(id_list);
+    const building = this._buildingWithID(id_list) || this._buildings_by_id().get(level?.parent_id);
+    const region = this._regions_by_id().get(building?.parent_id);
+    const label = [region, building, level].map((_) => _?.display_name || _?.name).filter((_) => !!_).join(" / ");
+    return { level, building, region, label };
+  }
+  /** Load and return every building represented by the zone ID lists. */
+  async loadBuildingsForZones(zone_lists) {
+    const find_buildings = () => unique(zone_lists.map((zones) => this._buildingWithID(zones)).filter((building) => !!building), "id");
+    let buildings = find_buildings();
+    const has_missing_building = () => zone_lists.some((zones) => !this._buildingWithID(zones));
+    if (has_missing_building()) {
+      await this._loadAllBuildings();
+      buildings = find_buildings();
+    }
+    return buildings;
+  }
+  /**
+   * Get list of levels for the given building
+   * @param bld Building to list levels for
+   */
+  levelsForBuilding(bld = this.building) {
+    return this._sortLevels(this.levels.filter((lvl) => lvl.parent_id && lvl.parent_id === bld?.id));
+  }
+  /**
+   * Get list of buildings for the given region
+   * @param region Region to list buildings for
+   */
+  buildingsForRegion(region = this.region) {
+    return this.buildings.filter((bld) => bld.parent_id === region?.id);
+  }
+  /**
+   * Get list of levels for the given region
+   * @param region Region to list levels for
+   */
+  levelsForRegion(region = this.region) {
+    const building_ids = new Set(this.buildingsForRegion(region).map(({ id }) => id));
+    return this._sortLevels(this.levels.filter((lvl) => lvl.parent_id && building_ids.has(lvl.parent_id)));
+  }
+  /** Get the first building represented by a list of zone IDs. */
+  _buildingWithID(id_list) {
+    for (const id of id_list || []) {
+      const building = this._buildings_by_id().get(id);
+      if (building)
+        return building;
+    }
+    return void 0;
+  }
+  addZone(zone) {
+    if (zone.tags.includes("region")) {
+      const region = new Region(zone);
+      const regions = this._region_list().filter((_) => _.id !== region.id);
+      regions.push(region);
+      this._region_list.set(regions);
+    } else if (zone.tags.includes("building")) {
+      const bld = new Building(zone);
+      let buildings = this._building_list().filter((_) => _.id !== bld.id);
+      buildings.push(bld);
+      buildings = buildings.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      this._building_list.set(buildings);
+    } else if (zone.tags.includes("level")) {
+      const lvl = new BuildingLevel(zone);
+      let levels = this._level_list().filter((_) => _.id !== lvl.id);
+      levels.push(lvl);
+      levels = this._sortLevels(levels);
+      this._level_list.set(levels);
+    } else {
+      console.warn("Unable to add zone as it is missing the required tag.", zone.id);
+    }
+  }
+  _sortLevels(levels) {
+    return [...levels].sort((a, b) => (a.parent_id || "").localeCompare(b.parent_id || "") || Number(a.tags.includes("parking")) - Number(b.tags.includes("parking")) || (a.name || "").localeCompare(b.name || "") || (a.display_name || "").localeCompare(b.display_name || ""));
+  }
+  removeZone(zone) {
+    if (zone.tags.includes("region")) {
+      const regions = this._region_list().filter((_) => _.id !== zone.id);
+      this._region_list.set(regions);
+    } else if (zone.tags.includes("building")) {
+      const buildings = this._building_list().filter((_) => _.id !== zone.id);
+      this._building_list.set(buildings);
+    } else if (zone.tags.includes("level")) {
+      const levels = this._level_list().filter((_) => _.id !== zone.id);
+      this._level_list.set(levels);
+    } else {
+      console.warn("Unable to remove zone as it is missing the required tag.", zone.id);
+    }
+  }
+  /** Clear cached org data and reload it from PlaceOS. Exposed via window.app.org in debug mode. */
+  async reloadMetadata() {
+    this._clearCache();
+    this._loaded_data = {};
+    this._loaded_buildings.set([]);
+    await this.load();
+  }
+  async init(tries = 0) {
+    if (this._limited_init()) {
+      this._completeInit();
+      return;
+    }
+    this._initialised.set(false);
+    if (isPublicMode()) {
+      await this.load().catch((err2) => {
+        console.warn("Organisation loading failed in public mode, using local public organisation data.", err2);
+        this._setPublicData();
+      });
+    } else {
+      try {
+        await this.load();
+      } catch (err2) {
+        if (ro() && navigator.onLine !== false) {
+          notifyError("Error loading organisation data. Retrying...");
+        } else {
+          log2.warn("Unable to load organisation data while offline. Retrying...", err2);
+        }
+        setTimeout(() => this.init(tries), Math.min(1e4, 300 * ++tries));
+        return;
+      }
+    }
+    if (window.debug) {
+      if (!window.app)
+        window.app = {};
+      window.app.org = this;
+      window.org = this;
+    }
+    this._completeInit();
+    if (this._served_cache) {
+      log2("Loaded from cache, refreshing organisation data...");
+      this._served_cache = false;
+      this._loaded_data = {};
+      this._refresh(() => this.load());
+    }
+  }
+  /**
+   * Run a load straight against the API, ignoring any cached data, so the
+   * displayed data is replaced with the latest. Runs in the background.
+   */
+  async _refresh(load) {
+    this._refresh_count.update((count) => count + 1);
+    await load().catch((err2) => console.warn("Failed to refresh organisation data.", err2));
+    this._refresh_count.update((count) => count - 1);
+  }
+  _setPublicData() {
+    const region_id = localStorage.getItem("PLACEOS.region") || "public";
+    const building_id = localStorage.getItem("KIOSK.building") || localStorage.getItem("PLACEOS.building") || "public-building";
+    const level_id = localStorage.getItem("KIOSK.level") || "public-level";
+    const organisation = new Organisation({
+      id: "public-org",
+      name: "Public Organisation",
+      tags: ["org"]
+    });
+    const region = new Region({
+      id: region_id,
+      name: "Public Region",
+      display_name: "Public Region"
+    });
+    const building = new Building({
+      id: building_id,
+      parent_id: region.id,
+      name: "Public Building",
+      display_name: "Public Building"
+    });
+    const level = new BuildingLevel({
+      id: level_id,
+      parent_id: building.id,
+      name: "Public Level",
+      display_name: "Public Level"
+    });
+    this._organisation = organisation;
+    this._region_list.set([region]);
+    this._building_list.set([building]);
+    this._level_list.set([level]);
+    this._active_region.set(region);
+    this._active_building.set(building);
+    this._updateSettingOverrides();
+  }
+  /**
+   * Initialise service data. When this is a background refresh, loading
+   * messages and the default region/building selection are skipped so the
+   * user's current view and selection are left alone.
+   */
+  async load() {
+    const refreshing = this._refreshing;
+    const loadingMessage = (message) => refreshing ? null : setLoadingMessage(message);
+    loadingMessage("Loading organisation data...");
+    await this.loadOrganisation();
+    loadingMessage("Loading region data...");
+    await this.loadRegions();
+    if (!this._region_list().length) {
+      loadingMessage("Loading building data...");
+      const list = await this.loadBuildings();
+      this._building_list.set(list);
+    } else {
+      loadingMessage("Loading region buildings data...");
+      for (const region of this._region_list()) {
+        const blds = await this.loadBuildings(region.id);
+        if (blds.length) {
+          this._building_list.set(blds);
+          break;
+        }
+      }
+    }
+    loadingMessage("Loading zone settings...");
+    await this.loadSettings();
+    if (!this._building_list()?.length) {
+      log2("Unable to find any building zones");
+    }
+    loadingMessage("Loading active building levels...");
+    await this.loadLevels();
+    if (refreshing) {
+      if (this.region?.id)
+        await this.loadRegionData(this.region);
+      if (this.building?.id && !this._service.get("dont_load_metadata")) {
+        await this.loadBuildingData(this.building);
+      }
+    }
+    this._updateSettingOverrides();
+  }
+  /**
+   * Load organisation data for application
+   */
+  async loadOrganisation() {
+    const org_list = await this._queryZones({
+      tags: "org",
+      include_children_count: true
+    });
+    if (org_list.length) {
+      const auth = Mt();
+      const org = org_list.find((list) => Un() || list.id === auth?.config?.org_zone) || org_list[0];
+      const load_metadata = !this._service.get("dont_load_metadata");
+      const bindings = load_metadata ? (await this._bulkMetadataDetails("bindings", [org.id]))[org.id] : {};
+      this._organisation = new Organisation(__spreadProps(__spreadValues({}, org), { bindings }));
+    } else {
+      log2("Unable to find organisation");
+      this._router.navigate(["/misconfigured"]);
+    }
+  }
+  /**
+   * Load region data for the organisation
+   */
+  async loadRegions() {
+    const list = (await this._queryZones({
+      tags: "region",
+      parent_id: this._organisation?.id || "",
+      limit: 200
+    }).catch(() => [])).map((_) => new Region(_));
+    this._region_list.set(list);
+  }
+  async loadRegionData(region) {
+    if (this._loaded_data[region.id] && !this._refreshing)
+      return;
+    const load_metadata = !this._service.get("dont_load_metadata");
+    const from_cache = this._zoneDataCached(region.id);
+    const [settings, bindings, buildings] = await Promise.all([
+      load_metadata ? this._bulkMetadataDetails(this.app_key, [region.id]).then((_) => _[region.id]) : {},
+      load_metadata ? this._bulkMetadataDetails("bindings", [region.id]).then((_) => _[region.id]) : {},
+      this.loadBuildings(region.id)
+    ]);
+    const building_list = unique([...this._building_list(), ...buildings], "id");
+    this._building_list.set(building_list);
+    this._loaded_data[region.id] = true;
+    region.bindings = bindings;
+    this._region_settings[region.id] = settings;
+    if (from_cache)
+      this._refresh(() => this.loadRegionData(region));
+  }
+  /**
+   * Load buildings data for the organisation
+   */
+  async loadBuildings(parent_id = this._organisation?.id) {
+    const building_list = (await this._queryZones({
+      tags: "building",
+      parent_id,
+      limit: 500
+    })).map((_) => new Building(_));
+    return building_list;
+  }
+  async loadBuildingData(bld) {
+    if (!bld || this._loaded_data[bld.id] && !this._refreshing)
+      return;
+    const from_cache = this._zoneDataCached(bld.id);
+    const [settings, bindings, booking_rules, driver_settings] = await Promise.all([
+      this._bulkMetadataDetails(this.app_key, [bld.id]).then((_) => _[bld.id]),
+      this._bulkMetadataDetails("bindings", [bld.id]).then((_) => _[bld.id]),
+      this._bulkMetadataDetails("booking_rules", [bld.id]).then((_) => _[bld.id])
+      // lastValueFrom(
+      //     (this.app_key.includes('concierge')
+      //         ? querySettings({ parent_id: bld.id })
+      //         : of({ data: {} as any })
+      //     ).pipe(
+      //         catchError(() => of({ data: {} as any })),
+      //         map((_) => {
+      //             try {
+      //                 return parseYAML(
+      //                     _?.data.find(
+      //                         (_) =>
+      //                             _.encryption_level ===
+      //                             EncryptionLevel.None,
+      //                     ) || { settings_string: '' },
+      //                 );
+      //             } catch {
+      //                 return {};
+      //             }
+      //         }),
+      //     ),
+      // ),
+    ]);
+    this._building_settings[bld.id] = __spreadValues(__spreadValues({}, driver_settings || {}), settings || {});
+    bld.bindings = bindings;
+    bld.booking_rules = booking_rules;
+    this._loaded_data[bld.id] = true;
+    this._loaded_buildings.update((ids) => ids.includes(bld.id) ? ids : [...ids, bld.id]);
+    this._updateSettingOverrides();
+    if (from_cache)
+      this._refresh(() => this.loadBuildingData(bld));
+  }
+  /**
+   * Whether the zone's settings metadata would be loaded from the cache.
+   * Always false while refreshing, so a refresh never schedules another one.
+   */
+  _zoneDataCached(id) {
+    return !!this._getCachedItem(this._metadataCacheKey(this.app_key, [id]));
+  }
+  /**
+   * Load levels data for the buildings
+   */
+  async loadLevels() {
+    let level_list = await this._queryZones({
+      tags: "level",
+      limit: 2500
+    });
+    level_list = level_list.filter((_) => _.parent_id);
+    if (!level_list?.length) {
+      this._router.navigate(["/misconfigured"]);
+    }
+    let levels = level_list.map((lvl) => new BuildingLevel(lvl));
+    levels = levels.sort((a, b) => Number(a.tags.includes("parking")) - Number(b.tags.includes("parking")) || (a.name || "").localeCompare(b.name || ""));
+    this._level_list.set(levels);
+  }
+  async loadSettings() {
+    if (!this._organisation)
+      return;
+    const org_id = this._organisation?.id;
+    const app_settings = (await this._bulkMetadataDetails(this.app_key, [org_id]))[org_id];
+    const global_settings = (await this._bulkMetadataDetails("settings", [org_id]))[org_id];
+    if (this._destroyed)
+      return;
+    this._settings = [global_settings, app_settings];
+    if (this._override_timer) {
+      clearTimeout(this._override_timer);
+      this._override_timer = null;
+    }
+    this._service.setOverrides([...this._settings]);
+    if (!this._refreshing)
+      await this._setDefaultBuilding();
+    this._updateSettingOverrides();
+  }
+  /** Select the building physically closest to the user's current location */
+  async _setBuildingFromGeolocation() {
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (building) => {
+        if (settled)
+          return;
+        settled = true;
+        clearTimeout(timer);
+        resolve(building);
+      };
+      const timer = setTimeout(() => finish(null), GEOLOCATION_TIMEOUT);
+      navigator.geolocation.getCurrentPosition((position) => {
+        if (settled)
+          return;
+        const { latitude, longitude } = position.coords;
+        const closest = this._closestBuilding(latitude, longitude);
+        if (closest)
+          this.building = closest;
+        finish(closest);
+      }, () => finish(null), { timeout: GEOLOCATION_TIMEOUT });
+    });
+  }
+  /** Find the building nearest to the given coordinates */
+  _closestBuilding(latitude, longitude) {
+    let closest = null;
+    let closest_distance = Infinity;
+    for (const bld of this.buildings) {
+      if (!bld.location || bld.location === "0,0")
+        continue;
+      const [lat, long] = bld.location.split(",").map(Number);
+      const distance = Math.hypot(latitude - lat, longitude - long);
+      if (distance < closest_distance) {
+        closest = bld;
+        closest_distance = distance;
+      }
+    }
+    return closest;
+  }
+  /** Find a building by id, loading every region's buildings if not already present */
+  async _findBuilding(id) {
+    const loaded = this.buildings.find((bld) => bld.id === id);
+    if (loaded)
+      return loaded;
+    await this._loadAllBuildings();
+    return this.buildings.find((bld) => bld.id === id) || null;
+  }
+  /** Load the buildings for every region into the building list */
+  async _loadAllBuildings() {
+    const lists = await Promise.all(this.regions.map((region) => this.loadBuildings(region.id)));
+    this._building_list.set(unique([...this._building_list(), ...lists.flat()], "id"));
+  }
+  async _setDefaultBuilding() {
+    log2("No building set yet, applying defaults...");
+    const region_id = localStorage.getItem(`PLACEOS.region`);
+    const building_id = sessionStorage.getItem(`PLACEOS.building`) || localStorage.getItem(`PLACEOS.building`);
+    const default_id = this._service.get("app.default_building");
+    if (!this.buildings.length && !region_id)
+      return;
+    await (region_id ? this.setRegion(this._region_list().find((_) => _.id === region_id)) : this._setRegionFromTimezone());
+    if (!this.buildings.length)
+      return;
+    const previous = this.buildings.find((_) => _.id === building_id);
+    if (previous) {
+      log2("Defaulting building to previously selected building.");
+      this.building = previous;
+      return;
+    }
+    if (default_id) {
+      const configured = await this._findBuilding(default_id);
+      if (configured) {
+        log2("Applied default building from app settings.");
+        const region = this.regions.find((_) => _.id === configured.parent_id);
+        if (region)
+          await this.setRegion(region);
+        this.building = configured;
+        return;
+      }
+      log2(`Configured default building "${default_id}" was not found.`);
+    }
+    const use_location = !!this._service.get("app.use_geolocation");
+    if (use_location && "geolocation" in navigator) {
+      const closest = await this._setBuildingFromGeolocation();
+      if (closest) {
+        log2("Applied default building from user location.");
+        return;
+      }
+    }
+    this._setBuildingFromTimezone();
+    if (this.building?.id)
+      return;
+    log2("No default building matched, initialising to first building.");
+    this.building = this.buildings[0];
+  }
+  async _setRegionFromTimezone() {
+    const region = this._matchByTimezone(this.regions);
+    if (region)
+      await this.setRegion(region);
+  }
+  _setBuildingFromTimezone() {
+    if (this._skip_auto_selection)
+      return;
+    const bld_list = this.buildings.filter((bld) => !this.region || bld.parent_id === this.region?.id);
+    const building = this._matchByTimezone(bld_list);
+    if (building) {
+      this.building = building;
+      log2("Applied default building from user's timezone.");
+    }
+  }
+  /** Match the item whose timezone equals the user's, else one in the same region */
+  _matchByTimezone(list) {
+    const timezone = this.timezone;
+    const exact = list.find((_) => _.timezone === timezone);
+    if (exact)
+      return exact;
+    const tz_start = timezone.split("/")[0];
+    return list.find((_) => _.timezone?.startsWith(tz_start));
+  }
+  /** Stop settings overrides so a late load cannot apply them after teardown */
+  ngOnDestroy() {
+    this._destroyed = true;
+    if (this._override_timer)
+      clearTimeout(this._override_timer);
+    this._override_timer = null;
+  }
+  _updateSettingOverrides() {
+    if (this._override_timer)
+      clearTimeout(this._override_timer);
+    if (this._destroyed)
+      return;
+    this._override_timer = setTimeout(() => this._service.setOverrides([
+      this.buildingSettings(this.building?.id),
+      this.regionSettings(this.region?.id),
+      ...this._settings
+    ]), 300);
+  }
+  async _bulkMetadataDetails(name, ids) {
+    const parent_ids = ids.filter(Boolean).join(",");
+    if (!parent_ids)
+      return {};
+    const cache_key = this._metadataCacheKey(name, ids);
+    const cached_metadata = this._getCachedItem(cache_key);
+    if (cached_metadata)
+      return cached_metadata;
+    const metadata = await vc(name, { parent_ids }).catch((err2) => err2?.status === 404 ? this._individualMetadata(name, ids) : {});
+    const metadata_details = ids.reduce((map2, id) => {
+      map2[id] = metadata[id]?.details || {};
+      return map2;
+    }, {});
+    this._setCachedItem(cache_key, metadata_details);
+    return metadata_details;
+  }
+  /** Fallback for backends without the bulk metadata endpoint (404) */
+  async _individualMetadata(name, ids) {
+    const items = await Promise.all(ids.filter(Boolean).map((id) => _c(id, name).then((item) => [id, item], () => [id, null])));
+    const metadata = {};
+    for (const [id, item] of items) {
+      if (item)
+        metadata[id] = item;
+    }
+    return metadata;
+  }
+  async _queryZones(params) {
+    const cache_key = this._zoneCacheKey(params);
+    const cached_zones = this._getCachedItem(cache_key);
+    if (cached_zones)
+      return cached_zones;
+    const zones = (await $h(__spreadProps(__spreadValues({}, params), {
+      authority_id: Mt()?.id
+    }))).data || [];
+    this._setCachedItem(cache_key, zones);
+    return zones;
+  }
+  _metadataCacheKey(name, ids) {
+    const auth = cachedAuthority();
+    const parent_ids = ids.filter(Boolean).sort().join(",");
+    return `${METADATA_CACHE_PREFIX}.${auth?.id || "default"}.${name}.${parent_ids}`;
+  }
+  _zoneCacheKey(params) {
+    const auth = cachedAuthority();
+    const sorted_params = Object.keys(params).sort().reduce((cache_params, key) => {
+      cache_params[key] = params[key];
+      return cache_params;
+    }, {});
+    return `${ZONE_CACHE_PREFIX}.${auth?.id || "default"}.${JSON.stringify(sorted_params)}`;
+  }
+  _getCachedItem(cache_key) {
+    if (this._refreshing)
+      return null;
+    try {
+      const cached_item = JSON.parse(localStorage.getItem(cache_key) || "null");
+      if (!cached_item)
+        return null;
+      if (cached_item.metadata_cache_id !== this._metadataCacheID() || cached_item.cached_at + MAX_CACHE_AGE < Date.now()) {
+        localStorage.removeItem(cache_key);
+        return null;
+      }
+      this._served_cache = true;
+      return cached_item.data;
+    } catch {
+      localStorage.removeItem(cache_key);
+      return null;
+    }
+  }
+  _setCachedItem(cache_key, data) {
+    const cached_item = {
+      cached_at: Date.now(),
+      metadata_cache_id: this._metadataCacheID(),
+      data
+    };
+    const value = JSON.stringify(cached_item);
+    try {
+      localStorage.setItem(cache_key, value);
+    } catch {
+      this._clearCache();
+      try {
+        localStorage.setItem(cache_key, value);
+      } catch {
+      }
+    }
+  }
+  _metadataCacheID() {
+    return `${cachedAuthority()?.metadata_cache_id || ""}`;
+  }
+  _clearCache() {
+    for (const store of [localStorage, sessionStorage]) {
+      for (let i = store.length - 1; i >= 0; i--) {
+        const key = store.key(i);
+        if (key?.startsWith(ORG_CACHE_PREFIX))
+          store.removeItem(key);
+      }
+    }
+  }
+  static {
+    this.\u0275fac = function OrganisationService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _OrganisationService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _OrganisationService, factory: _OrganisationService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(OrganisationService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// libs/common/src/lib/api.ts
+var IGNORE_VALUES = [void 0, null, ""];
+function toQueryString(map2) {
+  let str = "";
+  if (map2) {
+    for (const key in map2) {
+      if (key in map2 && !IGNORE_VALUES.includes(map2[key])) {
+        str += `${str ? "&" : ""}${key}=${encodeURIComponent(map2[key])}`;
+      }
+    }
+  }
+  return str;
+}
+function isRecord(value) {
+  return typeof value === "object" && value !== null;
+}
+function errorStatus(error) {
+  if (!isRecord(error))
+    return void 0;
+  const status = error["status"];
+  if (typeof status === "number")
+    return status;
+  const nested = error["error"];
+  if (!isRecord(nested))
+    return void 0;
+  const nested_status = nested["status"];
+  return typeof nested_status === "number" ? nested_status : void 0;
+}
+
+// libs/common/src/lib/types.ts
+var MAP_FEATURE_DATA = new InjectionToken("Data for Map Features");
+
+// libs/common/src/lib/uploads.service.ts
+var UploadFailedError = class extends Error {
+  constructor(message, details) {
+    super(message);
+    this.details = details;
+    this.name = "UploadFailedError";
+  }
+};
+var loadCloudUploads = () => import("./index.es-IKAIZACQ.js");
+var UPLOAD_RETRY_ATTEMPTS = 3;
+function uploadStateError(state) {
+  return state?.error || "Upload failed";
+}
+function uploadFailure(details) {
+  if (details instanceof Error)
+    return details;
+  return new UploadFailedError(details?.error || "Upload failed", details);
+}
+var UploadsService = class _UploadsService extends AsyncHandler {
+  constructor() {
+    super();
+    this._upload_list = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_upload_list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.upload_list = this._upload_list.asReadonly();
+    this._uploads_setup = null;
+    this._uploads_use_api_key = false;
+    this._token_refresh = null;
+    if (localStorage) {
+      this._upload_list.set(JSON.parse(localStorage.getItem("BACKOFFICE.uploads") || "[]"));
+    }
+  }
+  init(tries = 1) {
+    this.timeout("init_uploads", () => {
+      this._initUploads().catch(() => this.timeout("init_uploads", () => this.init(tries += 1), 1e3 * tries));
+    });
+  }
+  clearList() {
+    const in_progress_list = this._upload_list().filter((file) => file.progress < 100 && !file.error);
+    this._upload_list.set(in_progress_list);
+  }
+  uploadFile(file, pub = false, permissions = "none") {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      const update_fn = (details) => {
+        if (!resolved) {
+          resolve(details.upload_id || details.upload?.id || details.id);
+          resolved = true;
+        }
+        this._upload_list.set([
+          ...this._upload_list().filter((_) => _.id !== details.id),
+          details
+        ]);
+      };
+      this._uploadFile(file, pub, permissions, {
+        next: update_fn,
+        error: (details) => {
+          if (details?.id)
+            update_fn(details);
+          if (!resolved)
+            reject(uploadFailure(details));
+        },
+        complete: () => this._updateUploadHistory()
+      });
+    });
+  }
+  async uploadFileToCompletion(file, pub = false, permissions = "none", on_progress) {
+    const details = await this._uploadFileToDetails(file, pub, permissions, on_progress);
+    const upload_id = details.upload_id || details.upload?.id || details.id;
+    if (!upload_id)
+      throw new Error("Failed to get uploaded file ID");
+    return upload_id;
+  }
+  uploadFileWithProgress(file, pub = false, permissions = "none") {
+    const progress = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "progress" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._uploadFile(file, pub, permissions, {
+      next: (details) => progress.set(__spreadValues({}, details)),
+      error: (details) => progress.set(details),
+      complete: () => this._updateUploadHistory()
+    });
+    return progress;
+  }
+  _updateUploadHistory() {
+    const done_list = this._upload_list().filter((file) => file.progress >= 100);
+    done_list.forEach((i) => delete i.upload);
+    if (localStorage) {
+      localStorage.setItem("PLACEOS.uploads", JSON.stringify(done_list));
+    }
+  }
+  /**
+   * Set up the upload manager, once for each auth mode. Setting it up
+   * again ends the hash workers, which leaves any upload being hashed
+   * waiting forever. The credential is read on each request, so a
+   * refreshed token needs no new setup. A change between API key and
+   * token auth does, as the manager picks the header at setup.
+   */
+  _initUploads() {
+    const use_api_key = !!et();
+    if (use_api_key !== this._uploads_use_api_key) {
+      this._uploads_setup = null;
+      this._uploads_use_api_key = use_api_key;
+    }
+    this._uploads_setup ||= this._setupUploads(use_api_key).catch((error) => {
+      this._uploads_setup = null;
+      throw error;
+    });
+    return this._uploads_setup;
+  }
+  async _setupUploads(use_api_key) {
+    const { initUploads } = await loadCloudUploads();
+    initUploads(__spreadProps(__spreadValues({
+      auto_start: true
+    }, use_api_key ? { api_key: () => et() } : { token: () => J() }), {
+      endpoint: "/api/engine/v2/uploads",
+      worker_url: "assets/md5_worker.js",
+      // Drop each upload from the manager once it completes. It keeps
+      // the File otherwise, so every file uploaded stays in memory for
+      // the rest of the session. The upload list here keeps no File.
+      auto_remove: true
+    }));
+  }
+  _updateUploadToken() {
+    this._token_refresh ||= (async () => {
+      if (!et() && !J(false))
+        await jt();
+      await this._initUploads();
+    })().finally(() => this._token_refresh = null);
+    return this._token_refresh;
+  }
+  /**
+   * Upload the given file to the cloud
+   * @param file File to upload
+   */
+  _uploadFile(file, pub = false, permissions = "none", observer) {
+    this._updateUploadToken().then(() => loadCloudUploads()).then(async ({ humanReadableByteCount, uploadFile }) => {
+      const upload = await uploadFile(file, {
+        permissions,
+        public: pub
+      });
+      const upload_details = {
+        id: upload?.id || `upi-${randomString(8)}`,
+        name: file.name,
+        progress: 0,
+        link: "",
+        formatted_size: humanReadableByteCount(file.size),
+        size: file.size,
+        upload
+      };
+      let attempts = 0;
+      let settled = false;
+      let subscription;
+      const stop = () => {
+        settled = true;
+        Promise.resolve().then(() => subscription?.unsubscribe());
+      };
+      subscription = upload.state.subscribe(async (state) => {
+        if (settled)
+          return;
+        upload_details.upload_id = upload.id;
+        if (upload.access_url || state.progress >= 100) {
+          const local_url = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_details.upload_id || upload.id)}/url`;
+          upload_details.link = local_url;
+        }
+        upload_details.progress = state.progress;
+        observer.next(upload_details);
+        if (state.status === "FAILED") {
+          if (attempts < UPLOAD_RETRY_ATTEMPTS) {
+            attempts += 1;
+            await this._updateUploadToken();
+            if (settled)
+              return;
+            upload.resume();
+            return;
+          }
+          stop();
+          observer.error(__spreadProps(__spreadValues({}, upload_details), {
+            error: uploadStateError(state)
+          }));
+          return;
+        }
+        if (state.status === "COMPLETED") {
+          stop();
+          observer.complete();
+        }
+      });
+      observer.next(upload_details);
+    }).catch((upload_error) => observer.error(upload_error));
+  }
+  _uploadFileToDetails(file, pub = false, permissions = "none", on_progress) {
+    return new Promise((resolve, reject) => {
+      let last_details;
+      this._uploadFile(file, pub, permissions, {
+        next: (details) => {
+          last_details = details;
+          on_progress?.(details.progress);
+        },
+        error: (details) => reject(uploadFailure(details)),
+        complete: () => {
+          this._updateUploadHistory();
+          resolve(last_details);
+        }
+      });
+    });
+  }
+  static {
+    this.\u0275fac = function UploadsService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _UploadsService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _UploadsService, factory: _UploadsService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UploadsService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// node_modules/@angular/forms/fesm2022/forms.mjs
+/**
+ * @license Angular v22.1.5
+ * (c) 2010-2026 Google LLC. https://angular.dev/
+ * License: MIT
+ */
+var BaseControlValueAccessor = class _BaseControlValueAccessor {
+  _renderer;
+  _elementRef;
+  onChange = (_) => {
+  };
+  onTouched = () => {
+  };
+  constructor(_renderer, _elementRef) {
+    this._renderer = _renderer;
+    this._elementRef = _elementRef;
+  }
+  setProperty(key, value) {
+    this._renderer.setProperty(this._elementRef.nativeElement, key, value);
+  }
+  registerOnTouched(fn) {
+    this.onTouched = fn;
+  }
+  registerOnChange(fn) {
+    this.onChange = fn;
+  }
+  setDisabledState(isDisabled) {
+    this.setProperty("disabled", isDisabled);
+  }
+  static \u0275fac = function BaseControlValueAccessor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _BaseControlValueAccessor)(\u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ElementRef));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _BaseControlValueAccessor
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BaseControlValueAccessor, [{
+    type: Directive
+  }], () => [{
+    type: Renderer2
+  }, {
+    type: ElementRef
+  }], null);
+})();
+var BuiltInControlValueAccessor = class _BuiltInControlValueAccessor extends BaseControlValueAccessor {
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275BuiltInControlValueAccessor_BaseFactory;
+    return function BuiltInControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275BuiltInControlValueAccessor_BaseFactory || (\u0275BuiltInControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_BuiltInControlValueAccessor)))(__ngFactoryType__ || _BuiltInControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _BuiltInControlValueAccessor,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(BuiltInControlValueAccessor, [{
+    type: Directive
+  }], null, null);
+})();
+var NG_VALUE_ACCESSOR = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "NgValueAccessor" : "");
+var CHECKBOX_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => CheckboxControlValueAccessor),
+  multi: true
+};
+var CheckboxControlValueAccessor = class _CheckboxControlValueAccessor extends BuiltInControlValueAccessor {
+  writeValue(value) {
+    this.setProperty("checked", value);
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275CheckboxControlValueAccessor_BaseFactory;
+    return function CheckboxControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275CheckboxControlValueAccessor_BaseFactory || (\u0275CheckboxControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_CheckboxControlValueAccessor)))(__ngFactoryType__ || _CheckboxControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _CheckboxControlValueAccessor,
+    selectors: [["input", "type", "checkbox", "formControlName", "", 3, "ngNoCva", ""], ["input", "type", "checkbox", "formControl", "", 3, "ngNoCva", ""], ["input", "type", "checkbox", "ngModel", "", 3, "ngNoCva", ""]],
+    hostBindings: function CheckboxControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function CheckboxControlValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target.checked);
+        })("blur", function CheckboxControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([CHECKBOX_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CheckboxControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=checkbox]:not([ngNoCva])[formControlName],input[type=checkbox]:not([ngNoCva])[formControl],input[type=checkbox]:not([ngNoCva])[ngModel]",
+      host: {
+        "(change)": "onChange($any($event.target).checked)",
+        "(blur)": "onTouched()"
+      },
+      providers: [CHECKBOX_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, null);
+})();
+var DEFAULT_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => DefaultValueAccessor),
+  multi: true
+};
+function _isAndroid() {
+  const userAgent = getDOM() ? getDOM().getUserAgent() : "";
+  return /android (\d+)/.test(userAgent.toLowerCase());
+}
+var COMPOSITION_BUFFER_MODE = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "CompositionEventMode" : "");
+var DefaultValueAccessor = class _DefaultValueAccessor extends BaseControlValueAccessor {
+  _compositionMode;
+  _composing = false;
+  constructor(renderer, elementRef, _compositionMode) {
+    super(renderer, elementRef);
+    this._compositionMode = _compositionMode;
+    if (this._compositionMode == null) {
+      this._compositionMode = !_isAndroid();
+    }
+  }
+  writeValue(value) {
+    const normalizedValue = value == null ? "" : value;
+    this.setProperty("value", normalizedValue);
+  }
+  _handleInput(value) {
+    if (!this._compositionMode || this._compositionMode && !this._composing) {
+      this.onChange(value);
+    }
+  }
+  _compositionStart() {
+    this._composing = true;
+  }
+  _compositionEnd(value) {
+    this._composing = false;
+    this._compositionMode && this.onChange(value);
+  }
+  static \u0275fac = function DefaultValueAccessor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _DefaultValueAccessor)(\u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(COMPOSITION_BUFFER_MODE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _DefaultValueAccessor,
+    selectors: [["input", "formControlName", "", 3, "type", "checkbox", 3, "ngNoCva", ""], ["textarea", "formControlName", "", 3, "ngNoCva", ""], ["input", "formControl", "", 3, "type", "checkbox", 3, "ngNoCva", ""], ["textarea", "formControl", "", 3, "ngNoCva", ""], ["input", "ngModel", "", 3, "type", "checkbox", 3, "ngNoCva", ""], ["textarea", "ngModel", "", 3, "ngNoCva", ""], ["", "ngDefaultControl", ""]],
+    hostBindings: function DefaultValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("input", function DefaultValueAccessor_input_HostBindingHandler($event) {
+          return ctx._handleInput($event.target.value);
+        })("blur", function DefaultValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        })("compositionstart", function DefaultValueAccessor_compositionstart_HostBindingHandler() {
+          return ctx._compositionStart();
+        })("compositionend", function DefaultValueAccessor_compositionend_HostBindingHandler($event) {
+          return ctx._compositionEnd($event.target.value);
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([DEFAULT_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(DefaultValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input:not([type=checkbox]):not([ngNoCva])[formControlName],textarea:not([ngNoCva])[formControlName],input:not([type=checkbox]):not([ngNoCva])[formControl],textarea:not([ngNoCva])[formControl],input:not([type=checkbox]):not([ngNoCva])[ngModel],textarea:not([ngNoCva])[ngModel],[ngDefaultControl]",
+      host: {
+        "(input)": "_handleInput($any($event.target).value)",
+        "(blur)": "onTouched()",
+        "(compositionstart)": "_compositionStart()",
+        "(compositionend)": "_compositionEnd($any($event.target).value)"
+      },
+      providers: [DEFAULT_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], () => [{
+    type: Renderer2
+  }, {
+    type: ElementRef
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [COMPOSITION_BUFFER_MODE]
+    }]
+  }], null);
+})();
+function isEmptyInputValue(value) {
+  return value == null || lengthOrSize(value) === 0;
+}
+function lengthOrSize(value) {
+  if (value == null) {
+    return null;
+  } else if (Array.isArray(value) || typeof value === "string") {
+    return value.length;
+  } else if (value instanceof Set) {
+    return value.size;
+  }
+  return null;
+}
+var NG_VALIDATORS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "NgValidators" : "");
+var NG_ASYNC_VALIDATORS = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "NgAsyncValidators" : "");
+var EMAIL_REGEXP = /^(?=.{1,254}$)(?=.{1,64}@)[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+var Validators = class {
+  static min(min) {
+    return minValidator(min);
+  }
+  static max(max) {
+    return maxValidator(max);
+  }
+  static required(control) {
+    return requiredValidator(control);
+  }
+  static requiredTrue(control) {
+    return requiredTrueValidator(control);
+  }
+  static email(control) {
+    return emailValidator(control);
+  }
+  static minLength(minLength) {
+    return minLengthValidator(minLength);
+  }
+  static maxLength(maxLength) {
+    return maxLengthValidator(maxLength);
+  }
+  static pattern(pattern) {
+    return patternValidator(pattern);
+  }
+  static nullValidator(control) {
+    return nullValidator();
+  }
+  static compose(validators) {
+    return compose(validators);
+  }
+  static composeAsync(validators) {
+    return composeAsync(validators);
+  }
+};
+function minValidator(min) {
+  return (control) => {
+    if (control.value == null || min == null) {
+      return null;
+    }
+    const value = parseFloat(control.value);
+    return !isNaN(value) && value < min ? {
+      "min": {
+        "min": min,
+        "actual": control.value
+      }
+    } : null;
+  };
+}
+function maxValidator(max) {
+  return (control) => {
+    if (control.value == null || max == null) {
+      return null;
+    }
+    const value = parseFloat(control.value);
+    return !isNaN(value) && value > max ? {
+      "max": {
+        "max": max,
+        "actual": control.value
+      }
+    } : null;
+  };
+}
+function requiredValidator(control) {
+  return isEmptyInputValue(control.value) ? {
+    "required": true
+  } : null;
+}
+function requiredTrueValidator(control) {
+  return control.value === true ? null : {
+    "required": true
+  };
+}
+function emailValidator(control) {
+  if (isEmptyInputValue(control.value)) {
+    return null;
+  }
+  return EMAIL_REGEXP.test(control.value) ? null : {
+    "email": true
+  };
+}
+function minLengthValidator(minLength) {
+  return (control) => {
+    const length = control.value?.length ?? lengthOrSize(control.value);
+    if (length === null || length === 0) {
+      return null;
+    }
+    return length < minLength ? {
+      "minlength": {
+        "requiredLength": minLength,
+        "actualLength": length
+      }
+    } : null;
+  };
+}
+function maxLengthValidator(maxLength) {
+  return (control) => {
+    const length = control.value?.length ?? lengthOrSize(control.value);
+    if (length !== null && length > maxLength) {
+      return {
+        "maxlength": {
+          "requiredLength": maxLength,
+          "actualLength": length
+        }
+      };
+    }
+    return null;
+  };
+}
+function patternValidator(pattern) {
+  if (!pattern) return nullValidator;
+  let regex;
+  let regexStr;
+  if (typeof pattern === "string") {
+    regexStr = "";
+    if (pattern.charAt(0) !== "^") regexStr += "^";
+    regexStr += pattern;
+    if (pattern.charAt(pattern.length - 1) !== "$") regexStr += "$";
+    regex = new RegExp(regexStr);
+  } else {
+    regexStr = pattern.toString();
+    regex = pattern;
+  }
+  return (control) => {
+    if (isEmptyInputValue(control.value)) {
+      return null;
+    }
+    const value = control.value;
+    return regex.test(value) ? null : {
+      "pattern": {
+        "requiredPattern": regexStr,
+        "actualValue": value
+      }
+    };
+  };
+}
+function nullValidator(control) {
+  return null;
+}
+function isPresent(o) {
+  return o != null;
+}
+function toObservable(value) {
+  const obs = isPromise(value) ? from(value) : value;
+  if ((typeof ngDevMode === "undefined" || ngDevMode) && !isSubscribable(obs)) {
+    let errorMessage = `Expected async validator to return Promise or Observable.`;
+    if (typeof value === "object") {
+      errorMessage += " Are you using a synchronous validator where an async validator is expected?";
+    }
+    throw new RuntimeError(-1101, errorMessage);
+  }
+  return obs;
+}
+function mergeErrors(arrayOfErrors) {
+  let res = {};
+  arrayOfErrors.forEach((errors) => {
+    res = errors != null ? __spreadValues(__spreadValues({}, res), errors) : res;
+  });
+  return Object.keys(res).length === 0 ? null : res;
+}
+function executeValidators(control, validators) {
+  return validators.map((validator) => validator(control));
+}
+function isValidatorFn(validator) {
+  return !validator.validate;
+}
+function normalizeValidators(validators) {
+  return validators.map((validator) => {
+    return isValidatorFn(validator) ? validator : (c) => validator.validate(c);
+  });
+}
+function compose(validators) {
+  if (!validators) return null;
+  const presentValidators = validators.filter(isPresent);
+  if (presentValidators.length == 0) return null;
+  return function(control) {
+    return mergeErrors(executeValidators(control, presentValidators));
+  };
+}
+function composeValidators(validators) {
+  return validators != null ? compose(normalizeValidators(validators)) : null;
+}
+function composeAsync(validators) {
+  if (!validators) return null;
+  const presentValidators = validators.filter(isPresent);
+  if (presentValidators.length == 0) return null;
+  return function(control) {
+    const observables = executeValidators(control, presentValidators).map(toObservable);
+    return forkJoin(observables).pipe(map(mergeErrors));
+  };
+}
+function composeAsyncValidators(validators) {
+  return validators != null ? composeAsync(normalizeValidators(validators)) : null;
+}
+function mergeValidators(controlValidators, dirValidator) {
+  if (controlValidators === null) return [dirValidator];
+  return Array.isArray(controlValidators) ? [...controlValidators, dirValidator] : [controlValidators, dirValidator];
+}
+function getControlValidators(control) {
+  return control._rawValidators;
+}
+function getControlAsyncValidators(control) {
+  return control._rawAsyncValidators;
+}
+function makeValidatorsArray(validators) {
+  if (!validators) return [];
+  return Array.isArray(validators) ? validators : [validators];
+}
+function hasValidator(validators, validator) {
+  return Array.isArray(validators) ? validators.includes(validator) : validators === validator;
+}
+function addValidators(validators, currentValidators) {
+  const current = makeValidatorsArray(currentValidators);
+  const validatorsToAdd = makeValidatorsArray(validators);
+  validatorsToAdd.forEach((v2) => {
+    if (!hasValidator(current, v2)) {
+      current.push(v2);
+    }
+  });
+  return current;
+}
+function removeValidators(validators, currentValidators) {
+  return makeValidatorsArray(currentValidators).filter((v2) => !hasValidator(validators, v2));
+}
+var AbstractControlDirective = class {
+  get value() {
+    return this.control ? this.control.value : null;
+  }
+  get valid() {
+    return this.control ? this.control.valid : null;
+  }
+  get invalid() {
+    return this.control ? this.control.invalid : null;
+  }
+  get pending() {
+    return this.control ? this.control.pending : null;
+  }
+  get disabled() {
+    return this.control ? this.control.disabled : null;
+  }
+  get enabled() {
+    return this.control ? this.control.enabled : null;
+  }
+  get errors() {
+    return this.control ? this.control.errors : null;
+  }
+  get pristine() {
+    return this.control ? this.control.pristine : null;
+  }
+  get dirty() {
+    return this.control ? this.control.dirty : null;
+  }
+  get touched() {
+    return this.control ? this.control.touched : null;
+  }
+  get status() {
+    return this.control ? this.control.status : null;
+  }
+  get untouched() {
+    return this.control ? this.control.untouched : null;
+  }
+  get statusChanges() {
+    return this.control ? this.control.statusChanges : null;
+  }
+  get valueChanges() {
+    return this.control ? this.control.valueChanges : null;
+  }
+  get path() {
+    return null;
+  }
+  _composedValidatorFn;
+  _composedAsyncValidatorFn;
+  _rawValidators = [];
+  _rawAsyncValidators = [];
+  _setValidators(validators) {
+    this._rawValidators = validators || [];
+    this._composedValidatorFn = composeValidators(this._rawValidators);
+  }
+  _setAsyncValidators(validators) {
+    this._rawAsyncValidators = validators || [];
+    this._composedAsyncValidatorFn = composeAsyncValidators(this._rawAsyncValidators);
+  }
+  get validator() {
+    return this._composedValidatorFn || null;
+  }
+  get asyncValidator() {
+    return this._composedAsyncValidatorFn || null;
+  }
+  _onDestroyCallbacks = [];
+  _registerOnDestroy(fn) {
+    this._onDestroyCallbacks.push(fn);
+  }
+  _invokeOnDestroyCallbacks() {
+    this._onDestroyCallbacks.forEach((fn) => fn());
+    this._onDestroyCallbacks = [];
+  }
+  reset(value = void 0) {
+    this.control?.reset(value);
+  }
+  hasError(errorCode, path) {
+    return this.control ? this.control.hasError(errorCode, path) : false;
+  }
+  getError(errorCode, path) {
+    return this.control ? this.control.getError(errorCode, path) : null;
+  }
+};
+var ControlContainer = class extends AbstractControlDirective {
+  name;
+  get formDirective() {
+    return null;
+  }
+  get path() {
+    return null;
+  }
+};
+var formControlNameExample = `
+  <div [formGroup]="myGroup">
+    <input formControlName="firstName">
+  </div>
+
+  In your class:
+
+  this.myGroup = new FormGroup({
+      firstName: new FormControl()
+  });`;
+var formGroupNameExample = `
+  <div [formGroup]="myGroup">
+      <div formGroupName="person">
+        <input formControlName="firstName">
+      </div>
+  </div>
+
+  In your class:
+
+  this.myGroup = new FormGroup({
+      person: new FormGroup({ firstName: new FormControl() })
+  });`;
+var formArrayNameExample = `
+  <div [formGroup]="myGroup">
+    <div formArrayName="cities">
+      <div *ngFor="let city of cityArray.controls; index as i">
+        <input [formControlName]="i">
+      </div>
+    </div>
+  </div>
+
+  In your class:
+
+  this.cityArray = new FormArray([new FormControl('SF')]);
+  this.myGroup = new FormGroup({
+    cities: this.cityArray
+  });`;
+var ngModelGroupExample = `
+  <form>
+      <div ngModelGroup="person">
+        <input [(ngModel)]="person.name" name="firstName">
+      </div>
+  </form>`;
+var ngModelWithFormGroupExample = `
+  <div [formGroup]="myGroup">
+      <input formControlName="firstName">
+      <input [(ngModel)]="showMoreControls" [ngModelOptions]="{standalone: true}">
+  </div>
+`;
+var VERSION2 = /* @__PURE__ */ new Version("22.1.5");
+function controlParentException(nameOrIndex) {
+  return new RuntimeError(1050, `formControlName must be used with a parent formGroup or formArray directive. You'll want to add a formGroup/formArray
+      directive and pass it an existing FormGroup/FormArray instance (you can create one in your class).
+
+      ${describeFormControl(nameOrIndex)}
+
+    Example:
+
+    ${formControlNameExample}`);
+}
+function describeFormControl(nameOrIndex) {
+  if (nameOrIndex == null || nameOrIndex === "") {
+    return "";
+  }
+  const valueType = typeof nameOrIndex === "string" ? "name" : "index";
+  return `Affected Form Control ${valueType}: "${nameOrIndex}"`;
+}
+function ngModelGroupException() {
+  return new RuntimeError(1051, `formControlName cannot be used with an ngModelGroup parent. It is only compatible with parents
+      that also have a "form" prefix: formGroupName, formArrayName, or formGroup.
+
+      Option 1:  Update the parent to be formGroupName (reactive form strategy)
+
+      ${formGroupNameExample}
+
+      Option 2: Use ngModel instead of formControlName (template-driven strategy)
+
+      ${ngModelGroupExample}`);
+}
+function missingFormException() {
+  return new RuntimeError(1052, `formGroup expects a FormGroup instance. Please pass one in.
+
+      Example:
+
+      ${formControlNameExample}`);
+}
+function groupParentException() {
+  return new RuntimeError(1053, `formGroupName must be used with a parent formGroup directive.  You'll want to add a formGroup
+    directive and pass it an existing FormGroup instance (you can create one in your class).
+
+    Example:
+
+    ${formGroupNameExample}`);
+}
+function arrayParentException() {
+  return new RuntimeError(1054, `formArrayName must be used with a parent formGroup directive.  You'll want to add a formGroup
+      directive and pass it an existing FormGroup instance (you can create one in your class).
+
+      Example:
+
+      ${formArrayNameExample}`);
+}
+var disabledAttrWarning = `
+  It looks like you're using the disabled attribute with a reactive form directive. If you set disabled to true
+  when you set up this control in your component class, the disabled attribute will actually be set in the DOM for
+  you. We recommend using this approach to avoid 'changed after checked' errors.
+
+  Example:
+  // Specify the \`disabled\` property at control creation time:
+  form = new FormGroup({
+    first: new FormControl({value: 'Nancy', disabled: true}, Validators.required),
+    last: new FormControl('Drew', Validators.required)
+  });
+
+  // Controls can also be enabled/disabled after creation:
+  form.get('first')?.enable();
+  form.get('last')?.disable();
+`;
+var asyncValidatorsDroppedWithOptsWarning = `
+  It looks like you're constructing using a FormControl with both an options argument and an
+  async validators argument. Mixing these arguments will cause your async validators to be dropped.
+  You should either put all your validators in the options object, or in separate validators
+  arguments. For example:
+
+  // Using validators arguments
+  fc = new FormControl(42, Validators.required, myAsyncValidator);
+
+  // Using AbstractControlOptions
+  fc = new FormControl(42, {validators: Validators.required, asyncValidators: myAV});
+
+  // Do NOT mix them: async validators will be dropped!
+  fc = new FormControl(42, {validators: Validators.required}, /* Oops! */ myAsyncValidator);
+`;
+function ngModelWarning(directiveName) {
+  const versionSubDomain = VERSION2.major !== "0" ? `v${VERSION2.major}.` : "";
+  return `
+  It looks like you're using ngModel on the same form field as ${directiveName}.
+  Support for using the ngModel input property and ngModelChange event with
+  reactive form directives has been deprecated in Angular v6 and will be removed
+  in a future version of Angular.
+
+  For more information on this, see our API docs here:
+  https://${versionSubDomain}angular.dev/api/forms/${directiveName === "formControl" ? "FormControlDirective" : "FormControlName"}
+  `;
+}
+function describeKey(isFormGroup, key) {
+  return isFormGroup ? `with name: '${key}'` : `at index: ${key}`;
+}
+function noControlsError(isFormGroup) {
+  return `
+    There are no form controls registered with this ${isFormGroup ? "group" : "array"} yet. If you're using ngModel,
+    you may want to check next tick (e.g. use setTimeout).
+  `;
+}
+function missingControlError(isFormGroup, key) {
+  return `Cannot find form control ${describeKey(isFormGroup, key)}`;
+}
+function missingControlValueError(isFormGroup, key) {
+  return `Must supply a value for form control ${describeKey(isFormGroup, key)}`;
+}
+var VALID = "VALID";
+var INVALID = "INVALID";
+var PENDING = "PENDING";
+var DISABLED = "DISABLED";
+var ControlEvent = class {
+};
+var ValueChangeEvent = class extends ControlEvent {
+  value;
+  source;
+  constructor(value, source) {
+    super();
+    this.value = value;
+    this.source = source;
+  }
+};
+var PristineChangeEvent = class extends ControlEvent {
+  pristine;
+  source;
+  constructor(pristine, source) {
+    super();
+    this.pristine = pristine;
+    this.source = source;
+  }
+};
+var TouchedChangeEvent = class extends ControlEvent {
+  touched;
+  source;
+  constructor(touched, source) {
+    super();
+    this.touched = touched;
+    this.source = source;
+  }
+};
+var StatusChangeEvent = class extends ControlEvent {
+  status;
+  source;
+  constructor(status, source) {
+    super();
+    this.status = status;
+    this.source = source;
+  }
+};
+var FormSubmittedEvent = class extends ControlEvent {
+  source;
+  constructor(source) {
+    super();
+    this.source = source;
+  }
+};
+var FormResetEvent = class extends ControlEvent {
+  source;
+  constructor(source) {
+    super();
+    this.source = source;
+  }
+};
+function pickValidators(validatorOrOpts) {
+  return (isOptionsObj(validatorOrOpts) ? validatorOrOpts.validators : validatorOrOpts) || null;
+}
+function coerceToValidator(validator) {
+  return Array.isArray(validator) ? composeValidators(validator) : validator || null;
+}
+function pickAsyncValidators(asyncValidator, validatorOrOpts) {
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    if (isOptionsObj(validatorOrOpts) && asyncValidator) {
+      console.warn(asyncValidatorsDroppedWithOptsWarning);
+    }
+  }
+  return (isOptionsObj(validatorOrOpts) ? validatorOrOpts.asyncValidators : asyncValidator) || null;
+}
+function coerceToAsyncValidator(asyncValidator) {
+  return Array.isArray(asyncValidator) ? composeAsyncValidators(asyncValidator) : asyncValidator || null;
+}
+function isOptionsObj(validatorOrOpts) {
+  return validatorOrOpts != null && !Array.isArray(validatorOrOpts) && typeof validatorOrOpts === "object";
+}
+function assertControlPresent(parent, isGroup, key) {
+  const controls = parent.controls;
+  const collection = isGroup ? Object.keys(controls) : controls;
+  if (!collection.length) {
+    throw new RuntimeError(1e3, typeof ngDevMode === "undefined" || ngDevMode ? noControlsError(isGroup) : "");
+  }
+  if (!hasOwnControl(controls, key)) {
+    throw new RuntimeError(1001, typeof ngDevMode === "undefined" || ngDevMode ? missingControlError(isGroup, key) : "");
+  }
+}
+function assertAllValuesPresent(control, isGroup, value) {
+  control._forEachChild((_, key) => {
+    if (value[key] === void 0) {
+      throw new RuntimeError(-1002, typeof ngDevMode === "undefined" || ngDevMode ? missingControlValueError(isGroup, key) : "");
+    }
+  });
+}
+var AbstractControl = class {
+  _pendingDirty = false;
+  _hasOwnPendingAsyncValidator = null;
+  _pendingTouched = false;
+  _onCollectionChange = () => {
+  };
+  _updateOn;
+  _hasRequired = signal(false, ...ngDevMode ? [{
+    debugName: "_hasRequired"
+  }] : []);
+  _parent = null;
+  _asyncValidationSubscription;
+  _composedValidatorFn;
+  _composedAsyncValidatorFn;
+  _rawValidators;
+  _rawAsyncValidators;
+  value;
+  constructor(validators, asyncValidators) {
+    this._assignValidators(validators);
+    this._assignAsyncValidators(asyncValidators);
+  }
+  get validator() {
+    return this._composedValidatorFn;
+  }
+  set validator(validatorFn) {
+    this._rawValidators = this._composedValidatorFn = validatorFn;
+    this._updateHasRequiredValidator();
+  }
+  get asyncValidator() {
+    return this._composedAsyncValidatorFn;
+  }
+  set asyncValidator(asyncValidatorFn) {
+    this._rawAsyncValidators = this._composedAsyncValidatorFn = asyncValidatorFn;
+  }
+  get parent() {
+    return this._parent;
+  }
+  get status() {
+    return untracked(this.statusReactive);
+  }
+  set status(v2) {
+    untracked(() => this.statusReactive.set(v2));
+  }
+  _status = computed(() => this.statusReactive(), ...ngDevMode ? [{
+    debugName: "_status"
+  }] : []);
+  statusReactive = signal(void 0, ...ngDevMode ? [{
+    debugName: "statusReactive"
+  }] : []);
+  get valid() {
+    return this.status === VALID;
+  }
+  get invalid() {
+    return this.status === INVALID;
+  }
+  get pending() {
+    return this.status === PENDING;
+  }
+  get disabled() {
+    return this.status === DISABLED;
+  }
+  get enabled() {
+    return this.status !== DISABLED;
+  }
+  errors;
+  get pristine() {
+    return untracked(this.pristineReactive);
+  }
+  set pristine(v2) {
+    untracked(() => this.pristineReactive.set(v2));
+  }
+  _pristine = computed(() => this.pristineReactive(), ...ngDevMode ? [{
+    debugName: "_pristine"
+  }] : []);
+  pristineReactive = signal(true, ...ngDevMode ? [{
+    debugName: "pristineReactive"
+  }] : []);
+  get dirty() {
+    return !this.pristine;
+  }
+  get touched() {
+    return untracked(this.touchedReactive);
+  }
+  set touched(v2) {
+    untracked(() => this.touchedReactive.set(v2));
+  }
+  _touched = computed(() => this.touchedReactive(), ...ngDevMode ? [{
+    debugName: "_touched"
+  }] : []);
+  touchedReactive = signal(false, ...ngDevMode ? [{
+    debugName: "touchedReactive"
+  }] : []);
+  get untouched() {
+    return !this.touched;
+  }
+  _events = new Subject();
+  events = this._events.asObservable();
+  valueChanges;
+  statusChanges;
+  get updateOn() {
+    return this._updateOn ? this._updateOn : this.parent ? this.parent.updateOn : "change";
+  }
+  setValidators(validators) {
+    this._assignValidators(validators);
+  }
+  setAsyncValidators(validators) {
+    this._assignAsyncValidators(validators);
+  }
+  addValidators(validators) {
+    this.setValidators(addValidators(validators, this._rawValidators));
+  }
+  addAsyncValidators(validators) {
+    this.setAsyncValidators(addValidators(validators, this._rawAsyncValidators));
+  }
+  removeValidators(validators) {
+    this.setValidators(removeValidators(validators, this._rawValidators));
+  }
+  removeAsyncValidators(validators) {
+    this.setAsyncValidators(removeValidators(validators, this._rawAsyncValidators));
+  }
+  hasValidator(validator) {
+    return hasValidator(this._rawValidators, validator);
+  }
+  hasAsyncValidator(validator) {
+    return hasValidator(this._rawAsyncValidators, validator);
+  }
+  clearValidators() {
+    this.validator = null;
+  }
+  clearAsyncValidators() {
+    this.asyncValidator = null;
+  }
+  markAsTouched(opts = {}) {
+    const changed = this.touched === false;
+    this.touched = true;
+    const sourceControl = opts.sourceControl ?? this;
+    if (!opts.onlySelf) {
+      this._parent?.markAsTouched(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new TouchedChangeEvent(true, sourceControl));
+    }
+  }
+  markAllAsDirty(opts = {}) {
+    this.markAsDirty({
+      onlySelf: true,
+      emitEvent: opts.emitEvent,
+      sourceControl: this
+    });
+    this._forEachChild((control) => control.markAllAsDirty(opts));
+  }
+  markAllAsTouched(opts = {}) {
+    this.markAsTouched({
+      onlySelf: true,
+      emitEvent: opts.emitEvent,
+      sourceControl: this
+    });
+    this._forEachChild((control) => control.markAllAsTouched(opts));
+  }
+  markAsUntouched(opts = {}) {
+    const changed = this.touched === true;
+    this.touched = false;
+    this._pendingTouched = false;
+    const sourceControl = opts.sourceControl ?? this;
+    this._forEachChild((control) => {
+      control.markAsUntouched({
+        onlySelf: true,
+        emitEvent: opts.emitEvent,
+        sourceControl
+      });
+    });
+    if (!opts.onlySelf) {
+      this._parent?._updateTouched(opts, sourceControl);
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new TouchedChangeEvent(false, sourceControl));
+    }
+  }
+  markAsDirty(opts = {}) {
+    const changed = this.pristine === true;
+    this.pristine = false;
+    const sourceControl = opts.sourceControl ?? this;
+    if (!opts.onlySelf) {
+      this._parent?.markAsDirty(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new PristineChangeEvent(false, sourceControl));
+    }
+  }
+  markAsPristine(opts = {}) {
+    const changed = this.pristine === false;
+    this.pristine = true;
+    this._pendingDirty = false;
+    const sourceControl = opts.sourceControl ?? this;
+    this._forEachChild((control) => {
+      control.markAsPristine({
+        onlySelf: true,
+        emitEvent: opts.emitEvent
+      });
+    });
+    if (!opts.onlySelf) {
+      this._parent?._updatePristine(opts, sourceControl);
+    }
+    if (changed && opts.emitEvent !== false) {
+      this._events.next(new PristineChangeEvent(true, sourceControl));
+    }
+  }
+  markAsPending(opts = {}) {
+    this.status = PENDING;
+    const sourceControl = opts.sourceControl ?? this;
+    if (opts.emitEvent !== false) {
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
+      this.statusChanges.emit(this.status);
+    }
+    if (!opts.onlySelf) {
+      this._parent?.markAsPending(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+  }
+  disable(opts = {}) {
+    const skipPristineCheck = this._parentMarkedDirty(opts.onlySelf);
+    this.status = DISABLED;
+    this.errors = null;
+    this._forEachChild((control) => {
+      control.disable(__spreadProps(__spreadValues({}, opts), {
+        onlySelf: true
+      }));
+    });
+    this._updateValue();
+    const sourceControl = opts.sourceControl ?? this;
+    if (opts.emitEvent !== false) {
+      this._events.next(new ValueChangeEvent(this.value, sourceControl));
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
+      this.valueChanges.emit(this.value);
+      this.statusChanges.emit(this.status);
+    }
+    this._updateAncestors(__spreadProps(__spreadValues({}, opts), {
+      skipPristineCheck
+    }), this);
+    this._onDisabledChange.forEach((changeFn) => changeFn(true));
+  }
+  enable(opts = {}) {
+    const skipPristineCheck = this._parentMarkedDirty(opts.onlySelf);
+    this.status = VALID;
+    this._forEachChild((control) => {
+      control.enable(__spreadProps(__spreadValues({}, opts), {
+        onlySelf: true
+      }));
+    });
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: opts.emitEvent
+    });
+    this._updateAncestors(__spreadProps(__spreadValues({}, opts), {
+      skipPristineCheck
+    }), this);
+    this._onDisabledChange.forEach((changeFn) => changeFn(false));
+  }
+  _updateAncestors(opts, sourceControl) {
+    if (!opts.onlySelf) {
+      this._parent?.updateValueAndValidity(opts);
+      if (!opts.skipPristineCheck) {
+        this._parent?._updatePristine({}, sourceControl);
+      }
+      this._parent?._updateTouched({}, sourceControl);
+    }
+  }
+  setParent(parent) {
+    this._parent = parent;
+  }
+  getRawValue() {
+    return this.value;
+  }
+  updateValueAndValidity(opts = {}) {
+    this._setInitialStatus();
+    this._updateValue();
+    if (this.enabled) {
+      const shouldHaveEmitted = this._cancelExistingSubscription();
+      this.errors = this._runValidator();
+      this.status = this._calculateStatus();
+      if (this.status === VALID || this.status === PENDING) {
+        this._runAsyncValidator(shouldHaveEmitted, opts.emitEvent);
+      }
+    }
+    const sourceControl = opts.sourceControl ?? this;
+    if (opts.emitEvent !== false) {
+      this._events.next(new ValueChangeEvent(this.value, sourceControl));
+      this._events.next(new StatusChangeEvent(this.status, sourceControl));
+      this.valueChanges.emit(this.value);
+      this.statusChanges.emit(this.status);
+    }
+    if (!opts.onlySelf) {
+      this._parent?.updateValueAndValidity(__spreadProps(__spreadValues({}, opts), {
+        sourceControl
+      }));
+    }
+  }
+  _updateTreeValidity(opts = {
+    emitEvent: true
+  }) {
+    this._forEachChild((ctrl) => ctrl._updateTreeValidity(opts));
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: opts.emitEvent
+    });
+  }
+  _setInitialStatus() {
+    this.status = this._allControlsDisabled() ? DISABLED : VALID;
+  }
+  _runValidator() {
+    return this.validator ? this.validator(this) : null;
+  }
+  _runAsyncValidator(shouldHaveEmitted, emitEvent) {
+    if (this.asyncValidator) {
+      this.status = PENDING;
+      this._hasOwnPendingAsyncValidator = {
+        emitEvent: emitEvent !== false,
+        shouldHaveEmitted: shouldHaveEmitted !== false
+      };
+      const obs = toObservable(this.asyncValidator(this));
+      this._asyncValidationSubscription = obs.subscribe((errors) => {
+        this._hasOwnPendingAsyncValidator = null;
+        this.setErrors(errors, {
+          emitEvent,
+          shouldHaveEmitted
+        });
+      });
+    }
+  }
+  _cancelExistingSubscription() {
+    if (this._asyncValidationSubscription) {
+      this._asyncValidationSubscription.unsubscribe();
+      const shouldHaveEmitted = (this._hasOwnPendingAsyncValidator?.emitEvent || this._hasOwnPendingAsyncValidator?.shouldHaveEmitted) ?? false;
+      this._hasOwnPendingAsyncValidator = null;
+      return shouldHaveEmitted;
+    }
+    return false;
+  }
+  setErrors(errors, opts = {}) {
+    this.errors = errors;
+    this._updateControlsErrors(opts.emitEvent !== false, this, opts.shouldHaveEmitted);
+  }
+  get(path) {
+    let currPath = path;
+    if (currPath == null) return null;
+    if (!Array.isArray(currPath)) currPath = currPath.split(".");
+    if (currPath.length === 0) return null;
+    return currPath.reduce((control, name) => control && control._find(name), this);
+  }
+  getError(errorCode, path) {
+    const control = path ? this.get(path) : this;
+    return control?.errors ? control.errors[errorCode] : null;
+  }
+  hasError(errorCode, path) {
+    return !!this.getError(errorCode, path);
+  }
+  get root() {
+    let x = this;
+    while (x._parent) {
+      x = x._parent;
+    }
+    return x;
+  }
+  _updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted) {
+    this.status = this._calculateStatus();
+    if (emitEvent) {
+      this.statusChanges.emit(this.status);
+    }
+    if (emitEvent || shouldHaveEmitted) {
+      this._events.next(new StatusChangeEvent(this.status, changedControl));
+    }
+    if (this._parent) {
+      this._parent._updateControlsErrors(emitEvent, changedControl, shouldHaveEmitted);
+    }
+  }
+  _initObservables() {
+    this.valueChanges = new EventEmitter();
+    this.statusChanges = new EventEmitter();
+  }
+  _calculateStatus() {
+    if (this._allControlsDisabled()) return DISABLED;
+    if (this.errors) return INVALID;
+    if (this._hasOwnPendingAsyncValidator || this._anyControlsHaveStatus(PENDING)) return PENDING;
+    if (this._anyControlsHaveStatus(INVALID)) return INVALID;
+    return VALID;
+  }
+  _anyControlsHaveStatus(status) {
+    return this._anyControls((control) => control.status === status);
+  }
+  _anyControlsDirty() {
+    return this._anyControls((control) => control.dirty);
+  }
+  _anyControlsTouched() {
+    return this._anyControls((control) => control.touched);
+  }
+  _updatePristine(opts, changedControl) {
+    const newPristine = !this._anyControlsDirty();
+    const changed = this.pristine !== newPristine;
+    this.pristine = newPristine;
+    if (!opts.onlySelf) {
+      this._parent?._updatePristine(opts, changedControl);
+    }
+    if (changed) {
+      this._events.next(new PristineChangeEvent(this.pristine, changedControl));
+    }
+  }
+  _updateTouched(opts = {}, changedControl) {
+    this.touched = this._anyControlsTouched();
+    this._events.next(new TouchedChangeEvent(this.touched, changedControl));
+    if (!opts.onlySelf) {
+      this._parent?._updateTouched(opts, changedControl);
+    }
+  }
+  _onDisabledChange = [];
+  _registerOnCollectionChange(fn) {
+    this._onCollectionChange = fn;
+  }
+  _setUpdateStrategy(opts) {
+    if (isOptionsObj(opts) && opts.updateOn != null) {
+      this._updateOn = opts.updateOn;
+    }
+  }
+  _parentMarkedDirty(onlySelf) {
+    return !onlySelf && !!this._parent?.dirty && !this._parent._anyControlsDirty();
+  }
+  _find(name) {
+    return null;
+  }
+  _assignValidators(validators) {
+    this._rawValidators = Array.isArray(validators) ? validators.slice() : validators;
+    this._composedValidatorFn = coerceToValidator(this._rawValidators);
+    this._updateHasRequiredValidator();
+  }
+  _assignAsyncValidators(validators) {
+    this._rawAsyncValidators = Array.isArray(validators) ? validators.slice() : validators;
+    this._composedAsyncValidatorFn = coerceToAsyncValidator(this._rawAsyncValidators);
+  }
+  _updateHasRequiredValidator() {
+    untracked(() => this._hasRequired.set(this.hasValidator(Validators.required)));
+  }
+};
+function hasOwnControl(controls, name) {
+  return Object.hasOwn(controls, name);
+}
+function isNativeFormElement(element) {
+  return element.tagName === "INPUT" || element.tagName === "SELECT" || element.tagName === "TEXTAREA";
+}
+function elementAcceptsMinMax(element) {
+  if (element.tagName !== "INPUT") {
+    return false;
+  }
+  const type = element.type;
+  return type === "number" || type === "range" || type === "date" || type === "month";
+}
+function isTextualFormElement(element) {
+  return element.tagName === "INPUT" || element.tagName === "TEXTAREA";
+}
+function setNativeDomProperty(renderer, element, name, value) {
+  switch (name) {
+    case "name":
+      renderer.setAttribute(element, name, value);
+      break;
+    case "disabled":
+    case "readonly":
+    case "required":
+      if (value) {
+        renderer.setAttribute(element, name, "");
+      } else {
+        renderer.removeAttribute(element, name);
+      }
+      break;
+    case "max":
+    case "min":
+    case "minLength":
+    case "maxLength":
+      if (value !== void 0) {
+        renderer.setAttribute(element, name, value.toString());
+      } else {
+        renderer.removeAttribute(element, name);
+      }
+      break;
+  }
+}
+var ReactiveValidationError = class {
+  kind;
+  context;
+  control;
+  message;
+  constructor({
+    kind,
+    context,
+    control
+  }) {
+    this.kind = kind;
+    this.context = context;
+    this.control = control;
+  }
+};
+function toInteger(value) {
+  return typeof value === "number" ? value : parseInt(value, 10);
+}
+function toFloat(value) {
+  return typeof value === "number" ? value : parseFloat(value);
+}
+var AbstractValidatorDirective = class _AbstractValidatorDirective {
+  _validator = nullValidator;
+  _onChange;
+  _enabled;
+  ngOnChanges(changes) {
+    if (this.inputName in changes) {
+      const input = this.normalizeInput(changes[this.inputName].currentValue);
+      this._enabled = this.enabled(input);
+      this._validator = this._enabled ? this.createValidator(input) : nullValidator;
+      this._onChange?.();
+    }
+  }
+  validate(control) {
+    return this._validator(control);
+  }
+  registerOnValidatorChange(fn) {
+    this._onChange = fn;
+  }
+  enabled(input) {
+    return input != null;
+  }
+  static \u0275fac = function AbstractValidatorDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _AbstractValidatorDirective)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _AbstractValidatorDirective,
+    features: [\u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractValidatorDirective, [{
+    type: Directive
+  }], null, null);
+})();
+var MAX_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MaxValidator),
+  multi: true
+};
+var MaxValidator = class _MaxValidator extends AbstractValidatorDirective {
+  max;
+  inputName = "max";
+  normalizeInput = (input) => toFloat(input);
+  createValidator = (max) => maxValidator(max);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MaxValidator_BaseFactory;
+    return function MaxValidator_Factory(__ngFactoryType__) {
+      return (\u0275MaxValidator_BaseFactory || (\u0275MaxValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MaxValidator)))(__ngFactoryType__ || _MaxValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MaxValidator,
+    selectors: [["input", "type", "number", "max", "", "formControlName", ""], ["input", "type", "number", "max", "", "formControl", ""], ["input", "type", "number", "max", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MaxValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("max", ctx._enabled ? ctx.max : null);
+      }
+    },
+    inputs: {
+      max: "max"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MAX_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MaxValidator, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=number][max][formControlName],input[type=number][max][formControl],input[type=number][max][ngModel]",
+      providers: [MAX_VALIDATOR],
+      host: {
+        "[attr.max]": "_enabled ? max : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    max: [{
+      type: Input
+    }]
+  });
+})();
+var MIN_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MinValidator),
+  multi: true
+};
+var MinValidator = class _MinValidator extends AbstractValidatorDirective {
+  min;
+  inputName = "min";
+  normalizeInput = (input) => toFloat(input);
+  createValidator = (min) => minValidator(min);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MinValidator_BaseFactory;
+    return function MinValidator_Factory(__ngFactoryType__) {
+      return (\u0275MinValidator_BaseFactory || (\u0275MinValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MinValidator)))(__ngFactoryType__ || _MinValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MinValidator,
+    selectors: [["input", "type", "number", "min", "", "formControlName", ""], ["input", "type", "number", "min", "", "formControl", ""], ["input", "type", "number", "min", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MinValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("min", ctx._enabled ? ctx.min : null);
+      }
+    },
+    inputs: {
+      min: "min"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MIN_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MinValidator, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=number][min][formControlName],input[type=number][min][formControl],input[type=number][min][ngModel]",
+      providers: [MIN_VALIDATOR],
+      host: {
+        "[attr.min]": "_enabled ? min : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    min: [{
+      type: Input
+    }]
+  });
+})();
+var REQUIRED_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => RequiredValidator),
+  multi: true
+};
+var CHECKBOX_REQUIRED_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => CheckboxRequiredValidator),
+  multi: true
+};
+var RequiredValidator = class _RequiredValidator extends AbstractValidatorDirective {
+  required;
+  inputName = "required";
+  normalizeInput = booleanAttribute;
+  createValidator = (input) => requiredValidator;
+  enabled(input) {
+    return input;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275RequiredValidator_BaseFactory;
+    return function RequiredValidator_Factory(__ngFactoryType__) {
+      return (\u0275RequiredValidator_BaseFactory || (\u0275RequiredValidator_BaseFactory = \u0275\u0275getInheritedFactory(_RequiredValidator)))(__ngFactoryType__ || _RequiredValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _RequiredValidator,
+    selectors: [["", "required", "", "formControlName", "", 3, "type", "checkbox"], ["", "required", "", "formControl", "", 3, "type", "checkbox"], ["", "required", "", "ngModel", "", 3, "type", "checkbox"]],
+    hostVars: 1,
+    hostBindings: function RequiredValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("required", ctx._enabled ? "" : null);
+      }
+    },
+    inputs: {
+      required: "required"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([REQUIRED_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RequiredValidator, [{
+    type: Directive,
+    args: [{
+      selector: ":not([type=checkbox])[required][formControlName],:not([type=checkbox])[required][formControl],:not([type=checkbox])[required][ngModel]",
+      providers: [REQUIRED_VALIDATOR],
+      host: {
+        "[attr.required]": '_enabled ? "" : null'
+      },
+      standalone: false
+    }]
+  }], null, {
+    required: [{
+      type: Input
+    }]
+  });
+})();
+var CheckboxRequiredValidator = class _CheckboxRequiredValidator extends RequiredValidator {
+  createValidator = (input) => requiredTrueValidator;
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275CheckboxRequiredValidator_BaseFactory;
+    return function CheckboxRequiredValidator_Factory(__ngFactoryType__) {
+      return (\u0275CheckboxRequiredValidator_BaseFactory || (\u0275CheckboxRequiredValidator_BaseFactory = \u0275\u0275getInheritedFactory(_CheckboxRequiredValidator)))(__ngFactoryType__ || _CheckboxRequiredValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _CheckboxRequiredValidator,
+    selectors: [["input", "type", "checkbox", "required", "", "formControlName", ""], ["input", "type", "checkbox", "required", "", "formControl", ""], ["input", "type", "checkbox", "required", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function CheckboxRequiredValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("required", ctx._enabled ? "" : null);
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([CHECKBOX_REQUIRED_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(CheckboxRequiredValidator, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=checkbox][required][formControlName],input[type=checkbox][required][formControl],input[type=checkbox][required][ngModel]",
+      providers: [CHECKBOX_REQUIRED_VALIDATOR],
+      host: {
+        "[attr.required]": '_enabled ? "" : null'
+      },
+      standalone: false
+    }]
+  }], null, null);
+})();
+var EMAIL_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => EmailValidator),
+  multi: true
+};
+var EmailValidator = class _EmailValidator extends AbstractValidatorDirective {
+  email;
+  inputName = "email";
+  normalizeInput = booleanAttribute;
+  createValidator = (input) => emailValidator;
+  enabled(input) {
+    return input;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275EmailValidator_BaseFactory;
+    return function EmailValidator_Factory(__ngFactoryType__) {
+      return (\u0275EmailValidator_BaseFactory || (\u0275EmailValidator_BaseFactory = \u0275\u0275getInheritedFactory(_EmailValidator)))(__ngFactoryType__ || _EmailValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _EmailValidator,
+    selectors: [["", "email", "", "formControlName", ""], ["", "email", "", "formControl", ""], ["", "email", "", "ngModel", ""]],
+    inputs: {
+      email: "email"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([EMAIL_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(EmailValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[email][formControlName],[email][formControl],[email][ngModel]",
+      providers: [EMAIL_VALIDATOR],
+      standalone: false
+    }]
+  }], null, {
+    email: [{
+      type: Input
+    }]
+  });
+})();
+var MIN_LENGTH_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MinLengthValidator),
+  multi: true
+};
+var MinLengthValidator = class _MinLengthValidator extends AbstractValidatorDirective {
+  minlength;
+  inputName = "minlength";
+  normalizeInput = (input) => toInteger(input);
+  createValidator = (minlength) => minLengthValidator(minlength);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MinLengthValidator_BaseFactory;
+    return function MinLengthValidator_Factory(__ngFactoryType__) {
+      return (\u0275MinLengthValidator_BaseFactory || (\u0275MinLengthValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MinLengthValidator)))(__ngFactoryType__ || _MinLengthValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MinLengthValidator,
+    selectors: [["", "minlength", "", "formControlName", ""], ["", "minlength", "", "formControl", ""], ["", "minlength", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MinLengthValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("minlength", ctx._enabled ? ctx.minlength : null);
+      }
+    },
+    inputs: {
+      minlength: "minlength"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MIN_LENGTH_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MinLengthValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[minlength][formControlName],[minlength][formControl],[minlength][ngModel]",
+      providers: [MIN_LENGTH_VALIDATOR],
+      host: {
+        "[attr.minlength]": "_enabled ? minlength : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    minlength: [{
+      type: Input
+    }]
+  });
+})();
+var MAX_LENGTH_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => MaxLengthValidator),
+  multi: true
+};
+var MaxLengthValidator = class _MaxLengthValidator extends AbstractValidatorDirective {
+  maxlength;
+  inputName = "maxlength";
+  normalizeInput = (input) => toInteger(input);
+  createValidator = (maxlength) => maxLengthValidator(maxlength);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275MaxLengthValidator_BaseFactory;
+    return function MaxLengthValidator_Factory(__ngFactoryType__) {
+      return (\u0275MaxLengthValidator_BaseFactory || (\u0275MaxLengthValidator_BaseFactory = \u0275\u0275getInheritedFactory(_MaxLengthValidator)))(__ngFactoryType__ || _MaxLengthValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _MaxLengthValidator,
+    selectors: [["", "maxlength", "", "formControlName", ""], ["", "maxlength", "", "formControl", ""], ["", "maxlength", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function MaxLengthValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("maxlength", ctx._enabled ? ctx.maxlength : null);
+      }
+    },
+    inputs: {
+      maxlength: "maxlength"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([MAX_LENGTH_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MaxLengthValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[maxlength][formControlName],[maxlength][formControl],[maxlength][ngModel]",
+      providers: [MAX_LENGTH_VALIDATOR],
+      host: {
+        "[attr.maxlength]": "_enabled ? maxlength : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    maxlength: [{
+      type: Input
+    }]
+  });
+})();
+var PATTERN_VALIDATOR = {
+  provide: NG_VALIDATORS,
+  useExisting: forwardRef(() => PatternValidator),
+  multi: true
+};
+var PatternValidator = class _PatternValidator extends AbstractValidatorDirective {
+  pattern;
+  inputName = "pattern";
+  normalizeInput = (input) => input;
+  createValidator = (input) => patternValidator(input);
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275PatternValidator_BaseFactory;
+    return function PatternValidator_Factory(__ngFactoryType__) {
+      return (\u0275PatternValidator_BaseFactory || (\u0275PatternValidator_BaseFactory = \u0275\u0275getInheritedFactory(_PatternValidator)))(__ngFactoryType__ || _PatternValidator);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _PatternValidator,
+    selectors: [["", "pattern", "", "formControlName", ""], ["", "pattern", "", "formControl", ""], ["", "pattern", "", "ngModel", ""]],
+    hostVars: 1,
+    hostBindings: function PatternValidator_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275attribute("pattern", ctx._enabled ? ctx.pattern : null);
+      }
+    },
+    inputs: {
+      pattern: "pattern"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([PATTERN_VALIDATOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(PatternValidator, [{
+    type: Directive,
+    args: [{
+      selector: "[pattern][formControlName],[pattern][formControl],[pattern][ngModel]",
+      providers: [PATTERN_VALIDATOR],
+      host: {
+        "[attr.pattern]": "_enabled ? pattern : null"
+      },
+      standalone: false
+    }]
+  }], null, {
+    pattern: [{
+      type: Input
+    }]
+  });
+})();
+var \u0275FORM_CONTROL_INTEGRATION = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "FORM_CONTROL_INTEGRATION" : "");
+var CALL_SET_DISABLED_STATE = new InjectionToken(typeof ngDevMode === "undefined" || ngDevMode ? "CallSetDisabledState" : "", {
+  factory: () => setDisabledStateDefault
+});
+var setDisabledStateDefault = "always";
+function controlPath(name, parent) {
+  return [...parent.path, name];
+}
+function setUpControlValueAccessor(control, dir, callSetDisabledState = setDisabledStateDefault) {
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    if (!control) _throwError(dir, "Cannot find control with");
+    if (!dir.valueAccessor) _throwMissingValueAccessorError(dir);
+  }
+  setUpValidators(control, dir);
+  dir.valueAccessor.writeValue(control.value);
+  if (control.disabled || callSetDisabledState === "always") {
+    dir.valueAccessor.setDisabledState?.(control.disabled);
+  }
+  setUpViewChangePipeline(control, dir);
+  setUpModelChangePipeline(control, dir);
+  setUpBlurPipeline(control, dir);
+  setUpDisabledChangeHandler(control, dir);
+}
+function cleanUpControl(control, dir, validateControlPresenceOnChange = true) {
+  const noop = () => {
+    if (validateControlPresenceOnChange && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      _noControlError(dir);
+    }
+  };
+  dir?.valueAccessor?.registerOnChange(noop);
+  dir?.valueAccessor?.registerOnTouched(noop);
+  cleanUpValidators(control, dir);
+  if (control) {
+    dir._invokeOnDestroyCallbacks();
+    control._registerOnCollectionChange(() => {
+    });
+  }
+}
+function registerOnValidatorChange(validators, onChange) {
+  validators.forEach((validator) => {
+    if (validator.registerOnValidatorChange) validator.registerOnValidatorChange(onChange);
+  });
+}
+function setUpDisabledChangeHandler(control, dir) {
+  if (dir.valueAccessor.setDisabledState) {
+    const onDisabledChange = (isDisabled) => {
+      dir.valueAccessor.setDisabledState(isDisabled);
+    };
+    control.registerOnDisabledChange(onDisabledChange);
+    dir._registerOnDestroy(() => {
+      control._unregisterOnDisabledChange(onDisabledChange);
+    });
+  }
+}
+function setUpValidators(control, dir) {
+  const validators = getControlValidators(control);
+  if (dir.validator !== null) {
+    control.setValidators(mergeValidators(validators, dir.validator));
+  } else if (typeof validators === "function") {
+    control.setValidators([validators]);
+  }
+  const asyncValidators = getControlAsyncValidators(control);
+  if (dir.asyncValidator !== null) {
+    control.setAsyncValidators(mergeValidators(asyncValidators, dir.asyncValidator));
+  } else if (typeof asyncValidators === "function") {
+    control.setAsyncValidators([asyncValidators]);
+  }
+  const onValidatorChange = () => control.updateValueAndValidity();
+  registerOnValidatorChange(dir._rawValidators, onValidatorChange);
+  registerOnValidatorChange(dir._rawAsyncValidators, onValidatorChange);
+}
+function cleanUpValidators(control, dir) {
+  let isControlUpdated = false;
+  if (control !== null) {
+    if (dir.validator !== null) {
+      const validators = getControlValidators(control);
+      if (Array.isArray(validators) && validators.length > 0) {
+        const updatedValidators = validators.filter((validator) => validator !== dir.validator);
+        if (updatedValidators.length !== validators.length) {
+          isControlUpdated = true;
+          control.setValidators(updatedValidators);
+        }
+      }
+    }
+    if (dir.asyncValidator !== null) {
+      const asyncValidators = getControlAsyncValidators(control);
+      if (Array.isArray(asyncValidators) && asyncValidators.length > 0) {
+        const updatedAsyncValidators = asyncValidators.filter((asyncValidator) => asyncValidator !== dir.asyncValidator);
+        if (updatedAsyncValidators.length !== asyncValidators.length) {
+          isControlUpdated = true;
+          control.setAsyncValidators(updatedAsyncValidators);
+        }
+      }
+    }
+  }
+  const noop = () => {
+  };
+  registerOnValidatorChange(dir._rawValidators, noop);
+  registerOnValidatorChange(dir._rawAsyncValidators, noop);
+  return isControlUpdated;
+}
+function setUpViewChangePipeline(control, dir) {
+  dir.valueAccessor.registerOnChange((newValue) => {
+    control._pendingValue = newValue;
+    control._pendingChange = true;
+    control._pendingDirty = true;
+    if (control.updateOn === "change") updateControl(control, dir);
+  });
+}
+function setUpBlurPipeline(control, dir) {
+  dir.valueAccessor.registerOnTouched(() => {
+    control._pendingTouched = true;
+    if (control.updateOn === "blur" && control._pendingChange) updateControl(control, dir);
+    if (control.updateOn !== "submit") control.markAsTouched();
+  });
+}
+function updateControl(control, dir) {
+  if (control._pendingDirty) control.markAsDirty();
+  control.setValue(control._pendingValue, {
+    emitModelToViewChange: false
+  });
+  dir.viewToModelUpdate(control._pendingValue);
+  control._pendingChange = false;
+}
+function setUpModelChangePipeline(control, dir) {
+  const onChange = (newValue, emitModelEvent) => {
+    dir.valueAccessor.writeValue(newValue);
+    if (emitModelEvent) dir.viewToModelUpdate(newValue);
+  };
+  control.registerOnChange(onChange);
+  dir._registerOnDestroy(() => {
+    control._unregisterOnChange(onChange);
+  });
+}
+function setUpFormContainer(control, dir) {
+  if (control == null && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "Cannot find control with");
+  setUpValidators(control, dir);
+}
+function cleanUpFormContainer(control, dir) {
+  return cleanUpValidators(control, dir);
+}
+function _noControlError(dir) {
+  return _throwError(dir, "There is no FormControl instance attached to form control element with");
+}
+function _throwError(dir, message) {
+  const messageEnd = _describeControlLocation(dir);
+  throw new Error(`${message} ${messageEnd}`);
+}
+function _describeControlLocation(dir) {
+  const path = dir.path;
+  if (path && path.length > 1) return `path: '${path.join(" -> ")}'`;
+  if (path?.[0]) return `name: '${path}'`;
+  return "unspecified name attribute";
+}
+function _throwMissingValueAccessorError(dir) {
+  const loc = _describeControlLocation(dir);
+  throw new RuntimeError(-1203, `No value accessor for form control ${loc}.`);
+}
+function _throwInvalidValueAccessorError(dir) {
+  const loc = _describeControlLocation(dir);
+  throw new RuntimeError(1200, `Value accessor was not provided as an array for form control with ${loc}. Check that the \`NG_VALUE_ACCESSOR\` token is configured as a \`multi: true\` provider.`);
+}
+function isPropertyUpdated(changes, viewModel) {
+  if (!Object.hasOwn(changes, "model")) return false;
+  const change = changes["model"];
+  if (change.isFirstChange()) return true;
+  return !Object.is(viewModel, change.currentValue);
+}
+function isBuiltInAccessor(valueAccessor) {
+  return Object.getPrototypeOf(valueAccessor.constructor) === BuiltInControlValueAccessor;
+}
+function syncPendingControls(form, directives) {
+  form._syncPendingControls();
+  directives.forEach((dir) => {
+    const control = dir.control;
+    if (control.updateOn === "submit" && control._pendingChange) {
+      dir.viewToModelUpdate(control._pendingValue);
+      control._pendingChange = false;
+    }
+  });
+}
+function selectValueAccessor(dir, valueAccessors) {
+  if (!valueAccessors) return null;
+  if (!Array.isArray(valueAccessors) && (typeof ngDevMode === "undefined" || ngDevMode)) _throwInvalidValueAccessorError(dir);
+  let defaultAccessor = void 0;
+  let builtinAccessor = void 0;
+  let customAccessor = void 0;
+  valueAccessors.forEach((v2) => {
+    if (v2.constructor === DefaultValueAccessor) {
+      defaultAccessor = v2;
+    } else if (isBuiltInAccessor(v2)) {
+      if (builtinAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one built-in value accessor matches form control with");
+      builtinAccessor = v2;
+    } else {
+      if (customAccessor && (typeof ngDevMode === "undefined" || ngDevMode)) _throwError(dir, "More than one custom value accessor matches form control with");
+      customAccessor = v2;
+    }
+  });
+  if (customAccessor) return customAccessor;
+  if (builtinAccessor) return builtinAccessor;
+  if (defaultAccessor) return defaultAccessor;
+  if (typeof ngDevMode === "undefined" || ngDevMode) {
+    _throwError(dir, "No valid value accessor for form control with");
+  }
+  return null;
+}
+function removeListItem$1(list, el) {
+  const index = list.indexOf(el);
+  if (index > -1) list.splice(index, 1);
+}
+function _ngModelWarning(name, type, instance, warningConfig) {
+  if (warningConfig === "never") return;
+  if ((warningConfig === null || warningConfig === "once") && !type._ngModelWarningSentOnce || warningConfig === "always" && !instance._ngModelWarningSent) {
+    console.warn(ngModelWarning(name));
+    type._ngModelWarningSentOnce = true;
+    instance._ngModelWarningSent = true;
+  }
+}
+var NG_CONTROL_INTEGRATION_PROVIDER = {
+  provide: \u0275FORM_CONTROL_INTEGRATION,
+  useFactory: () => {
+    const control = inject(NgControl, {
+      self: true
+    });
+    return {
+      setParseErrors: (source) => {
+        control.setParseErrorSource(source);
+      },
+      set onReset(callback) {
+        control.onReset = callback;
+      }
+    };
+  }
+};
+var NgControl = class extends AbstractControlDirective {
+  _parent = null;
+  name = null;
+  valueAccessor = null;
+  isCustomControlBased = false;
+  userOnReset;
+  resetSubscription;
+  set onReset(callback) {
+    this.userOnReset = callback;
+    this.resetSubscription?.unsubscribe();
+    this.resetSubscription = void 0;
+    if (this.control) {
+      this.resetSubscription = this.control.events.subscribe((event) => {
+        if (event instanceof FormResetEvent && this.control) {
+          this.userOnReset?.(this.control.value);
+        }
+      });
+      this.subscription?.add(this.resetSubscription);
+    }
+  }
+  isNativeFormElement = false;
+  rawValueAccessors;
+  _selectedValueAccessor = null;
+  get selectedValueAccessor() {
+    return this._selectedValueAccessor ??= selectValueAccessor(this, this.rawValueAccessors);
+  }
+  parseErrorsValidator = null;
+  renderer;
+  injector;
+  requiredValidatorViaDi;
+  subscription;
+  customControlBindings = null;
+  constructor(injector, renderer, rawValueAccessors) {
+    super();
+    this.injector = injector;
+    this.renderer = renderer;
+    this.rawValueAccessors = rawValueAccessors;
+    this.injector?.get(DestroyRef)?.onDestroy(() => {
+      this.removeParseErrorsValidator(this.control);
+      this.subscription?.unsubscribe();
+    });
+  }
+  setupCustomControl() {
+    this.subscription?.unsubscribe();
+    const cdr = this.injector?.get(ChangeDetectorRef);
+    if (!this.control || !cdr) {
+      return;
+    }
+    const markForCheck = cdr.markForCheck.bind(cdr);
+    this.subscription = new Subscription();
+    this.subscription.add(this.control.valueChanges.subscribe(markForCheck));
+    this.subscription.add(this.control.statusChanges.subscribe(markForCheck));
+    this.resetSubscription?.unsubscribe();
+    this.resetSubscription = void 0;
+    if (this.userOnReset) {
+      this.resetSubscription = this.control.events.subscribe((event) => {
+        if (event instanceof FormResetEvent && this.control) {
+          this.userOnReset?.(this.control.value);
+        }
+      });
+      this.subscription.add(this.resetSubscription);
+    }
+    if (this.parseErrorsValidator) {
+      this.control.addValidators(this.parseErrorsValidator);
+    }
+  }
+  ngControlCreate(host) {
+    const hasNgNoCva = host.nativeElement.hasAttribute?.("ngNoCva");
+    const hasCva = !hasNgNoCva && (this.rawValueAccessors && this.rawValueAccessors.length > 0 || this.valueAccessor !== null);
+    if (hasCva || !host.customControl) {
+      return;
+    }
+    this.isCustomControlBased = true;
+    host.listenToCustomControlModel((value) => {
+      this.control?.setValue(value, {
+        emitModelToViewChange: false
+      });
+      this.control?.markAsDirty();
+      this.viewToModelUpdate(value);
+    });
+    host.listenToCustomControlOutput("touch", () => {
+      this.control?.markAsTouched();
+    });
+    this.customControlBindings = {};
+    this.isNativeFormElement = isNativeFormElement(host.nativeElement);
+    this.requiredValidatorViaDi = this._rawValidators.find((v2) => v2 instanceof RequiredValidator);
+  }
+  ngControlUpdate(host, bindRequired) {
+    if (!this.isCustomControlBased) {
+      return;
+    }
+    const control = this.control;
+    const bindings = this.customControlBindings;
+    if (!Object.is(bindings.value, control.value)) {
+      bindings.value = control.value;
+      host.setCustomControlModelInput(control.value);
+    }
+    this.bindControlProperty(host, bindings, "touched", control.touched);
+    this.bindControlProperty(host, bindings, "dirty", control.dirty);
+    this.bindControlProperty(host, bindings, "valid", control.valid);
+    this.bindControlProperty(host, bindings, "invalid", control.invalid);
+    this.bindControlProperty(host, bindings, "pending", control.pending);
+    this.bindControlProperty(host, bindings, "disabled", control.disabled);
+    if (this.shouldBindRequired) {
+      this.bindControlProperty(host, bindings, "required", this.isRequired);
+    }
+    const errorObject = control.errors;
+    if (bindings.errors !== errorObject) {
+      bindings.errors = errorObject;
+      const errorArray = this._convertErrors(errorObject);
+      host.setInputOnDirectives("errors", errorArray);
+    }
+  }
+  get isRequired() {
+    return (this.requiredValidatorViaDi?._enabled || this.control?._hasRequired()) ?? false;
+  }
+  get shouldBindRequired() {
+    return true;
+  }
+  bindControlProperty(host, bindings, name, value) {
+    if (bindings[name] === value) {
+      return;
+    }
+    bindings[name] = value;
+    const wasSet = host.setInputOnDirectives(name, value);
+    if (this.isNativeFormElement && !wasSet && (name === "disabled" || name === "required") && this.renderer) {
+      setNativeDomProperty(this.renderer, host.nativeElement, name, value);
+    }
+  }
+  _convertErrors(errors) {
+    if (errors === null) {
+      return [];
+    }
+    const control = this.control;
+    return Object.entries(errors).map(([kind, context]) => {
+      return new ReactiveValidationError({
+        context,
+        kind,
+        control
+      });
+    });
+  }
+  setParseErrorSource(parseErrors) {
+    if (parseErrors === void 0) {
+      return;
+    }
+    let convertedErrors = null;
+    const convertedParseErrors = computed(() => {
+      const rawErrors = parseErrors();
+      if (rawErrors.length === 0) {
+        return null;
+      }
+      return rawErrors.reduce((acc, err2) => {
+        acc[err2.kind] = err2;
+        return acc;
+      }, {});
+    }, ...ngDevMode ? [{
+      debugName: "convertedParseErrors"
+    }] : []);
+    this.parseErrorsValidator = (() => convertedErrors).bind(this);
+    effect(() => {
+      convertedErrors = convertedParseErrors();
+      this.control?.updateValueAndValidity({
+        emitEvent: false
+      });
+    }, {
+      injector: this.injector
+    });
+  }
+  removeParseErrorsValidator(control) {
+    if (this.parseErrorsValidator) {
+      control?.removeValidators(this.parseErrorsValidator);
+      control?.updateValueAndValidity({
+        emitEvent: false
+      });
+    }
+  }
+};
+var AbstractControlStatus = class {
+  _cd;
+  constructor(cd) {
+    this._cd = cd;
+  }
+  get isTouched() {
+    this._cd?.control?._touched?.();
+    return !!this._cd?.control?.touched;
+  }
+  get isUntouched() {
+    return !!this._cd?.control?.untouched;
+  }
+  get isPristine() {
+    this._cd?.control?._pristine?.();
+    return !!this._cd?.control?.pristine;
+  }
+  get isDirty() {
+    return !!this._cd?.control?.dirty;
+  }
+  get isValid() {
+    this._cd?.control?._status?.();
+    return !!this._cd?.control?.valid;
+  }
+  get isInvalid() {
+    return !!this._cd?.control?.invalid;
+  }
+  get isPending() {
+    return !!this._cd?.control?.pending;
+  }
+  get isSubmitted() {
+    this._cd?._submitted?.();
+    return !!this._cd?.submitted;
+  }
+};
+var ngControlStatusHost = {
+  "[class.ng-untouched]": "isUntouched",
+  "[class.ng-touched]": "isTouched",
+  "[class.ng-pristine]": "isPristine",
+  "[class.ng-dirty]": "isDirty",
+  "[class.ng-valid]": "isValid",
+  "[class.ng-invalid]": "isInvalid",
+  "[class.ng-pending]": "isPending"
+};
+var NgControlStatus = class _NgControlStatus extends AbstractControlStatus {
+  constructor(cd) {
+    super(cd);
+  }
+  static \u0275fac = function NgControlStatus_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgControlStatus)(\u0275\u0275directiveInject(NgControl, 2));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgControlStatus,
+    selectors: [["", "formControlName", ""], ["", "ngModel", ""], ["", "formControl", ""]],
+    hostVars: 14,
+    hostBindings: function NgControlStatus_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("ng-untouched", ctx.isUntouched)("ng-touched", ctx.isTouched)("ng-pristine", ctx.isPristine)("ng-dirty", ctx.isDirty)("ng-valid", ctx.isValid)("ng-invalid", ctx.isInvalid)("ng-pending", ctx.isPending);
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgControlStatus, [{
+    type: Directive,
+    args: [{
+      selector: "[formControlName],[ngModel],[formControl]",
+      host: ngControlStatusHost,
+      standalone: false
+    }]
+  }], () => [{
+    type: NgControl,
+    decorators: [{
+      type: Self
+    }]
+  }], null);
+})();
+var NgControlStatusGroup = class _NgControlStatusGroup extends AbstractControlStatus {
+  constructor(cd) {
+    super(cd);
+  }
+  static \u0275fac = function NgControlStatusGroup_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgControlStatusGroup)(\u0275\u0275directiveInject(ControlContainer, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgControlStatusGroup,
+    selectors: [["", "formGroupName", ""], ["", "formArrayName", ""], ["", "ngModelGroup", ""], ["", "formGroup", ""], ["", "formArray", ""], ["form", 3, "ngNoForm", ""], ["", "ngForm", ""]],
+    hostVars: 16,
+    hostBindings: function NgControlStatusGroup_HostBindings(rf, ctx) {
+      if (rf & 2) {
+        \u0275\u0275classProp("ng-untouched", ctx.isUntouched)("ng-touched", ctx.isTouched)("ng-pristine", ctx.isPristine)("ng-dirty", ctx.isDirty)("ng-valid", ctx.isValid)("ng-invalid", ctx.isInvalid)("ng-pending", ctx.isPending)("ng-submitted", ctx.isSubmitted);
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgControlStatusGroup, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroupName],[formArrayName],[ngModelGroup],[formGroup],[formArray],form:not([ngNoForm]),[ngForm]",
+      host: __spreadProps(__spreadValues({}, ngControlStatusHost), {
+        "[class.ng-submitted]": "isSubmitted"
+      }),
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }]
+  }], null);
+})();
+var FormGroup = class extends AbstractControl {
+  constructor(controls, validatorOrOpts, asyncValidator) {
+    super(pickValidators(validatorOrOpts), pickAsyncValidators(asyncValidator, validatorOrOpts));
+    (typeof ngDevMode === "undefined" || ngDevMode) && validateFormGroupControls(controls);
+    this.controls = controls;
+    this._initObservables();
+    this._setUpdateStrategy(validatorOrOpts);
+    this._setUpControls();
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: !!this.asyncValidator
+    });
+  }
+  controls;
+  registerControl(name, control) {
+    const existingControl = this._find(name);
+    if (existingControl) return existingControl;
+    this.controls[name] = control;
+    control.setParent(this);
+    control._registerOnCollectionChange(this._onCollectionChange);
+    return control;
+  }
+  addControl(name, control, options = {}) {
+    this.registerControl(name, control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  removeControl(name, options = {}) {
+    const existingControl = this._find(name);
+    if (existingControl) existingControl._registerOnCollectionChange(() => {
+    });
+    delete this.controls[name];
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  setControl(name, control, options = {}) {
+    const existingControl = this._find(name);
+    if (existingControl) existingControl._registerOnCollectionChange(() => {
+    });
+    delete this.controls[name];
+    if (control) this.registerControl(name, control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  contains(controlName) {
+    return this._find(controlName)?.enabled === true;
+  }
+  setValue(value, options = {}) {
+    untracked(() => {
+      assertAllValuesPresent(this, true, value);
+      Object.keys(value).forEach((name) => {
+        assertControlPresent(this, true, name);
+        this.controls[name].setValue(value[name], {
+          onlySelf: true,
+          emitEvent: options.emitEvent
+        });
+      });
+      this.updateValueAndValidity(options);
+    });
+  }
+  patchValue(value, options = {}) {
+    if (value == null) return;
+    Object.keys(value).forEach((name) => {
+      const existingControl = this._find(name);
+      if (existingControl) {
+        existingControl.patchValue(value[name], {
+          onlySelf: true,
+          emitEvent: options.emitEvent
+        });
+      }
+    });
+    this.updateValueAndValidity(options);
+  }
+  reset(value = {}, options = {}) {
+    this._forEachChild((control, name) => {
+      control.reset(value ? value[name] : null, __spreadProps(__spreadValues({}, options), {
+        onlySelf: true
+      }));
+    });
+    this._updatePristine(options, this);
+    this._updateTouched(options, this);
+    this.updateValueAndValidity(options);
+    if (options?.emitEvent !== false) {
+      this._events.next(new FormResetEvent(this));
+    }
+  }
+  getRawValue() {
+    return this._reduceChildren({}, (acc, control, name) => {
+      acc[name] = control.getRawValue();
+      return acc;
+    });
+  }
+  _syncPendingControls() {
+    let subtreeUpdated = this._reduceChildren(false, (updated, child) => {
+      return child._syncPendingControls() ? true : updated;
+    });
+    if (subtreeUpdated) this.updateValueAndValidity({
+      onlySelf: true
+    });
+    return subtreeUpdated;
+  }
+  _forEachChild(cb) {
+    Object.keys(this.controls).forEach((key) => {
+      const control = this.controls[key];
+      control && cb(control, key);
+    });
+  }
+  _setUpControls() {
+    this._forEachChild((control) => {
+      control.setParent(this);
+      control._registerOnCollectionChange(this._onCollectionChange);
+    });
+  }
+  _updateValue() {
+    this.value = this._reduceValue();
+  }
+  _anyControls(condition) {
+    for (const [controlName, control] of Object.entries(this.controls)) {
+      if (this.contains(controlName) && condition(control)) {
+        return true;
+      }
+    }
+    return false;
+  }
+  _reduceValue() {
+    let acc = {};
+    return this._reduceChildren(acc, (acc2, control, name) => {
+      if (control.enabled || this.disabled) {
+        acc2[name] = control.value;
+      }
+      return acc2;
+    });
+  }
+  _reduceChildren(initValue, fn) {
+    let res = initValue;
+    this._forEachChild((control, name) => {
+      res = fn(res, control, name);
+    });
+    return res;
+  }
+  _allControlsDisabled() {
+    for (const controlName of Object.keys(this.controls)) {
+      if (this.controls[controlName].enabled) {
+        return false;
+      }
+    }
+    return Object.keys(this.controls).length > 0 || this.disabled;
+  }
+  _find(name) {
+    return hasOwnControl(this.controls, name) ? this.controls[name] : null;
+  }
+};
+function validateFormGroupControls(controls) {
+  const invalidKeys = Object.keys(controls).filter((key) => key.includes("."));
+  if (invalidKeys.length > 0) {
+    console.warn(`FormGroup keys cannot include \`.\`, please replace the keys for: ${invalidKeys.join(",")}.`);
+  }
+}
+var FormRecord = class extends FormGroup {
+};
+var formDirectiveProvider$2 = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => NgForm)
+};
+var resolvedPromise$1 = (() => Promise.resolve())();
+var NgForm = class _NgForm extends ControlContainer {
+  callSetDisabledState;
+  get submitted() {
+    return untracked(this.submittedReactive);
+  }
+  _submitted = computed(() => this.submittedReactive(), ...ngDevMode ? [{
+    debugName: "_submitted"
+  }] : []);
+  submittedReactive = signal(false, ...ngDevMode ? [{
+    debugName: "submittedReactive"
+  }] : []);
+  _directives = /* @__PURE__ */ new Set();
+  form;
+  ngSubmit = new EventEmitter();
+  options;
+  constructor(validators, asyncValidators, callSetDisabledState) {
+    super();
+    this.callSetDisabledState = callSetDisabledState;
+    this.form = new FormGroup({}, composeValidators(validators), composeAsyncValidators(asyncValidators));
+  }
+  ngAfterViewInit() {
+    this._setUpdateStrategy();
+  }
+  get formDirective() {
+    return this;
+  }
+  get control() {
+    return this.form;
+  }
+  get path() {
+    return [];
+  }
+  get controls() {
+    return this.form.controls;
+  }
+  addControl(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      dir.control = container.registerControl(dir.name, dir.control);
+      dir._setupWithForm(this.callSetDisabledState);
+      dir.control.updateValueAndValidity({
+        emitEvent: false
+      });
+      this._directives.add(dir);
+    });
+  }
+  getControl(dir) {
+    return this.form.get(dir.path);
+  }
+  removeControl(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      container?.removeControl(dir.name);
+      this._directives.delete(dir);
+    });
+  }
+  addFormGroup(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      const group = new FormGroup({});
+      setUpFormContainer(group, dir);
+      container.registerControl(dir.name, group);
+      group.updateValueAndValidity({
+        emitEvent: false
+      });
+    });
+  }
+  removeFormGroup(dir) {
+    resolvedPromise$1.then(() => {
+      const container = this._findContainer(dir.path);
+      container?.removeControl?.(dir.name);
+    });
+  }
+  getFormGroup(dir) {
+    return this.form.get(dir.path);
+  }
+  updateModel(dir, value) {
+    resolvedPromise$1.then(() => {
+      const ctrl = this.form.get(dir.path);
+      ctrl.setValue(value);
+    });
+  }
+  setValue(value) {
+    this.control.setValue(value);
+  }
+  onSubmit($event) {
+    this.submittedReactive.set(true);
+    syncPendingControls(this.form, this._directives);
+    this.ngSubmit.emit($event);
+    this.form._events.next(new FormSubmittedEvent(this.control));
+    return $event?.target?.method === "dialog";
+  }
+  onReset() {
+    this.resetForm();
+  }
+  resetForm(value = void 0) {
+    this.form.reset(value);
+    this.submittedReactive.set(false);
+  }
+  _setUpdateStrategy() {
+    if (this.options && this.options.updateOn != null) {
+      this.form._updateOn = this.options.updateOn;
+    }
+  }
+  _findContainer(path) {
+    path.pop();
+    return path.length ? this.form.get(path) : this.form;
+  }
+  static \u0275fac = function NgForm_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgForm)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgForm,
+    selectors: [["form", 3, "ngNoForm", "", 3, "formGroup", "", 3, "formArray", ""], ["ng-form"], ["", "ngForm", ""]],
+    hostBindings: function NgForm_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function NgForm_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        })("reset", function NgForm_reset_HostBindingHandler() {
+          return ctx.onReset();
+        });
+      }
+    },
+    inputs: {
+      options: [0, "ngFormOptions", "options"]
+    },
+    outputs: {
+      ngSubmit: "ngSubmit"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider$2]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgForm, [{
+    type: Directive,
+    args: [{
+      selector: "form:not([ngNoForm]):not([formGroup]):not([formArray]),ng-form,[ngForm]",
+      providers: [formDirectiveProvider$2],
+      host: {
+        "(submit)": "onSubmit($event)",
+        "(reset)": "onReset()"
+      },
+      outputs: ["ngSubmit"],
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], {
+    options: [{
+      type: Input,
+      args: ["ngFormOptions"]
+    }]
+  });
+})();
+function removeListItem(list, el) {
+  const index = list.indexOf(el);
+  if (index > -1) list.splice(index, 1);
+}
+function isFormControlState(formState) {
+  return typeof formState === "object" && formState !== null && Object.keys(formState).length === 2 && "value" in formState && "disabled" in formState;
+}
+var FormControl = class FormControl2 extends AbstractControl {
+  defaultValue = null;
+  _onChange = [];
+  _pendingValue;
+  _pendingChange = false;
+  constructor(formState = null, validatorOrOpts, asyncValidator) {
+    super(pickValidators(validatorOrOpts), pickAsyncValidators(asyncValidator, validatorOrOpts));
+    this._applyFormState(formState);
+    this._setUpdateStrategy(validatorOrOpts);
+    this._initObservables();
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: !!this.asyncValidator
+    });
+    if (isOptionsObj(validatorOrOpts) && (validatorOrOpts.nonNullable || validatorOrOpts.initialValueIsDefault)) {
+      if (isFormControlState(formState)) {
+        this.defaultValue = formState.value;
+      } else {
+        this.defaultValue = formState;
+      }
+    }
+  }
+  setValue(value, options = {}) {
+    untracked(() => {
+      this.value = this._pendingValue = value;
+      if (this._onChange.length && options.emitModelToViewChange !== false) {
+        this._onChange.forEach((changeFn) => changeFn(this.value, options.emitViewToModelChange !== false));
+      }
+      this.updateValueAndValidity(options);
+    });
+  }
+  patchValue(value, options = {}) {
+    this.setValue(value, options);
+  }
+  reset(formState = this.defaultValue, options = {}) {
+    this._applyFormState(formState);
+    this.markAsPristine(options);
+    this.markAsUntouched(options);
+    this.setValue(this.value, options);
+    if (options.overwriteDefaultValue) {
+      this.defaultValue = this.value;
+    }
+    this._pendingChange = false;
+    if (options?.emitEvent !== false) {
+      this._events.next(new FormResetEvent(this));
+    }
+  }
+  _updateValue() {
+  }
+  _anyControls(condition) {
+    return false;
+  }
+  _allControlsDisabled() {
+    return this.disabled;
+  }
+  registerOnChange(fn) {
+    this._onChange.push(fn);
+  }
+  _unregisterOnChange(fn) {
+    removeListItem(this._onChange, fn);
+  }
+  registerOnDisabledChange(fn) {
+    this._onDisabledChange.push(fn);
+  }
+  _unregisterOnDisabledChange(fn) {
+    removeListItem(this._onDisabledChange, fn);
+  }
+  _forEachChild(cb) {
+  }
+  _syncPendingControls() {
+    if (this.updateOn === "submit") {
+      if (this._pendingDirty) this.markAsDirty();
+      if (this._pendingTouched) this.markAsTouched();
+      if (this._pendingChange) {
+        this.setValue(this._pendingValue, {
+          onlySelf: true,
+          emitModelToViewChange: false
+        });
+        return true;
+      }
+    }
+    return false;
+  }
+  _applyFormState(formState) {
+    if (isFormControlState(formState)) {
+      this.value = this._pendingValue = formState.value;
+      formState.disabled ? this.disable({
+        onlySelf: true,
+        emitEvent: false
+      }) : this.enable({
+        onlySelf: true,
+        emitEvent: false
+      });
+    } else {
+      this.value = this._pendingValue = formState;
+    }
+  }
+};
+var isFormControl = (control) => control instanceof FormControl;
+var AbstractFormGroupDirective = class _AbstractFormGroupDirective extends ControlContainer {
+  _parent;
+  ngOnInit() {
+    this._checkParentType();
+    this.formDirective.addFormGroup(this);
+  }
+  ngOnDestroy() {
+    this.formDirective?.removeFormGroup(this);
+  }
+  get control() {
+    return this.formDirective.getFormGroup(this);
+  }
+  get path() {
+    return controlPath(this.name == null ? this.name : this.name.toString(), this._parent);
+  }
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  _checkParentType() {
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275AbstractFormGroupDirective_BaseFactory;
+    return function AbstractFormGroupDirective_Factory(__ngFactoryType__) {
+      return (\u0275AbstractFormGroupDirective_BaseFactory || (\u0275AbstractFormGroupDirective_BaseFactory = \u0275\u0275getInheritedFactory(_AbstractFormGroupDirective)))(__ngFactoryType__ || _AbstractFormGroupDirective);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _AbstractFormGroupDirective,
+    standalone: false,
+    features: [\u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractFormGroupDirective, [{
+    type: Directive,
+    args: [{
+      standalone: false
+    }]
+  }], null, null);
+})();
+function modelParentException() {
+  return new RuntimeError(1350, `
+    ngModel cannot be used to register form controls with a parent formGroup directive.  Try using
+    formGroup's partner directive "formControlName" instead.  Example:
+
+    ${formControlNameExample}
+
+    Or, if you'd like to avoid registering this form control, indicate that it's standalone in ngModelOptions:
+
+    Example:
+
+    ${ngModelWithFormGroupExample}`);
+}
+function formGroupNameException() {
+  return new RuntimeError(1351, `
+    ngModel cannot be used to register form controls with a parent formGroupName or formArrayName directive.
+
+    Option 1: Use formControlName instead of ngModel (reactive strategy):
+
+    ${formGroupNameExample}
+
+    Option 2:  Update ngModel's parent be ngModelGroup (template-driven strategy):
+
+    ${ngModelGroupExample}`);
+}
+function ngModelInChildComponentWarning(containerTypeName) {
+  return formatRuntimeError(-1354, `ngModel on a form control inside a child component cannot register with the ${containerTypeName} in the parent component because @Host() stops injection at the component boundary. To register this control with the parent form, add viewProviders to the child component: @Component({ ..., viewProviders: [{ provide: ControlContainer, useExisting: ${containerTypeName} }] }). Or, to opt out of form registration, use [ngModelOptions]="{standalone: true}".`);
+}
+function missingNameException() {
+  return new RuntimeError(1352, `If ngModel is used within a form tag, either the name attribute must be set or the form
+    control must be defined as 'standalone' in ngModelOptions.
+
+    Example 1: <input [(ngModel)]="person.firstName" name="first">
+    Example 2: <input [(ngModel)]="person.firstName" [ngModelOptions]="{standalone: true}">`);
+}
+function modelGroupParentException() {
+  return new RuntimeError(1353, `
+    ngModelGroup cannot be used with a parent formGroup directive.
+
+    Option 1: Use formGroupName instead of ngModelGroup (reactive strategy):
+
+    ${formGroupNameExample}
+
+    Option 2:  Use a regular form tag instead of the formGroup directive (template-driven strategy):
+
+    ${ngModelGroupExample}`);
+}
+var modelGroupProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => NgModelGroup)
+};
+var NgModelGroup = class _NgModelGroup extends AbstractFormGroupDirective {
+  name = "";
+  constructor(parent, validators, asyncValidators) {
+    super();
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  _checkParentType() {
+    if (!(this._parent instanceof _NgModelGroup) && !(this._parent instanceof NgForm) && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw modelGroupParentException();
+    }
+  }
+  static \u0275fac = function NgModelGroup_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgModelGroup)(\u0275\u0275directiveInject(ControlContainer, 5), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgModelGroup,
+    selectors: [["", "ngModelGroup", ""]],
+    inputs: {
+      name: [0, "ngModelGroup", "name"]
+    },
+    exportAs: ["ngModelGroup"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([modelGroupProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgModelGroup, [{
+    type: Directive,
+    args: [{
+      selector: "[ngModelGroup]",
+      providers: [modelGroupProvider],
+      exportAs: "ngModelGroup",
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["ngModelGroup"]
+    }]
+  });
+})();
+var AbstractFormDirective = class _AbstractFormDirective extends ControlContainer {
+  callSetDisabledState;
+  get submitted() {
+    return untracked(this._submittedReactive);
+  }
+  set submitted(value) {
+    this._submittedReactive.set(value);
+  }
+  _submitted = computed(() => this._submittedReactive(), ...ngDevMode ? [{
+    debugName: "_submitted"
+  }] : []);
+  _submittedReactive = signal(false, ...ngDevMode ? [{
+    debugName: "_submittedReactive"
+  }] : []);
+  _oldForm;
+  _onCollectionChange = () => this._updateDomValue();
+  directives = [];
+  constructor(validators, asyncValidators, callSetDisabledState) {
+    super();
+    this.callSetDisabledState = callSetDisabledState;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  ngOnChanges(changes) {
+    this.onChanges(changes);
+  }
+  ngOnDestroy() {
+    this.onDestroy();
+  }
+  onChanges(changes) {
+    this._checkFormPresent();
+    if (Object.hasOwn(changes, "form")) {
+      this._updateValidators();
+      this._updateDomValue();
+      this._updateRegistrations();
+      this._oldForm = this.form;
+    }
+  }
+  onDestroy() {
+    if (this.form) {
+      cleanUpValidators(this.form, this);
+      if (this.form._onCollectionChange === this._onCollectionChange) {
+        this.form._registerOnCollectionChange(() => {
+        });
+      }
+    }
+  }
+  get formDirective() {
+    return this;
+  }
+  get path() {
+    return [];
+  }
+  addControl(dir) {
+    const ctrl = this.form.get(dir.path);
+    dir._setupWithForm(ctrl, this.callSetDisabledState);
+    ctrl.updateValueAndValidity({
+      emitEvent: false
+    });
+    this.directives.push(dir);
+    return ctrl;
+  }
+  getControl(dir) {
+    return this.form.get(dir.path);
+  }
+  removeControl(dir) {
+    cleanUpControl(dir.control || null, dir, false);
+    removeListItem$1(this.directives, dir);
+  }
+  addFormGroup(dir) {
+    this._setUpFormContainer(dir);
+  }
+  removeFormGroup(dir) {
+    this._cleanUpFormContainer(dir);
+  }
+  getFormGroup(dir) {
+    return this.form.get(dir.path);
+  }
+  getFormArray(dir) {
+    return this.form.get(dir.path);
+  }
+  addFormArray(dir) {
+    this._setUpFormContainer(dir);
+  }
+  removeFormArray(dir) {
+    this._cleanUpFormContainer(dir);
+  }
+  updateModel(dir, value) {
+    const ctrl = this.form.get(dir.path);
+    ctrl.setValue(value);
+  }
+  onReset() {
+    this.resetForm();
+  }
+  resetForm(value = void 0, options = {}) {
+    this.form.reset(value, options);
+    this._submittedReactive.set(false);
+  }
+  onSubmit($event) {
+    this.submitted = true;
+    syncPendingControls(this.form, this.directives);
+    this.ngSubmit.emit($event);
+    this.form._events.next(new FormSubmittedEvent(this.control));
+    return $event?.target?.method === "dialog";
+  }
+  _updateDomValue() {
+    this.directives.forEach((dir) => {
+      const oldCtrl = dir.control;
+      const newCtrl = this.form.get(dir.path);
+      if (oldCtrl !== newCtrl) {
+        cleanUpControl(oldCtrl || null, dir);
+        if (isFormControl(newCtrl)) {
+          dir._setupWithForm(newCtrl, this.callSetDisabledState);
+        }
+      }
+    });
+    this.form._updateTreeValidity({
+      emitEvent: false
+    });
+  }
+  _setUpFormContainer(dir) {
+    const ctrl = this.form.get(dir.path);
+    setUpFormContainer(ctrl, dir);
+    ctrl.updateValueAndValidity({
+      emitEvent: false
+    });
+  }
+  _cleanUpFormContainer(dir) {
+    const ctrl = this.form?.get(dir.path);
+    if (ctrl) {
+      const isControlUpdated = cleanUpFormContainer(ctrl, dir);
+      if (isControlUpdated) {
+        ctrl.updateValueAndValidity({
+          emitEvent: false
+        });
+      }
+    }
+  }
+  _updateRegistrations() {
+    this.form._registerOnCollectionChange(this._onCollectionChange);
+    this._oldForm?._registerOnCollectionChange(() => {
+    });
+  }
+  _updateValidators() {
+    setUpValidators(this.form, this);
+    if (this._oldForm) {
+      cleanUpValidators(this._oldForm, this);
+    }
+  }
+  _checkFormPresent() {
+    if (!this.form && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw missingFormException();
+    }
+  }
+  static \u0275fac = function AbstractFormDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _AbstractFormDirective)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _AbstractFormDirective,
+    features: [\u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AbstractFormDirective, [{
+    type: Directive
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }], null);
+})();
+var formDirectiveProvider$1 = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormGroupDirective)
+};
+var FormGroupDirective = class _FormGroupDirective extends AbstractFormDirective {
+  form = null;
+  ngSubmit = new EventEmitter();
+  get control() {
+    return this.form;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275FormGroupDirective_BaseFactory;
+    return function FormGroupDirective_Factory(__ngFactoryType__) {
+      return (\u0275FormGroupDirective_BaseFactory || (\u0275FormGroupDirective_BaseFactory = \u0275\u0275getInheritedFactory(_FormGroupDirective)))(__ngFactoryType__ || _FormGroupDirective);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormGroupDirective,
+    selectors: [["", "formGroup", ""]],
+    hostBindings: function FormGroupDirective_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function FormGroupDirective_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        })("reset", function FormGroupDirective_reset_HostBindingHandler() {
+          return ctx.onReset();
+        });
+      }
+    },
+    inputs: {
+      form: [0, "formGroup", "form"]
+    },
+    outputs: {
+      ngSubmit: "ngSubmit"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider$1]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormGroupDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroup]",
+      providers: [formDirectiveProvider$1],
+      host: {
+        "(submit)": "onSubmit($event)",
+        "(reset)": "onReset()"
+      },
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], null, {
+    form: [{
+      type: Input,
+      args: ["formGroup"]
+    }],
+    ngSubmit: [{
+      type: Output
+    }]
+  });
+})();
+var formControlBinding$1 = {
+  provide: NgControl,
+  useExisting: forwardRef(() => NgModel)
+};
+var resolvedPromise = (() => Promise.resolve())();
+var NgModel = class _NgModel extends NgControl {
+  _changeDetectorRef;
+  callSetDisabledState;
+  control = new FormControl();
+  static ngAcceptInputType_isDisabled;
+  _registered = false;
+  _ngModelInjector;
+  viewModel;
+  name = "";
+  isDisabled;
+  model;
+  options;
+  update = new EventEmitter();
+  constructor(parent, validators, asyncValidators, valueAccessors, _changeDetectorRef, callSetDisabledState, injector, renderer) {
+    super(injector, renderer, valueAccessors);
+    this._changeDetectorRef = _changeDetectorRef;
+    this.callSetDisabledState = callSetDisabledState;
+    this._parent = parent;
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      this._ngModelInjector = injector;
+    }
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  ngOnChanges(changes) {
+    if (!this._registered && (typeof ngDevMode === "undefined" || ngDevMode) && this._parent === null && !this.options?.standalone) {
+      const parentContainer = this._ngModelInjector?.get(ControlContainer, null);
+      if (parentContainer != null) {
+        const typeName = parentContainer instanceof NgForm ? "NgForm" : parentContainer instanceof FormGroupDirective ? "FormGroupDirective" : parentContainer instanceof NgModelGroup ? "NgModelGroup" : parentContainer.constructor.name || "ControlContainer";
+        console.warn(ngModelInChildComponentWarning(typeName));
+      }
+    }
+    this._checkForErrors();
+    if (!this._registered || "name" in changes) {
+      if (this._registered) {
+        this._checkName();
+        if (this.formDirective) {
+          const oldName = changes["name"].previousValue;
+          this.formDirective.removeControl({
+            name: oldName,
+            path: this._getPath(oldName)
+          });
+        }
+      }
+      this._setUpControl();
+    }
+    if ("isDisabled" in changes) {
+      this._updateDisabled(changes);
+    }
+    if (isPropertyUpdated(changes, this.viewModel)) {
+      this._updateValue(this.model);
+      this.viewModel = this.model;
+    }
+  }
+  ngOnDestroy() {
+    this.formDirective?.removeControl(this);
+  }
+  \u0275ngControlCreate(host) {
+    super.ngControlCreate(host);
+  }
+  \u0275ngControlUpdate(host) {
+    super.ngControlUpdate(host, false);
+  }
+  get shouldBindRequired() {
+    return false;
+  }
+  get path() {
+    return this._getPath(this.name);
+  }
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  viewToModelUpdate(newValue) {
+    this.viewModel = newValue;
+    this.update.emit(newValue);
+  }
+  _setUpControl() {
+    this._setUpdateStrategy();
+    this._isStandalone() ? this._setUpStandalone() : this.formDirective.addControl(this);
+    this._registered = true;
+  }
+  _setUpdateStrategy() {
+    if (this.options && this.options.updateOn != null) {
+      this.control._updateOn = this.options.updateOn;
+    }
+  }
+  _isStandalone() {
+    return !this._parent || !!(this.options && this.options.standalone);
+  }
+  _setUpStandalone() {
+    if (!this.isCustomControlBased) {
+      this.valueAccessor ??= this.selectedValueAccessor;
+      setUpControlValueAccessor(this.control, this, this.callSetDisabledState);
+    } else {
+      this.setupCustomControl();
+    }
+    this.control.updateValueAndValidity({
+      emitEvent: false
+    });
+  }
+  _setupWithForm(callSetDisabledState) {
+    if (!this.isCustomControlBased) {
+      this.valueAccessor ??= this.selectedValueAccessor;
+      setUpControlValueAccessor(this.control, this, callSetDisabledState);
+    } else {
+      this.setupCustomControl();
+    }
+  }
+  _checkForErrors() {
+    if ((typeof ngDevMode === "undefined" || ngDevMode) && !this._isStandalone()) {
+      checkParentType$1(this._parent);
+    }
+    this._checkName();
+  }
+  _checkName() {
+    if (this.options && this.options.name) this.name = this.options.name;
+    if (!this._isStandalone() && !this.name && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw missingNameException();
+    }
+  }
+  _updateValue(value) {
+    resolvedPromise.then(() => {
+      this.control.setValue(value, {
+        emitViewToModelChange: false
+      });
+      this._changeDetectorRef?.markForCheck();
+    });
+  }
+  _updateDisabled(changes) {
+    const disabledValue = changes["isDisabled"].currentValue;
+    const isDisabled = disabledValue !== 0 && booleanAttribute(disabledValue);
+    resolvedPromise.then(() => {
+      if (isDisabled && !this.control.disabled) {
+        this.control.disable();
+      } else if (!isDisabled && this.control.disabled) {
+        this.control.enable();
+      }
+      this._changeDetectorRef?.markForCheck();
+    });
+  }
+  _getPath(controlName) {
+    return this._parent ? controlPath(controlName, this._parent) : [controlName];
+  }
+  static \u0275fac = function NgModel_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgModel)(\u0275\u0275directiveInject(ControlContainer, 9), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(NG_VALUE_ACCESSOR, 10), \u0275\u0275directiveInject(ChangeDetectorRef, 8), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8), \u0275\u0275directiveInject(Injector, 8), \u0275\u0275directiveInject(Renderer2, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgModel,
+    selectors: [["", "ngModel", "", 3, "formControlName", "", 3, "formControl", ""]],
+    inputs: {
+      name: "name",
+      isDisabled: [0, "disabled", "isDisabled"],
+      model: [0, "ngModel", "model"],
+      options: [0, "ngModelOptions", "options"]
+    },
+    outputs: {
+      update: "ngModelChange"
+    },
+    exportAs: ["ngModel"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formControlBinding$1, NG_CONTROL_INTEGRATION_PROVIDER]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature, \u0275\u0275ControlFeature(null)]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgModel, [{
+    type: Directive,
+    args: [{
+      selector: "[ngModel]:not([formControlName]):not([formControl])",
+      providers: [formControlBinding$1, NG_CONTROL_INTEGRATION_PROVIDER],
+      exportAs: "ngModel",
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALUE_ACCESSOR]
+    }]
+  }, {
+    type: ChangeDetectorRef,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [ChangeDetectorRef]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }, {
+    type: Injector,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: Renderer2,
+    decorators: [{
+      type: Optional
+    }]
+  }], {
+    name: [{
+      type: Input
+    }],
+    isDisabled: [{
+      type: Input,
+      args: ["disabled"]
+    }],
+    model: [{
+      type: Input,
+      args: ["ngModel"]
+    }],
+    options: [{
+      type: Input,
+      args: ["ngModelOptions"]
+    }],
+    update: [{
+      type: Output,
+      args: ["ngModelChange"]
+    }]
+  });
+})();
+function checkParentType$1(parent) {
+  if (!(parent instanceof NgModelGroup) && parent instanceof AbstractFormGroupDirective) {
+    throw formGroupNameException();
+  } else if (!(parent instanceof NgModelGroup) && !(parent instanceof NgForm)) {
+    throw modelParentException();
+  }
+}
+var \u0275NgNoValidate = class _\u0275NgNoValidate {
+  static \u0275fac = function \u0275NgNoValidate_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _\u0275NgNoValidate)();
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _\u0275NgNoValidate,
+    selectors: [["form", 3, "ngNoForm", "", 3, "ngNativeValidate", ""]],
+    hostAttrs: ["novalidate", ""],
+    standalone: false
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(\u0275NgNoValidate, [{
+    type: Directive,
+    args: [{
+      selector: "form:not([ngNoForm]):not([ngNativeValidate])",
+      host: {
+        "novalidate": ""
+      },
+      standalone: false
+    }]
+  }], null, null);
+})();
+var NUMBER_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => NumberValueAccessor),
+  multi: true
+};
+var NumberValueAccessor = class _NumberValueAccessor extends BuiltInControlValueAccessor {
+  writeValue(value) {
+    const normalizedValue = value == null ? "" : value;
+    this.setProperty("value", normalizedValue);
+  }
+  registerOnChange(fn) {
+    this.onChange = (value) => {
+      fn(value == "" ? null : parseFloat(value));
+    };
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275NumberValueAccessor_BaseFactory;
+    return function NumberValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275NumberValueAccessor_BaseFactory || (\u0275NumberValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_NumberValueAccessor)))(__ngFactoryType__ || _NumberValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NumberValueAccessor,
+    selectors: [["input", "type", "number", "formControlName", "", 3, "ngNoCva", ""], ["input", "type", "number", "formControl", "", 3, "ngNoCva", ""], ["input", "type", "number", "ngModel", "", 3, "ngNoCva", ""]],
+    hostBindings: function NumberValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("input", function NumberValueAccessor_input_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("blur", function NumberValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([NUMBER_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NumberValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=number]:not([ngNoCva])[formControlName],input[type=number]:not([ngNoCva])[formControl],input[type=number]:not([ngNoCva])[ngModel]",
+      host: {
+        "(input)": "onChange($any($event.target).value)",
+        "(blur)": "onTouched()"
+      },
+      providers: [NUMBER_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, null);
+})();
+var RADIO_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => RadioControlValueAccessor),
+  multi: true
+};
+function throwNameError() {
+  throw new RuntimeError(1202, `
+      If you define both a name and a formControlName attribute on your radio button, their values
+      must match. Ex: <input type="radio" formControlName="food" name="food">
+    `);
+}
+var RadioControlRegistry = class _RadioControlRegistry {
+  _accessors = [];
+  add(control, accessor) {
+    this._accessors.push([control, accessor]);
+  }
+  remove(accessor) {
+    for (let i = this._accessors.length - 1; i >= 0; --i) {
+      if (this._accessors[i][1] === accessor) {
+        this._accessors.splice(i, 1);
+        return;
+      }
+    }
+  }
+  select(accessor) {
+    this._accessors.forEach((c) => {
+      if (this._isSameGroup(c, accessor) && c[1] !== accessor) {
+        c[1].fireUncheck(accessor.value);
+      }
+    });
+  }
+  _isSameGroup(controlPair, accessor) {
+    if (!controlPair[0].control) return false;
+    return controlPair[0]._parent === accessor._control._parent && controlPair[1].name === accessor.name;
+  }
+  static \u0275fac = function RadioControlRegistry_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _RadioControlRegistry)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _RadioControlRegistry,
+    factory: _RadioControlRegistry.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RadioControlRegistry, [{
+    type: Service
+  }], null, null);
+})();
+var RadioControlValueAccessor = class _RadioControlValueAccessor extends BuiltInControlValueAccessor {
+  _registry;
+  _injector;
+  _state;
+  _control;
+  _fn;
+  setDisabledStateFired = false;
+  onChange = () => {
+  };
+  name;
+  formControlName;
+  value;
+  callSetDisabledState = inject(CALL_SET_DISABLED_STATE, {
+    optional: true
+  }) ?? setDisabledStateDefault;
+  constructor(renderer, elementRef, _registry, _injector) {
+    super(renderer, elementRef);
+    this._registry = _registry;
+    this._injector = _injector;
+  }
+  ngOnChanges(changes) {
+    const control = this._control?.control;
+    if (changes["value"] && control) {
+      this.writeValue(control.value);
+    }
+  }
+  ngOnInit() {
+    this._control = this._injector.get(NgControl);
+    this._checkName();
+    this._registry.add(this._control, this);
+  }
+  ngOnDestroy() {
+    this._registry.remove(this);
+  }
+  writeValue(value) {
+    this._state = value === this.value;
+    this.setProperty("checked", this._state);
+  }
+  registerOnChange(fn) {
+    this._fn = fn;
+    this.onChange = () => {
+      fn(this.value);
+      this._registry.select(this);
+    };
+  }
+  setDisabledState(isDisabled) {
+    if (this.setDisabledStateFired || isDisabled || this.callSetDisabledState === "whenDisabledForLegacyCode") {
+      this.setProperty("disabled", isDisabled);
+    }
+    this.setDisabledStateFired = true;
+  }
+  fireUncheck(value) {
+    this.writeValue(value);
+  }
+  _checkName() {
+    if (this.name && this.formControlName && this.name !== this.formControlName && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throwNameError();
+    }
+    if (!this.name && this.formControlName) this.name = this.formControlName;
+  }
+  static \u0275fac = function RadioControlValueAccessor_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _RadioControlValueAccessor)(\u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(RadioControlRegistry), \u0275\u0275directiveInject(Injector));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _RadioControlValueAccessor,
+    selectors: [["input", "type", "radio", "formControlName", "", 3, "ngNoCva", ""], ["input", "type", "radio", "formControl", "", 3, "ngNoCva", ""], ["input", "type", "radio", "ngModel", "", 3, "ngNoCva", ""]],
+    hostBindings: function RadioControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function RadioControlValueAccessor_change_HostBindingHandler() {
+          return ctx.onChange();
+        })("blur", function RadioControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    inputs: {
+      name: "name",
+      formControlName: "formControlName",
+      value: "value"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([RADIO_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RadioControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=radio]:not([ngNoCva])[formControlName],input[type=radio]:not([ngNoCva])[formControl],input[type=radio]:not([ngNoCva])[ngModel]",
+      host: {
+        "(change)": "onChange()",
+        "(blur)": "onTouched()"
+      },
+      providers: [RADIO_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], () => [{
+    type: Renderer2
+  }, {
+    type: ElementRef
+  }, {
+    type: RadioControlRegistry
+  }, {
+    type: Injector
+  }], {
+    name: [{
+      type: Input
+    }],
+    formControlName: [{
+      type: Input
+    }],
+    value: [{
+      type: Input
+    }]
+  });
+})();
+var RANGE_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => RangeValueAccessor),
+  multi: true
+};
+var RangeValueAccessor = class _RangeValueAccessor extends BuiltInControlValueAccessor {
+  writeValue(value) {
+    this.setProperty("value", parseFloat(value));
+  }
+  registerOnChange(fn) {
+    this.onChange = (value) => {
+      fn(value == "" ? null : parseFloat(value));
+    };
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275RangeValueAccessor_BaseFactory;
+    return function RangeValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275RangeValueAccessor_BaseFactory || (\u0275RangeValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_RangeValueAccessor)))(__ngFactoryType__ || _RangeValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _RangeValueAccessor,
+    selectors: [["input", "type", "range", "formControlName", "", 3, "ngNoCva", ""], ["input", "type", "range", "formControl", "", 3, "ngNoCva", ""], ["input", "type", "range", "ngModel", "", 3, "ngNoCva", ""]],
+    hostBindings: function RangeValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function RangeValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("input", function RangeValueAccessor_input_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("blur", function RangeValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([RANGE_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RangeValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "input[type=range]:not([ngNoCva])[formControlName],input[type=range]:not([ngNoCva])[formControl],input[type=range]:not([ngNoCva])[ngModel]",
+      host: {
+        "(change)": "onChange($any($event.target).value)",
+        "(input)": "onChange($any($event.target).value)",
+        "(blur)": "onTouched()"
+      },
+      providers: [RANGE_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, null);
+})();
+var FormArray = class extends AbstractControl {
+  constructor(controls, validatorOrOpts, asyncValidator) {
+    super(pickValidators(validatorOrOpts), pickAsyncValidators(asyncValidator, validatorOrOpts));
+    this.controls = controls;
+    this._initObservables();
+    this._setUpdateStrategy(validatorOrOpts);
+    this._setUpControls();
+    this.updateValueAndValidity({
+      onlySelf: true,
+      emitEvent: !!this.asyncValidator
+    });
+  }
+  controls;
+  at(index) {
+    return this.controls[this._adjustIndex(index)];
+  }
+  push(control, options = {}) {
+    if (Array.isArray(control)) {
+      control.forEach((ctrl) => {
+        this.controls.push(ctrl);
+        this._registerControl(ctrl);
+      });
+    } else {
+      this.controls.push(control);
+      this._registerControl(control);
+    }
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  insert(index, control, options = {}) {
+    this.controls.splice(index, 0, control);
+    this._registerControl(control);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+  }
+  removeAt(index, options = {}) {
+    let adjustedIndex = this._adjustIndex(index);
+    if (adjustedIndex < 0) adjustedIndex = 0;
+    if (this.controls[adjustedIndex]) this.controls[adjustedIndex]._registerOnCollectionChange(() => {
+    });
+    this.controls.splice(adjustedIndex, 1);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+  }
+  setControl(index, control, options = {}) {
+    let adjustedIndex = this._adjustIndex(index);
+    if (adjustedIndex < 0) adjustedIndex = 0;
+    if (this.controls[adjustedIndex]) this.controls[adjustedIndex]._registerOnCollectionChange(() => {
+    });
+    this.controls.splice(adjustedIndex, 1);
+    if (control) {
+      this.controls.splice(adjustedIndex, 0, control);
+      this._registerControl(control);
+    }
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+    this._onCollectionChange();
+  }
+  get length() {
+    return this.controls.length;
+  }
+  setValue(value, options = {}) {
+    untracked(() => {
+      assertAllValuesPresent(this, false, value);
+      value.forEach((newValue, index) => {
+        assertControlPresent(this, false, index);
+        this.at(index).setValue(newValue, {
+          onlySelf: true,
+          emitEvent: options.emitEvent
+        });
+      });
+      this.updateValueAndValidity(options);
+    });
+  }
+  patchValue(value, options = {}) {
+    if (value == null) return;
+    value.forEach((newValue, index) => {
+      if (this.at(index)) {
+        this.at(index).patchValue(newValue, {
+          onlySelf: true,
+          emitEvent: options.emitEvent
+        });
+      }
+    });
+    this.updateValueAndValidity(options);
+  }
+  reset(value = [], options = {}) {
+    this._forEachChild((control, index) => {
+      control.reset(value[index], __spreadProps(__spreadValues({}, options), {
+        onlySelf: true
+      }));
+    });
+    this._updatePristine(options, this);
+    this._updateTouched(options, this);
+    this.updateValueAndValidity(options);
+    if (options?.emitEvent !== false) {
+      this._events.next(new FormResetEvent(this));
+    }
+  }
+  getRawValue() {
+    return this.controls.map((control) => control.getRawValue());
+  }
+  clear(options = {}) {
+    if (this.controls.length < 1) return;
+    this._forEachChild((control) => control._registerOnCollectionChange(() => {
+    }));
+    this.controls.splice(0);
+    this.updateValueAndValidity({
+      emitEvent: options.emitEvent
+    });
+  }
+  _adjustIndex(index) {
+    return index < 0 ? index + this.length : index;
+  }
+  _syncPendingControls() {
+    let subtreeUpdated = this.controls.reduce((updated, child) => {
+      return child._syncPendingControls() ? true : updated;
+    }, false);
+    if (subtreeUpdated) this.updateValueAndValidity({
+      onlySelf: true
+    });
+    return subtreeUpdated;
+  }
+  _forEachChild(cb) {
+    this.controls.forEach((control, index) => {
+      cb(control, index);
+    });
+  }
+  _updateValue() {
+    this.value = this.controls.filter((control) => control.enabled || this.disabled).map((control) => control.value);
+  }
+  _anyControls(condition) {
+    return this.controls.some((control) => control.enabled && condition(control));
+  }
+  _setUpControls() {
+    this._forEachChild((control) => this._registerControl(control));
+  }
+  _allControlsDisabled() {
+    for (const control of this.controls) {
+      if (control.enabled) return false;
+    }
+    return this.controls.length > 0 || this.disabled;
+  }
+  _registerControl(control) {
+    control.setParent(this);
+    control._registerOnCollectionChange(this._onCollectionChange);
+  }
+  _find(name) {
+    return this.at(name) ?? null;
+  }
+};
+var formDirectiveProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormArrayDirective)
+};
+var FormArrayDirective = class _FormArrayDirective extends AbstractFormDirective {
+  form = null;
+  ngSubmit = new EventEmitter();
+  get control() {
+    return this.form;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275FormArrayDirective_BaseFactory;
+    return function FormArrayDirective_Factory(__ngFactoryType__) {
+      return (\u0275FormArrayDirective_BaseFactory || (\u0275FormArrayDirective_BaseFactory = \u0275\u0275getInheritedFactory(_FormArrayDirective)))(__ngFactoryType__ || _FormArrayDirective);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormArrayDirective,
+    selectors: [["", "formArray", ""]],
+    hostBindings: function FormArrayDirective_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("submit", function FormArrayDirective_submit_HostBindingHandler($event) {
+          return ctx.onSubmit($event);
+        })("reset", function FormArrayDirective_reset_HostBindingHandler() {
+          return ctx.onReset();
+        });
+      }
+    },
+    inputs: {
+      form: [0, "formArray", "form"]
+    },
+    outputs: {
+      ngSubmit: "ngSubmit"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formDirectiveProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormArrayDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[formArray]",
+      providers: [formDirectiveProvider],
+      host: {
+        "(submit)": "onSubmit($event)",
+        "(reset)": "onReset()"
+      },
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], null, {
+    form: [{
+      type: Input,
+      args: ["formArray"]
+    }],
+    ngSubmit: [{
+      type: Output
+    }]
+  });
+})();
+var NG_MODEL_WITH_FORM_CONTROL_WARNING = new InjectionToken(typeof ngDevMode !== "undefined" && ngDevMode ? "NgModelWithFormControlWarning" : "");
+var formControlBinding = {
+  provide: NgControl,
+  useExisting: forwardRef(() => FormControlDirective)
+};
+var FormControlDirective = class _FormControlDirective extends NgControl {
+  _ngModelWarningConfig;
+  callSetDisabledState;
+  viewModel;
+  form;
+  set isDisabled(isDisabled) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      console.warn(disabledAttrWarning);
+    }
+  }
+  model;
+  update = new EventEmitter();
+  static _ngModelWarningSentOnce = false;
+  _ngModelWarningSent = false;
+  constructor(validators, asyncValidators, valueAccessors, _ngModelWarningConfig, callSetDisabledState, renderer, injector) {
+    super(injector, renderer, valueAccessors);
+    this._ngModelWarningConfig = _ngModelWarningConfig;
+    this.callSetDisabledState = callSetDisabledState;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  ngOnChanges(changes) {
+    if (this._isControlChanged(changes)) {
+      const previousForm = changes["form"].previousValue;
+      if (previousForm) {
+        cleanUpControl(previousForm, this, false);
+        this.removeParseErrorsValidator(previousForm);
+      }
+      if (!this.isCustomControlBased) {
+        this.valueAccessor ??= this.selectedValueAccessor;
+        setUpControlValueAccessor(this.form, this, this.callSetDisabledState);
+      } else {
+        this.setupCustomControl();
+      }
+      this.form.updateValueAndValidity({
+        emitEvent: false
+      });
+    }
+    if (isPropertyUpdated(changes, this.viewModel)) {
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        _ngModelWarning("formControl", _FormControlDirective, this, this._ngModelWarningConfig);
+      }
+      this.form.setValue(this.model);
+      this.viewModel = this.model;
+    }
+  }
+  ngOnDestroy() {
+    if (this.form) {
+      cleanUpControl(this.form, this, false);
+    }
+  }
+  get path() {
+    return [];
+  }
+  get control() {
+    return this.form;
+  }
+  viewToModelUpdate(newValue) {
+    this.viewModel = newValue;
+    this.update.emit(newValue);
+  }
+  _isControlChanged(changes) {
+    return Object.hasOwn(changes, "form");
+  }
+  \u0275ngControlCreate(host) {
+    super.ngControlCreate(host);
+  }
+  \u0275ngControlUpdate(host) {
+    super.ngControlUpdate(host, true);
+  }
+  static \u0275fac = function FormControlDirective_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormControlDirective)(\u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(NG_VALUE_ACCESSOR, 10), \u0275\u0275directiveInject(NG_MODEL_WITH_FORM_CONTROL_WARNING, 8), \u0275\u0275directiveInject(CALL_SET_DISABLED_STATE, 8), \u0275\u0275directiveInject(Renderer2, 8), \u0275\u0275directiveInject(Injector, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormControlDirective,
+    selectors: [["", "formControl", ""]],
+    inputs: {
+      form: [0, "formControl", "form"],
+      isDisabled: [0, "disabled", "isDisabled"],
+      model: [0, "ngModel", "model"]
+    },
+    outputs: {
+      update: "ngModelChange"
+    },
+    exportAs: ["ngForm"],
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formControlBinding, NG_CONTROL_INTEGRATION_PROVIDER]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature, \u0275\u0275ControlFeature(null)]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormControlDirective, [{
+    type: Directive,
+    args: [{
+      selector: "[formControl]",
+      providers: [formControlBinding, NG_CONTROL_INTEGRATION_PROVIDER],
+      exportAs: "ngForm",
+      standalone: false
+    }]
+  }], () => [{
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALUE_ACCESSOR]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [NG_MODEL_WITH_FORM_CONTROL_WARNING]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [CALL_SET_DISABLED_STATE]
+    }]
+  }, {
+    type: Renderer2,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: Injector,
+    decorators: [{
+      type: Optional
+    }]
+  }], {
+    form: [{
+      type: Input,
+      args: ["formControl"]
+    }],
+    isDisabled: [{
+      type: Input,
+      args: ["disabled"]
+    }],
+    model: [{
+      type: Input,
+      args: ["ngModel"]
+    }],
+    update: [{
+      type: Output,
+      args: ["ngModelChange"]
+    }]
+  });
+})();
+var formGroupNameProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormGroupName)
+};
+var FormGroupName = class _FormGroupName extends AbstractFormGroupDirective {
+  name = null;
+  constructor(parent, validators, asyncValidators) {
+    super();
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  _checkParentType() {
+    if (hasInvalidParent(this._parent) && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw groupParentException();
+    }
+  }
+  static \u0275fac = function FormGroupName_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormGroupName)(\u0275\u0275directiveInject(ControlContainer, 13), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormGroupName,
+    selectors: [["", "formGroupName", ""]],
+    inputs: {
+      name: [0, "formGroupName", "name"]
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formGroupNameProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormGroupName, [{
+    type: Directive,
+    args: [{
+      selector: "[formGroupName]",
+      providers: [formGroupNameProvider],
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["formGroupName"]
+    }]
+  });
+})();
+var formArrayNameProvider = {
+  provide: ControlContainer,
+  useExisting: forwardRef(() => FormArrayName)
+};
+var FormArrayName = class _FormArrayName extends ControlContainer {
+  _parent;
+  name = null;
+  constructor(parent, validators, asyncValidators) {
+    super();
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  ngOnInit() {
+    if (hasInvalidParent(this._parent) && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw arrayParentException();
+    }
+    this.formDirective.addFormArray(this);
+  }
+  ngOnDestroy() {
+    this.formDirective?.removeFormArray(this);
+  }
+  get control() {
+    return this.formDirective.getFormArray(this);
+  }
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  get path() {
+    return controlPath(this.name == null ? this.name : this.name.toString(), this._parent);
+  }
+  static \u0275fac = function FormArrayName_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormArrayName)(\u0275\u0275directiveInject(ControlContainer, 13), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormArrayName,
+    selectors: [["", "formArrayName", ""]],
+    inputs: {
+      name: [0, "formArrayName", "name"]
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([formArrayNameProvider]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormArrayName, [{
+    type: Directive,
+    args: [{
+      selector: "[formArrayName]",
+      providers: [formArrayNameProvider],
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["formArrayName"]
+    }]
+  });
+})();
+function hasInvalidParent(parent) {
+  return !(parent instanceof FormGroupName) && !(parent instanceof AbstractFormDirective) && !(parent instanceof FormArrayName);
+}
+var controlNameBinding = {
+  provide: NgControl,
+  useExisting: forwardRef(() => FormControlName)
+};
+var FormControlName = class _FormControlName extends NgControl {
+  _ngModelWarningConfig;
+  _added = false;
+  viewModel;
+  control;
+  name = null;
+  set isDisabled(isDisabled) {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      console.warn(disabledAttrWarning);
+    }
+  }
+  model;
+  update = new EventEmitter();
+  static _ngModelWarningSentOnce = false;
+  _ngModelWarningSent = false;
+  constructor(parent, validators, asyncValidators, valueAccessors, _ngModelWarningConfig, renderer, injector) {
+    super(injector, renderer, valueAccessors);
+    this._ngModelWarningConfig = _ngModelWarningConfig;
+    this._parent = parent;
+    this._setValidators(validators);
+    this._setAsyncValidators(asyncValidators);
+  }
+  _setupWithForm(control, callSetDisabledState) {
+    this.control = control;
+    if (!this.isCustomControlBased) {
+      this.valueAccessor ??= this.selectedValueAccessor;
+      setUpControlValueAccessor(control, this, callSetDisabledState);
+    } else {
+      this.setupCustomControl();
+    }
+  }
+  ngOnChanges(changes) {
+    if (!this._added) this._setUpControl();
+    if (isPropertyUpdated(changes, this.viewModel)) {
+      if (typeof ngDevMode === "undefined" || ngDevMode) {
+        _ngModelWarning("formControlName", _FormControlName, this, this._ngModelWarningConfig);
+      }
+      this.viewModel = this.model;
+      this.formDirective.updateModel(this, this.model);
+    }
+  }
+  ngOnDestroy() {
+    this.formDirective?.removeControl(this);
+  }
+  viewToModelUpdate(newValue) {
+    this.viewModel = newValue;
+    this.update.emit(newValue);
+  }
+  get path() {
+    return controlPath(this.name == null ? this.name : this.name.toString(), this._parent);
+  }
+  get formDirective() {
+    return this._parent ? this._parent.formDirective : null;
+  }
+  _setUpControl() {
+    if (typeof ngDevMode === "undefined" || ngDevMode) {
+      checkParentType(this._parent, this.name);
+    }
+    this.control = this.formDirective.addControl(this);
+    this._added = true;
+  }
+  \u0275ngControlCreate(host) {
+    super.ngControlCreate(host);
+  }
+  \u0275ngControlUpdate(host) {
+    if (!this.isCustomControlBased) {
+      return;
+    }
+    if (!this._added) this._setUpControl();
+    super.ngControlUpdate(host, true);
+  }
+  static \u0275fac = function FormControlName_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormControlName)(\u0275\u0275directiveInject(ControlContainer, 13), \u0275\u0275directiveInject(NG_VALIDATORS, 10), \u0275\u0275directiveInject(NG_ASYNC_VALIDATORS, 10), \u0275\u0275directiveInject(NG_VALUE_ACCESSOR, 10), \u0275\u0275directiveInject(NG_MODEL_WITH_FORM_CONTROL_WARNING, 8), \u0275\u0275directiveInject(Renderer2, 8), \u0275\u0275directiveInject(Injector, 8));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _FormControlName,
+    selectors: [["", "formControlName", ""]],
+    inputs: {
+      name: [0, "formControlName", "name"],
+      isDisabled: [0, "disabled", "isDisabled"],
+      model: [0, "ngModel", "model"]
+    },
+    outputs: {
+      update: "ngModelChange"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([controlNameBinding, NG_CONTROL_INTEGRATION_PROVIDER]), \u0275\u0275InheritDefinitionFeature, \u0275\u0275NgOnChangesFeature, \u0275\u0275ControlFeature(null)]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormControlName, [{
+    type: Directive,
+    args: [{
+      selector: "[formControlName]",
+      providers: [controlNameBinding, NG_CONTROL_INTEGRATION_PROVIDER],
+      standalone: false
+    }]
+  }], () => [{
+    type: ControlContainer,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }, {
+      type: SkipSelf
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_ASYNC_VALIDATORS]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Self
+    }, {
+      type: Inject,
+      args: [NG_VALUE_ACCESSOR]
+    }]
+  }, {
+    type: void 0,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Inject,
+      args: [NG_MODEL_WITH_FORM_CONTROL_WARNING]
+    }]
+  }, {
+    type: Renderer2,
+    decorators: [{
+      type: Optional
+    }]
+  }, {
+    type: Injector,
+    decorators: [{
+      type: Optional
+    }]
+  }], {
+    name: [{
+      type: Input,
+      args: ["formControlName"]
+    }],
+    isDisabled: [{
+      type: Input,
+      args: ["disabled"]
+    }],
+    model: [{
+      type: Input,
+      args: ["ngModel"]
+    }],
+    update: [{
+      type: Output,
+      args: ["ngModelChange"]
+    }]
+  });
+})();
+function checkParentType(parent, name) {
+  if (!(parent instanceof FormGroupName) && parent instanceof AbstractFormGroupDirective) {
+    throw ngModelGroupException();
+  } else if (!(parent instanceof FormGroupName) && !(parent instanceof AbstractFormDirective) && !(parent instanceof FormArrayName)) {
+    throw controlParentException(name);
+  }
+}
+var SELECT_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => SelectControlValueAccessor),
+  multi: true
+};
+function _buildValueString$1(id, value) {
+  if (id == null) return `${value}`;
+  if (value && typeof value === "object") value = "Object";
+  return `${id}: ${value}`.slice(0, 50);
+}
+function _extractId$1(valueString) {
+  return valueString.split(":")[0];
+}
+var SelectControlValueAccessor = class _SelectControlValueAccessor extends BuiltInControlValueAccessor {
+  value;
+  _optionMap = /* @__PURE__ */ new Map();
+  _idCounter = 0;
+  set compareWith(fn) {
+    if (typeof fn !== "function" && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw new RuntimeError(1201, `compareWith must be a function, but received ${JSON.stringify(fn)}`);
+    }
+    this._compareWith = fn;
+  }
+  _compareWith = Object.is;
+  appRefInjector = inject(ApplicationRef).injector;
+  destroyRef = inject(DestroyRef);
+  cdr = inject(ChangeDetectorRef);
+  _queuedWrite = false;
+  _writeValueAfterRender() {
+    if (this._queuedWrite || this.appRefInjector.destroyed) {
+      return;
+    }
+    this._queuedWrite = true;
+    afterNextRender({
+      write: () => {
+        if (this.destroyRef.destroyed) {
+          return;
+        }
+        this._queuedWrite = false;
+        this.writeValue(this.value);
+      }
+    }, {
+      injector: this.appRefInjector
+    });
+  }
+  writeValue(value) {
+    this.cdr.markForCheck();
+    this.value = value;
+    const id = this._getOptionId(value);
+    const valueString = _buildValueString$1(id, value);
+    this.setProperty("value", valueString);
+  }
+  registerOnChange(fn) {
+    this.onChange = (valueString) => {
+      this.value = this._getOptionValue(valueString);
+      fn(this.value);
+    };
+  }
+  _registerOption() {
+    return (this._idCounter++).toString();
+  }
+  _getOptionId(value) {
+    for (const id of this._optionMap.keys()) {
+      if (this._compareWith(this._optionMap.get(id), value)) return id;
+    }
+    return null;
+  }
+  _getOptionValue(valueString) {
+    const id = _extractId$1(valueString);
+    return this._optionMap.has(id) ? this._optionMap.get(id) : valueString;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275SelectControlValueAccessor_BaseFactory;
+    return function SelectControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275SelectControlValueAccessor_BaseFactory || (\u0275SelectControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_SelectControlValueAccessor)))(__ngFactoryType__ || _SelectControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _SelectControlValueAccessor,
+    selectors: [["select", "formControlName", "", 3, "multiple", "", 3, "ngNoCva", ""], ["select", "formControl", "", 3, "multiple", "", 3, "ngNoCva", ""], ["select", "ngModel", "", 3, "multiple", "", 3, "ngNoCva", ""]],
+    hostBindings: function SelectControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function SelectControlValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target.value);
+        })("blur", function SelectControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    inputs: {
+      compareWith: "compareWith"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([SELECT_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SelectControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "select:not([multiple]):not([ngNoCva])[formControlName],select:not([multiple]):not([ngNoCva])[formControl],select:not([multiple]):not([ngNoCva])[ngModel]",
+      host: {
+        "(change)": "onChange($any($event.target).value)",
+        "(blur)": "onTouched()"
+      },
+      providers: [SELECT_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, {
+    compareWith: [{
+      type: Input
+    }]
+  });
+})();
+var NgSelectOption = class _NgSelectOption {
+  _element;
+  _renderer;
+  _select;
+  id;
+  constructor(_element, _renderer, _select) {
+    this._element = _element;
+    this._renderer = _renderer;
+    this._select = _select;
+    if (this._select) this.id = this._select._registerOption();
+  }
+  set ngValue(value) {
+    if (this._select == null) return;
+    this._select._optionMap.set(this.id, value);
+    this._setElementValue(_buildValueString$1(this.id, value));
+    this._select._writeValueAfterRender();
+  }
+  set value(value) {
+    this._setElementValue(value);
+    this._select?._writeValueAfterRender();
+  }
+  _setElementValue(value) {
+    this._renderer.setProperty(this._element.nativeElement, "value", value);
+  }
+  ngOnDestroy() {
+    this._select?._optionMap.delete(this.id);
+    this._select?._writeValueAfterRender();
+  }
+  static \u0275fac = function NgSelectOption_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NgSelectOption)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(SelectControlValueAccessor, 9));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _NgSelectOption,
+    selectors: [["option"]],
+    inputs: {
+      ngValue: "ngValue",
+      value: "value"
+    },
+    standalone: false
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NgSelectOption, [{
+    type: Directive,
+    args: [{
+      selector: "option",
+      standalone: false
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: Renderer2
+  }, {
+    type: SelectControlValueAccessor,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }]
+  }], {
+    ngValue: [{
+      type: Input,
+      args: ["ngValue"]
+    }],
+    value: [{
+      type: Input,
+      args: ["value"]
+    }]
+  });
+})();
+var SELECT_MULTIPLE_VALUE_ACCESSOR = {
+  provide: NG_VALUE_ACCESSOR,
+  useExisting: forwardRef(() => SelectMultipleControlValueAccessor),
+  multi: true
+};
+function _buildValueString(id, value) {
+  if (id == null) return `${value}`;
+  if (typeof value === "string") value = `'${value}'`;
+  if (value && typeof value === "object") value = "Object";
+  return `${id}: ${value}`.slice(0, 50);
+}
+function _extractId(valueString) {
+  return valueString.split(":")[0];
+}
+var SelectMultipleControlValueAccessor = class _SelectMultipleControlValueAccessor extends BuiltInControlValueAccessor {
+  value;
+  _optionMap = /* @__PURE__ */ new Map();
+  _idCounter = 0;
+  set compareWith(fn) {
+    if (typeof fn !== "function" && (typeof ngDevMode === "undefined" || ngDevMode)) {
+      throw new RuntimeError(1201, `compareWith must be a function, but received ${JSON.stringify(fn)}`);
+    }
+    this._compareWith = fn;
+  }
+  _compareWith = Object.is;
+  writeValue(value) {
+    this.value = value;
+    let optionSelectedStateSetter;
+    if (Array.isArray(value)) {
+      const ids = value.map((v2) => this._getOptionId(v2));
+      optionSelectedStateSetter = (opt, id) => {
+        opt._setSelected(ids.indexOf(id) > -1);
+      };
+    } else {
+      optionSelectedStateSetter = (opt) => {
+        opt._setSelected(false);
+      };
+    }
+    this._optionMap.forEach(optionSelectedStateSetter);
+  }
+  registerOnChange(fn) {
+    this.onChange = (element) => {
+      const selected = [];
+      const selectedOptions = element.selectedOptions;
+      if (selectedOptions !== void 0) {
+        const options = selectedOptions;
+        for (let i = 0; i < options.length; i++) {
+          const opt = options[i];
+          const val = this._getOptionValue(opt.value);
+          selected.push(val);
+        }
+      } else {
+        const options = element.options;
+        for (let i = 0; i < options.length; i++) {
+          const opt = options[i];
+          if (opt.selected) {
+            const val = this._getOptionValue(opt.value);
+            selected.push(val);
+          }
+        }
+      }
+      this.value = selected;
+      fn(selected);
+    };
+  }
+  _registerOption(value) {
+    const id = (this._idCounter++).toString();
+    this._optionMap.set(id, value);
+    return id;
+  }
+  _getOptionId(value) {
+    for (const id of this._optionMap.keys()) {
+      if (this._compareWith(this._optionMap.get(id)._value, value)) return id;
+    }
+    return null;
+  }
+  _getOptionValue(valueString) {
+    const id = _extractId(valueString);
+    return this._optionMap.has(id) ? this._optionMap.get(id)._value : valueString;
+  }
+  static \u0275fac = /* @__PURE__ */ (() => {
+    let \u0275SelectMultipleControlValueAccessor_BaseFactory;
+    return function SelectMultipleControlValueAccessor_Factory(__ngFactoryType__) {
+      return (\u0275SelectMultipleControlValueAccessor_BaseFactory || (\u0275SelectMultipleControlValueAccessor_BaseFactory = \u0275\u0275getInheritedFactory(_SelectMultipleControlValueAccessor)))(__ngFactoryType__ || _SelectMultipleControlValueAccessor);
+    };
+  })();
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _SelectMultipleControlValueAccessor,
+    selectors: [["select", "multiple", "", "formControlName", "", 3, "ngNoCva", ""], ["select", "multiple", "", "formControl", "", 3, "ngNoCva", ""], ["select", "multiple", "", "ngModel", "", 3, "ngNoCva", ""]],
+    hostBindings: function SelectMultipleControlValueAccessor_HostBindings(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275listener("change", function SelectMultipleControlValueAccessor_change_HostBindingHandler($event) {
+          return ctx.onChange($event.target);
+        })("blur", function SelectMultipleControlValueAccessor_blur_HostBindingHandler() {
+          return ctx.onTouched();
+        });
+      }
+    },
+    inputs: {
+      compareWith: "compareWith"
+    },
+    standalone: false,
+    features: [\u0275\u0275ProvidersFeature([SELECT_MULTIPLE_VALUE_ACCESSOR]), \u0275\u0275InheritDefinitionFeature]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SelectMultipleControlValueAccessor, [{
+    type: Directive,
+    args: [{
+      selector: "select[multiple]:not([ngNoCva])[formControlName],select[multiple]:not([ngNoCva])[formControl],select[multiple]:not([ngNoCva])[ngModel]",
+      host: {
+        "(change)": "onChange($event.target)",
+        "(blur)": "onTouched()"
+      },
+      providers: [SELECT_MULTIPLE_VALUE_ACCESSOR],
+      standalone: false
+    }]
+  }], null, {
+    compareWith: [{
+      type: Input
+    }]
+  });
+})();
+var \u0275NgSelectMultipleOption = class _\u0275NgSelectMultipleOption {
+  _element;
+  _renderer;
+  _select;
+  id;
+  _value;
+  constructor(_element, _renderer, _select) {
+    this._element = _element;
+    this._renderer = _renderer;
+    this._select = _select;
+    if (this._select) {
+      this.id = this._select._registerOption(this);
+    }
+  }
+  set ngValue(value) {
+    if (this._select == null) return;
+    this._value = value;
+    this._setElementValue(_buildValueString(this.id, value));
+    this._select.writeValue(this._select.value);
+  }
+  set value(value) {
+    if (this._select) {
+      this._value = value;
+      this._setElementValue(_buildValueString(this.id, value));
+      this._select.writeValue(this._select.value);
+    } else {
+      this._setElementValue(value);
+    }
+  }
+  _setElementValue(value) {
+    this._renderer.setProperty(this._element.nativeElement, "value", value);
+  }
+  _setSelected(selected) {
+    this._renderer.setProperty(this._element.nativeElement, "selected", selected);
+  }
+  ngOnDestroy() {
+    if (this._select) {
+      this._select._optionMap.delete(this.id);
+      this._select.writeValue(this._select.value);
+    }
+  }
+  static \u0275fac = function \u0275NgSelectMultipleOption_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _\u0275NgSelectMultipleOption)(\u0275\u0275directiveInject(ElementRef), \u0275\u0275directiveInject(Renderer2), \u0275\u0275directiveInject(SelectMultipleControlValueAccessor, 9));
+  };
+  static \u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({
+    type: _\u0275NgSelectMultipleOption,
+    selectors: [["option"]],
+    inputs: {
+      ngValue: "ngValue",
+      value: "value"
+    },
+    standalone: false
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(\u0275NgSelectMultipleOption, [{
+    type: Directive,
+    args: [{
+      selector: "option",
+      standalone: false
+    }]
+  }], () => [{
+    type: ElementRef
+  }, {
+    type: Renderer2
+  }, {
+    type: SelectMultipleControlValueAccessor,
+    decorators: [{
+      type: Optional
+    }, {
+      type: Host
+    }]
+  }], {
+    ngValue: [{
+      type: Input,
+      args: ["ngValue"]
+    }],
+    value: [{
+      type: Input,
+      args: ["value"]
+    }]
+  });
+})();
+var SHARED_FORM_DIRECTIVES = [\u0275NgNoValidate, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, RangeValueAccessor, CheckboxControlValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, MinLengthValidator, MaxLengthValidator, PatternValidator, CheckboxRequiredValidator, EmailValidator, MinValidator, MaxValidator];
+var TEMPLATE_DRIVEN_DIRECTIVES = [NgModel, NgModelGroup, NgForm];
+var REACTIVE_DRIVEN_DIRECTIVES = [FormControlDirective, FormGroupDirective, FormArrayDirective, FormControlName, FormGroupName, FormArrayName];
+var \u0275InternalFormsSharedModule = class _\u0275InternalFormsSharedModule {
+  static \u0275fac = function \u0275InternalFormsSharedModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _\u0275InternalFormsSharedModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _\u0275InternalFormsSharedModule,
+    declarations: [\u0275NgNoValidate, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, RangeValueAccessor, CheckboxControlValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, MinLengthValidator, MaxLengthValidator, PatternValidator, CheckboxRequiredValidator, EmailValidator, MinValidator, MaxValidator],
+    exports: [\u0275NgNoValidate, NgSelectOption, \u0275NgSelectMultipleOption, DefaultValueAccessor, NumberValueAccessor, RangeValueAccessor, CheckboxControlValueAccessor, SelectControlValueAccessor, SelectMultipleControlValueAccessor, RadioControlValueAccessor, NgControlStatus, NgControlStatusGroup, RequiredValidator, MinLengthValidator, MaxLengthValidator, PatternValidator, CheckboxRequiredValidator, EmailValidator, MinValidator, MaxValidator]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({});
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(\u0275InternalFormsSharedModule, [{
+    type: NgModule,
+    args: [{
+      declarations: SHARED_FORM_DIRECTIVES,
+      exports: SHARED_FORM_DIRECTIVES
+    }]
+  }], null, null);
+})();
+function isAbstractControlOptions(options) {
+  return !!options && (options.asyncValidators !== void 0 || options.validators !== void 0 || options.updateOn !== void 0);
+}
+var FormBuilder = class _FormBuilder {
+  useNonNullable = false;
+  get nonNullable() {
+    const nnfb = new _FormBuilder();
+    nnfb.useNonNullable = true;
+    return nnfb;
+  }
+  group(controls, options = null) {
+    const reducedControls = this._reduceControls(controls);
+    let newOptions = {};
+    if (isAbstractControlOptions(options)) {
+      newOptions = options;
+    } else if (options !== null) {
+      newOptions.validators = options.validator;
+      newOptions.asyncValidators = options.asyncValidator;
+    }
+    return new FormGroup(reducedControls, newOptions);
+  }
+  record(controls, options = null) {
+    const reducedControls = this._reduceControls(controls);
+    return new FormRecord(reducedControls, options);
+  }
+  control(formState, validatorOrOpts, asyncValidator) {
+    let newOptions = {};
+    if (!this.useNonNullable) {
+      return new FormControl(formState, validatorOrOpts, asyncValidator);
+    }
+    if (isAbstractControlOptions(validatorOrOpts)) {
+      newOptions = validatorOrOpts;
+    } else {
+      newOptions.validators = validatorOrOpts;
+      newOptions.asyncValidators = asyncValidator;
+    }
+    return new FormControl(formState, __spreadProps(__spreadValues({}, newOptions), {
+      nonNullable: true
+    }));
+  }
+  array(controls, validatorOrOpts, asyncValidator) {
+    const createdControls = controls.map((c) => this._createControl(c));
+    return new FormArray(createdControls, validatorOrOpts, asyncValidator);
+  }
+  _reduceControls(controls) {
+    const createdControls = {};
+    Object.keys(controls).forEach((controlName) => {
+      createdControls[controlName] = this._createControl(controls[controlName]);
+    });
+    return createdControls;
+  }
+  _createControl(controls) {
+    if (controls instanceof FormControl) {
+      return controls;
+    } else if (controls instanceof AbstractControl) {
+      return controls;
+    } else if (Array.isArray(controls)) {
+      const value = controls[0];
+      const validator = controls.length > 1 ? controls[1] : null;
+      const asyncValidator = controls.length > 2 ? controls[2] : null;
+      return this.control(value, validator, asyncValidator);
+    } else {
+      return this.control(controls);
+    }
+  }
+  static \u0275fac = function FormBuilder_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormBuilder)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _FormBuilder,
+    factory: _FormBuilder.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormBuilder, [{
+    type: Service
+  }], null, null);
+})();
+var NonNullableFormBuilder = class _NonNullableFormBuilder {
+  static \u0275fac = function NonNullableFormBuilder_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _NonNullableFormBuilder)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _NonNullableFormBuilder,
+    factory: () => (() => inject(FormBuilder).nonNullable)()
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(NonNullableFormBuilder, [{
+    type: Service,
+    args: [{
+      factory: () => inject(FormBuilder).nonNullable
+    }]
+  }], null, null);
+})();
+var UntypedFormBuilder = class _UntypedFormBuilder extends FormBuilder {
+  group(controlsConfig, options = null) {
+    return super.group(controlsConfig, options);
+  }
+  control(formState, validatorOrOpts, asyncValidator) {
+    return super.control(formState, validatorOrOpts, asyncValidator);
+  }
+  array(controlsConfig, validatorOrOpts, asyncValidator) {
+    return super.array(controlsConfig, validatorOrOpts, asyncValidator);
+  }
+  static \u0275fac = function UntypedFormBuilder_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _UntypedFormBuilder)();
+  };
+  static \u0275prov = /* @__PURE__ */ \u0275\u0275defineService({
+    token: _UntypedFormBuilder,
+    factory: _UntypedFormBuilder.\u0275fac
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UntypedFormBuilder, [{
+    type: Service
+  }], null, null);
+})();
+var FormsModule = class _FormsModule {
+  static withConfig(opts) {
+    return {
+      ngModule: _FormsModule,
+      providers: [{
+        provide: CALL_SET_DISABLED_STATE,
+        useValue: opts.callSetDisabledState ?? setDisabledStateDefault
+      }]
+    };
+  }
+  static \u0275fac = function FormsModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _FormsModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _FormsModule,
+    declarations: [NgModel, NgModelGroup, NgForm],
+    exports: [\u0275InternalFormsSharedModule, NgModel, NgModelGroup, NgForm]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [\u0275InternalFormsSharedModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(FormsModule, [{
+    type: NgModule,
+    args: [{
+      declarations: TEMPLATE_DRIVEN_DIRECTIVES,
+      exports: [\u0275InternalFormsSharedModule, TEMPLATE_DRIVEN_DIRECTIVES]
+    }]
+  }], null, null);
+})();
+var ReactiveFormsModule = class _ReactiveFormsModule {
+  static withConfig(opts) {
+    return {
+      ngModule: _ReactiveFormsModule,
+      providers: [{
+        provide: NG_MODEL_WITH_FORM_CONTROL_WARNING,
+        useValue: opts.warnOnNgModelWithFormControl ?? "always"
+      }, {
+        provide: CALL_SET_DISABLED_STATE,
+        useValue: opts.callSetDisabledState ?? setDisabledStateDefault
+      }]
+    };
+  }
+  static \u0275fac = function ReactiveFormsModule_Factory(__ngFactoryType__) {
+    return new (__ngFactoryType__ || _ReactiveFormsModule)();
+  };
+  static \u0275mod = /* @__PURE__ */ \u0275\u0275defineNgModule({
+    type: _ReactiveFormsModule,
+    declarations: [FormControlDirective, FormGroupDirective, FormArrayDirective, FormControlName, FormGroupName, FormArrayName],
+    exports: [\u0275InternalFormsSharedModule, FormControlDirective, FormGroupDirective, FormArrayDirective, FormControlName, FormGroupName, FormArrayName]
+  });
+  static \u0275inj = /* @__PURE__ */ \u0275\u0275defineInjector({
+    imports: [\u0275InternalFormsSharedModule]
+  });
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ReactiveFormsModule, [{
+    type: NgModule,
+    args: [{
+      declarations: [REACTIVE_DRIVEN_DIRECTIVES],
+      exports: [\u0275InternalFormsSharedModule, REACTIVE_DRIVEN_DIRECTIVES]
+    }]
+  }], null, null);
+})();
+
+// libs/common/src/lib/booking-rules.ts
+var MINUTE = 1;
+var HOUR = 60;
+var DAY = 24 * HOUR;
+var WEEK = 7 * DAY;
+var MONTH = 30 * DAY;
+var DURATION_MAP = {
+  month: MONTH,
+  months: MONTH,
+  week: WEEK,
+  weeks: WEEK,
+  day: DAY,
+  days: DAY,
+  hour: HOUR,
+  hours: HOUR,
+  minute: MINUTE,
+  minutes: MINUTE
+};
+var DEFAULT_RULES = {
+  auto_approve: true,
+  hidden: false
+};
+function stringToMinutes(str) {
+  const parts = (str || "").split(" ");
+  return parts.length > 1 ? +parts[0] * DURATION_MAP[parts[1].toLowerCase()] : 0;
+}
+function addToDate(add2, date = /* @__PURE__ */ new Date()) {
+  return addMinutes(date, stringToMinutes(add2));
+}
+function filterResourcesFromRules(resources, details, ruleset_list) {
+  return resources.filter((_) => !rulesForResource(__spreadProps(__spreadValues({}, details), { resource: _ }), ruleset_list)?.hidden);
+}
+function rulesForResource(details, ruleset_list) {
+  if (!(ruleset_list instanceof Array))
+    return DEFAULT_RULES;
+  for (const ruleset of ruleset_list) {
+    if (ruleset.zone === "*" || ruleset.zone === details.resource.zone?.id || details.resource.zones?.includes(ruleset.zone)) {
+      if (checkRulesMatch(details, ruleset)) {
+        if (window.debug_booking_rules) {
+          console.log("Matched Ruleset:", details.resource.id, details, ruleset);
+        }
+        return ruleset.rules;
+      }
+    }
+  }
+  if (window.debug_booking_rules) {
+    console.log("No Matched Ruleset:", details.resource.id, details, DEFAULT_RULES);
+  }
+  return DEFAULT_RULES;
+}
+function checkRulesMatch({ date, duration, host, resource }, ruleset) {
+  const date_obj = new Date(date);
+  let matches = 0;
+  const { conditions } = ruleset;
+  if (!conditions)
+    return true;
+  if (conditions.groups instanceof Array && conditions.groups.every((_) => host?.groups?.includes(_)))
+    matches += 1;
+  if (conditions.is_before && isBefore(addMinutes(date, duration), addToDate(conditions.is_before)))
+    matches += 1;
+  if (conditions.is_after && isAfter(date, addToDate(conditions.is_after)))
+    matches += 1;
+  if (conditions.min_length && conditions.min_length <= duration)
+    matches += 1;
+  if (conditions.is_between && date_obj.getHours() + date_obj.getMinutes() / 60 >= conditions.is_between[0] && date_obj.getHours() + date_obj.getMinutes() / 60 < conditions.is_between[1])
+    matches += 1;
+  if (conditions.is_period && date >= conditions.is_period[0] && date < conditions.is_period[1])
+    matches += 1;
+  if (conditions.max_length && conditions.max_length >= duration)
+    matches += 1;
+  if (conditions.resource_ids && [resource.id, resource.map_id, resource.place_id].some((id) => id && conditions.resource_ids.includes(id)))
+    matches += 1;
+  if (conditions.tags && conditions.tags.every((tag) => (resource.tags || []).find((t) => t === tag)))
+    matches += 1;
+  if (conditions.locations && conditions.locations.includes(resource.name))
+    matches += 1;
+  return matches >= Object.keys(conditions).length;
+}
+
+// libs/common/src/lib/currency-options.ts
+var FALLBACK_CURRENCY_CODES = [
+  "AED",
+  "AUD",
+  "BRL",
+  "CAD",
+  "CHF",
+  "CNY",
+  "DKK",
+  "EUR",
+  "GBP",
+  "HKD",
+  "INR",
+  "JPY",
+  "KRW",
+  "MXN",
+  "NOK",
+  "NZD",
+  "SEK",
+  "SGD",
+  "USD",
+  "ZAR"
+];
+function get_supported_currency_codes() {
+  const intl_ref = Intl;
+  const currency_list = intl_ref?.supportedValuesOf?.("currency");
+  if (!(currency_list instanceof Array) || !currency_list.length) {
+    return FALLBACK_CURRENCY_CODES;
+  }
+  return currency_list.map((code) => `${code}`.toUpperCase());
+}
+function buildCurrencyOptions(locale = "en") {
+  const display_names = typeof Intl.DisplayNames === "function" ? new Intl.DisplayNames([locale], { type: "currency" }) : null;
+  const currency_codes = [...new Set(get_supported_currency_codes())].sort((first_code, second_code) => first_code.localeCompare(second_code));
+  return currency_codes.map((currency_code) => {
+    const currency_name = display_names?.of(currency_code) || currency_code;
+    return {
+      code: currency_code,
+      name: currency_name,
+      display_name: `${currency_code} - ${currency_name}`,
+      search_text: `${currency_code} ${currency_name}`.toLowerCase()
+    };
+  });
+}
+
+// libs/common/src/lib/external-catering.service.ts
+var EXTERNAL_CATERING_BINDING = "catering";
+var ExternalCateringService = class _ExternalCateringService {
+  constructor() {
+    this._org = inject(OrganisationService);
+    this._settings = inject(SettingsService);
+  }
+  /** Whether the external backend should be used instead of native catering */
+  get enabled() {
+    return this._settings.get("app.catering.backend") === "external";
+  }
+  _module() {
+    const mod = this._org.module(EXTERNAL_CATERING_BINDING, "Catering");
+    if (!mod) {
+      throw new Error("External catering enabled but no `catering` module binding is configured");
+    }
+    return mod;
+  }
+  /** Load the full catering menu from the external catering driver, mapped to native `CateringItem`s */
+  async loadMenu() {
+    const mod = this._module();
+    const items = [];
+    let page = 1;
+    while (page <= 50) {
+      const response = await mod.execute("products", [page]).catch(() => null);
+      const products = response?.items || [];
+      for (const product of products) {
+        if (product.status && product.status !== "active")
+          continue;
+        items.push(toCateringItem(product));
+      }
+      if (!response?.next_page || !products.length)
+        break;
+      page += 1;
+    }
+    return items.sort((a, b) => a.name.localeCompare(b.name));
+  }
+  /**
+   * Place each catering order in the event against the external catering platform.
+   *
+   * Returns a external reference per placed order (aligned to the filtered list
+   * of orders that had items) so the caller can store local booking records
+   * that point back at the external order.
+   */
+  async placeOrders(event, orders) {
+    const valid = (orders || []).filter((order) => order.items.length);
+    if (!valid.length)
+      return [];
+    const mod = this._module();
+    const user = currentUser();
+    const customer = await mod.execute("match_or_create_customer", [
+      {
+        email: user?.email || "",
+        first_name: user?.first_name || user?.name || "",
+        last_name: user?.last_name || ""
+      }
+    ]);
+    const customer_name = [customer?.first_name, customer?.last_name].filter((_) => !!_).join(" ").trim() || customer?.email || user?.name || "";
+    const delivery_address = event.space?.display_name || event.space?.name || this._org.building?.display_name || this._org.building?.name || "";
+    const placed = [];
+    for (const order of valid) {
+      const order_items = order.items.map((item) => ({
+        product_name: item.name,
+        price: centsToCurrency(item.unit_price_with_options),
+        quantity: item.quantity
+      }));
+      const response = await mod.execute("create_external_order", [
+        event.id,
+        // purchase_order_number
+        customer_name,
+        // customer_name
+        delivery_address,
+        // delivery_address
+        format(order.deliver_at, "yyyy-MM-dd'T'HH:mm:ss"),
+        // delivery_datetime
+        centsToCurrency(order.total_cost),
+        // grand_total
+        order_items,
+        // order_items
+        "",
+        // company_name
+        "",
+        // phone_number
+        event.attendees?.length || 0,
+        // number_of_guests
+        0,
+        // delivery_fee
+        0,
+        // discount
+        order.notes || ""
+        // delivery_instruction
+      ]);
+      placed.push({
+        order,
+        reference: {
+          customer_uuid: customer?.uuid || "",
+          customer_name,
+          purchase_order_number: event.id,
+          response
+        }
+      });
+    }
+    return placed;
+  }
+  static {
+    this.\u0275fac = function ExternalCateringService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ExternalCateringService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ExternalCateringService, factory: _ExternalCateringService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ExternalCateringService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], null, null);
+})();
+function toCateringItem(product) {
+  return new CateringItem({
+    id: product.uuid,
+    name: product.name,
+    category: product.product_categories?.[0]?.name || "",
+    caterer: product.supplier?.name || "",
+    description: product.description || "",
+    unit_price: Math.round((product.price || 0) * 100),
+    images: (product.product_images || []).map((image) => image.medium_image_url || image.file_url || "").filter((_) => !!_),
+    tags: (product.dietaries || []).map((diet) => diet.name)
+  });
+}
+function centsToCurrency(cents) {
+  return Math.round(cents) / 100;
+}
+
+// libs/common/src/lib/lazy-route-reload.ts
+var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
+var RELOAD_THROTTLE = 30 * 1e3;
+var LAZY_ROUTE_ERROR_PATTERNS = [
+  /ChunkLoadError/i,
+  /Loading chunk [\w-]+ failed/i,
+  /Failed to fetch dynamically imported module/i,
+  /Importing a module script failed/i,
+  /error loading dynamically imported module/i
+];
+function isLazyRouteLoadError(error) {
+  const message = getLazyRouteErrorMessage(error);
+  return LAZY_ROUTE_ERROR_PATTERNS.some((pattern) => pattern.test(message));
+}
+function reloadOnChunkLoadError(error, context = {}) {
+  if (!isLazyRouteLoadError(error))
+    throw error;
+  const online = context.online ?? (typeof navigator !== "undefined" ? navigator.onLine : true);
+  if (!online)
+    throw error;
+  const storage = context.storage ?? sessionStorage;
+  const location_ref = context.location ?? location;
+  const now = context.now ?? Date.now();
+  const signature = `${location_ref.pathname}${location_ref.search}${location_ref.hash}:${getLazyRouteErrorMessage(error)}`;
+  const reload_state = parseReloadState(storage.getItem(LAZY_ROUTE_RELOAD_KEY));
+  if (reload_state?.signature === signature && now - reload_state.timestamp < RELOAD_THROTTLE) {
+    throw error;
+  }
+  storage.setItem(LAZY_ROUTE_RELOAD_KEY, JSON.stringify({ signature, timestamp: now }));
+  log("ROUTER", "Lazy route load failed. Reloading application...", error, "warn", true);
+  location_ref.reload();
+}
+function getLazyRouteErrorMessage(error) {
+  if (typeof error === "string")
+    return error;
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+  if (error && typeof error === "object") {
+    const name = "name" in error ? `${error.name || ""}` : "";
+    const message = "message" in error ? `${error.message || ""}` : "";
+    return `${name}: ${message}`.trim();
+  }
+  return `${error || ""}`;
+}
+function parseReloadState(state) {
+  if (!state)
+    return null;
+  try {
+    const parsed_state = JSON.parse(state);
+    if (typeof parsed_state?.signature === "string" && typeof parsed_state?.timestamp === "number") {
+      return parsed_state;
+    }
+  } catch {
+  }
+  return null;
+}
+
+// libs/common/src/lib/locale-data.ts
+var SUPPORTED_LOCALES = {
+  ar: () => import("./ar-4OEKFYQ3.js"),
+  es: () => import("./es-E672VPW4.js"),
+  fr: () => import("./fr-62Q4VGQY.js"),
+  it: () => import("./it-OJSM6IJC.js"),
+  ja: () => import("./ja-5HQXGIBO.js"),
+  zh: () => import("./zh-A5WQQ6XL.js")
+};
+async function registerActiveLocale(locale) {
+  const short = (locale || "en").split("-")[0];
+  const loader = SUPPORTED_LOCALES[short];
+  if (!loader)
+    return;
+  const { default: data } = await loader();
+  registerLocaleData(data);
+}
+
+// libs/common/src/lib/org/asset-zones.ts
+function assetZones(org, level_id) {
+  const level = org.levels?.find((item) => item.id === level_id);
+  const building_id = level?.parent_id || org.building?.id;
+  const building = org.buildings?.find((item) => item.id === building_id) || (org.building?.id === building_id ? org.building : void 0);
+  return unique([
+    org.organisation?.id,
+    building?.parent_id || org.region?.id,
+    building?.id || building_id,
+    level_id
+  ]).filter((id) => !!id);
+}
+
+// libs/common/src/lib/recurrence.ts
+var WeekOfMonth;
+(function(WeekOfMonth2) {
+  WeekOfMonth2[WeekOfMonth2["First"] = 1] = "First";
+  WeekOfMonth2[WeekOfMonth2["Second"] = 2] = "Second";
+  WeekOfMonth2[WeekOfMonth2["Third"] = 3] = "Third";
+  WeekOfMonth2[WeekOfMonth2["Fourth"] = 4] = "Fourth";
+  WeekOfMonth2[WeekOfMonth2["Fifth"] = 5] = "Fifth";
+  WeekOfMonth2[WeekOfMonth2["Last"] = -1] = "Last";
+  WeekOfMonth2[WeekOfMonth2["SecondLast"] = -2] = "SecondLast";
+  WeekOfMonth2[WeekOfMonth2["ThirdLast"] = -3] = "ThirdLast";
+  WeekOfMonth2[WeekOfMonth2["FourthLast"] = -4] = "FourthLast";
+  WeekOfMonth2[WeekOfMonth2["FifthLast"] = -5] = "FifthLast";
+})(WeekOfMonth || (WeekOfMonth = {}));
+var RecurrDays;
+(function(RecurrDays2) {
+  RecurrDays2[RecurrDays2["SUNDAY"] = 1] = "SUNDAY";
+  RecurrDays2[RecurrDays2["MONDAY"] = 2] = "MONDAY";
+  RecurrDays2[RecurrDays2["TUESDAY"] = 4] = "TUESDAY";
+  RecurrDays2[RecurrDays2["WEDNESDAY"] = 8] = "WEDNESDAY";
+  RecurrDays2[RecurrDays2["THURSDAY"] = 16] = "THURSDAY";
+  RecurrDays2[RecurrDays2["FRIDAY"] = 32] = "FRIDAY";
+  RecurrDays2[RecurrDays2["SATURDAY"] = 64] = "SATURDAY";
+  RecurrDays2[RecurrDays2["ALL"] = 127] = "ALL";
+})(RecurrDays || (RecurrDays = {}));
+var DAYS_OF_WEEK_INDEX = [
+  RecurrDays.SUNDAY,
+  RecurrDays.MONDAY,
+  RecurrDays.TUESDAY,
+  RecurrDays.WEDNESDAY,
+  RecurrDays.THURSDAY,
+  RecurrDays.FRIDAY,
+  RecurrDays.SATURDAY
+];
+var NO_RECURR = {
+  _custom: false,
+  type: "none",
+  end_type: "never",
+  interval: 1
+};
+var WEEK_MS = 7 * 24 * 60 * 60 * 1e3;
+function weekOfMonth(date) {
+  const date_obj = new Date(date);
+  const day = date_obj.getDate();
+  const week = Math.floor(day / 7) + (day % 7 ? 1 : 0);
+  if (week === 4 && day >= 25 || week === 5)
+    return -1;
+  return week;
+}
+function monthlyWeekdayStart(date, week, day_of_week) {
+  const date_obj = new Date(date);
+  const year = date_obj.getFullYear();
+  const month = date_obj.getMonth();
+  let day_of_month;
+  if (week < 0) {
+    const last_day = new Date(year, month + 1, 0);
+    day_of_month = last_day.getDate() - (last_day.getDay() - day_of_week + 7) % 7 + (week + 1) * 7;
+  } else {
+    const first_day = new Date(year, month, 1);
+    day_of_month = 1 + (day_of_week - first_day.getDay() + 7) % 7 + (week - 1) * 7;
+  }
+  const recurrence_date = new Date(date);
+  recurrence_date.setDate(day_of_month);
+  if (recurrence_date.getMonth() !== month) {
+    recurrence_date.setDate(day_of_month - 7);
+  }
+  return recurrence_date.valueOf();
+}
+function startOfWeekMs(date) {
+  const date_obj = new Date(date);
+  date_obj.setDate(date_obj.getDate() - date_obj.getDay());
+  date_obj.setHours(0, 0, 0, 0);
+  return date_obj.valueOf();
+}
+function validWeekdays(days) {
+  if (!days?.size)
+    return [];
+  return Array.from(days).filter((day) => day >= 0 && day < 7).sort((a, b) => a - b);
+}
+function recurrenceInstanceCount(value) {
+  const count = typeof value === "number" ? value : typeof value === "string" ? Number(value) : NaN;
+  return Number.isFinite(count) && count >= 1 ? Math.floor(count) : void 0;
+}
+function isWeeklyInstance(date, start_date, interval, weekdays) {
+  const day = new Date(date).getDay();
+  const days = validWeekdays(weekdays);
+  if (days.length && !days.includes(day))
+    return false;
+  const weeks = Math.floor((startOfWeekMs(date) - startOfWeekMs(start_date)) / WEEK_MS);
+  return weeks >= 0 && weeks % Math.max(interval, 1) === 0;
+}
+function firstRecurrenceInstance(recurrence, date = Date.now()) {
+  if (recurrence.type === "weekly") {
+    for (let offset = 0; offset < 7 * Math.max(recurrence.interval, 1); offset++) {
+      const candidate = addDays(date, offset).valueOf();
+      if (isWeeklyInstance(candidate, date, recurrence.interval, recurrence.weekdays)) {
+        return candidate;
+      }
+    }
+  }
+  if (recurrence.type === "monthly" && recurrence.monthly_type === "day_of_week" && recurrence.weekdays?.size) {
+    const day = validWeekdays(recurrence.weekdays)[0];
+    const week = recurrence.week || weekOfMonth(date);
+    for (let offset = 0; offset <= Math.max(recurrence.interval, 1); offset++) {
+      const candidate = monthlyWeekdayStart(addMonths(date, offset).valueOf(), week, day);
+      if (candidate >= date)
+        return candidate;
+    }
+  }
+  return date;
+}
+function recurrenceEndDate(recurrence, date = Date.now()) {
+  const instances = Math.max((recurrenceInstanceCount(recurrence.end_instances) || 1) - 1, 0);
+  const interval = Math.max(recurrence.interval, 1);
+  const first_instance = firstRecurrenceInstance(recurrence, date);
+  if (recurrence.type === "daily") {
+    return endOfDay(addDays(first_instance, interval * instances)).valueOf();
+  }
+  if (recurrence.type === "weekly") {
+    const days = validWeekdays(recurrence.weekdays);
+    if (days.length > 1) {
+      let count = 0;
+      let candidate = first_instance;
+      while (count < instances) {
+        candidate = addDays(candidate, 1).valueOf();
+        if (isWeeklyInstance(candidate, date, interval, recurrence.weekdays)) {
+          count++;
+        }
+      }
+      return endOfDay(candidate).valueOf();
+    }
+    return endOfDay(addWeeks(first_instance, interval * instances)).valueOf();
+  }
+  if (recurrence.type === "monthly" && recurrence.monthly_type === "day_of_week" && recurrence.weekdays?.size) {
+    const day = validWeekdays(recurrence.weekdays)[0];
+    const week = recurrence.week || weekOfMonth(date);
+    return endOfDay(monthlyWeekdayStart(addMonths(first_instance, interval * instances).valueOf(), week, day)).valueOf();
+  }
+  if (recurrence.type === "yearly") {
+    return endOfDay(addYears(first_instance, interval * instances)).valueOf();
+  }
+  return endOfDay(addMonths(first_instance, interval * instances)).valueOf();
+}
+function isRecurrenceInstanceDate(recurrence, start_date, candidate) {
+  if (!recurrence || recurrence.type === "none") {
+    return isSameDay(start_date, candidate);
+  }
+  const interval = Math.max(recurrence.interval, 1);
+  const first2 = firstRecurrenceInstance(recurrence, start_date);
+  if (differenceInCalendarDays(candidate, first2) < 0)
+    return false;
+  if (recurrence.end_date && candidate > recurrence.end_date)
+    return false;
+  if (recurrence.type === "daily") {
+    return differenceInCalendarDays(candidate, first2) % interval === 0;
+  }
+  if (recurrence.type === "weekly") {
+    return isWeeklyInstance(candidate, start_date, interval, recurrence.weekdays);
+  }
+  if (recurrence.type === "monthly" && recurrence.monthly_type === "day_of_week" && recurrence.weekdays?.size) {
+    const day = validWeekdays(recurrence.weekdays)[0];
+    const week = recurrence.week || weekOfMonth(candidate);
+    const instance = monthlyWeekdayStart(candidate, week, day);
+    if (!isSameDay(instance, candidate))
+      return false;
+    const months = differenceInCalendarMonths(candidate, first2);
+    return months >= 0 && months % interval === 0;
+  }
+  return isSameDay(first2, candidate);
+}
+function fromEventRecurrence(r) {
+  if (!r.pattern || r._pattern === "none") {
+    return {
+      _custom: false,
+      type: "none",
+      interval: 1,
+      end_type: "never"
+    };
+  }
+  const occurrences = recurrenceInstanceCount(r.occurrences);
+  const recurr = {
+    _custom: r._pattern == "custom_display",
+    type: r.pattern,
+    interval: r.interval || 1,
+    end_type: r._end_type ?? (occurrences ? "instances" : r.end ? "date" : "never")
+  };
+  if (r.end)
+    recurr.end_date = r.end;
+  if (occurrences)
+    recurr.end_instances = occurrences;
+  if (r.pattern === "weekly" && r.days_of_week?.length) {
+    recurr.weekdays = new Set(r.days_of_week);
+  }
+  if (r.pattern === "monthly") {
+    recurr.type = "monthly";
+    recurr.monthly_type = "day_of_week";
+    if (r.days_of_week?.length) {
+      recurr.weekdays = new Set(r.days_of_week);
+    }
+    if (r.nth_of_month) {
+      recurr.week = r.nth_of_month;
+    } else if (r.start) {
+      recurr.week = weekOfMonth(r.start);
+    }
+  }
+  if (r.pattern === "month_day" && r.days_of_week?.length) {
+    recurr.type = "monthly";
+    recurr.monthly_type = "day_of_week";
+    recurr.weekdays = new Set(r.days_of_week);
+    if (r.nth_of_month) {
+      recurr.week = r.nth_of_month;
+    } else if (r.start) {
+      recurr.week = weekOfMonth(r.start);
+    }
+  } else if (r.pattern === "month_day") {
+    recurr.type = "monthly";
+    recurr.monthly_type = "day_of_month";
+  }
+  return recurr;
+}
+function toEventRecurrence(r, date = Date.now()) {
+  if (r.type === "none") {
+    return {
+      pattern: "daily",
+      _pattern: "none",
+      interval: 1,
+      days_of_week: [],
+      start: date,
+      end: date
+    };
+  }
+  const recurrence_start = firstRecurrenceInstance(r, date);
+  const date_obj = new Date(recurrence_start);
+  let end = addMonths(recurrence_start, 6).valueOf();
+  if (r.end_type === "date" && r.end_date) {
+    end = r.end_date;
+  } else if (r.end_type === "instances") {
+    end = recurrenceEndDate(r, date);
+  }
+  const details = {
+    _pattern: r._custom ? "custom_display" : r.type,
+    _end_type: r.end_type,
+    pattern: r.type,
+    interval: r.interval,
+    days_of_week: [date_obj.getDay()],
+    start: recurrence_start,
+    end
+  };
+  if (r.end_type === "instances") {
+    const occurrences = recurrenceInstanceCount(r.end_instances);
+    if (occurrences)
+      details.occurrences = occurrences;
+  }
+  if ((r.type === "weekly" || r.type === "monthly") && r.weekdays) {
+    details.days_of_week = Array.from(r.weekdays);
+    if (r.type === "monthly") {
+      details.pattern = "monthly";
+      if (r.week)
+        details.nth_of_month = r.week;
+    }
+  } else if (r.type === "monthly") {
+    details.days_of_week = [];
+    if (r.monthly_type === "day_of_month")
+      details.pattern = "month_day";
+  }
+  if (r.end_type === "never" && (r.type === "monthly" || r.type === "yearly")) {
+    details.end = endOfMonth(end).valueOf();
+  }
+  if (r.end_type === "never" && r.type === "weekly") {
+    details.end = endOfWeek(end).valueOf();
+  }
+  return details;
+}
+function fromBookingRecurrence(r) {
+  if (!r.recurrence_type || r.recurrence_type === "none") {
+    return {
+      _custom: r.recurrence_custom,
+      type: "none",
+      interval: 1,
+      end_type: "never"
+    };
+  }
+  const instances = recurrenceInstanceCount(r.recurrence_instances);
+  const recurr = {
+    _custom: r.recurrence_custom,
+    type: r.recurrence_type,
+    interval: r.recurrence_interval || 1,
+    end_type: instances ? "instances" : r.recurrence_end ? "date" : "never"
+  };
+  if (r.recurrence_end) {
+    recurr.end_date = r.recurrence_end * 1e3;
+  }
+  if (instances) {
+    recurr.end_instances = instances;
+  }
+  if (r.recurrence_type === "daily" && r.recurrence_days) {
+    const weekdays = /* @__PURE__ */ new Set();
+    for (let i = 0; i < 7; i++) {
+      if (r.recurrence_days & 1 << i) {
+        weekdays.add(i);
+      }
+    }
+    recurr.weekdays = weekdays;
+    if (weekdays.size < 7)
+      recurr.type = "weekly";
+  }
+  if (r.recurrence_type === "monthly") {
+    recurr.monthly_type = "day_of_week";
+    if (r.recurrence_days) {
+      const weekdays = /* @__PURE__ */ new Set();
+      for (let i = 0; i < 7; i++) {
+        if (r.recurrence_days & DAYS_OF_WEEK_INDEX[i]) {
+          weekdays.add(i);
+        }
+      }
+      recurr.weekdays = weekdays;
+    }
+    if (r.recurrence_nth_of_month) {
+      recurr.week = r.recurrence_nth_of_month;
+    }
+  }
+  return recurr;
+}
+function toBookingRecurrence(r, date = Date.now()) {
+  if (r.type === "none") {
+    return {
+      recurrence_custom: false,
+      recurrence_type: "none",
+      recurrence_days: void 0,
+      recurrence_nth_of_month: void 0,
+      recurrence_interval: void 0,
+      recurrence_end: void 0,
+      recurrence_instances: void 0
+    };
+  }
+  const booking = {
+    recurrence_custom: r._custom,
+    recurrence_type: r.type === "yearly" ? "monthly" : r.type,
+    recurrence_days: void 0,
+    recurrence_nth_of_month: void 0,
+    recurrence_interval: r.type === "yearly" ? r.interval * 12 : r.interval,
+    recurrence_end: void 0,
+    recurrence_instances: void 0
+  };
+  if (r.end_type === "date" && r.end_date) {
+    booking.recurrence_end = getUnixTime(r.end_date);
+  } else if (r.end_type === "instances") {
+    booking.recurrence_instances = recurrenceInstanceCount(r.end_instances);
+    booking.recurrence_end = getUnixTime(recurrenceEndDate(r, date));
+  }
+  if (r.type === "daily") {
+    booking.recurrence_days = RecurrDays.ALL;
+  }
+  if (r.type === "weekly" && r.weekdays) {
+    let days = 0;
+    r.weekdays.forEach((day) => {
+      days |= DAYS_OF_WEEK_INDEX[day];
+    });
+    booking.recurrence_days = days;
+    booking.recurrence_type = "daily";
+  }
+  if ((r.type === "monthly" || r.type === "yearly") && r.weekdays) {
+    let days = 0;
+    r.weekdays.forEach((day) => {
+      days |= 1 << day;
+    });
+    booking.recurrence_days = days;
+  }
+  if ((r.type === "monthly" || r.type === "yearly") && r.week) {
+    booking.recurrence_nth_of_month = r.week;
+  }
+  return booking;
+}
+function formatRecurrence(recurrence, selected_date = Date.now()) {
+  const { type, interval, weekdays, week, monthly_type, end_type, end_date, end_instances } = recurrence;
+  const safe_interval = interval > 0 ? interval : 1;
+  const selected_date_obj = new Date(selected_date);
+  const selected_day = selected_date_obj.getDay();
+  const selected_day_of_month = selected_date_obj.getDate();
+  const dayNames = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday"
+  ];
+  const weekNames = {
+    [WeekOfMonth.First]: "First",
+    [WeekOfMonth.Second]: "Second",
+    [WeekOfMonth.Third]: "Third",
+    [WeekOfMonth.Fourth]: "Fourth",
+    [WeekOfMonth.Fifth]: "Fifth",
+    [WeekOfMonth.Last]: "Last",
+    [WeekOfMonth.SecondLast]: "Second Last",
+    [WeekOfMonth.ThirdLast]: "Third Last",
+    [WeekOfMonth.FourthLast]: "Fourth Last",
+    [WeekOfMonth.FifthLast]: "Fifth Last"
+  };
+  function formatList(items) {
+    if (items.length === 0)
+      return "";
+    if (items.length === 1)
+      return items[0];
+    return items.slice(0, -1).join(", ") + " and " + items[items.length - 1];
+  }
+  function plural(n, singular) {
+    return n > 1 ? singular + "s" : singular;
+  }
+  function validWeekdays2(days) {
+    if (!days?.size)
+      return [];
+    return Array.from(days).filter((day) => day >= 0 && day < 7).sort((a, b) => a - b);
+  }
+  function selectedWeek() {
+    const day = selected_date_obj.getDate();
+    const week2 = Math.floor(day / 7) + (day % 7 ? 1 : 0);
+    if (week2 === 4 && day >= 25 || week2 === 5)
+      return -1;
+    return week2;
+  }
+  function formatEnd() {
+    switch (end_type) {
+      case "never":
+        return "";
+      case "date":
+        if (!end_date)
+          return "";
+        return ` until ${format(end_date, "dd MMM yyyy")}`;
+      case "instances": {
+        const count = recurrenceInstanceCount(end_instances);
+        if (!count) {
+          return end_date ? ` until ${format(end_date, "dd MMM yyyy")}` : "";
+        }
+        return ` ends after ${count} ${plural(count, "instance")}${end_date ? ` (${format(end_date, "dd MMM yyyy")})` : ""}`;
+      }
+    }
+  }
+  let result;
+  switch (type) {
+    case "none":
+      result = "";
+      break;
+    case "daily":
+      result = `Every ${safe_interval} ${plural(safe_interval, "day")}`;
+      break;
+    case "weekly": {
+      const days = validWeekdays2(weekdays).length ? formatList(validWeekdays2(weekdays).map((d) => dayNames[d])) : dayNames[selected_day];
+      result = `Every ${safe_interval} ${plural(safe_interval, "week")}${days ? " on " + days : ""}`;
+      break;
+    }
+    case "monthly": {
+      const recurrence_days = validWeekdays2(weekdays);
+      const week_value = week || selectedWeek();
+      if (monthly_type === "day_of_week") {
+        const days = recurrence_days.length ? formatList(recurrence_days.map((d) => dayNames[d])) : dayNames[selected_day];
+        const week_name = weekNames[week_value] || weekNames[selectedWeek()];
+        result = `Every ${safe_interval} ${plural(safe_interval, "month")} on the ${week_name}${days ? " " + days : ""}`;
+      } else if (monthly_type === "day_of_month") {
+        result = `Every ${safe_interval} ${plural(safe_interval, "month")} on day ${selected_day_of_month}`;
+      } else {
+        result = `Every ${safe_interval} ${plural(safe_interval, "month")} on day ${selected_day_of_month}`;
+      }
+      break;
+    }
+    case "yearly":
+      result = `Every ${safe_interval} ${plural(safe_interval, "year")} on ${format(selected_date_obj, "d MMM")}`;
+      break;
+    default:
+      result = "Unsupported recurrence type";
+  }
+  return result + formatEnd();
+}
+
+// libs/common/src/lib/settings-title-strategy.service.ts
+var SettingsTitleStrategy = class _SettingsTitleStrategy extends TitleStrategy {
+  constructor() {
+    super(...arguments);
+    this._title = inject(Title);
+    this._settings = inject(SettingsService);
+  }
+  updateTitle(snapshot) {
+    const page_title = this.buildTitle(snapshot);
+    const app_name = this._settings.get("app.short_name") || this._settings.get("app.name") || this._settings.app_name;
+    this._title.setTitle(page_title ? `${app_name} | ${page_title}` : app_name);
+  }
+  static {
+    this.\u0275fac = /* @__PURE__ */ (() => {
+      let \u0275SettingsTitleStrategy_BaseFactory;
+      return function SettingsTitleStrategy_Factory(__ngFactoryType__) {
+        return (\u0275SettingsTitleStrategy_BaseFactory || (\u0275SettingsTitleStrategy_BaseFactory = \u0275\u0275getInheritedFactory(_SettingsTitleStrategy)))(__ngFactoryType__ || _SettingsTitleStrategy);
+      };
+    })();
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _SettingsTitleStrategy, factory: _SettingsTitleStrategy.\u0275fac });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SettingsTitleStrategy, [{
+    type: Injectable
+  }], null, null);
+})();
+
+// node_modules/qr/index.js
+/*!
+ * Copyright (c) 2023 Paul Miller (paulmillr.com)
+ * SPDX-License-Identifier: MIT OR Apache-2.0
+ */
+var MAX_OUTPUT_SIZE = 1024;
+var MAX_COMPACT_OUTPUT_SIZE = MAX_OUTPUT_SIZE * 4;
+var BYTES = /* @__PURE__ */ (() => {
+  const res = [];
+  for (let ver = 1; ver <= 40; ver++) {
+    let bits = (16 * ver + 128) * ver + 64;
+    if (ver >= 2) {
+      const align = Math.floor(ver / 7) + 2;
+      bits -= (25 * align - 10) * align - 55;
+      if (ver >= 7)
+        bits -= 36;
+    }
+    res.push(bits >>> 3);
+  }
+  return res;
+})();
+var ECC_LEVELS = ["low", "medium", "quartile", "high"];
+var WORDS_PER_BLOCK = {
+  low: [
+    7,
+    10,
+    15,
+    20,
+    26,
+    18,
+    20,
+    24,
+    30,
+    18,
+    20,
+    24,
+    26,
+    30,
+    22,
+    24,
+    28,
+    30,
+    28,
+    28,
+    28,
+    28,
+    30,
+    30,
+    26,
+    28,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  medium: [
+    10,
+    16,
+    26,
+    18,
+    24,
+    16,
+    18,
+    22,
+    22,
+    26,
+    30,
+    22,
+    22,
+    24,
+    24,
+    28,
+    28,
+    26,
+    26,
+    26,
+    26,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28,
+    28
+  ],
+  quartile: [
+    13,
+    22,
+    18,
+    26,
+    18,
+    24,
+    18,
+    22,
+    20,
+    24,
+    28,
+    26,
+    24,
+    20,
+    30,
+    24,
+    28,
+    28,
+    26,
+    30,
+    28,
+    30,
+    30,
+    30,
+    30,
+    28,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ],
+  high: [
+    17,
+    28,
+    22,
+    16,
+    22,
+    28,
+    26,
+    26,
+    24,
+    28,
+    24,
+    28,
+    22,
+    24,
+    24,
+    30,
+    28,
+    28,
+    26,
+    28,
+    30,
+    24,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30,
+    30
+  ]
+};
+var ECC_BLOCKS = {
+  low: [1, 1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 6, 6, 6, 6, 7, 8, 8, 9, 9, 10, 12, 12, 12, 13, 14, 15, 16, 17, 18, 19, 19, 20, 21, 22, 24, 25],
+  medium: [1, 1, 1, 2, 2, 4, 4, 4, 5, 5, 5, 8, 9, 9, 10, 10, 11, 13, 14, 16, 17, 17, 18, 20, 21, 23, 25, 26, 28, 29, 31, 33, 35, 37, 38, 40, 43, 45, 47, 49],
+  quartile: [1, 1, 2, 2, 4, 4, 6, 6, 8, 8, 8, 10, 12, 16, 12, 17, 16, 18, 21, 20, 23, 23, 25, 27, 29, 34, 34, 35, 38, 40, 43, 45, 48, 51, 53, 56, 59, 62, 65, 68],
+  high: [1, 1, 2, 4, 4, 4, 5, 6, 8, 8, 11, 11, 16, 16, 18, 16, 19, 21, 25, 25, 25, 34, 30, 32, 35, 37, 40, 42, 45, 48, 51, 54, 57, 60, 63, 66, 70, 74, 77, 81]
+};
+var EC_CODE = { low: 1, medium: 0, quartile: 3, high: 2 };
+var ALPHANUMERIC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
+function alignmentPatterns(ver) {
+  ver = asVersion(ver);
+  if (ver === 1)
+    return [];
+  const last = 21 + 4 * (ver - 1) - 7;
+  const count = Math.ceil((last - 6) / 28);
+  let interval = Math.floor((last - 6) / count);
+  if (interval % 2)
+    interval += 1;
+  else if ((last - 6) % count * 2 >= count)
+    interval += 2;
+  const res = [6];
+  for (let m = 1; m < count; m++)
+    res.push(last - (count - m) * interval);
+  res.push(last);
+  return res;
+}
+function formatBits(ecc, mask) {
+  const data = EC_CODE[ecc] << 3 | mask;
+  let d = data;
+  for (let i = 0; i < 10; i++)
+    d = d << 1 ^ (d >> 9) * 1335;
+  return (data << 10 | d) ^ 21522;
+}
+function versionBits(ver) {
+  let d = ver;
+  for (let i = 0; i < 12; i++)
+    d = d << 1 ^ (d >> 11) * 7973;
+  return ver << 12 | d;
+}
+var MODE_BITS = { numeric: 1, alphanumeric: 2, byte: 4 };
+var LENGTH_BITS = {
+  numeric: [10, 12, 14],
+  alphanumeric: [9, 11, 13],
+  byte: [8, 16, 16]
+};
+var GF256 = /* @__PURE__ */ (() => {
+  const exp = new Uint8Array(510);
+  const log3 = new Uint8Array(256);
+  for (let i = 0, x = 1; i < 255; i++) {
+    exp[i] = exp[i + 255] = x;
+    log3[x] = i;
+    x <<= 1;
+    if (x & 256)
+      x ^= 285;
+  }
+  return { exp, log: log3 };
+})();
+function rsGenerator(eccWords) {
+  const { exp: EXP, log: LOG } = GF256;
+  const gen = new Uint8Array(eccWords);
+  gen[eccWords - 1] = 1;
+  for (let i = 0, root = 1; i < eccWords; i++) {
+    for (let j = 0; j < eccWords; j++) {
+      const c = gen[j];
+      gen[j] = (c ? EXP[LOG[c] + LOG[root]] : 0) ^ (j + 1 < eccWords ? gen[j + 1] : 0);
+    }
+    root = EXP[LOG[root] + 1];
+  }
+  return gen;
+}
+var RS_CACHE = [];
+function rsCached(eccWords) {
+  let cached = RS_CACHE[eccWords];
+  if (cached !== void 0)
+    return cached;
+  const gen = rsGenerator(eccWords);
+  const { exp: EXP, log: LOG } = GF256;
+  const mul = new Uint8Array(256 * eccWords);
+  for (let f = 1; f < 256; f++) {
+    const lf = LOG[f];
+    const off = f * eccWords;
+    for (let j = 0; j < eccWords; j++) {
+      const c = gen[j];
+      if (c)
+        mul[off + j] = EXP[LOG[c] + lf];
+    }
+  }
+  return RS_CACHE[eccWords] = { gen, mul };
+}
+function rsEcc(data, gen, mul) {
+  const { exp: EXP, log: LOG } = GF256;
+  const eccWords = gen.length;
+  const res = new Uint8Array(eccWords);
+  if (mul !== void 0) {
+    const last = eccWords - 1;
+    for (let i = 0; i < data.length; i++) {
+      const off = (data[i] ^ res[0]) * eccWords;
+      for (let j = 0; j < last; j++)
+        res[j] = res[j + 1] ^ mul[off + j];
+      res[last] = mul[off + last];
+    }
+    return res;
+  }
+  for (let i = 0; i < data.length; i++) {
+    const f = data[i] ^ res[0];
+    res.copyWithin(0, 1);
+    res[eccWords - 1] = 0;
+    if (f) {
+      for (let j = 0; j < eccWords; j++)
+        if (gen[j])
+          res[j] ^= EXP[LOG[gen[j]] + LOG[f]];
+    }
+  }
+  return res;
+}
+function capacity(ver, ecc) {
+  const bytes = BYTES[ver - 1];
+  const words = WORDS_PER_BLOCK[ecc][ver - 1];
+  const numBlocks = ECC_BLOCKS[ecc][ver - 1];
+  const blockLen = Math.floor(bytes / numBlocks) - words;
+  const shortBlocks = numBlocks - bytes % numBlocks;
+  return { words, numBlocks, shortBlocks, blockLen, capacity: (bytes - words * numBlocks) * 8 };
+}
+var err = (msg) => {
+  throw new Error(msg);
+};
+function asVersion(ver) {
+  if (typeof ver !== "number")
+    throw new TypeError(`"ver" expected number, got type=${typeof ver}`);
+  if (!Number.isSafeInteger(ver))
+    throw new RangeError(`"ver" expected safe integer, got ${ver}`);
+  if (ver < 1 || ver > 40)
+    throw new RangeError(`Invalid version=${ver}. Expected number [1..40]`);
+  return ver;
+}
+function detectType(str) {
+  let type = "numeric";
+  for (let i = 0; i < str.length; i++) {
+    const v2 = ALNUM_VAL[str.charCodeAt(i)];
+    if (!(v2 >= 0))
+      return "byte";
+    if (v2 > 9)
+      type = "alphanumeric";
+  }
+  return type;
+}
+var ALNUM_VAL = /* @__PURE__ */ (() => {
+  const t = new Int8Array(128).fill(-1);
+  for (let i = 0; i < ALPHANUMERIC.length; i++)
+    t[ALPHANUMERIC.charCodeAt(i)] = i;
+  return t;
+})();
+function encodeData(ver, ecc, text, type, utf8) {
+  const cap = capacity(ver, ecc);
+  const lengthBits = LENGTH_BITS[type][Math.floor((ver + 7) / 17)];
+  const dataLen = type === "byte" ? utf8.length : text.length;
+  if (dataLen >= 1 << lengthBits)
+    err("Capacity overflow");
+  const bytes = new Uint8Array(cap.capacity >>> 3);
+  let acc = 0;
+  let accBits = 0;
+  let bytePos = 0;
+  const push = (value, len) => {
+    acc = acc << len | value;
+    for (accBits += len; accBits >= 8; )
+      bytes[bytePos++] = acc >>> (accBits -= 8) & 255;
+  };
+  push(MODE_BITS[type], 4);
+  push(dataLen, lengthBits);
+  if (type === "numeric") {
+    for (let i = 0; i < dataLen; i += 3) {
+      const n = Math.min(3, dataLen - i);
+      push(Number(text.slice(i, i + n)), [0, 4, 7, 10][n]);
+    }
+  } else if (type === "alphanumeric") {
+    for (let i = 0; i + 1 < dataLen; i += 2)
+      push(ALNUM_VAL[text.charCodeAt(i)] * 45 + ALNUM_VAL[text.charCodeAt(i + 1)], 11);
+    if (dataLen & 1)
+      push(ALNUM_VAL[text.charCodeAt(dataLen - 1)], 6);
+  } else {
+    for (let i = 0; i < utf8.length; i++)
+      push(utf8[i], 8);
+  }
+  let bitPos = bytePos * 8 + accBits;
+  if (bitPos > cap.capacity)
+    err("Capacity overflow");
+  if (accBits)
+    bytes[bytePos] = acc << 8 - accBits & 255;
+  bitPos += Math.min(4, cap.capacity - bitPos);
+  if (bitPos & 7)
+    bitPos += 8 - (bitPos & 7);
+  for (let i = bitPos >>> 3, pad = 0; i < bytes.length; i++, pad ^= 1)
+    bytes[i] = pad ? 17 : 236;
+  const { words, numBlocks, shortBlocks, blockLen } = cap;
+  const rs = rsCached(words);
+  const blocks = [];
+  const eccs = [];
+  for (let i = 0, pos = 0; i < numBlocks; i++) {
+    const len = blockLen + (i < shortBlocks ? 0 : 1);
+    blocks.push(bytes.subarray(pos, pos + len));
+    eccs.push(rsEcc(blocks[i], rs.gen, rs.mul));
+    pos += len;
+  }
+  const res = new Uint8Array(bytes.length + words * numBlocks);
+  let p = 0;
+  for (let i = 0; i <= blockLen; i++) {
+    for (const b of blocks)
+      if (i < b.length)
+        res[p++] = b[i];
+  }
+  for (let i = 0; i < words; i++)
+    for (const e of eccs)
+      res[p++] = e[i];
+  return res;
+}
+function maskBits(x, y) {
+  const x2 = x % 2;
+  const y2 = y % 2;
+  const x3 = x % 3;
+  const xy3 = x3 * (y % 3) % 3;
+  const xy2 = x2 & y2;
+  let bits = 0;
+  if (x2 === y2)
+    bits |= 1;
+  if (y2 === 0)
+    bits |= 2;
+  if (x3 === 0)
+    bits |= 4;
+  if ((x + y) % 3 === 0)
+    bits |= 8;
+  if ((Math.floor(y / 2) + Math.floor(x / 3)) % 2 === 0)
+    bits |= 16;
+  if (xy2 + xy3 === 0)
+    bits |= 32;
+  if ((xy2 + xy3) % 2 === 0)
+    bits |= 64;
+  if (((x2 ^ y2) + xy3) % 2 === 0)
+    bits |= 128;
+  return bits;
+}
+var POP16 = /* @__PURE__ */ (() => {
+  const t = new Uint8Array(1 << 16);
+  for (let i = 1; i < t.length; i++)
+    t[i] = t[i >>> 1] + (i & 1);
+  return t;
+})();
+var popcnt = (n) => POP16[n & 65535] + POP16[n >>> 16];
+var TRANSPOSE_TMP = /* @__PURE__ */ new Uint32Array(32);
+function transpose32(a) {
+  const masks = [1431655765, 858993459, 252645135, 16711935, 65535];
+  for (let stage = 0; stage < 5; stage++) {
+    const m = masks[stage] >>> 0;
+    const s = 1 << stage;
+    for (let i = 0; i < 32; i += s << 1) {
+      for (let k = 0; k < s; k++) {
+        const x = a[i + k] >>> 0;
+        const y = a[i + k + s] >>> 0;
+        const t = (x >>> s ^ y) & m;
+        a[i + k] = (x ^ t << s) >>> 0;
+        a[i + k + s] = (y ^ t) >>> 0;
+      }
+    }
+  }
+}
+var mat = (size) => {
+  const words = size + 31 >>> 5;
+  return { size, words, v: new Uint32Array(words * size) };
+};
+var matGet = (m, x, y) => m.v[y * m.words + (x >>> 5)] >>> (x & 31) & 1;
+var matSet = (m, x, y, bit) => {
+  const i = y * m.words + (x >>> 5);
+  const b = 1 << (x & 31);
+  m.v[i] = bit ? m.v[i] | b : m.v[i] & ~b;
+};
+function transposeMat(src, dst) {
+  const { size, words, v: v2 } = src;
+  const tmp = TRANSPOSE_TMP;
+  for (let by = 0; by < size; by += 32) {
+    for (let bx = 0; bx < words; bx++) {
+      const rows = Math.min(32, size - by);
+      for (let r = 0; r < rows; r++)
+        tmp[r] = v2[(by + r) * words + bx];
+      tmp.fill(0, rows);
+      transpose32(tmp);
+      for (let i = 0, dstY = bx * 32; i < 32 && dstY < size; i++, dstY++) {
+        dst.v[dstY * dst.words + (by >>> 5)] = tmp[i];
+      }
+    }
+  }
+}
+function runsPenaltyVertical(m) {
+  const { size, words, v: v2 } = m;
+  const tail = size & 31 ? (1 << (size & 31)) - 1 >>> 0 : 4294967295;
+  let score = 0;
+  for (let wi2 = 0; wi2 < words; wi2++) {
+    const valid = wi2 === words - 1 ? tail : 4294967295;
+    let r3 = v2[3 * words + wi2];
+    let dPrev = 4294967295;
+    let d0 = v2[wi2] ^ v2[words + wi2];
+    let d1 = v2[words + wi2] ^ v2[2 * words + wi2];
+    let d2 = v2[2 * words + wi2] ^ r3;
+    for (let y = 0, idx = 4 * words + wi2; y <= size - 5; y++, idx += words) {
+      const r4 = v2[idx];
+      const d3 = r3 ^ r4;
+      const w = ~(d0 | d1 | d2 | d3) & valid;
+      if (w)
+        score += popcnt(w >>> 0) + 2 * popcnt((w & dPrev) >>> 0);
+      dPrev = d0;
+      d0 = d1;
+      d1 = d2;
+      d2 = d3;
+      r3 = r4;
+    }
+  }
+  return score;
+}
+function finderPenaltyVertical(m) {
+  const { size, words, v: v2 } = m;
+  const tail = size & 31 ? (1 << (size & 31)) - 1 >>> 0 : 4294967295;
+  let count = 0;
+  for (let wi2 = 0; wi2 < words; wi2++) {
+    const valid = wi2 === words - 1 ? tail : 4294967295;
+    for (let y = 0; y <= size - 11; y++) {
+      let i = y * words + wi2;
+      const r0 = v2[i];
+      const r1 = v2[i += words];
+      const r2 = v2[i += words];
+      const r3 = v2[i += words];
+      const r4 = v2[i += words];
+      const r5 = v2[i += words];
+      const r6 = v2[i += words];
+      const r7 = v2[i += words];
+      const r8 = v2[i += words];
+      const r9 = v2[i += words];
+      const r10 = v2[i + words];
+      const m0 = valid & r0 & ~r1 & r2 & r3 & r4 & ~r5 & r6 & ~(r7 | r8 | r9 | r10);
+      const m1 = valid & ~(r0 | r1 | r2 | r3) & r4 & ~r5 & r6 & r7 & r8 & ~r9 & r10;
+      count += popcnt(m0 >>> 0) + popcnt(m1 >>> 0);
+    }
+  }
+  return count;
+}
+function penaltyScore(m, t, limit = Infinity) {
+  const { size, words, v: v2 } = m;
+  const adjacent = runsPenaltyVertical(m) + runsPenaltyVertical(t);
+  if (adjacent >= limit)
+    return adjacent;
+  const tail2 = (1 << size - 32 * (words - 1) - 1) - 1 >>> 0;
+  let boxes = 0;
+  let dark2 = 0;
+  for (let y = 0; y < size; y++) {
+    for (let wi2 = 0; wi2 < words; wi2++) {
+      const a0 = v2[y * words + wi2];
+      dark2 += popcnt(a0 >>> 0);
+      if (y === size - 1)
+        continue;
+      const a1 = v2[(y + 1) * words + wi2];
+      const n0 = wi2 + 1 < words ? v2[y * words + wi2 + 1] : 0;
+      const n1 = wi2 + 1 < words ? v2[(y + 1) * words + wi2 + 1] : 0;
+      const eqV = ~(a0 ^ a1);
+      const eqH0 = ~(a0 ^ (a0 >>> 1 | n0 << 31));
+      const eqH1 = ~(a1 ^ (a1 >>> 1 | n1 << 31));
+      let w = eqV & eqH0 & eqH1;
+      if (wi2 === words - 1)
+        w &= tail2;
+      boxes += popcnt(w >>> 0);
+    }
+  }
+  const total = size * size;
+  const darkSteps = Math.ceil(Math.max(0, Math.abs(dark2 * 100 - total * 50) - total * 5) / (total * 5));
+  const partial = adjacent + 3 * boxes + 10 * darkSteps;
+  if (partial >= limit)
+    return partial;
+  return partial + 40 * (finderPenaltyVertical(m) + finderPenaltyVertical(t));
+}
+function drawInfo(m, ver, ecc, mask) {
+  const size = m.size;
+  const bits = formatBits(ecc, mask);
+  for (let i = 0; i < 15; i++) {
+    const bit = bits >> i & 1;
+    if (i < 6)
+      matSet(m, 8, i, bit);
+    else if (i < 8)
+      matSet(m, 8, i + 1, bit);
+    else if (i === 8)
+      matSet(m, 7, 8, bit);
+    else
+      matSet(m, 14 - i, 8, bit);
+    if (i < 8)
+      matSet(m, size - 1 - i, 8, bit);
+    else
+      matSet(m, 8, size - 15 + i, bit);
+  }
+  matSet(m, 8, size - 8, 1);
+  if (ver >= 7) {
+    const vbits = versionBits(ver);
+    for (let i = 0; i < 18; i++) {
+      const bit = vbits >> i & 1;
+      const x = size - 11 + i % 3;
+      const y = i / 3 | 0;
+      matSet(m, x, y, bit);
+      matSet(m, y, x, bit);
+    }
+  }
+}
+var symCache;
+function buildSymCache(ver) {
+  const size = 21 + 4 * (ver - 1);
+  const m = mat(size);
+  const fun = new Uint8Array(size * size);
+  const setF = (x, y, bit) => {
+    matSet(m, x, y, bit);
+    fun[y * size + x] = 1;
+  };
+  for (const [fx, fy] of [
+    [0, 0],
+    [size - 7, 0],
+    [0, size - 7]
+  ]) {
+    for (let dy = -1; dy < 8; dy++) {
+      for (let dx = -1; dx < 8; dx++) {
+        const x = fx + dx;
+        const y = fy + dy;
+        if (x < 0 || y < 0 || x >= size || y >= size)
+          continue;
+        const on = dx >= 0 && dx < 7 && dy >= 0 && dy < 7 && (dx === 0 || dx === 6 || dy === 0 || dy === 6 || dx > 1 && dx < 5 && dy > 1 && dy < 5);
+        setF(x, y, on ? 1 : 0);
+      }
+    }
+  }
+  const align = alignmentPatterns(ver);
+  for (const ay of align) {
+    for (const ax of align) {
+      if (fun[ay * size + ax])
+        continue;
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const on = Math.max(Math.abs(dx), Math.abs(dy)) !== 1;
+          setF(ax + dx, ay + dy, on ? 1 : 0);
+        }
+      }
+    }
+  }
+  for (let i = 0; i < size; i++) {
+    if (!fun[6 * size + i])
+      setF(i, 6, i % 2 === 0 ? 1 : 0);
+    if (!fun[i * size + 6])
+      setF(6, i, i % 2 === 0 ? 1 : 0);
+  }
+  for (let i = 0; i < 9; i++) {
+    if (i !== 6) {
+      setF(8, i, 0);
+      setF(i, 8, 0);
+    }
+    if (i < 8) {
+      setF(size - 1 - i, 8, 0);
+      setF(8, size - 1 - i, 0);
+    }
+  }
+  if (ver >= 7) {
+    for (let i = 0; i < 18; i++) {
+      const x = size - 11 + i % 3;
+      const y = i / 3 | 0;
+      setF(x, y, 0);
+      setF(y, x, 0);
+    }
+  }
+  const planes = [];
+  for (let i = 0; i < 8; i++)
+    planes.push(mat(size));
+  const posBuf = new Uint16Array(size * size);
+  let n = 0;
+  for (let xOffset = size - 1, dir = -1, y = size - 1; xOffset > 0; xOffset -= 2, dir = -dir) {
+    if (xOffset === 6)
+      xOffset = 5;
+    for (; ; y += dir) {
+      for (let j = 0; j < 2; j++) {
+        const x = xOffset - j;
+        if (fun[y * size + x])
+          continue;
+        const wi2 = y * m.words + (x >>> 5);
+        posBuf[n++] = wi2 << 5 | x & 31;
+        for (let p = 0, mb = maskBits(x, y); mb; p++, mb >>= 1) {
+          if (mb & 1)
+            planes[p].v[wi2] |= 1 << (x & 31);
+        }
+      }
+      if (y + dir < 0 || y + dir >= size)
+        break;
+    }
+  }
+  const planesT = planes.map((p) => {
+    const t = mat(size);
+    transposeMat(p, t);
+    return t.v;
+  });
+  return {
+    ver,
+    tpl: m.v,
+    pos: posBuf.slice(0, n),
+    planes: planes.map((p) => p.v),
+    planesT,
+    work: [mat(size), mat(size), mat(size), mat(size)]
+  };
+}
+function drawSymbol(ver, ecc, data, maskIdx, test = false) {
+  if (symCache === void 0 || symCache.ver !== ver)
+    symCache = buildSymCache(ver);
+  const { tpl, pos, planes, planesT, work } = symCache;
+  const [m, t, cand, candT] = work;
+  m.v.set(tpl);
+  const need = Math.min(8 * data.length, pos.length);
+  for (let i = 0; i < need; i++) {
+    if (data[i >>> 3] & 128 >>> (i & 7)) {
+      const p = pos[i];
+      m.v[p >>> 5] |= 1 << (p & 31);
+    }
+  }
+  let mask = maskIdx;
+  if (mask === void 0) {
+    transposeMat(m, t);
+    let bestScore = Infinity;
+    for (let p = 0; p < 8; p++) {
+      const pv2 = planes[p];
+      const ptv = planesT[p];
+      for (let i = 0; i < cand.v.length; i++) {
+        cand.v[i] = m.v[i] ^ pv2[i];
+        candT.v[i] = t.v[i] ^ ptv[i];
+      }
+      const score = penaltyScore(cand, candT, bestScore);
+      if (score < bestScore) {
+        bestScore = score;
+        mask = p;
+      }
+    }
+  }
+  const pv = planes[mask];
+  for (let i = 0; i < m.v.length; i++)
+    m.v[i] ^= pv[i];
+  if (!test)
+    drawInfo(m, ver, ecc, mask);
+  return m;
+}
+var asNum = (n, title) => {
+  if (typeof n !== "number")
+    throw new TypeError(`"${title}" expected number, got type=${typeof n}`);
+  if (!Number.isSafeInteger(n))
+    throw new RangeError(`"${title}" expected safe integer, got ${n}`);
+  return n;
+};
+var asString = (s, title) => {
+  if (typeof s !== "string")
+    throw new TypeError(`"${title}" expected string, got type=${typeof s}`);
+  return s;
+};
+function utf8Length(str) {
+  let length = 0;
+  for (let i = 0; i < str.length; i++) {
+    const c = str.charCodeAt(i);
+    if (c < 128)
+      length++;
+    else if (c < 2048)
+      length += 2;
+    else if (c < 55296 || c > 57343)
+      length += 3;
+    else if (c <= 56319 && i + 1 < str.length) {
+      const next = str.charCodeAt(i + 1);
+      if (next >= 56320 && next <= 57343) {
+        length += 4;
+        i++;
+      } else
+        length += 3;
+    } else
+      length += 3;
+  }
+  return length;
+}
+function byteCapacity(ver, ecc) {
+  const lengthBits = LENGTH_BITS.byte[Math.floor((ver + 7) / 17)];
+  return Math.min((1 << lengthBits) - 1, Math.floor((capacity(ver, ecc).capacity - 4 - lengthBits) / 8));
+}
+function _isBytes(a) {
+  return a instanceof Uint8Array || ArrayBuffer.isView(a) && a.constructor.name === "Uint8Array" && "BYTES_PER_ELEMENT" in a && a.BYTES_PER_ELEMENT === 1;
+}
+var dark = (r, x, y) => r.map[x] >= 0 && r.map[y] >= 0 && matGet(r.m, r.map[x], r.map[y]) === 1;
+var CTRL = [10, 27];
+var NL = /* @__PURE__ */ String.fromCharCode(CTRL[0]);
+function renderRaw(r) {
+  const W = r.W;
+  const res = new Array(W);
+  for (let y = 0; y < W; y++) {
+    const row = new Array(W);
+    for (let x = 0; x < W; x++)
+      row[x] = dark(r, x, y);
+    res[y] = row;
+  }
+  return res;
+}
+function renderAscii(r) {
+  const W = r.W;
+  let out = "";
+  for (let y = 0; y < W; y += 2) {
+    for (let x = 0; x < W; x++) {
+      const first2 = dark(r, x, y);
+      const second = y + 1 >= W ? true : dark(r, x, y + 1);
+      out += !first2 && !second ? "\u2588" : !first2 && second ? "\u2580" : first2 && !second ? "\u2584" : " ";
+    }
+    out += NL;
+  }
+  return out;
+}
+function renderTerm(r) {
+  const W = r.W;
+  const esc = String.fromCharCode(CTRL[1]);
+  const reset = esc + "[0m";
+  let out = "";
+  for (let y = 0; y < W; y++) {
+    for (let x = 0; x < W; x++) {
+      out += dark(r, x, y) ? `${esc}[40m  ${reset}` : `${esc}[1;47m  ${reset}`;
+    }
+    out += NL;
+  }
+  return out;
+}
+function renderSvg(r, optimize) {
+  const W = r.W;
+  let out = `<svg viewBox="0 0 ${W} ${W}" xmlns="http://www.w3.org/2000/svg">`;
+  let pathData = "";
+  let prev;
+  for (let y = 0; y < W; y++) {
+    for (let x = 0; x < W; x++) {
+      if (!dark(r, x, y))
+        continue;
+      if (!optimize) {
+        out += `<rect x="${x}" y="${y}" width="1" height="1" />`;
+        continue;
+      }
+      let mv = `M${x} ${y}`;
+      if (prev) {
+        const rel = `m${x - prev.x} ${y - prev.y}`;
+        if (rel.length <= mv.length)
+          mv = rel;
+      }
+      pathData += `${mv}h1v1${x < 10 ? `H${x}` : "h-1"}Z`;
+      prev = { x, y };
+    }
+  }
+  if (optimize)
+    out += `<path d="${pathData}"/>`;
+  return out + "</svg>";
+}
+function renderGif(r) {
+  const W = r.W;
+  const pixels = W * W;
+  const N = 126;
+  const fullChunks = Math.floor(pixels / N);
+  const tail = pixels % N;
+  const out = new Uint8Array(408 + fullChunks * (N + 2) + 2 + tail + 4);
+  let p = 0;
+  const u16 = (v2) => {
+    out[p++] = v2 & 255;
+    out[p++] = v2 >>> 8;
+  };
+  for (const b of [71, 73, 70, 56, 55, 97])
+    out[p++] = b;
+  u16(W);
+  u16(W);
+  out[p++] = 246;
+  p += 2;
+  out[p++] = 255;
+  out[p++] = 255;
+  out[p++] = 255;
+  p += 3 * 127;
+  out[p++] = 44;
+  p += 4;
+  u16(W);
+  u16(W);
+  out[p++] = 0;
+  out[p++] = 7;
+  const { m, map: map2 } = r;
+  const row = new Uint8Array(W);
+  let prevMy = -2;
+  for (let y = 0, i = 0; y < W; y++) {
+    const my = map2[y];
+    if (my !== prevMy) {
+      prevMy = my;
+      row.fill(0);
+      if (my >= 0) {
+        for (let x = 0; x < W; x++)
+          if (map2[x] >= 0)
+            row[x] = matGet(m, map2[x], my);
+      }
+    }
+    for (let x = 0; x < W; ) {
+      if (i % N === 0) {
+        const rem = pixels - i;
+        out[p++] = (rem < N ? rem : N) + 1;
+        out[p++] = 128;
+      }
+      const n = Math.min(N - i % N, W - x);
+      out.set(row.subarray(x, x + n), p);
+      p += n;
+      x += n;
+      i += n;
+    }
+  }
+  if (tail === 0) {
+    out[p++] = 1;
+    out[p++] = 128;
+  }
+  out[p++] = 1;
+  out[p++] = 129;
+  out[p++] = 0;
+  out[p++] = 59;
+  return out;
+}
+function gifDataUrl(gif) {
+  const g = gif;
+  let b64;
+  if (typeof g.toBase64 === "function")
+    b64 = g.toBase64();
+  else {
+    let bin = "";
+    for (let i = 0; i < g.length; i += 8192)
+      bin += String.fromCharCode(...g.subarray(i, i + 8192));
+    b64 = btoa(bin);
+  }
+  return "data:image/gif;base64," + b64;
+}
+function encodeQR(text, output = "raw", opts = {}) {
+  asString(text, "text");
+  asString(output, "output");
+  if (typeof opts !== "object" || opts === null || Array.isArray(opts))
+    throw new TypeError(`"opts" expected object, got type=${typeof opts}`);
+  let ver = opts.version;
+  if (ver !== void 0)
+    ver = asVersion(ver);
+  const ecc = opts.ecc !== void 0 ? opts.ecc : "medium";
+  if (!ECC_LEVELS.includes(ecc))
+    err(`invalid ecc=${ecc}`);
+  const encoding = opts.encoding !== void 0 ? opts.encoding : detectType(text);
+  if (!LENGTH_BITS[encoding])
+    err(`invalid encoding=${encoding}`);
+  if (encoding !== "byte") {
+    const alpha = encoding === "numeric" ? ALPHANUMERIC.slice(0, 10) : ALPHANUMERIC;
+    for (const ch of text) {
+      if (!alpha.includes(ch))
+        err(`Unknown letter: "${ch}". Allowed: ${alpha}`);
+    }
+  }
+  if (opts.mask !== void 0 && (asNum(opts.mask, "opts.mask") < 0 || opts.mask > 7))
+    err(`invalid mask=${opts.mask}`);
+  const textEncoder = opts.textEncoder;
+  if (encoding === "byte" && textEncoder === void 0) {
+    const maxBytes = byteCapacity(ver === void 0 ? 40 : ver, ecc);
+    if (text.length > maxBytes || utf8Length(text) > maxBytes)
+      err("Capacity overflow");
+  }
+  const utf8 = encoding === "byte" ? (textEncoder !== void 0 ? textEncoder : (s) => new TextEncoder().encode(s))(text) : void 0;
+  if (utf8 !== void 0 && !_isBytes(utf8))
+    throw new TypeError(`"opts.textEncoder" expected Uint8Array, got type=${typeof utf8}`);
+  const dataLen = encoding === "byte" ? utf8.length : text.length;
+  const encodedBits = encoding === "numeric" ? Math.floor(dataLen / 3) * 10 + [0, 4, 7][dataLen % 3] : encoding === "alphanumeric" ? Math.floor(dataLen / 2) * 11 + dataLen % 2 * 6 : dataLen * 8;
+  if (ver === void 0) {
+    for (ver = 1; ver <= 40; ver++) {
+      const lengthBits = LENGTH_BITS[encoding][Math.floor((ver + 7) / 17)];
+      if (dataLen < 1 << lengthBits && 4 + lengthBits + encodedBits <= capacity(ver, ecc).capacity)
+        break;
+    }
+    if (ver > 40)
+      err("Capacity overflow");
+  } else {
+    const lengthBits = LENGTH_BITS[encoding][Math.floor((ver + 7) / 17)];
+    if (dataLen >= 1 << lengthBits || 4 + lengthBits + encodedBits > capacity(ver, ecc).capacity)
+      err("Capacity overflow");
+  }
+  const data = encodeData(ver, ecc, text, encoding, utf8);
+  const m = drawSymbol(ver, ecc, data, opts.mask);
+  const border = opts.border === void 0 ? 2 : asNum(opts.border, "opts.border");
+  if (border <= 0)
+    throw new RangeError(`invalid border=${border}`);
+  const scale = opts.scale === void 0 ? 1 : asNum(opts.scale, "opts.scale");
+  if (scale <= 0 || scale > 1024)
+    throw new RangeError(`invalid scale factor: ${scale}`);
+  const W = (m.size + 2 * border) * scale;
+  const maxOutputSize = output === "ascii" || output === "gif" || output === "data-url" ? MAX_COMPACT_OUTPUT_SIZE : MAX_OUTPUT_SIZE;
+  if (W > maxOutputSize)
+    throw new RangeError(`invalid opts: output is ${W}x${W} (max ${maxOutputSize}), reduce border/scale`);
+  const map2 = new Int32Array(W);
+  for (let i = 0; i < W; i++) {
+    const f = Math.floor(i / scale) - border;
+    map2[i] = f >= 0 && f < m.size ? f : -1;
+  }
+  const r = { m, W, map: map2 };
+  if (output === "raw")
+    return renderRaw(r);
+  if (output === "ascii")
+    return renderAscii(r);
+  if (output === "term")
+    return renderTerm(r);
+  if (output === "svg")
+    return renderSvg(r, opts.optimize === void 0 ? true : opts.optimize);
+  if (output === "gif")
+    return renderGif(r);
+  if (output === "data-url")
+    return gifDataUrl(renderGif(r));
+  return err(`Unknown output: ${output}`);
+}
+
+// libs/common/src/lib/qr-code.ts
+function generateQRCode(code, colorLight = "#fff0", colorDark = "#000") {
+  let svg = encodeQR(code, "svg", { ecc: "low", border: 1 });
+  if (colorLight && colorLight !== "#fff0" && colorLight !== "#0000") {
+    svg = svg.replace(">", `><rect width="100%" height="100%" style="fill:${colorLight};"/>`);
+  }
+  svg = svg.replace("<path", `<path style="fill:${colorDark};"`);
+  const encoded_svg = encodeURIComponent(svg);
+  return `data:image/svg+xml,${encoded_svg}`;
+}
+
+// libs/common/src/lib/shorten.fn.ts
+var ENDPOINT = "/api/engine/v2/short_url";
+var QR_STORE = /* @__PURE__ */ new Map();
+async function getShortUrlQRCode(id, format2 = "svg") {
+  const key = `${id}.${format2}`;
+  if (QR_STORE.has(key))
+    return QR_STORE.get(key);
+  if (Un()) {
+    const url2 = generateQRCode(`${location.origin}/r/${id.split("-")[1]}`);
+    QR_STORE.set(key, url2);
+    return url2;
+  }
+  const tkn = J();
+  document.cookie = `${tkn === "x-api-key" ? "api-key=" + encodeURIComponent(et()) : "bearer_token=" + encodeURIComponent(tkn)};max-age=30;path=/api/engine/v2/short_url/;samesite=strict;${location.protocol === "https:" ? "secure;" : ""}`;
+  const response = await fetch(`${ENDPOINT}/${id}/qr_code.${format2}`);
+  const blob = await response.blob();
+  const url = URL.createObjectURL(blob);
+  QR_STORE.set(key, url);
+  return url;
+}
+async function createShortURL(data) {
+  return await v(ENDPOINT, data);
+}
+async function updateShortURL(id, data) {
+  return await ce(`${ENDPOINT}/${id}`, data);
+}
+function saveShortURL(data) {
+  return data.id ? updateShortURL(data.id, data) : createShortURL(data);
+}
+async function deleteShortURL(id) {
+  await V(`${ENDPOINT}/${id}`);
+}
+
+// libs/common/src/lib/token-handoff.ts
+var TOKEN_REQUEST = "placeos:token-request";
+var TOKEN_REPLY = "placeos:token";
+function answerTokenRequests(origin) {
+  const answer = async (event) => {
+    if (event.data?.type !== TOKEN_REQUEST)
+      return;
+    const target = event.source;
+    if (!target || target.opener !== window)
+      return;
+    if (event.origin !== origin())
+      return;
+    const current = await freshToken();
+    if (!current)
+      return;
+    const reply = {
+      type: TOKEN_REPLY,
+      token: current,
+      expires_at: tokenExpiry(current)
+    };
+    target.postMessage(reply, event.origin);
+  };
+  window.addEventListener("message", answer);
+  return () => window.removeEventListener("message", answer);
+}
+async function freshToken() {
+  const current = await jt().catch(() => J());
+  const expires_at = current ? tokenExpiry(current) : void 0;
+  if (!expires_at || expires_at > Date.now())
+    return current;
+  Cn();
+  return jt().catch(() => "");
+}
+
+// libs/common/src/lib/user-group-sync.ts
+var GROUP_CHECK_DELAYS = [2e3, 1e4];
+function watchUserGroupSync() {
+  const router = inject(Router);
+  const timers = [];
+  inject(DestroyRef).onDestroy(() => timers.forEach(clearTimeout));
+  router.events.pipe(
+    // `/-` only redirects to the default route, so wait for that page
+    filter((event) => event instanceof NavigationEnd && event.urlAfterRedirects.split("?")[0] !== "/-"),
+    first()
+  ).subscribe(() => {
+    for (const delay of GROUP_CHECK_DELAYS) {
+      timers.push(setTimeout(async () => {
+        if (!await checkUserGroupChanges())
+          return;
+        if (router.url.startsWith("/unauthorised")) {
+          router.navigateByUrl("/");
+        }
+      }, delay));
+    }
+  });
+}
+
+// libs/common/src/lib/value-accessor.ts
+function provideValueAccessor(component) {
+  return {
+    provide: NG_VALUE_ACCESSOR,
+    useExisting: forwardRef(component),
+    multi: true
+  };
+}
+
+// libs/common/src/lib/types/booking.class.ts
+var IGNORE_EXT_KEYS = ["user", "booked_by", "resources", "assets", "members"];
+var RecurrenceDays;
+(function(RecurrenceDays2) {
+  RecurrenceDays2[RecurrenceDays2["SUNDAY"] = 1] = "SUNDAY";
+  RecurrenceDays2[RecurrenceDays2["MONDAY"] = 2] = "MONDAY";
+  RecurrenceDays2[RecurrenceDays2["TUESDAY"] = 4] = "TUESDAY";
+  RecurrenceDays2[RecurrenceDays2["WEDNESDAY"] = 8] = "WEDNESDAY";
+  RecurrenceDays2[RecurrenceDays2["THURSDAY"] = 16] = "THURSDAY";
+  RecurrenceDays2[RecurrenceDays2["FRIDAY"] = 32] = "FRIDAY";
+  RecurrenceDays2[RecurrenceDays2["SATURDAY"] = 64] = "SATURDAY";
+})(RecurrenceDays || (RecurrenceDays = {}));
+var DAY_MINUTES = 24 * 60;
+function resolveAssetName(data, booking_type) {
+  const ext = data.extension_data;
+  const name = data.asset_name || ext?.asset_name || ext?.name;
+  if (booking_type === "visitor") {
+    return ext?.visitor_name || name || data.asset_id || "";
+  }
+  return name || data.description || data.asset_id || "";
+}
+function resolveUnixWindow(data) {
+  const duration = data.duration || 60;
+  if (data.date) {
+    const start2 = Math.floor(data.date / 1e3);
+    return { start: start2, end: start2 + duration * 60 };
+  }
+  const start = data.booking_start || getUnixTime(roundToNearestMinutes(addMinutes(Date.now(), 5), {
+    nearestTo: 5
+  }));
+  return {
+    start,
+    end: data.booking_end || getUnixTime(addMinutes(start * 1e3, duration))
+  };
+}
+function toBookingWindow(data, start, end) {
+  const date = data.date || start * 1e3 || Date.now();
+  const span = Math.abs(differenceInMinutes(start * 1e3, end * 1e3));
+  const duration = data.booking_end ? span || 60 : data.duration || span || 60;
+  return {
+    date,
+    duration,
+    date_end: end * 1e3 || date + duration * 60 * 1e3
+  };
+}
+function isCustomAllDay(data) {
+  return !!(data.extension_data?.custom_all_day || data.custom_all_day);
+}
+function snapToWholeDays(data, window2, timezone) {
+  const has_length = !!(data.duration || data.date_end || data.booking_end);
+  if (has_length && window2.duration % DAY_MINUTES !== 0)
+    return window2;
+  const date = startOfDayInTimezone(window2.date, timezone);
+  return {
+    date,
+    duration: has_length ? Math.max(1, window2.duration - 1) : DAY_MINUTES - 1,
+    date_end: endOfDayInTimezone(date, timezone)
+  };
+}
+function resolveStatus(booking, status) {
+  if (booking.deleted || status === "cancelled")
+    return "cancelled";
+  if (booking.rejected || status === "declined")
+    return "declined";
+  if (booking.has_ended)
+    return "ended";
+  if (booking.approved || status === "approved")
+    return "approved";
+  return "tentative";
+}
+function copyUnknownFields(booking, data) {
+  for (const key in data) {
+    if (!(key in booking) && !IGNORE_EXT_KEYS.includes(key) && data[key]) {
+      booking.extension_data[key] = data[key];
+    }
+  }
+}
+var Booking = class {
+  get group() {
+    return this.extension_data.group || "";
+  }
+  /** Whether to show the booking as all day. Parking shifts can be 12 hours or more */
+  get is_all_day() {
+    const min_hours = this.booking_type === "parking" ? 18 : 12;
+    return this.all_day || this.duration >= min_hours * 60;
+  }
+  get has_ended() {
+    return this.checked_out_at > 0 || isAfter(Date.now(), this.date_end);
+  }
+  get valid_assets() {
+    if (this._valid_cache_expiry > Date.now() && this._valid_asset_cache.length) {
+      return this._valid_asset_cache;
+    }
+    const list = this.linked_bookings;
+    this._valid_asset_cache = (this.extension_data.assets || []).map((request) => new AssetRequest(__spreadProps(__spreadValues({}, request), { event: this }))).filter((request) => request.deliver_at < this.date_end).map((request) => {
+      const booking = list.find((_) => _.extension_data.request_id === request.id);
+      if (booking) {
+        request.state = booking.approved ? "approved" : booking.rejected ? "rejected" : "pending";
+      }
+      return request;
+    });
+    this._valid_cache_expiry = addMinutes(Date.now(), 5).valueOf();
+    return this._valid_asset_cache;
+  }
+  constructor(data = {}) {
+    this._valid_asset_cache = [];
+    this._valid_cache_expiry = 0;
+    this.id = data.id || "";
+    this.parent_id = data.parent_id || "";
+    this.asset_id = data.asset_id || "";
+    this.asset_ids = data.asset_ids || [data.asset_id].filter((_) => _);
+    this.asset_name = resolveAssetName(data, data.booking_type || data.type || " ");
+    this.zones = data.zones || [];
+    const { start, end } = resolveUnixWindow(data);
+    this.booking_start = start;
+    this.booking_end = end;
+    this.booking_type = data.booking_type || " ";
+    this.type = data.type || data.booking_type || "booking";
+    const timezone = data.timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const base_window = toBookingWindow(data, start, end);
+    const all_day = !!data.all_day || isCustomAllDay(data) || base_window.duration >= DAY_MINUTES;
+    const window2 = all_day ? snapToWholeDays(data, base_window, timezone) : base_window;
+    this.date = window2.date;
+    this.duration = window2.duration;
+    this.date_end = window2.date_end;
+    this.timezone = timezone;
+    this.user_email = data.user_email || "";
+    this.user_id = data.user_id || "";
+    this.user_name = data.user_name || "";
+    this.title = data.title ?? (this.booking_type ? `${capitalizeFirstLetter(this.booking_type)} Booking`.trim() : "");
+    this.description = data.description || "";
+    this.checked_in = !!data.checked_in;
+    this.rejected = !!data.rejected;
+    this.approved = !!data.approved;
+    this.deleted = !!data.deleted;
+    this.booked_by_id = data.booked_by_id || "";
+    this.booked_by_name = data.booked_by_name || "";
+    this.booked_by_email = data.booked_by_email || "";
+    this.approver_id = data.approver_id || "";
+    this.approver_email = data.approver_email || "";
+    this.approver_name = data.approver_name || "";
+    this.extension_data = data.extension_data || {};
+    this.access = !!data.extension_data?.access;
+    this.event_id = data.event_id;
+    this.permission = (data.permission || "PRIVATE").toUpperCase();
+    this.attendees = data.attendees || data.guests || data.members || [];
+    this.tags = data.tags || data.extension_data?.tags || [];
+    this.images = data.images || [];
+    this.all_day = all_day;
+    this.induction = data.induction || void 0;
+    this.created_at = data.created_at || Date.now();
+    this.history = data.history || [];
+    this.checked_out_at = data.checked_out_at;
+    this.checked_in_at = data.checked_in_at;
+    this.linked_event = data.linked_event || null;
+    this.linked_bookings = data.linked_bookings || [];
+    this.linked_parent_booking = data.linked_parent_booking || null;
+    this.status = resolveStatus(this, data.status);
+    this.process_state = data.process_state || "pending";
+    this.recurrence_type = data.recurrence_type || "none";
+    this.recurrence_days = data.recurrence_days;
+    this.recurrence_nth_of_month = data.recurrence_nth_of_month;
+    this.recurrence_interval = data.recurrence_interval;
+    this.recurrence_end = data.recurrence_end;
+    this.instance = data.instance;
+    copyUnknownFields(this, data);
+    this.extension_data.assets = (this.extension_data.assets || []).map((i) => new AssetRequest(__spreadProps(__spreadValues({}, i), { event: this, date: this.date })));
+    this.extension_data.tags = data.tags || [];
+    if (this.extension_data.request) {
+      this.extension_data.request = new AssetRequest(__spreadProps(__spreadValues({}, this.extension_data.request), {
+        event: this,
+        date: this.date
+      }));
+    }
+  }
+  toJSON() {
+    const data = __spreadValues({}, this);
+    if (!this.id)
+      delete data.id;
+    data.extension_data.assets = data.extension_data.assets.map((i) => new AssetRequest(__spreadProps(__spreadValues({}, i), { event: null })));
+    if (data.extension_data.request) {
+      data.extension_data.request = new AssetRequest(__spreadProps(__spreadValues({}, data.extension_data.request), {
+        event: null
+      }));
+    }
+    if (!data.parent_id)
+      delete data.parent_id;
+    data.zones = data.zones.filter((_) => _);
+    delete data.date;
+    delete data.duration;
+    delete data.created_at;
+    delete data.history;
+    delete data.process_state;
+    removeEmptyFields(data);
+    return data;
+  }
+  get location() {
+    return this.extension_data?.location || this.description;
+  }
+  /** Whether the booking occurs today */
+  get is_today() {
+    return isSameDay(this.date, /* @__PURE__ */ new Date());
+  }
+  /** Whether booking is done */
+  get is_done() {
+    const start = /* @__PURE__ */ new Date();
+    const end = this.all_day ? addHours(this.date, 24) : addMinutes(this.date, this.duration);
+    const checked_out = (this.checked_out_at || this.extension_data.checked_out_at || 0) * 1e3;
+    const end_time = end.getTime();
+    if (checked_out && Date.now() > checked_out)
+      return true;
+    return isAfter(start, new Date(end_time));
+  }
+  /** Status of the booking */
+  get state() {
+    const now = /* @__PURE__ */ new Date();
+    const date = this.date;
+    if (isBefore(now, add(date, { minutes: -15 })))
+      return "future";
+    if (isBefore(now, date))
+      return "upcoming";
+    if (isBefore(now, add(date, { minutes: 15 })))
+      return "started";
+    if (isBefore(now, add(date, { minutes: this.duration })))
+      return "in_progress";
+    return "done";
+  }
+};
+
+// libs/common/src/lib/types/calendar.class.ts
+var Calendar = class {
+  constructor(data = {}) {
+    this.id = data.id || "";
+    this.name = data.name || "";
+    this.primary = !!data.primary;
+    this.summary = data.summary || "";
+    this.can_edit = !!data.can_edit;
+    this.resource = new Space(data.resource || data.system);
+    this.availability = (data.availability || []).map(({ starts_at, ends_at, date, duration, status }) => {
+      return {
+        date: new Date(date || starts_at * 1e3).valueOf(),
+        duration: duration || differenceInMinutes(ends_at * 1e3, starts_at * 1e3),
+        status
+      };
+    });
+    this.hidden = !!data.hidden;
+  }
+};
+
+// libs/common/src/lib/types/desk.class.ts
+var IGNORE_KEYS = ["zone", "qr_code", "toJSON"];
+var Desk = class {
+  constructor(data = {}) {
+    this.toJSON = () => this.format();
+    this.id = data.id || "";
+    this.map_id = data.map_id || data.id || "";
+    this.name = data.name || "";
+    this.bookable = data.bookable ?? false;
+    this.zone = data.zone || new en();
+    this.assigned_to = data.assigned_to || "";
+    this.groups = data.groups || [];
+    this.qr_code = data.qr_code || "";
+    this.features = data.features || [];
+    this.images = data.images || [];
+    this.tags = data.tags || [];
+    this.homebase = data.homebase || "";
+    this.security = data.security || "";
+    for (const key in data) {
+      if (!(key in this))
+        this[key] = data[key];
+    }
+  }
+  format() {
+    const data = __spreadValues({}, this);
+    for (const key of IGNORE_KEYS) {
+      delete data[key];
+    }
+    li(data, [void 0, null, []]);
+    return data;
+  }
+};
+
+export {
+  differenceInCalendarMonths,
+  endOfMonth,
+  endOfWeek,
+  stringToMinutes,
+  filterResourcesFromRules,
+  rulesForResource,
+  hasNewVersion,
+  serviceWorkerUpdate,
+  initialisationFailure,
+  initialisationComplete,
+  retryInitialisation,
+  Clipboard,
+  provideServiceWorker,
+  getLoadingMessage,
+  needsNativeDomain,
+  nativeDomainError,
+  autoConfirmNativeDomain,
+  setMocks,
+  PlaceOS_Service,
+  firstValueWhere,
+  OrganisationService,
+  MapService,
+  MapsPeopleService,
+  toQueryString,
+  errorStatus,
+  MAP_FEATURE_DATA,
+  buildCurrencyOptions,
+  ExternalCateringService,
+  reloadOnChunkLoadError,
+  registerActiveLocale,
+  assetZones,
+  NO_RECURR,
+  recurrenceInstanceCount,
+  firstRecurrenceInstance,
+  recurrenceEndDate,
+  isRecurrenceInstanceDate,
+  fromEventRecurrence,
+  toEventRecurrence,
+  fromBookingRecurrence,
+  toBookingRecurrence,
+  formatRecurrence,
+  SettingsTitleStrategy,
+  generateQRCode,
+  getShortUrlQRCode,
+  createShortURL,
+  updateShortURL,
+  saveShortURL,
+  deleteShortURL,
+  answerTokenRequests,
+  UploadsService,
+  watchUserGroupSync,
+  NG_VALUE_ACCESSOR,
+  DefaultValueAccessor,
+  NG_VALIDATORS,
+  Validators,
+  AbstractControl,
+  isNativeFormElement,
+  elementAcceptsMinMax,
+  isTextualFormElement,
+  setNativeDomProperty,
+  RequiredValidator,
+  MaxLengthValidator,
+  ɵFORM_CONTROL_INTEGRATION,
+  selectValueAccessor,
+  NgControl,
+  NgControlStatus,
+  NgControlStatusGroup,
+  FormGroup,
+  NgForm,
+  FormControl,
+  FormGroupDirective,
+  NgModel,
+  ɵNgNoValidate,
+  NumberValueAccessor,
+  FormGroupName,
+  FormControlName,
+  SelectControlValueAccessor,
+  NgSelectOption,
+  ɵNgSelectMultipleOption,
+  FormsModule,
+  ReactiveFormsModule,
+  provideValueAccessor,
+  RecurrenceDays,
+  Booking,
+  Calendar,
+  Desk
+};
+//# debugId=8845d224-0238-5317-9d9d-37fe420977af
+//# sourceMappingURL=chunk-AX26ZDG4.js.map
