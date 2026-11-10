@@ -7,6 +7,7 @@ import {
     type PdfImportModalResult,
 } from '../shared/pdf-import-modal.component';
 import { dialogClosed } from '../signage-service.util';
+import type { PdfOpenErrorReason } from './pdf-document';
 import {
     canEncodeWebp,
     MAX_PDF_PAGES,
@@ -67,7 +68,7 @@ export async function importPdfPages(
 /** Message for a PDF that did not open, by `PdfOpenError` reason. Any other
  * error means pdf.js did not load, so the file itself can be valid. */
 function openErrorKey(error: unknown) {
-    const reason = (error as { reason?: string } | null)?.reason;
+    const reason = (error as { reason?: PdfOpenErrorReason } | null)?.reason;
     if (reason === 'password') return 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_PASSWORD';
     if (reason === 'invalid') return 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_INVALID';
     return 'SIGNAGE_MANAGER.PDF_IMPORT_ERR_LOAD';
