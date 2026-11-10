@@ -1,6 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FileDropDirective } from '../../app/shared/file-drop.directive';
+import {
+    blockMissedFileDrop,
+    FileDropDirective,
+    isFileDragTaken,
+} from '../../app/shared/file-drop.directive';
 
 @Component({
     template: `
@@ -43,6 +47,7 @@ describe('FileDropDirective', () => {
 
         expect(host.dropped).toEqual([[poster]]);
         expect(drop.defaultPrevented).toBe(true);
+        expect(isFileDragTaken(drop)).toBe(true);
     });
 
     it('shows that files are over it until the drag leaves it', () => {
@@ -90,6 +95,22 @@ describe('FileDropDirective', () => {
 
         expect(host.dropped).toEqual([]);
         expect(drop.defaultPrevented).toBe(false);
+        expect(isFileDragTaken(drop)).toBe(false);
+    });
+
+    it('clears the highlight when disabled during a drag', () => {
+        const { fixture, host, target } = setup();
+        target.dispatchEvent(dragEvent('dragenter'));
+        host.disabled.set(true);
+        fixture.detectChanges();
+        expect(target.classList).not.toContain('file-drop-over');
+
+        target.dispatchEvent(dragEvent('drop', [poster]));
+        host.disabled.set(false);
+        fixture.detectChanges();
+
+        expect(host.dropped).toEqual([]);
+        expect(target.classList).not.toContain('file-drop-over');
     });
 
     it('leaves a drop that an inner target already took', () => {
@@ -99,5 +120,29 @@ describe('FileDropDirective', () => {
         child.dispatchEvent(dragEvent('drop', [poster]));
 
         expect(host.dropped).toEqual([]);
+    });
+
+    describe('blockMissedFileDrop', () => {
+        it('stops the browser opening files dropped outside a target', () => {
+            const drop = dragEvent('drop', [poster]);
+
+            blockMissedFileDrop(drop);
+
+            expect(drop.defaultPrevented).toBe(true);
+            expect(drop.dataTransfer.dropEffect).toBe('none');
+        });
+
+        it('leaves a drag a target took, and drags of other things', () => {
+            const taken = dragEvent('dragover');
+            taken.preventDefault();
+            taken.dataTransfer.dropEffect = 'copy';
+            const text = dragEvent('drop', [], ['text/plain']);
+
+            blockMissedFileDrop(taken);
+            blockMissedFileDrop(text);
+
+            expect(taken.dataTransfer.dropEffect).toBe('copy');
+            expect(text.defaultPrevented).toBe(false);
+        });
     });
 });

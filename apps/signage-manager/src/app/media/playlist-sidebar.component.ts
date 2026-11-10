@@ -1,5 +1,5 @@
 import { CdkDragDrop, DragDropModule } from '@angular/cdk/drag-drop';
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -35,7 +35,12 @@ import { SignageMediaService } from './signage-media.service';
                             {{ 'SIGNAGE_MANAGER.NAV_PLAYLISTS' | translate }}
                         </h4>
                         <p class="mb-2 text-xs opacity-60">
-                            {{ 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT' | translate }}
+                            {{
+                                (can_upload()
+                                    ? 'SIGNAGE_MANAGER.DRAG_MEDIA_OR_FILES_HINT'
+                                    : 'SIGNAGE_MANAGER.DRAG_MEDIA_HINT'
+                                ) | translate
+                            }}
                         </p>
                     </div>
                     @if (can_create()) {
@@ -207,10 +212,7 @@ export class PlaylistSidebarComponent {
     private readonly _media_service = inject(SignageMediaService);
 
     public readonly can_create = this._context.can_create;
-    /** Files dropped on a playlist upload, then join the playlist */
-    public readonly can_upload = computed(
-        () => this._context.can_create() && this._context.can_update(),
-    );
+    public readonly can_upload = this._context.can_upload_to_playlist;
     public readonly loading = this._playlist_service.playlists_loading;
     /** Whether the last page of playlists failed to load */
     public readonly error = this._playlist_service.playlists_error;

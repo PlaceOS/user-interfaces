@@ -9,6 +9,7 @@ import { TranslatePipe } from '@placeos/components';
 import { MediaSectionComponent } from '../../app/media/media.component';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
+import { FileDropDirective } from '../../app/shared/file-drop.directive';
 import { SignageContextService } from '../../app/signage-context.service';
 
 @Component({
@@ -180,5 +181,34 @@ describe('MediaSectionComponent', () => {
         expect(stop_propagation).toHaveBeenCalled();
         expect(preview_files).toHaveBeenCalledWith(files);
         expect(component.show_dropzone()).toBe(false);
+    });
+
+    // A sidebar playlist takes a drag of files over it, to upload to itself
+    it('leaves file drags that a playlist took to that playlist', async () => {
+        const fixture = TestBed.createComponent(MediaSectionComponent);
+        const component = fixture.componentInstance;
+        const playlist = TestBed.runInInjectionContext(
+            () => new FileDropDirective(),
+        );
+        function takenDrag(type: string) {
+            const event = new Event(type, { cancelable: true });
+            Object.defineProperty(event, 'dataTransfer', {
+                value: { types: ['Files'], files: [], dropEffect: 'none' },
+            });
+            return event as DragEvent;
+        }
+        const enter = takenDrag('dragenter');
+        const over = takenDrag('dragover');
+        const drop = takenDrag('drop');
+        playlist.onDragEnter(enter);
+        playlist.onDragOver(over);
+        playlist.onDrop(drop);
+
+        component.handleDragEnter(enter);
+        component.handleDragOver(over);
+        expect(component.show_dropzone()).toBe(false);
+        await component.handleDrop(drop);
+
+        expect(preview_files).not.toHaveBeenCalled();
     });
 });

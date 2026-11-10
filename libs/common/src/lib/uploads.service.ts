@@ -170,29 +170,39 @@ export class UploadsService extends AsyncHandler {
     }
 
     private _uploads_setup: Promise<void> | null = null;
+    /** Whether the upload manager was set up to send the API key */
+    private _uploads_use_api_key = false;
 
     /**
-     * Set up the upload manager, once. Setting it up again ends the hash
-     * workers, which leaves any upload being hashed waiting forever. The
-     * credential is read on each request, so a refreshed token needs no
-     * new setup.
+     * Set up the upload manager, once for each auth mode. Setting it up
+     * again ends the hash workers, which leaves any upload being hashed
+     * waiting forever. The credential is read on each request, so a
+     * refreshed token needs no new setup. A change between API key and
+     * token auth does, as the manager picks the header at setup.
      */
     private _initUploads() {
-        this._uploads_setup ||= this._setupUploads().catch((error) => {
+        const use_api_key = !!apiKey();
+        if (use_api_key !== this._uploads_use_api_key) {
             this._uploads_setup = null;
-            throw error;
-        });
+            this._uploads_use_api_key = use_api_key;
+        }
+        this._uploads_setup ||= this._setupUploads(use_api_key).catch(
+            (error) => {
+                this._uploads_setup = null;
+                throw error;
+            },
+        );
         return this._uploads_setup;
     }
 
-    private async _setupUploads() {
+    private async _setupUploads(use_api_key: boolean) {
         const { initUploads } = await loadCloudUploads();
         initUploads({
             auto_start: true,
             // token() returns the literal string "x-api-key" when the session
             // is authenticated with an API key, which is not a usable bearer
             // token; the uploads API needs the key in its own header.
-            ...(apiKey()
+            ...(use_api_key
                 ? { api_key: () => apiKey() }
                 : { token: () => token() }),
             endpoint: '/api/engine/v2/uploads',
