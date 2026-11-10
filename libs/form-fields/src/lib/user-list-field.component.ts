@@ -267,7 +267,9 @@ export function isInternalEmail(email = '', domains: string[]) {
                         class="inverse relative flex-1 sm:flex-none"
                         [disabled]="disabled()"
                         (click)="
-                            $event.target !== file_input && file_input.click()
+                            $event.target !== file_input
+                                ? file_input.click()
+                                : undefined
                         "
                     >
                         <div class="flex items-center justify-center">
