@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["deals.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;",
+  "names": []
+}
