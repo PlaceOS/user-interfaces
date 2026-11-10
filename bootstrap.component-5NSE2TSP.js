@@ -18,19 +18,19 @@ import {
 } from "./chunk-PSK63WZN.js";
 import {
   AnnounceDirective
-} from "./chunk-IQMRUEAB.js";
+} from "./chunk-YNLUTC3F.js";
 import "./chunk-L6AJ3QE4.js";
 import {
   TranslatePipe
-} from "./chunk-5NJXJZTK.js";
+} from "./chunk-HOU3PKZ6.js";
 import {
   OrganisationService
-} from "./chunk-ADGRBH3S.js";
+} from "./chunk-GIT5P6QZ.js";
 import {
   Ra,
   Space,
   VERSION
-} from "./chunk-3KRYKYLJ.js";
+} from "./chunk-O7R5TKH7.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -756,4 +756,4 @@ export {
   BootstrapComponent
 };
 //# debugId=68514830-4043-53cc-84e1-8f80ead082d0
-//# sourceMappingURL=bootstrap.component-7ZUSU6UL.js.map
+//# sourceMappingURL=bootstrap.component-5NSE2TSP.js.map
