@@ -1,0 +1,576 @@
+import {
+  SignagePlaylistService
+} from "./chunk-5X25ZAJR.js";
+import {
+  confirmThenRun
+} from "./chunk-BO7HXF2E.js";
+import {
+  SignageContextService
+} from "./chunk-ZI47DHKY.js";
+import {
+  dialogClosed,
+  mergeItems
+} from "./chunk-SUHBQTO6.js";
+import {
+  decodeEntityNames
+} from "./chunk-VXDPGMUS.js";
+import {
+  MatDialog
+} from "./chunk-2APKA6IB.js";
+import {
+  OrganisationService
+} from "./chunk-YVXYQM6B.js";
+import {
+  $h,
+  Ah,
+  Sh,
+  en,
+  i18n,
+  kh,
+  notifyError,
+  notifySuccess,
+  vh
+} from "./chunk-C3VLFLNG.js";
+import {
+  Injectable,
+  computed,
+  debounced,
+  effect,
+  inject,
+  linkedSignal,
+  resource,
+  setClassMetadata,
+  signal,
+  untracked,
+  ɵɵdefineInjectable
+} from "./chunk-BKT2MDTY.js";
+import {
+  __spreadProps,
+  __spreadValues
+} from "./chunk-653SOEEV.js";
+
+// apps/signage-manager/src/app/displays/display-zones.util.ts
+async function displayZoneIds(selected_zones, known_zones, load_zone) {
+  const zones = new Map(known_zones.map((zone) => [zone.id, zone]));
+  for (const zone of selected_zones)
+    zones.set(zone.id, zone);
+  const zone_ids = [];
+  const added = /* @__PURE__ */ new Set();
+  for (const selected_zone of selected_zones) {
+    const path = [];
+    const visited = /* @__PURE__ */ new Set();
+    let zone = selected_zone;
+    while (zone?.id && !visited.has(zone.id)) {
+      path.unshift(zone.id);
+      visited.add(zone.id);
+      if (!zone.parent_id)
+        break;
+      let parent = zones.get(zone.parent_id) || null;
+      if (!parent) {
+        parent = await load_zone(zone.parent_id).catch(() => null);
+        if (parent)
+          zones.set(parent.id, parent);
+      }
+      if (!parent) {
+        path.unshift(zone.parent_id);
+        break;
+      }
+      zone = parent;
+    }
+    for (const zone_id of path) {
+      if (added.has(zone_id))
+        continue;
+      added.add(zone_id);
+      zone_ids.push(zone_id);
+    }
+  }
+  return zone_ids;
+}
+
+// apps/signage-manager/src/app/shared/playlist-assignments.ts
+var ASSIGNMENT_ERROR = "SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR";
+var PlaylistAssignments = class {
+  constructor(_options) {
+    this._options = _options;
+    effect(() => {
+      _options.context.api_group_id();
+      _options.context.data_change();
+      untracked(() => _options.overrides.set({}));
+    });
+  }
+  /** Whether the user can change assignments. Warns when not. */
+  canAssign() {
+    return this._options.context.requirePermission(this._options.context.can_update(), "SIGNAGE_MANAGER.SVC_NO_UPDATE_ASSIGNMENTS");
+  }
+  /** Let the user pick a playlist. Undefined when the picker is closed. */
+  async pickPlaylist() {
+    const { PlaylistSelectModalComponent } = await import("./playlist-select-modal.component-LCT37NCF.js");
+    const ref = this._options.dialog.open(PlaylistSelectModalComponent, {
+      panelClass: "mobile-fullscreen"
+    });
+    return dialogClosed(ref);
+  }
+  /**
+   * Keep a saved item until the lists reload.
+   * @returns The item with its names decoded, to use for selection
+   */
+  cache(item) {
+    const decoded = decodeEntityNames(item);
+    if (!decoded?.id)
+      return decoded;
+    this._options.overrides.update((state) => __spreadProps(__spreadValues({}, state), {
+      [decoded.id]: decoded
+    }));
+    return decoded;
+  }
+  /** Show a saved item in place of the selected item, when it is that item */
+  updateSelection(item) {
+    if (item && this._options.selected()?.id === item.id) {
+      this._options.selected.set(item);
+    }
+  }
+  /**
+   * Add a playlist to an item, after a check for takeover conflicts.
+   * @param change Playlist to add, with its unsaved version when known
+   * @returns The saved item, or null when nothing was saved
+   */
+  async add(item, change, success_key) {
+    if (item.playlists?.includes(change.playlist_id)) {
+      notifyError(i18n(this._options.already_assigned_key));
+      return null;
+    }
+    const confirmed = await this._options.playlist_service.confirmTakeoverChange(__spreadProps(__spreadValues({}, change), {
+      [this._options.target]: item.id
+    }));
+    if (!confirmed)
+      return null;
+    return this.save(() => this._options.save_playlists(item, [
+      ...item.playlists || [],
+      change.playlist_id
+    ]), success_key, this._options.add_error_key);
+  }
+  /**
+   * Take a playlist off an item.
+   * @returns The saved item, or null when nothing was saved
+   */
+  async remove(item, playlist_id, success_key) {
+    if (!this.canAssign())
+      return null;
+    return this.save(() => this._options.save_playlists(item, (item.playlists || []).filter((id) => id !== playlist_id)), success_key);
+  }
+  /**
+   * Run a save of an item and keep the result until the lists reload.
+   * @param error_key Translation key of the error to show when it fails
+   * @returns The saved item, or null after showing an error when it fails
+   */
+  async save(request, success_key, error_key = ASSIGNMENT_ERROR) {
+    const updated = await request().catch(() => null);
+    if (!updated) {
+      notifyError(i18n(error_key));
+      return null;
+    }
+    const saved = this.cache(updated);
+    this._options.context.changed();
+    notifySuccess(i18n(success_key));
+    return saved;
+  }
+};
+
+// apps/signage-manager/src/app/zones/signage-zone.service.ts
+function loadedZones(list) {
+  return list.hasValue() ? list.value().zones : [];
+}
+var SignageZoneService = class _SignageZoneService {
+  /** Search reachable zones, or the direct children of a selected parent. */
+  querySelectableZones(search, parent_id = "", group_id = this._context.api_group_id_debounced.value()) {
+    if (!this._context.canQueryLists() || !search.trim()) {
+      return null;
+    }
+    if (parent_id)
+      return this._queryChildZones(parent_id, search.trim());
+    return $h(this._context.groupQueryParams(__spreadValues({
+      q: search.trim(),
+      limit: 2500,
+      include_children_count: true
+    }, group_id ? { descendants: true } : {}), group_id));
+  }
+  async zoneChildren(parent_id) {
+    const { data } = await this._queryChildZones(parent_id);
+    return (data || []).map(decodeEntityNames);
+  }
+  _queryChildZones(parent_id, q) {
+    return $h(__spreadProps(__spreadValues({}, q ? { q } : {}), {
+      parent_id,
+      limit: 2500,
+      include_children_count: true
+    }));
+  }
+  /**
+   * Zones of the debounced group, loaded again after each save. Empty when
+   * the lists cannot be queried or when `load` gives no query. A failed
+   * query puts the resource in its error state.
+   */
+  _zoneResource(load) {
+    return resource({
+      params: () => ({
+        initialised: this._org.initialised(),
+        change: this._context.data_change(),
+        group_id: this._context.api_group_id_debounced.value(),
+        can_query: this._context.can_query_group_data()
+      }),
+      loader: async ({ params }) => {
+        const query = params.initialised && params.can_query ? load(params.group_id) : null;
+        const result = await query;
+        return {
+          zones: (result?.data || []).map(decodeEntityNames),
+          total: result?.total || 0
+        };
+      }
+    });
+  }
+  /**
+   * Load the zone lists that failed again. Includes the signage zone list,
+   * which the header count and zone pickers read.
+   */
+  reloadZones() {
+    const lists = [
+      this._zone_list,
+      this._all_zone_list,
+      this._org_root_list
+    ];
+    for (const list of lists) {
+      if (list.error())
+        list.reload();
+    }
+  }
+  /** Zone tree callbacks for the modals that pick zones */
+  zoneTreeData() {
+    return {
+      roots: this.root_zones,
+      zones: this.all_zones,
+      load_children: (parent_id) => this.zoneChildren(parent_id),
+      query_zones: (search, parent_id) => this.querySelectableZones(search, parent_id)
+    };
+  }
+  /**
+   * Ids of zones with their ancestors, parent first. A display must be in
+   * the ancestors too, so playlists of a building reach its displays.
+   */
+  zoneIdsWithAncestors(zones) {
+    const known_zones = [
+      ...this.all_zones(),
+      this._org.organisation,
+      this._org.region,
+      this._org.building
+    ].filter((zone) => !!zone?.id);
+    return displayZoneIds(zones, known_zones, async (zone_id) => vh(zone_id).catch(() => null));
+  }
+  constructor() {
+    this._org = inject(OrganisationService);
+    this._dialog = inject(MatDialog);
+    this._context = inject(SignageContextService);
+    this._playlist_service = inject(SignagePlaylistService);
+    this._zone_overrides = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "_zone_overrides" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._zone_list = this._zoneResource((group_id) => $h(this._context.groupQueryParams({ limit: 250, tags: "signage" }, group_id)));
+    this.zones = computed(
+      () => mergeItems(loadedZones(this._zone_list), this._zone_overrides()),
+      ...ngDevMode ? [{ debugName: "zones" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.signage_zone_count = computed(
+      () => this._zone_list.hasValue() ? this._zone_list.value().total : null,
+      ...ngDevMode ? [{ debugName: "signage_zone_count" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._all_zone_list = this._zoneResource((group_id) => $h(this._context.groupQueryParams({ limit: 500, include_children_count: true }, group_id)));
+    this.all_zones = computed(
+      () => mergeItems(loadedZones(this._all_zone_list), this._zone_overrides()),
+      ...ngDevMode ? [{ debugName: "all_zones" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._org_root_list = this._zoneResource((group_id) => group_id ? null : $h({
+      limit: 500,
+      include_children_count: true,
+      parent_id: "root"
+    }));
+    this.root_zones = computed(
+      () => {
+        if (this._context.api_group_id_debounced.value()) {
+          return this.all_zones();
+        }
+        const org_zone_id = this._org.organisation?.id;
+        const zones = loadedZones(this._org_root_list);
+        return mergeItems(org_zone_id ? zones.filter(({ id }) => id === org_zone_id) : zones, this._zone_overrides());
+      },
+      ...ngDevMode ? [{ debugName: "root_zones" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.zones_loading = computed(
+      () => this._zone_list.isLoading() || this._all_zone_list.isLoading() || this._org_root_list.isLoading(),
+      ...ngDevMode ? [{ debugName: "zones_loading" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.zones_error = computed(
+      () => !!this._zone_list.error() || !!this._all_zone_list.error() || !!this._org_root_list.error(),
+      ...ngDevMode ? [{ debugName: "zones_error" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.selected_zone = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "selected_zone" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      source: this._context.group_switch,
+      computation: () => null
+    }));
+    this._assignments = new PlaylistAssignments({
+      context: this._context,
+      playlist_service: this._playlist_service,
+      dialog: this._dialog,
+      overrides: this._zone_overrides,
+      selected: this.selected_zone,
+      target: "zone_id",
+      already_assigned_key: "SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE",
+      add_error_key: "SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR",
+      save_playlists: (zone, playlists) => kh(zone.id, { playlists, version: zone.version }, "patch")
+    });
+    this.zone_search_term = linkedSignal(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "zone_search_term" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      source: () => this.selected_zone()?.id,
+      computation: () => ""
+    }));
+    this.zone_tree_expanded = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "zone_tree_expanded" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.zone_tree_children_cache = signal(
+      {},
+      ...ngDevMode ? [{ debugName: "zone_tree_children_cache" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._zone_search_debounced = debounced(this.zone_search_term, 400);
+    this._zone_search_results = resource(__spreadProps(__spreadValues({}, ngDevMode ? { debugName: "_zone_search_results" } : (
+      /* istanbul ignore next */
+      {}
+    )), {
+      params: () => ({
+        initialised: this._org.initialised(),
+        can_query: this._context.can_query_group_data(),
+        parent_id: this.selected_zone()?.id || "",
+        group_id: this._context.api_group_id_debounced.value(),
+        search: this._zone_search_debounced.value().trim()
+      }),
+      loader: async ({ params }) => {
+        const result = await this.querySelectableZones(params.search, params.parent_id, params.group_id)?.catch(() => null);
+        return (result?.data || []).map(decodeEntityNames);
+      }
+    }));
+    this.filtered_zones = computed(
+      () => {
+        if (!this.zone_search_term().trim()) {
+          return this.all_zones();
+        }
+        const overrides = this._zone_overrides();
+        return (this._zone_search_results.value() || []).map((zone) => overrides[zone.id] || zone);
+      },
+      ...ngDevMode ? [{ debugName: "filtered_zones" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._playlist_service.trackPlaylistIds(() => this.selected_zone()?.playlists || []);
+  }
+  async addPlaylistToZone(zone) {
+    if (!this._assignments.canAssign())
+      return;
+    const playlist_id = await this._assignments.pickPlaylist();
+    if (!playlist_id)
+      return;
+    const updated = await this._assignments.add(zone, { playlist_id }, "SIGNAGE_MANAGER.SVC_PLAYLIST_ADDED_ZONE");
+    if (updated)
+      this.selected_zone.set(updated);
+  }
+  async removePlaylistFromZone(zone, playlist_id) {
+    const updated = await this._assignments.remove(zone, playlist_id, "SIGNAGE_MANAGER.SVC_PLAYLIST_REMOVED_ZONE");
+    if (updated)
+      this.selected_zone.set(updated);
+  }
+  async addZoneToPlaylist(playlist) {
+    if (!this._assignments.canAssign())
+      return;
+    const { ZoneSelectModalComponent } = await import("./zone-select-modal.component-WJFBBAIJ.js");
+    const ref = this._dialog.open(ZoneSelectModalComponent, {
+      panelClass: "mobile-fullscreen"
+    });
+    const zone_id = await dialogClosed(ref);
+    if (!zone_id)
+      return;
+    const zone = this.zones().find((z) => z.id === zone_id) || await vh(zone_id).catch(() => null);
+    if (!zone) {
+      notifyError(i18n("SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR"));
+      return;
+    }
+    const updated = await this._assignments.add(zone, { playlist_id: playlist.id, playlist }, "SIGNAGE_MANAGER.SVC_ZONE_ADDED_PLAYLIST");
+    this._assignments.updateSelection(updated);
+  }
+  async removeZoneFromPlaylist(playlist, zone) {
+    const updated = await this._assignments.remove(zone, playlist.id, "SIGNAGE_MANAGER.SVC_ZONE_REMOVED_PLAYLIST");
+    this._assignments.updateSelection(updated);
+  }
+  async addZone() {
+    if (!this._canManageZones())
+      return null;
+    const result = await this._openZoneEditModal({
+      zone: new en({}),
+      default_parent_id: this.selected_zone()?.id || this.root_zones()[0]?.id || ""
+    });
+    if (result)
+      this.selected_zone.set(result);
+    return result;
+  }
+  async editZone(zone) {
+    if (!zone.tags?.includes("signage"))
+      return null;
+    if (!this._canManageZones())
+      return null;
+    return this._openZoneEditModal({ zone });
+  }
+  _canManageZones() {
+    return this._context.requirePermission(this._context.can_manage_zones(), "SIGNAGE_MANAGER.SVC_NO_MANAGE_ZONES");
+  }
+  async _openZoneEditModal(data) {
+    const { ZoneEditModalComponent } = await import("./zone-edit-modal.component-BTL5T4ZV.js");
+    const ref = this._dialog.open(ZoneEditModalComponent, {
+      data: __spreadProps(__spreadValues(__spreadValues({}, data), this.zoneTreeData()), {
+        onSave: (zone, form) => this.saveZone(zone, form)
+      }),
+      panelClass: "mobile-fullscreen"
+    });
+    return await dialogClosed(ref) || null;
+  }
+  async saveZone(zone, data) {
+    if (!this._canManageZones() || !data.parent_id || data.parent_id === zone.id || zone.id && !zone.tags?.includes("signage")) {
+      return null;
+    }
+    if (zone.id && data.parent_id !== zone.parent_id && await this._isDescendant(data.parent_id, zone.id)) {
+      notifyError(i18n("SIGNAGE_MANAGER.SVC_ZONE_PARENT_LOOP"));
+      return null;
+    }
+    const form_data = __spreadValues({
+      name: data.name,
+      display_name: data.display_name,
+      description: data.description,
+      parent_id: data.parent_id,
+      tags: [.../* @__PURE__ */ new Set([...zone.tags || [], "signage"])]
+    }, zone.id ? { version: zone.version } : {});
+    const result = await (zone.id ? kh(zone.id, form_data) : Sh(form_data)).catch(() => null);
+    if (!result) {
+      notifyError(i18n("SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVE_ERROR"));
+      return null;
+    }
+    const saved = this._assignments.cache(result);
+    this.zone_tree_children_cache.set({});
+    this.selected_zone.set(saved);
+    this._context.changed();
+    notifySuccess(i18n("SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVED"));
+    return saved;
+  }
+  /**
+   * Whether a zone is below another zone. A zone cannot take one of its
+   * descendants as its parent, as that makes a parent loop.
+   */
+  async _isDescendant(zone_id, ancestor_id) {
+    const known = new Map(this.all_zones().map((zone) => [zone.id, zone]));
+    let current_id = zone_id;
+    for (let depth = 0; current_id && depth < 64; depth++) {
+      if (current_id === ancestor_id)
+        return true;
+      const zone = known.get(current_id) || await vh(current_id).catch(() => null);
+      current_id = zone?.parent_id || "";
+    }
+    return false;
+  }
+  async removeZone(zone) {
+    if (!zone?.id || !zone.tags?.includes("signage"))
+      return false;
+    if (!this._canManageZones())
+      return false;
+    const removed = await confirmThenRun(this._dialog, {
+      title: i18n("SIGNAGE_MANAGER.SVC_REMOVE_SIGNAGE_ZONE_TITLE"),
+      content: i18n("SIGNAGE_MANAGER.SVC_DELETE_NAMED", {
+        name: zone.display_name || zone.name
+      }),
+      icon: { content: "delete" }
+    }, {
+      loading_key: "SIGNAGE_MANAGER.SVC_REMOVING",
+      error_key: "SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVE_ERROR",
+      action: () => Ah(zone.id)
+    });
+    if (!removed)
+      return false;
+    this._zone_overrides.update((overrides) => {
+      const next = __spreadValues({}, overrides);
+      delete next[zone.id];
+      return next;
+    });
+    this.zone_tree_children_cache.set({});
+    this.zone_tree_expanded.update((expanded) => {
+      const next = __spreadValues({}, expanded);
+      delete next[zone.id];
+      return next;
+    });
+    if (this.selected_zone()?.id === zone.id) {
+      this.selected_zone.set(null);
+    }
+    this._context.changed();
+    notifySuccess(i18n("SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVED"));
+    return true;
+  }
+  static {
+    this.\u0275fac = function SignageZoneService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _SignageZoneService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _SignageZoneService, factory: _SignageZoneService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(SignageZoneService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+export {
+  PlaylistAssignments,
+  SignageZoneService
+};
+//# debugId=fa5aae8d-f528-59f6-8aa2-f91b7a6a6409
+//# sourceMappingURL=chunk-TKVPCNAR.js.map
