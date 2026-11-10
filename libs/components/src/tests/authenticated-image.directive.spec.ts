@@ -87,6 +87,30 @@ describe('AuthenticatedImageDirective', () => {
         fixture.destroy();
     });
 
+    it('loads signage thumbnails with the auth cookie, not a fetch', async () => {
+        vi.useFakeTimers();
+        vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth' } as any);
+        vi.mocked(ts_client.token).mockReturnValue('token-1');
+        const fetch_mock = vi.fn();
+        vi.stubGlobal('fetch', fetch_mock);
+        const set_cookie = vi.spyOn(document, 'cookie', 'set');
+        const source = '/api/engine/v2/signage/media/media-1/thumbnail';
+
+        const fixture = TestBed.createComponent(ImageHostComponent);
+        fixture.componentInstance.source.set(source);
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(0);
+        const image: HTMLImageElement =
+            fixture.nativeElement.querySelector('img');
+
+        expect(image.src).toContain(source);
+        expect(fetch_mock).not.toHaveBeenCalled();
+        expect(set_cookie).toHaveBeenCalledWith(
+            expect.stringContaining('path=/api/engine/v2/signage;'),
+        );
+        fixture.destroy();
+    });
+
     it('clears the previous image when the source becomes empty', () => {
         const fixture = TestBed.createComponent(ImageHostComponent);
         fixture.detectChanges();
