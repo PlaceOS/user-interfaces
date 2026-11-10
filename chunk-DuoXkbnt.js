@@ -1,4 +1,0 @@
-import{qn as he,x as D}from"./chunk-Diz7yXlr.js";import{n as J}from"./chunk-8StczjcM.js";import{s as Cs}from"./chunk-L3hpRPl4.js";var c=`select, mat-select, [role="combobox"], [role="listbox"], [role="option"], [role="menu"], [role="menuitem"]`;function f(i,n){let s=D(J),l=D(Cs).listen([`KeyS`],()=>{s.openDialogs.at(-1)===i&&(document.activeElement?.closest(c)||n())});D(he).onDestroy(()=>l?.unsubscribe())}export{f as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="5b2ae359-2498-5ad6-b206-a1364153fa21")}catch(e){}}();
-//# debugId=5b2ae359-2498-5ad6-b206-a1364153fa21
-//# sourceMappingURL=chunk-DuoXkbnt.js.map
