@@ -29,6 +29,9 @@ fi
 
 git -C "$worktree" rm --quiet -rf --ignore-unmatch .
 cp -a "$FOLDER/." "$worktree/"
+# Stop Vercel from creating a deployment for each build branch push. Vercel reads
+# vercel.json from the pushed commit, and build branches hold only built files.
+printf '{ "git": { "deploymentEnabled": false } }\n' >"$worktree/vercel.json"
 git -C "$worktree" add -A
 git -C "$worktree" \
     -c user.name="${GITHUB_ACTOR:-GitHub Actions}" \

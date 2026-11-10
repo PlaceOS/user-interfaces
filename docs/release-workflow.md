@@ -31,6 +31,15 @@ not need GitHub API access. Run the generation regression tests with
 `bun test tools/changelog-generation.test.js`; they require `git-cliff` and `jq`
 on `PATH` (or `GIT_CLIFF_BIN` pointing to the generator binary).
 
+## Templates demo site
+
+The `frontend-templates` Vercel project serves [templates.demo.place.tech](https://templates.demo.place.tech/). Vercel deploys only the `templates-demo` branch. The Vercel team can create a limited number of deployments each day, and Vercel counts canceled deployments too. Thus, other branches must not create Vercel deployments:
+
+- The root `vercel.json` turns off Vercel deployments for all branches except `templates-demo`.
+- `.github/scripts/publish-subdir.sh` adds a `vercel.json` that turns off Vercel deployments to each build branch commit. Vercel reads `vercel.json` from the pushed commit, and build branches do not contain the root file.
+
+The `Templates Demo` workflow moves `templates-demo` to `develop` once per day (17:00 UTC), if `develop` changed. To update the site now, run the workflow manually. Do not push to `templates-demo` directly.
+
 ## Sentry source maps
 
 Production builds of the apps that use Sentry make hidden source maps: the scripts do not link to them. Staging builds keep their linked source maps. The build writes a debug ID into each script and its source map.
