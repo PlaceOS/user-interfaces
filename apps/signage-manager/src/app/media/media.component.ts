@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
+import { isFileDrag, isFileDragTaken } from '../shared/file-drop.directive';
 import { NavFooterComponent } from '../shared/nav-footer.component';
 import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageContextService } from '../signage-context.service';
@@ -89,24 +90,27 @@ export class MediaSectionComponent {
     public readonly can_create = this._context.can_create;
     public readonly show_dropzone = signal(false);
 
+    /** Files over a playlist go to it, so the library overlay hides */
     public handleDragEnter(event: DragEvent) {
-        if (!this.hasDraggedFiles(event)) return;
+        if (!isFileDrag(event)) return;
         event.preventDefault();
         this._drag_counter += 1;
-        this.show_dropzone.set(true);
+        this.show_dropzone.set(!isFileDragTaken(event));
     }
 
     public handleDragOver(event: DragEvent) {
-        if (!this.hasDraggedFiles(event)) return;
+        if (!isFileDrag(event)) return;
         event.preventDefault();
         if (event.dataTransfer) {
             event.dataTransfer.dropEffect = 'copy';
         }
-        this.show_dropzone.set(true);
+        this.show_dropzone.set(!isFileDragTaken(event));
     }
 
+    // Counted while the overlay hides over a playlist too, so the count
+    // stays right when the drag moves back over the library
     public handleDragLeave(event: DragEvent) {
-        if (!this.show_dropzone() || !this.hasDraggedFiles(event)) return;
+        if (!isFileDrag(event)) return;
         this._drag_counter = Math.max(0, this._drag_counter - 1);
         if (!this._drag_counter || this.isPointerOutsideWindow(event)) {
             this.hideDropzone();
@@ -114,10 +118,10 @@ export class MediaSectionComponent {
     }
 
     public async handleDrop(event: DragEvent) {
-        if (!this.hasDraggedFiles(event)) return;
+        if (!isFileDrag(event)) return;
         this.hideDropzone();
         // A playlist in the sidebar took the drop, to upload to itself
-        if (event.defaultPrevented) return;
+        if (isFileDragTaken(event)) return;
         event.preventDefault();
         event.stopPropagation();
         await this._media_service.previewFiles(event.dataTransfer?.files);
@@ -126,10 +130,6 @@ export class MediaSectionComponent {
     public hideDropzone() {
         this._drag_counter = 0;
         this.show_dropzone.set(false);
-    }
-
-    private hasDraggedFiles(event: DragEvent) {
-        return Array.from(event.dataTransfer?.types || []).includes('Files');
     }
 
     private isPointerOutsideWindow(event: DragEvent) {

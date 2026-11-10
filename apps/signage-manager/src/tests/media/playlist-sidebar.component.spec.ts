@@ -17,7 +17,10 @@ describe('PlaylistSidebarComponent', () => {
     const add_media_to_playlist = vi.fn().mockResolvedValue(undefined);
     const reload_playlists = vi.fn();
 
-    const context_stub = { can_create: signal(true) };
+    const context_stub = {
+        can_create: signal(true),
+        can_upload_to_playlist: signal(true),
+    };
     const playlist_stub = {
         playlists,
         playlist_search_term: signal(''),
@@ -61,6 +64,7 @@ describe('PlaylistSidebarComponent', () => {
         playlist_stub.playlists_error.set(false);
         playlist_approval_status.set({});
         playlist_approval_requested_status.set({});
+        context_stub.can_upload_to_playlist.set(true);
     });
 
     it('returns the full list when no search term is set', async () => {
@@ -147,5 +151,30 @@ describe('PlaylistSidebarComponent', () => {
         element.querySelector<HTMLButtonElement>('load-error button').click();
 
         expect(reload_playlists).toHaveBeenCalledTimes(1);
+    });
+
+    // Only users who can upload are told that files can be dropped
+    it('mentions dropping files only to users who can upload', async () => {
+        await TestBed.configureTestingModule({
+            imports: [PlaylistSidebarComponent],
+            providers: [
+                { provide: SignageContextService, useValue: context_stub },
+                { provide: SignagePlaylistService, useValue: playlist_stub },
+                {
+                    provide: SignageMediaService,
+                    useValue: { uploadFilesToPlaylist: vi.fn() },
+                },
+            ],
+        }).compileComponents();
+        const fixture = TestBed.createComponent(PlaylistSidebarComponent);
+        fixture.detectChanges();
+        const element: HTMLElement = fixture.nativeElement;
+        expect(element.textContent).toContain('Drag media or files onto');
+
+        context_stub.can_upload_to_playlist.set(false);
+        fixture.detectChanges();
+
+        expect(element.textContent).not.toContain('files');
+        expect(element.textContent).toContain('Drag media onto a playlist');
     });
 });

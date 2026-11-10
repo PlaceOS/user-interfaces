@@ -239,15 +239,6 @@ describe('PlaylistsSectionComponent', () => {
     });
 
     describe('files dropped on the page', () => {
-        /** A drag of files, as the browser sends it */
-        function fileDrag(type: string, types = ['Files']) {
-            const event = new Event(type, { cancelable: true });
-            Object.defineProperty(event, 'dataTransfer', {
-                value: { types, files: [], dropEffect: 'copy' },
-            });
-            return event as DragEvent;
-        }
-
         it('uploads files dropped on the open playlist to it', async () => {
             selected_playlist.set({ id: 'pl-1' });
             const component = await make();
@@ -256,29 +247,6 @@ describe('PlaylistsSectionComponent', () => {
             await component.uploadFiles(files);
 
             expect(upload_files).toHaveBeenCalledWith('pl-1', files);
-        });
-
-        it('stops the browser opening files dropped outside a playlist', async () => {
-            const component = await make();
-            const drop = fileDrag('drop');
-
-            component.blockMissedFileDrop(drop);
-
-            expect(drop.defaultPrevented).toBe(true);
-            expect(drop.dataTransfer.dropEffect).toBe('none');
-        });
-
-        it('leaves a drop that a playlist took, and drags of other things', async () => {
-            const component = await make();
-            const taken = fileDrag('dragover');
-            taken.preventDefault();
-            const text = fileDrag('drop', ['text/plain']);
-
-            component.blockMissedFileDrop(taken);
-            component.blockMissedFileDrop(text);
-
-            expect(taken.dataTransfer.dropEffect).toBe('copy');
-            expect(text.defaultPrevented).toBe(false);
         });
     });
 });

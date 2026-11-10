@@ -185,6 +185,22 @@ describe('UploadsService', () => {
             );
         });
 
+        it('should set up the manager again when the auth mode changes', async () => {
+            const first = spectator.service.uploadFile(new File([], 'a.png'));
+            await flush();
+            state.next({ status: 'COMPLETED', progress: 100 });
+            await first;
+            vi.mocked(ts_client.apiKey).mockReturnValue('secret-key');
+            const second = spectator.service.uploadFile(new File([], 'b.png'));
+            await flush();
+            state.next({ status: 'COMPLETED', progress: 100 });
+            await second;
+            expect(cloud_uploads.initUploads).toHaveBeenCalledTimes(2);
+            const { api_key } = vi.mocked(cloud_uploads.initUploads).mock
+                .calls[1][0] as { api_key: () => string };
+            expect(api_key()).toBe('secret-key');
+        });
+
         it('should not re-authorise when an api key is present', async () => {
             vi.mocked(ts_client.apiKey).mockReturnValue('secret-key');
             vi.mocked(ts_client.token).mockReturnValue('');
