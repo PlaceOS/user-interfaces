@@ -13,16 +13,19 @@ describe('MockBookingModule', () => {
     let added: number;
 
     /** Add an event for the test space that starts `offset` minutes from now */
-    function addEvent(offset: number, duration = 30) {
+    function addEvent(offset: number, duration = 30, fields = {}) {
         const start = (NOW + offset * MINUTE) / 1000;
-        MOCK_EVENTS.push({
+        const event = {
             id: `mock-test-${offset}`,
             event_start: start,
             event_end: start + duration * 60,
             system: space,
             attendees: [],
-        });
+            ...fields,
+        };
+        MOCK_EVENTS.push(event);
         added += 1;
+        return event;
     }
 
     beforeEach(() => {
@@ -51,11 +54,25 @@ describe('MockBookingModule', () => {
 
     it('should release a booking not checked in within the pending period', () => {
         const mod = createBookingsModule(space);
-        addEvent(1);
+        const event = addEvent(1);
         vi.setSystemTime(NOW + (1 + mod.pending_period + 1) * MINUTE);
         mod.$poll_bookings();
         expect(mod.current_booking).toBeNull();
         expect(mod.status).toBe('free');
+        // Other apps see the space decline the event
+        expect(event.attendees).toContainEqual(
+            expect.objectContaining({
+                id: space.id,
+                response_status: 'declined',
+            }),
+        );
+    });
+
+    it('should show events that book the space only as a resource', () => {
+        const mod = createBookingsModule(space);
+        addEvent(-5, 30, { system: null, resources: [space] });
+        mod.$poll_bookings();
+        expect(mod.current_booking?.id).toBe('mock-test--5');
     });
 
     it('should keep book now and end meeting results after a poll', () => {
@@ -66,9 +83,12 @@ describe('MockBookingModule', () => {
         expect(mod.current_booking?.id).toBe(booking.id);
         expect(mod.status).toBe('busy');
 
+        vi.setSystemTime(NOW + 10 * MINUTE);
         mod.$end_meeting(booking.event_start);
         mod.$poll_bookings();
         expect(mod.current_booking).toBeNull();
         expect(mod.status).toBe('free');
+        // Other apps see the meeting end early
+        expect(booking.event_end).toBe((NOW + 10 * MINUTE) / 1000);
     });
 });

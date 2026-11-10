@@ -1,7 +1,8 @@
 import { addMinutes, subMinutes } from 'date-fns';
 
-import { HashMap, timePeriodsIntersect } from '@placeos/common';
-import { MOCK_EVENTS } from '../api/events.data';
+import { HashMap } from '@placeos/common';
+import { eventBooksSpace, MOCK_EVENTS } from '../api/events.data';
+import { markChanged, saveMockSession } from '../session';
 
 export class MockBookingModule {
     /** Timezone the associated space resided */
@@ -24,7 +25,7 @@ export class MockBookingModule {
     control_ui = '';
     /** Catering UI associated with the space */
     catering_ui = '';
-    /** Time of the last booking started by a user */
+    /** Start time (unix seconds) of the last booking started by a user */
     last_booking_started = 0;
     current_booking: HashMap | null = null;
     next_booking: HashMap | null = null;
@@ -67,10 +68,6 @@ export class MockBookingModule {
     pending = true;
 
     _space = null;
-    /** IDs of bookings that were checked in or started */
-    _started = new Set<string>();
-    /** IDs of bookings that were ended or released */
-    _ended = new Set<string>();
     /** Time the mock was created. Meetings in progress before this count as started */
     _created = Date.now();
 
@@ -89,7 +86,6 @@ export class MockBookingModule {
         const booking = this.bookings.find((_) => _.event_start === t);
         if (!booking) return;
         this.last_booking_started = t;
-        this._started.add(booking.id);
         updateBookings(this._space, this);
     }
 
@@ -99,7 +95,7 @@ export class MockBookingModule {
             this.bookings.find((_) => _.event_start === t) ||
             this.current_booking;
         if (!booking) return;
-        this._ended.add(booking.id);
+        endBooking(this._space, this, booking);
         updateBookings(this._space, this);
     }
 
@@ -117,7 +113,7 @@ export class MockBookingModule {
             extension_data: {},
         };
         MOCK_EVENTS.push(new_booking);
-        this._started.add(new_booking.id);
+        this.last_booking_started = now;
         updateBookings(this._space, this);
         return new_booking;
     }
@@ -126,7 +122,7 @@ export class MockBookingModule {
     $checkin(_time: number) {
         const booking = this.current_booking || this.next_booking;
         if (!booking || this.status !== 'pending') return;
-        this._started.add(booking.id);
+        this.last_booking_started = booking.event_start;
         updateBookings(this._space, this);
     }
 
@@ -147,54 +143,85 @@ export const createBookingsModule = (
 ) => new MockBookingModule(space, overrides);
 
 /**
+ * Whether the booking counts as started: a user started or checked in to it,
+ * it was in progress when the mock was created, or the space has no pending
+ * state.
+ */
+function isStarted(mod: MockBookingModule, event: HashMap) {
+    return (
+        event.event_start === mod.last_booking_started ||
+        event.event_start * 1000 < mod._created ||
+        !mod.pending
+    );
+}
+
+/** Mark `space` as declined in the attendees of `event` */
+function declineEvent(event: HashMap, space: HashMap) {
+    const attendees: HashMap[] = event.attendees || [];
+    const room = attendees.find((user) => user.id === space.id);
+    if (room) room.response_status = 'declined';
+    else {
+        event.attendees = [
+            ...attendees,
+            { ...space, resource: true, response_status: 'declined' },
+        ];
+    }
+}
+
+/**
+ * End a booking in the mock events, so every app sees the change. A started
+ * meeting in progress ends now. Other bookings are declined by the space.
+ * Saves the change for the browser session.
+ */
+function endBooking(space: HashMap, mod: MockBookingModule, event: HashMap) {
+    const now = Math.floor(Date.now() / 1000);
+    if (isStarted(mod, event) && event.event_start <= now) {
+        event.event_end = Math.min(event.event_end, now);
+    } else {
+        declineEvent(event, space);
+    }
+    markChanged([event.id]);
+    saveMockSession();
+}
+
+/**
  * Update the bookings, current and next booking, presence and status
  * of the mock module from the mock events for `space`.
- * Releases current bookings that were not checked in within `pending_period`.
+ * The space declines current bookings that were not checked in within
+ * `pending_period`.
  */
 function updateBookings(space: HashMap, mod: MockBookingModule) {
     const now = Date.now();
     const start = (event: HashMap) => event.event_start * 1000;
     const end = (event: HashMap) => event.event_end * 1000;
-    const bookings = MOCK_EVENTS.filter(
+    /** Whether now is in the period from `s` to `e`, end excluded */
+    const during = (s: number, e: number) => s <= now && now < e;
+    const books = (event: HashMap) => eventBooksSpace(event, space.id);
+    let bookings = MOCK_EVENTS.filter(books);
+    const released = bookings.filter(
         (event) =>
-            !mod._ended.has(event.id) &&
-            (event.system?.id === space.id ||
-                event.attendees?.some(
-                    (u) => u.email === space.email || u.id === space.id,
-                )),
-    ).sort((a, b) => a.event_start - b.event_start);
-    for (const event of bookings) {
-        const in_progress = timePeriodsIntersect(
-            now,
-            now,
-            start(event),
-            end(event),
-        );
-        if (!in_progress || mod._started.has(event.id)) continue;
-        if (start(event) < mod._created || !mod.pending) {
-            mod._started.add(event.id);
-        } else if (
-            now > addMinutes(start(event), mod.pending_period).valueOf()
-        ) {
-            mod._ended.add(event.id);
-        }
+            !isStarted(mod, event) &&
+            during(start(event), end(event)) &&
+            now > addMinutes(start(event), mod.pending_period).valueOf(),
+    );
+    if (released.length) {
+        released.forEach((event) => declineEvent(event, space));
+        markChanged(released.map((event) => event.id));
+        saveMockSession();
+        bookings = bookings.filter(books);
     }
-    mod.bookings = bookings.filter((event) => !mod._ended.has(event.id));
+    mod.bookings = bookings.sort((a, b) => a.event_start - b.event_start);
     mod.current_booking =
-        mod.bookings.find((_) =>
-            timePeriodsIntersect(now, now, start(_), end(_)),
-        ) || null;
+        mod.bookings.find((_) => during(start(_), end(_))) || null;
     mod.next_booking = mod.bookings.find((_) => start(_) > now) || null;
     const { current_booking, next_booking } = mod;
     const target = current_booking || next_booking;
-    const started = !!current_booking && mod._started.has(current_booking.id);
+    const started = !!current_booking && isStarted(mod, current_booking);
     const pending =
         mod.pending &&
         !!target &&
-        !mod._started.has(target.id) &&
-        timePeriodsIntersect(
-            now,
-            now,
+        !isStarted(mod, target) &&
+        during(
             subMinutes(start(target), mod.pending_before).valueOf(),
             addMinutes(start(target), mod.pending_period).valueOf(),
         );

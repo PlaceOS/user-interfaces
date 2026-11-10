@@ -1,4 +1,4 @@
-import { predictableRandomInt } from '@placeos/common';
+import { HashMap, predictableRandomInt } from '@placeos/common';
 import {
     addDays,
     addMinutes,
@@ -172,6 +172,35 @@ const generateMeetingUrl = () => {
         id: meetingId,
     };
 };
+
+/**
+ * Whether `event` books the space with ID `id`, as its system, a resource or
+ * an attendee that is a resource. A space that declined the event does not
+ * book it. Runs for each event and space on each poll, so it allocates nothing.
+ */
+export function eventBooksSpace(event: HashMap, id: string): boolean {
+    let booked =
+        event.system?.id === id ||
+        !!event.resources?.some((space: HashMap) => space.id === id);
+    for (const user of event.attendees || []) {
+        if (user.id !== id) continue;
+        if (user.response_status === 'declined') return false;
+        if (user.resource) booked = true;
+    }
+    return booked;
+}
+
+/** IDs of the spaces an event books, see `eventBooksSpace` */
+export function eventSpaces(event: HashMap): string[] {
+    const ids: string[] = [
+        event.system?.id,
+        ...(event.resources || []).map((space: HashMap) => space.id),
+        ...(event.attendees || [])
+            .filter((user: HashMap) => user.resource)
+            .map((space: HashMap) => space.id),
+    ];
+    return [...new Set(ids)].filter((id) => id && eventBooksSpace(event, id));
+}
 
 // Generate events with guaranteed volume across 10+ users
 export const MOCK_EVENTS = (() => {
