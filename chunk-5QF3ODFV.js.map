@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/shared/bulk-media-upload.util.ts"
+  ],
+  "sourcesContent": [
+    "import { SignageMediaMetadata } from '../signage-media-upload.util';\n\nexport interface BulkMediaUploadItem {\n    /** File to upload. Absent when `loadFile` makes it at upload time. */\n    file?: File;\n    /**\n     * Makes the file just before it uploads, such as a rendered PDF page, so\n     * a long list does not hold every file in memory at once.\n     */\n    loadFile?: () => Promise<File>;\n    media_type: 'image' | 'video';\n    metadata: SignageMediaMetadata;\n    /** Media name. The file name when not set. */\n    name?: string;\n    tags?: string[];\n}\n\n/** Name of an item, as listed */\nexport function bulkItemName(item: BulkMediaUploadItem) {\n    return item.name || item.file?.name || '';\n}\n\n/** File of an item, made now when it is made at upload time */\nexport async function loadBulkItemFile(item: BulkMediaUploadItem) {\n    if (item.file) return item.file;\n    if (item.loadFile) return item.loadFile();\n    throw new Error('No file to upload');\n}\n"
+  ],
+  "mappings": ";AAkBM,SAAU,aAAa,MAAyB;AAClD,SAAO,KAAK,QAAQ,KAAK,MAAM,QAAQ;AAC3C;AAGA,eAAsB,iBAAiB,MAAyB;AAC5D,MAAI,KAAK;AAAM,WAAO,KAAK;AAC3B,MAAI,KAAK;AAAU,WAAO,KAAK,SAAQ;AACvC,QAAM,IAAI,MAAM,mBAAmB;AACvC;",
+  "names": [],
+  "debugId": "6077134b-4aac-5b76-b444-92d3deaca55f"
+}
