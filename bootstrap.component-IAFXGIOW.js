@@ -5,7 +5,7 @@ import {
   SettingsToggleComponent,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-NFLHXXO5.js";
+} from "./chunk-RRX3QMAH.js";
 import {
   MatFormField,
   MatFormFieldModule
@@ -14,20 +14,20 @@ import "./chunk-OBHG2ELS.js";
 import {
   MatOption
 } from "./chunk-QIOXUOTK.js";
-import "./chunk-72RR6XQN.js";
+import "./chunk-FRIYST6R.js";
 import {
   TranslatePipe
-} from "./chunk-Q5RDUBRY.js";
+} from "./chunk-CDXCCM27.js";
 import {
   FormsModule,
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-JKPYEVXO.js";
+} from "./chunk-4TFQNHOZ.js";
 import {
   AsyncHandler,
   VERSION
-} from "./chunk-THBAIIJV.js";
+} from "./chunk-FHWVXOA3.js";
 import "./chunk-2OUUYRFN.js";
 import "./chunk-VXW7ALNE.js";
 import {
@@ -1020,4 +1020,4 @@ export {
   BootstrapComponent
 };
 //# debugId=38445d1d-3141-5c4e-8bba-e175d862f4f4
-//# sourceMappingURL=bootstrap.component-MW247WB5.js.map
+//# sourceMappingURL=bootstrap.component-IAFXGIOW.js.map

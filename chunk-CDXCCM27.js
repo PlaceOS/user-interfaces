@@ -1,6 +1,6 @@
 import {
   LocaleService
-} from "./chunk-THBAIIJV.js";
+} from "./chunk-FHWVXOA3.js";
 import {
   Pipe,
   inject,
@@ -39,4 +39,4 @@ export {
   TranslatePipe
 };
 //# debugId=e40f8122-b041-5a0d-9274-6184c0e6c469
-//# sourceMappingURL=chunk-Q5RDUBRY.js.map
+//# sourceMappingURL=chunk-CDXCCM27.js.map
