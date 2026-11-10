@@ -1,1 +1,0 @@
-import{t as Ro}from"./main-JYAMOX67.js";function n(){Ro(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
