@@ -1,4 +1,0 @@
-import{Li as y}from"./chunk-BsVkwbXV.js";import{Ur as et}from"./main.js";import{d as ee}from"./chunk-C_Mtx5Vx.js";import{b as Me}from"./chunk-CBliRu5R.js";var s=async a=>{if(!a?.hasUnsavedChanges())return!0;let o=await Me({title:et(`APP.CONCIERGE.UNSAVED_CHANGES_TITLE`),content:et(`APP.CONCIERGE.UNSAVED_CHANGES_MSG`),icon:{content:`warning`},confirm_text:et(`APP.CONCIERGE.UNSAVED_CHANGES_DISCARD`)},y(ee));return o.close(),o.reason===`done`};export{s as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="b86ff2bb-61d9-5870-89be-87073cb3befa")}catch(e){}}();
-//# debugId=b86ff2bb-61d9-5870-89be-87073cb3befa
-//# sourceMappingURL=chunk-D28PTYkq2.js.map
