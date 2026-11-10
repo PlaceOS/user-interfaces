@@ -2422,7 +2422,7 @@
         "DISPLAY_DETAILS_TABS": "Display details tabs",
         "DISPLAY_NO_ZONES": "This display is not in any zones.",
         "DISPLAY_SELECT_DETAILS": "Select a display to view its details.",
-        "DRAG_MEDIA_HINT": "Drag media onto a playlist to add it",
+        "DRAG_MEDIA_HINT": "Drag media or files onto a playlist to add them",
         "DROP_MEDIA_HINT": "Images, PDFs and supported video files",
         "DROP_MEDIA_TITLE": "Drop media to upload",
         "DURATION_DAY": "{{ count }} days",
