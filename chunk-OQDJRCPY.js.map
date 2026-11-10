@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage/src/app/bootstrap-state.ts"
+  ],
+  "sourcesContent": [
+    "/** Local storage key holding the id of the display this device shows */\nexport const STORE_DISPLAY_KEY = 'PlaceOS.SIGNAGE.display';\n\n/**\n * Whether this device has been bootstrapped to a display, and so is expected to\n * be showing content. A player that has never been set up is legitimately\n * sitting on the display picker waiting for someone, and must not be treated as\n * a failed startup.\n */\nexport function hasBootstrappedDisplay() {\n    try {\n        return !!localStorage.getItem(STORE_DISPLAY_KEY);\n    } catch {\n        return false;\n    }\n}\n"
+  ],
+  "mappings": ";AACO,IAAM,oBAAoB;AAQ3B,SAAU,yBAAsB;AAClC,MAAI;AACA,WAAO,CAAC,CAAC,aAAa,QAAQ,iBAAiB;EACnD,QAAQ;AACJ,WAAO;EACX;AACJ;",
+  "names": [],
+  "debugId": "c7e3b7b2-7877-5fce-959f-83a92ed5e4d0"
+}
