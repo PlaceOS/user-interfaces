@@ -73,6 +73,7 @@ import {
     spaceNames,
 } from './event-save.fn';
 import {
+    eventSpaceIds,
     querySpaceAvailability,
     removeEvent,
     saveEvent,
@@ -620,7 +621,7 @@ export class EventFormService extends AsyncHandler {
         ids: string[],
         date: number,
         duration: number,
-        ignore: string,
+        ignore: string[],
         event: CalendarEvent,
     ) {
         const key = JSON.stringify({
@@ -639,7 +640,7 @@ export class EventFormService extends AsyncHandler {
                       ids,
                       date,
                       duration,
-                      ignore,
+                      ignore[0],
                       undefined,
                   )
                 : querySpaceAvailability(
@@ -675,8 +676,7 @@ export class EventFormService extends AsyncHandler {
             },
             rules[this._org.building?.id] || [],
         ) as Space[];
-        const ignore =
-            event?.resources[0]?.id || event?.system?.id || event?.id;
+        const ignore = eventSpaceIds(event);
         const availability = await this._queryAvailability(
             spaces.map(({ id }) => id),
             period.date || 60,

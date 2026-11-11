@@ -437,28 +437,32 @@ export async function updateEventMetadata(
  * @param id_list List of space IDs to check
  * @param start Start of the availability period to check
  * @param duration Duration of the availability block in minutes
- * @param ignore ID of a booking to ignore when checking availability
+ * @param ignore IDs of the spaces whose booking of the edited event to ignore.
+ * The availability API counts the event's own booking as busy.
  */
 export async function querySpaceAvailability(
     id_list: string[],
     start: number,
     duration: number,
-    ignore?: string,
+    ignore?: string | string[],
     type?: unknown,
     ignore_period: [number, number] = [0, 0],
 ): Promise<boolean[]> {
     const end = addMinutes(start, duration).valueOf();
+    const ignore_ids = [ignore ?? []]
+        .flat()
+        .filter((id) => id_list.includes(id));
     const [spaces, ignore_check] = await Promise.all([
         queryCalendarAvailability({
             system_ids: id_list.join(),
             period_start: getUnixTime(start),
             period_end: getUnixTime(end),
         }).catch(() => []),
-        ignore && id_list.includes(ignore)
+        ignore_ids.length
             ? querySpaceFreeBusy({
                   period_start: getUnixTime(start),
                   period_end: getUnixTime(end),
-                  system_ids: ignore,
+                  system_ids: ignore_ids.join(),
               })
             : Promise.resolve([]),
     ]);
@@ -479,6 +483,17 @@ export async function querySpaceAvailability(
         );
     }
     return short_list;
+}
+
+/**
+ * IDs of the spaces that hold a booking of the event, for the `ignore` list
+ * of `querySpaceAvailability`
+ */
+export function eventSpaceIds(event?: CalendarEvent): string[] {
+    const ids = (event?.resources || []).map((_) => _.id).filter(Boolean);
+    if (ids.length) return ids;
+    const fallback = event?.system?.id || event?.id;
+    return fallback ? [fallback] : [];
 }
 
 export interface EventClashQueryOptions {

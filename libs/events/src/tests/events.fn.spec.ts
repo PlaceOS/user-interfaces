@@ -1,6 +1,7 @@
 import { CalendarEvent, GuestUser, Space, VERSION } from '@placeos/common';
 import {
     checkinEventGuest,
+    eventSpaceIds,
     MAX_EVENT_PAGES,
     queryAllEvents,
     queryEventListOrThrow,
@@ -238,6 +239,29 @@ describe('Event API Methods', () => {
             ).resolves.toEqual([true, false]);
         });
 
+        it('should ignore the edited booking in every room of the event', async () => {
+            vi.mocked(ts_client.get).mockImplementation((async (url: string) =>
+                url.includes('/free_busy')
+                    ? ['room-1', 'room-2'].map((id) => ({
+                          id: `${id}@test.com`,
+                          resource: { id, bookable: true },
+                          availability: [
+                              { date: start, duration: 60, status: 'busy' },
+                          ],
+                      }))
+                    : []) as unknown as typeof ts_client.get);
+            await expect(
+                querySpaceAvailability(
+                    ['room-1', 'room-2'],
+                    start,
+                    60,
+                    ['room-1', 'room-2'],
+                    undefined,
+                    own_period,
+                ),
+            ).resolves.toEqual([true, true]);
+        });
+
         it('should keep a room busy when another booking overlaps the edited one', async () => {
             mockCalendars(
                 [],
@@ -257,6 +281,25 @@ describe('Event API Methods', () => {
                 ),
             ).resolves.toEqual([false]);
         });
+    });
+
+    it('should list every room of an event, or fall back to its system', () => {
+        expect(
+            eventSpaceIds(
+                new CalendarEvent({
+                    resources: [
+                        { id: 'room-1', email: 'room-1@test.com' },
+                        { id: 'room-2', email: 'room-2@test.com' },
+                    ] as any,
+                }),
+            ),
+        ).toEqual(['room-1', 'room-2']);
+        expect(
+            eventSpaceIds(
+                new CalendarEvent({ system: { id: 'sys-1' } } as any),
+            ),
+        ).toEqual(['sys-1']);
+        expect(eventSpaceIds(undefined)).toEqual([]);
     });
 
     describe('checkinEventGuests', () => {
