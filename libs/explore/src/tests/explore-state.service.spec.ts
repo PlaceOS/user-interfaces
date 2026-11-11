@@ -103,7 +103,6 @@ describe('ExploreStateService', () => {
         const DEFAULTS = {
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },
-            text: { display: 'none' },
         };
         let styles = spectator.service.map_styles();
         expect(styles).toEqual({ ...DEFAULTS });
@@ -128,7 +127,6 @@ describe('ExploreStateService', () => {
         expect(styles).toEqual({
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },
-            text: { display: 'none' },
             space1: {},
         });
     });
@@ -193,7 +191,6 @@ describe('ExploreStateService', () => {
         expect(styles).toEqual({
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },
-            text: { display: 'none' },
             parking1: {},
         });
 
@@ -204,7 +201,6 @@ describe('ExploreStateService', () => {
         expect(styles).toEqual({
             '#zones': { display: 'none' },
             '#Zones': { display: 'none' },
-            text: { display: 'none' },
         });
     });
 

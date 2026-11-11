@@ -159,7 +159,7 @@ export class ExploreStateService {
         this._overrides();
         const styles = this._styles();
         const disable = this._disabledGroups(this._options(), 'styles');
-        let style_mappings = { text: { display: 'none' } };
+        let style_mappings: ViewerStyles = {};
         for (const key in styles) {
             if (disable.includes(key)) continue;
             style_mappings = { ...style_mappings, ...styles[key] };
