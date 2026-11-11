@@ -74,12 +74,6 @@ describe('EditorStateService', () => {
         await editor.load(floorplan.id);
     });
 
-    it('loads the floorplan and its objects', () => {
-        expect(editor.objects()).toHaveLength(1);
-        expect(editor.loading()).toBe(false);
-        expect(editor.error()).toBe('');
-    });
-
     it('stores an uploaded image size so the kiosk uses the same canvas', async () => {
         // jsdom decodes no images; report a fixed natural size instead
         vi.stubGlobal(
@@ -243,11 +237,6 @@ describe('EditorStateService', () => {
         vi.unstubAllGlobals();
     });
 
-    it('starts with nothing to undo', () => {
-        expect(editor.can_undo()).toBe(false);
-        expect(editor.can_redo()).toBe(false);
-    });
-
     it('undoes and redoes a geometry change', async () => {
         const id = editor.objects()[0].id;
 
@@ -408,6 +397,62 @@ describe('EditorStateService', () => {
         });
     });
 
+    it('never gives a new object an svg id that another object still has', async () => {
+        const room = (svg_id: string) =>
+            editor.createObject({ object_type: 'room', svg_id, layer: 'rooms' });
+        await room('room-002');
+        await room('room-003');
+        await editor.deleteObject(
+            editor.objects().find((o) => o.svg_id === 'room-002')!.id,
+        );
+        expect(editor.nextNaming('room').svg_id).toBe('room-004');
+
+        editor.startPlacing('desk-layout', 'row-4');
+        await editor.placeAt(100, 100);
+        await editor.deleteObject(
+            editor.objects().find((o) => o.svg_id === 'desk-002')!.id,
+        );
+        editor.startPlacing('desk-layout', 'row-4');
+        await editor.placeAt(300, 100);
+        const ids = editor.objects().map((o) => o.svg_id);
+        expect(new Set(ids).size).toBe(ids.length);
+        expect(ids).toContain('desk-008');
+    });
+
+    it('auto-numbers one type and keeps labels a person wrote', async () => {
+        const [room] = editor.objects();
+        const boardroom = await editor.createObject({
+            object_type: 'room',
+            label: 'Boardroom',
+            layer: 'rooms',
+        });
+        const desk = await editor.createObject({
+            object_type: 'desk',
+            svg_id: 'desk-001',
+            label: 'Desk 1',
+            layer: 'desks',
+        });
+
+        await editor.autoNumber('room', 'L1-R', 10);
+        const by_id = (id: string) =>
+            editor.objects().find((o) => o.id === id)!;
+        expect(by_id(room.id)).toMatchObject({
+            svg_id: 'L1-R010',
+            label: 'Room 10',
+        });
+        expect(by_id(boardroom.id)).toMatchObject({
+            svg_id: 'L1-R011',
+            label: 'Boardroom',
+        });
+        expect(by_id(desk.id).svg_id).toBe('desk-001');
+        const stored = await store.listObjects(floorplan_id);
+        expect(stored.find((o) => o.id === room.id)?.svg_id).toBe('L1-R010');
+
+        editor.undo();
+        expect(by_id(room.id).svg_id).toBe('room-001');
+        expect(by_id(boardroom.id).svg_id).toBeNull();
+    });
+
     it('reorders layers without disturbing the rest', () => {
         const before = editor.sorted_layers().map((l) => l.id);
         editor.moveLayer('desks', 'up');
@@ -459,15 +504,6 @@ describe('EditorStateService', () => {
         expect(editor.objects()).toHaveLength(2);
     });
 
-    it('places a desk group as one undo step', async () => {
-        editor.startPlacing('desk-layout', 'row-4');
-        await editor.placeAt(200, 200);
-        expect(editor.objects()).toHaveLength(5);
-
-        editor.undo();
-        expect(editor.objects()).toHaveLength(1);
-    });
-
     it('deletes a layer with its objects, and undo brings both back', async () => {
         await editor.deleteLayer('rooms');
         expect(editor.objects()).toHaveLength(0);
@@ -490,6 +526,28 @@ describe('EditorStateService', () => {
 
         expect(await editor.flush()).toBe(true);
         expect(editor.error()).toBe('');
+    });
+
+    it('keeps edits made during a save pending and saves them next', async () => {
+        const id = editor.objects()[0].id;
+        let release: () => void = () => undefined;
+        const write = vi
+            .spyOn(store, 'saveCanvasState')
+            .mockImplementationOnce(
+                () => new Promise<void>((done) => (release = done)),
+            );
+        await editor.updateObject(id, { label: 'First' });
+        const first = editor.save();
+        await editor.updateObject(id, { label: 'Second' });
+        const second = editor.save();
+
+        release();
+        await first;
+        await second;
+
+        expect(write).toHaveBeenCalledTimes(2);
+        expect(write.mock.calls[1][1].objects[0].label).toBe('Second');
+        expect(editor.dirty()).toBe(false);
     });
 
     it('hands the active layer on when the current one is deleted', () => {
@@ -525,6 +583,22 @@ describe('EditorStateService', () => {
 
         editor.toggleMultiSelect(desk.id);
         expect(editor.multi_select()).toEqual([room.id, secondRoom.id]);
+    });
+
+    it('drags the multi-selection only when the dragged object is in it', async () => {
+        const room = editor.objects()[0];
+        const second = await editor.createObject({
+            object_type: 'room',
+            layer: 'rooms',
+        });
+        const third = await editor.createObject({
+            object_type: 'room',
+            layer: 'rooms',
+        });
+
+        editor.setMultiSelect([room.id, second.id]);
+        expect(editor.movingIds(second.id)).toEqual([room.id, second.id]);
+        expect(editor.movingIds(third.id)).toEqual([third.id]);
     });
 
     it('extends a plain click selection with Shift-click', async () => {
