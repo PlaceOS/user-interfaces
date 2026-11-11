@@ -68,9 +68,30 @@ describe('CalendarEvent[Methods]', () => {
     });
 
     describe('getNextFreeTimeSlot', () => {
-        it('should get the next free time slot', () => {
-            expect(getNextFreeTimeSlot([]).start).toBe(0);
-            // TODO: check various times
+        const day = new Date('2024-06-12T00:00:00').valueOf();
+        const at = (hours: number, minutes = 0) =>
+            addMinutes(day, hours * 60 + minutes).valueOf();
+        // Free until 10:00, busy 10:00-11:00, free 11:00-11:40, busy 11:40-12:00
+        const bookings = () => [
+            { date: at(10), duration: 60 },
+            { date: at(11, 40), duration: 20 },
+        ];
+
+        it('should return the current slot when enough of it is left', () => {
+            expect(getNextFreeTimeSlot(bookings(), at(9))).toEqual({
+                start: 0,
+                end: at(10),
+            });
+        });
+
+        it('should skip to a later slot when the current one ends too soon', () => {
+            expect(getNextFreeTimeSlot(bookings(), at(9, 45))).toEqual({
+                start: at(11),
+                end: at(11, 40),
+            });
+            expect(getNextFreeTimeSlot(bookings(), at(11, 20)).start).toBe(
+                at(12),
+            );
         });
     });
 });
