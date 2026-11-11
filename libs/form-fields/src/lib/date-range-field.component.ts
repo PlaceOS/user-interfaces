@@ -29,6 +29,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             yPosition="top"
             [disabled]="disabled()"
             [class.opacity-30]="disabled()"
+            (click)="pending_start.set(undefined)"
         >
             <div class="flex-1 whitespace-nowrap">
                 {{ start_value() || now | date: 'MMM d, yyyy' }}
@@ -47,7 +48,7 @@ import { DateRangeCalendarComponent } from './date-range-calendar.component';
             <div class="bg-base-100 relative w-73 rounded-sm px-2 py-4">
                 <date-range-calendar
                     [month]="start_value() || now"
-                    [start]="start_value()"
+                    [start]="pending_start() ?? start_value()"
                     [end]="end_value()"
                     [from]="from()"
                     [to]="until()"
@@ -101,6 +102,13 @@ export class DateRangeFieldComponent extends AsyncHandler {
     public readonly start_value = signal<number | undefined>(undefined);
     public readonly end_value = signal<number | undefined>(undefined);
 
+    /**
+     * Start date picked in the open calendar. The controls get it only
+     * when the end is picked, so a consumer that loads on each change
+     * loads once for the full range.
+     */
+    public readonly pending_start = signal<number | undefined>(undefined);
+
     private readonly _tooltip = viewChild(CustomTooltipComponent);
 
     constructor() {
@@ -125,21 +133,21 @@ export class DateRangeFieldComponent extends AsyncHandler {
         });
     }
 
+    /** Keep the picked start until the end is picked */
     public setStartDate(date: number) {
-        const start_date = this.start_date();
-        if (!start_date) return;
-        start_date.control.setValue(date);
-        // Keep a valid range if the popup closes before the end is picked.
-        const end_date = this.end_date();
-        if (end_date && (!end_date.value || end_date.value < date)) {
-            end_date.control.setValue(date);
-        }
+        this.pending_start.set(date);
     }
 
+    /**
+     * Write the picked range to the controls and close the calendar. If
+     * the calendar closes before the end is picked, the range stays as it
+     * was.
+     */
     public setEndDate(date: number) {
         this._tooltip()?.close();
-        const end_date = this.end_date();
-        if (!end_date) return;
-        end_date.control.setValue(date);
+        const start = this.pending_start();
+        this.pending_start.set(undefined);
+        if (start !== undefined) this.start_date()?.control.setValue(start);
+        this.end_date()?.control.setValue(date);
     }
 }

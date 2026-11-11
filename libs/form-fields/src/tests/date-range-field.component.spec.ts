@@ -59,12 +59,21 @@ describe('DateRangeFieldComponent', () => {
         expect(button).toContainText('Sep 5, 2026');
     });
 
-    it('should move the end to the new start when the start passes it', () => {
+    it('should not change the controls until the end is picked', () => {
+        const old_start = new Date(2026, 5, 1).valueOf();
         const new_start = new Date(2026, 5, 10).valueOf();
+        const new_end = new Date(2026, 5, 12).valueOf();
 
         spectator.component.setStartDate(new_start);
+        expect(spectator.component.start_date()?.control?.value).toBe(
+            old_start,
+        );
 
-        expect(spectator.component.end_date().value).toBe(new_start);
+        spectator.component.setEndDate(new_end);
+        expect(spectator.component.start_date()?.control?.value).toBe(
+            new_start,
+        );
+        expect(spectator.component.end_date()?.control?.value).toBe(new_end);
     });
 
     it('should render the selected start and end dates', () => {
@@ -74,12 +83,6 @@ describe('DateRangeFieldComponent', () => {
         const button = spectator.query('button[customTooltip]');
         expect(button).toContainText('Jun 1, 2026');
         expect(button).toContainText('Jun 5, 2026');
-    });
-
-    it('should update the start control when a start date is set', () => {
-        const new_date = new Date(2026, 6, 2).valueOf();
-        spectator.component.setStartDate(new_date);
-        expect(spectator.component.start_date()?.control?.value).toBe(new_date);
     });
 
     it('should update the end control when an end date is set', () => {
