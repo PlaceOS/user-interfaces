@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/shared/scroll-selection.util.ts"
+  ],
+  "sourcesContent": [
+    "import { afterRenderEffect, type ElementRef } from '@angular/core';\n\n/**\n * Keep the row of the selected item in view, such as after a route opens an\n * item further down a list. Rows must be in the same order as the items.\n *\n * Creates an after-render effect, so call it in an injection context.\n * @param items Items of the list\n * @param rows Row element of each item, such as from `viewChildren`\n * @param selected Item to show\n */\nexport function scrollSelectionIntoView<T extends { id: string }>(\n    items: () => readonly T[],\n    rows: () => readonly ElementRef<HTMLElement>[],\n    selected: () => T | null | undefined,\n) {\n    afterRenderEffect({\n        earlyRead: () => {\n            const selected_id = selected()?.id;\n            if (!selected_id) return;\n            const index = items().findIndex(({ id }) => id === selected_id);\n            return rows()[index]?.nativeElement;\n        },\n        write: (row) => {\n            row()?.scrollIntoView?.({\n                behavior: 'instant',\n                block: 'nearest',\n                inline: 'nearest',\n            });\n        },\n    });\n}\n"
+  ],
+  "mappings": ";;;;;AAWM,SAAU,wBACZ,OACA,MACA,UAAoC;AAEpC,oBAAkB;IACd,WAAW,MAAK;AACZ,YAAM,cAAc,SAAQ,GAAI;AAChC,UAAI,CAAC;AAAa;AAClB,YAAM,QAAQ,MAAK,EAAG,UAAU,CAAC,EAAE,GAAE,MAAO,OAAO,WAAW;AAC9D,aAAO,KAAI,EAAG,KAAK,GAAG;IAC1B;IACA,OAAO,CAAC,QAAO;AACX,UAAG,GAAI,iBAAiB;QACpB,UAAU;QACV,OAAO;QACP,QAAQ;OACX;IACL;GACH;AACL;",
+  "names": [],
+  "debugId": "50b6f1e0-e733-59d0-a0a0-3e7cea0f0356"
+}
