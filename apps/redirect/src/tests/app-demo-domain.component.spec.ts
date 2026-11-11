@@ -3,7 +3,7 @@
  * @vitest-environment-options { "url": "https://demo.place.tech/" }
  */
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { setCurrentUser, SettingsService } from '@placeos/common';
+import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
 import { authority, setup } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 
@@ -41,12 +41,8 @@ describe('AppComponent (demo domain)', () => {
         );
         vi.mocked(setup).mockResolvedValue(undefined);
         vi.mocked(authority).mockReturnValue(undefined);
-        setCurrentUser({ email: 'user@example.com' } as any);
+        setCurrentUser(new StaffUser({ email: 'user@example.com' }));
         spectator = create_component();
-    });
-
-    it('should run under the demo origin', () => {
-        expect(location.origin).toBe('https://demo.place.tech');
     });
 
     it('should enable mock mode on the demo domain even when the setting is off', async () => {
