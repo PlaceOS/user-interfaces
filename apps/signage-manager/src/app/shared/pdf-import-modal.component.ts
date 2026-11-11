@@ -127,7 +127,7 @@ const BACKGROUND_COLOURS: Record<
         @if (pptx_warning) {
             <div
                 role="note"
-                class="pptx-warning bg-warning text-warning-content mx-4 mb-2 rounded-sm p-2 text-xs"
+                class="pptx-warning bg-warning text-warning-content mx-2 mb-2 rounded-xl py-2 px-4 text-xs border-b-2 border-warning-focus"
             >
                 <p>{{ 'SIGNAGE_MANAGER.PPTX_IMPORT_WARNING' | translate }}</p>
                 <ul class="list-disc pt-1 pl-5">
