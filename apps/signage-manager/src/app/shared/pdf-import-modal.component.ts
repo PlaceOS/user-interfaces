@@ -44,6 +44,9 @@ export interface PdfImportModalData {
     webp_supported: boolean;
     /** Place of this PDF when several are imported together */
     position?: { current: number; total: number };
+    /** Whether the file is a PowerPoint file, which shows a warning that
+     * slides can look different from PowerPoint */
+    pptx_warning?: boolean;
 }
 
 /** The rendered pages to upload. Undefined when the import is cancelled. */
@@ -121,6 +124,33 @@ const BACKGROUND_COLOURS: Record<
                 </button>
             }
         </header>
+        @if (pptx_warning) {
+            <div
+                role="note"
+                class="pptx-warning bg-warning text-warning-content mx-4 mb-2 rounded-sm p-2 text-xs"
+            >
+                <p>{{ 'SIGNAGE_MANAGER.PPTX_IMPORT_WARNING' | translate }}</p>
+                <ul class="list-disc pt-1 pl-5">
+                    <li>
+                        {{
+                            'SIGNAGE_MANAGER.PPTX_IMPORT_EXPORT_WINDOWS_IMAGES'
+                                | translate
+                        }}
+                    </li>
+                    <li>
+                        {{
+                            'SIGNAGE_MANAGER.PPTX_IMPORT_EXPORT_WINDOWS_VIDEO'
+                                | translate
+                        }}
+                    </li>
+                    <li>
+                        {{
+                            'SIGNAGE_MANAGER.PPTX_IMPORT_EXPORT_MAC' | translate
+                        }}
+                    </li>
+                </ul>
+            </div>
+        }
         <div class="import-layout flex max-w-full gap-4 px-4 pt-2 pb-4">
             <section
                 class="import-options flex shrink-0 flex-col"
@@ -613,6 +643,7 @@ export class PdfImportModalComponent implements OnInit {
     public readonly file_name = this._data.file_name;
     public readonly position = this._data.position;
     public readonly webp_supported = this._data.webp_supported;
+    public readonly pptx_warning = !!this._data.pptx_warning;
 
     /** Tag of every page, and the start of each page name */
     public readonly name = signal(pdfBaseName(this._data.file_name));

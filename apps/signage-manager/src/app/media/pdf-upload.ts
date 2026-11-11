@@ -6,6 +6,7 @@ import {
     type PdfImportModalData,
     type PdfImportModalResult,
 } from '../shared/pdf-import-modal.component';
+import { isPptxFile } from '../signage-media-upload.util';
 import { dialogClosed } from '../signage-service.util';
 import type { PdfOpenErrorReason } from './pdf-document';
 import {
@@ -23,6 +24,8 @@ export interface PdfPageImport {
 
 /**
  * Open each PDF in the import modal in turn, to pick and set up its pages.
+ * A PowerPoint file is imported the same way, with each slide as a page, so
+ * "PDF" here covers both.
  * Resolves with the pages of every PDF, which render as they upload, so the
  * PDFs they come from stay open until `close` is called. A PDF that cannot be
  * read shows an error naming it, and a PDF the user cancels is skipped.
@@ -94,7 +97,6 @@ async function importPdf(
         notifyError(
             i18n('SIGNAGE_MANAGER.PDF_IMPORT_ERR_TOO_MANY_PAGES', {
                 name: file.name,
-                count: pdf_document.page_count,
                 max: MAX_PDF_PAGES,
             }),
         );
@@ -108,6 +110,7 @@ async function importPdf(
             document: pdf_document,
             webp_supported: canEncodeWebp(),
             position,
+            pptx_warning: isPptxFile(file),
         };
         const ref = dialog.open(PdfImportModalComponent, {
             data,

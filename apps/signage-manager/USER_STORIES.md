@@ -11,7 +11,7 @@ The Signage Manager app lets authorised users manage signage media, playlists, t
 These stories cover the current app workflows:
 
 - Access and navigation: authorised app load, unknown-route redirect, desktop navigation, mobile navigation, and active signage group selector.
-- Media library: backend search, result counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, PDF page import, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
+- Media library: backend search, result counts, grid/list/folder views backed by media tags, group tabs, file upload entry point, PDF page and PowerPoint slide import, add from link, plugin catalogue selection, preview, edit, item share, item delete action, multi-select, bulk delete confirmation, bulk share, and bulk add to playlist.
 - Playlists: search, create, select, edit details, item preview, item schedules, approval request or approval, share group selection, delete confirmation, and display or zone assignment.
 - Templates: search, create, select, edit layouts, preview, approval request or approval, and delete confirmation.
 - Zones: search, direct selection, create, edit, delete, playlist tab, display tab, add playlist, and add display.
@@ -100,6 +100,7 @@ These stories cover the current app workflows:
 - A PDF opens an import dialog that previews each page. Users can leave pages out (click, or shift-click for a range), turn one page or all pages, and choose the image size (page size, or fitted to a 16:9 or 9:16 screen), background (white, black, a custom colour or transparent), image format (WebP where the browser supports it, else PNG) and resolution (4K or Full HD).
 - Each imported page is uploaded as an image named "<name> - page <n>", keeping its page number in the PDF, and tagged "<name>". The name defaults to the PDF file name without its extension and can be changed in the dialog.
 - Several PDFs dropped together open the import dialog one after another, then upload with any other files in one bulk upload. Cancelling a PDF skips it. A PDF that is password protected or cannot be read shows an error naming the file.
+- A PowerPoint (PPTX) file opens the same import dialog, with each slide as a page. The dialog warns that slides are rendered on a best-effort basis and can look different from PowerPoint, and gives the PowerPoint steps to export images or video instead. A PowerPoint file that cannot be read shows an error naming the file.
 - Importing starts the upload straight away. The upload dialog then only shows progress, and stays open with a retry if a page fails.
 - Uploads do not offer file access permissions.
 - Users can add webpage media from a valid URL.

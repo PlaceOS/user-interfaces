@@ -43,6 +43,7 @@ describe('PDF import utilities', () => {
     it('names pages after the PDF without its extension', () => {
         expect(pdfBaseName('Quarterly Results.PDF')).toBe('Quarterly Results');
         expect(pdfBaseName('  deck.v2.pdf ')).toBe('deck.v2');
+        expect(pdfBaseName('Town hall.PPTX')).toBe('Town hall');
         expect(pdfBaseName('.pdf')).toBe('PDF');
         expect(pdfPageName('deck', 3)).toBe('deck - page 3');
     });
