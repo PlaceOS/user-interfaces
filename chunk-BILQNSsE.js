@@ -1,0 +1,1 @@
+import{t as So}from"./main-UOAN7PFR.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
