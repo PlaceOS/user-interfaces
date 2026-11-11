@@ -98,6 +98,18 @@ describe('BookingRulesFormComponent', () => {
         ).toEqual([18, 18.25]);
     });
 
+    it('should allow midnight and keep the end within the day', () => {
+        spectator.component.setIsBetween(0, 6);
+        expect(
+            spectator.component.form.getRawValue().conditions.is_between,
+        ).toEqual([0, 6]);
+
+        spectator.component.setIsBetween(23.75, 6);
+        expect(
+            spectator.component.form.getRawValue().conditions.is_between,
+        ).toEqual([23.5, 23.75]);
+    });
+
     it('should ignore incomplete between-hours values', () => {
         spectator.component.form.patchValue({
             conditions: { is_between: [8, 10] },
