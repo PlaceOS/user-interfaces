@@ -40,6 +40,7 @@ describe('CheckinCovidComponent', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         spectator = createComponent();
@@ -47,24 +48,53 @@ describe('CheckinCovidComponent', () => {
 
     afterEach(() => setNotifyOutlet(null, true));
 
-    it('should allow confirming questions', async () => {
+    it('asks for an answer to each question', async () => {
+        spectator.component.symptoms.set('false');
+
         await spectator.component.confirm();
+
         expect(snackbar.open).toHaveBeenCalledWith(
             'Please select yes or no for each question',
             'OK',
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        spectator.component.contact.set('true');
-        spectator.component.symptoms.set('false');
-        await spectator.component.confirm();
-        expect(
-            spectator.inject(CheckinStateService).setError,
-        ).toHaveBeenCalledTimes(1);
-        spectator.component.contact.set('false');
-        await spectator.component.confirm();
         expect(
             spectator.inject(CheckinStateService).updateGuest,
-        ).toHaveBeenLastCalledWith({ covid: false, symptoms: false });
+        ).not.toHaveBeenCalled();
+    });
+
+    it('sends a visitor with a risk to see reception', async () => {
+        const state = spectator.inject(CheckinStateService);
+        spectator.component.contact.set('true');
+        spectator.component.symptoms.set('false');
+
+        await spectator.component.confirm();
+
+        expect(state.updateGuest).toHaveBeenCalledWith({
+            covid: true,
+            symptoms: false,
+        });
+        expect(state.setError).toHaveBeenCalledWith(
+            expect.stringContaining('self-isolate'),
+        );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'error',
+        ]);
+    });
+
+    it('continues a visitor with no risk to the results', async () => {
+        const state = spectator.inject(CheckinStateService);
+        spectator.component.contact.set('false');
+        spectator.component.symptoms.set('false');
+
+        await spectator.component.confirm();
+
+        expect(state.updateGuest).toHaveBeenCalledWith({
+            covid: false,
+            symptoms: false,
+        });
+        expect(state.setError).not.toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/checkin',
             'results',

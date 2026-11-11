@@ -111,7 +111,10 @@ export class CheckinInductionComponent implements OnInit {
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         const event = this.event();
-        if (!event) this._router.navigate(['/checkin']);
+        if (!event) {
+            this._router.navigate(['/checkin']);
+            return;
+        }
         if (!this.is_enabled() || event.induction === 'accepted') {
             if (this.induction_after_details()) {
                 this._router.navigate(['/checkin', 'results']);
@@ -128,7 +131,9 @@ export class CheckinInductionComponent implements OnInit {
             .declineInduction()
             .then(() => true)
             .catch((err) => {
-                notifyError('Error declining induction', err);
+                // Show visitors a plain message. Keep the details for staff.
+                console.error('Error declining induction.', err);
+                notifyError('Error declining induction');
                 return false;
             });
         this.loading.set(false);
@@ -145,7 +150,9 @@ export class CheckinInductionComponent implements OnInit {
             .completeInduction()
             .then(() => true)
             .catch((err) => {
-                notifyError('Error completing induction', err);
+                // Show visitors a plain message. Keep the details for staff.
+                console.error('Error completing induction.', err);
+                notifyError('Error completing induction');
                 return false;
             });
         if (!completed) {
