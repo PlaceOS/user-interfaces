@@ -1,4 +1,0 @@
-import{i as d$1,t as L}from"./chunk-CuN7W51y.js";var m=[`id`,`name`,`display_name`,`description`,`tags`].join(`,`);function d(e){let t=e.trim();return t?{q:t,fields:m}:{}}async function f(e,t=50){let n=[],r=await e;for(let o=1;;o++){let s=r.data||[];n.push(...s);let a=s.length&&o<t?r.next?.():null;if(!a)break;r=await a}return n.map(d$1)}function b(e,t){return(e||[]).map(n=>t[n.id]||n).sort(L)}function x(e){return new Promise(t=>{let n=e.afterClosed().subscribe(r=>{n.unsubscribe(),t(r)})})}export{x as i,d as n,f as r,b as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="f83f4379-2edb-5a50-bb5a-eaaf982c6ba4")}catch(e){}}();
-//# debugId=f83f4379-2edb-5a50-bb5a-eaaf982c6ba4
-//# sourceMappingURL=chunk-VRhd2kkX.js.map
