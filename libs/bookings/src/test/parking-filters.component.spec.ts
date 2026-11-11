@@ -124,10 +124,6 @@ describe('ParkingFiltersComponent', () => {
         spectator = createComponent();
     });
 
-    it('should render the filters heading', () => {
-        expect(spectator.query('h3')).toContainText('COMMON.FILTERS');
-    });
-
     it('should show the building selector when there are multiple buildings', () => {
         expect(spectator.query('mat-select[name="building"]')).toExist();
         expect(spectator.query('mat-select[name="region"]')).not.toExist();

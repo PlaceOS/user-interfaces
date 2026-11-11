@@ -63,11 +63,6 @@ describe('DeskSelectModalComponent', () => {
         settings = createSettingsServiceMock();
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should seed the selection from the provided items array', () => {
         spectator = createComponent();
         expect(spectator.component.selected()).toEqual([

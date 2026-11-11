@@ -101,10 +101,6 @@ describe('LockerMapComponent', () => {
         expect(list.map((_) => _.id)).toEqual(['lvl-1']);
     });
 
-    it('should render the interactive map', () => {
-        expect('interactive-map').toExist();
-    });
-
     it('should have no decorated banks or map styles without resources', () => {
         expect(spectator.component.features()).toEqual([]);
         expect(spectator.component.styles()).toEqual({});

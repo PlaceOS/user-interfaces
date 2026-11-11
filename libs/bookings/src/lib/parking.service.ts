@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import {
     AsyncHandler,
-    currentUser,
     OrganisationService,
     SettingsService,
     userSignal,
@@ -75,20 +74,20 @@ export class ParkingService extends AsyncHandler {
 
     public readonly has_booking = this._has_booking.asReadonly();
 
-    public readonly assigned_space = computed(() =>
-        this._spaces().find(
-            (_) =>
-                _.assigned_to?.toLowerCase() ===
-                currentUser().email?.toLowerCase(),
-        ),
-    );
+    /** Read the user from its signal, so these update when the user loads */
+    public readonly assigned_space = computed(() => {
+        const email = userSignal()()?.email?.toLowerCase();
+        if (!email) return undefined;
+        return this._spaces().find(
+            (_) => _.assigned_to?.toLowerCase() === email,
+        );
+    });
 
-    public readonly user_details = computed(() =>
-        this._users().find(
-            (_) =>
-                _.email?.toLowerCase() === currentUser().email?.toLowerCase(),
-        ),
-    );
+    public readonly user_details = computed(() => {
+        const email = userSignal()()?.email?.toLowerCase();
+        if (!email) return undefined;
+        return this._users().find((_) => _.email?.toLowerCase() === email);
+    });
 
     public readonly deny_parking_access = computed(
         () => !!this.user_details()?.deny,

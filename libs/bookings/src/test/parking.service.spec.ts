@@ -64,13 +64,12 @@ describe('ParkingService', () => {
         } as any);
         vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
         vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        // The real token() starts a re-authorise timer that can fire after
+        // the test environment is torn down
+        vi.mocked(ts_client.token).mockReturnValue('token');
         spectator = createService();
         TestBed.tick();
         await new Promise((resolve) => setTimeout(resolve, 50));
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should not load parking bookings before requested', () => {
@@ -80,7 +79,11 @@ describe('ParkingService', () => {
         expect(ts_client.get).not.toHaveBeenCalled();
     });
 
-    it('should load parking bookings when requested', async () => {
+    it('should find the booked space when parking bookings are requested', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            { id: 'bkn-1', booking_type: 'parking', asset_id: 'park-1' },
+        ] as any);
+
         spectator.service.loadBookings();
         TestBed.tick();
         await new Promise((resolve) => setTimeout(resolve, 50));
@@ -89,6 +92,27 @@ describe('ParkingService', () => {
         expect(ts_client.get).toHaveBeenCalledWith(
             expect.stringContaining('/api/staff/v1/bookings'),
         );
+        expect(spectator.service.has_booking()).toBe(true);
+        expect(spectator.service.booked_space()?.id).toBe('park-1');
+    });
+
+    it('should have no booking when the parking bookings request fails', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+
+        spectator.service.loadBookings();
+        TestBed.tick();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        expect(spectator.service.has_booking()).toBe(false);
+        expect(spectator.service.booked_space()).toBeNull();
+    });
+
+    it('should match the assigned space to the user in any case and follow user changes', () => {
+        setCurrentUser(new StaffUser({ email: 'USER@example.com' }));
+        expect(spectator.service.assigned_space()?.id).toBe('park-1');
+
+        setCurrentUser(new StaffUser({ email: 'other@example.com' }));
+        expect(spectator.service.assigned_space()).toBeUndefined();
     });
 
     it('should scan desks for the home location only while the restriction is enabled', async () => {

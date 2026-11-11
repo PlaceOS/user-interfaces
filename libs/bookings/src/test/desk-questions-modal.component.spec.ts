@@ -15,23 +15,25 @@ describe('DeskQuestionsModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should check for validation', async () => {
+    it('should block submission and show the failure state for any yes answer', () => {
+        const emit = vi.spyOn(spectator.component.event, 'emit');
+        expect('[failure]').not.toExist();
+
         spectator.component.model.update((m) => ({ ...m, contact: true }));
         spectator.click('footer button');
-        expect(spectator.component.failure()).toBeTruthy();
-        spectator.component.model.update((m) => ({ ...m, contact: false }));
-        const emitted = new Promise<void>((resolve) =>
-            spectator.component.event.subscribe(() => resolve()),
-        );
-        spectator.component.submit();
-        await emitted;
+        spectator.detectChanges();
+
+        expect(spectator.component.failure()).toBe(true);
+        expect('[failure]').toExist();
+        expect(emit).not.toHaveBeenCalled();
     });
 
-    it('should show failure state', () => {
-        expect('[failure]').not.toExist();
-        spectator.component.model.update((m) => ({ ...m, unwell: true }));
-        spectator.component.submit();
-        spectator.detectChanges();
-        expect('[failure]').toExist();
+    it('should emit done when every answer is no', () => {
+        const emit = vi.spyOn(spectator.component.event, 'emit');
+
+        spectator.click('footer button');
+
+        expect(spectator.component.failure()).toBe(false);
+        expect(emit).toHaveBeenCalledWith({ reason: 'done' });
     });
 });

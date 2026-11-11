@@ -86,9 +86,6 @@ describe('VisitorInviteFormComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () =>
-        expect(spectator.component).toBeTruthy());
-
     it('should allow a configured 45 minute visitor duration below the minimum', () => {
         settingSignal('visitors.duration_step').set(30);
         settingSignal('visitors.min_duration').set(60);

@@ -8,10 +8,6 @@ describe('Booking class', () => {
         booking = new Booking({});
     });
 
-    it('should create the object', () => {
-        expect(booking).toBeTruthy();
-    });
-
     it('should render to JSON', () => {
         const json = booking.toJSON();
         expect(json.booking_start).toBeTruthy();

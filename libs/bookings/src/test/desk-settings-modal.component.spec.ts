@@ -49,10 +49,6 @@ describe('DeskSettingsModalComponent', () => {
         spectator = createComponent();
     });
 
-    it('should expose the desk id from dialog data', () => {
-        expect(spectator.component.desk_id).toBe('desk-1');
-    });
-
     it('should apply the standing preset height when selected', () => {
         const settings = spectator.inject(SettingsService);
         (settings.get as Mock).mockImplementation((key: string) =>

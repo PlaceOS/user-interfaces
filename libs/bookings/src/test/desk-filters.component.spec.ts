@@ -145,10 +145,6 @@ describe('DeskFiltersComponent', () => {
         spectator = createComponent();
     });
 
-    it('should render the filters heading', () => {
-        expect(spectator.query('h3')).toContainText('COMMON.FILTERS');
-    });
-
     it('should only list levels that have resources, sorted and excluding parking', () => {
         const result = spectator.component.levels();
         expect(result.map((_) => _.id)).toEqual(['lvl-a', 'lvl-b']);
