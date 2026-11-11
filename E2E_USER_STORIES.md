@@ -5,8 +5,8 @@ Harness, conventions and gotchas live in [`e2e/README.md`](e2e/README.md).
 
 ## CI status: advisory, deliberately
 
-`.github/workflows/e2e-advisory.yml` runs the suite nightly, on demand, and on pushes to
-`e2e/**`, on a **self-hosted macOS runner** (see
+`.github/workflows/e2e-advisory.yml` runs the suite nightly, hourly when `develop` has new
+commits, and on demand, on a **self-hosted macOS runner** (see
 [`e2e/stack/SELF_HOSTED_RUNNER.md`](e2e/stack/SELF_HOSTED_RUNNER.md)).
 **It must not gate merges yet**, and nothing in the workflow file can make it do so —
 required status checks are a repository setting, so keeping this advisory is an explicit
@@ -23,16 +23,16 @@ Asked for by the frontend team, and true structurally rather than by convention:
 
 - **Different runner pool.** `build.yml` runs on `ubuntu-latest` (GitHub-hosted); this job
   runs on the self-hosted Mac. They never compete for a runner, so an e2e run cannot
-  delay a build even when both fire on the same push to `develop`.
+  delay a build even when both run for the same commit on `develop`.
 - **No dependency, and none possible.** `build.yml`'s jobs only `needs: install_deps`.
   Actions has no cross-workflow `needs`, so this suite can never gate a build or a deploy.
 - **Not a required check.** Nothing here can make it one; that is a repository setting.
 - The job is named *"workplace e2e (advisory — does not block builds)"* so a red X in the
   Checks list next to the build jobs cannot be misread as a broken build.
 
-### Trigger rollout, in two stages
+### Trigger rollout, in three stages
 
-**Stage 1 (now):** nightly, `workflow_dispatch`, and pushes to `e2e/**`. Nobody sees a new
+**Stage 1:** nightly, `workflow_dispatch`, and pushes to `e2e/**`. Nobody sees a new
 check on their commits, and the nightly starts accumulating the record — which it can only
 do from the default branch, so this is what breaks the chicken-and-egg of "prove it before
 merging it".
@@ -43,6 +43,12 @@ regression at the moment it lands, when bisecting is cheapest, and with no `pull
 trigger it is also how merges get covered. It still cannot block anything, and the suite had
 run green on every invocation up to that point.
 
+**Stage 3 (now, 2026-11-11):** no `push` trigger. A run per push to `develop` built a
+queue on busy days. Instead, an hourly schedule tests the `develop` HEAD when it differs
+from the commit of the previous run, and the nightly at 01:10 UTC always runs.
+`release/**`, `rc/**` and `e2e/**` are no longer run automatically, because schedules only
+run on the default branch. Use **Run workflow** on those branches.
+
 **Never:** feature branches. There is one self-hosted runner and the stack binds fixed host
 ports, so runs serialise; a busy trigger set would build a queue that delays or starves the
 nightly. Use **Run workflow** for a one-off.
@@ -50,7 +56,7 @@ nightly. Use **Run workflow** for a one-off.
 No path filters, on purpose: most real changes touch `libs/**` which workplace depends on,
 and the genuinely dangerous ones (`bun.lock`, `tsconfig.base.json`, `config/`) are the
 easiest to leave off an include-list. A filter that is 95% right silently skips the run
-that mattered. Revisit if `develop` volume makes the queue a problem.
+that mattered. The hourly check compares commits only, so it does not filter paths either.
 
 Note also that GitHub only runs `schedule` triggers from the **default branch**, so the
 nightly track record does not begin until this workflow is merged to `develop`.

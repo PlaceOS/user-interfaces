@@ -24,55 +24,47 @@ name: 'E2E (advisory)'
 # This repository is PUBLIC and this job runs on a SELF-HOSTED runner. A
 # `pull_request` trigger would let anyone's fork execute arbitrary code on that
 # machine — which sits on an internal network — so the only triggers here are ones
-# that require write access to this repo: a schedule, a manual dispatch, and pushes
-# to branches that live here. Do not add `pull_request` back without moving the job
-# to a GitHub-hosted runner (`runs-on: ubuntu-latest`) or making the repo private.
-on:
-    workflow_dispatch:
-    push:
-        branches:
-            # The branches `build.yml` deploys from — a regression is caught where
-            # it lands, which is when bisecting is cheapest.
-            #
-            # This still cannot block anything: different runner pool, no
-            # cross-workflow `needs`, and it is not a required status check. The
-            # job name says "advisory" so a red X next to the build jobs cannot be
-            # misread. See E2E_USER_STORIES.md.
-            - develop
-            - 'release/**'
-            - 'rc/**'
-            # For iterating on CI itself. Deliberately outside the `feat/*`,
-            # `fix/*`, `custom/*`, `refactor/*` set PR Flow watches, so this never
-            # triggers a build or a `build/<branch>/<app>` deploy.
-            - 'e2e/**'
-            #
-            # Still NOT feature branches: there is one self-hosted runner binding
-            # fixed host ports, so runs serialise. A busy trigger set would build a
-            # queue that starves the nightly. Use "Run workflow" for a one-off.
-    schedule:
-        # 01:10 UTC daily. NB scheduled workflows only run from the DEFAULT branch,
-        # so the nightly track record does not start accumulating until this file is
-        # merged to `develop`.
-        - cron: '10 1 * * *'
-
-# NOT triggered by feature branches, on purpose.
+# that require write access to this repo: a schedule and a manual dispatch. Do not
+# add `pull_request` back without moving the job to a GitHub-hosted runner
+# (`runs-on: ubuntu-latest`) or making the repo private.
+#
+# NOTE: there is deliberately NO `push` trigger either.
 #
 # There is ONE self-hosted runner and the stack binds fixed host ports
-# (9443/9080/4214), so runs cannot overlap — they serialise. A busy trigger set
-# would not just burn time, it would build a queue that delays or starves the
-# nightly, and the nightly is what produces the confidence record. Anyone who
-# wants the suite against a feature branch can use "Run workflow".
+# (9443/9080/4214), so runs cannot overlap — they serialise. A run per push to
+# `develop` built a queue on busy days. Instead, an hourly schedule tests the
+# `develop` HEAD when it has changed since the last run (job `changes`), and the
+# nightly always runs. Use "Run workflow" for a one-off on any branch.
+on:
+    workflow_dispatch:
+    schedule:
+        # NB scheduled workflows only run from the DEFAULT branch (`develop`).
+        #
+        # Keep the values the same as `HOURLY_CRON` in job `changes` and the cron
+        # string in the `settings` step's `if`. `github.event.schedule` is the only
+        # way to tell the two schedules apart.
+        #
+        # Hourly, at :40 (away from the top of the hour, when GitHub delays
+        # scheduled runs most). Skipped when `develop` has no new commit.
+        - cron: '40 * * * *'
+        # Nightly, 01:10 UTC. Always runs, also when nothing changed: it
+        # accumulates evidence on a fixed codebase, which is the only way to tell
+        # a real regression from an unstable suite.
+        - cron: '10 1 * * *'
 
-# `github.event_name` is in the group deliberately.
+# `github.event.schedule` is in the group deliberately.
 #
-# A scheduled run and a push run both have `github.ref` = refs/heads/develop, so
-# with a ref-only group plus cancel-in-progress a push to develop would CANCEL an
-# in-flight nightly — destroying the very run the track record depends on. Keying
-# on the event as well keeps the two apart: pushes still supersede each other,
-# nightlies are never collateral.
+# The hourly and the nightly run both have `github.event_name` = schedule and
+# `github.ref` = refs/heads/develop. A group holds one waiting run, and a newer
+# waiting run cancels it, so in a shared group the 01:40 hourly run could cancel a
+# nightly that waits for a slow hourly run. The cron string keeps them apart.
+#
+# Scheduled runs never cancel a run in progress: it always finishes, and the next
+# hourly run then compares against it (job `changes`). Manual runs on the same ref
+# still supersede each other.
 concurrency:
-    group: e2e-${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
-    cancel-in-progress: true
+    group: e2e-${{ github.workflow }}-${{ github.event_name }}-${{ github.event.schedule }}-${{ github.ref }}
+    cancel-in-progress: ${{ github.event_name != 'schedule' }}
 
 # The repository default is `write`. This job only reads the code and uploads
 # artifacts (upload-artifact uses the Actions runtime token, not this one), so
@@ -83,16 +75,60 @@ permissions:
     contents: read
 
 # Which Playwright projects run on which trigger:
-#   push, schedule, workflow_dispatch   `local` and `mock` (job `workplace`)
-#   schedule, workflow_dispatch         also `settings` (job `workplace`, own step)
-#   push, schedule, workflow_dispatch   `settings-browser` (job `settings-browser`,
+#   hourly, nightly, workflow_dispatch  `local` and `mock` (job `workplace`)
+#   nightly, workflow_dispatch          also `settings` (job `workplace`, own step)
+#   hourly, nightly, workflow_dispatch  `settings-browser` (job `settings-browser`,
 #                                       GitHub-hosted, no stack)
+# An hourly run does nothing when `develop` has not changed (job `changes`).
 jobs:
+    # Decides if this run tests anything. Only the hourly schedule can skip: it
+    # compares the commit with the one the most recent other run of this workflow
+    # on `develop` tested (or is testing). A cancelled run does not count, because
+    # it tested nothing. When the check itself fails, the run goes ahead.
+    #
+    # GitHub-hosted, so a skipped hour costs the self-hosted runner nothing.
+    changes:
+        name: 'check for new commits'
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        permissions:
+            actions: read
+        outputs:
+            run: ${{ steps.check.outputs.run }}
+        steps:
+            - name: Compare with the previous run
+              id: check
+              env:
+                  GH_TOKEN: ${{ github.token }}
+                  REPO: ${{ github.repository }}
+                  RUN_ID: ${{ github.run_id }}
+                  EVENT: ${{ github.event_name }}
+                  SCHEDULE: ${{ github.event.schedule }}
+                  HOURLY_CRON: '40 * * * *'
+              run: |
+                  run=true
+                  if [ "$EVENT" = schedule ] && [ "$SCHEDULE" = "$HOURLY_CRON" ]; then
+                      # The 20 newest runs, newest first. That is more than enough to
+                      # find one that is not cancelled; if there is none, the run goes
+                      # ahead.
+                      last=$(gh api "repos/$REPO/actions/workflows/e2e-advisory.yml/runs?branch=develop&per_page=20" \
+                          --jq "[.workflow_runs[] | select(.id != $RUN_ID and .conclusion != \"cancelled\")][0].head_sha // \"\"") \
+                          || last=''
+                      echo "this run: $GITHUB_SHA, previous run: ${last:-none}"
+                      if [ "$last" = "$GITHUB_SHA" ]; then
+                          run=false
+                          echo "No new commits on develop since the previous run. Skipping." >> "$GITHUB_STEP_SUMMARY"
+                      fi
+                  fi
+                  echo "run=$run" >> "$GITHUB_OUTPUT"
+
     workplace:
         # The job name is what appears in the commit's Checks list, next to the
         # build jobs. Carrying "advisory" there means a red X cannot be misread as
         # "the build broke" at a glance.
         name: 'workplace e2e (advisory — does not block builds)'
+        needs: changes
+        if: ${{ needs.changes.outputs.run == 'true' }}
         # Self-hosted macOS runner, targeted by its custom label rather than by
         # `macOS`/arch labels so the machine can be swapped without editing this.
         # To fall back to GitHub-hosted, set `runs-on: ubuntu-latest` and restore
@@ -161,7 +197,7 @@ jobs:
             - name: Reclaim the machine from any previous run
               run: |
                   e2e/stack/down.sh --volumes || true
-                  # The `settings` step's reports, which a push run does not rewrite.
+                  # The `settings` step's reports, which an hourly run does not rewrite.
                   rm -rf reports/e2e/workplace-settings reports/e2e/workplace-settings-results.json
                   # Playwright refuses to start its webServer if 4214 is held.
                   lsof -nP -iTCP:4214 -sTCP:LISTEN -t 2>/dev/null | xargs -r kill -9 || true
@@ -276,16 +312,17 @@ jobs:
               run: bunx playwright test --config apps/workplace/playwright.config.ts --project=local --project=mock
 
             # The Workplace settings suite: about 400 tests, about 12 minutes on
-            # this machine with six workers. Scheduled and manual runs only. It
-            # also runs after a failed `local` step, but not when that step was
-            # skipped (the stack never came up).
+            # this machine with six workers. Nightly and manual runs only, not
+            # hourly. It also runs after a failed `local` step, but not when that
+            # step was skipped (the stack never came up).
             #
             # The PLAYWRIGHT_* variables and --output move this run's reports and
             # test artifacts away from the `local` run's, which Playwright would
             # otherwise overwrite.
             - name: Run workplace settings e2e
               id: settings
-              if: ${{ !cancelled() && steps.local.outcome != 'skipped' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
+              # The cron string is the nightly one in `on.schedule`.
+              if: ${{ !cancelled() && steps.local.outcome != 'skipped' && (github.event.schedule == '10 1 * * *' || github.event_name == 'workflow_dispatch') }}
               timeout-minutes: 60
               env:
                   PLAYWRIGHT_HTML_OUTPUT_DIR: reports/e2e/workplace-settings
@@ -405,6 +442,8 @@ jobs:
     # GitHub-hosted runner beside the self-hosted one.
     settings-browser:
         name: 'workplace settings e2e, browser only (advisory, does not block builds)'
+        needs: changes
+        if: ${{ needs.changes.outputs.run == 'true' }}
         # The pinned Playwright has no Chromium build for ubuntu-latest (26.04).
         runs-on: ubuntu-24.04
         timeout-minutes: 30

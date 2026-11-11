@@ -57,7 +57,7 @@ bunx playwright test -c apps/workplace/playwright.config.ts --project=settings -
 - To run one spec, pass its path after the project, for example `--project=settings apps/workplace/e2e/settings/lockers/lockers.hide-user.spec.ts`. A `*.browser.spec.ts` spec runs only under `--project=settings-browser`.
 - On a busy machine, a failure on the 15 s `global-loading` wait is usually load: re-run that file alone with `--workers=1` before treating it as a code failure.
 - `E2E_WEBSERVER_TIMEOUT_MS` sets how long Playwright waits for the Workplace dev server (default 180000).
-- In CI (`.github/workflows/e2e-advisory.yml`), `settings` runs on the nightly schedule and on "Run workflow"; `settings-browser` runs on every run (push, nightly and "Run workflow"), on a GitHub-hosted runner, with `E2E_WEBSERVER_TIMEOUT_MS=900000` for the cold dev server.
+- In CI (`.github/workflows/e2e-advisory.yml`), `settings` runs on the nightly schedule and on "Run workflow"; `settings-browser` runs on every run (hourly, nightly and "Run workflow"), on a GitHub-hosted runner, with `E2E_WEBSERVER_TIMEOUT_MS=900000` for the cold dev server.
 
 ## Settings in PR #595
 

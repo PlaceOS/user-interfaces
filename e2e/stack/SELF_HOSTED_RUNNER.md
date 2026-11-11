@@ -25,8 +25,8 @@ for CI to function.
 
 Nor does anyone else need to reach it:
 
-- **Committers don't.** A push from anywhere triggers the workflow on GitHub, which
-  queues a job the runner collects over its own outbound connection.
+- **Committers don't.** GitHub starts the workflow (on its schedule or from "Run
+  workflow") and queues a job the runner collects over its own outbound connection.
 - **GitHub doesn't.** It never initiates a connection to the machine.
 - **You only do** to administer it — and only then is something like Tailscale useful.
 
