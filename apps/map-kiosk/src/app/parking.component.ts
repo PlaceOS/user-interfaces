@@ -129,7 +129,8 @@ export class ParkingComponent implements OnInit {
         ) {
             this._explore.setOptions({ is_public: true });
         }
-        while (!this._spaces.initialised()) {
+        // Wait up to 10 seconds for the spaces, then continue without them
+        for (let i = 0; i < 100 && !this._spaces.initialised(); i++) {
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
         this.resetKiosk(false);
