@@ -985,6 +985,9 @@ describe('ParkingRequestFormDetailsComponent', () => {
             space_restrictions: false,
         }));
 
+        spectator.component.space_restriction_options_setting.set([
+            { id: 'oversized', name: 'Oversized' },
+        ]);
         spectator.component.require_space_restriction.set(true);
         TestBed.flushEffects();
 
@@ -997,6 +1000,20 @@ describe('ParkingRequestFormDetailsComponent', () => {
         ).toBe(true);
 
         spectator.component.setSpaceRestriction('oversized');
+
+        expect(spectator.component.form().space_restrictions().valid()).toBe(
+            true,
+        );
+    });
+
+    it('should not require a parking restriction when no options are configured', () => {
+        spectator.component.model.update((m) => ({
+            ...m,
+            space_restrictions: false,
+        }));
+
+        spectator.component.require_space_restriction.set(true);
+        TestBed.flushEffects();
 
         expect(spectator.component.form().space_restrictions().valid()).toBe(
             true,

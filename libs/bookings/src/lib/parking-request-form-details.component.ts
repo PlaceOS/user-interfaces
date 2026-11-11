@@ -1266,7 +1266,10 @@ const DEFAULT_VEHICLE_TYPE_OPTIONS: VehicleTypeOption[] = [
                                 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE'
                                     | translate
                             }}
-                            @if (require_space_restriction()) {
+                            @if (
+                                require_space_restriction() &&
+                                space_restriction_options().length
+                            ) {
                                 <span aria-hidden="true">*</span>
                             }
                         </div>

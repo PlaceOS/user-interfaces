@@ -637,7 +637,7 @@
                 },
                 "require_space_restriction": {
                     "type": "boolean",
-                    "description": "Whether users must select a parking space restriction in the parking request flow."
+                    "description": "Whether users must select a parking space restriction in the parking request flow. Has no effect when `request_space_restrictions` is empty."
                 },
                 "show_special_needs": {
                     "type": "boolean",
