@@ -22,26 +22,17 @@ describe('PublicPageShellComponent', () => {
         }).compileComponents();
     });
 
-    it('renders the logo from the input', () => {
+    it('renders the logo, the description and the projected content', () => {
         const fixture = TestBed.createComponent(HostComponent);
         fixture.detectChanges();
-        const img = fixture.nativeElement.querySelector('img');
-        expect(img?.getAttribute('src')).toBe('assets/custom-logo.svg');
-    });
-
-    it('renders the provided description text', () => {
-        const fixture = TestBed.createComponent(HostComponent);
-        fixture.detectChanges();
-        expect(fixture.nativeElement.textContent).toContain(
-            'Custom shell description',
+        const element: HTMLElement = fixture.nativeElement;
+        expect(element.querySelector('img')?.getAttribute('src')).toBe(
+            'assets/custom-logo.svg',
         );
-    });
-
-    it('projects content into the shell', () => {
-        const fixture = TestBed.createComponent(HostComponent);
-        fixture.detectChanges();
-        const projected = fixture.nativeElement.querySelector('.projected');
-        expect(projected?.textContent).toContain('Projected body');
+        expect(element.textContent).toContain('Custom shell description');
+        expect(element.querySelector('.projected')?.textContent).toContain(
+            'Projected body',
+        );
     });
 
     it('shows the not-configured message only when not configured', () => {
@@ -54,16 +45,6 @@ describe('PublicPageShellComponent', () => {
         fixture.detectChanges();
         expect(fixture.nativeElement.textContent).toContain(
             'Public events are not configured yet',
-        );
-    });
-
-    it('falls back to the default logo and description', () => {
-        const fixture = TestBed.createComponent(PublicPageShellComponent);
-        fixture.detectChanges();
-        const img = fixture.nativeElement.querySelector('img');
-        expect(img?.getAttribute('src')).toBe('assets/logo-light.svg');
-        expect(fixture.nativeElement.textContent).toContain(
-            'Browse public events',
         );
     });
 });

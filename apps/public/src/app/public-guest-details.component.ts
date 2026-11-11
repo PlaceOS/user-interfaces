@@ -126,9 +126,15 @@ export class PublicGuestDetailsComponent implements OnInit {
     public readonly guest_name = signal('');
     public readonly guest_email = signal('');
     public readonly remember = signal(false);
-    /** Name is required. Email is required and must match `EMAIL_PATTERN`. */
+    /**
+     * Name is required and must not be blank. Email is required and must
+     * match `EMAIL_PATTERN`. The service ignores stored details with a blank
+     * name, so a blank name would not be remembered.
+     */
     public readonly guest_valid = computed(
-        () => !!this.guest_name() && EMAIL_PATTERN.test(this.guest_email()),
+        () =>
+            !!this.guest_name().trim() &&
+            EMAIL_PATTERN.test(this.guest_email()),
     );
 
     public readonly source_id = signal('');

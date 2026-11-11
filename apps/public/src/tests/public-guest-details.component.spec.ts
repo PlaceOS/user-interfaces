@@ -76,25 +76,47 @@ describe('PublicGuestDetailsComponent', () => {
         expect(fixture.nativeElement.querySelector('form')).toBeNull();
     });
 
-    it('keeps the continue button disabled until the form is valid', async () => {
-        service.default_system_id.set('sys-1');
-        const fixture = await init();
-        const button = fixture.nativeElement.querySelector('form button');
-        expect(button.disabled).toBe(true);
-
-        fixture.componentInstance.guest_name.set('Guest User');
-        fixture.componentInstance.guest_email.set('guest@example.com');
-        fixture.componentInstance.remember.set(false);
+    function type(
+        fixture: ComponentFixture<PublicGuestDetailsComponent>,
+        name: string,
+        value: string,
+    ) {
+        const input = fixture.nativeElement.querySelector(
+            `input[name="${name}"]`,
+        ) as HTMLInputElement;
+        input.value = value;
+        input.dispatchEvent(new Event('input'));
         fixture.detectChanges();
-        expect(button.disabled).toBe(false);
-    });
+    }
+
+    it.each([
+        ['', 'guest@example.com', true],
+        ['   ', 'guest@example.com', true],
+        ['Guest User', '', true],
+        ['Guest User', 'not-an-email', true],
+        ['Guest User', 'guest@example.com', false],
+    ])(
+        'sets the continue button disabled for name %j and email %j to %s',
+        async (name, email, disabled) => {
+            service.default_system_id.set('sys-1');
+            const fixture = await init();
+            type(fixture, 'name', name);
+            type(fixture, 'email', email);
+            expect(
+                fixture.nativeElement.querySelector('form button').disabled,
+            ).toBe(disabled);
+        },
+    );
 
     it('requests guest access and navigates to events on submit', async () => {
         service.default_system_id.set('sys-1');
         const fixture = await init();
-        fixture.componentInstance.guest_name.set('Guest User');
-        fixture.componentInstance.guest_email.set('guest@example.com');
-        fixture.componentInstance.remember.set(true);
+        type(fixture, 'name', 'Guest User');
+        type(fixture, 'email', 'guest@example.com');
+        const remember = fixture.nativeElement.querySelector(
+            'input[name="remember"]',
+        ) as HTMLInputElement;
+        remember.click();
         fixture.detectChanges();
 
         fixture.nativeElement.querySelector('form button').click();
@@ -109,6 +131,44 @@ describe('PublicGuestDetailsComponent', () => {
             queryParams: {},
         });
     });
+
+    it('stays on the page when guest access fails', async () => {
+        service.default_system_id.set('sys-1');
+        service.requestGuestAccess.mockRejectedValueOnce(new Error('Denied'));
+        const fixture = await init();
+        fixture.componentInstance.guest_name.set('Guest User');
+        fixture.componentInstance.guest_email.set('guest@example.com');
+
+        fixture.componentInstance.submit();
+        await flush();
+
+        expect(service.requestGuestAccess).toHaveBeenCalled();
+        expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it.each([
+        ['false', ['/events', 'sys-1', 'e1']],
+        ['true', ['/event', 'sys-1', 'e1']],
+    ])(
+        'navigates to the target event (direct_event: %s) and keeps other query params',
+        async (direct_event, route_path) => {
+            const query = {
+                system_id: 'sys-1',
+                event_id: 'e1',
+                direct_event,
+                lang: 'en',
+            };
+            (route as { snapshot: Record<string, unknown> }).snapshot = {
+                queryParams: query,
+            };
+            query_map$.next(convertToParamMap(query));
+            service.authenticated.set(true);
+            await init();
+            expect(router.navigate).toHaveBeenCalledWith(route_path, {
+                queryParams: { lang: 'en' },
+            });
+        },
+    );
 
     it('does not request guest access when the form is invalid', async () => {
         service.default_system_id.set('sys-1');
