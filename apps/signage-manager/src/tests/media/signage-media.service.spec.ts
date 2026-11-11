@@ -7,7 +7,6 @@ import {
     SettingsService,
     UploadsService,
 } from '@placeos/common';
-import { ConfirmModalComponent } from '@placeos/components';
 import {
     addSignageMedia,
     del,
@@ -37,6 +36,7 @@ import { MediaEditModalComponent } from '../../app/shared/media-edit-modal.compo
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
 import { MediaTagModalComponent } from '../../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../../app/shared/media-tags-modal.component';
+import { PptxImportConfirmModalComponent } from '../../app/shared/pptx-import-confirm-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
 type SignageMediaServiceTestAccess = SignageMediaService & Record<string, any>;
@@ -1400,6 +1400,18 @@ describe('SignageMediaService', () => {
             return service;
         }
 
+        /** A dialog that closes with `result` once the caller subscribes */
+        function closesWith(result: unknown) {
+            return {
+                afterClosed: () => ({
+                    subscribe: (handler: (value: unknown) => void) => {
+                        Promise.resolve().then(() => handler(result));
+                        return { unsubscribe: vi.fn() };
+                    },
+                }),
+            };
+        }
+
         /**
          * Close each document import modal with the next result, answer each
          * PowerPoint confirm with the next answer, and keep the bulk upload
@@ -1415,28 +1427,13 @@ describe('SignageMediaService', () => {
                 bulk?: BulkMediaUploadModalData;
             } = { documents: [], confirm: [] };
             dialog.open.mockImplementation((component, config) => {
-                if (component === ConfirmModalComponent) {
-                    opened.confirm.push(config.data.content);
-                    const confirmed = confirm_answers.shift();
-                    return {
-                        componentInstance: {
-                            event: confirmed ? of({ reason: 'done' }) : NEVER,
-                        },
-                        afterClosed: () => (confirmed ? NEVER : of(undefined)),
-                        close: vi.fn(),
-                    };
+                if (component === PptxImportConfirmModalComponent) {
+                    opened.confirm.push(config.data.file_name);
+                    return closesWith(confirm_answers.shift() || undefined);
                 }
                 if (component === DocumentImportModalComponent) {
                     opened.documents.push(config.data);
-                    const result = document_results.shift();
-                    return {
-                        afterClosed: () => ({
-                            subscribe: (handler: (value: unknown) => void) => {
-                                Promise.resolve().then(() => handler(result));
-                                return { unsubscribe: vi.fn() };
-                            },
-                        }),
-                    };
+                    return closesWith(document_results.shift());
                 }
                 opened.bulk = config.data;
                 return { afterClosed: () => NEVER };
@@ -1496,10 +1493,10 @@ describe('SignageMediaService', () => {
             ]);
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
 
-            expect(opened.confirm).toHaveLength(1);
-            expect(opened.confirm[0]).toContain('<b>deck.pptx</b>');
-            expect(opened.confirm[0]).toContain('best-effort');
-            expect(dialog.open.mock.calls[0][0]).toBe(ConfirmModalComponent);
+            expect(opened.confirm).toEqual(['deck.pptx']);
+            expect(dialog.open.mock.calls[0][0]).toBe(
+                PptxImportConfirmModalComponent,
+            );
             expect(opened.documents.map((data) => data.file_name)).toEqual([
                 'deck.pptx',
                 'deck.pdf',

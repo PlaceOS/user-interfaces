@@ -247,12 +247,18 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
                     'application/vnd.openxmlformats-officedocument.presentationml.presentation',
                 buffer: Buffer.from('PK'),
             });
-        const confirm = page.locator('confirm-modal');
+        const confirm = page.locator('pptx-import-confirm-modal');
         await expect(confirm).toBeVisible();
         await expect(confirm).toContainText('Import PowerPoint File');
         await expect(confirm).toContainText('Town hall.pptx');
         await expect(confirm).toContainText('best-effort basis');
         await expect(confirm.getByRole('listitem')).toHaveCount(3);
+        await expect(
+            confirm.locator('span', { hasText: 'Windows' }),
+        ).toHaveCount(1);
+        await expect(confirm.locator('span', { hasText: 'macOS' })).toHaveCount(
+            1,
+        );
 
         await confirm.getByRole('button', { name: 'Cancel' }).click();
         await expect(confirm).toBeHidden();

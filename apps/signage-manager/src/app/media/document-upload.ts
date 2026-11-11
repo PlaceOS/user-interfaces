@@ -1,12 +1,16 @@
 import type { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError } from '@placeos/common';
-import { openConfirmModal } from '@placeos/components';
 import type { BulkMediaUploadItem } from '../shared/bulk-media-upload.util';
 import {
     DocumentImportModalComponent,
     type DocumentImportModalData,
     type DocumentImportModalResult,
 } from '../shared/document-import-modal.component';
+import {
+    PptxImportConfirmModalComponent,
+    type PptxImportConfirmModalData,
+    type PptxImportConfirmModalResult,
+} from '../shared/pptx-import-confirm-modal.component';
 import { isPptxFile } from '../signage-media-upload.util';
 import { dialogClosed } from '../signage-service.util';
 import {
@@ -104,39 +108,15 @@ async function openWithinLimit(
     return document_handle;
 }
 
-/** Text with the characters HTML gives a meaning to escaped */
-function escapeHtml(text: string) {
-    return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-}
-
 /**
  * Warn that PowerPoint slides render on a best-effort basis, with the steps
  * to export images or video from PowerPoint instead.
  * @returns Whether the user continues with the import
  */
 async function confirmPptxImport(dialog: MatDialog, file: File) {
-    const steps = [
-        'SIGNAGE_MANAGER.PPTX_IMPORT_EXPORT_WINDOWS_IMAGES',
-        'SIGNAGE_MANAGER.PPTX_IMPORT_EXPORT_WINDOWS_VIDEO',
-        'SIGNAGE_MANAGER.PPTX_IMPORT_EXPORT_MAC',
-    ].map((key) => `<li>${escapeHtml(i18n(key))}</li>`);
-    const result = await openConfirmModal(
-        {
-            title: i18n('SIGNAGE_MANAGER.PPTX_IMPORT_CONFIRM_TITLE'),
-            content:
-                `<b>${escapeHtml(file.name)}</b><br />` +
-                `${escapeHtml(i18n('SIGNAGE_MANAGER.PPTX_IMPORT_WARNING'))}` +
-                `<ul>${steps.join('')}</ul>`,
-            confirm_text: 'COMMON.CONTINUE',
-            icon: { content: 'warning' },
-        },
-        dialog,
-    );
-    result.close();
-    return result.reason === 'done';
+    const data: PptxImportConfirmModalData = { file_name: file.name };
+    const ref = dialog.open(PptxImportConfirmModalComponent, { data });
+    return !!(await dialogClosed<PptxImportConfirmModalResult>(ref));
 }
 
 /** Pages picked from one document, and the open document they render from.
