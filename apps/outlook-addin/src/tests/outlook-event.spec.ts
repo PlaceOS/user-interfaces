@@ -1,6 +1,7 @@
 import {
     bookingMatchesWindow,
     bookingWindow,
+    formatEventPeriod,
     OutlookEvent,
     roomStateFromResponse,
     roomWindow,
@@ -113,5 +114,31 @@ describe('roomStateFromResponse', () => {
         expect(roomStateFromResponse('tentative')).toBe('pending');
         expect(roomStateFromResponse('accepted')).toBe('confirmed');
         expect(roomStateFromResponse('declined')).toBe('declined');
+    });
+});
+
+describe('formatEventPeriod', () => {
+    const format = (details: Partial<OutlookEvent>) =>
+        formatEventPeriod(event(details), 'en-GB');
+
+    it('shows a timed event on one day', () => {
+        expect(format({})).toBe('Thu 1 Oct · 09:00–12:00');
+    });
+
+    it('shows both days of a timed event that ends on the next day', () => {
+        const start = MIDNIGHT + 22 * HOUR;
+        expect(format({ start, end: start + 3 * HOUR })).toBe(
+            'Thu 1 Oct 22:00 – Fri 2 Oct 01:00',
+        );
+    });
+
+    it('does not count the end midnight as a day of an all-day event', () => {
+        const all_day = { start: MIDNIGHT, all_day: true };
+        expect(format({ ...all_day, end: MIDNIGHT + 24 * HOUR })).toBe(
+            'Thu 1 Oct · All day',
+        );
+        expect(format({ ...all_day, end: MIDNIGHT + 48 * HOUR })).toBe(
+            'Thu 1 Oct – Fri 2 Oct · All day',
+        );
     });
 });
