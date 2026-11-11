@@ -1,4 +1,4 @@
-import { MAX_PDF_PAGES } from '../../app/media/pdf-import.util';
+import { MAX_DOCUMENT_PAGES } from '../../app/media/document-import.util';
 import { openPptxDocument } from '../../app/media/pptx-document';
 
 const convert = vi.fn();
@@ -49,7 +49,7 @@ describe('openPptxDocument', () => {
 
         const deck = await openPptxDocument(pptxFile());
 
-        expect(deck.page_count).toBe(MAX_PDF_PAGES + 1);
+        expect(deck.page_count).toBe(MAX_DOCUMENT_PAGES + 1);
     });
 
     it('rejects a file that does not convert, or has no slides, as invalid', async () => {

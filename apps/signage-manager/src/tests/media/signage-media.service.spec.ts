@@ -7,6 +7,7 @@ import {
     SettingsService,
     UploadsService,
 } from '@placeos/common';
+import { ConfirmModalComponent } from '@placeos/components';
 import {
     addSignageMedia,
     del,
@@ -24,18 +25,18 @@ import {
     updateSignageMedia,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
-import { MAX_PDF_PAGES } from '../../app/media/pdf-import.util';
+import { MAX_DOCUMENT_PAGES } from '../../app/media/document-import.util';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import type { BulkMediaUploadModalData } from '../../app/shared/bulk-media-upload-modal.component';
+import {
+    DocumentImportModalComponent,
+    type DocumentImportModalData,
+} from '../../app/shared/document-import-modal.component';
 import { MediaEditModalComponent } from '../../app/shared/media-edit-modal.component';
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
 import { MediaTagModalComponent } from '../../app/shared/media-tag-modal.component';
 import { MediaTagsModalComponent } from '../../app/shared/media-tags-modal.component';
-import {
-    PdfImportModalComponent,
-    type PdfImportModalData,
-} from '../../app/shared/pdf-import-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
 type SignageMediaServiceTestAccess = SignageMediaService & Record<string, any>;
@@ -1352,13 +1353,13 @@ describe('SignageMediaService', () => {
         });
     });
 
-    describe('PDF upload', () => {
+    describe('Document upload', () => {
         const pdfFile = (name = 'deck.pdf') =>
             new File(['%PDF-1.7'], name, { type: 'application/pdf' });
         const photo = () =>
             new File(['photo'], 'photo.png', { type: 'image/png' });
 
-        /** Rendered page, as the PDF import modal closes with it */
+        /** Rendered page, as the document import modal closes with it */
         function pageItem(base: string, page: number) {
             return {
                 file: new File(['page'], `${base} - page ${page}.webp`, {
@@ -1376,7 +1377,7 @@ describe('SignageMediaService', () => {
             };
         }
 
-        function fakePdf() {
+        function fakeDocument() {
             return {
                 page_count: 2,
                 pageSize: vi.fn(),
@@ -1385,7 +1386,7 @@ describe('SignageMediaService', () => {
             };
         }
 
-        function createPdfService(open_pdf = vi.fn()) {
+        function createDocumentService(open_document = vi.fn()) {
             const service = createService();
             const test_service =
                 service as unknown as SignageMediaServiceTestAccess;
@@ -1395,23 +1396,39 @@ describe('SignageMediaService', () => {
                 width: 1920,
                 height: 1080,
             });
-            test_service['_openPdfDocument'] = open_pdf;
+            test_service['_openDocument'] = open_document;
             return service;
         }
 
         /**
-         * Close each PDF import modal with the next result, and keep the bulk
-         * upload modal open. Resolves with what each modal was given.
+         * Close each document import modal with the next result, answer each
+         * PowerPoint confirm with the next answer, and keep the bulk upload
+         * modal open. Resolves with what each modal was given.
          */
-        function stubDialogs(pdf_results: unknown[]) {
+        function stubDialogs(
+            document_results: unknown[],
+            confirm_answers = [true],
+        ) {
             const opened: {
-                pdf: PdfImportModalData[];
+                documents: DocumentImportModalData[];
+                confirm: string[];
                 bulk?: BulkMediaUploadModalData;
-            } = { pdf: [] };
+            } = { documents: [], confirm: [] };
             dialog.open.mockImplementation((component, config) => {
-                if (component === PdfImportModalComponent) {
-                    opened.pdf.push(config.data);
-                    const result = pdf_results.shift();
+                if (component === ConfirmModalComponent) {
+                    opened.confirm.push(config.data.content);
+                    const confirmed = confirm_answers.shift();
+                    return {
+                        componentInstance: {
+                            event: confirmed ? of({ reason: 'done' }) : NEVER,
+                        },
+                        afterClosed: () => (confirmed ? NEVER : of(undefined)),
+                        close: vi.fn(),
+                    };
+                }
+                if (component === DocumentImportModalComponent) {
+                    opened.documents.push(config.data);
+                    const result = document_results.shift();
                     return {
                         afterClosed: () => ({
                             subscribe: (handler: (value: unknown) => void) => {
@@ -1438,9 +1455,9 @@ describe('SignageMediaService', () => {
         );
 
         it('uploads the pages of a PDF with the other files', async () => {
-            const pdf = fakePdf();
-            const open_pdf = vi.fn().mockResolvedValue(pdf);
-            const service = createPdfService(open_pdf);
+            const pdf = fakeDocument();
+            const open_document = vi.fn().mockResolvedValue(pdf);
+            const service = createDocumentService(open_document);
             const opened = stubDialogs([
                 [pageItem('deck', 1), pageItem('deck', 2)],
             ]);
@@ -1448,16 +1465,17 @@ describe('SignageMediaService', () => {
             void service.previewFiles([pdfFile(), photo()]);
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
 
-            expect(open_pdf).toHaveBeenCalledWith(
+            expect(open_document).toHaveBeenCalledWith(
                 expect.objectContaining({ name: 'deck.pdf' }),
             );
-            expect(opened.pdf).toHaveLength(1);
-            expect(opened.pdf[0]).toMatchObject({
+            expect(opened.documents).toHaveLength(1);
+            expect(opened.documents[0]).toMatchObject({
                 file_name: 'deck.pdf',
-                document: pdf,
                 webp_supported: true,
                 position: undefined,
             });
+            await expect(opened.documents[0].document).resolves.toBe(pdf);
+            expect(opened.confirm).toEqual([]);
             expect(
                 opened.bulk.items.map((item) => item.name || item.file.name),
             ).toEqual(['deck - page 1', 'deck - page 2', 'photo.png']);
@@ -1467,10 +1485,9 @@ describe('SignageMediaService', () => {
             expect(pdf.destroy).not.toHaveBeenCalled();
         });
 
-        it('opens a PowerPoint file in the import modal with the warning', async () => {
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
-            );
+        it('confirms a PowerPoint file before its import modal opens', async () => {
+            const open_document = vi.fn().mockResolvedValue(fakeDocument());
+            const service = createDocumentService(open_document);
             const opened = stubDialogs([[pageItem('deck', 1)], undefined]);
 
             void service.previewFiles([
@@ -1479,17 +1496,39 @@ describe('SignageMediaService', () => {
             ]);
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
 
-            expect(
-                opened.pdf.map((data) => [data.file_name, data.pptx_warning]),
-            ).toEqual([
-                ['deck.pptx', true],
-                ['deck.pdf', false],
+            expect(opened.confirm).toHaveLength(1);
+            expect(opened.confirm[0]).toContain('<b>deck.pptx</b>');
+            expect(opened.confirm[0]).toContain('best-effort');
+            expect(dialog.open.mock.calls[0][0]).toBe(ConfirmModalComponent);
+            expect(opened.documents.map((data) => data.file_name)).toEqual([
+                'deck.pptx',
+                'deck.pdf',
+            ]);
+        });
+
+        it('skips a PowerPoint file that is not confirmed', async () => {
+            const open_document = vi.fn().mockResolvedValue(fakeDocument());
+            const service = createDocumentService(open_document);
+            const opened = stubDialogs([[pageItem('deck', 1)]], [false]);
+
+            void service.previewFiles([
+                new File(['PK'], 'deck.pptx'),
+                pdfFile(),
+            ]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+            expect(open_document).toHaveBeenCalledOnce();
+            expect(open_document).toHaveBeenCalledWith(
+                expect.objectContaining({ name: 'deck.pdf' }),
+            );
+            expect(opened.documents.map((data) => data.file_name)).toEqual([
+                'deck.pdf',
             ]);
         });
 
         it('opens a single PDF in the import modal, not the edit modal', async () => {
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const opened = stubDialogs([[pageItem('deck', 1)]]);
 
@@ -1505,8 +1544,8 @@ describe('SignageMediaService', () => {
 
         it('creates each page with its name and tag', async () => {
             uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const opened = stubDialogs([[pageItem('deck', 1)]]);
 
@@ -1528,8 +1567,8 @@ describe('SignageMediaService', () => {
 
         it('renders a page when it uploads, not before', async () => {
             uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const rendered = new File(['page'], 'deck - page 1.webp', {
                 type: 'image/webp',
@@ -1560,8 +1599,8 @@ describe('SignageMediaService', () => {
         it('does not render a stored page again to retry its record', async () => {
             uploads.uploadFileToCompletion.mockResolvedValue('upload-1');
             vi.mocked(addSignageMedia).mockRejectedValueOnce({ status: 422 });
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const { file: _file, ...page } = pageItem('deck', 1);
             const loadFile = vi
@@ -1592,12 +1631,12 @@ describe('SignageMediaService', () => {
         });
 
         it('closes the PDFs already imported when a later one fails', async () => {
-            const first = fakePdf();
-            const service = createPdfService(
+            const first = fakeDocument();
+            const service = createDocumentService(
                 vi
                     .fn()
                     .mockResolvedValueOnce(first)
-                    .mockResolvedValueOnce(fakePdf()),
+                    .mockResolvedValueOnce(fakeDocument()),
             );
             stubDialogs([[pageItem('one', 1)]]);
             const open = dialog.open.getMockImplementation();
@@ -1615,15 +1654,15 @@ describe('SignageMediaService', () => {
         });
 
         it('closes the PDFs once the upload closes', async () => {
-            const pdf = fakePdf();
+            const pdf = fakeDocument();
             let close_bulk: (value: unknown) => void = () => {};
-            const pdf_results = [[pageItem('deck', 1)]];
+            const document_results = [[pageItem('deck', 1)]];
             dialog.open.mockImplementation((component) => ({
                 afterClosed: () => ({
                     subscribe: (handler: (value: unknown) => void) => {
-                        if (component === PdfImportModalComponent) {
+                        if (component === DocumentImportModalComponent) {
                             Promise.resolve().then(() =>
-                                handler(pdf_results.shift()),
+                                handler(document_results.shift()),
                             );
                         } else {
                             close_bulk = handler;
@@ -1632,7 +1671,9 @@ describe('SignageMediaService', () => {
                     },
                 }),
             }));
-            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(pdf),
+            );
 
             const done = service.previewFiles([pdfFile()]);
             await vi.waitFor(() =>
@@ -1646,8 +1687,10 @@ describe('SignageMediaService', () => {
         });
 
         it('closes a PDF straight away when it is cancelled', async () => {
-            const pdf = fakePdf();
-            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+            const pdf = fakeDocument();
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(pdf),
+            );
             stubDialogs([undefined]);
 
             await service.previewFiles([pdfFile()]);
@@ -1655,16 +1698,39 @@ describe('SignageMediaService', () => {
             expect(pdf.destroy).toHaveBeenCalledOnce();
         });
 
+        it('does not wait for a document cancelled while it opens', async () => {
+            const slow = fakeDocument();
+            let open_slow: (value: typeof slow) => void = () => {};
+            const open_document = vi
+                .fn()
+                .mockReturnValueOnce(
+                    new Promise((resolve) => (open_slow = resolve)),
+                )
+                .mockResolvedValueOnce(fakeDocument());
+            const service = createDocumentService(open_document);
+            const opened = stubDialogs([undefined, [pageItem('two', 1)]]);
+
+            void service.previewFiles([pdfFile('one.pdf'), pdfFile('two.pdf')]);
+            // The next file imports while the first still opens
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+            expect(opened.bulk.items.map((item) => item.name)).toEqual([
+                'two - page 1',
+            ]);
+
+            open_slow(slow);
+            await vi.waitFor(() => expect(slow.destroy).toHaveBeenCalledOnce());
+        });
+
         it('imports several PDFs in turn and skips one that is cancelled', async () => {
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const opened = stubDialogs([undefined, [pageItem('two', 1)]]);
 
             void service.previewFiles([pdfFile('one.pdf'), pdfFile('two.pdf')]);
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
 
-            expect(opened.pdf.map((item) => item.position)).toEqual([
+            expect(opened.documents.map((item) => item.position)).toEqual([
                 { current: 1, total: 2 },
                 { current: 2, total: 2 },
             ]);
@@ -1688,7 +1754,7 @@ describe('SignageMediaService', () => {
         ])(
             'names a PDF it cannot open (%s) and keeps the other files',
             async (_name, error, message) => {
-                const service = createPdfService(
+                const service = createDocumentService(
                     vi.fn().mockRejectedValue(error),
                 );
                 const opened = stubDialogs([]);
@@ -1696,7 +1762,7 @@ describe('SignageMediaService', () => {
                 void service.previewFiles([pdfFile(), photo()]);
                 await vi.waitFor(() => expect(opened.bulk).toBeDefined());
 
-                expect(opened.pdf).toHaveLength(0);
+                await expect(opened.documents[0].document).rejects.toBe(error);
                 expect(notify_open).toHaveBeenCalledWith(
                     expect.stringContaining(message),
                     expect.anything(),
@@ -1708,19 +1774,26 @@ describe('SignageMediaService', () => {
             },
         );
 
-        it('closes a PDF with too many pages without opening it', async () => {
-            const pdf = { ...fakePdf(), page_count: MAX_PDF_PAGES + 1 };
-            const service = createPdfService(vi.fn().mockResolvedValue(pdf));
+        it('closes a PDF with too many pages before it can be imported', async () => {
+            const pdf = {
+                ...fakeDocument(),
+                page_count: MAX_DOCUMENT_PAGES + 1,
+            };
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(pdf),
+            );
             const opened = stubDialogs([]);
 
             void service.previewFiles([pdfFile(), photo()]);
             await vi.waitFor(() => expect(opened.bulk).toBeDefined());
 
-            expect(opened.pdf).toHaveLength(0);
+            await expect(opened.documents[0].document).rejects.toMatchObject({
+                reason: 'too_many_pages',
+            });
             expect(pdf.destroy).toHaveBeenCalledOnce();
             expect(notify_open).toHaveBeenCalledWith(
                 expect.stringContaining(
-                    `deck.pdf has more than ${MAX_PDF_PAGES} pages.`,
+                    `deck.pdf has more than ${MAX_DOCUMENT_PAGES} pages.`,
                 ),
                 expect.anything(),
                 expect.objectContaining({ panelClass: ['error'] }),
@@ -1731,30 +1804,32 @@ describe('SignageMediaService', () => {
         });
 
         it('opens no upload when every PDF is cancelled', async () => {
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const opened = stubDialogs([undefined]);
 
             await service.previewFiles([pdfFile()]);
 
-            expect(opened.pdf).toHaveLength(1);
+            expect(opened.documents).toHaveLength(1);
             expect(opened.bulk).toBeUndefined();
         });
 
         it('reloads the tag counts once, after the upload', async () => {
             let close_bulk: (value: unknown) => void = () => {};
-            const pdf_results = [[pageItem('deck', 1), pageItem('deck', 2)]];
+            const document_results = [
+                [pageItem('deck', 1), pageItem('deck', 2)],
+            ];
             let bulk: BulkMediaUploadModalData | undefined;
             dialog.open.mockImplementation((component, config) => {
-                const is_pdf = component === PdfImportModalComponent;
-                if (!is_pdf) bulk = config.data;
+                const is_import = component === DocumentImportModalComponent;
+                if (!is_import) bulk = config.data;
                 return {
                     afterClosed: () => ({
                         subscribe: (handler: (value: unknown) => void) => {
-                            if (is_pdf) {
+                            if (is_import) {
                                 Promise.resolve().then(() =>
-                                    handler(pdf_results.shift()),
+                                    handler(document_results.shift()),
                                 );
                             } else {
                                 close_bulk = handler;
@@ -1764,8 +1839,8 @@ describe('SignageMediaService', () => {
                     }),
                 };
             });
-            const service = createPdfService(
-                vi.fn().mockResolvedValue(fakePdf()),
+            const service = createDocumentService(
+                vi.fn().mockResolvedValue(fakeDocument()),
             );
             const test_service =
                 service as unknown as SignageMediaServiceTestAccess;

@@ -74,6 +74,7 @@ import {
 import { SignagePluginService } from '../signage-plugin.service';
 import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
 import { uploadUrl } from '../signage-url.util';
+import type { DocumentHandle } from './document-import.util';
 import {
     convertImageToWebp,
     dataURLtoFile,
@@ -87,7 +88,6 @@ import {
     isMediaViewActive,
     type MediaViewOptions,
 } from './media-view.util';
-import type { PdfDocumentHandle } from './pdf-import.util';
 
 /** Backoff between attempts at creating a media record, in milliseconds */
 const MEDIA_RETRY_DELAYS = [500, 1500, 4500];
@@ -222,7 +222,7 @@ export class SignageMediaService {
      * Open a PDF or PowerPoint file. The reader of each loads on first use,
      * as only an import of that file type needs it.
      */
-    private _openPdfDocument = (file: File): Promise<PdfDocumentHandle> =>
+    private _openDocument = (file: File): Promise<DocumentHandle> =>
         isPptxFile(file)
             ? import('./pptx-document').then(({ openPptxDocument }) =>
                   openPptxDocument(file),
@@ -524,7 +524,7 @@ export class SignageMediaService {
         const upload_files = Array.from(files || []);
         if (!upload_files.length) return [];
         if (upload_files.some((file) => isPagedFile(file))) {
-            return this._uploadWithPdfs(upload_files);
+            return this._uploadWithDocuments(upload_files);
         }
         if (upload_files.length > 1) {
             return this.bulkUploadMedia(upload_files);
@@ -570,32 +570,31 @@ export class SignageMediaService {
     }
 
     /**
-     * Upload files that include PDFs or PowerPoint files, both called PDFs
-     * here. Each PDF opens the import modal in turn, to pick and set up its
-     * pages, and the pages then upload in one bulk upload with the other
-     * files.
+     * Upload files that include documents: PDFs or PowerPoint files. Each
+     * document opens the import modal in turn, to pick and set up its pages,
+     * and the pages then upload in one bulk upload with the other files.
      * @returns The media created
      */
-    private async _uploadWithPdfs(files: File[]) {
-        // The other files are read while the user sets up the PDF pages
+    private async _uploadWithDocuments(files: File[]) {
+        // The other files are read while the user sets up the document pages
         const other_items = this._prepareBulkItems(
             files.filter((file) => !isPagedFile(file)),
         );
-        const { importPdfPages } = await import('./pdf-upload');
-        const pdf_import = await importPdfPages(
+        const { importDocumentPages } = await import('./document-upload');
+        const document_import = await importDocumentPages(
             this._dialog,
             files.filter((file) => isPagedFile(file)),
-            this._openPdfDocument,
+            this._openDocument,
         );
-        // Pages render as they upload, so the PDFs stay open until then.
+        // Pages render as they upload, so the documents stay open until then.
         // Import already confirmed the upload, so it starts straight away.
         try {
             return await this._openBulkUpload(
-                [...pdf_import.items, ...(await other_items)],
+                [...document_import.items, ...(await other_items)],
                 { auto_start: true },
             );
         } finally {
-            await pdf_import.close();
+            await document_import.close();
         }
     }
 
@@ -624,7 +623,7 @@ export class SignageMediaService {
                 const upload = stored.get(item);
                 const media = upload
                     ? // A retry after the file is stored only creates the
-                      // record, so a PDF page does not render again
+                      // record, so a document page does not render again
                       await this._createStoredMedia(
                           media_item,
                           upload,
@@ -657,7 +656,7 @@ export class SignageMediaService {
         });
         await dialogClosed(ref);
         const media = items.flatMap((item) => created.get(item) ?? []);
-        // A bulk upload of PDF pages tags every page, so the tag counts
+        // A bulk upload of document pages tags every page, so the tag counts
         // reload once when it closes, not once for each page
         if (media.some((item) => item.tags?.length)) this._media_tags.reload();
         return media;
