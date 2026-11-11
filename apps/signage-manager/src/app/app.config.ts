@@ -156,7 +156,8 @@ const APP_ROUTES: Routes = [
 export const APP_CONFIG: ApplicationConfig = {
     providers: [
         provideBrowserGlobalErrorListeners(),
-        provideServiceWorker('ngsw-worker.js', {
+        // Wraps ngsw-worker.js so video and audio skip it, see the script
+        provideServiceWorker('service-worker.js', {
             enabled: environment.production,
         }),
         provideZonelessChangeDetection(),

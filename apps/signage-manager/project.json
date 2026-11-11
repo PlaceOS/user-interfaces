@@ -58,6 +58,11 @@
                         "output": "/assets/pdfjs/wasm",
                         "glob": "*_nowasm_fallback.js"
                     },
+                    {
+                        "glob": "service-worker.js",
+                        "input": "shared/",
+                        "output": "/"
+                    },
                     "apps/signage-manager/src/manifest.webmanifest"
                 ],
                 "styles": [
