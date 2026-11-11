@@ -8,7 +8,7 @@ import { User } from '@placeos/common';
 import { UserFormComponent } from '../lib/user-form.component';
 import { generateUserForm } from '../lib/user.utilities';
 
-describe('', () => {
+describe('UserFormComponent', () => {
     let spectator: Spectator<UserFormComponent>;
     const createComponent = createComponentFactory({
         component: UserFormComponent,
@@ -32,5 +32,18 @@ describe('', () => {
         expect('label[for="phone"]').toExist();
         expect(spectator.queryAll('input[matInput]').length).toBe(4);
         expect(spectator.queryAll('mat-checkbox').length).toBe(2);
+    });
+
+    it('should only flag a field error once the invalid field is touched', () => {
+        const form = generateUserForm(new User(), spectator.inject(Injector));
+        spectator.setInput({ form });
+        spectator.detectChanges();
+        expect(spectator.component.hasError('email')).toBe(false);
+        expect('label[for="email"].error').not.toExist();
+        form.email().markAsTouched();
+        spectator.detectChanges();
+        expect(spectator.component.hasError('email')).toBe(true);
+        expect('label[for="email"].error').toExist();
+        expect(spectator.component.hasError('phone')).toBe(false);
     });
 });

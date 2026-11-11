@@ -302,15 +302,15 @@ export class WFHSettingsModalComponent implements OnInit {
         const prefs = this._data?.local
             ? this._data.preferences
             : user.work_preferences;
-        const settings = [
-            ...(prefs || []).map((_) => ({
-                ..._,
-                blocks: [...(_?.blocks || [])],
-            })),
-        ];
+        // Index by day of week, as the template and save look days up by
+        // index. Copy each block so edits do not change the caller's data.
+        const settings: WorktimePreference[] = [];
         const weekdays_enabled: Record<number, boolean> = {};
-        for (const day of settings) {
-            if (day.blocks.length) weekdays_enabled[day.day_of_week] = true;
+        for (const pref of prefs || []) {
+            if (!pref) continue;
+            const blocks = (pref.blocks || []).map((block) => ({ ...block }));
+            settings[pref.day_of_week] = { ...pref, blocks };
+            if (blocks.length) weekdays_enabled[pref.day_of_week] = true;
         }
         this.settings.set(settings);
         this.weekdays_enabled.set(weekdays_enabled);

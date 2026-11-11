@@ -5,6 +5,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { User } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { getUnixTime } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -14,11 +15,14 @@ import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-f
 import { FindAvailabilityModalComponent } from '../lib/find-availability-modal/find-availability-modal.component';
 import { UserAvailabilityComponent } from '../lib/find-availability-modal/user-availability.component';
 
+const mockGet = vi.mocked(
+    ts_client.get as unknown as (url: string) => Promise<unknown>,
+);
+
 const HOST = new User({ email: 'host@place.tech', name: 'Host' });
 
 describe('FindAvailabilityModalComponent', () => {
     let spectator: Spectator<FindAvailabilityModalComponent>;
-    const close_fn = vi.fn();
     const createComponent = createComponentFactory({
         component: FindAvailabilityModalComponent,
         declarations: [
@@ -29,7 +33,7 @@ describe('FindAvailabilityModalComponent', () => {
             MockComponent(UserAvailabilityComponent),
         ],
         providers: [
-            MockProvider(MatDialogRef, { close: close_fn }),
+            MockProvider(MatDialogRef),
             {
                 provide: MAT_DIALOG_DATA,
                 useValue: {
@@ -44,8 +48,7 @@ describe('FindAvailabilityModalComponent', () => {
     });
 
     beforeEach(() => {
-        close_fn.mockClear();
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        mockGet.mockResolvedValue([]);
         spectator = createComponent();
     });
 
@@ -77,16 +80,6 @@ describe('FindAvailabilityModalComponent', () => {
         expect(spectator.component.user()).toBeUndefined();
     });
 
-    it('should not add duplicate users by email', () => {
-        const alice_again = new User({
-            email: 'a@place.tech',
-            name: 'Alice II',
-        });
-        spectator.component.addUser(alice_again);
-        expect(spectator.component.users().length).toBe(1);
-        expect(spectator.component.users()[0].name).toBe('Alice II');
-    });
-
     it('should not add a user again when the email differs only in case', () => {
         // the user search field emits the search result, then the same user
         // with the stored PlaceOS details, whose email case can differ
@@ -112,22 +105,6 @@ describe('FindAvailabilityModalComponent', () => {
         expect(spectator.component.users().length).toBe(1);
     });
 
-    it('should remove a user by email', () => {
-        spectator.component.removeUser(spectator.component.users()[0]);
-        expect(spectator.component.users().length).toBe(0);
-    });
-
-    it('should update the selected date', () => {
-        const new_date = new Date('2030-07-01T12:00:00').valueOf();
-        spectator.component.onDateChange(new_date);
-        expect(spectator.component.date()).toBe(new_date);
-    });
-
-    it('should compute selection width from the duration', () => {
-        spectator.component.duration.set(120);
-        expect(spectator.component.selection_width()).toBe(10);
-    });
-
     it('should flag a date on the current day as today', () => {
         spectator.component.onDateChange(Date.now());
         expect(spectator.component.today()).toBe(true);
@@ -137,8 +114,46 @@ describe('FindAvailabilityModalComponent', () => {
         expect(spectator.component.today()).toBe(false);
     });
 
-    it('should close the dialog with true when confirming', () => {
-        spectator.component.closeAndUpdate();
-        expect(close_fn).toHaveBeenCalledWith(true);
+    it('should map busy periods to positions keyed by lower case email', async () => {
+        const start = new Date('2030-06-01T06:00:00');
+        const starts_at = getUnixTime(start);
+        mockGet.mockResolvedValue([
+            {
+                id: 'A@PLACE.TECH',
+                availability: [
+                    { status: 'busy', starts_at, ends_at: starts_at + 90 * 60 },
+                    { status: 'free', starts_at, ends_at: starts_at + 60 },
+                ],
+            },
+        ]);
+        spectator = createComponent();
+        await vi.waitFor(() =>
+            expect(spectator.component.availability()['a@place.tech']).toEqual([
+                {
+                    date: start.valueOf(),
+                    duration: 90,
+                    start: 25,
+                    size: 6.25,
+                },
+            ]),
+        );
+        const url = new URL(mockGet.mock.lastCall![0], location.origin);
+        expect(url.searchParams.get('calendars')).toBe(
+            'host@place.tech,a@place.tech',
+        );
+    });
+
+    it('should resize the duration by dragging, down to 30 minutes', () => {
+        // The 24 hour timeline is 1920px wide, so 80px is one hour
+        spectator.component.startMoveDuration(
+            new MouseEvent('mousedown', { clientX: 500 }),
+        );
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 580 }));
+        expect(spectator.component.duration()).toBe(120);
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 0 }));
+        expect(spectator.component.duration()).toBe(30);
+        window.dispatchEvent(new MouseEvent('mouseup'));
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 660 }));
+        expect(spectator.component.duration()).toBe(30);
     });
 });

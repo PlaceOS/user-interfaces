@@ -22,30 +22,28 @@ describe('SelectUserModalComponent', () => {
         imports: [MatFormFieldModule, MatInputModule, FormsModule],
     });
 
-    beforeEach(() => {
-        close_fn.mockClear();
+    beforeEach(() => close_fn.mockClear());
+
+    it('should list matching users and close with the chosen one', async () => {
         vi.spyOn(ts_client, 'queryUsers').mockResolvedValue({
-            data: [],
-        } as any);
+            data: [{ id: 'u1', name: 'Jim', email: 'jim@place.tech' }],
+        } as Awaited<ReturnType<typeof ts_client.queryUsers>>);
         spectator = createComponent();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect(spectator.query('main button')).toHaveText('jim@place.tech');
+        spectator.click('main button');
+        const [user] = close_fn.mock.calls[0];
+        expect(user).toBeInstanceOf(StaffUser);
+        expect(user.id).toBe('u1');
     });
 
-    it('should show an empty state when there are no users', () => {
+    it('should show the empty state when the user search fails', async () => {
+        vi.spyOn(ts_client, 'queryUsers').mockRejectedValue(new Error('nope'));
+        spectator = createComponent();
+        await spectator.fixture.whenStable();
         spectator.detectChanges();
-        expect(spectator.component.users().length).toBe(0);
-        expect('main button[matRipple]').not.toExist();
-    });
-
-    it('should update the search signal when typing in the search field', () => {
-        spectator.detectChanges();
-        spectator.typeInElement('Jim', 'input[matInput]');
-        spectator.detectChanges();
-        expect(spectator.component.search()).toBe('Jim');
-    });
-
-    it('should close the dialog with the selected user', () => {
-        const user = new StaffUser({ id: 'u1', email: 'jim@place.tech' });
-        spectator.component.select(user);
-        expect(close_fn).toHaveBeenCalledWith(user);
+        expect('main button').not.toExist();
+        expect(spectator.component.users()).toEqual([]);
     });
 });

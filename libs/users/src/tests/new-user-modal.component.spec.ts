@@ -4,6 +4,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { DialogEvent, User } from '@placeos/common';
 import { MockComponent } from 'ng-mocks';
 import { NewUserModalComponent } from '../lib/new-user-modal.component';
 import { UserFormComponent } from '../lib/user-form.component';
@@ -27,29 +28,33 @@ describe('NewUserModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should show the form', () => {
-        expect('user-form').toExist();
+    const emitted = () => {
+        const events: DialogEvent[] = [];
+        spectator.component.event.subscribe((e) => events.push(e));
+        return events;
+    };
+
+    it('should not emit and should mark fields touched when the form is invalid', () => {
+        const events = emitted();
+        spectator.click('footer button:not([mat-dialog-close])');
+        expect(events).toEqual([]);
+        expect(spectator.component.form().email().touched()).toBe(true);
     });
 
-    it('should show the action buttons', () => {
-        expect('footer button').toHaveLength(2);
-    });
-
-    it('should emit user details on save', async () => {
-        expect('footer button:not([mat-dialog-close])').toExist();
+    it('should emit the entered details as an external user on save', () => {
+        const events = emitted();
         const form = spectator.component.form();
         form.name().value.set('support');
         form.organisation().value.set('placeOS');
         form.email().value.set('support@aca.im');
-        const event = new Promise<any>((resolve) => {
-            spectator.component.event.subscribe((event) => {
-                if (event.reason === 'done') resolve(event);
-            });
-        });
         spectator.click('footer button:not([mat-dialog-close])');
-        const result = await event;
-        expect(result.metadata.name).toBe('support');
-        expect(result.metadata.organisation).toBe('placeOS');
-        expect(result.metadata.email).toBe('support@aca.im');
+        expect(events).toHaveLength(1);
+        const user = events[0].metadata as User;
+        expect(events[0].reason).toBe('done');
+        expect(user).toBeInstanceOf(User);
+        expect(user.name).toBe('support');
+        expect(user.organisation).toBe('placeOS');
+        expect(user.email).toBe('support@aca.im');
+        expect(user.is_external).toBe(true);
     });
 });
