@@ -3,8 +3,10 @@ import {
     buildContext,
     contextEntry,
     idMentions,
+    mentionedEntries,
     mentionedTokens,
     orderEntries,
+    quotedEntries,
     styleRuleStrings,
     subtreeMarkup,
     textWords,
@@ -487,6 +489,65 @@ it('sends the alignment markup of text labels named without a number', () => {
     expect(built.context.subtrees[doc.anchorOf(label)]).toContain(
         'text-anchor="start"',
     );
+});
+
+describe('labels quoted in the instruction', () => {
+    const map = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+      <g id="rooms">
+        <rect id="rm-ord-3-04" x="0" y="0" width="100" height="100"/>
+        <rect id="rm-ord-3-05" x="110" y="0" width="100" height="100"/>
+        <rect id="rect4" x="220" y="0" width="10" height="10"/>
+        <rect id="rect5" x="240" y="0" width="10" height="10"/>
+      </g>
+      <g id="names">
+        <g id="g1" data-name="3-04 Meeting Room (6)">
+          <path id="path1" d="M10 10h5v8h-5z"/>
+        </g>
+        <g id="g2" data-name="3-05 Multi-Use / Faith Room (4)">
+          <path id="path2" d="M120 10h5v8h-5z"/>
+          <path id="path3" d="M127 10h5v8h-5z"/>
+        </g>
+        <text id="t1" x="300" y="20">Kitchen</text>
+      </g>
+    </svg>`;
+    const instruction =
+        'Change the label of room 3-05 from "3-05 multi-use/ Faith Room (4)" to "3-05 Meeting Room (5)"';
+
+    it('shortlists a named group of outlined letters by its words', () => {
+        const doc = MapDocument.load(map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const index = buildIndex(doc);
+        const group = anchor(doc, 'g2');
+        expect(
+            quotedEntries(index, instruction).map((entry) => entry.anchor),
+        ).toEqual([group]);
+        expect(quotedEntries(index, 'move the kitchen label')).toHaveLength(1);
+        expect(quotedEntries(index, 'recolour the lobby')).toEqual([]);
+
+        const { context } = buildContext(
+            { doc, index: () => index },
+            { instruction },
+        );
+        expect(context.shortlist).toContain(group);
+        expect(context.subtrees[group]).toContain('id="path3"');
+        expect(context.index.slice(0, 3).map((entry) => entry.id)).toContain(
+            'g2',
+        );
+    });
+
+    it('serves the most specific number before bare digits', () => {
+        const doc = MapDocument.load(map, {
+            geometry: new AttributeGeometryProvider(),
+        });
+        const index = buildIndex(doc);
+        expect(
+            mentionedEntries(index, instruction).map((entry) => entry.id),
+        ).toEqual(['rm-ord-3-05', 'rm-ord-3-04']);
+        expect(index.by_anchor.get(anchor(doc, 'rm-ord-3-05'))?.kind).toBe(
+            'bookable',
+        );
+    });
 });
 
 describe('pieces', () => {

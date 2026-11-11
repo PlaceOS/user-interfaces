@@ -644,20 +644,73 @@ export function idMentions(id: string, token: string): boolean {
     return false;
 }
 
-/** Id'd entries the instruction names by number, in document order, at most MAX_MENTIONS. */
+/**
+ * Id'd entries the instruction names by number, at most MAX_MENTIONS. The
+ * matches of the token with the most parts come first, so 3-05 is served
+ * before a bare 4; within one token they are in document order.
+ */
 export function mentionedEntries(
     index: MapIndex,
     instruction: string | undefined,
 ): MapIndexEntry[] {
     if (!instruction) return [];
-    const tokens = mentionedTokens(instruction);
-    if (!tokens.length) return [];
-    const found = index.entries.filter(
-        (entry) =>
-            !!entry.id &&
-            tokens.some((token) => idMentions(entry.id as string, token)),
-    );
-    return found.slice(0, MAX_MENTIONS);
+    const tokens = mentionedTokens(instruction)
+        .map((token, order) => ({ token, order, parts: idParts(token).length }))
+        .sort(
+            (a, b) =>
+                b.parts - a.parts ||
+                b.token.length - a.token.length ||
+                a.order - b.order,
+        );
+    const found = new Set<MapIndexEntry>();
+    for (const { token } of tokens) {
+        for (const entry of index.entries) {
+            if (found.size >= MAX_MENTIONS) return [...found];
+            if (entry.id && idMentions(entry.id, token)) found.add(entry);
+        }
+    }
+    return [...found];
+}
+
+function squash(value: string): string {
+    return value.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
+}
+
+const QUOTED_LABEL_MIN_LENGTH = 3;
+
+/**
+ * Entries whose label the instruction quotes, compared without case, spacing
+ * or punctuation; the longest labels first, at most MAX_MENTIONS. A label is
+ * a text element's words, or the name a drawing tool gave a group of
+ * outlined letters.
+ */
+export function quotedEntries(
+    index: MapIndex,
+    instruction: string | undefined,
+    words: (anchor: string) => string | null = () => null,
+): MapIndexEntry[] {
+    const quoted = squash(instruction || '');
+    if (!quoted) return [];
+    return index.entries
+        .filter(
+            (entry) => entry.kind !== 'root' && entry.kind !== 'non-rendered',
+        )
+        .map((entry) => ({
+            entry,
+            label: squash(
+                (entry.tag === 'text' ? words(entry.anchor) : null) ??
+                    entry.label ??
+                    '',
+            ),
+        }))
+        .filter(
+            (item) =>
+                item.label.length >= QUOTED_LABEL_MIN_LENGTH &&
+                quoted.includes(item.label),
+        )
+        .sort((a, b) => b.label.length - a.label.length)
+        .slice(0, MAX_MENTIONS)
+        .map((item) => item.entry);
 }
 
 export function contextEntry(
@@ -734,20 +787,10 @@ export function buildContext(
     const instruction = (options.instruction || '')
         .toLocaleLowerCase()
         .replace(/\s+/g, ' ');
-    const named_text = index.entries
-        .filter((entry) => entry.tag === 'text')
-        .filter((entry) => {
-            const element = doc.byAnchor(entry.anchor);
-            const label = element
-                ? textWords(element)
-                      ?.toLocaleLowerCase()
-                      .replace(/\s+/g, ' ')
-                      .trim()
-                : '';
-            return !!label && label.length >= 3 && instruction.includes(label);
-        })
-        .slice(0, MAX_MENTIONS)
-        .map((entry) => entry.anchor);
+    const named_text = quotedEntries(index, options.instruction, (anchor) => {
+        const element = doc.byAnchor(anchor);
+        return element ? textWords(element) : null;
+    }).map((entry) => entry.anchor);
     const box = doc.view_box;
     const outside = (options.annotations || []).some((mark) =>
         annotationPoints(mark).some(
