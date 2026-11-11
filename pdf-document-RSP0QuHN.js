@@ -1,0 +1,1 @@
+import{n as c,t as b}from"./chunk-D0TI8yvu.js";export{b as openPdfDocument};

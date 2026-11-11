@@ -1,0 +1,4 @@
+import{Z as Ks,x as D}from"./chunk-BkoHftD2.js";import{d as q,r as G}from"./chunk-CS1k6GDR.js";function s(n,u){let c=D(G),d=D(q),e=Ks(()=>u(n()));return{active:e.asReadonly(),select(r){r!==e()&&(e.set(r),d.navigate([],{relativeTo:c,queryParams:{tab:r},queryParamsHandling:`merge`,replaceUrl:!0}))}}}export{s as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="33b0c362-d34e-5a3b-98bb-a76ce3f9c1af")}catch(e){}}();
+//# debugId=33b0c362-d34e-5a3b-98bb-a76ce3f9c1af
+//# sourceMappingURL=chunk-BPD9da0O2.js.map
