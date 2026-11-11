@@ -37,16 +37,23 @@ describe('registerMockZones', () => {
     }
 
     const listZones = (query_params = {}) =>
-        handler('GET', '/api/engine/v2/zones')(request({ query_params })) as any[];
+        handler(
+            'GET',
+            '/api/engine/v2/zones',
+        )(request({ query_params })) as any[];
     const showZone = (id: string) =>
-        handler('GET', '/api/engine/v2/zones/:id')(
-            request({ route_params: { id } }),
-        );
+        handler(
+            'GET',
+            '/api/engine/v2/zones/:id',
+        )(request({ route_params: { id } }));
 
     beforeEach(() => {
         vi.mocked(registerMockEndpoint).mockClear();
         registerMockZones();
     });
+
+    // Write requests save the zones to the mock session
+    afterEach(() => localStorage.clear());
 
     describe('zone listing', () => {
         it('should return the whole hierarchy by default', () => {
@@ -66,17 +73,15 @@ describe('registerMockZones', () => {
             const buildings = listZones({ tags: 'building' });
 
             expect(buildings).toHaveLength(MOCK_BUILDINGS.length);
-            expect(
-                buildings.every((z) => z.tags.includes('building')),
-            ).toBe(true);
+            expect(buildings.every((z) => z.tags.includes('building'))).toBe(
+                true,
+            );
         });
 
         it('should match any of several space separated tags', () => {
             const zones = listZones({ tags: 'org region' });
 
-            expect(zones).toHaveLength(
-                MOCK_ORGS.length + MOCK_REGIONS.length,
-            );
+            expect(zones).toHaveLength(MOCK_ORGS.length + MOCK_REGIONS.length);
         });
 
         it('should filter zones by parent', () => {
@@ -105,6 +110,65 @@ describe('registerMockZones', () => {
             expect(() => showZone('zone-does-not-exist')).toThrow(
                 expect.objectContaining({ status: 404 }),
             );
+        });
+
+        it('should keep the zone ID and list when a zone changes', () => {
+            const level = MOCK_LEVELS[0];
+            handler(
+                'PATCH',
+                '/api/engine/v2/zones/:id',
+            )(
+                request({
+                    route_params: { id: level.id },
+                    body: { id: 'zone-new-id', display_name: 'Renamed' },
+                }),
+            );
+
+            expect(MOCK_LEVELS[0]).toMatchObject({
+                id: level.id,
+                display_name: 'Renamed',
+            });
+        });
+    });
+
+    describe('metadata', () => {
+        const level_id = () => MOCK_LEVELS[1].id;
+        const desks = { name: 'desks', details: [{ id: 'desk-saved' }] };
+        const show = (name: string) =>
+            handler(
+                'GET',
+                '/api/engine/v2/metadata/:id',
+            )(
+                request({
+                    route_params: { id: level_id() },
+                    query_params: { name },
+                }),
+            );
+
+        it('should return saved metadata in place of generated metadata', () => {
+            const generated = show('desks') as {
+                desks: { details: unknown[] };
+            };
+            expect(generated.desks.details).toHaveLength(30);
+
+            handler(
+                'PATCH',
+                '/api/engine/v2/metadata/:id',
+            )(request({ route_params: { id: level_id() }, body: desks }));
+
+            // Desk maps that a user edits must survive the next load
+            expect(show('desks')).toEqual({ desks });
+            expect(
+                handler(
+                    'GET',
+                    '/api/engine/v2/metadata/:name/bulk',
+                )(
+                    request({
+                        route_params: { name: 'desks' },
+                        query_params: { parent_ids: level_id() },
+                    }),
+                ),
+            ).toEqual({ [level_id()]: desks });
         });
     });
 

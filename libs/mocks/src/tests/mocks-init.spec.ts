@@ -26,16 +26,15 @@ describe('mocksInit', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should register mock endpoints', () => {
-        mocksInit();
-        expect(registrations().length).toBeGreaterThan(0);
-    });
-
     it('should cover every mocked API group', () => {
         mocksInit();
         const paths = registrations().map((r) => r.path);
 
         for (const group of [
+            'alert_dashboards',
+            'oauth_apps',
+            'maps/ai',
+            'short_url',
             'assets',
             'bookings',
             'calendars',

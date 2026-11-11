@@ -1,11 +1,13 @@
 import { registerMockEndpoint as registerEndpoint } from '@placeos/ts-client';
 
 import {
+    markChanged,
     persist,
     persistById,
     registerMockEndpoint,
     saveMockSession,
     startMockSession,
+    whenSaved,
 } from '../lib/session';
 
 vi.mock('@placeos/ts-client');
@@ -106,6 +108,71 @@ describe('mock session', () => {
         expect(items).toEqual([{ id: 'theirs' }]);
         expect(user).toEqual({ name: 'New' });
         expect(onLoad).toHaveBeenCalledOnce();
+    });
+
+    it('should keep this tab and other tab changes of a large list', () => {
+        startMockSession();
+        const list = persistById('merged', [
+            { id: 1, name: 'One' },
+            { id: 2, name: 'Two' },
+            { id: 3, name: 'Three' },
+        ]);
+        window.dispatchEvent(
+            new StorageEvent('storage', {
+                key: 'PLACEOS.mock.merged',
+                newValue:
+                    '{"changed":[{"id":2,"name":"Theirs"}],"removed":["1"]}',
+            }),
+        );
+        // A mock module changes an item in place, then saves
+        list[1].name = 'Mine';
+        markChanged([3]);
+        saveMockSession();
+
+        // The last tab to save must not drop the other tab's changes
+        expect(JSON.parse(localStorage.getItem('PLACEOS.mock.merged'))).toEqual(
+            {
+                changed: [
+                    { id: 2, name: 'Theirs' },
+                    { id: 3, name: 'Mine' },
+                ],
+                removed: ['1'],
+            },
+        );
+    });
+
+    it('should start a store when another tab saves it first', () => {
+        startMockSession();
+        const items: { id: string }[] = [];
+        whenSaved('lazy', () => persist('lazy', items));
+
+        // Browsers fire the event after the other tab writes the value
+        localStorage.setItem('PLACEOS.mock.lazy', '[{"id":"theirs"}]');
+        window.dispatchEvent(
+            new StorageEvent('storage', {
+                key: 'PLACEOS.mock.lazy',
+                newValue: '[{"id":"theirs"}]',
+            }),
+        );
+
+        expect(items).toEqual([{ id: 'theirs' }]);
+    });
+
+    it('should keep the initial data when the saved data is not valid', () => {
+        localStorage.setItem('PLACEOS.mock.broken', '{not json');
+        expect(persist('broken', [{ id: 'initial' }])).toEqual([
+            { id: 'initial' },
+        ]);
+    });
+
+    it('should not save a store that is too large, but save the others', () => {
+        persist('huge', { data: 'x'.repeat(1_000_001) });
+        persist('small', ['kept']);
+        saveMockSession();
+
+        // One large store must not use all the storage of the origin
+        expect(localStorage.getItem('PLACEOS.mock.huge')).toBeNull();
+        expect(localStorage.getItem('PLACEOS.mock.small')).toBe('["kept"]');
     });
 
     it('should remove mock data from an earlier browser session', () => {
