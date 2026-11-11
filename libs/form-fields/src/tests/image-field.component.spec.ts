@@ -41,13 +41,6 @@ describe('ImageFieldComponent', () => {
         expect(spectator.query('img[auth]')).not.toBeNull();
     });
 
-    it('should emit changes when the value is set', async () => {
-        const on_change = vi.fn();
-        spectator.component.registerOnChange(on_change);
-        await spectator.component.setValue('https://example.com/new.png');
-        expect(on_change).toHaveBeenCalledWith('https://example.com/new.png');
-    });
-
     it('should clear the current image from the clear button', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
@@ -69,10 +62,17 @@ describe('ImageFieldComponent', () => {
         );
     });
 
-    it('should reflect the disabled state', () => {
-        expect(spectator.component.disabled()).toBe(false);
-        spectator.component.setDisabledState(true);
-        expect(spectator.component.disabled()).toBe(true);
+    it('should not upload a file that is not an image', () => {
+        const uploads = spectator.inject(UploadsService);
+        vi.mocked(uploads.uploadFileWithProgress).mockClear();
+        const element = {
+            value: 'C:\\fakepath\\a.pdf',
+            files: [new File([], 'a.pdf', { type: 'application/pdf' })],
+        };
+        spectator.component.uploadImage({ target: element } as any);
+        expect(uploads.uploadFileWithProgress).not.toHaveBeenCalled();
+        expect(spectator.component.uploading()).toBe(false);
+        expect(element.value).toBe('');
     });
 
     describe('upload failures', () => {

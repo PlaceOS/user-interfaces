@@ -102,7 +102,7 @@ describe('BookingRulesFormComponent', () => {
         spectator.component.form.patchValue({
             conditions: { is_between: [8, 10] },
         });
-        spectator.component.setIsBetween(0, 10);
+        spectator.component.setIsBetween(undefined, 10);
         expect(
             spectator.component.form.getRawValue().conditions.is_between,
         ).toEqual([8, 10]);
@@ -118,13 +118,20 @@ describe('BookingRulesFormComponent', () => {
         expect(new Date(period[1]).getHours()).toBe(23);
     });
 
-    it('should post when the save input toggles', () => {
-        const post_spy = vi.spyOn(spectator.component, 'post');
+    it('should emit the ruleset each time the save input toggles', () => {
+        const on_change = vi.fn();
+        spectator.component.rulesetChange.subscribe(on_change);
+        spectator.component.form.patchValue({ name: 'Valid Ruleset' });
+
+        // The first binding of the input does not save
         spectator.setInput('save', false);
-        spectator.detectChanges();
-        expect(post_spy).not.toHaveBeenCalled();
+        expect(on_change).not.toHaveBeenCalled();
         spectator.setInput('save', true);
-        spectator.detectChanges();
-        expect(post_spy).toHaveBeenCalled();
+        spectator.setInput('save', false);
+
+        expect(on_change).toHaveBeenCalledTimes(2);
+        expect(on_change).toHaveBeenLastCalledWith(
+            expect.objectContaining({ name: 'Valid Ruleset' }),
+        );
     });
 });

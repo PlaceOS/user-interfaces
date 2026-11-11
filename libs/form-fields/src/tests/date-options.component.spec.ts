@@ -58,6 +58,34 @@ describe('DateOptionsComponent', () => {
         expect(spectator.query('.display')).toHaveText('Apr 20 - 26, 2026');
     });
 
+    it('should step the date by the step size and write the day to the URL', () => {
+        const router = spectator.inject(Router);
+        const emitted = vi.fn();
+        spectator.output('dateChange').subscribe(emitted);
+        spectator.setInput({
+            date: new Date(2026, 3, 22, 12, 30, 45).valueOf(),
+            step: 7,
+        });
+
+        spectator.component.nextDay();
+        expect(new Date(emitted.mock.lastCall[0])).toEqual(
+            new Date(2026, 3, 29, 12, 30),
+        );
+        expect(router.navigate).toHaveBeenLastCalledWith(
+            [],
+            expect.objectContaining({
+                queryParams: { date: '2026-04-29' },
+                queryParamsHandling: 'merge',
+            }),
+        );
+
+        spectator.component.previousDay();
+        spectator.component.previousDay();
+        expect(new Date(emitted.mock.lastCall[0])).toEqual(
+            new Date(2026, 3, 15, 12, 30),
+        );
+    });
+
     it('should not emit again when the URL shows the day already set', () => {
         query_params = { date: '2026-04-22' };
         spectator = createComponent();

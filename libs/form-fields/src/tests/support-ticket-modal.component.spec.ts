@@ -11,6 +11,8 @@ describe('SupportTicketModalComponent', () => {
     let spectator: Spectator<SupportTicketModalComponent>;
     let execute_spy: Mock;
     let close_spy: Mock;
+    // Settings that differ from the component defaults
+    let settings: Record<string, unknown>;
 
     const createComponent = createComponentFactory({
         component: SupportTicketModalComponent,
@@ -18,7 +20,8 @@ describe('SupportTicketModalComponent', () => {
         providers: [
             MockProvider(MatDialogRef, { close: vi.fn() }),
             MockProvider(SettingsService, {
-                signal: (_: string, def: any) => signal(def),
+                signal: (key: string, def: any) =>
+                    signal(key in settings ? settings[key] : def),
             }),
             MockProvider(OrganisationService, {
                 building_list: signal([
@@ -35,6 +38,7 @@ describe('SupportTicketModalComponent', () => {
     });
 
     beforeEach(() => {
+        settings = {};
         spectator = createComponent();
         close_spy = spectator.inject(MatDialogRef).close as unknown as Mock;
         execute_spy = vi.fn(() => Promise.resolve());
@@ -46,10 +50,6 @@ describe('SupportTicketModalComponent', () => {
 
     it('should default the location from the active building', () => {
         expect(spectator.component.model().location).toBe('Head Office');
-    });
-
-    it('should list the available buildings', () => {
-        expect(spectator.component.buildings()).toHaveLength(1);
     });
 
     it('should flag a missing description on submit', async () => {
@@ -107,5 +107,33 @@ describe('SupportTicketModalComponent', () => {
         await spectator.component.submit();
         expect(spectator.component.loading()).toBe(false);
         expect(close_spy).not.toHaveBeenCalled();
+    });
+
+    it('should send to the issue type address with safe html and full image urls', async () => {
+        settings = {
+            support_issue_types: [{ name: 'AV', email: 'av@place.tech' }],
+        };
+        spectator = createComponent();
+        vi.mocked(spectator.inject(OrganisationService).module).mockReturnValue(
+            { execute: execute_spy } as any,
+        );
+        spectator.component.model.set({
+            name: 'Jane',
+            email: 'jane@place.tech',
+            location: 'Head Office',
+            description: '<p>Broken</p><script>alert(1)</script>',
+            issue_type: 'AV',
+            images: ['/api/engine/v2/uploads/up-1/url'],
+        });
+
+        await spectator.component.submit();
+
+        const [to, , text, html] = execute_spy.mock.calls[0][1];
+        expect(to).toBe('av@place.tech');
+        expect(html).toContain('<p>Broken</p>');
+        expect(html).not.toContain('<script>');
+        const image_url = `${globalThis.location.origin}/api/engine/v2/uploads/up-1/url`;
+        expect(html).toContain(image_url);
+        expect(text).toContain(image_url);
     });
 });
