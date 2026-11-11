@@ -1,32 +1,5 @@
-import {
-    CateringOrderStatus,
-    HashMap,
-    predictableRandomInt,
-} from '@placeos/common';
+import { CateringOrderStatus, HashMap } from '@placeos/common';
 import { differenceInMinutes } from 'date-fns';
-
-/** Order statuses that the catering UIs can show */
-const ORDER_STATUSES: CateringOrderStatus[] = [
-    'pending',
-    'accepted',
-    'preparing',
-    'ready',
-    'delivered',
-    'cancelled',
-];
-
-export const DIETARY_RESTRICTIONS = [
-    { id: 'vegetarian', name: 'Vegetarian', icon: '🌱' },
-    { id: 'vegan', name: 'Vegan', icon: '🌿' },
-    { id: 'gluten-free', name: 'Gluten Free', icon: '🌾' },
-    { id: 'dairy-free', name: 'Dairy Free', icon: '🥛' },
-    { id: 'nut-free', name: 'Nut Free', icon: '🥜' },
-    { id: 'halal', name: 'Halal', icon: '☪️' },
-    { id: 'kosher', name: 'Kosher', icon: '✡️' },
-    { id: 'low-carb', name: 'Low Carb', icon: '🥗' },
-    { id: 'keto', name: 'Ketogenic', icon: '🥑' },
-    { id: 'paleo', name: 'Paleo', icon: '🥩' },
-];
 
 export const MOCK_MENU = [
     // Beverages
@@ -509,307 +482,124 @@ export const MOCK_MENU = [
     },
 ];
 
-export const CATERING_PACKAGES = [
-    {
-        id: 'pkg-001',
-        name: 'Morning Meeting Package',
-        description: 'Perfect for early morning meetings and briefings',
-        price: 2200,
-        serves: '8-12 people',
-        duration: '2-3 hours',
-        items: ['bev-001', 'bev-002', 'brf-001', 'snk-001'],
-        dietary_options: ['vegetarian', 'gluten-free'],
-    },
-    {
-        id: 'pkg-002',
-        name: 'Executive Lunch Package',
-        description: 'Premium lunch solution for important meetings',
-        price: 4500,
-        serves: '8-12 people',
-        duration: '2-4 hours',
-        items: ['bev-001', 'sal-001', 'snd-001', 'app-001', 'des-001'],
-        dietary_options: ['vegetarian', 'gluten-free'],
-    },
-    {
-        id: 'pkg-003',
-        name: 'All-Day Conference Package',
-        description: 'Complete catering for full-day events',
-        price: 7500,
-        serves: '15-20 people',
-        duration: '8 hours',
-        items: [
-            'bev-001',
-            'bev-002',
-            'brf-002',
-            'sal-002',
-            'hot-001',
-            'app-002',
-            'des-002',
-        ],
-        dietary_options: ['vegetarian', 'vegan', 'gluten-free', 'dairy-free'],
-    },
-    {
-        id: 'pkg-004',
-        name: 'Networking Reception Package',
-        description: 'Elegant finger foods and drinks for networking events',
-        price: 3800,
-        serves: '20-30 people',
-        duration: '3-4 hours',
-        items: ['bev-003', 'app-001', 'app-002', 'des-001'],
-        dietary_options: ['vegetarian', 'dairy-free'],
-    },
-    {
-        id: 'pkg-005',
-        name: 'Training Workshop Package',
-        description: 'Energizing meals for learning sessions',
-        price: 3200,
-        serves: '12-16 people',
-        duration: '6 hours',
-        items: ['bev-001', 'brf-002', 'snd-002', 'snk-001'],
-        dietary_options: ['vegetarian', 'vegan', 'gluten-free'],
-    },
+/** Caterers of the mock orders */
+const CATERERS = [
+    'Gourmet Events Catering',
+    'Fresh & Local Kitchen',
+    'Premium Dining Solutions',
 ];
 
-export const SERVICE_TYPES = [
-    {
-        id: 'buffet',
-        name: 'Buffet Service',
-        description: 'Self-service buffet setup',
-        setup_time: 30,
-        breakdown_time: 30,
-        staff_required: 1,
-        price_modifier: 1.0,
-    },
-    {
-        id: 'plated',
-        name: 'Plated Service',
-        description: 'Individual plated meals served to guests',
-        setup_time: 45,
-        breakdown_time: 45,
-        staff_required: 2,
-        price_modifier: 1.3,
-    },
-    {
-        id: 'station',
-        name: 'Food Stations',
-        description: 'Multiple themed food stations',
-        setup_time: 60,
-        breakdown_time: 45,
-        staff_required: 2,
-        price_modifier: 1.2,
-    },
-    {
-        id: 'cocktail',
-        name: 'Cocktail Style',
-        description: 'Pass-around finger foods and canapés',
-        setup_time: 30,
-        breakdown_time: 30,
-        staff_required: 3,
-        price_modifier: 1.4,
-    },
+/** Charge codes that match the `catering-settings` zone metadata */
+const CHARGE_CODES = ['CC-1001', 'CC-1002', 'CC-1003', 'CC-2001', 'CC-2002'];
+
+const ORDER_NOTES = [
+    '',
+    '',
+    'Please include serving utensils',
+    'Set up 15 minutes before the meeting starts',
+    'Two guests are vegetarian',
+    'Leave at reception if the room is locked',
 ];
 
-export const SUPPLIERS = [
-    {
-        id: 'sup-001',
-        name: 'Gourmet Events Catering',
-        rating: 4.8,
-        specialty: 'Corporate Events',
-        location: 'Sydney',
-        min_order: 1000,
-        delivery_fee: 150,
-        setup_fee: 200,
-    },
-    {
-        id: 'sup-002',
-        name: 'Fresh & Local Kitchen',
-        rating: 4.6,
-        specialty: 'Healthy Options',
-        location: 'Melbourne',
-        min_order: 800,
-        delivery_fee: 120,
-        setup_fee: 150,
-    },
-    {
-        id: 'sup-003',
-        name: 'Premium Dining Solutions',
-        rating: 4.9,
-        specialty: 'Executive Catering',
-        location: 'Brisbane',
-        min_order: 1500,
-        delivery_fee: 200,
-        setup_fee: 300,
-    },
-];
-
-export function generateCateringOrder(event: HashMap) {
-    const duration = Math.abs(
-        differenceInMinutes(event.event_end * 1000, event.event_start * 1000),
-    );
-    const attendeeCount =
-        event.attendees?.length || predictableRandomInt(15, 5);
-
-    // Select package or individual items based on event size and duration
-    let selectedItems = [];
-    let orderType = 'individual';
-    let totalPrice = 0;
-
-    if (attendeeCount >= 8 && duration >= 120) {
-        // Use package for larger, longer events
-        const suitablePackages = CATERING_PACKAGES.filter((pkg) => {
-            const serves = parseInt(pkg.serves.split('-')[0]);
-            const maxServes = parseInt(pkg.serves.split('-')[1]) || serves + 5;
-            return attendeeCount >= serves && attendeeCount <= maxServes + 5;
-        });
-
-        if (suitablePackages.length > 0) {
-            const selectedPackage =
-                suitablePackages[predictableRandomInt(suitablePackages.length)];
-            orderType = 'package';
-            totalPrice = selectedPackage.price;
-            selectedItems = selectedPackage.items
-                .map((itemId) => {
-                    const item = MOCK_MENU.find((m) => m.id === itemId);
-                    return {
-                        ...item,
-                        quantity: Math.ceil(attendeeCount / 8),
-                        package_item: true,
-                        options: [],
-                    };
-                })
-                .filter(Boolean);
-        }
+/**
+ * Random integer generator seeded from a string (FNV-1a hash into
+ * mulberry32). An event gets the same orders on each load, and the shared
+ * `predictableRandomInt` sequence that other mock data uses does not change.
+ */
+function seededRandomInt(seed: string) {
+    let state = 2166136261;
+    for (let i = 0; i < seed.length; i++) {
+        state = Math.imul(state ^ seed.charCodeAt(i), 16777619);
     }
-
-    if (selectedItems.length === 0) {
-        // Individual item selection
-        const itemCount = Math.min(
-            predictableRandomInt(5, 2),
-            Math.ceil(duration / 60),
-        );
-        const selectedItemIds = new Set();
-
-        while (
-            selectedItems.length < itemCount &&
-            selectedItemIds.size < MOCK_MENU.length
-        ) {
-            const item = MOCK_MENU[predictableRandomInt(MOCK_MENU.length)];
-            if (!selectedItemIds.has(item.id)) {
-                selectedItemIds.add(item.id);
-                const quantity = Math.max(1, Math.ceil(attendeeCount / 8));
-                const itemPrice = item.unit_price * quantity;
-                totalPrice += itemPrice;
-
-                selectedItems.push({
-                    ...item,
-                    quantity,
-                    package_item: false,
-                    options:
-                        item.options?.slice(0, predictableRandomInt(3)) || [],
-                });
-            }
-        }
-    }
-
-    // Select service type
-    const serviceType =
-        SERVICE_TYPES[predictableRandomInt(SERVICE_TYPES.length)];
-    const serviceModifier = serviceType.price_modifier;
-    totalPrice *= serviceModifier;
-
-    // Add delivery and setup fees
-    const supplier = SUPPLIERS[predictableRandomInt(SUPPLIERS.length)];
-    const deliveryFee = supplier.delivery_fee;
-    const setupFee = supplier.setup_fee;
-    totalPrice += deliveryFee + setupFee;
-
-    // Determine delivery time (30-60 minutes before event start)
-    const deliveryOffset = predictableRandomInt(30, 30); // 30-60 minutes
-    const deliverAt = new Date(
-        event.event_start * 1000 - deliveryOffset * 60 * 1000,
-    );
-
-    // Generate dietary requirements
-    const dietaryNeeds = DIETARY_RESTRICTIONS.filter(
-        () => predictableRandomInt(8) === 0,
-    ); // 12.5% chance each
-
-    return {
-        id: `order-${String(predictableRandomInt(999999, 100000))}`,
-        event_id: event.id,
-        invoice_number: `INV-${new Date().getFullYear()}-${String(predictableRandomInt(99999, 10000))}`,
-        charge_code: `CC-${String(predictableRandomInt(9999, 1000))}`,
-        order_type: orderType,
-        status: ORDER_STATUSES[predictableRandomInt(ORDER_STATUSES.length)],
-
-        // Timing
-        order_date: new Date(
-            Date.now() - predictableRandomInt(7) * 24 * 60 * 60 * 1000,
-        ).toISOString(),
-        deliver_at: deliverAt.toISOString(),
-        setup_time: serviceType.setup_time,
-        breakdown_time: serviceType.breakdown_time,
-
-        // Service details
-        service_type: serviceType,
-        supplier: supplier,
-        guest_count: attendeeCount,
-
-        // Items and pricing
-        items: selectedItems,
-        subtotal: Math.floor(totalPrice - deliveryFee - setupFee),
-        delivery_fee: deliveryFee,
-        setup_fee: setupFee,
-        tax: Math.floor(totalPrice * 0.1), // 10% tax
-        total: Math.floor(totalPrice * 1.1),
-
-        // Special requirements
-        dietary_requirements: dietaryNeeds.map((d) => d.name),
-        special_instructions:
-            predictableRandomInt(3) === 0
-                ? [
-                      'Please use company branded napkins',
-                      'Set up 15 minutes before event start',
-                      'Vegetarian options on separate table',
-                      'Please include serving utensils',
-                      'No pork products',
-                      'Nut-free preparation required',
-                  ][predictableRandomInt(6)]
-                : '',
-
-        // Contact and delivery
-        delivery_contact: event.attendees?.[0]?.name || 'Event Organizer',
-        delivery_phone: event.attendees?.[0]?.phone || '+61 2 9876 5432',
-        delivery_location: `Meeting Room - ${event.location || 'TBC'}`,
-        access_instructions: 'Reception will direct to meeting room',
-
-        // Billing
-        department: event.extension_data?.department || 'General',
-        cost_center: event.extension_data?.cost_center || 'events',
-        project_code: event.extension_data?.project_code || null,
-
-        // Metadata
-        notes: [
-            'Standard corporate catering order',
-            'Client meeting refreshments',
-            'Team celebration catering',
-            'Training session meals',
-            'Board meeting premium service',
-        ][predictableRandomInt(5)],
-        created_by: event.attendees?.[0]?.email || 'system@place.tech',
-        last_modified: new Date().toISOString(),
-
-        // Feedback and ratings (for completed orders)
-        ...(predictableRandomInt(4) === 0 && {
-            rating: predictableRandomInt(5, 3) + 1, // 4-5 stars
-            feedback: [
-                'Excellent food quality and presentation',
-                'Delivered on time, great service',
-                'Fresh ingredients, everyone loved it',
-                'Professional setup and cleanup',
-                'Good variety, accommodated dietary needs',
-            ][predictableRandomInt(5)],
-            would_recommend: true,
-        }),
+    return (ceil: number, floor = 0) => {
+        state = (state + 0x6d2b79f5) | 0;
+        let t = Math.imul(state ^ (state >>> 15), 1 | state);
+        t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+        const ratio = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        return Math.floor(ratio * (ceil - floor)) + floor;
     };
+}
+
+/** Order status that a kitchen would show at this time for a delivery */
+function statusAt(
+    deliver_at: number,
+    rand: (ceil: number) => number,
+): CateringOrderStatus {
+    if (rand(12) === 0) return 'cancelled';
+    const minutes = differenceInMinutes(deliver_at, Date.now());
+    if (minutes < -30) return 'delivered';
+    if (minutes < 0) return rand(3) ? 'delivered' : 'ready';
+    if (minutes < 60) return rand(2) ? 'preparing' : 'ready';
+    if (minutes < 24 * 60) return rand(3) ? 'accepted' : 'pending';
+    return rand(2) ? 'accepted' : 'pending';
+}
+
+/**
+ * Catering orders for `extension_data.catering` of a mock calendar event,
+ * in the JSON form that `CateringOrder` reads. About a quarter of the events
+ * that are not cancelled get one order. Some of these get a second order from
+ * a different caterer.
+ */
+export function mockEventCatering(event: HashMap) {
+    const rand = seededRandomInt(`${event.id}`);
+    if (event.status === 'cancelled' || rand(4) !== 0) return [];
+    const guests = Math.max(1, event.attendees?.length || 1);
+    const order_count = rand(4) === 0 ? 2 : 1;
+    const first_caterer = rand(CATERERS.length);
+    return Array.from({ length: order_count }, (_, index) => {
+        const caterer = CATERERS[(first_caterer + index) % CATERERS.length];
+        // Minutes from the event start. Must be before the event end, or the
+        // event does not list the order.
+        const deliver_offset = [-15, 0, 0, 30][rand(4)];
+        const item_count = rand(4, 1);
+        const first_item = rand(MOCK_MENU.length);
+        const items = Array.from({ length: item_count }, (_, i) => {
+            const item = MOCK_MENU[(first_item + i * 7) % MOCK_MENU.length];
+            const groups = [...new Set(item.options.map((o) => o.group))];
+            const chosen = new Set(
+                groups
+                    .filter(() => rand(2) === 0)
+                    .map((group) => {
+                        const list = item.options.filter(
+                            (o) => o.group === group,
+                        );
+                        return list[rand(list.length)].id;
+                    }),
+            );
+            return {
+                id: item.id,
+                name: item.name,
+                category: item.category,
+                description: item.description,
+                unit_price: item.unit_price,
+                images: [item.image],
+                tags: item.dietary,
+                caterer,
+                in_order: true,
+                quantity:
+                    item.category === 'beverages'
+                        ? guests
+                        : Math.ceil(guests / 4),
+                options: item.options.map((o) => ({
+                    ...o,
+                    active: chosen.has(o.id),
+                })),
+            };
+        });
+        return {
+            id: `order-${event.id}-${index}`,
+            event_id: event.id,
+            system_id: event.system?.id || '',
+            caterer,
+            items,
+            deliver_offset,
+            status: statusAt(
+                (event.event_start + deliver_offset * 60) * 1000,
+                rand,
+            ),
+            charge_code: CHARGE_CODES[rand(CHARGE_CODES.length)],
+            invoice_number: rand(3) === 0 ? `INV-${rand(99999, 10000)}` : '',
+            notes: ORDER_NOTES[rand(ORDER_NOTES.length)],
+        };
+    });
 }

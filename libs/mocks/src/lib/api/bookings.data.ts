@@ -12,7 +12,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { MOCK_ASSETS } from './assets.data';
-import { generateCateringOrder } from './catering.data';
+import { MOCK_EVENTS } from './events.data';
 
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
@@ -296,119 +296,65 @@ export const MOCK_BOOKINGS = (() => {
     return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
 
-// Generate catering-order bookings for caterer-ui
-const generateCateringOrderBooking = (
-    day: number,
-    index: number,
-    user: (typeof MOCK_STAFF)[0],
-) => {
-    const bld = MOCK_BUILDINGS[predictableRandomInt(MOCK_BUILDINGS.length)];
-    const lvls = MOCK_LEVELS.filter((_) => _.parent_id === bld?.id);
-    const lvl = lvls[predictableRandomInt(lvls.length)];
-    const space = MOCK_SPACES[predictableRandomInt(MOCK_SPACES.length)];
-    const base_time = setHours(
-        addDays(startOfDay(Date.now()), day - 15),
-        predictableRandomInt(10, 8),
-    );
-    const booking_start = getUnixTime(base_time);
-    const time_length = predictableRandomInt(120, 60);
-    const booking_end = getUnixTime(addMinutes(base_time, time_length));
-
-    // Generate a catering order using the existing function
-    const cateringOrder = generateCateringOrder({
-        id: `catering-event-${index}`,
-        event_start: booking_start,
-        event_end: booking_end,
-        attendees: [user],
-        location: space?.name || 'Meeting Room',
-    });
-
-    // Pick a random caterer name from menu items
-    const caterer = [
-        'Gourmet Events Catering',
-        'Fresh & Local Kitchen',
-        'Premium Dining',
-    ][predictableRandomInt(3)];
-
-    // Add caterer to items
-    const items_with_caterer = cateringOrder.items.map((item: any) => ({
-        ...item,
-        caterer,
-    }));
-
-    return {
-        id: 10000 + index,
-        booking_start,
-        booking_end,
-        timezone: 'Australia/Sydney',
-        title: `Catering Order ${index}`,
-        event_start: booking_start,
-        event_end: booking_end,
-        asset_id: cateringOrder.id,
-        asset_name: `Catering Order - ${space?.name || 'Meeting Room'}`,
-        description: `Catering order for ${space?.name || 'Meeting Room'}`,
-        booking_type: 'catering-order',
-        type: 'catering-order',
-        user_id: user.id,
-        user_name: user.name,
-        user_email: user.email,
-        booked_by_id: user.id,
-        booked_by_name: user.name,
-        booked_by_email: user.email,
-        attendees: [],
-        checked_in: false,
-        rejected: false,
-        approved: true,
-        zones: [bld?.id, lvl?.id].filter(Boolean),
-        extension_data: {
-            details: {
-                id: cateringOrder.id,
-                deliver_at: cateringOrder.deliver_at,
-                items: items_with_caterer,
-                charge_code: cateringOrder.charge_code,
-                invoice_number: cateringOrder.invoice_number,
-                notes: cateringOrder.notes,
-                status: cateringOrder.status,
-                caterer,
+/**
+ * A `catering-order` booking for each catering order of the mock events, as
+ * `createBookingsForEvent` makes them. Concierge reads orders from these
+ * bookings and the caterer UI reads them from the events, so both show the
+ * same orders.
+ */
+export const MOCK_CATERING_BOOKINGS = MOCK_EVENTS.flatMap((event) =>
+    event.extension_data.catering.map((order) => {
+        const host =
+            MOCK_STAFF.find((user) => user.email === event.host) || ACTIVE_USER;
+        const space = event.system;
+        return {
+            booking_start: event.event_start,
+            booking_end: event.event_end,
+            timezone: event.timezone,
+            title: event.title,
+            description: event.title,
+            booking_type: 'catering-order',
+            type: 'catering-order',
+            asset_id: space.id,
+            asset_ids: [space.id],
+            asset_name: space.name,
+            user_id: host.id,
+            user_name: host.name,
+            user_email: host.email,
+            booked_by_id: host.id,
+            booked_by_name: host.name,
+            booked_by_email: host.email,
+            attendees: [],
+            checked_in: false,
+            rejected: false,
+            approved: true,
+            zones: space.zones,
+            extension_data: {
+                parent_id: event.id,
+                name: space.name,
+                location_id: space.id,
+                details: order,
             },
-        },
-        linked_event: {
-            id: `linked-event-${index}`,
-            title: `Meeting with Catering`,
-            event_start: booking_start,
-            event_end: booking_end,
-            host: user.email,
-            system_id: space?.id,
-            location: space?.name || 'Meeting Room',
-            organiser: {
-                name: user.name,
-                email: user.email,
+            linked_event: {
+                id: event.id,
+                title: event.title,
+                event_start: event.event_start,
+                event_end: event.event_end,
+                host: event.host,
+                system_id: space.id,
+                location: event.location,
+                // `CalendarEvent` finds the organiser from the attendees
+                attendees: [
+                    {
+                        id: host.id,
+                        name: host.name,
+                        email: host.email,
+                        organizer: true,
+                    },
+                ],
             },
-        },
-    };
-};
-
-export const MOCK_CATERING_BOOKINGS = (() => {
-    const bookings: ReturnType<typeof generateCateringOrderBooking>[] = [];
-    let bookingIndex = 0;
-
-    // Create catering bookings for 30 days (15 past, 15 future)
-    for (let day = 0; day < 30; day++) {
-        // Generate 3-5 catering orders per day
-        const ordersPerDay = predictableRandomInt(5, 3);
-
-        for (let i = 0; i < ordersPerDay; i++) {
-            const user = MOCK_STAFF[predictableRandomInt(MOCK_STAFF.length)];
-            if (!user) continue;
-
-            const booking = generateCateringOrderBooking(
-                day,
-                bookingIndex++,
-                user,
-            );
-            bookings.push(booking);
-        }
-    }
-
-    return bookings.sort((a, b) => a.booking_start - b.booking_start);
-})();
+        };
+    }),
+)
+    .sort((a, b) => a.booking_start - b.booking_start)
+    .map((booking, index) => ({ id: 10000 + index, ...booking }));
