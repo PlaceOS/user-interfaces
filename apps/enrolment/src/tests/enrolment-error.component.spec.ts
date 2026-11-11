@@ -27,26 +27,17 @@ describe('EnrolmentErrorComponent', () => {
         expect(renderWith('')).toContain('Unable to continue');
     });
 
-    it('should explain a failed guest lookup', () => {
-        expect(renderWith('guest')).toContain(
-            'Your details could not be retrieved',
-        );
-    });
-
-    it('should explain changed meeting details', () => {
-        expect(renderWith('meeting')).toContain('Meeting details have changed');
-    });
-
-    it('should explain an expired link', () => {
-        expect(renderWith('link')).toContain('Your link has expired');
-    });
-
-    it('should explain an existing checkin', () => {
-        expect(renderWith('checked_in')).toContain('already checked in');
-    });
-
-    it('should explain a cancelled meeting', () => {
-        expect(renderWith('cancelled')).toContain('Meeting was cancelled');
+    // Every error name the state service sets has its own explanation
+    it.each([
+        ['guest', 'Your details could not be retrieved'],
+        ['meeting', 'Meeting details have changed'],
+        ['link', 'Your link has expired'],
+        ['checked_in', 'already checked in'],
+        ['cancelled', 'Meeting was cancelled'],
+        ['checkin', 'We could not check you in'],
+        ['update', 'We could not save your details'],
+    ])('should explain the "%s" error', (error_name, message) => {
+        expect(renderWith(error_name)).toContain(message);
     });
 
     it('should show no explanation for an unknown error', () => {
