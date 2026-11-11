@@ -30,7 +30,7 @@ import { UserReportOptions, UserReportService } from './user-report.service';
             class="border-base-200 bg-base-100 z-20 flex h-20 w-full items-center space-x-2 border-b p-4 print:hidden"
         >
             <a-user-search-field
-                class="w-64"
+                class="w-64 h-12"
                 [ngModel]="options().user"
                 (ngModelChange)="setOptions({ user: $event || null })"
             ></a-user-search-field>
