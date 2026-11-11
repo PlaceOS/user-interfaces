@@ -79,6 +79,20 @@ describe('MapEditorSession', () => {
         expect(s.doc.byId('table-01.001')?.getAttribute('fill')).toBe('blue');
     });
 
+    it('undoes a map change made after an undo below a mark', () => {
+        const s = session();
+        s.apply([recolour(s.doc, 'table-01.001', 'red')], 'One');
+        s.apply([recolour(s.doc, 'table-01.001', 'blue')], 'Two');
+        s.addAnnotation(MARK);
+        s.undo();
+        expect(s.mark_is_latest()).toBe(true);
+        s.apply([recolour(s.doc, 'table-01.001', 'green')], 'Three');
+        expect(s.mark_is_latest()).toBe(false);
+        expect(s.undoLatest()).toBe(true);
+        expect(s.annotations()).toHaveLength(1);
+        expect(s.doc.byId('table-01.001')?.getAttribute('fill')).toBe('red');
+    });
+
     it('applies ops as one history entry and bumps the version', () => {
         const s = session();
         expect(s.version()).toBe(0);
