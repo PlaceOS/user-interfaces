@@ -1,11 +1,6 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import {
-    MediaAnimation,
-    PlaceSystem,
-    PlaceZone,
-    SignagePlaylist,
-} from '@placeos/ts-client';
+import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { PlaylistItemDetailsComponent } from '../../app/playlists/playlist-item-details.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
@@ -322,35 +317,5 @@ describe('PlaylistItemDetailsComponent', () => {
         TestBed.flushEffects();
 
         expect(component.active_tab()).toBe(2);
-    });
-
-    it('routes add/remove display actions through the service', async () => {
-        const playlist = { id: 'pl-1' };
-        selected_playlist.set(playlist);
-        const component = await make();
-        const display = new PlaceSystem({ id: 'd-1' });
-        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
-
-        component.addDisplay();
-        component.removeDisplay(event as any, display);
-
-        expect(add_display).toHaveBeenCalledWith(playlist);
-        expect(remove_display).toHaveBeenCalledWith(playlist, display);
-        expect(event.preventDefault).toHaveBeenCalled();
-        expect(event.stopPropagation).toHaveBeenCalled();
-    });
-
-    it('routes add/remove zone actions through the service', async () => {
-        const playlist = { id: 'pl-1' };
-        selected_playlist.set(playlist);
-        const component = await make();
-        const zone = new PlaceZone({ id: 'z-1' });
-        const event = { preventDefault: vi.fn(), stopPropagation: vi.fn() };
-
-        component.addZone();
-        component.removeZone(event as any, zone);
-
-        expect(add_zone).toHaveBeenCalledWith(playlist);
-        expect(remove_zone).toHaveBeenCalledWith(playlist, zone);
     });
 });

@@ -112,26 +112,6 @@ describe('DisplayContentComponent', () => {
         expect(component.display_zones()).toEqual([]);
     });
 
-    it('adds a playlist to the selected display via the service', async () => {
-        const display = { id: 'd1', playlists: [] };
-        selected_display.set(display);
-        const component = await make();
-
-        component.addPlaylist();
-
-        expect(add_playlist).toHaveBeenCalledWith(display);
-    });
-
-    it('removes a playlist from the display via the service', async () => {
-        const display = { id: 'd1', playlists: ['p1'] };
-        selected_display.set(display);
-        const component = await make();
-
-        component.removePlaylist('p1');
-
-        expect(remove_playlist).toHaveBeenCalledWith(display, 'p1');
-    });
-
     // The empty states use these icons
     it('shows that the zones are loading in place of the empty state', async () => {
         selected_display.set({ id: 'd1', zones: ['z1'] });

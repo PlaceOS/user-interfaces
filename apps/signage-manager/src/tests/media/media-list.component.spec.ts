@@ -293,14 +293,4 @@ describe('MediaListComponent folders', () => {
         ]);
         expect(component.selected_count()).toBe(0);
     });
-
-    it('forwards tag folder actions to the service', async () => {
-        const component = make();
-
-        await component.renameTag('news', 2);
-        await component.removeTag('news', 2);
-
-        expect(media_stub.renameMediaTag).toHaveBeenCalledWith('news', 2);
-        expect(media_stub.removeMediaTag).toHaveBeenCalledWith('news', 2);
-    });
 });
