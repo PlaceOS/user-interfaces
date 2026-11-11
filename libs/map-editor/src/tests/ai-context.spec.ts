@@ -49,6 +49,13 @@ function assertContextShape(context: MapAIContext): void {
         expect(typeof context.subtrees[key]).toBe('string');
 }
 
+/** The context's size with only the first `count` index entries. */
+function bytesWithIndex(context: MapAIContext, count: number): number {
+    return new TextEncoder().encode(
+        JSON.stringify({ ...context, index: context.index.slice(0, count) }),
+    ).length;
+}
+
 function assertEntryShape(entry: MapAIContextEntry): void {
     expect(Object.keys(entry).sort()).toEqual(
         [
@@ -187,43 +194,87 @@ describe('buildContext', () => {
         expect(subtreeMarkup(desks, 10_000)).toContain('table-01.003');
     });
 
-    it('shrinks to the budget by dropping subtrees, then anonymous entries, and says so', () => {
+    it('shrinks to the budget by dropping anonymous entries, then named ones, then subtrees, and says so', () => {
         const doc = MapDocument.load(OFFICE);
         const session = new FakeSession(doc);
         const selected = anchor(doc, 'table-01.001');
         const full = buildContext(session, { selection: [selected] });
-        const without_subtrees = buildContext(session, {
-            selection: [selected],
-            max_bytes: full.bytes - 10,
-        });
-        expect(without_subtrees.dropped.subtrees).toBe(1);
-        expect(without_subtrees.dropped.anonymous).toBe(0);
-        expect(without_subtrees.context.subtrees).toEqual({});
-        expect(without_subtrees.context.shortlist).toEqual([]);
-        expect(without_subtrees.context.markup.selected).toEqual([selected]);
-        expect(without_subtrees.fits).toBe(true);
-        expect(without_subtrees.bytes).toBeLessThanOrEqual(full.bytes - 10);
-
         const named_count = orderEntries(session.index()).filter(
             (entry) => entry.id || entry.label || entry.protected,
         ).length;
+
         const fewer = buildContext(session, {
             selection: [selected],
-            max_bytes: without_subtrees.bytes - 40,
+            max_bytes: full.bytes - 10,
         });
         expect(fewer.dropped.anonymous).toBeGreaterThan(0);
         expect(fewer.dropped.named).toBe(0);
-        expect(fewer.context.index.length).toBeLessThan(
-            without_subtrees.context.index.length,
-        );
+        expect(fewer.dropped.subtrees).toBe(0);
         expect(fewer.context.index.length).toBeGreaterThanOrEqual(named_count);
+        expect(fewer.context.shortlist).toEqual([selected]);
         expect(fewer.fits).toBe(true);
+        expect(fewer.bytes).toBeLessThanOrEqual(full.bytes - 10);
 
-        const tiny = buildContext(session, { max_bytes: 600 });
-        expect(tiny.dropped.named).toBeGreaterThan(0);
+        const pinned_only = buildContext(session, {
+            selection: [selected],
+            max_bytes: bytesWithIndex(full.context, 1),
+        });
+        expect(pinned_only.dropped.named).toBeGreaterThan(0);
+        expect(pinned_only.dropped.subtrees).toBe(0);
+        expect(pinned_only.context.index.map((entry) => entry.a)).toEqual([
+            selected,
+        ]);
+        expect(pinned_only.context.subtrees[selected]).toContain(
+            'table-01.001',
+        );
+
+        const tiny = buildContext(session, {
+            selection: [selected],
+            max_bytes: 600,
+        });
+        expect(tiny.dropped.subtrees).toBe(1);
+        expect(tiny.context.subtrees).toEqual({});
+        expect(tiny.context.shortlist).toEqual([]);
+        expect(tiny.context.markup.selected).toEqual([selected]);
+        expect(tiny.context.index).toEqual([]);
         expect(tiny.bytes).toBe(
             new TextEncoder().encode(JSON.stringify(tiny.context)).length,
         );
+    });
+
+    it('lists the shortlisted and recent elements first and drops them last', () => {
+        const doc = MapDocument.load(OFFICE);
+        const session = new FakeSession(doc);
+        const document_order = buildContext(session).context.index;
+        const last = document_order.filter((entry) => entry.id).pop()
+            ?.a as string;
+        const selected = anchor(doc, 'table-01.001');
+        const anonymous = document_order[document_order.length - 1].a;
+        const full = buildContext(session, {
+            selection: [selected],
+            recent: [last, anonymous, 'e9999'],
+        });
+        expect(full.context.index.slice(0, 3).map((entry) => entry.a)).toEqual([
+            selected,
+            last,
+            anonymous,
+        ]);
+        expect(full.context.index.length).toBe(document_order.length);
+        expect(new Set(full.context.index.map((entry) => entry.a)).size).toBe(
+            document_order.length,
+        );
+
+        const small = buildContext(session, {
+            selection: [selected],
+            recent: [last, anonymous],
+            max_bytes: bytesWithIndex(full.context, 3),
+        });
+        expect(small.dropped.named).toBeGreaterThan(0);
+        expect(small.context.index.map((entry) => entry.a)).toEqual([
+            selected,
+            last,
+            anonymous,
+        ]);
     });
 
     it('takes the snapshot size when one was rendered', () => {

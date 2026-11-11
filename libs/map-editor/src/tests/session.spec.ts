@@ -221,6 +221,42 @@ describe('MapEditorSession', () => {
         expect(s.isChanged(table)).toBe(false);
     });
 
+    it('lists the anchors of changed and new elements, by id after a restore', () => {
+        const s = session();
+        const table = anchor(s.doc, 'table-01.001');
+        expect(s.changedAnchors()).toEqual([]);
+        s.apply([recolour(s.doc, 'table-01.001', 'red')], 'Recolour');
+        s.apply(
+            [
+                {
+                    op: 'insert_shape',
+                    kind: 'rect',
+                    new_id: 'area-9.99-status',
+                    attrs: [
+                        { name: 'x', value: '0' },
+                        { name: 'y', value: '0' },
+                        { name: 'width', value: '10' },
+                        { name: 'height', value: '10' },
+                    ],
+                    why: '',
+                },
+            ],
+            'Insert',
+        );
+        const added = anchor(s.doc, 'area-9.99-status');
+        expect(s.changedAnchors()).toEqual([table, added]);
+        expect(s.changedAnchors().every((a) => s.isChanged(a))).toBe(true);
+
+        s.restore(s.doc.serialise(), 'Restore draft');
+        const named = s
+            .changedAnchors()
+            .filter((a) => s.doc.byAnchor(a)?.hasAttribute('id'));
+        expect(named).toEqual([
+            anchor(s.doc, 'table-01.001'),
+            anchor(s.doc, 'area-9.99-status'),
+        ]);
+    });
+
     it('restores other markup as one undoable step with unique anchors', () => {
         const s = session();
         const before = s.doc.serialise();

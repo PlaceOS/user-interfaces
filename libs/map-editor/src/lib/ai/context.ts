@@ -30,6 +30,8 @@ export interface BuildContextOptions {
     instruction?: string;
     /** Anchors near the person's marks, from hit-testing. */
     shortlist?: readonly string[];
+    /** Anchors of the elements added or changed since the map loaded. */
+    recent?: readonly string[];
     max_bytes?: number;
     max_subtree_bytes?: number;
     /** Size of the snapshot being sent; computed from the viewBox when absent. */
@@ -72,20 +74,42 @@ export function bboxArea(entry: MapIndexEntry): number {
 }
 
 /**
- * The entries worth sending, named ones first in document order, then the
- * anonymous ones largest first so the budget drops the small ones.
+ * The entries worth sending: the pinned anchors in the order given, then the
+ * named ones in document order, then the anonymous ones largest first so the
+ * budget drops the small ones.
  */
-export function orderEntries(index: MapIndex): MapIndexEntry[] {
+export function orderEntries(
+    index: MapIndex,
+    pinned: readonly string[] = [],
+): MapIndexEntry[] {
     const listed = index.entries.filter(
         (entry) => entry.kind !== 'root' && entry.kind !== 'non-rendered',
     );
-    const named = listed.filter(isNamedEntry);
-    const anonymous = listed
+    const first = pinnedEntries(index, pinned);
+    const taken = new Set(first.map((entry) => entry.anchor));
+    const rest = listed.filter((entry) => !taken.has(entry.anchor));
+    const named = rest.filter(isNamedEntry);
+    const anonymous = rest
         .filter((entry) => !isNamedEntry(entry))
         .map((entry, order) => ({ entry, order, area: bboxArea(entry) }))
         .sort((a, b) => b.area - a.area || a.order - b.order)
         .map((item) => item.entry);
-    return [...named, ...anonymous];
+    return [...first, ...named, ...anonymous];
+}
+
+/** The listable entries the anchors name, once each, in the order given. */
+export function pinnedEntries(
+    index: MapIndex,
+    anchors: readonly string[],
+): MapIndexEntry[] {
+    return unique(anchors)
+        .map((anchor) => index.by_anchor.get(anchor))
+        .filter(
+            (entry): entry is MapIndexEntry =>
+                !!entry &&
+                entry.kind !== 'root' &&
+                entry.kind !== 'non-rendered',
+        );
 }
 
 /** Entries whose box can contain others: bookables and zones with a non-empty box, smallest first. */
@@ -590,6 +614,8 @@ export function pieceIndex(
 const MENTION = /[A-Za-z0-9.]*\d[A-Za-z0-9.]*/g;
 const ID_SEPARATOR = /[-_.\s]+/;
 const MAX_MENTIONS = 12;
+/** A restored draft re-anchors the tree, which makes every element without an id recent. */
+const MAX_RECENT = 200;
 
 /** Tokens of the instruction that carry a digit, such as 1.03, 01.004, G.02 or 100. */
 export function mentionedTokens(instruction: string): string[] {
@@ -684,11 +710,12 @@ function unique(values: readonly string[]): string[] {
 }
 
 /**
- * The context an edit request carries: the index with named elements first,
- * the markup of the selected and shortlisted elements, the style rules, the
- * protected and duplicate ids and the markup block. Shrinks to the byte
- * budget by dropping subtrees, then anonymous entries, then named entries,
- * and says what went.
+ * The context an edit request carries: the index, the markup of the selected
+ * and shortlisted elements, the style rules, the protected and duplicate ids
+ * and the markup block. The index starts with the shortlisted and recent
+ * elements, then the named ones, then the anonymous ones. Shrinks to the byte
+ * budget by dropping anonymous entries, then named entries, then subtrees,
+ * then the shortlisted and recent entries, and says what went.
  */
 export function buildContext(
     source: ContextSource,
@@ -756,9 +783,21 @@ export function buildContext(
     const size =
         options.snapshot || snapshotSize(doc.view_box, options.long_side);
 
-    const ordered = include_root
-        ? [root_entry!, ...orderEntries(index)]
-        : orderEntries(index);
+    const recent = pinnedEntries(index, options.recent || []);
+    const pinned = pinnedEntries(index, [
+        ...shortlist,
+        ...[
+            ...recent.filter(isNamedEntry),
+            ...recent.filter((entry) => !isNamedEntry(entry)),
+        ]
+            .slice(0, MAX_RECENT)
+            .map((entry) => entry.anchor),
+    ]);
+    const sorted = orderEntries(
+        index,
+        pinned.map((entry) => entry.anchor),
+    );
+    const ordered = include_root ? [root_entry!, ...sorted] : sorted;
     const containers = containerIndex(index);
     const labels = labelClusters(index, containers, (anchor) => {
         const element = doc.byAnchor(anchor);
@@ -779,9 +818,10 @@ export function buildContext(
             pieces.get(entry.anchor) ?? null,
         ),
     );
+    const root_count = include_root ? 1 : 0;
+    const pinned_count = root_count + pinned.length;
     const named_count =
-        ordered.filter(isNamedEntry).length +
-        (include_root && !isNamedEntry(root_entry!) ? 1 : 0);
+        pinned_count + sorted.slice(pinned.length).filter(isNamedEntry).length;
 
     const subtrees: Record<string, string> = {};
     for (const anchor of shortlist) {
@@ -825,15 +865,6 @@ export function buildContext(
     const dropped: ContextDrops = { subtrees: 0, anonymous: 0, named: 0 };
     let bytes = bytesOf(context);
 
-    while (bytes > max_bytes && context.shortlist.length) {
-        const key = context.shortlist[context.shortlist.length - 1];
-        bytes -= bytesOf(key) + bytesOf(context.subtrees[key]) + 4;
-        context.shortlist = context.shortlist.slice(0, -1);
-        delete context.subtrees[key];
-        dropped.subtrees += 1;
-    }
-    if (dropped.subtrees) bytes = bytesOf(context);
-
     const drop_tail = (floor: number, counter: keyof ContextDrops) => {
         while (bytes > max_bytes && context.index.length > floor) {
             const entry = context.index[context.index.length - 1];
@@ -845,8 +876,20 @@ export function buildContext(
     };
     drop_tail(named_count, 'anonymous');
     drop_tail(named_count, 'anonymous');
-    drop_tail(include_root ? 1 : 0, 'named');
-    drop_tail(include_root ? 1 : 0, 'named');
+    drop_tail(pinned_count, 'named');
+    drop_tail(pinned_count, 'named');
+
+    while (bytes > max_bytes && context.shortlist.length) {
+        const key = context.shortlist[context.shortlist.length - 1];
+        bytes -= bytesOf(key) + bytesOf(context.subtrees[key]) + 4;
+        context.shortlist = context.shortlist.slice(0, -1);
+        delete context.subtrees[key];
+        dropped.subtrees += 1;
+    }
+    if (dropped.subtrees) bytes = bytesOf(context);
+
+    drop_tail(root_count, 'named');
+    drop_tail(root_count, 'named');
 
     return { context, bytes, dropped, fits: bytes <= max_bytes };
 }

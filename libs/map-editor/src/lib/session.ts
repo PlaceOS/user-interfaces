@@ -306,6 +306,27 @@ export class MapEditorSession implements MapEditorSessionLike {
         );
     }
 
+    /** Anchors of the elements `isChanged` holds for, in document order. */
+    public changedAnchors(): string[] {
+        const by_id = new Map<string, string>();
+        for (const original of Array.from(
+            this._baseline_root.querySelectorAll('[id]'),
+        )) {
+            const id = original.getAttribute('id') as string;
+            if (!by_id.has(id)) by_id.set(id, canonicalSignature(original));
+        }
+        const changed: string[] = [];
+        for (const element of this.doc.elements()) {
+            const anchor = this.doc.anchorOf(element);
+            const id = element.getAttribute('id');
+            const original =
+                this._baseline_signatures.get(anchor) ??
+                (id ? by_id.get(id) : undefined);
+            if (original !== canonicalSignature(element)) changed.push(anchor);
+        }
+        return changed;
+    }
+
     /**
      * The element as it was when the map loaded, by anchor or, after a
      * restore has re-anchored the tree, by id; null for a new element.

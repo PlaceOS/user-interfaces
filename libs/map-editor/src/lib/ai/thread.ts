@@ -476,6 +476,7 @@ export class MapAiThread {
                 selection,
                 instruction: text,
                 annotations,
+                recent: this._session.changedAnchors?.(),
                 max_bytes: state.capabilities?.limits.max_context_bytes,
                 snapshot: size,
             },
