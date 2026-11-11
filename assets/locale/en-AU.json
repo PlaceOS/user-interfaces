@@ -375,7 +375,7 @@
         "PDF_IMPORT_SELECT_HINT": "Click a page to include or leave it out. Shift-click sets a range.",
         "PDF_IMPORT_SELECT_NONE": "Select none",
         "PDF_IMPORT_START": "Import pages ({{ count }})",
-        "PDF_IMPORT_TITLE": "Import pages",
+        "PDF_IMPORT_TITLE": "Import Document",
         "PPTX_IMPORT_EXPORT_MAC": "Mac: File → Export, then choose PNG (Save Every Slide) or MP4",
         "PPTX_IMPORT_EXPORT_WINDOWS_IMAGES": "Windows, images: File → Export → Change File Type → PNG → Save As → All Slides",
         "PPTX_IMPORT_EXPORT_WINDOWS_VIDEO": "Windows, video: File → Export → Create a Video → MP4",
