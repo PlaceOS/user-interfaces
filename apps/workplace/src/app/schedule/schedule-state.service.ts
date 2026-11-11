@@ -251,7 +251,8 @@ export class ScheduleStateService extends AsyncHandler {
     });
     private _date = signal(Date.now());
     private _end_date = signal<number | null>(null);
-    private _deleted: string[] = [];
+    /** Keys of removed items, a signal so the list hides them at once */
+    private _deleted = signal<string[]>([]);
     /** Building that the type filter defaults were last set for */
     private _type_defaults_building = '';
     private _ignore_cancel: string[] = [];
@@ -441,7 +442,7 @@ export class ScheduleStateService extends AsyncHandler {
     public readonly filtered_bookings = computed(() =>
         this.bookings().filter((_) => {
             const filters = this._filters();
-            if (this._deleted.includes(deletedKey(_))) return false;
+            if (this._deleted().includes(deletedKey(_))) return false;
             if (
                 this.isBookingForOtherUser(_) &&
                 !filters?.show_bookings_for_others
@@ -476,8 +477,10 @@ export class ScheduleStateService extends AsyncHandler {
 
     constructor() {
         super();
-        this._deleted = JSON.parse(
-            sessionStorage.getItem('PLACEOS.events.deleted') || '[]',
+        this._deleted.set(
+            JSON.parse(
+                sessionStorage.getItem('PLACEOS.events.deleted') || '[]',
+            ),
         );
         effect(() => {
             this._org.active_building();
@@ -602,10 +605,10 @@ export class ScheduleStateService extends AsyncHandler {
     }
 
     public setAsDeleted(id: string) {
-        this._deleted.push(id);
+        this._deleted.update((list) => [...list, id]);
         sessionStorage.setItem(
             'PLACEOS.events.deleted',
-            JSON.stringify(this._deleted),
+            JSON.stringify(this._deleted()),
         );
     }
 

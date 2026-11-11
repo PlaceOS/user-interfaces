@@ -391,9 +391,14 @@ describe('ScheduleStateService', () => {
                 booking_type: 'desk',
                 date: 2,
             });
-            spectator.service.removeItem(first);
             (spectator.service as any)._desks.set([first, second]);
+            expect(spectator.service.filtered_bookings()).toEqual([
+                first,
+                second,
+            ]);
 
+            // the list hides the item at once, not on the next reload
+            spectator.service.removeItem(first);
             expect(spectator.service.filtered_bookings()).toEqual([second]);
         });
 
