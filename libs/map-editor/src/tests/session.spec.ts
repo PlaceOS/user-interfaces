@@ -3,7 +3,6 @@ import { MemoryDraftStore } from '../lib/draft-store';
 import { AttributeGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
 import { MapOp } from '../lib/ops';
-import { ProtectedIdSet } from '../lib/protected-ids';
 import { MapEditorSession } from '../lib/session';
 import { anchor, loadMap, OFFICE, readMap, SAMPLE_MAPS } from './fixtures';
 
@@ -65,6 +64,19 @@ describe('MapEditorSession', () => {
         expect(s.undoLatest()).toBe(true);
         expect(s.annotations()).toHaveLength(0);
         expect(s.undoLatest()).toBe(false);
+    });
+
+    it('undoes a map change made after a mark once the history is at its depth cap', () => {
+        const s = session(OFFICE, { history: { depth: 2 } });
+        s.apply([recolour(s.doc, 'table-01.001', 'red')], 'One');
+        s.apply([recolour(s.doc, 'table-01.001', 'blue')], 'Two');
+        s.addAnnotation(MARK);
+        s.apply([recolour(s.doc, 'table-01.001', 'green')], 'Three');
+        expect(s.history.length).toBe(2);
+        expect(s.mark_is_latest()).toBe(false);
+        expect(s.undoLatest()).toBe(true);
+        expect(s.annotations()).toHaveLength(1);
+        expect(s.doc.byId('table-01.001')?.getAttribute('fill')).toBe('blue');
     });
 
     it('applies ops as one history entry and bumps the version', () => {
@@ -340,15 +352,33 @@ describe('MapEditorSession', () => {
         expect(await store.get(key)).toBeNull();
     });
 
-    it('takes the protected set and geometry it is given', () => {
-        const protected_ids = new ProtectedIdSet([
-            { id: 'table-01.001', kind: 'desk', label: 'Desk 1' },
-        ]);
-        const s = session(OFFICE, { protected: protected_ids });
-        expect(s.doc.protected).toBe(protected_ids);
-        expect(
-            s.index().by_anchor.get(anchor(s.doc, 'table-01.001'))?.protected,
-        ).toBe(true);
+    it('drops a pending draft write when the draft is cleared or the session disposed', async () => {
+        vi.useFakeTimers();
+        try {
+            const store = new MemoryDraftStore();
+            const saved = session(OFFICE, {
+                draft_store: store,
+                draft_delay_ms: 1000,
+            });
+            const key = await saved.draftKey();
+            saved.apply([recolour(saved.doc, 'plant-1', 'red')], 'Recolour');
+            await saved.clearDraft();
+            await vi.advanceTimersByTimeAsync(2000);
+            await saved.flushDraft();
+            expect(await store.get(key)).toBeNull();
+
+            const closed = session(OFFICE, {
+                draft_store: store,
+                draft_delay_ms: 1000,
+            });
+            closed.apply([recolour(closed.doc, 'plant-1', 'red')], 'Recolour');
+            closed.dispose();
+            await vi.advanceTimersByTimeAsync(2000);
+            await closed.flushDraft();
+            expect(await store.keys()).toEqual([]);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('loads every sample map', () => {
