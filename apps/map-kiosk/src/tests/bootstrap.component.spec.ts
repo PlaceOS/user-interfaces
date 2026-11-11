@@ -4,57 +4,65 @@ import {
     SpectatorRouting,
     createRoutingFactory,
 } from '@ngneat/spectator/vitest';
-import {
-    Building,
-    BuildingLevel,
-    OrganisationService,
-    Region,
-} from '@placeos/common';
+import { BuildingLevel, OrganisationService } from '@placeos/common';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
+const KIOSK_KEYS = [
+    'KIOSK.building',
+    'KIOSK.level',
+    'KIOSK.orientation',
+    'KIOSK.location',
+    'KIOSK.parking',
+];
+
 describe('BootstrapComponent', () => {
     let spectator: SpectatorRouting<BootstrapComponent>;
+    let router: Router;
+    /** Promise that `waitUntilInitialised` returns */
+    let org_ready: Promise<void>;
+    const org = {
+        waitUntilInitialised: vi.fn(() => org_ready),
+        levelWithID: vi.fn(
+            (): BuildingLevel | null =>
+                new BuildingLevel({ id: 'lvl-q', parent_id: 'bld-q' }),
+        ),
+        region_list: signal([]),
+        active_buildings: signal([]),
+        active_levels: signal([]),
+        initialised: signal(true),
+    };
     const createComponent = createRoutingFactory({
         component: BootstrapComponent,
-        providers: [
-            MockProvider(OrganisationService, {
-                building: new Building({ id: '1' }),
-                buildings: [
-                    new Building({ id: '1' }),
-                    new Building({ id: '2' }),
-                ],
-                levelsForBuilding: () => [
-                    new BuildingLevel({ id: '1' }),
-                    new BuildingLevel({ id: '2' }),
-                ],
-                levelWithID: () => new BuildingLevel({ id: '1' }),
-                region_list: signal([new Region({ name: '1', id: '1' })]),
-                active_buildings: signal([
-                    new Building({ name: '1', id: '1', parent_id: '1' }),
-                ]),
-                active_levels: signal([
-                    new BuildingLevel({ id: '1' }),
-                    new BuildingLevel({ id: '2' }),
-                ]),
-                initialised: signal(true),
-            }),
-        ],
+        detectChanges: false,
+        providers: [MockProvider(OrganisationService, org)],
     });
 
-    beforeEach(() => {
-        localStorage.clear();
+    /** Create the component and let `ngOnInit` finish its async start */
+    const setup = async () => {
         spectator = createComponent();
+        router = spectator.inject(Router);
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(0);
+    };
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.clearAllMocks();
+        org_ready = Promise.resolve();
+        localStorage.clear();
+        VirtualKeyboardComponent.enabled = false;
     });
 
     afterEach(() => {
-        localStorage.clear();
-        vi.restoreAllMocks();
         vi.useRealTimers();
+        localStorage.clear();
+        VirtualKeyboardComponent.enabled = false;
     });
 
-    it('should save the parking flag and route to the matching view', () => {
-        const router = spectator.inject(Router);
+    it('should save the location and route to explore or parking', async () => {
+        await setup();
         const kiosk = {
             building: null,
             level: new BuildingLevel({ id: 'lvl-1', parent_id: 'bld-1' }),
@@ -63,41 +71,86 @@ describe('BootstrapComponent', () => {
         };
         spectator.component.parking.set(true);
         spectator.component.bootstrapKiosk(kiosk);
+        expect(localStorage.getItem('KIOSK.building')).toBe('bld-1');
         expect(localStorage.getItem('KIOSK.level')).toBe('lvl-1');
         expect(localStorage.getItem('KIOSK.parking')).toBe('true');
-        expect(router.navigate).toHaveBeenCalledWith(['/parking']);
+        expect(router.navigate).toHaveBeenLastCalledWith(['/parking']);
 
         spectator.component.parking.set(false);
         spectator.component.bootstrapKiosk(kiosk);
         expect(localStorage.getItem('KIOSK.parking')).toBeNull();
+        expect(router.navigate).toHaveBeenLastCalledWith(['/explore']);
+    });
+
+    it('should remove the saved setup when clear=true', async () => {
+        for (const key of KIOSK_KEYS) localStorage.setItem(key, 'x');
+        await setup();
+        spectator.setRouteQueryParam('clear', 'false');
+        spectator.detectChanges();
+        expect(localStorage.getItem('KIOSK.level')).toBe('x');
+
+        spectator.setRouteQueryParam('clear', 'true');
+        spectator.detectChanges();
+        for (const key of KIOSK_KEYS) {
+            expect(localStorage.getItem(key)).toBeNull();
+        }
+    });
+
+    it('should save the on-screen keyboard state from the osk param', async () => {
+        await setup();
+        spectator.setRouteQueryParam('osk', 'true');
+        spectator.detectChanges();
+        expect(localStorage.getItem('OSK.enabled')).toBe('true');
+
+        spectator.setRouteQueryParam('osk', 'no');
+        spectator.detectChanges();
+        expect(localStorage.getItem('OSK.enabled')).toBe('false');
+    });
+
+    it('should bootstrap from the level param once the org is ready', async () => {
+        let resolveOrg!: () => void;
+        org_ready = new Promise((resolve) => (resolveOrg = resolve));
+        await setup();
+        spectator.setRouteQueryParam('level', 'lvl-q');
+        spectator.detectChanges();
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        resolveOrg();
+        await vi.advanceTimersByTimeAsync(0);
+        spectator.detectChanges();
+        expect(org.levelWithID).toHaveBeenCalledWith(['lvl-q']);
+        expect(localStorage.getItem('KIOSK.level')).toBe('lvl-q');
+        expect(localStorage.getItem('KIOSK.building')).toBe('bld-q');
         expect(router.navigate).toHaveBeenCalledWith(['/explore']);
     });
 
-    it('should handle clearing bootstrap details', () => {
-        vi.spyOn(Storage.prototype, 'removeItem');
-        expect(localStorage.removeItem).not.toHaveBeenCalled();
-        spectator.setRouteQueryParam('clear', 'true');
+    it('should ignore a level param that matches no level', async () => {
+        org.levelWithID.mockReturnValueOnce(null);
+        await setup();
+        spectator.setRouteQueryParam('level', 'missing');
         spectator.detectChanges();
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.building');
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.level');
-        expect(localStorage.removeItem).toHaveBeenCalledWith(
-            'KIOSK.orientation',
-        );
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.parking');
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.location');
+        expect(localStorage.getItem('KIOSK.level')).toBeNull();
+        expect(router.navigate).not.toHaveBeenCalled();
     });
 
-    it('should re-direct if already bootstrapped', async () => {
-        vi.useFakeTimers();
-        const router = spectator.inject(Router);
+    it('should redirect after a second when a setup is saved', async () => {
+        localStorage.setItem('KIOSK.building', 'bld-1');
+        localStorage.setItem('KIOSK.level', 'lvl-1');
+        localStorage.setItem('KIOSK.parking', 'true');
+        localStorage.setItem('OSK.enabled', 'true');
+        await setup();
+        await vi.advanceTimersByTimeAsync(999);
         expect(router.navigate).not.toHaveBeenCalled();
-        await spectator.component.ngOnInit();
-        await vi.advanceTimersByTimeAsync(1001);
-        localStorage.setItem('KIOSK.building', '1');
-        localStorage.setItem('KIOSK.level', '1');
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(router.navigate).toHaveBeenCalledWith(['/parking']);
+        expect(VirtualKeyboardComponent.enabled).toBe(true);
+    });
+
+    it('should stay on setup when only part of a setup is saved', async () => {
+        localStorage.setItem('KIOSK.level', 'lvl-1');
+        await setup();
+        await vi.advanceTimersByTimeAsync(1000);
         expect(router.navigate).not.toHaveBeenCalled();
-        await spectator.component.ngOnInit();
-        await vi.advanceTimersByTimeAsync(1001);
-        expect(router.navigate).toHaveBeenCalled();
     });
 });
