@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/components/src/lib/building.pipe.ts"
+  ],
+  "sourcesContent": [
+    "import { Pipe, PipeTransform, inject } from '@angular/core';\nimport { Building, OrganisationService } from '@placeos/common';\n\n@Pipe({\n    name: 'building',\n})\nexport class BuildingPipe implements PipeTransform {\n    private _org = inject(OrganisationService);\n\n    public transform(id: string | string[]): Building {\n        return this._org.buildings.find((bld) =>\n            id instanceof Array ? id.includes(bld.id) : bld.id === id,\n        );\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;AAMM,IAAO,eAAP,MAAO,cAAY;EAHzB,cAAA;AAIY,SAAA,OAAO,OAAO,mBAAmB;;EAElC,UAAU,IAAqB;AAClC,WAAO,KAAK,KAAK,UAAU,KAAK,CAAC,QAC7B,cAAc,QAAQ,GAAG,SAAS,IAAI,EAAE,IAAI,IAAI,OAAO,EAAE;EAEjE;;;uCAPS,eAAY;IAAA;EAAA;;uFAAZ,eAAY,MAAA,KAAA,CAAA;EAAA;;;sEAAZ,cAAY,CAAA;UAHxB;WAAK;MACF,MAAM;KACT;;;",
+  "names": [],
+  "debugId": "f977a479-c6fa-50be-a71e-7b2b56f8bfac"
+}
