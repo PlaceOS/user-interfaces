@@ -222,6 +222,4 @@ describe('DesksComponent', () => {
         );
         expect(print_content.textContent).toContain('Desk 1');
     });
-
-    it.todo('should handle routing events');
 });

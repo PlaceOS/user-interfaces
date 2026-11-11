@@ -39,12 +39,6 @@ describe('InviteVisitorModalComponent', () => {
         }).compileComponents();
     });
 
-    it('should create component', () => {
-        const fixture = TestBed.createComponent(InviteVisitorModalComponent);
-
-        expect(fixture.componentInstance).toBeTruthy();
-    });
-
     it('should clear stale booking loading state on open', () => {
         const fixture = TestBed.createComponent(InviteVisitorModalComponent);
 

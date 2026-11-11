@@ -227,10 +227,6 @@ describe('SiteAttendanceReportService', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should aggregate bookings into site attendance cards', async () => {
         spectator.service.setOptions({
             start: new Date('2026-04-06T12:00:00').valueOf(),

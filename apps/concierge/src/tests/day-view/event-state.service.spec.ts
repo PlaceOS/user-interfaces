@@ -19,7 +19,7 @@ import { EventsStateService } from '../../app/day-view/events-state.service';
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
-import { Subject } from 'rxjs';
+import { NEVER, of, Subject } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -81,9 +81,10 @@ describe('EventsStateService', () => {
             MockProvider(SettingsService, {
                 get: ((name: string) =>
                     name === 'app.week_start' ? week_start : false) as any,
-            }),
+                time_format: 'h:mm a',
+            } as Partial<SettingsService>),
             MockProvider(SpacesService, { find: vi.fn() }),
-            MockProvider(MatDialog, { open: vi.fn() }),
+            MockProvider(MatDialog, { open: vi.fn(), closeAll: vi.fn() }),
         ],
     });
 
@@ -105,10 +106,6 @@ describe('EventsStateService', () => {
     afterEach(() => {
         vi.useRealTimers();
         vi.clearAllMocks();
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should list events', async () => {
@@ -138,22 +135,48 @@ describe('EventsStateService', () => {
         vi.mocked(ts_client.responseHeaders).mockReset();
     });
 
-    it('should allow filtering of listed events', async () => {
-        spectator.service.setZones(['bld-123']);
-        spectator.service.startPolling('day');
-        await settle();
-        spectator.service.stopPolling();
-        expect(spectator.service.filtered()).toHaveLength(0);
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {},
-            {
+    it('should filter events by period, room, zone and type', () => {
+        const event = (id: string, extra: Record<string, unknown> = {}) =>
+            new CalendarEvent({
+                id,
                 date: Date.now(),
-                resources: [{ email: '1', zones: ['bld-234'] }],
-            },
-        ] as any);
-        spectator.service.setZones([]);
-        await settle();
-        // expect(spectator.service.filtered()).toHaveLength(1);
+                duration: 60,
+                resources: [
+                    { email: 'room-1@place.tech', zones: ['lvl-1'] } as any,
+                ],
+                ...extra,
+            });
+        const events = [
+            event('internal'),
+            event('external', {
+                attendees: [{ email: 'guest@other.com', visit_expected: true }],
+            }),
+            event('other-room', {
+                resources: [
+                    { email: 'room-2@place.tech', zones: ['lvl-2'] } as any,
+                ],
+            }),
+            event('yesterday', { date: Date.now() - 24 * 60 * 60 * 1000 }),
+        ];
+        const start = new Date(Date.now() - 60 * 60 * 1000);
+        const end = new Date(Date.now() + 60 * 60 * 1000);
+        const filter = (filters: Record<string, unknown>) =>
+            (spectator.service as any)
+                .filterEvents(events, start, end, filters)
+                .map((_: CalendarEvent) => _.id);
+
+        expect(filter({})).toEqual(['internal', 'external', 'other-room']);
+        expect(filter({ space_emails: ['room-2@place.tech'] })).toEqual([
+            'other-room',
+        ]);
+        expect(filter({ zone_ids: ['lvl-1'] })).toEqual([
+            'internal',
+            'external',
+        ]);
+        expect(filter({ hide_type: ['external'] })).toEqual([
+            'internal',
+            'other-room',
+        ]);
     });
 
     it('should hide setup and breakdown events unless overflow is enabled', () => {
@@ -346,9 +369,76 @@ describe('EventsStateService', () => {
         );
     });
 
-    it.todo('should allow adding new events');
-    it.todo('should allow updating existing events');
-    it.todo('should allow removing existing events');
+    describe('removeBooking', () => {
+        const booking = () =>
+            new CalendarEvent({
+                id: 'evt-1',
+                date: Date.now(),
+                duration: 60,
+                host: 'host@place.tech',
+                // Matches a loaded space, so the API loader keeps it
+                resources: [{ email: '1' } as any],
+            });
+        const listed_ids = () =>
+            spectator.service.filtered().map((event) => event.id);
+        /** Load the booking from the API, as the day view does */
+        const loadBooking = async () => {
+            vi.mocked(ts_client.get).mockResolvedValue([
+                booking().toJSON(),
+            ] as never);
+            spectator.service.startPolling('day');
+            await settle();
+            spectator.service.stopPolling();
+            return spectator.service.filtered()[0];
+        };
+
+        beforeEach(() => {
+            // The confirm modal resolves at once as confirmed
+            vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+                componentInstance: {
+                    event: of({ reason: 'done' }),
+                    loading: { set: vi.fn() },
+                },
+                afterClosed: () => NEVER,
+                close: vi.fn(),
+            } as any);
+        });
+
+        it('should decline the event and drop it from the list', async () => {
+            vi.mocked(ts_client.post).mockResolvedValue({
+                id: 'evt-1',
+            } as never);
+            const event = await loadBooking();
+            expect(listed_ids()).toEqual(['evt-1']);
+
+            expect(await spectator.service.removeBooking(event)).toBe(true);
+
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/events/evt-1/decline?calendar=host'),
+                '',
+            );
+            expect(listed_ids()).toEqual([]);
+            expect(spectator.inject(MatDialog).closeAll).toHaveBeenCalled();
+        });
+
+        it('should hide the event while the decline runs and show it again on failure', async () => {
+            let rejectDecline: (error: Error) => void;
+            vi.mocked(ts_client.post).mockReturnValue(
+                new Promise((_, reject) => (rejectDecline = reject)) as never,
+            );
+            const event = await loadBooking();
+
+            const removal = spectator.service.removeBooking(event);
+            await vi.waitFor(() => expect(ts_client.post).toHaveBeenCalled());
+            expect(listed_ids()).toEqual([]);
+
+            const error = new Error('502');
+            rejectDecline(error);
+            await expect(removal).rejects.toBe(error);
+
+            expect(listed_ids()).toEqual(['evt-1']);
+        });
+    });
 });
 
 describe('EventsStateService levels', () => {

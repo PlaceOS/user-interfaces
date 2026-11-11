@@ -137,10 +137,6 @@ describe('DesksStateService', () => {
         vi.restoreAllMocks();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it.each([
         { rejected: true },
         { status: 'declined' as const },
@@ -1073,16 +1069,6 @@ describe('DesksStateService', () => {
         );
     });
 
-    it.todo('should handle loading desk bookings');
-    it.todo('should handle loading desk list');
-    it.todo('should handle filtering of desk bookings');
-    it.todo('should handle filtering of desk list');
-    it.todo('should allow for polling of desk bookings');
-    it.todo('should allow checking in of bookings');
-    it.todo('should allow approving of bookings');
-    it.todo('should allow rejection of bookings');
-    it.todo('should allow toggling of access state for booking users');
-
     it('should mark a rejected desk booking as declined', async () => {
         const booking = {
             id: 'booking-1',
@@ -1107,6 +1093,77 @@ describe('DesksStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
+    });
+
+    it('should rethrow a failed check-in and keep the booking state', async () => {
+        const booking = new Booking({
+            id: 'booking-1',
+            booking_start: getUnixTime(Date.now()),
+            duration: 60,
+        });
+        // ts-client rejects with the HTTP response; the helper reads its body
+        vi.mocked(ts_client_mod.post).mockRejectedValueOnce({
+            json: async () => ({ error: 'Desk is locked' }),
+        });
+
+        await expect(spectator.service.checkinDesk(booking)).rejects.toBe(
+            'Desk is locked',
+        );
+
+        expect(booking.checked_in).toBe(false);
+        expect(notify_open).toHaveBeenCalledWith(
+            'APP.CONCIERGE.DESKS_CHECKIN_ERROR',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
+    it('should expand the All zone to every building level and clear it on a level pick', () => {
+        spectator.service.setFilters({ zones: ['All'] });
+        expect(spectator.service.filters().zones).toEqual([
+            'All',
+            'bld-1-lvl-1',
+        ]);
+
+        spectator.service.setFilters({ zones: ['All', 'level-2'] });
+        expect(spectator.service.filters().zones).toEqual([
+            'All',
+            'bld-1-lvl-1',
+        ]);
+
+        // Unticking All while it was active clears the level selection
+        spectator.service.setFilters({ zones: ['bld-1-lvl-1'] });
+        expect(spectator.service.filters().zones).toEqual([]);
+    });
+
+    it('should discard a page that resolves after a newer load starts', async () => {
+        let resolveStale: (value: unknown) => void;
+        (spectator.service as any)._first_page = () =>
+            new Promise((resolve) => (resolveStale = resolve));
+        // Call the loader directly so the test can wait for the stale load
+        const stale_load = (spectator.service as any)._loadPage(true);
+        (spectator.service as any)._first_page = () =>
+            Promise.resolve({
+                data: [new Booking({ id: 'fresh' })],
+                total: 1,
+                next: null,
+            });
+        spectator.service.refresh();
+        await vi.waitFor(() =>
+            expect(spectator.service.paged_bookings().list).toHaveLength(1),
+        );
+
+        resolveStale({
+            data: [new Booking({ id: 'stale' })],
+            total: 1,
+            next: null,
+        });
+        await stale_load;
+
+        expect(
+            spectator.service.paged_bookings().list.map((_) => _.id),
+        ).toEqual(['fresh']);
+        expect(spectator.service.loading()).toBe(false);
     });
 
     it('should reset desk bookings with the first page query on refresh', () => {

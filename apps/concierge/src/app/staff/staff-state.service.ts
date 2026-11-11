@@ -30,7 +30,6 @@ export interface StaffFilters {
 export class StaffStateService extends AsyncHandler {
     private _org = inject(OrganisationService);
 
-    private _onsite: Record<string, boolean> = {};
     private _events: Record<string, Booking> = {};
     /** Set after a failed check-in load; one notice per run of failures. */
     private _events_failed = false;
@@ -44,18 +43,20 @@ export class StaffStateService extends AsyncHandler {
     public readonly users_error = signal<boolean>(false);
     public readonly filters = signal<StaffFilters>({});
     public readonly search = signal<string>('');
+    /** Check-in state of each staff member, keyed by email */
     public readonly user_events = signal<Record<string, boolean>>({});
 
     public readonly filtered_users = computed(() => {
         const filter = this.search().toLowerCase();
         const users = this._users();
         const options = this.filters();
+        const onsite = this.user_events();
         return users.filter(
             (i) =>
                 (!filter ||
                     i.name.toLowerCase().includes(filter) ||
                     i.email.toLowerCase().includes(filter)) &&
-                (!options.only_onsite || this._onsite[i.email]),
+                (!options.only_onsite || onsite[i.email]),
         );
     });
 
@@ -104,7 +105,7 @@ export class StaffStateService extends AsyncHandler {
         });
         await checkinBooking(result.id, true);
         this._events[user.email] = result;
-        this._onsite[user.email] = true;
+        this._setOnsite(user.email, true);
     }
 
     public async checkout(user: StaffUser) {
@@ -116,8 +117,12 @@ export class StaffStateService extends AsyncHandler {
             });
             await checkinBooking(result.id, false);
             this._events[user.email] = result;
-            this._onsite[user.email] = false;
+            this._setOnsite(user.email, false);
         }
+    }
+
+    private _setOnsite(email: string, onsite: boolean) {
+        this.user_events.update((map) => ({ ...map, [email]: onsite }));
     }
 
     private async _loadEvents() {
@@ -128,7 +133,7 @@ export class StaffStateService extends AsyncHandler {
                 period_end: getUnixTime(endOfDay(Date.now())),
                 type: 'staff',
             });
-            const checkin_map = {};
+            const checkin_map: Record<string, boolean> = {};
             const now = new Date().valueOf();
             for (const bkn of bookings) {
                 if (
@@ -143,7 +148,6 @@ export class StaffStateService extends AsyncHandler {
                     this._events[bkn.asset_id] = bkn;
                 }
             }
-            this._onsite = checkin_map;
             this.user_events.set(checkin_map);
             this._events_failed = false;
         } catch (err) {

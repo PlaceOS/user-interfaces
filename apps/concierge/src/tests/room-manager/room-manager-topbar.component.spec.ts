@@ -51,10 +51,6 @@ describe('RoomManagerTopbarComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should open a new room modal', () => {
         spectator.component.newRoom();
         expect(
