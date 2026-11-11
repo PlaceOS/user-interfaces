@@ -4,27 +4,15 @@ import type {
     PDFPageProxy,
 } from 'pdfjs-dist';
 import {
+    DocumentHandle,
+    DocumentOpenError,
     normalizeRotation,
-    PdfDocumentHandle,
-    PdfSize,
+    PageSize,
     releaseCanvas,
-} from './pdf-import.util';
+} from './document-import.util';
 
 /** Where the build copies the pdf.js worker and its data files */
 const PDFJS_ASSETS = 'assets/pdfjs/';
-
-/** Why a PDF could not be opened */
-export type PdfOpenErrorReason = 'password' | 'invalid';
-
-export class PdfOpenError extends Error {
-    constructor(
-        public readonly reason: PdfOpenErrorReason,
-        message: string,
-    ) {
-        super(message);
-        this.name = 'PdfOpenError';
-    }
-}
 
 function assetUrl(path: string) {
     return new URL(`${PDFJS_ASSETS}${path}`, document.baseURI).href;
@@ -71,10 +59,10 @@ async function fetchWorker(url: string) {
 const WORKER_FAILED = 'Setting up fake worker failed';
 
 /**
- * Open a PDF file. Rejects with a `PdfOpenError` when the file cannot be read,
- * and with the load error when pdf.js or its worker cannot load.
+ * Open a PDF file. Rejects with a `DocumentOpenError` when the file cannot be
+ * read, and with the load error when pdf.js or its worker cannot load.
  */
-export async function openPdfDocument(file: File): Promise<PdfDocumentHandle> {
+export async function openPdfDocument(file: File): Promise<DocumentHandle> {
     const pdfjs = await loadPdfJs();
     let loading_task: PDFDocumentLoadingTask | undefined;
     let document_proxy: PDFDocumentProxy;
@@ -96,19 +84,19 @@ export async function openPdfDocument(file: File): Promise<PdfDocumentHandle> {
             throw error;
         }
         const name = (error as { name?: string } | null)?.name;
-        throw new PdfOpenError(
+        throw new DocumentOpenError(
             name === 'PasswordException' ? 'password' : 'invalid',
             (error as Error)?.message || 'Could not open PDF',
         );
     }
     if (!document_proxy.numPages) {
         await loading_task.destroy();
-        throw new PdfOpenError('invalid', 'PDF has no pages');
+        throw new DocumentOpenError('invalid', 'PDF has no pages');
     }
     return new PdfJsDocument(loading_task, document_proxy);
 }
 
-class PdfJsDocument implements PdfDocumentHandle {
+class PdfJsDocument implements DocumentHandle {
     constructor(
         private readonly _loading_task: PDFDocumentLoadingTask,
         private readonly _document: PDFDocumentProxy,
@@ -127,7 +115,7 @@ class PdfJsDocument implements PdfDocumentHandle {
     public async renderLayer(
         page_number: number,
         rotation: number,
-        bounds: PdfSize,
+        bounds: PageSize,
         signal?: AbortSignal,
     ) {
         signal?.throwIfAborted();
@@ -148,7 +136,7 @@ class PdfJsDocument implements PdfDocumentHandle {
 async function renderPage(
     page: PDFPageProxy,
     rotation: number,
-    bounds: PdfSize,
+    bounds: PageSize,
     signal?: AbortSignal,
 ) {
     const turn = normalizeRotation(page.rotate + rotation);

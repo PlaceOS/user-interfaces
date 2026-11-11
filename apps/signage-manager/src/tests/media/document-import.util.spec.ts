@@ -1,16 +1,16 @@
 import {
     canvasToImageFile,
-    composePdfPage,
+    composePage,
+    documentBaseName,
+    DocumentHandle,
+    documentPageName,
     normalizeRotation,
-    pdfBaseName,
-    PdfDocumentHandle,
-    pdfOutputSize,
-    pdfPageImageSize,
-    pdfPageName,
-    pdfPagePlacement,
-    renderPdfPageImage,
+    pageImageSize,
+    pageOutputSize,
+    pagePlacement,
+    renderPageImage,
     rotatedSize,
-} from '../../app/media/pdf-import.util';
+} from '../../app/media/document-import.util';
 
 const A4 = { width: 595, height: 842 };
 const SLIDE = { width: 960, height: 540 };
@@ -37,15 +37,17 @@ function stubCanvas(blob_type = 'image/webp') {
     return { ctx, to_blob };
 }
 
-describe('PDF import utilities', () => {
+describe('Document import utilities', () => {
     afterEach(() => vi.restoreAllMocks());
 
-    it('names pages after the PDF without its extension', () => {
-        expect(pdfBaseName('Quarterly Results.PDF')).toBe('Quarterly Results');
-        expect(pdfBaseName('  deck.v2.pdf ')).toBe('deck.v2');
-        expect(pdfBaseName('Town hall.PPTX')).toBe('Town hall');
-        expect(pdfBaseName('.pdf')).toBe('PDF');
-        expect(pdfPageName('deck', 3)).toBe('deck - page 3');
+    it('names pages after the file without its extension', () => {
+        expect(documentBaseName('Quarterly Results.PDF')).toBe(
+            'Quarterly Results',
+        );
+        expect(documentBaseName('  deck.v2.pdf ')).toBe('deck.v2');
+        expect(documentBaseName('Town hall.PPTX')).toBe('Town hall');
+        expect(documentBaseName('.pdf')).toBe('Document');
+        expect(documentPageName('deck', 3)).toBe('deck - page 3');
     });
 
     it('normalises rotations to quarter turns', () => {
@@ -57,26 +59,26 @@ describe('PDF import utilities', () => {
     });
 
     it('scales a page at its own size to fill 4K in its orientation', () => {
-        expect(pdfOutputSize(SLIDE, 'page', '4k')).toEqual({
+        expect(pageOutputSize(SLIDE, 'page', '4k')).toEqual({
             width: 3840,
             height: 2160,
         });
-        expect(pdfOutputSize(A4, 'page', '4k')).toEqual({
+        expect(pageOutputSize(A4, 'page', '4k')).toEqual({
             width: 2160,
             height: 3057,
         });
-        expect(pdfOutputSize(A4, 'page', 'hd')).toEqual({
+        expect(pageOutputSize(A4, 'page', 'hd')).toEqual({
             width: 1080,
             height: 1528,
         });
     });
 
     it('gives a page fitted to a screen the full screen', () => {
-        expect(pdfOutputSize(A4, 'landscape', '4k')).toEqual({
+        expect(pageOutputSize(A4, 'landscape', '4k')).toEqual({
             width: 3840,
             height: 2160,
         });
-        expect(pdfOutputSize(SLIDE, 'portrait', 'hd')).toEqual({
+        expect(pageOutputSize(SLIDE, 'portrait', 'hd')).toEqual({
             width: 1080,
             height: 1920,
         });
@@ -84,14 +86,14 @@ describe('PDF import utilities', () => {
 
     it('sizes a page image from its turn and the options', () => {
         expect(
-            pdfPageImageSize(A4, {
+            pageImageSize(A4, {
                 rotation: 90,
                 fit: 'page',
                 resolution: '4k',
             }),
         ).toEqual({ width: 3057, height: 2160 });
         expect(
-            pdfPageImageSize(A4, {
+            pageImageSize(A4, {
                 rotation: 0,
                 fit: 'landscape',
                 resolution: 'hd',
@@ -100,13 +102,13 @@ describe('PDF import utilities', () => {
     });
 
     it('centres a page in the output', () => {
-        expect(pdfPagePlacement(A4, { width: 3840, height: 2160 })).toEqual({
+        expect(pagePlacement(A4, { width: 3840, height: 2160 })).toEqual({
             width: 1526,
             height: 2160,
             x: 1157,
             y: 0,
         });
-        expect(pdfPagePlacement(SLIDE, { width: 1080, height: 1920 })).toEqual({
+        expect(pagePlacement(SLIDE, { width: 1080, height: 1920 })).toEqual({
             width: 1080,
             height: 608,
             x: 0,
@@ -119,18 +121,13 @@ describe('PDF import utilities', () => {
         const layer = document.createElement('canvas');
         const placement = { width: 10, height: 20, x: 5, y: 0 };
 
-        composePdfPage(layer, { width: 20, height: 20 }, placement, '#123456');
+        composePage(layer, { width: 20, height: 20 }, placement, '#123456');
         expect(ctx.fillStyle).toBe('#123456');
         expect(ctx.fillRect).toHaveBeenCalledWith(0, 0, 20, 20);
         expect(ctx.drawImage).toHaveBeenCalledWith(layer, 5, 0, 10, 20);
 
         ctx.fillRect.mockClear();
-        composePdfPage(
-            layer,
-            { width: 20, height: 20 },
-            placement,
-            'transparent',
-        );
+        composePage(layer, { width: 20, height: 20 }, placement, 'transparent');
         expect(ctx.fillRect).not.toHaveBeenCalled();
     });
 
@@ -154,14 +151,14 @@ describe('PDF import utilities', () => {
     it('renders a turned page fitted to a screen', async () => {
         const { ctx, to_blob } = stubCanvas();
         const layer = document.createElement('canvas');
-        const handle: PdfDocumentHandle = {
+        const handle: DocumentHandle = {
             page_count: 1,
             pageSize: vi.fn().mockResolvedValue(A4),
             renderLayer: vi.fn().mockResolvedValue(layer),
             destroy: vi.fn(),
         };
 
-        const image = await renderPdfPageImage(
+        const image = await renderPageImage(
             handle,
             1,
             {

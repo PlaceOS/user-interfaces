@@ -4,7 +4,7 @@ export interface BulkMediaUploadItem {
     /** File to upload. Absent when `loadFile` makes it at upload time. */
     file?: File;
     /**
-     * Makes the file just before it uploads, such as a rendered PDF page, so
+     * Makes the file just before it uploads, such as a rendered document page, so
      * a long list does not hold every file in memory at once.
      */
     loadFile?: () => Promise<File>;

@@ -1,63 +1,78 @@
 /**
- * Options and layout for turning PDF pages into signage images. Everything
- * here is plain arithmetic and canvas drawing, so it runs without pdf.js.
+ * Options and layout for turning document pages into signage images. A
+ * document is a PDF, or a PowerPoint file with each slide as a page.
+ * Everything here is plain arithmetic and canvas drawing, so it runs without
+ * pdf.js or pptx-glimpse.
  */
 
 /** How a page sits in the image: at its own size, or centred on a screen */
-export type PdfPageFit = 'page' | 'landscape' | 'portrait';
+export type DocumentPageFit = 'page' | 'landscape' | 'portrait';
 /** A CSS colour, or `transparent` to keep the page's own transparency */
-export type PdfPageBackground = string;
-export type PdfImageFormat = 'webp' | 'png';
-export type PdfResolution = '4k' | 'hd';
+export type DocumentPageBackground = string;
+export type DocumentImageFormat = 'webp' | 'png';
+export type DocumentResolution = '4k' | 'hd';
 
-export interface PdfPageRenderOptions {
+export interface DocumentPageRenderOptions {
     /** Turn applied on top of the page's own rotation, in degrees */
     rotation: number;
-    fit: PdfPageFit;
-    background: PdfPageBackground;
-    format: PdfImageFormat;
-    resolution: PdfResolution;
+    fit: DocumentPageFit;
+    background: DocumentPageBackground;
+    format: DocumentImageFormat;
+    resolution: DocumentResolution;
 }
 
-export interface PdfSize {
+export interface PageSize {
     width: number;
     height: number;
 }
 
-export interface PdfPlacement extends PdfSize {
+export interface PagePlacement extends PageSize {
     x: number;
     y: number;
 }
 
-export const PDF_TRANSPARENT_BACKGROUND = 'transparent';
+export const TRANSPARENT_BACKGROUND = 'transparent';
+
+/** Why a document could not be opened */
+export type DocumentOpenErrorReason = 'password' | 'invalid' | 'too_many_pages';
+
+export class DocumentOpenError extends Error {
+    constructor(
+        public readonly reason: DocumentOpenErrorReason,
+        message: string,
+    ) {
+        super(message);
+        this.name = 'DocumentOpenError';
+    }
+}
 
 /**
- * Most pages a PDF can have to be imported. The modal keeps a preview of each
+ * Most pages a document can have to be imported. The modal keeps a preview of each
  * page (about 50 KB of PNG, so about 10 MB at the limit), and each imported
  * page becomes one row of the bulk upload.
  */
-export const MAX_PDF_PAGES = 200;
+export const MAX_DOCUMENT_PAGES = 200;
 /** WebP quality, the same as other converted images */
 const WEBP_QUALITY = 0.92;
 
 /** Long and short side of each resolution */
-const RESOLUTION_BOUNDS: Record<PdfResolution, [number, number]> = {
+const RESOLUTION_BOUNDS: Record<DocumentResolution, [number, number]> = {
     '4k': [3840, 2160],
     hd: [1920, 1080],
 };
 
-/** Name of a PDF or PowerPoint file without its extension, used as the tag
- * of its pages */
-export function pdfBaseName(file_name: string) {
+/** Name of a document file without its extension, used as the tag of its
+ * pages */
+export function documentBaseName(file_name: string) {
     const name = (file_name || '')
         .trim()
         .replace(/\.(pdf|pptx)$/i, '')
         .trim();
-    return name || 'PDF';
+    return name || 'Document';
 }
 
 /** Media name of a page, such as "Quarterly results - page 3" */
-export function pdfPageName(base_name: string, page_number: number) {
+export function documentPageName(base_name: string, page_number: number) {
     return `${base_name} - page ${page_number}`;
 }
 
@@ -67,7 +82,7 @@ export function normalizeRotation(rotation: number) {
 }
 
 /** Size of a page after a turn. A quarter turn swaps width and height. */
-export function rotatedSize(size: PdfSize, rotation: number): PdfSize {
+export function rotatedSize(size: PageSize, rotation: number): PageSize {
     return normalizeRotation(rotation) % 180
         ? { width: size.height, height: size.width }
         : { ...size };
@@ -78,11 +93,11 @@ export function rotatedSize(size: PdfSize, rotation: number): PdfSize {
  * as much of the resolution as it can, in its own orientation. A page fitted
  * to a screen gets the full screen.
  */
-export function pdfOutputSize(
-    page: PdfSize,
-    fit: PdfPageFit,
-    resolution: PdfResolution,
-): PdfSize {
+export function pageOutputSize(
+    page: PageSize,
+    fit: DocumentPageFit,
+    resolution: DocumentResolution,
+): PageSize {
     const [long_side, short_side] = RESOLUTION_BOUNDS[resolution];
     if (fit === 'landscape') return { width: long_side, height: short_side };
     if (fit === 'portrait') return { width: short_side, height: long_side };
@@ -101,11 +116,11 @@ export function pdfOutputSize(
  * Size of the image a page renders to with the import options, from its size
  * at its own rotation. Known before the page renders.
  */
-export function pdfPageImageSize(
-    page_size: PdfSize,
-    options: Pick<PdfPageRenderOptions, 'rotation' | 'fit' | 'resolution'>,
+export function pageImageSize(
+    page_size: PageSize,
+    options: Pick<DocumentPageRenderOptions, 'rotation' | 'fit' | 'resolution'>,
 ) {
-    return pdfOutputSize(
+    return pageOutputSize(
         rotatedSize(page_size, options.rotation),
         options.fit,
         options.resolution,
@@ -113,7 +128,7 @@ export function pdfPageImageSize(
 }
 
 /** Largest box with the page's shape that fits the output, centred in it */
-export function pdfPagePlacement(page: PdfSize, output: PdfSize): PdfPlacement {
+export function pagePlacement(page: PageSize, output: PageSize): PagePlacement {
     const scale = Math.min(
         output.width / page.width,
         output.height / page.height,
@@ -138,18 +153,18 @@ export function pdfPagePlacement(page: PdfSize, output: PdfSize): PdfPlacement {
  * Draw a rendered page onto a new canvas the size of the output, over the
  * background colour unless it is transparent.
  */
-export function composePdfPage(
+export function composePage(
     layer: CanvasImageSource,
-    output: PdfSize,
-    placement: PdfPlacement,
-    background: PdfPageBackground,
+    output: PageSize,
+    placement: PagePlacement,
+    background: DocumentPageBackground,
 ) {
     const canvas = document.createElement('canvas');
     canvas.width = output.width;
     canvas.height = output.height;
     const ctx = canvas.getContext('2d');
     if (!ctx) throw new Error('Canvas is not available');
-    if (background && background !== PDF_TRANSPARENT_BACKGROUND) {
+    if (background && background !== TRANSPARENT_BACKGROUND) {
         ctx.fillStyle = background;
         ctx.fillRect(0, 0, output.width, output.height);
     }
@@ -186,7 +201,7 @@ export function canEncodeWebp() {
  */
 export async function canvasToImageFile(
     canvas: HTMLCanvasElement,
-    format: PdfImageFormat,
+    format: DocumentImageFormat,
     base_name: string,
 ) {
     const blob = await new Promise<Blob | null>((resolve) =>
@@ -210,21 +225,21 @@ export function releaseCanvas(canvas: HTMLCanvasElement | null | undefined) {
 }
 
 /** A rendered page image, ready to upload */
-export interface PdfPageImage {
+export interface DocumentPageImage {
     file: File;
     width: number;
     height: number;
 }
 
 /**
- * An open PDF, or an open PowerPoint file with each slide as a page. The
- * import modal only uses this, so tests can hand it a fake without loading
- * pdf.js.
+ * An open document: a PDF, or a PowerPoint file with each slide as a page.
+ * The import modal only uses this, so tests can hand it a fake without
+ * loading pdf.js or pptx-glimpse.
  */
-export interface PdfDocumentHandle {
+export interface DocumentHandle {
     readonly page_count: number;
-    /** Size of a page at its own rotation, in PDF points */
-    pageSize(page_number: number): Promise<PdfSize>;
+    /** Size of a page at its own rotation, in PDF points or slide pixels */
+    pageSize(page_number: number): Promise<PageSize>;
     /**
      * Page drawn on a transparent canvas, turned by `rotation` on top of its
      * own rotation, at the largest size that fits the bounds.
@@ -232,10 +247,10 @@ export interface PdfDocumentHandle {
     renderLayer(
         page_number: number,
         rotation: number,
-        bounds: PdfSize,
+        bounds: PageSize,
         signal?: AbortSignal,
     ): Promise<HTMLCanvasElement>;
-    /** Close the document and free its worker */
+    /** Close the document and free its worker, if it has one */
     destroy(): Promise<void>;
 }
 
@@ -243,17 +258,17 @@ export interface PdfDocumentHandle {
  * Render a page to an image file with the import options: turned, fitted to
  * the output and drawn over the background.
  */
-export async function renderPdfPageImage(
-    document_handle: PdfDocumentHandle,
+export async function renderPageImage(
+    document_handle: DocumentHandle,
     page_number: number,
-    options: PdfPageRenderOptions,
+    options: DocumentPageRenderOptions,
     file_name: string,
     signal?: AbortSignal,
-): Promise<PdfPageImage> {
+): Promise<DocumentPageImage> {
     const page_size = await document_handle.pageSize(page_number);
     // The same size the import modal sends as the media metadata
-    const output = pdfPageImageSize(page_size, options);
-    const placement = pdfPagePlacement(
+    const output = pageImageSize(page_size, options);
+    const placement = pagePlacement(
         rotatedSize(page_size, options.rotation),
         output,
     );
@@ -265,7 +280,7 @@ export async function renderPdfPageImage(
     );
     let canvas: HTMLCanvasElement | undefined;
     try {
-        canvas = composePdfPage(layer, output, placement, options.background);
+        canvas = composePage(layer, output, placement, options.background);
         const file = await canvasToImageFile(canvas, options.format, file_name);
         return { file, ...output };
     } finally {

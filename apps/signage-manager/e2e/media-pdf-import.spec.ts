@@ -69,7 +69,7 @@ async function openPdf(page: Page, name = 'Quarterly Results.pdf') {
         .locator('media-list-header input[type="file"][multiple]')
         .first()
         .setInputFiles({ name, mimeType: 'application/pdf', buffer: DECK });
-    const dialog = page.getByRole('dialog', { name: /import pdf/i });
+    const dialog = page.getByRole('dialog', { name: /import document/i });
     await expect(dialog).toBeVisible({ timeout: 15000 });
     return dialog;
 }
@@ -185,11 +185,11 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
             page,
             'admission_price_cover_for_the_winter_lantern_festival-1.pdf',
         );
-        const hint = dialog.locator('#pdf-import-name-hint');
+        const hint = dialog.locator('#document-import-name-hint');
         await expect(hint).toContainText(
             'admission_price_cover_for_the_winter_lantern_festival-1 - page 1',
         );
-        const label = dialog.locator('#pdf-import-fit-label');
+        const label = dialog.locator('#document-import-fit-label');
         const options = dialog.getByRole('region', { name: /options/i });
         // Polled, as the dialog scales while it opens
         await expect
@@ -205,6 +205,66 @@ test.describe('US-SGM-004: Import PDF Pages as Images', () => {
                 };
             })
             .toEqual({ above_label: true, within_options: true });
+    });
+
+    test('shows that the PDF loads until it opens', async ({ page }) => {
+        // Hold the pdf.js worker, so the PDF cannot open yet
+        let release: () => void = () => {};
+        const held = new Promise<void>((resolve) => (release = resolve));
+        await page.route(
+            '**/assets/pdfjs/pdf.worker.min.mjs',
+            async (route) => {
+                await held;
+                await route.continue();
+            },
+        );
+        await navigateWithMock(page, MEDIA_URL);
+        const dialog = await openPdf(page);
+
+        await expect(dialog).toContainText('Opening Quarterly Results.pdf.');
+        await expect(pageItems(dialog)).toHaveCount(0);
+        await expect(
+            dialog.getByRole('button', { name: 'Select all' }),
+        ).toBeDisabled();
+
+        release();
+        await expect(pageItems(dialog)).toHaveCount(3);
+        await expect(dialog).not.toContainText(
+            'Opening Quarterly Results.pdf.',
+        );
+    });
+
+    test('confirms a PowerPoint file before the import opens', async ({
+        page,
+    }) => {
+        await navigateWithMock(page, MEDIA_URL);
+        await page
+            .locator('media-list-header input[type="file"][multiple]')
+            .first()
+            .setInputFiles({
+                name: 'Town hall.pptx',
+                mimeType:
+                    'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+                buffer: Buffer.from('PK'),
+            });
+        const confirm = page.locator('pptx-import-confirm-modal');
+        await expect(confirm).toBeVisible();
+        await expect(confirm).toContainText('Import PowerPoint File');
+        await expect(confirm).toContainText('Town hall.pptx');
+        await expect(confirm).toContainText('best-effort basis');
+        await expect(confirm.getByRole('listitem')).toHaveCount(3);
+        await expect(
+            confirm.locator('span', { hasText: 'Windows' }),
+        ).toHaveCount(1);
+        await expect(confirm.locator('span', { hasText: 'macOS' })).toHaveCount(
+            1,
+        );
+
+        await confirm.getByRole('button', { name: 'Cancel' }).click();
+        await expect(confirm).toBeHidden();
+        await expect(
+            page.getByRole('dialog', { name: /import document/i }),
+        ).toHaveCount(0);
     });
 
     test('uploads the selected pages named and tagged after the PDF', async ({

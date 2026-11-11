@@ -1,12 +1,12 @@
-import { PdfOpenError } from './pdf-document';
 import {
-    MAX_PDF_PAGES,
+    DocumentHandle,
+    DocumentOpenError,
+    MAX_DOCUMENT_PAGES,
     normalizeRotation,
-    PdfDocumentHandle,
-    PdfSize,
+    PageSize,
     releaseCanvas,
     rotatedSize,
-} from './pdf-import.util';
+} from './document-import.util';
 
 type ConvertPptxToSvg = (typeof import('pptx-glimpse'))['convertPptxToSvg'];
 
@@ -20,20 +20,20 @@ const COUNT_CHUNK = 10;
 const SVG_SIZE = /^<svg\b[^>]*?\swidth="([\d.]+)"[^>]*?\sheight="([\d.]+)"/;
 
 /**
- * Open a PowerPoint file as a document of one page per slide, so the PDF
- * import modal can import it. Rejects with a `PdfOpenError` when the file
+ * Open a PowerPoint file as a document of one page per slide, so the
+ * document import modal can import it. Rejects with a `DocumentOpenError` when the file
  * cannot be read, and with the load error when pptx-glimpse cannot load.
  *
  * pptx-glimpse is loaded on first use, as only a PowerPoint import needs it.
  */
-export async function openPptxDocument(file: File): Promise<PdfDocumentHandle> {
+export async function openPptxDocument(file: File): Promise<DocumentHandle> {
     const { convertPptxToSvg } = await import('pptx-glimpse');
     try {
         const data = new Uint8Array(await file.arrayBuffer());
         const slides = await readSlides(data, convertPptxToSvg);
         return new PptxDocument(data, slides, convertPptxToSvg);
     } catch (error) {
-        throw new PdfOpenError(
+        throw new DocumentOpenError(
             'invalid',
             (error as Error | null)?.message || 'Could not open presentation',
         );
@@ -44,7 +44,7 @@ interface PptxSlides {
     /** Slide numbers in the file, in presentation order */
     numbers: number[];
     /** Size of a slide, in pixels. Every slide of a file has the same size. */
-    size: PdfSize;
+    size: PageSize;
 }
 
 /**
@@ -57,10 +57,10 @@ async function readSlides(
     convert: ConvertPptxToSvg,
 ): Promise<PptxSlides> {
     const numbers: number[] = [];
-    let size: PdfSize | undefined;
-    for (let start = 1; start <= MAX_PDF_PAGES + 1; start += COUNT_CHUNK) {
+    let size: PageSize | undefined;
+    for (let start = 1; start <= MAX_DOCUMENT_PAGES + 1; start += COUNT_CHUNK) {
         const chunk = Array.from(
-            { length: Math.min(COUNT_CHUNK, MAX_PDF_PAGES + 2 - start) },
+            { length: Math.min(COUNT_CHUNK, MAX_DOCUMENT_PAGES + 2 - start) },
             (_, index) => start + index,
         );
         const { slides } = await convert(data, { slides: chunk });
@@ -72,7 +72,7 @@ async function readSlides(
     return { numbers, size };
 }
 
-function svgSize(svg: string): PdfSize {
+function svgSize(svg: string): PageSize {
     const [, width, height] = SVG_SIZE.exec(svg) || [];
     const size = { width: Number(width), height: Number(height) };
     if (!(size.width > 0 && size.height > 0)) {
@@ -85,7 +85,7 @@ function svgSize(svg: string): PdfSize {
  * The slide SVG with the pixel size it is drawn at. A browser can rasterise
  * an SVG image at the size the SVG states, which blurs a slide drawn larger.
  */
-function resizeSvg(svg: string, size: PdfSize) {
+function resizeSvg(svg: string, size: PageSize) {
     const end = svg.indexOf('>');
     const head = svg
         .slice(0, end)
@@ -107,7 +107,7 @@ function loadImage(url: string) {
  * A PowerPoint file. Only the file bytes are kept: a slide is converted to
  * SVG each time it renders, so a long file never holds every slide at once.
  */
-class PptxDocument implements PdfDocumentHandle {
+class PptxDocument implements DocumentHandle {
     constructor(
         private readonly _data: Uint8Array,
         private readonly _slides: PptxSlides,
@@ -125,7 +125,7 @@ class PptxDocument implements PdfDocumentHandle {
     public async renderLayer(
         page_number: number,
         rotation: number,
-        bounds: PdfSize,
+        bounds: PageSize,
         signal?: AbortSignal,
     ) {
         signal?.throwIfAborted();

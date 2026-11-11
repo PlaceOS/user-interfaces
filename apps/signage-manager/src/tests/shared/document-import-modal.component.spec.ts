@@ -3,20 +3,20 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import type { MatSnackBar } from '@angular/material/snack-bar';
 import { setNotifyOutlet } from '@placeos/common';
 import type {
-    PdfDocumentHandle,
-    renderPdfPageImage,
-} from '../../app/media/pdf-import.util';
+    DocumentHandle,
+    renderPageImage,
+} from '../../app/media/document-import.util';
 import {
-    PdfImportModalComponent,
-    PdfImportModalData,
-} from '../../app/shared/pdf-import-modal.component';
+    DocumentImportModalComponent,
+    DocumentImportModalData,
+} from '../../app/shared/document-import-modal.component';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
     dismiss: vi.fn(),
 }));
 
-function fakeDocument(page_count: number): PdfDocumentHandle {
+function fakeDocument(page_count: number): DocumentHandle {
     return {
         page_count,
         pageSize: vi.fn().mockResolvedValue({ width: 960, height: 540 }),
@@ -36,14 +36,16 @@ function fakeDocument(page_count: number): PdfDocumentHandle {
 }
 
 /** Stands in for the full size page render */
-const render_page = vi.fn<typeof renderPdfPageImage>();
+const render_page = vi.fn<typeof renderPageImage>();
 
 /** Object URLs handed out, by the blob contents they point at */
 const object_urls = new Map<string, Blob>();
 
-describe('PdfImportModalComponent', () => {
+describe('DocumentImportModalComponent', () => {
     const dialog_ref = { close: vi.fn(), disableClose: false };
-    let data: PdfImportModalData;
+    let data: DocumentImportModalData;
+    /** The document the modal opens, once it has opened */
+    let document_handle: DocumentHandle;
 
     /** Contents of the blob behind a preview URL */
     async function previewText(url: string) {
@@ -62,31 +64,41 @@ describe('PdfImportModalComponent', () => {
         });
     });
 
+    /**
+     * The modal with an open document. `load` waits for the document unless
+     * `opening` is given, as previews start on their own only in a template.
+     */
     async function createComponent(
-        overrides: Partial<PdfImportModalData> = {},
+        overrides: Partial<Omit<DocumentImportModalData, 'document'>> & {
+            document?: DocumentHandle;
+            opening?: Promise<DocumentHandle>;
+        } = {},
     ) {
+        const { document: open_document, opening, ...rest } = overrides;
+        document_handle = open_document ?? fakeDocument(5);
         data = {
             file_name: 'Quarterly results.pdf',
-            document: fakeDocument(5),
+            document: opening ?? Promise.resolve(document_handle),
             webp_supported: true,
-            ...overrides,
+            ...rest,
         };
         await TestBed.configureTestingModule({
-            imports: [PdfImportModalComponent],
+            imports: [DocumentImportModalComponent],
             providers: [
                 { provide: MAT_DIALOG_DATA, useValue: data },
                 { provide: MatDialogRef, useValue: dialog_ref },
             ],
         })
-            .overrideComponent(PdfImportModalComponent, {
+            .overrideComponent(DocumentImportModalComponent, {
                 set: { template: '', imports: [] },
             })
             .compileComponents();
         const component = TestBed.createComponent(
-            PdfImportModalComponent,
+            DocumentImportModalComponent,
         ).componentInstance;
         (component as unknown as Record<string, unknown>)['_renderPage'] =
             render_page;
+        if (!opening) await component.load();
         return component;
     }
 
@@ -125,6 +137,33 @@ describe('PdfImportModalComponent', () => {
         expect(component.background()).toBe('#ffffff');
         expect(component.format()).toBe('webp');
         expect(component.resolution()).toBe('4k');
+    });
+
+    it('shows that the document loads until it opens', async () => {
+        let open: (document_handle: DocumentHandle) => void = () => {};
+        const component = await createComponent({
+            opening: new Promise((resolve) => (open = resolve)),
+        });
+
+        const loaded = component.load();
+        expect(component.loading()).toBe(true);
+        expect(component.pages()).toEqual([]);
+
+        open(fakeDocument(3));
+        await expect(loaded).resolves.toBe(true);
+        expect(component.loading()).toBe(false);
+        expect(component.pages()).toHaveLength(3);
+    });
+
+    it('closes when the document does not open', async () => {
+        const component = await createComponent({
+            opening: Promise.reject(new Error('bad file')),
+        });
+
+        await expect(component.load()).resolves.toBe(false);
+
+        expect(dialog_ref.close).toHaveBeenCalledWith();
+        expect(component.loading()).toBe(true);
     });
 
     it('defaults to PNG when the browser cannot write WebP', async () => {
@@ -183,7 +222,7 @@ describe('PdfImportModalComponent', () => {
         );
         // The preview it replaced is freed
         expect(URL.revokeObjectURL).toHaveBeenCalledWith(second);
-        expect(data.document.renderLayer).toHaveBeenCalledTimes(3);
+        expect(document_handle.renderLayer).toHaveBeenCalledTimes(3);
     });
 
     it('frees the previews when it closes', async () => {
@@ -276,7 +315,7 @@ describe('PdfImportModalComponent', () => {
 
         expect(render_page).toHaveBeenCalledOnce();
         expect(render_page).toHaveBeenCalledWith(
-            data.document,
+            document_handle,
             3,
             {
                 rotation: 90,
@@ -320,16 +359,16 @@ describe('PdfImportModalComponent', () => {
         expect(dialog_ref.disableClose).toBe(false);
         // Previews stop for the import, and continue after it fails
         await vi.waitFor(() =>
-            expect(component.pages().every((page) => page.preview)).toBe(
-                true,
-            ),
+            expect(component.pages().every((page) => page.preview)).toBe(true),
         );
     });
 
     it('cannot close while it reads the page sizes', async () => {
         const document_handle = fakeDocument(1);
-        let resolve_size: (size: { width: number; height: number }) => void =
-            () => {};
+        let resolve_size: (size: {
+            width: number;
+            height: number;
+        }) => void = () => {};
         vi.mocked(document_handle.pageSize).mockReturnValueOnce(
             new Promise((resolve) => (resolve_size = resolve)),
         );
@@ -352,7 +391,7 @@ describe('PdfImportModalComponent', () => {
         component.selectAll(false);
         await component.importPages();
 
-        expect(data.document.pageSize).not.toHaveBeenCalled();
+        expect(document_handle.pageSize).not.toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 });
