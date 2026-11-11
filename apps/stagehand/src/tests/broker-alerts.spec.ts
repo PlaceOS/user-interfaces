@@ -191,6 +191,22 @@ describe('broker alerts', () => {
             expect(alerts.map((a) => a.location)).toEqual(['sys-1']);
         });
 
+        it('has no time window when the debounce period is 0', () => {
+            const alert = definition(
+                [power('Display_1'), power('Projector_1')],
+                { debounce_period: 0 },
+            );
+            const alerts = raisedAlerts(
+                [alert],
+                [
+                    value('sys-1', 'Display', 'power', true, 100),
+                    value('sys-1', 'Projector', 'power', true, 5000),
+                    value('sys-2', 'Display', 'power', true, 100),
+                ],
+            );
+            expect(alerts.map((a) => a.location)).toEqual(['sys-1']);
+        });
+
         it('raises an any-match alert from any one condition', () => {
             const alert = definition(
                 [power('Display_1'), power('Projector_1')],

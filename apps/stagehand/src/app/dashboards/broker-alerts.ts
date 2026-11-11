@@ -266,16 +266,15 @@ export function raisedAlerts(
             }
             return by_system;
         });
+        // 0 or no debounce period means no time window. The alert form has no
+        // input for it, so new alerts save 0.
+        const window = alert.debounce_period || Infinity;
         for (const match of first_matches) {
             // every condition holds on one system, within the debounce period
             const all_hold = others_by_system.every((by_system) =>
                 by_system
                     .get(match.topic.system_id)
-                    ?.some(
-                        (_) =>
-                            Math.abs(_.time - match.time) <
-                            alert.debounce_period,
-                    ),
+                    ?.some((_) => Math.abs(_.time - match.time) < window),
             );
             if (all_hold) out.push(toAlert(alert, match));
         }
