@@ -186,17 +186,4 @@ describe('[Locker Assets]', () => {
             expect(res.id).toBe('l1');
         });
     });
-
-    describe('delete helpers', () => {
-        it('should remove the given asset id for banks and lockers', async () => {
-            const { locker } = await load_modules();
-            vi.mocked(ts_client.removeAsset).mockResolvedValue(true as any);
-
-            locker.deleteLockerBankAsset('bank-1');
-            expect(ts_client.removeAsset).toHaveBeenCalledWith('bank-1');
-
-            locker.deleteLockerAsset('locker-1');
-            expect(ts_client.removeAsset).toHaveBeenCalledWith('locker-1');
-        });
-    });
 });

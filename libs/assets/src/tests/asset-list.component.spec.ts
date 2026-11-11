@@ -86,6 +86,24 @@ describe('AssetListComponent', () => {
         expect(spectator.component.assets()).toHaveLength(0);
     });
 
+    it('should badge only the selected assets with their selected quantity', () => {
+        filtered_assets.set([
+            { id: '1', name: 'Projector', assets: [{}] } as AssetGroup,
+            { id: '11', name: 'Laptop', assets: [{}, {}] } as AssetGroup,
+        ]);
+        spectator.setInput('selected', '11');
+        spectator.setInput('selected_items', [
+            { id: '11', quantity: 2 } as AssetGroup,
+        ]);
+        spectator.detectChanges();
+        TestBed.tick();
+        spectator.detectChanges();
+
+        const [projector, laptop] = spectator.queryAll('[asset]');
+        expect(projector.querySelector('span')).toBeNull();
+        expect(laptop.querySelector('span')).toHaveText('2');
+    });
+
     it('should emit onSelect when an asset is clicked', () => {
         const selected = vi.fn();
         filtered_assets.set([

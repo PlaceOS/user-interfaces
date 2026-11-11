@@ -56,11 +56,18 @@ describe('AssetSelectModalComponent', () => {
         const group = { id: '1', quantity: 2 } as AssetGroup;
         spectator.component.setSelected(group, true);
         expect(spectator.component.selected()).toContain(group);
-        expect(spectator.component.isSelected('1')).toBeTruthy();
+        expect(spectator.component.isSelected('1')).toBe(true);
 
         spectator.component.setSelected(group, false);
         expect(spectator.component.selected()).not.toContain(group);
-        expect(spectator.component.isSelected('1')).toBeFalsy();
+        expect(spectator.component.isSelected('1')).toBe(false);
+    });
+
+    it('should not treat a group as selected when only a longer id matches', () => {
+        spectator.component.setSelected({ id: '11' } as AssetGroup, true);
+
+        expect(spectator.component.isSelected('1')).toBe(false);
+        expect(spectator.component.isSelected('11')).toBe(true);
     });
 
     it('should ignore selection changes for a null group', () => {

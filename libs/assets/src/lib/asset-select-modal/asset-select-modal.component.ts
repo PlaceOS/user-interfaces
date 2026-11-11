@@ -201,7 +201,7 @@ export class AssetSelectModalComponent {
     );
 
     public isSelected(id?: string) {
-        return id && this.selected_ids().includes(id);
+        return !!id && this.selected().some((_) => _.id === id);
     }
 
     constructor() {

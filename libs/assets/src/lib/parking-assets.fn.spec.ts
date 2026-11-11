@@ -28,6 +28,35 @@ describe('[Parking Assets]', () => {
         vi.mocked(ts_client.updateAssetType).mockResolvedValue({} as any);
     });
 
+    it('should store parking user flags as strings and read them back', async () => {
+        const { parking_assets } = await load_modules();
+        const user = {
+            id: 'user-1',
+            name: 'Ada',
+            email: 'ada@example.com',
+            car_model: 'Model 3',
+            car_colour: 'Red',
+            plate_number: 'ABC123',
+            phone: '555',
+            notes: 'Near lift',
+            deny: true,
+            special_needs: false,
+        };
+
+        const asset = parking_assets.fromParkingUser(user, 'bld-1');
+        expect(asset).toMatchObject({
+            id: 'user-1',
+            identifier: 'Ada',
+            zone_id: 'bld-1',
+            other_data: { deny: 'true', special_needs: 'false' },
+        });
+        expect(parking_assets.toParkingUser(asset as any)).toEqual(user);
+        // A new user has no id, so the asset is created
+        expect(
+            'id' in parking_assets.fromParkingUser({ name: 'New' }, 'bld-1'),
+        ).toBe(false);
+    });
+
     it('should reuse existing parking category and type names', async () => {
         const { parking_assets } = await load_modules();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(

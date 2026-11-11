@@ -53,6 +53,11 @@ describe('AssetStateService', () => {
             details: {},
         } as any);
         spectator = createService();
+        // The mock is shared across tests and clearAllMocks keeps its
+        // implementation, so reset it to "assets enabled"
+        spectator
+            .inject(SettingsService)
+            .get.mockImplementation(() => undefined);
         TestBed.tick();
     });
 
@@ -88,6 +93,76 @@ describe('AssetStateService', () => {
         expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
         expect(ts_client.get).not.toHaveBeenCalled();
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
+    });
+
+    it('should load and filter available groups once asset data is consumed', async () => {
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([
+                { id: 'c1', name: 'Audio' },
+                { id: 'c2', name: 'Video' },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([
+                {
+                    id: 't1',
+                    name: 'Speaker',
+                    description: 'Loud',
+                    category_id: 'c1',
+                },
+                {
+                    id: 't2',
+                    name: 'Projector',
+                    description: 'HD',
+                    category_id: 'c2',
+                },
+                {
+                    id: 't3',
+                    name: 'Orphan',
+                    description: '',
+                    category_id: 'gone',
+                },
+                { id: 't4', name: 'Empty', description: '', category_id: 'c1' },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            response([
+                { id: 'a1', asset_type_id: 't1' },
+                { id: 'a2', asset_type_id: 't2' },
+                { id: 'a3', asset_type_id: 't3' },
+            ]),
+        );
+        const names = () =>
+            spectator.service.filtered_assets().map((_) => _.name);
+
+        names();
+        await Promise.resolve();
+        TestBed.tick();
+        await vi.waitFor(() =>
+            expect(spectator.service.category_list()).toHaveLength(2),
+        );
+        await vi.waitFor(() =>
+            expect(spectator.service.available_groups()).toHaveLength(4),
+        );
+
+        // Sorted by name, without empty groups or groups in unknown categories
+        expect(names()).toEqual(['Projector', 'Speaker']);
+        spectator.service.setSearch('LOUD');
+        expect(names()).toEqual(['Speaker']);
+        spectator.service.setSearch('');
+        spectator.service.toggleCategory('c2');
+        expect(names()).toEqual(['Projector']);
+        spectator.service.toggleCategory('c2');
+        expect(names()).toEqual(['Projector', 'Speaker']);
+    });
+
+    it('should drop selected categories that are not visible', async () => {
+        spectator.service.toggleCategory('gone');
+        expect(spectator.service.category()).toEqual(['gone']);
+
+        TestBed.tick();
+
+        expect(spectator.service.category()).toEqual([]);
     });
 
     it('should show loading while availability is pending', async () => {

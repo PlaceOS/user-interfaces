@@ -45,7 +45,7 @@ import { AssetStateService } from '../asset-state.service';
                                 <div
                                     class="border-base-200 bg-base-200 relative mr-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl border"
                                 >
-                                    @if (selected().includes(asset.id)) {
+                                    @if (selected_ids().includes(asset.id)) {
                                         <div
                                             class="border-base-300 bg-base-200 absolute top-1 left-1 flex h-6 w-6 items-center justify-center rounded-full border"
                                         >
@@ -156,6 +156,7 @@ import { AssetStateService } from '../asset-state.service';
 export class AssetListComponent {
     private _asset_state = inject(AssetStateService);
 
+    /** Comma separated IDs of the selected groups */
     public readonly selected = input('');
     public readonly favorites = input<string[]>([]);
     public readonly selected_items = input<AssetGroup[]>([]);
@@ -167,6 +168,11 @@ export class AssetListComponent {
 
     public readonly counts = signal<Record<string, number>>({});
 
+    public readonly selected_ids = computed(() =>
+        this.selected()
+            .split(',')
+            .filter((_) => _),
+    );
     public readonly loading = this._asset_state.loading;
     public readonly assets = computed(() => {
         const counts = this.counts();
