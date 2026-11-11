@@ -243,6 +243,27 @@ describe('EventsStateService', () => {
         ]);
     });
 
+    it('should hide a removed local update and show it again on restore', () => {
+        const event = new CalendarEvent({
+            id: 'booking',
+            date: Date.now(),
+            duration: 60,
+        });
+        spectator.service.replace(event);
+        const added = () =>
+            (spectator.service as any)._added_events().map((_) => _.id);
+
+        spectator.service.remove(event);
+        expect(added()).toEqual([]);
+
+        spectator.service.restore(event);
+        expect(added()).toEqual(['booking']);
+        // the entry from replace() still hides the old copy from the API
+        expect(
+            (spectator.service as any)._removed_events().map((_) => _.id),
+        ).toEqual(['booking']);
+    });
+
     it('should open booking details and pass removal to the caller', () => {
         const dialog = spectator.inject(MatDialog);
         const ref = {

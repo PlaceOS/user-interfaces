@@ -121,6 +121,8 @@ export class EventsStateService extends AsyncHandler {
     private _removed_events = signal<CalendarEvent[]>([]);
     /** Events optimistically added to the bookings list */
     private _added_events = signal<CalendarEvent[]>([]);
+    /** Added events taken out by `remove()`, so `restore()` can put them back */
+    private _removed_added: CalendarEvent[] = [];
     /** Filter details for bookings */
     private _filters = signal<BookingFilters>({});
     /** UI display options for bookings */
@@ -412,6 +414,7 @@ export class EventsStateService extends AsyncHandler {
             queueMicrotask(() => {
                 this._removed_events.set([]);
                 this._added_events.set([]);
+                this._removed_added = [];
             });
         });
         // Bind to room booking approval requests once the module is available
@@ -598,6 +601,13 @@ export class EventsStateService extends AsyncHandler {
      */
     public remove(booking: CalendarEvent) {
         this._removed_events.update((list) => [...list, booking]);
+        // A created or edited booking is in the added list, which the
+        // removed list does not hide
+        const added = this._added_events();
+        const taken = added.filter((_) => sameEvent(_, booking));
+        if (!taken.length) return;
+        this._removed_added.push(...taken);
+        this._added_events.set(added.filter((_) => !sameEvent(_, booking)));
     }
 
     /**
@@ -605,17 +615,21 @@ export class EventsStateService extends AsyncHandler {
      * @param booking
      */
     public restore(booking: CalendarEvent) {
-        this._removed_events.update((list) =>
-            list.filter(
-                (_) =>
-                    !(
-                        (_.id && booking.id && _.id === booking.id) ||
-                        (_.ical_uid &&
-                            booking.ical_uid &&
-                            _.ical_uid === booking.ical_uid)
-                    ),
-            ),
+        // Take out only the entry `remove()` added. An entry from `replace()`
+        // still hides the old copy of an edited booking.
+        this._removed_events.update((list) => {
+            for (let i = list.length - 1; i >= 0; i--) {
+                if (!sameEvent(list[i], booking)) continue;
+                return [...list.slice(0, i), ...list.slice(i + 1)];
+            }
+            return list;
+        });
+        const back = this._removed_added.filter((_) => sameEvent(_, booking));
+        if (!back.length) return;
+        this._removed_added = this._removed_added.filter(
+            (_) => !sameEvent(_, booking),
         );
+        this._added_events.update((list) => [...list, ...back]);
     }
 
     private filterEvents(
@@ -679,4 +693,12 @@ export class EventsStateService extends AsyncHandler {
             : [this._org.building?.id];
         return this._clean_zone_ids(default_zones);
     }
+}
+
+/** Whether two events are the same booking, by ID or iCal UID */
+function sameEvent(a: CalendarEvent, b: CalendarEvent) {
+    return (
+        (!!a.id && !!b.id && a.id === b.id) ||
+        (!!a.ical_uid && !!b.ical_uid && a.ical_uid === b.ical_uid)
+    );
 }
