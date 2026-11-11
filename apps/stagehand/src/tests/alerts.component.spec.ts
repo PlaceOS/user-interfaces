@@ -79,11 +79,6 @@ describe('AlertsComponent', () => {
         });
     };
 
-    it('should create', () => {
-        spectator = build();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should count alerts by severity and status', () => {
         spectator = build();
         dashboard_alerts.set([

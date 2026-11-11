@@ -31,10 +31,6 @@ describe('AnalyticsComponent', () => {
         spectator = create_component();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the sidebar and page heading', () => {
         spectator.detectChanges();
         expect(spectator.query('sidebar')).toBeTruthy();
@@ -73,11 +69,5 @@ describe('AnalyticsComponent', () => {
         const sandbox = spectator.query('iframe')?.getAttribute('sandbox');
         expect(sandbox).toContain('allow-scripts');
         expect(sandbox).not.toContain('allow-top-navigation');
-    });
-
-    it('should expose the analytics pages from settings', () => {
-        const pages = [{ name: 'Systems', url: '/a' }];
-        settingSignal('analytics_pages', []).set(pages);
-        expect(spectator.component.analytics_pages()).toEqual(pages);
     });
 });

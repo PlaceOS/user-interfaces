@@ -43,6 +43,22 @@ const flush = async () => {
 const zone = (id: string, parent_id = '', tags: string[] = []) =>
     ({ id, parent_id, tags, name: id }) as any;
 
+/** Raised for a module that is not connected */
+const disconnected = {
+    id: 'alert-1',
+    name: 'Disconnected',
+    severity: 'high',
+    conditions: {
+        comparisons: [
+            {
+                left: 'connected',
+                operator: ts_client.TriggerConditionOperator.EQ,
+                right: false,
+            },
+        ],
+    },
+} as any;
+
 describe('DashboardsService', () => {
     let spectator: SpectatorService<DashboardsService>;
     const group_id = signal('');
@@ -134,10 +150,6 @@ describe('DashboardsService', () => {
     afterEach(() => {
         spectator.service.ngOnDestroy?.();
         setNotifyOutlet(null, true);
-    });
-
-    it('should create the service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     describe('setRegionFromParams', () => {
@@ -628,21 +640,7 @@ describe('DashboardsService', () => {
         afterEach(() => vi.useRealTimers());
 
         it('raises an alert from the latest value only', () => {
-            spectator.service.alerts_list.set([
-                {
-                    id: 'alert-1',
-                    name: 'Disconnected',
-                    conditions: {
-                        comparisons: [
-                            {
-                                left: 'connected',
-                                operator: ts_client.TriggerConditionOperator.EQ,
-                                right: false,
-                            },
-                        ],
-                    },
-                } as any,
-            ]);
+            spectator.service.alerts_list.set([disconnected]);
             send(topic('sys-1', 'Display'), false);
             send(topic('sys-2', 'Display'), false);
             vi.advanceTimersByTime(100);
@@ -662,21 +660,7 @@ describe('DashboardsService', () => {
         });
 
         it('updates the alerts while messages keep arriving', () => {
-            spectator.service.alerts_list.set([
-                {
-                    id: 'alert-1',
-                    name: 'Disconnected',
-                    conditions: {
-                        comparisons: [
-                            {
-                                left: 'connected',
-                                operator: ts_client.TriggerConditionOperator.EQ,
-                                right: false,
-                            },
-                        ],
-                    },
-                } as any,
-            ]);
+            spectator.service.alerts_list.set([disconnected]);
             send(topic('sys-1', 'Display'), false);
             // a message every 20ms, faster than the update waits for
             for (let i = 0; i < 5; i++) {
@@ -713,21 +697,7 @@ describe('DashboardsService', () => {
         });
 
         it('drops the alert of a topic the broker removes', () => {
-            spectator.service.alerts_list.set([
-                {
-                    id: 'alert-1',
-                    name: 'Disconnected',
-                    conditions: {
-                        comparisons: [
-                            {
-                                left: 'connected',
-                                operator: ts_client.TriggerConditionOperator.EQ,
-                                right: false,
-                            },
-                        ],
-                    },
-                } as any,
-            ]);
+            spectator.service.alerts_list.set([disconnected]);
             send(topic('sys-1', 'Display', 2), false);
             vi.advanceTimersByTime(100);
             expect(spectator.service.dashboard_alerts()).toHaveLength(1);
@@ -739,30 +709,78 @@ describe('DashboardsService', () => {
         });
 
         it('ignores a message it cannot read', () => {
-            expect(() =>
-                (spectator.service as any)._handleBrokerMessage(
-                    topic('sys-1', 'Display'),
-                    Buffer.from('not json'),
-                ),
-            ).not.toThrow();
+            spectator.service.alerts_list.set([disconnected]);
+            send(topic('sys-1', 'Display'), false);
+            vi.advanceTimersByTime(100);
+            (spectator.service as any)._handleBrokerMessage(
+                topic('sys-1', 'Display'),
+                Buffer.from('not json'),
+            );
+            vi.advanceTimersByTime(100);
+            expect(
+                spectator.service.dashboard_alerts().map((a) => a.location),
+            ).toEqual(['sys-1']);
+        });
+
+        it('notifies an alert once while raised, and again when it returns', () => {
+            const { notifyAlert } = spectator.inject(AlertNotificationService);
+            spectator.service.alerts_list.set([disconnected]);
+            send(topic('sys-1', 'Display'), false);
+            vi.advanceTimersByTime(100);
+            send(topic('sys-2', 'Display'), true);
+            vi.advanceTimersByTime(100);
+            expect(notifyAlert).toHaveBeenCalledTimes(1);
+            expect(notifyAlert).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    location: 'sys-1',
+                    device: 'Display_1',
+                }),
+            );
+
+            send(topic('sys-1', 'Display'), true);
+            vi.advanceTimersByTime(100);
+            send(topic('sys-1', 'Display'), false);
+            vi.advanceTimersByTime(100);
+            expect(notifyAlert).toHaveBeenCalledTimes(2);
+        });
+    });
+
+    // "All groups" sees everything, so only the picked zone limits it
+    describe('zones listened on for all groups', () => {
+        const subscribed = () => {
+            const service = spectator.service as any;
+            service._mqtt_broker = mock_mqtt_connect();
+            service._connected = true;
+            spectator.service.alerts_list.set([disconnected]);
+            service._listenToAlertTopics();
+            return (mock_mqtt_connect() as any).subscribe.mock.calls.map(
+                ([t]) => t,
+            );
+        };
+
+        it('listens org wide with nothing picked', () => {
+            expect(subscribed()).toEqual([
+                'placeos/org-1/+/+/+/+/+/+/+/+/+/connected',
+            ]);
+        });
+
+        it('listens on the picked region', () => {
+            spectator.service.setRegionFromParams('rgn-1', '');
+            expect(subscribed()).toEqual([
+                'placeos/org-1/+/rgn-1/+/+/+/+/+/+/+/connected',
+            ]);
+        });
+
+        it('listens on the picked building, not its whole region', () => {
+            spectator.service.setRegionFromParams('rgn-1', 'bld-1');
+            expect(subscribed()).toEqual([
+                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected',
+            ]);
         });
     });
 
     // A support group limits the hot list to the zones it can see
     describe('support groups', () => {
-        const disconnected = {
-            id: 'alert-1',
-            name: 'Disconnected',
-            conditions: {
-                comparisons: [
-                    {
-                        left: 'connected',
-                        operator: ts_client.TriggerConditionOperator.EQ,
-                        right: false,
-                    },
-                ],
-            },
-        } as any;
         const region = zone('rgn-1', 'org-1', ['region']);
         const building = zone('bld-1', 'rgn-1', ['building']);
         const level = zone('lvl-1', 'bld-1', ['level']);

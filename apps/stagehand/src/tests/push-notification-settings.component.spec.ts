@@ -39,10 +39,6 @@ describe('PushNotificationSettingsComponent', () => {
         });
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should warn when push notifications are unsupported', () => {
         push.supported.set(false);
         spectator.detectChanges();

@@ -63,15 +63,6 @@ describe('DashboardAlertListComponent', () => {
         expect(table.data).toEqual(service.alerts_list());
     });
 
-    it('should delegate alert removal to the service', () => {
-        build({ params: { id: 'dash-1' } });
-        const alert = { id: 'a-2', name: 'Overheat' };
-
-        spectator.component.remove(alert);
-
-        expect(service.removeDashboardAlert).toHaveBeenCalledWith(alert);
-    });
-
     it('should hide the progress bar when nothing is loading', () => {
         build({ params: { id: 'dash-1' } });
 

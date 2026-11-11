@@ -2,6 +2,7 @@ import { TriggerConditionOperator } from '@placeos/ts-client';
 
 import {
     BrokerValue,
+    compareAsTopic,
     evaluate,
     parseBrokerMessage,
     raisedAlerts,
@@ -62,6 +63,30 @@ describe('broker alerts', () => {
             true,
         );
         expect(evaluate(true, TriggerConditionOperator.XOR, false)).toBe(true);
+        expect(evaluate('null', TriggerConditionOperator.EQ, null)).toBe(true);
+        // an empty string is not read as 0
+        expect(evaluate('', TriggerConditionOperator.EQ, 0)).toBe(false);
+    });
+
+    it('listens on the module class of a status, within the zones given', () => {
+        expect(
+            compareAsTopic(
+                {
+                    left: { mod: 'Display_Main_2', status: 'power' },
+                    operator: TriggerConditionOperator.EQ,
+                    right: true,
+                } as any,
+                { building: 'bld-1' },
+                'org-1',
+            ),
+        ).toBe('placeos/org-1/+/+/bld-1/+/+/+/+/Display_Main/+/power');
+        expect(
+            compareAsTopic({
+                left: 'connected',
+                operator: TriggerConditionOperator.EQ,
+                right: false,
+            } as any),
+        ).toBe('placeos/+/+/+/+/+/+/+/+/+/+/connected');
     });
 
     it('raises an alert per module whose value matches', () => {
@@ -140,5 +165,49 @@ describe('broker alerts', () => {
             ],
         );
         expect(alerts.map((a) => a.location)).toEqual(['sys-3']);
+    });
+
+    describe('alerts with several conditions', () => {
+        const power = (mod: string) => ({
+            left: { mod, status: 'power' },
+            operator: TriggerConditionOperator.EQ,
+            right: true,
+        });
+
+        it('needs every condition within the debounce period', () => {
+            const alert = definition(
+                [power('Display_1'), power('Projector_1')],
+                { debounce_period: 60 },
+            );
+            const alerts = raisedAlerts(
+                [alert],
+                [
+                    value('sys-1', 'Display', 'power', true, 100),
+                    value('sys-1', 'Projector', 'power', true, 150),
+                    value('sys-2', 'Display', 'power', true, 100),
+                    value('sys-2', 'Projector', 'power', true, 200),
+                ],
+            );
+            expect(alerts.map((a) => a.location)).toEqual(['sys-1']);
+        });
+
+        it('raises an any-match alert from any one condition', () => {
+            const alert = definition(
+                [power('Display_1'), power('Projector_1')],
+                { any_match: true },
+            );
+            const alerts = raisedAlerts(
+                [alert],
+                [
+                    value('sys-1', 'Display', 'power', false),
+                    value('sys-1', 'Projector', 'power', true),
+                    value('sys-2', 'Display', 'power', true),
+                ],
+            );
+            expect(alerts.map((a) => a.id)).toEqual([
+                'alert-1+sys-2+Display_1',
+                'alert-1+sys-1+Projector_1',
+            ]);
+        });
     });
 });

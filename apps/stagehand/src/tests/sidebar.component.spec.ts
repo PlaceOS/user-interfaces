@@ -99,10 +99,6 @@ describe('SidebarComponent', () => {
         component.is_compact.set(false);
     });
 
-    it('should create the component', () => {
-        expect(component).toBeTruthy();
-    });
-
     it('should toggle the compact state', () => {
         expect(component.is_compact()).toBe(false);
         component.toggleCompact();

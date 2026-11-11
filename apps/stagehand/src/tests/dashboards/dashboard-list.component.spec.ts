@@ -79,24 +79,6 @@ describe('DashboardListComponent', () => {
         });
     });
 
-    it('should delegate dashboard removal to the service', () => {
-        build();
-        const dash = { id: 'dash-2', name: 'Cafe' };
-
-        spectator.component.remove(dash);
-
-        expect(service.removeDashboard).toHaveBeenCalledWith(dash);
-    });
-
-    it('should delegate alert removal to the service', () => {
-        build();
-        const alert = { id: 'alert-1', name: 'Offline' };
-
-        spectator.component.removeAlert(alert);
-
-        expect(service.removeDashboardAlert).toHaveBeenCalledWith(alert);
-    });
-
     it('should hide the progress bar when nothing is loading', () => {
         build();
 

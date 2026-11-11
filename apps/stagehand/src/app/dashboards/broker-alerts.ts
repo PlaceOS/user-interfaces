@@ -212,8 +212,26 @@ export function findCompareMatches(
     return matches;
 }
 
+/** The hot list alert that a broker value raises for a definition */
+function toAlert(alert: PlaceAlert, { time, topic }: BrokerValue): Alert {
+    const device = `${topic.module_name}_${topic.module_index}`;
+    return {
+        id: `${alert.id}+${topic.system_id}+${device}`,
+        severity: alert.severity as Alert['severity'],
+        type: alert.alert_type as Alert['type'],
+        location: topic.system_id,
+        device,
+        subject: alert.name,
+        body: alert.description,
+        status: 'open',
+        timestamp: time * 1000,
+    };
+}
+
 /**
- * The alerts raised by the broker's current values.
+ * The alerts raised by the broker's current values. An alert is raised for a
+ * module when all its conditions hold on one system, or, with `any_match`,
+ * when one of them holds.
  *
  * NOTE:: `values` holds only the latest value of each topic, and only topics
  * the broker still retains. Source keeps the broker matching the modules,
@@ -228,9 +246,15 @@ export function raisedAlerts(
     for (const alert of definitions) {
         const comparisons = alert.conditions?.comparisons || [];
         if (!comparisons.length) continue;
-        const [first_matches, ...other_matches] = comparisons.map((item) =>
+        const matches = comparisons.map((item) =>
             findCompareMatches(list, item),
         );
+        // any one condition raises the alert, so each match raises its own
+        if (alert.any_match) {
+            for (const entry of matches.flat()) out.push(toAlert(alert, entry));
+            continue;
+        }
+        const [first_matches, ...other_matches] = matches;
         // the other conditions' matches by system, so grouping doesn't scan
         // every match for each one
         const others_by_system = other_matches.map((matches) => {
@@ -242,34 +266,18 @@ export function raisedAlerts(
             }
             return by_system;
         });
-        const required = alert.any_match ? 1 : comparisons.length;
         for (const match of first_matches) {
-            const group = [match];
-            for (const by_system of others_by_system) {
-                // conditions are about one system, within the debounce period
-                const other = by_system
+            // every condition holds on one system, within the debounce period
+            const all_hold = others_by_system.every((by_system) =>
+                by_system
                     .get(match.topic.system_id)
-                    ?.find(
+                    ?.some(
                         (_) =>
                             Math.abs(_.time - match.time) <
                             alert.debounce_period,
-                    );
-                if (other) group.push(other);
-            }
-            if (group.length < required) continue;
-            const { time, topic } = group[0];
-            const device = `${topic.module_name}_${topic.module_index}`;
-            out.push({
-                id: `${alert.id}+${topic.system_id}+${device}`,
-                severity: alert.severity as Alert['severity'],
-                type: alert.alert_type as Alert['type'],
-                location: topic.system_id,
-                device,
-                subject: alert.name,
-                body: alert.description,
-                status: 'open',
-                timestamp: time * 1000,
-            });
+                    ),
+            );
+            if (all_hold) out.push(toAlert(alert, match));
         }
     }
     return unique(out, 'id');
