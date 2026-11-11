@@ -46,8 +46,14 @@ describe('[User Utilities]', () => {
             ['', true],
             ['0412 345 678', true],
             ['+61 2 4567-8901', true],
+            ['(02) 4567 8901', true],
+            ['+1 (555) 123-4567', true],
+            ['555.123.4567', true],
+            ['+44 20 7946 0958 ext. 123', true],
+            ['+61 (0) 412 345 678 x12', true],
             ['12345', false],
             ['0412abc678', false],
+            ['+1 2345 6789 0123 4567', false],
         ])('should treat phone %j as valid: %s', (phone, valid) => {
             const form = makeUserForm(new User());
             form.phone().value.set(phone);
