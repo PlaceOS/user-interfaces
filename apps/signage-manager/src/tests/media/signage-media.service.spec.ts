@@ -1467,6 +1467,26 @@ describe('SignageMediaService', () => {
             expect(pdf.destroy).not.toHaveBeenCalled();
         });
 
+        it('opens a PowerPoint file in the import modal with the warning', async () => {
+            const service = createPdfService(
+                vi.fn().mockResolvedValue(fakePdf()),
+            );
+            const opened = stubDialogs([[pageItem('deck', 1)], undefined]);
+
+            void service.previewFiles([
+                new File(['PK'], 'deck.pptx'),
+                pdfFile(),
+            ]);
+            await vi.waitFor(() => expect(opened.bulk).toBeDefined());
+
+            expect(
+                opened.pdf.map((data) => [data.file_name, data.pptx_warning]),
+            ).toEqual([
+                ['deck.pptx', true],
+                ['deck.pdf', false],
+            ]);
+        });
+
         it('opens a single PDF in the import modal, not the edit modal', async () => {
             const service = createPdfService(
                 vi.fn().mockResolvedValue(fakePdf()),
@@ -1581,9 +1601,11 @@ describe('SignageMediaService', () => {
             );
             stubDialogs([[pageItem('one', 1)]]);
             const open = dialog.open.getMockImplementation();
-            dialog.open.mockImplementationOnce(open).mockImplementationOnce(() => {
-                throw new Error('dialog failed');
-            });
+            dialog.open
+                .mockImplementationOnce(open)
+                .mockImplementationOnce(() => {
+                    throw new Error('dialog failed');
+                });
 
             await expect(
                 service.previewFiles([pdfFile('one.pdf'), pdfFile('two.pdf')]),
@@ -1661,7 +1683,7 @@ describe('SignageMediaService', () => {
             [
                 'pdf.js did not load',
                 new Error('Failed to fetch dynamically imported module'),
-                'Could not load the PDF reader for deck.pdf.',
+                'Could not load the file reader for deck.pdf.',
             ],
         ])(
             'names a PDF it cannot open (%s) and keeps the other files',
@@ -1698,7 +1720,7 @@ describe('SignageMediaService', () => {
             expect(pdf.destroy).toHaveBeenCalledOnce();
             expect(notify_open).toHaveBeenCalledWith(
                 expect.stringContaining(
-                    `deck.pdf has ${MAX_PDF_PAGES + 1} pages.`,
+                    `deck.pdf has more than ${MAX_PDF_PAGES} pages.`,
                 ),
                 expect.anything(),
                 expect.objectContaining({ panelClass: ['error'] }),

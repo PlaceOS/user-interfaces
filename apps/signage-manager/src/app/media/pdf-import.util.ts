@@ -46,11 +46,12 @@ const RESOLUTION_BOUNDS: Record<PdfResolution, [number, number]> = {
     hd: [1920, 1080],
 };
 
-/** Name of a PDF without its extension, used as the tag of its pages */
+/** Name of a PDF or PowerPoint file without its extension, used as the tag
+ * of its pages */
 export function pdfBaseName(file_name: string) {
     const name = (file_name || '')
         .trim()
-        .replace(/\.pdf$/i, '')
+        .replace(/\.(pdf|pptx)$/i, '')
         .trim();
     return name || 'PDF';
 }
@@ -216,8 +217,9 @@ export interface PdfPageImage {
 }
 
 /**
- * An open PDF. The import modal only uses this, so tests can hand it a fake
- * without loading pdf.js.
+ * An open PDF, or an open PowerPoint file with each slide as a page. The
+ * import modal only uses this, so tests can hand it a fake without loading
+ * pdf.js.
  */
 export interface PdfDocumentHandle {
     readonly page_count: number;

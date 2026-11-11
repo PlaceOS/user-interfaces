@@ -63,7 +63,8 @@ import {
 import {
     getVideoContainer,
     isImageSourceFile,
-    isPdfFile,
+    isPagedFile,
+    isPptxFile,
     isSupportedImageFile,
     SIGNAGE_MEDIA_PICKER_ACCEPT,
     SignageMediaMetadata,
@@ -217,11 +218,18 @@ export class SignageMediaService {
     // Kept on the instance, so specs can stub the file processing
     private _generateThumbnail = generateThumbnail;
     private _getMediaMetadata = getMediaMetadata;
-    /** Loads pdf.js on first use, as only a PDF import needs it */
+    /**
+     * Open a PDF or PowerPoint file. The reader of each loads on first use,
+     * as only an import of that file type needs it.
+     */
     private _openPdfDocument = (file: File): Promise<PdfDocumentHandle> =>
-        import('./pdf-document').then(({ openPdfDocument }) =>
-            openPdfDocument(file),
-        );
+        isPptxFile(file)
+            ? import('./pptx-document').then(({ openPptxDocument }) =>
+                  openPptxDocument(file),
+              )
+            : import('./pdf-document').then(({ openPdfDocument }) =>
+                  openPdfDocument(file),
+              );
 
     public readonly media_upload_accept = SIGNAGE_MEDIA_PICKER_ACCEPT;
 
@@ -499,7 +507,8 @@ export class SignageMediaService {
 
     /**
      * Upload files to the selected group. One file opens the edit modal,
-     * several open the bulk upload modal, and PDFs open the import modal.
+     * several open the bulk upload modal, and PDFs and PowerPoint files open
+     * the import modal.
      * @returns The media created, in upload order
      */
     private async _uploadFiles(
@@ -514,7 +523,7 @@ export class SignageMediaService {
             return [];
         const upload_files = Array.from(files || []);
         if (!upload_files.length) return [];
-        if (upload_files.some((file) => isPdfFile(file))) {
+        if (upload_files.some((file) => isPagedFile(file))) {
             return this._uploadWithPdfs(upload_files);
         }
         if (upload_files.length > 1) {
@@ -561,20 +570,21 @@ export class SignageMediaService {
     }
 
     /**
-     * Upload files that include PDFs. Each PDF opens the import modal in
-     * turn, to pick and set up its pages, and the pages then upload in one
-     * bulk upload with the other files.
+     * Upload files that include PDFs or PowerPoint files, both called PDFs
+     * here. Each PDF opens the import modal in turn, to pick and set up its
+     * pages, and the pages then upload in one bulk upload with the other
+     * files.
      * @returns The media created
      */
     private async _uploadWithPdfs(files: File[]) {
         // The other files are read while the user sets up the PDF pages
         const other_items = this._prepareBulkItems(
-            files.filter((file) => !isPdfFile(file)),
+            files.filter((file) => !isPagedFile(file)),
         );
         const { importPdfPages } = await import('./pdf-upload');
         const pdf_import = await importPdfPages(
             this._dialog,
-            files.filter((file) => isPdfFile(file)),
+            files.filter((file) => isPagedFile(file)),
             this._openPdfDocument,
         );
         // Pages render as they upload, so the PDFs stay open until then.
