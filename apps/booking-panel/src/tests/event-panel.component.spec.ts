@@ -177,4 +177,13 @@ describe('EventPanelComponent', () => {
         spectator.detectChanges();
         expect(spectator.query('button[book-tag]')).toBeFalsy();
     });
+
+    it.each(['false', '0'])(
+        'should keep the QR code when hide_qr_code is %s',
+        async (value) => {
+            spectator.setRouteQueryParam('hide_qr_code', value);
+            await spectator.component.ngOnInit();
+            expect(spectator.component.hide_qr()).toBe(false);
+        },
+    );
 });
