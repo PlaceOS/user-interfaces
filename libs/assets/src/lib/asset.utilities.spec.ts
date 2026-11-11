@@ -227,6 +227,19 @@ describe('asset.utilities', () => {
             ).toBe(false);
         });
 
+        it('should not throw for a category without a name', () => {
+            const rules = [
+                { name: 'Furniture', rules: [['visitor_type', 'guest']] },
+            ] as any;
+            expect(
+                assetAvailable(
+                    { name: 'Chairs', category: {} } as any,
+                    rules,
+                    make_event(),
+                ),
+            ).toBe(true);
+        });
+
         it('should match rules by the item category name', () => {
             const rules = [
                 { name: 'Furniture', rules: [['visitor_type', 'guest']] },
