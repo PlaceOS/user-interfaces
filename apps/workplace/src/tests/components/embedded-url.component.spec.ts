@@ -28,11 +28,6 @@ describe('EmbeddedUrlComponent', () => {
 
     beforeEach(() => setEmbeds([]));
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('resolves the embed item matching the route id', () => {
         setEmbeds([
             { id: 'other', name: 'Other', url: 'https://other.example' },

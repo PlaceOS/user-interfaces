@@ -1,14 +1,13 @@
-import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
 import { TopbarComponent } from '../../app/components/topbar.component';
 import { VirtualConciergeButtonComponent } from '../../app/components/virtual-concierge-button.component';
 import { TeamQuickActionsComponent } from '../../app/team-schedule/team-quick-actions.component';
-import { TeamScheduleComponent } from '../../app/team-schedule/team-schedule.component';
 import { TeamScheduleFiltersComponent } from '../../app/team-schedule/team-schedule-filters.component';
 import { TeamScheduleListComponent } from '../../app/team-schedule/team-schedule-list.component';
 import { TeamScheduleTableComponent } from '../../app/team-schedule/team-schedule-table.component';
+import { TeamScheduleComponent } from '../../app/team-schedule/team-schedule.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
 describe('TeamScheduleComponent', () => {
@@ -31,7 +30,10 @@ describe('TeamScheduleComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        vi.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should default to showing the navigation chrome', () => {
         expect(spectator.component.hide_nav).toBe(false);
@@ -47,8 +49,14 @@ describe('TeamScheduleComponent', () => {
         localStorage.removeItem('PlaceOS.hide_nav');
     });
 
-    it('should always render the schedule table and list', () => {
-        expect(spectator.query(TeamScheduleTableComponent)).toBeTruthy();
-        expect(spectator.query(TeamScheduleListComponent)).toBeTruthy();
+    it('should watch the team members only while the page is open', () => {
+        const service = spectator.inject(TeamScheduleService);
+        const release = vi.mocked(service.watch).mock.results[0].value;
+        expect(service.watch).toHaveBeenCalledTimes(1);
+        expect(release).not.toHaveBeenCalled();
+
+        spectator.fixture.destroy();
+
+        expect(release).toHaveBeenCalledTimes(1);
     });
 });

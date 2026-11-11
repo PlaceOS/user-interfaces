@@ -11,7 +11,9 @@ import {
     Booking,
     CalendarEvent,
     OrganisationService,
+    setCurrentUser,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import {
     EventFormService,
@@ -26,6 +28,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
 import {
+    bookingTypeCounts,
     isBookingForOtherUser,
     overlapsDay,
     ScheduleStateService,
@@ -120,10 +123,6 @@ describe('ScheduleStateService', () => {
     afterEach(() => {
         vi.restoreAllMocks();
         vi.useRealTimers();
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should resolve the space name of allocated parking bookings', () => {
@@ -325,6 +324,170 @@ describe('ScheduleStateService', () => {
         expect(spectator.service.filtered_bookings()).toEqual([mine]);
     });
 
+    describe('booking list', () => {
+        const setFeatures = (features: string[]) =>
+            (spectator.inject(SettingsService) as any).get.mockImplementation(
+                (key: string) =>
+                    key === 'app.features' ? features : undefined,
+            );
+
+        beforeEach(() => {
+            sessionStorage.removeItem('PLACEOS.events.deleted');
+            setCurrentUser(
+                new StaffUser({ id: 'me', email: 'me@example.com' }),
+            );
+        });
+
+        afterEach(() => {
+            sessionStorage.removeItem('PLACEOS.events.deleted');
+            setCurrentUser(null);
+        });
+
+        it('should hide each item type that the filters do not show', () => {
+            setFeatures(['spaces', 'group-events', 'desks', 'parking']);
+            const meeting = new CalendarEvent({ id: 'meeting' });
+            const group = new CalendarEvent({
+                id: 'group',
+                extension_data: { shared_event: true },
+            });
+            const desk = new Booking({
+                id: 'desk',
+                booking_type: 'desk',
+            });
+            const car = new Booking({
+                id: 'car',
+                booking_type: 'parking',
+            });
+            (spectator.service as any)._api_events.set([meeting, group]);
+            (spectator.service as any)._desks.set([desk]);
+            (spectator.service as any)._parking_bookings.set([car]);
+            const ids = () =>
+                spectator.service
+                    .filtered_bookings()
+                    .map((_) => _.id)
+                    .sort();
+
+            expect(ids()).toEqual(['car', 'desk', 'group', 'meeting']);
+
+            spectator.service.setType('event', false);
+            spectator.service.setType('parking', false);
+            expect(ids()).toEqual(['desk', 'group']);
+
+            spectator.service.setType('group-event', false);
+            expect(ids()).toEqual(['desk']);
+        });
+
+        it('should hide only the removed instance of a recurring booking', () => {
+            setFeatures(['desks']);
+            const first = new Booking({
+                id: 'recurring',
+                instance: 1,
+                booking_type: 'desk',
+                date: 1,
+            });
+            const second = new Booking({
+                id: 'recurring',
+                instance: 2,
+                booking_type: 'desk',
+                date: 2,
+            });
+            spectator.service.removeItem(first);
+            (spectator.service as any)._desks.set([first, second]);
+
+            expect(spectator.service.filtered_bookings()).toEqual([second]);
+        });
+
+        it('should list an event once when two sources or a desk booking return it', () => {
+            setFeatures(['spaces', 'desks']);
+            spectator.service.setEventSources(['api', 'driver']);
+            const date = spectator.service.date();
+            const api_event = new CalendarEvent({
+                id: 'api',
+                date,
+                ical_uid: 'uid-1',
+            });
+            const driver_copy = new CalendarEvent({
+                id: 'driver',
+                date,
+                host: 'me@example.com',
+                ical_uid: 'uid-1',
+            });
+            const driver_only = new CalendarEvent({
+                id: 'driver-only',
+                date,
+                host: 'me@example.com',
+                ical_uid: 'uid-2',
+            });
+            const desk_event = new CalendarEvent({
+                id: 'desk-event',
+                date,
+                meeting_id: 'desk-1',
+            });
+            const desk = new Booking({
+                id: 'desk-1',
+                booking_type: 'desk',
+                date: date + 1,
+            });
+            (spectator.service as any)._api_events.set([api_event, desk_event]);
+            (spectator.service as any)._user_bookings.set([
+                driver_copy,
+                driver_only,
+            ]);
+            (spectator.service as any)._desks.set([desk]);
+
+            expect(spectator.service.bookings().map((_) => _.id)).toEqual([
+                'api',
+                'driver-only',
+                'desk-1',
+            ]);
+        });
+
+        it('should count items for each filter type', () => {
+            expect(
+                bookingTypeCounts([
+                    new CalendarEvent({ id: 'meeting' }),
+                    new CalendarEvent({
+                        id: 'group',
+                        extension_data: { shared_event: true },
+                    }),
+                    new Booking({
+                        booking_type: 'desk',
+                        user_email: 'me@example.com',
+                        booked_by_email: 'me@example.com',
+                    }),
+                    new Booking({
+                        booking_type: 'desk',
+                        user_email: 'other@example.com',
+                        booked_by_email: 'me@example.com',
+                    }),
+                ]),
+            ).toEqual({
+                event: 1,
+                'group-event': 1,
+                desk: 2,
+                'bookings-for-others': 1,
+            });
+        });
+
+        it('should apply the type defaults of a building only once', () => {
+            spectator.service.setTypeDefaults('bld-1', {
+                desk: false,
+                locker: false,
+            });
+            spectator.service.setType('desk', true);
+            spectator.service.setTypeDefaults('bld-1', { desk: false });
+            expect(spectator.service.filters().shown_types).toContain('desk');
+            expect(spectator.service.filters().shown_types).not.toContain(
+                'locker',
+            );
+
+            spectator.service.setTypeDefaults('bld-2', { desk: false });
+            expect(spectator.service.filters().shown_types).not.toContain(
+                'desk',
+            );
+        });
+    });
+
     it('should ignore a range end date that is before the selected date', async () => {
         const day = (date: number) => new Date(2026, 9, date, 10).valueOf();
         spectator.service.setOptions({ period: 'range' });
@@ -515,7 +678,9 @@ describe('ScheduleStateService', () => {
             next: () =>
                 Promise.resolve({
                     total: 3,
-                    data: [new Booking({ id: 'page-2-a', booking_type: 'desk' })],
+                    data: [
+                        new Booking({ id: 'page-2-a', booking_type: 'desk' }),
+                    ],
                     next: null,
                 }),
         } as any);
@@ -775,4 +940,3 @@ describe('ScheduleStateService', () => {
         });
     });
 });
-

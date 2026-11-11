@@ -145,11 +145,6 @@ describe('MeetingFlowConfirmModalComponent', () => {
 
     afterEach(() => setNotifyOutlet(null, true));
 
-    it('should create component', async () => {
-        await init();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the booked room and attendee sections', async () => {
         await init();
         expect(spectator.query('[attendee-list]')).toExist();

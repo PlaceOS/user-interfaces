@@ -17,22 +17,29 @@ export class DealsService {
     private _reload = signal(0);
 
     constructor() {
-        effect(async () => {
+        effect(async (onCleanup) => {
             const bld = this._org.active_building();
             this._reload();
             if (!bld?.id) {
                 this.deals.set([]);
+                this.loading.set(false);
                 return;
             }
+            // A slow response for an old building must not replace the new one
+            let active = true;
+            onCleanup(() => (active = false));
             this.loading.set(true);
             this.failed.set(false);
+            let failed = false;
             const { details } = await showMetadata(
                 bld.id,
                 'deals-n-offers',
             ).catch(() => {
-                this.failed.set(true);
+                failed = true;
                 return { details: [] };
             });
+            if (!active) return;
+            this.failed.set(failed);
             this.deals.set(details instanceof Array ? details : []);
             this.loading.set(false);
         });

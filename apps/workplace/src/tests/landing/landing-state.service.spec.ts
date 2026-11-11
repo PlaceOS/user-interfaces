@@ -83,11 +83,6 @@ describe('LandingStateService', () => {
         vi.useRealTimers();
     });
 
-    it('should create service', () => {
-        spectator = createService();
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should exclude inactive bookings from upcoming events', () => {
         const now = new Date().setHours(12, 0, 0, 0);
         vi.useFakeTimers({ toFake: ['Date'] });

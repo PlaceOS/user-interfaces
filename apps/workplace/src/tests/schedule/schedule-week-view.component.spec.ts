@@ -36,10 +36,6 @@ describe('ScheduleWeekViewComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should hide the asset id of unallocated parking bookings', () => {
         // asset_name falls back to the raw asset_id
         const via_asset_name = new Booking({
