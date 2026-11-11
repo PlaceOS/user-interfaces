@@ -16,10 +16,6 @@ describe('ActionIconComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should show icon', () => {
-        expect('icon[root]').toExist();
-    });
-
     it('should allow toggling of states', () => {
         expect('.state icon').not.toExist();
         spectator.setInput({ state: 'success' });

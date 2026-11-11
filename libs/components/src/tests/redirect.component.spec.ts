@@ -49,8 +49,18 @@ describe('RedirectComponent', () => {
         settings_mock.get.mockImplementation((key: string) =>
             key === 'app.default_route' ? 'schedule' : undefined,
         );
-        await spectator.component.ngOnInit();
-        expect(org_mock.waitUntilInitialised).toHaveBeenCalled();
+        let org_ready: () => void;
+        org_mock.waitUntilInitialised.mockReturnValue(
+            new Promise<void>((resolve) => (org_ready = resolve)),
+        );
+        const done = spectator.component.ngOnInit();
+        await vi.waitFor(() =>
+            expect(org_mock.waitUntilInitialised).toHaveBeenCalled(),
+        );
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+
+        org_ready();
+        await done;
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
             ['schedule'],
             { replaceUrl: true },

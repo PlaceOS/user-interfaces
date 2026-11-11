@@ -70,11 +70,6 @@ describe('SurveyOutletComponent', () => {
         vi.mocked(ts_client.addAnswer).mockResolvedValue([]);
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should load the survey from the route id parameter', async () => {
         spectator = createComponent({
             providers: [

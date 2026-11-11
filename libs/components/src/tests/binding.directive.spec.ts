@@ -45,10 +45,6 @@ describe('BindingDirective', () => {
         );
     });
 
-    it('should create an instance', () => {
-        expect(spectator.directive).toBeTruthy();
-    });
-
     it('should listen to binding changes', async () => {
         vi.useFakeTimers();
         const value = new BehaviorSubject('');

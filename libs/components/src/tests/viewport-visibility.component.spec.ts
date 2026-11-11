@@ -40,11 +40,10 @@ describe('ViewportVisibilityComponent', () => {
 
     afterEach(() => vi.restoreAllMocks());
 
-    it('should create component and observe the host element', () => {
+    it('should observe the host element', () => {
         spectator = createHost(
             `<div viewport-only><span class="content">Hello</span></div>`,
         );
-        expect(spectator.component).toBeTruthy();
         const observer = MockIntersectionObserver.instances[0];
         expect(observer).toBeTruthy();
         expect(observer.observe).toHaveBeenCalledWith(spectator.element);

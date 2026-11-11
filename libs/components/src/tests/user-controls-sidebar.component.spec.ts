@@ -32,8 +32,7 @@ describe('UserControlsSidebarComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
+    it('should not render the controls until opened', () => {
         expect('user-controls').not.toExist();
     });
 

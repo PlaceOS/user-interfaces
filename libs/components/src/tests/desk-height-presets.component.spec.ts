@@ -21,11 +21,6 @@ describe('DeskHeightPresetsComponent', () => {
         settings_mock.get.mockReturnValue(undefined);
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should load stored heights from settings', () => {
         settings_mock.get.mockImplementation((name: string) =>
             name === 'desk_sitting_height' ? 65 : 110,

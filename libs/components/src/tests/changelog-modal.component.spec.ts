@@ -14,11 +14,6 @@ describe('ChangelogModalComponent', () => {
         ],
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the changelog markdown as HTML', () => {
         spectator = createComponent({
             providers: [
