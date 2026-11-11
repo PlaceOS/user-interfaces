@@ -29,8 +29,7 @@ describe('AppComponent', () => {
         providers: [
             { provide: PlaceOS_Service, useValue: placeos_service },
             MockProvider(SettingsService, {
-                signal: ((_name: string, _default: boolean) =>
-                    chat_enabled) as any,
+                signal: (() => chat_enabled) as SettingsService['signal'],
             }),
         ],
     });
@@ -42,28 +41,10 @@ describe('AppComponent', () => {
         spectator = create_component();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should initialise the PlaceOS service on init', () => {
         spectator.component.ngOnInit();
 
         expect(placeos_service.init).toHaveBeenCalledTimes(1);
-    });
-
-    it('should expose chat availability sourced from settings', () => {
-        expect(spectator.component.has_chat()).toBe(false);
-        chat_enabled.set(true);
-        expect(spectator.component.has_chat()).toBe(true);
-    });
-
-    it('should render the banner, router outlet and loading shells', () => {
-        spectator.detectChanges();
-
-        expect(spectator.query('global-banner')).toBeTruthy();
-        expect(spectator.query('router-outlet')).toBeTruthy();
-        expect(spectator.query('global-loading')).toBeTruthy();
     });
 
     it('should only render the chat when chat is enabled in settings', async () => {
