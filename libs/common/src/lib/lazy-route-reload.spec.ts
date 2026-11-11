@@ -1,10 +1,13 @@
 import type { Mock } from 'vitest';
 
+import type { MatSnackBar } from '@angular/material/snack-bar';
 import {
     isLazyRouteLoadError,
     LazyRouteReloadContext,
+    loadLazyChunk,
     reloadOnChunkLoadError,
 } from './lazy-route-reload';
+import { setNotifyOutlet } from './notifications';
 
 function createContext(
     state = new Map<string, string>(),
@@ -35,9 +38,7 @@ function createContext(
 }
 
 describe('lazy route reload', () => {
-    beforeEach(() =>
-        vi.spyOn(console, 'warn').mockImplementation(() => null),
-    );
+    beforeEach(() => vi.spyOn(console, 'warn').mockImplementation(() => null));
 
     afterEach(() => vi.restoreAllMocks());
 
@@ -51,6 +52,14 @@ describe('lazy route reload', () => {
             isLazyRouteLoadError(
                 new Error(
                     'Failed to fetch dynamically imported module: https://example.com/chunk.js',
+                ),
+            ),
+        ).toBe(true);
+        // Firefox wording, from Sentry issue PLACEOS-DEV-MK
+        expect(
+            isLazyRouteLoadError(
+                new TypeError(
+                    'error loading dynamically imported module: https://example.com/chunk.js',
                 ),
             ),
         ).toBe(true);
@@ -98,5 +107,60 @@ describe('lazy route reload', () => {
             reloadOnChunkLoadError(error, { ...context, online: false }),
         ).toThrow(error);
         expect(context.location.reload).not.toHaveBeenCalled();
+    });
+
+    describe('loadLazyChunk', () => {
+        const stale_chunk = new TypeError(
+            'error loading dynamically imported module: https://example.com/chunk.js',
+        );
+        let on_action: () => void;
+        let open: Mock;
+
+        beforeEach(() => {
+            open = vi.fn(() => ({
+                onAction: () => ({
+                    subscribe: (fn: () => void) => (on_action = fn),
+                }),
+                dismiss: vi.fn(),
+            }));
+            setNotifyOutlet({ open } as unknown as MatSnackBar, true);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('resolves the loaded chunk', async () => {
+            const chunk = { Component: class {} };
+
+            await expect(
+                loadLazyChunk(() => Promise.resolve(chunk)),
+            ).resolves.toBe(chunk);
+            expect(open).not.toHaveBeenCalled();
+        });
+
+        it('shows a Reload error for a stale chunk instead of throwing', async () => {
+            const reload = vi.fn();
+
+            await expect(
+                loadLazyChunk(() => Promise.reject(stale_chunk), reload),
+            ).resolves.toBeUndefined();
+
+            expect(open).toHaveBeenCalledWith(
+                'COMMON.CHUNK_LOAD_ERROR',
+                'COMMON.RELOAD',
+                expect.objectContaining({ panelClass: ['error'], duration: 0 }),
+            );
+            expect(reload).not.toHaveBeenCalled();
+            on_action();
+            expect(reload).toHaveBeenCalledOnce();
+        });
+
+        it('throws errors that are not chunk load failures', async () => {
+            const error = new Error('Plain failure');
+
+            await expect(
+                loadLazyChunk(() => Promise.reject(error)),
+            ).rejects.toBe(error);
+            expect(open).not.toHaveBeenCalled();
+        });
     });
 });

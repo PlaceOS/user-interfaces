@@ -259,6 +259,8 @@
         "PEOPLE_COUNT": "{{ count }} 人",
         "LOAD_ERROR": "データを読み込めませんでした。接続を確認してから、もう一度お試しください。",
         "RETRY": "再試行",
+        "CHUNK_LOAD_ERROR": "アプリのこの部分を読み込めませんでした。更新された可能性があります。再読み込みして続行してください。",
+        "RELOAD": "再読み込み",
         "SELECT_ALL": "すべて選択",
         "SELECT_ROW": "行を選択",
         "CLEAR_SELECTION": "選択を解除",

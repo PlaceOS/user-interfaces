@@ -1,5 +1,6 @@
 import { inject, Injectable, Injector } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { loadLazyChunk } from '@placeos/common';
 import { SignageMedia } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import { SignagePluginService } from '../signage-plugin.service';
@@ -24,9 +25,12 @@ export class MediaPreviewService {
                       .get(SignagePluginService)
                       .resolvePlugin(item.plugin_id)
                 : undefined;
-        const { MediaPreviewModalComponent } =
-            await import('../shared/media-preview-modal.component');
-        this._dialog.open(MediaPreviewModalComponent, {
+        // A redeploy can remove the chunk, and then this shows a Reload error
+        const chunk = await loadLazyChunk(
+            () => import('../shared/media-preview-modal.component'),
+        );
+        if (!chunk) return;
+        this._dialog.open(chunk.MediaPreviewModalComponent, {
             data: {
                 media: item,
                 plugin,

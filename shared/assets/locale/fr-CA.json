@@ -259,6 +259,8 @@
         "PEOPLE_COUNT": "{{ count }} personnes",
         "LOAD_ERROR": "Impossible de charger les données. Vérifiez votre connexion, puis réessayez.",
         "RETRY": "Réessayer",
+        "CHUNK_LOAD_ERROR": "Impossible de charger cette partie de l'application. Elle a peut-être été mise à jour. Rechargez pour continuer.",
+        "RELOAD": "Recharger",
         "SELECT_ALL": "Tout sélectionner",
         "SELECT_ROW": "Sélectionner la ligne",
         "CLEAR_SELECTION": "Effacer la sélection",
