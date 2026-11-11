@@ -24,8 +24,9 @@ export type PptxImportConfirmModalResult = true | undefined;
     selector: 'pptx-import-confirm-modal',
     template: `
         <header
-            class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
+            class="flex items-center bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
+            <icon class="text-2xl">warning</icon>
             <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.PPTX_IMPORT_CONFIRM_TITLE' | translate }}
             </h2>
@@ -33,7 +34,6 @@ export type PptxImportConfirmModalResult = true | undefined;
         <main
             class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-4"
         >
-            <icon class="text-5xl">warning</icon>
             <p class="text-center">
                 <b class="break-all">{{ file_name }}</b>
                 <br />
