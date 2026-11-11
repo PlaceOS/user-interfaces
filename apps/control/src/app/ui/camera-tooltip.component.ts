@@ -12,7 +12,6 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -22,6 +21,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSelectModule } from '@angular/material/select';
 import { ControlStateService, RoomInput } from '../control-state.service';
 import {
+    execCamera,
     moveCamera,
     selectCamera,
     zoomCamera,
@@ -325,22 +325,19 @@ export class CameraTooltipComponent {
         const camera = this.active_camera();
         if (!camera?.mod) return;
         this.preset.set(preset);
-        getModule(this.id, camera.mod).execute('recall', [preset]);
+        execCamera(this.id, camera.mod, 'recall', [preset]);
     }
 
     public addPreset(preset: string) {
         const camera = this.active_camera();
         if (!camera) return;
-        getModule(this.id, 'System').execute('add_preset', [preset, camera.id]);
+        execCamera(this.id, 'System', 'add_preset', [preset, camera.id]);
     }
 
     public removePreset(preset: string) {
         const camera = this.active_camera();
         if (!camera) return;
-        getModule(this.id, 'System').execute('remove_preset', [
-            preset,
-            camera.id,
-        ]);
+        execCamera(this.id, 'System', 'remove_preset', [preset, camera.id]);
     }
 
     public moveCamera() {
@@ -359,7 +356,7 @@ export class CameraTooltipComponent {
         const camera = this.active_camera();
         if (!camera?.mod) return;
         this.zoom = dir === 'in' ? ZoomDirection.In : ZoomDirection.Out;
-        await zoomCamera(this.id, camera, this.zoom).catch(() => null);
+        await zoomCamera(this.id, camera, this.zoom);
     }
 
     public stopZoom() {

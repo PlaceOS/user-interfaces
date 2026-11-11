@@ -1977,6 +1977,7 @@
             "VC_LEAVE_ERROR": "Échec de la fin de l'appel. Erreur : {{ error }}",
             "VC_DIAL_ERROR": "Impossible de passer l'appel. Erreur : {{ error }}",
             "VC_COMMAND_ERROR": "La commande de visioconférence a échoué. Erreur : {{ error }}",
+            "CAMERA_COMMAND_ERROR": "La commande de la caméra a échoué. Erreur : {{ error }}",
             "VC_LEAVE_LOADING": "Fin de l'appel...",
             "VC_LOADING": "Chargement des détails de l'appel...",
             "ROUTE_ERROR": "Impossible de changer la source. Erreur : {{ error }}",
