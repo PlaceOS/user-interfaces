@@ -14,6 +14,7 @@ describe('DeskBookingsComponent', () => {
     const bookings = signal<Booking[]>([]);
     const loading = signal(false);
     const filters_changed = signal(false);
+    const has_more_pages = signal(false);
     const createComponent = createComponentFactory({
         component: DeskBookingsComponent,
         providers: [
@@ -22,7 +23,7 @@ describe('DeskBookingsComponent', () => {
                 setFilters: vi.fn(),
                 bookings,
                 filters: signal({}),
-                has_more_pages: signal(false),
+                has_more_pages,
                 last_updated: signal(0),
                 loading,
                 filters_changed,
@@ -43,7 +44,51 @@ describe('DeskBookingsComponent', () => {
         bookings.set([]);
         loading.set(false);
         filters_changed.set(false);
+        has_more_pages.set(false);
         spectator = createComponent();
+    });
+
+    it('should load the next page with a spinner when the end of the list scrolls into view', async () => {
+        const observers: IntersectionObserverCallback[] = [];
+        vi.stubGlobal(
+            'IntersectionObserver',
+            class {
+                constructor(callback: IntersectionObserverCallback) {
+                    observers.push(callback);
+                }
+                public observe = vi.fn();
+                public disconnect = vi.fn();
+            },
+        );
+        const state = spectator.inject(DesksStateService);
+        let finishPage!: () => void;
+        const page = new Promise<void>((resolve) => (finishPage = resolve));
+        vi.mocked(state.nextPage).mockReturnValueOnce(page);
+        const scrollIntoView = (index: number) =>
+            observers[index](
+                [{ isIntersecting: true } as IntersectionObserverEntry],
+                {} as IntersectionObserver,
+            );
+
+        has_more_pages.set(true);
+        spectator.detectChanges();
+        scrollIntoView(0);
+        spectator.detectChanges();
+        expect(state.nextPage).toHaveBeenCalledTimes(1);
+        expect(spectator.query('mat-spinner')).toBeTruthy();
+
+        finishPage();
+        await page;
+        await Promise.resolve();
+        spectator.detectChanges();
+        expect(spectator.query('mat-spinner')).toBeFalsy();
+
+        // A new sentinel renders after the page loads, so a list that still
+        // does not fill the view keeps loading
+        scrollIntoView(1);
+        expect(state.nextPage).toHaveBeenCalledTimes(2);
+
+        vi.unstubAllGlobals();
     });
 
     it('should keep rows while more pages load and hide them after a filter change', () => {

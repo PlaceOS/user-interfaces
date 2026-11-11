@@ -3,12 +3,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
+    ViewportVisibilityComponent,
 } from '@placeos/components';
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
 import {
@@ -21,12 +23,7 @@ import { LockerStateService } from './locker-state.service';
 @Component({
     selector: 'locker-bookings',
     template: `
-        @let more_pages = has_more_pages();
-        <div
-            class="w-fit min-w-full px-8 pt-4"
-            [class.pb-16]="!loading() && more_pages"
-            [class.pb-4]="!(!loading() && more_pages)"
-        >
+        <div class="w-fit min-w-full px-8 pt-4 pb-4">
             <simple-table
                 [error]="load_error()"
                 [loading]="bookings_loading()"
@@ -261,17 +258,23 @@ import { LockerStateService } from './locker-state.service';
                     </button>
                 </mat-menu>
             </ng-template>
+            <!-- Load the next page when the end of the list scrolls into view.
+                 A new sentinel renders after each load, so a short list keeps
+                 loading until it fills the view. -->
+            @if (loading_more()) {
+                <div class="flex w-full justify-center p-4">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (!bookings_loading() && has_more_pages()) {
+                <div
+                    viewport-only
+                    root_margin="400px"
+                    aria-hidden="true"
+                    class="h-px w-full"
+                    (visibleChange)="$event && loadMore()"
+                ></div>
+            }
         </div>
-        @if (!loading() && more_pages) {
-            <button
-                matRipple
-                class="border-base-300 bg-base-100 fixed bottom-2 left-1/2 flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-xl"
-                (click)="loadMore()"
-            >
-                <icon>arrow_cool_down</icon>
-                <div class="pr-1">{{ 'COMMON.LOAD_MORE' | translate }}</div>
-            </button>
-        }
         <booking-approval-bar
             [count]="selected().length"
             [busy]="bulk_busy()"
@@ -299,6 +302,8 @@ import { LockerStateService } from './locker-state.service';
         TranslatePipe,
         SimpleTableComponent,
         BookingApprovalBarComponent,
+        MatProgressSpinnerModule,
+        ViewportVisibilityComponent,
     ],
 })
 export class LockerBookingsComponent {
@@ -361,7 +366,16 @@ export class LockerBookingsComponent {
         })),
     );
 
-    public readonly loadMore = () => this._state.nextPage();
+    /** True while a page loads because the user scrolled to the end */
+    public readonly loading_more = signal(false);
+    public readonly loadMore = async () => {
+        this.loading_more.set(true);
+        try {
+            await this._state.nextPage();
+        } finally {
+            this.loading_more.set(false);
+        }
+    };
 
     public readonly checkin = (d, s?) =>
         this.runMethod('checkin', async () => {

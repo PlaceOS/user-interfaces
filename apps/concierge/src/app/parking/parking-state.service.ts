@@ -431,8 +431,9 @@ export class ParkingStateService extends AsyncHandler {
      */
     public readonly bookings = computed(() => this._bookings_state().list);
 
+    /** Append the next page of bookings. Resolves when the page loads. */
     public nextPage() {
-        this._loadPage(false);
+        return this._loadPage(false);
     }
 
     /** Reload the first page of bookings for the active options */

@@ -3,12 +3,14 @@ import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Booking, settingSignal, SettingsService } from '@placeos/common';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
+    ViewportVisibilityComponent,
 } from '@placeos/components';
 import { UserPipe } from '@placeos/users';
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
@@ -371,17 +373,23 @@ import {
                     }
                 </div>
             </ng-template>
+            <!-- Load the next page when the end of the list scrolls into view.
+                 A new sentinel renders after each load, so a short list keeps
+                 loading until it fills the view. -->
+            @if (loading_more()) {
+                <div class="flex w-full justify-center p-4">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (!state_loading() && has_more_pages()) {
+                <div
+                    viewport-only
+                    root_margin="400px"
+                    aria-hidden="true"
+                    class="h-px w-full"
+                    (visibleChange)="$event && loadMore()"
+                ></div>
+            }
         </div>
-        @if (!loading() && has_more_pages()) {
-            <button
-                matRipple
-                class="border-base-300 bg-base-100 fixed bottom-2 left-1/2 flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-xl"
-                (click)="loadMore()"
-            >
-                <icon>arrow_cool_down</icon>
-                <div class="pr-1">{{ 'COMMON.LOAD_MORE' | translate }}</div>
-            </button>
-        }
         <div
             class="z-30 bg-base-100 border-base-300 fixed right-8 bottom-4 flex items-center justify-end gap-2 rounded-xl border px-2 py-1 shadow-lg"
         >
@@ -434,6 +442,8 @@ import {
         SimpleTableComponent,
         UserPipe,
         BookingApprovalBarComponent,
+        MatProgressSpinnerModule,
+        ViewportVisibilityComponent,
     ],
 })
 export class DeskBookingsComponent implements OnInit {
@@ -466,7 +476,16 @@ export class DeskBookingsComponent implements OnInit {
     public readonly cancelSeries = (b) => this._state.cancelBooking(b, true);
     public readonly viewBookingHistory = (b) =>
         this._state.viewBookingHistory(b);
-    public readonly loadMore = () => this._state.nextPage();
+    /** True while a page loads because the user scrolled to the end */
+    public readonly loading_more = signal(false);
+    public readonly loadMore = async () => {
+        this.loading_more.set(true);
+        try {
+            await this._state.nextPage();
+        } finally {
+            this.loading_more.set(false);
+        }
+    };
     public readonly last_updated = this._state.last_updated;
     public readonly state_loading = this._state.loading;
     public readonly refresh = () => this._state.refresh();

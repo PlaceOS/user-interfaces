@@ -354,8 +354,9 @@ export class LockerStateService extends AsyncHandler {
         500,
     );
 
+    /** Append the next page of bookings. Resolves when the page loads. */
     public nextPage() {
-        this._loadPage(false);
+        return this._loadPage(false);
     }
 
     constructor() {

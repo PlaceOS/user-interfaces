@@ -10,6 +10,7 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ParkingSpacePipe } from '@placeos/assets';
 import {
@@ -24,6 +25,7 @@ import {
     SimpleTableComponent,
     TableColumn,
     TranslatePipe,
+    ViewportVisibilityComponent,
 } from '@placeos/components';
 import { isSameDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
@@ -650,17 +652,27 @@ interface ParkingBookingColumnTemplates {
                         }
                     </div>
                 </ng-template>
-                <div class="h-20 w-full"></div>
             }
-            @if (!loading().includes('[BOOKINGS]') && has_more_pages()) {
-                <button
-                    matRipple
-                    class="border-base-300 bg-base-100 fixed bottom-2 left-1/2 flex items-center gap-2 rounded-full border px-3 py-2 text-sm shadow-xl"
-                    (click)="loadMore()"
-                >
-                    <icon>arrow_cool_down</icon>
-                    <div class="pr-1">{{ 'COMMON.LOAD_MORE' | translate }}</div>
-                </button>
+            <!-- Load the next page when the end of the list scrolls into view.
+                 A new sentinel renders after each load, so a short list keeps
+                 loading until it fills the view. -->
+            @if (loading_more()) {
+                <div class="flex w-full justify-center p-4">
+                    <mat-spinner diameter="32" />
+                </div>
+            } @else if (
+                !loading().includes('[BOOKINGS]') && has_more_pages()
+            ) {
+                <div
+                    viewport-only
+                    root_margin="400px"
+                    aria-hidden="true"
+                    class="h-px w-full"
+                    (visibleChange)="$event && loadMore()"
+                ></div>
+            }
+            @if (period() !== 'week') {
+                <div class="h-20 w-full"></div>
             }
         </div>
         <booking-approval-bar
@@ -674,6 +686,7 @@ interface ParkingBookingColumnTemplates {
     imports: [
         CommonModule,
         MatProgressBarModule,
+        MatProgressSpinnerModule,
         SimpleTableComponent,
         BookingApprovalBarComponent,
         TranslatePipe,
@@ -684,6 +697,7 @@ interface ParkingBookingColumnTemplates {
         MatTooltipModule,
         ParkingBookingsWeekViewComponent,
         ParkingSpacePipe,
+        ViewportVisibilityComponent,
     ],
 })
 export class ParkingBookingsListComponent
@@ -704,7 +718,16 @@ export class ParkingBookingsListComponent
     public readonly period = this._state.period;
     public readonly has_more_pages = this._state.has_more_pages;
     public readonly last_updated = this._state.last_updated;
-    public readonly loadMore = () => this._state.nextPage();
+    /** True while a page loads because the user scrolled to the end */
+    public readonly loading_more = signal(false);
+    public readonly loadMore = async () => {
+        this.loading_more.set(true);
+        try {
+            await this._state.nextPage();
+        } finally {
+            this.loading_more.set(false);
+        }
+    };
     public readonly refresh = () => this._state.refresh();
     public readonly load_error = this._state.load_error;
     public readonly retryLoad = this.refresh;
