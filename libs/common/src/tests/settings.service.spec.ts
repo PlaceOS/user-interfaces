@@ -63,19 +63,40 @@ describe('SettingsService', () => {
         expect(service.get('composer.local_login')).toBe(false);
     });
 
-    it('should update the title without tracking when analytics is disabled', async () => {
-        const service = spectator.service;
-        await whenInitialised(service);
-        const send = vi.spyOn(spectator.inject(GoogleAnalyticsService), 'send');
-        const settings: Record<string, unknown> = {
-            'app.analytics.tracking_id': 'G-TEST123',
-            'app.analytics.enabled': false,
-        };
-        vi.spyOn(service, 'get').mockImplementation((key) => settings[key]);
+    describe('title', () => {
+        async function setTitle(analytics_enabled: boolean) {
+            const service = spectator.service;
+            await whenInitialised(service);
+            const send = vi
+                .spyOn(spectator.inject(GoogleAnalyticsService), 'send')
+                .mockImplementation(() => undefined);
+            const settings: Record<string, unknown> = {
+                'app.name': 'Workplace',
+                'app.analytics.tracking_id': 'G-TEST123',
+                'app.analytics.enabled': analytics_enabled,
+            };
+            vi.spyOn(service, 'get').mockImplementation((key) => settings[key]);
+            service.title = 'Home';
+            return send;
+        }
 
-        expect(() => (service.title = 'Home')).not.toThrow();
-        expect(send).not.toHaveBeenCalled();
-        expect(spectator.inject(Title).setTitle).toHaveBeenCalled();
+        it('should set the page title and track the page name', async () => {
+            const send = await setTitle(true);
+
+            expect(spectator.inject(Title).setTitle).toHaveBeenCalledWith(
+                'Home | Workplace',
+            );
+            expect(send).toHaveBeenCalledWith('pagename', { title: 'Home' });
+        });
+
+        it('should set the page title without tracking when analytics is disabled', async () => {
+            const send = await setTitle(false);
+
+            expect(spectator.inject(Title).setTitle).toHaveBeenCalledWith(
+                'Home | Workplace',
+            );
+            expect(send).not.toHaveBeenCalled();
+        });
     });
 
     it('should return `null` for non-existing settings', async () => {
