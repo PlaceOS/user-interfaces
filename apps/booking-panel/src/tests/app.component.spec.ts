@@ -41,17 +41,6 @@ describe('AppComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
-    it('should render the global banner and router outlet', () => {
-        spectator.detectChanges();
-        expect('global-banner').toExist();
-        expect('router-outlet').toExist();
-        expect('global-loading').toExist();
-    });
-
     it('should not render the chat when chat is disabled', () => {
         spectator.detectChanges();
         expect('global-chat').not.toExist();

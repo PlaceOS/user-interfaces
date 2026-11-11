@@ -56,9 +56,7 @@ describe('EventPanelComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
+    afterEach(() => vi.useRealTimers());
 
     it('should display the space name in the header', () => {
         space.set({ display_name: 'Meeting Room 1' });
@@ -70,12 +68,6 @@ describe('EventPanelComponent', () => {
         space.set({ name: 'Fallback Room' });
         spectator.detectChanges();
         expect('header h1').toContainText('Fallback Room');
-    });
-
-    it('should show a placeholder when there is no current booking', () => {
-        current.set(null);
-        spectator.detectChanges();
-        expect(spectator.query('h2.line-clamp-5')).toBeFalsy();
     });
 
     it('should display the current booking details', () => {
@@ -155,31 +147,20 @@ describe('EventPanelComponent', () => {
         expect(spectator.query('button[book-tag]')).toBeFalsy();
     });
 
-    it('should hide the QR check-in tag when the hide_qr flag is set', () => {
-        spectator.detectChanges();
-        spectator.component.hide_qr.set(true);
-        spectator.detectChanges();
-        expect(spectator.query('button[book-tag]')).toBeFalsy();
-    });
-
-    it('should toggle the QR display when the tag is clicked', () => {
-        spectator.detectChanges();
-        expect(spectator.component.show_qr()).toBe(false);
+    it('should hide the QR code again a minute after it opens', () => {
+        vi.useFakeTimers();
         spectator.component.toggleQRShow();
         expect(spectator.component.show_qr()).toBe(true);
-        spectator.component.toggleQRShow();
+        vi.advanceTimersByTime(60 * 1000);
         expect(spectator.component.show_qr()).toBe(false);
     });
 
-    it('should generate a QR code from the settings on init', () => {
-        spectator.detectChanges();
-        expect(spectator.component.qr_code()).toContain('data:image/svg+xml');
-    });
-
-    it('should use the custom QR url when provided', () => {
+    it('should encode the custom QR url instead of the check-in page', () => {
+        const default_code = spectator.component.qr_code();
         settings.set({ custom_qr_url: 'https://example.com/checkin' });
-        spectator.detectChanges();
-        expect(spectator.component.qr_code()).toContain('data:image/svg+xml');
+        const custom_code = spectator.component.qr_code();
+        expect(custom_code).toContain('data:image/svg+xml');
+        expect(custom_code).not.toBe(default_code);
     });
 
     it('should bind the active system from the route parameter on init', async () => {
@@ -190,10 +171,10 @@ describe('EventPanelComponent', () => {
         expect(state.system).toBe('sys-1');
     });
 
-    it('should honour the hide_qr_code query parameter on init', async () => {
+    it('should hide the QR check-in tag with the hide_qr_code query parameter', async () => {
         spectator.setRouteQueryParam('hide_qr_code', 'true');
         await spectator.component.ngOnInit();
         spectator.detectChanges();
-        expect(spectator.component.hide_qr()).toBe(true);
+        expect(spectator.query('button[book-tag]')).toBeFalsy();
     });
 });

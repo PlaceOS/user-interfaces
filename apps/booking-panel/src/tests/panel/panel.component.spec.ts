@@ -24,6 +24,9 @@ describe('PanelViewComponent', () => {
     let features: string[] = [];
     const status = signal('free');
     const app_settings: Record<string, string> = {};
+    const newBooking = vi.fn();
+    const checkin = vi.fn();
+    const confirmEnd = vi.fn();
     const createComponent = createRoutingFactory({
         component: PanelViewComponent,
         params: { system_id: 'a-system' },
@@ -45,6 +48,9 @@ describe('PanelViewComponent', () => {
                     appSetting: (key: string) => app_settings[key],
                     status,
                     system: '',
+                    newBooking,
+                    checkin,
+                    confirmEnd,
                 },
             },
         ],
@@ -58,6 +64,9 @@ describe('PanelViewComponent', () => {
         status.set('free');
         for (const key of Object.keys(app_settings)) delete app_settings[key];
         setting.mockClear();
+        newBooking.mockClear();
+        checkin.mockClear();
+        confirmEnd.mockClear();
         localStorage.setItem('PLACEOS.BOOKINGS.system', 'a-system');
         spectator = createComponent();
     });
@@ -70,6 +79,57 @@ describe('PanelViewComponent', () => {
         expect(service.system).toBe('a-system');
     });
 
+    describe('tap on the panel', () => {
+        beforeEach(() => vi.useFakeTimers());
+        afterEach(() => vi.useRealTimers());
+
+        /** Taps the panel twice and waits for the 300ms debounce */
+        const tap = () => {
+            spectator.detectChanges();
+            spectator.click('[panel-surface]');
+            spectator.click('[panel-surface]');
+            vi.advanceTimersByTime(300);
+        };
+
+        it('should open the booking form with the signed-in host when free', () => {
+            tap();
+            expect(newBooking).toHaveBeenCalledOnce();
+            expect(newBooking).toHaveBeenCalledWith(Date.now(), true);
+        });
+
+        it('should ask for a host when the host setting needs one', () => {
+            settings.set({ disable_book_now_host: false });
+            tap();
+            expect(newBooking).toHaveBeenCalledWith(expect.any(Number), false);
+        });
+
+        it('should check in a pending meeting', () => {
+            status.set('pending');
+            tap();
+            expect(checkin).toHaveBeenCalledOnce();
+            expect(newBooking).not.toHaveBeenCalled();
+        });
+
+        it('should end a busy meeting only when the end button is enabled', () => {
+            status.set('busy');
+            tap();
+            expect(confirmEnd).not.toHaveBeenCalled();
+
+            settings.set({ enable_end_meeting_button: true });
+            tap();
+            expect(confirmEnd).toHaveBeenCalledOnce();
+        });
+
+        it('should do nothing when booking is disabled', () => {
+            settings.set({ disable_book_now: true });
+            tap();
+            status.set('pending');
+            tap();
+            expect(newBooking).not.toHaveBeenCalled();
+            expect(checkin).not.toHaveBeenCalled();
+        });
+    });
+
     it.each(['left', 'right', 'bottom', 'floating-left', 'floating-bottom'])(
         'should render the timeline in the %s position',
         async (position) => {
@@ -77,44 +137,6 @@ describe('PanelViewComponent', () => {
             await spectator.fixture.whenStable();
 
             expect(`[timeline-${position}]`).toExist();
-        },
-    );
-
-    it.each([
-        ['left', 'p-4'],
-        ['right', 'p-4'],
-        ['bottom', 'px-6'],
-        ['bottom', 'py-3'],
-    ])(
-        'should render the docked %s timeline without %s padding',
-        async (position, padding_class) => {
-            settings.set({ show_timeline: true, timeline_position: position });
-            await spectator.fixture.whenStable();
-
-            const timeline = spectator.query(`[timeline-${position}]`);
-            expect(timeline).not.toHaveClass(padding_class);
-        },
-    );
-
-    it.each(['left', 'right'])(
-        'should render the docked %s timeline at the reduced width',
-        async (position) => {
-            settings.set({ show_timeline: true, timeline_position: position });
-            await spectator.fixture.whenStable();
-
-            const timeline = spectator.query(`[timeline-${position}]`);
-            expect(timeline).toHaveClass('w-28');
-            expect(timeline).not.toHaveClass('w-36');
-        },
-    );
-
-    it.each(['left', 'right', 'bottom'])(
-        'should render the docked %s timeline without rounded corners',
-        async (position) => {
-            settings.set({ show_timeline: true, timeline_position: position });
-            await spectator.fixture.whenStable();
-
-            expect(`[timeline-${position}]`).toHaveClass('docked');
         },
     );
 

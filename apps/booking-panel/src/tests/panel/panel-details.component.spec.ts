@@ -12,6 +12,7 @@ describe('PanelViewDetailsComponent', () => {
     const next = signal<CalendarEvent | null>(null);
     const clock = signal(Date.now());
     let features: string[] = [];
+    let panel_settings: Record<string, unknown> = {};
     const createComponent = createComponentFactory({
         component: PanelViewDetailsComponent,
         providers: [
@@ -24,7 +25,7 @@ describe('PanelViewDetailsComponent', () => {
                     next,
                     clock,
                     settings: signal({}),
-                    setting: vi.fn(),
+                    setting: (name: string) => panel_settings[name],
                     hasFeature: (name: string) => features.includes(name),
                     system: 'test-system',
                 },
@@ -37,6 +38,7 @@ describe('PanelViewDetailsComponent', () => {
         current.set(null);
         next.set(null);
         features = [];
+        panel_settings = {};
         spectator = createComponent();
     });
 
@@ -46,18 +48,43 @@ describe('PanelViewDetailsComponent', () => {
         expect('[name]').toContainText('Test Room');
     });
 
-    it('should display QR code when enabled', () => {
-        const service = spectator.inject(PanelStateService);
-        service.setting.mockReturnValue(true);
+    it('should show the QR code unless show_qr_code is false', () => {
+        expect('[qr-checkin]').toExist();
+        panel_settings = { show_qr_code: false };
         spectator.detectChanges();
-        expect(spectator.component.checkin).toBe(true);
+        expect('[qr-checkin]').not.toExist();
     });
 
-    it('should hide QR code when disabled', () => {
-        const service = spectator.inject(PanelStateService);
-        service.setting.mockReturnValue(false);
-        spectator.detectChanges();
-        expect(spectator.component.checkin).toBe(false);
+    describe('current meeting', () => {
+        beforeEach(() =>
+            current.set(
+                new CalendarEvent({
+                    title: 'Board meeting',
+                    host: 'jane@example.com',
+                    date: Date.now(),
+                }),
+            ),
+        );
+
+        it('should show the title and host', () => {
+            spectator.detectChanges();
+            expect(spectator.element).toContainText('Board meeting');
+            expect(spectator.element).toContainText('jane@example.com');
+        });
+
+        it('should hide only the title with hide_meeting_title', () => {
+            panel_settings = { hide_meeting_title: true };
+            spectator.detectChanges();
+            expect(spectator.element).not.toContainText('Board meeting');
+            expect(spectator.element).toContainText('jane@example.com');
+        });
+
+        it('should hide the title and host with hide_meeting_details', () => {
+            panel_settings = { hide_meeting_details: true };
+            spectator.detectChanges();
+            expect(spectator.element).not.toContainText('Board meeting');
+            expect(spectator.element).not.toContainText('jane@example.com');
+        });
     });
 
     describe('ending warning', () => {

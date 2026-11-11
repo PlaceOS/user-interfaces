@@ -53,22 +53,14 @@ describe('PanelViewStatusComponent', () => {
         spectator = createComponent();
     });
 
-    it('should show pending status', () => {
-        status.set('pending');
+    it.each([
+        ['pending', 'bg-warning'],
+        ['free', 'bg-success'],
+        ['busy', 'bg-error'],
+    ])('should show the %s status in its color', (state, color) => {
+        status.set(state);
         spectator.detectChanges();
-        expect('div.bg-warning').toExist();
-    });
-
-    it('should show free status', () => {
-        status.set('free');
-        spectator.detectChanges();
-        expect('div.bg-success').toExist();
-    });
-
-    it('should show busy status', () => {
-        status.set('busy');
-        spectator.detectChanges();
-        expect('div.bg-error').toExist();
+        expect(`div.${color}`).toExist();
     });
 
     it('should reserve space for the floating timeline', async () => {
@@ -113,6 +105,19 @@ describe('PanelViewStatusComponent', () => {
 
         it('should hide the countdown when the feature is off', () => {
             spectator = createComponent();
+            expect('[checkin-countdown]').not.toExist();
+        });
+
+        // The panel does not release these meetings. See `_checkPending`.
+        it.each([
+            ['a linked system event', { body: 'main_event_id' }, {}],
+            ['ending is disabled', {}, { disable_end_meeting: true }],
+        ])('should hide the countdown for %s', (_, data, settings) => {
+            features = ['checkin_countdown'];
+            current.set(new CalendarEvent({ ...current(), ...data }));
+            panel_settings.set({ pending_period: 10, ...settings });
+            spectator = createComponent();
+            expect(spectator.component.release_in()).toBeNull();
             expect('[checkin-countdown]').not.toExist();
         });
     });
