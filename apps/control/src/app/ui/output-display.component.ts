@@ -8,7 +8,7 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { ControlStateService, RoomOutput } from '../control-state.service';
 
 export const ICON_MAP = {
-    Display: 'deskotp_windows',
+    Display: 'desktop_windows',
     PC: 'desktop_windows',
     Laptop: 'laptop_chromebook',
     Camera: 'videocam',

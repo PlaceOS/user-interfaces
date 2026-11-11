@@ -34,11 +34,6 @@ describe('HelpModalComponent', () => {
             providers: [{ provide: MAT_DIALOG_DATA, useValue: data }],
         }));
 
-    it('should create component', () => {
-        setup();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should initialise active item from the active_id', () => {
         setup();
         expect(spectator.component.active_item().id).toBe('b');

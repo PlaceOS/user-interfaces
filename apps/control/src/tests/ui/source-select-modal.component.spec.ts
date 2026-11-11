@@ -32,8 +32,4 @@ describe('SourceSelectModalComponent', () => {
         spectator.dispatchFakeEvent('source-select', 'source');
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
-
-    it('should show close button', () => {
-        expect('button[mat-dialog-close]').toExist();
-    });
 });

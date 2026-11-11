@@ -14,8 +14,8 @@ import * as client from '@placeos/ts-client';
 
 describe('VideoCallStateService', () => {
     let spectator: SpectatorService<VideoCallStateService>;
-    let execute_spy: any;
-    let variable_values: Record<string, any>;
+    let execute_spy: ReturnType<typeof vi.fn>;
+    let variable_values: Record<string, unknown>;
     const system_id = signal('sys-1');
     const control_mock = { id: 'sys-1', system_id };
 
@@ -29,19 +29,23 @@ describe('VideoCallStateService', () => {
         execute_spy = vi.fn().mockResolvedValue('done');
         system_id.set('sys-1');
         control_mock.id = 'sys-1';
-        (client.getModule as any).mockImplementation(() => ({
-            execute: execute_spy,
-            variable: (name: string) => {
-                const listener: any = () => variable_values[name] ?? null;
-                listener.subscribe = () => () => undefined;
-                return { bind: () => () => undefined, listen: () => listener };
-            },
-        }));
+        vi.mocked(client.getModule).mockImplementation(
+            () =>
+                ({
+                    execute: execute_spy,
+                    variable: (name: string) => {
+                        const listener = Object.assign(
+                            () => variable_values[name] ?? null,
+                            { subscribe: () => () => undefined },
+                        );
+                        return {
+                            bind: () => () => undefined,
+                            listen: () => listener,
+                        };
+                    },
+                }) as unknown as ReturnType<typeof client.getModule>,
+        );
         spectator = createService();
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should derive the active call from the calls binding', () => {
@@ -79,38 +83,23 @@ describe('VideoCallStateService', () => {
         expect(spectator.service.speaker_track()).toBe('Available');
     });
 
-    it('should execute show_camera_pip when toggling camera PIP', async () => {
-        await spectator.service.showCameraPIP(true);
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'VidConf');
-        expect(execute_spy).toHaveBeenCalledWith('show_camera_pip', [true]);
-    });
-
-    it('should execute mic_mute when muting the microphone', async () => {
-        await spectator.service.muteMicrophone(true);
-        expect(execute_spy).toHaveBeenCalledWith('mic_mute', [true]);
-    });
-
-    it('should execute video_layout when setting the layout', async () => {
-        await spectator.service.setVideoLayout('Prominent');
-        expect(execute_spy).toHaveBeenCalledWith('video_layout', ['Prominent']);
-    });
-
-    it('should execute presentation_mode when setting presentation mode', async () => {
-        await spectator.service.setPresentationMode('Remote');
-        expect(execute_spy).toHaveBeenCalledWith('presentation_mode', [
-            'Remote',
-        ]);
-    });
-
-    it('should execute hangup', async () => {
-        await spectator.service.hangup();
-        expect(execute_spy).toHaveBeenCalledWith('hangup', []);
-    });
-
-    it('should execute dtmf_send with the pressed digit', async () => {
-        await spectator.service.sendDTMF('5');
-        expect(execute_spy).toHaveBeenCalledWith('dtmf_send', ['5']);
-    });
+    it.each([
+        ['showCameraPIP', true, 'show_camera_pip', [true]],
+        ['muteMicrophone', true, 'mic_mute', [true]],
+        ['setVideoLayout', 'Prominent', 'video_layout', ['Prominent']],
+        ['setPresentationMode', 'Remote', 'presentation_mode', ['Remote']],
+        ['sendDTMF', '5', 'dtmf_send', ['5']],
+        ['dial', '1234', 'dial', ['1234']],
+        ['hangup', undefined, 'hangup', []],
+    ] as const)(
+        'should send %s to the VidConf module',
+        async (method, arg, command, args) => {
+            const call = spectator.service[method] as (v: unknown) => unknown;
+            await call.call(spectator.service, arg);
+            expect(client.getModule).toHaveBeenCalledWith('sys-1', 'VidConf');
+            expect(execute_spy).toHaveBeenCalledWith(command, args);
+        },
+    );
 
     it('should place a running call on hold', async () => {
         variable_values.calls = { a: { Status: 'Connected' } };
@@ -137,6 +126,7 @@ describe('VideoCallStateService', () => {
         control_mock.id = '';
         await spectator.service.showCameraPIP(true);
         await spectator.service.hangup();
+        await spectator.service.dial('1');
         await spectator.service.sendDTMF('1');
         expect(execute_spy).not.toHaveBeenCalled();
     });
@@ -146,5 +136,10 @@ describe('VideoCallStateService', () => {
         await expect(spectator.service.muteMicrophone(true)).resolves.toBe(
             false,
         );
+    });
+
+    it('should reject when dialling fails, so the caller can show it', async () => {
+        execute_spy.mockRejectedValue(new Error('busy'));
+        await expect(spectator.service.dial('1234')).rejects.toThrow('busy');
     });
 });
