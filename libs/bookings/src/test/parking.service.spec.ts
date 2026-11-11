@@ -30,9 +30,30 @@ describe('ParkingService', () => {
                 active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' },
                 building_list: signal([]),
+                buildingsForRegion: () => [
+                    { id: 'bld-1', display_name: 'North' },
+                    { id: 'bld-2', display_name: 'South' },
+                ],
                 levels: [],
                 level_list: signal([
-                    { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
+                    {
+                        id: 'lvl-1',
+                        parent_id: 'bld-1',
+                        display_name: 'P1',
+                        tags: ['parking'],
+                    },
+                    {
+                        id: 'lvl-2',
+                        parent_id: 'bld-2',
+                        display_name: 'P1',
+                        tags: ['parking'],
+                    },
+                    {
+                        id: 'lvl-3',
+                        parent_id: 'bld-1',
+                        display_name: 'L1',
+                        tags: [],
+                    },
                 ]),
             } as any),
         ],
@@ -70,6 +91,26 @@ describe('ParkingService', () => {
         spectator = createService();
         TestBed.tick();
         await new Promise((resolve) => setTimeout(resolve, 50));
+    });
+
+    it('should list the parking levels of the region only when regions are on', () => {
+        const settings = spectator.inject(SettingsService);
+        const org = spectator.inject(OrganisationService) as any;
+        const levels = (use_region: boolean) => {
+            vi.mocked(settings.get).mockImplementation(((key: string) =>
+                key === 'app.use_region' ? use_region : true) as any);
+            // the computed does not track settings, so set the levels again
+            org.level_list.set([...org.level_list()]);
+            return spectator.service.levels();
+        };
+
+        expect(levels(true).map((_) => [_.id, _.display_name])).toEqual([
+            ['lvl-1', 'North - P1'],
+            ['lvl-2', 'South - P1'],
+        ]);
+        expect(levels(false).map((_) => [_.id, _.display_name])).toEqual([
+            ['lvl-1', 'P1'],
+        ]);
     });
 
     it('should not load parking bookings before requested', () => {

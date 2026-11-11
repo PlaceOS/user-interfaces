@@ -44,21 +44,23 @@ export class ParkingService extends AsyncHandler {
     /** List of available parking levels for the current building */
     public levels = computed(() => {
         const levels = this._org.level_list();
-        if (!this._settings.get('app.use_region')) {
+        // With regions, list the parking levels of every building in the
+        // region and name each level with its building
+        if (this._settings.get('app.use_region')) {
             const blds = this._org.buildingsForRegion();
             const bld_ids = blds.map((bld) => bld.id);
-            const list = levels.filter(
-                (lvl) =>
-                    bld_ids.includes(lvl.parent_id) &&
-                    lvl.tags.includes('parking'),
-            );
-            list.map((lvl) => ({
-                ...lvl,
-                display_name: `${
-                    blds.find((_) => _.id === lvl.parent_id)?.display_name
-                } - ${lvl.display_name}`,
-            }));
-            return list;
+            return levels
+                .filter(
+                    (lvl) =>
+                        bld_ids.includes(lvl.parent_id) &&
+                        lvl.tags.includes('parking'),
+                )
+                .map((lvl) => ({
+                    ...lvl,
+                    display_name: `${
+                        blds.find((_) => _.id === lvl.parent_id)?.display_name
+                    } - ${lvl.display_name}`,
+                }));
         }
         return levels.filter(
             (lvl) =>
