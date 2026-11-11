@@ -34,29 +34,6 @@ describe('PlaylistDisplayComponent', () => {
         spectator = create_component();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
-    it('should mark invalid media items as invalid', () => {
-        const invalid_item = create_item('future-media', {
-            valid_from: Math.floor(Date.now() / 1000) + 3600,
-        });
-
-        expect(spectator.component.isValidMedia(invalid_item)).toBe(false);
-    });
-
-    it('should mark cached media items as cached', () => {
-        expect(
-            spectator.component.isCachedMedia(
-                create_item('cached-media', { isCached: () => true }),
-            ),
-        ).toBe(true);
-        expect(spectator.component.isCachedMedia(create_item('media'))).toBe(
-            false,
-        );
-    });
-
     it('should return media cache status labels', () => {
         expect(
             spectator.component.cacheStatus(
@@ -71,20 +48,6 @@ describe('PlaylistDisplayComponent', () => {
         expect(
             spectator.component.cacheStatus(create_item('remote-media')),
         ).toBe('Not cached');
-    });
-
-    it('should emit the selected playlist index', () => {
-        const emit_spy = vi.spyOn(spectator.component.selected, 'emit');
-        spectator.setInput('playlist', [
-            create_item('media-1'),
-            create_item('media-2'),
-            create_item('media-3'),
-        ]);
-        spectator.setInput('index', 0);
-
-        spectator.component.setPlaylistItem(2);
-
-        expect(emit_spy).toHaveBeenCalledWith(2);
     });
 
     it('should map media types to playlist display icons', () => {
@@ -128,38 +91,23 @@ describe('PlaylistDisplayComponent', () => {
         expect(buttons[1].getAttribute('aria-disabled')).toBe('true');
     });
 
-    it('should scroll overflowing playlist items without shrinking them', async () => {
-        spectator.setInput('playlist', [
-            create_item('active-media'),
-            create_item('queued-media'),
-        ]);
-        spectator.setInput('index', 0);
-        await spectator.fixture.whenStable();
-
-        const list = spectator.query('[data-testid="playlist-media-list"]');
-        const buttons = spectator.queryAll('button');
-
-        expect(list?.classList).toContain('max-h-[50vh]');
-        expect(list?.classList).toContain('overflow-auto');
-        expect(buttons).toHaveLength(2);
-        expect(buttons.every((button) => button.classList.contains('shrink-0')))
-            .toBe(true);
-    });
-
-    it('should not emit when selecting invalid or active playlist items', () => {
+    it('should only emit when a valid item other than the active one is clicked', () => {
         const emit_spy = vi.spyOn(spectator.component.selected, 'emit');
         spectator.setInput('playlist', [
             create_item('active-media'),
             create_item('invalid-media', {
                 valid_from: Math.floor(Date.now() / 1000) + 3600,
             }),
+            create_item('valid-media'),
         ]);
         spectator.setInput('index', 0);
+        spectator.detectChanges();
 
-        spectator.component.setPlaylistItem(0);
-        spectator.component.setPlaylistItem(1);
+        for (const button of spectator.queryAll('button')) {
+            (button as HTMLButtonElement).click();
+        }
 
-        expect(emit_spy).not.toHaveBeenCalled();
+        expect(emit_spy).toHaveBeenCalledExactlyOnceWith(2);
     });
 
     it('should show a cache icon for cached playlist items', () => {

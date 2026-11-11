@@ -76,19 +76,18 @@ describe('BootstrapComponent', () => {
         return spectator;
     }
 
-    it('should create the component', () => {
-        expect(build_component().component).toBeTruthy();
-    });
-
-    it('should resolve building and level details for a display', () => {
+    it('should resolve the building of a display from its zones', () => {
         build_component();
-        const system = {
-            id: 'display-1',
-            zones: ['level-1', 'building-1'],
-        } as any;
 
-        expect(spectator.component.level(system)?.id).toBe('level-1');
-        expect(spectator.component.building(system)?.id).toBe('building-1');
+        expect(
+            spectator.component.building({
+                id: 'display-1',
+                zones: ['level-1', 'building-1'],
+            } as any)?.id,
+        ).toBe('building-1');
+        expect(
+            spectator.component.building({ id: 'display-1' } as any),
+        ).toBeUndefined();
     });
 
     it('should request zones for bootstrap display locations', async () => {
@@ -136,42 +135,38 @@ describe('BootstrapComponent', () => {
         ]);
     });
 
-    it('should handle displays with no zones in bootstrap location helpers', () => {
-        build_component();
-        const system = { id: 'display-1' } as any;
-
-        expect(spectator.component.level(system)?.id).toBe('level-1');
-        expect(spectator.component.building(system)).toBeUndefined();
-        expect(org_service.levelWithID).toHaveBeenCalledWith([]);
-    });
-
     it('should store the selected display and navigate to signage', async () => {
         build_component();
         const router = spectator.inject(Router);
         vi.mocked(router.navigate).mockResolvedValue(true);
-        const set_item_spy = vi.spyOn(Storage.prototype, 'setItem');
         spectator.component.active_display.set('display-1');
 
         await spectator.component.bootstrapPanel();
 
-        expect(set_item_spy).toHaveBeenCalledWith(
-            'PlaceOS.SIGNAGE.display',
+        expect(localStorage.getItem('PlaceOS.SIGNAGE.display')).toBe(
             'display-1',
         );
         expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-1']);
-        expect(spectator.component.loading()).toBeTruthy();
+        // The picker stays hidden until the player route takes over
+        expect(spectator.component.loading()).not.toBe('');
     });
 
-    it('should show the picker again when the player cannot be opened', async () => {
-        build_component();
-        const router = spectator.inject(Router);
-        vi.mocked(router.navigate).mockResolvedValue(false);
-        spectator.component.active_display.set('display-1');
+    it.each([
+        ['is refused', () => Promise.resolve(false)],
+        ['fails', () => Promise.reject(new Error('Guard failed'))],
+    ])(
+        'should show the picker again when opening the player %s',
+        async (_, navigate) => {
+            build_component();
+            const router = spectator.inject(Router);
+            vi.mocked(router.navigate).mockImplementation(navigate);
+            spectator.component.active_display.set('display-1');
 
-        await spectator.component.bootstrapPanel();
+            await spectator.component.bootstrapPanel();
 
-        expect(spectator.component.loading()).toBe('');
-    });
+            expect(spectator.component.loading()).toBe('');
+        },
+    );
 
     it('should show an error with a retry when displays fail to load', async () => {
         vi.mocked(ts_client.querySystems).mockRejectedValueOnce(
@@ -215,11 +210,10 @@ describe('BootstrapComponent', () => {
     it('should not bootstrap without a selected display', async () => {
         build_component();
         const router = spectator.inject(Router);
-        const set_item_spy = vi.spyOn(Storage.prototype, 'setItem');
 
         await spectator.component.bootstrapPanel();
 
-        expect(set_item_spy).not.toHaveBeenCalled();
+        expect(localStorage.getItem('PlaceOS.SIGNAGE.display')).toBeNull();
         expect(router.navigate).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe('');
     });
@@ -240,13 +234,14 @@ describe('BootstrapComponent', () => {
 
     it('should bootstrap immediately from the display query parameter', () => {
         build_component();
-        const bootstrap_spy = vi.spyOn(spectator.component, 'bootstrapPanel');
+        const router = spectator.inject(Router);
 
         spectator.setRouteQueryParam('display', 'display-2');
-        spectator.detectChanges();
 
-        expect(spectator.component.active_display()).toBe('display-2');
-        expect(bootstrap_spy).toHaveBeenCalled();
+        expect(localStorage.getItem('PlaceOS.SIGNAGE.display')).toBe(
+            'display-2',
+        );
+        expect(router.navigate).toHaveBeenCalledWith(['/signage', 'display-2']);
     });
 
     it('should redirect when the app is already bootstrapped', async () => {

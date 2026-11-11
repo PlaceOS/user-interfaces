@@ -724,10 +724,6 @@ describe('SignageService', () => {
         expect((spectator.service as any)._cache_retry_attempt).toBe(0);
     });
 
-    it('should create the service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should order defaults before active schedules by start and creation time', async () => {
         const now = new Date('2026-01-01T10:30:00Z');
         vi.setSystemTime(now);
@@ -1531,45 +1527,66 @@ describe('SignageService', () => {
         await expect(playlist[0].getURL()).resolves.toBe('blob:morning');
     });
 
-    it('should bind trigger playlists when display data is loaded', async () => {
-        spectator.service.setDisplay('display-1');
-        await flush();
+    describe('trigger playlists', () => {
+        let emit: (value: unknown) => void;
 
-        expect(ts_client.getModule).toHaveBeenCalledWith(
-            'display-1',
-            '_TRIGGER__1',
-        );
-        expect(trigger_binding.bindThenSubscribe).toHaveBeenCalledWith(
-            expect.any(Function),
-        );
-    });
+        const override_ids = () =>
+            spectator.service.override_playlist().playlist.map((_) => _.id);
 
-    it('should only fire a trigger when its value turns true', async () => {
-        let emit: (value: unknown) => void = () => undefined;
-        // A trigger already held true when the display binds to it.
-        trigger_binding.value = true;
-        trigger_binding.bindThenSubscribe.mockImplementation(
-            (next: (value: unknown) => void) => {
-                emit = next;
-                next(trigger_binding.value);
-                return () => undefined;
-            },
-        );
-        const handle_trigger = vi.spyOn(
-            spectator.service as any,
-            '_handleTrigger',
-        );
-        spectator.service.setDisplay('display-1');
-        await flush();
+        beforeEach(() => {
+            emit = () => undefined;
+            trigger_binding.bindThenSubscribe.mockImplementation(
+                (next: (value: unknown) => void) => {
+                    emit = next;
+                    next(trigger_binding.value);
+                    return () => undefined;
+                },
+            );
+        });
 
-        expect(handle_trigger).not.toHaveBeenCalled();
-        emit(false);
-        expect(handle_trigger).not.toHaveBeenCalled();
-        emit(true);
-        expect(handle_trigger).toHaveBeenCalledTimes(1);
-        expect(handle_trigger).toHaveBeenCalledWith('trig-fire');
-        emit(false);
-        expect(handle_trigger).toHaveBeenCalledTimes(1);
+        it('should take over only when a trigger value turns true', async () => {
+            // Held true when the display binds, so it must not replay
+            trigger_binding.value = true;
+            (ts_client.showSignage as any).mockResolvedValue(
+                create_display({
+                    playlist_mappings: {
+                        'display-1': ['base-playlist'],
+                        'trig-fire': ['trigger-playlist'],
+                    },
+                }),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(ts_client.getModule).toHaveBeenCalledWith(
+                'display-1',
+                '_TRIGGER__1',
+            );
+            expect(override_ids()).toEqual([]);
+
+            emit(false);
+            await flush();
+            expect(override_ids()).toEqual([]);
+
+            emit(true);
+            await flush();
+            expect(override_ids()).toEqual(['media-4']);
+
+            spectator.service.clearPlaylistOverride();
+            emit(true);
+            await flush();
+            expect(override_ids()).toEqual([]);
+        });
+
+        it('should not interrupt a takeover that is already playing', async () => {
+            spectator.service.setDisplay('display-1');
+            await flush();
+            expect(override_ids()).toEqual(['media-3']);
+
+            emit(true);
+            await flush();
+
+            expect(override_ids()).toEqual(['media-3']);
+        });
     });
 
     it('should resolve plugin media URLs from the plugin catalogue', async () => {
@@ -2854,18 +2871,6 @@ describe('SignageService', () => {
             playlist_counts: { 'base-playlist': 1 },
             play_through_counts: { 'base-playlist': 1 },
         });
-    });
-
-    it('should handle trigger overrides when no override is active', async () => {
-        spectator.service.setDisplay('display-1');
-        await flush();
-        spectator.service.clearPlaylistOverride();
-
-        await (spectator.service as any)._handleTrigger('trig-fire');
-
-        expect(
-            spectator.service.override_playlist().playlist.map((_) => _.id),
-        ).toEqual(['media-4']);
     });
 
     it('should post metrics and reset counters', async () => {

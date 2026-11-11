@@ -23,10 +23,6 @@ describe('TimeControlsComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should clear the mocked time and close the tooltip', () => {
         // Workspace-module exports cannot be spied under the native builder, so
         // assert the observable module state via `mockTimeState()` instead.
@@ -60,18 +56,6 @@ describe('TimeControlsComponent', () => {
         expect(state.speed).toBe(4);
         expect(spectator.component.time()).toBe(1234567890);
         expect(close_spy).toHaveBeenCalled();
-    });
-
-    it('should advance the mocked time at the selected speed', () => {
-        vi.useFakeTimers();
-        spectator.component.edited_time.set(1234567890);
-        spectator.component.edited_speed.set(4);
-        spectator.component.save();
-
-        vi.advanceTimersByTime(1000);
-        spectator.component['refresh']();
-
-        expect(spectator.component.time()).toBe(1234567890 + 4000);
     });
 
     it('should save the edited time as paused when 0x is selected', () => {
@@ -119,16 +103,28 @@ describe('TimeControlsComponent', () => {
         expect(spectator.component.edited_time()).toBe(edited);
     });
 
-    it('should refresh the displayed time on the polling interval', () => {
+    it('should show the mocked time advancing at the selected speed', () => {
+        // The poll interval is set up on init, so the clock is faked first
         vi.useFakeTimers();
-        const set_interval_spy = vi.spyOn(window, 'setInterval');
-
         spectator = create_component();
-        spectator.component['_tooltip'] = (() =>
-            ({ close: vi.fn() }) as any) as any;
-        vi.advanceTimersByTime(10001);
+        spectator.component.edited_time.set(1234567890);
+        spectator.component.edited_speed.set(4);
+        spectator.component.save();
 
-        expect(set_interval_spy).toHaveBeenCalled();
-        vi.useRealTimers();
+        vi.advanceTimersByTime(1000);
+
+        expect(spectator.component.time()).toBe(1234567890 + 4000);
+    });
+
+    it('should pick up a mocked time set elsewhere on its next poll', () => {
+        vi.useFakeTimers();
+        spectator = create_component();
+        expect(spectator.component.mock_active()).toBe(false);
+
+        media_helpers.setMockTime(1234567890, 0);
+        vi.advanceTimersByTime(1000);
+
+        expect(spectator.component.mock_active()).toBe(true);
+        expect(spectator.component.time()).toBe(1234567890);
     });
 });

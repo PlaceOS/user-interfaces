@@ -88,10 +88,6 @@ describe('MediaPlayerComponent', () => {
         );
     }
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should toggle mute state and update the video element', () => {
         const emit_spy = vi.spyOn(spectator.component.mutedChange, 'emit');
 

@@ -48,6 +48,12 @@ describe('AppComponent', () => {
         vi.unstubAllGlobals();
     });
 
+    it('should show the loading overlay for an interactive sign-in', () => {
+        spectator.detectChanges();
+
+        expect(spectator.query('global-loading')).not.toBeNull();
+    });
+
     it('should hide the loading overlay when signing in with an api key', () => {
         // A device with an api key has no interactive authentication to wait
         // for, and the overlay covers content it can already play from cache.
@@ -56,12 +62,8 @@ describe('AppComponent', () => {
 
         spectator.detectChanges();
 
-        expect(spectator.query('global-loading')).toBeFalsy();
-        expect(spectator.query('router-outlet')).toBeTruthy();
-    });
-
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
+        expect(spectator.query('global-loading')).toBeNull();
+        expect(spectator.query('router-outlet')).not.toBeNull();
     });
 
     it('should register mock handlers and initialise PlaceOS on init', () => {
@@ -151,13 +153,5 @@ describe('AppComponent', () => {
 
             expect(snackbar.open).toHaveBeenCalledTimes(1);
         });
-    });
-
-    it('should render the banner, router outlet and loading shells', () => {
-        spectator.detectChanges();
-
-        expect(spectator.query('global-banner')).toBeTruthy();
-        expect(spectator.query('router-outlet')).toBeTruthy();
-        expect(spectator.query('global-loading')).toBeTruthy();
     });
 });
