@@ -151,9 +151,9 @@ const BACKGROUND_COLOURS: Record<
                 </ul>
             </div>
         }
-        <div class="import-layout flex max-w-full gap-4 px-4 pt-2 pb-4">
+        <div class="import-layout flex max-w-full gap-4 px-2 pb-2">
             <section
-                class="import-options flex shrink-0 flex-col"
+                class="import-options flex shrink-0 flex-col border border-b-3 border-base-300 rounded-xl p-2"
                 [attr.aria-label]="
                     'SIGNAGE_MANAGER.PDF_IMPORT_OPTIONS' | translate
                 "
@@ -172,13 +172,11 @@ const BACKGROUND_COLOURS: Record<
                         [disabled]="importing()"
                         aria-describedby="pdf-import-name-hint"
                     />
-                    <mat-hint id="pdf-import-name-hint" class="name-hint">
-                        {{
-                            'SIGNAGE_MANAGER.PDF_IMPORT_NAME_HINT'
-                                | translate: { example: example_name() }
-                        }}
-                    </mat-hint>
                 </mat-form-field>
+                <div class="text-[0.625rem] p-2">{{
+                    'SIGNAGE_MANAGER.PDF_IMPORT_NAME_HINT'
+                        | translate: { example: example_name() }
+                }}</div>
 
                 <label id="pdf-import-fit-label" for="pdf-import-fit">
                     {{ 'SIGNAGE_MANAGER.PDF_IMPORT_FIT' | translate }}
@@ -341,7 +339,7 @@ const BACKGROUND_COLOURS: Record<
                         btn
                         matRipple
                         type="button"
-                        class="clear"
+                        class="inverse"
                         [disabled]="importing()"
                         (click)="selectAll(true)"
                     >
@@ -353,7 +351,7 @@ const BACKGROUND_COLOURS: Record<
                         btn
                         matRipple
                         type="button"
-                        class="clear"
+                        class="inverse"
                         [disabled]="importing()"
                         (click)="selectAll(false)"
                     >
@@ -363,7 +361,7 @@ const BACKGROUND_COLOURS: Record<
                     </button>
                     <div class="flex-1"></div>
                     <button
-                        icon
+                        icon default
                         matRipple
                         type="button"
                         [disabled]="importing()"
@@ -380,7 +378,7 @@ const BACKGROUND_COLOURS: Record<
                         <icon>rotate_left</icon>
                     </button>
                     <button
-                        icon
+                        icon default
                         matRipple
                         type="button"
                         [disabled]="importing()"
