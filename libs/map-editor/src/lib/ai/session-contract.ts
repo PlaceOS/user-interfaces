@@ -53,4 +53,6 @@ export interface MapEditorSessionLike {
     historyPosition(): number;
     /** Differs from the loaded document. */
     readonly dirty: Signal<boolean>;
+    /** Anchors of the elements added or changed since the map loaded, in document order. */
+    changedAnchors?(): string[];
 }
