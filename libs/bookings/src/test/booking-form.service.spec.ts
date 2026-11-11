@@ -192,10 +192,6 @@ describe('BookingFormService', () => {
         sessionStorage.removeItem('PLACEOS.booking_form_filters');
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should not make resource requests before booking data is consumed', () => {
         expect(ts_client.showMetadata).not.toHaveBeenCalled();
         expect(ts_client.listChildMetadata).not.toHaveBeenCalled();

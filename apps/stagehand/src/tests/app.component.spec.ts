@@ -32,30 +32,10 @@ describe('AppComponent', () => {
         spectator = create_component();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
-    // Note: `setMocks` is a workspace export that the native (esbuild) unit-test
-    // builder cannot spy on (non-configurable binding), so we verify the
-    // observable effect - PlaceOS is initialised - rather than the internal call.
-    it('should register mock handlers and initialise PlaceOS on init', () => {
+    it('should initialise PlaceOS once on init', () => {
         spectator.component.ngOnInit();
 
         expect(placeos_service.init).toHaveBeenCalledTimes(1);
-    });
-
-    it('should initialise PlaceOS exactly once on init', () => {
-        spectator.component.ngOnInit();
-
-        expect(placeos_service.init).toHaveBeenCalledTimes(1);
-    });
-
-    it('should expose chat availability from settings', () => {
-        settingSignal('chat.enabled', false).set(true);
-        expect(spectator.component.has_chat()).toBe(true);
-        settingSignal('chat.enabled', false).set(false);
-        expect(spectator.component.has_chat()).toBe(false);
     });
 
     it('should render the banner, router outlet and loading shells', () => {

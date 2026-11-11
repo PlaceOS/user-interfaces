@@ -425,18 +425,17 @@ export class AssetListFieldComponent implements ControlValueAccessor {
             if (!items?.length) return;
             for (const item of items) {
                 if ((item as any).assets?.length) {
-                    const list = [];
+                    // Pick a random unused asset for each unit. The ID is
+                    // empty when the quantity exceeds the assets, and the
+                    // quantity check below rejects the request
+                    const list: string[] = [];
                     item.item_ids = new Array(item.quantity).fill(0).map(() => {
-                        let id = '';
-                        let count = 0;
-                        while (
-                            (!id || list.includes(id)) &&
-                            count < (item as any).assets.length
-                        ) {
-                            id = (item as any).assets[
-                                randomInt((item as any).assets.length)
-                            ].id;
-                        }
+                        const free = (item as any).assets.filter(
+                            ({ id }) => !list.includes(id),
+                        );
+                        const id = free.length
+                            ? free[randomInt(free.length)].id
+                            : '';
                         list.push(id);
                         return id;
                     });

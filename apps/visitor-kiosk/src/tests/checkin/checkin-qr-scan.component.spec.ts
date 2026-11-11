@@ -85,6 +85,10 @@ describe('CheckinQRScanComponent', () => {
         qr_mocks.center_decoder.drawImage.mockResolvedValue(undefined);
         event.set({});
         spectator = createComponent();
+        // Setting signals are shared, so reset them for each test
+        spectator.component.induction_enabled.set(false);
+        spectator.component.induction_details.set(undefined);
+        spectator.component.induction_after_details.set(false);
         await vi.waitFor(() => expect(qr_mocks.rear_camera).toHaveBeenCalled());
     });
 
@@ -149,6 +153,58 @@ describe('CheckinQRScanComponent', () => {
             '/checkin',
             'details',
         ]);
+    });
+
+    it('opens the induction before details when it is required', async () => {
+        spectator.component.induction_enabled.set(true);
+        spectator.component.induction_details.set('Terms and conditions');
+
+        await spectator.component.checkQRCode('visitor@example.com');
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'induction',
+        ]);
+    });
+
+    it('skips an induction the visitor already accepted', async () => {
+        spectator.component.induction_enabled.set(true);
+        spectator.component.induction_details.set('Terms and conditions');
+        event.set({ induction: 'accepted' });
+
+        await spectator.component.checkQRCode('visitor@example.com');
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'details',
+        ]);
+    });
+
+    it('keeps a visitor whose meeting has finished out of check-in', async () => {
+        event.set({ checked_out_at: Date.now() });
+
+        await spectator.component.checkQRCode('visitor@example.com');
+
+        expect(state.setError).toHaveBeenCalledWith(
+            'APP.VISITOR_KIOSK.MEETING_FINISHED',
+        );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'error',
+        ]);
+    });
+
+    it('shows the lookup error when the visitor cannot be found', async () => {
+        state.loadGuestAndEvent.mockRejectedValueOnce(new Error('Not found'));
+
+        await spectator.component.checkEmail('visitor@example.com');
+
+        expect(state.setError).toHaveBeenCalledWith('Not found');
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'error',
+        ]);
+        expect(spectator.component.checking_code()).toBe(false);
     });
 
     it('magnifies the center of the frame after a full-frame miss', async () => {
@@ -238,6 +294,7 @@ describe('CheckinQRScanComponent', () => {
         expect(qr_mocks.rear_camera).toHaveBeenCalledTimes(1);
         expect(frameLoop).toHaveBeenCalledTimes(2);
     });
+
     it('keeps an already checked-in visitor out of the check-in flow', async () => {
         event.set({ checked_in_at: Date.now() });
 

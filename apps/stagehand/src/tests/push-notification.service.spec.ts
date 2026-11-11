@@ -65,6 +65,31 @@ describe('AlertNotificationService', () => {
         expect(service.config().high).toBe(false);
     });
 
+    it('should ignore stored values that are not booleans', () => {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ critical: 'no', high: true, low: 1 }),
+        );
+        build();
+        expect(service.config()).toEqual({
+            critical: true,
+            high: true,
+            medium: false,
+            low: false,
+        });
+    });
+
+    it('should fall back to the defaults when the stored config is not JSON', () => {
+        localStorage.setItem(STORAGE_KEY, '{not json');
+        build();
+        expect(service.config()).toEqual({
+            critical: true,
+            high: false,
+            medium: false,
+            low: false,
+        });
+    });
+
     it('should update a single severity and persist it', () => {
         build();
         service.setSeverityEnabled('high', true);

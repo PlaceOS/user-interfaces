@@ -18,95 +18,37 @@ describe('MediaControlsComponent', () => {
         spectator = create_component();
     });
 
-    it('should show a ripple on each control', () => {
-        const buttons = spectator.queryAll('button');
-
-        expect(buttons.length).toBeGreaterThan(0);
-        for (const button of buttons) {
-            expect(button.classList).toContain('mat-ripple');
-        }
-    });
-
-    it('should show a spinner over the play/pause control while loading', () => {
+    it('should show a spinner over the play/pause control only while loading', () => {
         spectator.setInput('loading', true);
         spectator.detectChanges();
+        expect(spectator.query('mat-spinner')).not.toBeNull();
 
-        expect(spectator.query('mat-spinner')).toBeTruthy();
-    });
-
-    it('should hide the spinner when playback is not loading', () => {
         spectator.setInput('loading', false);
         spectator.detectChanges();
-
-        expect(spectator.query('mat-spinner')).toBeFalsy();
+        expect(spectator.query('mat-spinner')).toBeNull();
     });
 
-    it('should emit PREVIOUS when the previous control is clicked', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
+    // Controls in template order: previous, play/pause, next, mute, loop, shuffle
+    it.each([
+        ['PLAYING', 1, 'PAUSE'],
+        ['PAUSED', 1, 'PLAY'],
+        ['PLAYING', 0, 'PREVIOUS'],
+        ['PLAYING', 2, 'NEXT'],
+        ['PLAYING', 3, 'MUTE'],
+        ['PLAYING', 4, 'LOOP'],
+        ['PLAYING', 5, 'SHUFFLE'],
+    ] as const)(
+        'should emit the command of a control while %s (button %i: %s)',
+        (state, button, command) => {
+            const emit_spy = vi.spyOn(spectator.component.event, 'emit');
+            spectator.setInput('state', state);
+            spectator.detectChanges();
 
-        buttons[0].click();
+            (spectator.queryAll('button')[button] as HTMLButtonElement).click();
 
-        expect(emit_spy).toHaveBeenCalledWith('PREVIOUS');
-    });
-
-    it('should emit NEXT when the next control is clicked', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-
-        buttons[2].click();
-
-        expect(emit_spy).toHaveBeenCalledWith('NEXT');
-    });
-
-    it('should emit MUTE when the volume control is clicked', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-
-        buttons[3].click();
-
-        expect(emit_spy).toHaveBeenCalledWith('MUTE');
-    });
-
-    it('should emit LOOP when the loop control is clicked', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-
-        buttons[4].click();
-
-        expect(emit_spy).toHaveBeenCalledWith('LOOP');
-    });
-
-    it('should emit SHUFFLE when the shuffle control is clicked', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-
-        buttons[5].click();
-
-        expect(emit_spy).toHaveBeenCalledWith('SHUFFLE');
-    });
-
-    it('should emit PAUSE from the play/pause control while playing', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        spectator.setInput('state', 'PLAYING');
-        spectator.detectChanges();
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-
-        buttons[1].click();
-
-        expect(emit_spy).toHaveBeenCalledWith('PAUSE');
-    });
-
-    it('should emit PLAY from the play/pause control while paused', () => {
-        const emit_spy = vi.spyOn(spectator.component.event, 'emit');
-        spectator.setInput('state', 'PAUSED');
-        spectator.detectChanges();
-        const buttons = spectator.queryAll('button') as HTMLButtonElement[];
-
-        buttons[1].click();
-
-        expect(emit_spy).toHaveBeenCalledWith('PLAY');
-    });
+            expect(emit_spy).toHaveBeenCalledExactlyOnceWith(command);
+        },
+    );
 
     it('should show the green animating overlay while animating', () => {
         expect(spectator.query('.bg-success')).toBeFalsy();

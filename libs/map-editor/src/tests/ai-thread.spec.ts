@@ -1,7 +1,13 @@
 import { signal } from '@angular/core';
 import { MapAiModelChoice } from '../lib/ai/state';
 import { DEFAULT_AI_STRINGS } from '../lib/ai/strings';
-import { errorFromJob, errorFromStatus, MapAiThread } from '../lib/ai/thread';
+import {
+    errorFromJob,
+    errorFromStatus,
+    localModelMemory,
+    MapAiThread,
+    MODEL_MEMORY_KEY,
+} from '../lib/ai/thread';
 import {
     MAP_AI_CONTEXT_SCHEMA,
     MapAIAnnotation,
@@ -1053,5 +1059,37 @@ describe('MapAiThread', () => {
         expect(session.hover()).toBeNull();
         thread.selectRow(row);
         expect(session.selection()).toEqual(row.anchors);
+    });
+});
+
+describe('localModelMemory', () => {
+    afterEach(() => localStorage.removeItem(MODEL_MEMORY_KEY));
+
+    it('round-trips a choice and reads a corrupt or foreign entry as empty', () => {
+        const memory = localModelMemory(() => localStorage);
+        memory.write({ provider_id: 'openai', model: 'gpt-x' });
+        expect(memory.read()).toEqual({
+            provider_id: 'openai',
+            model: 'gpt-x',
+        });
+        memory.write(null);
+        expect(localStorage.getItem(MODEL_MEMORY_KEY)).toBeNull();
+        localStorage.setItem(MODEL_MEMORY_KEY, '{not json');
+        expect(memory.read()).toBeNull();
+        localStorage.setItem(MODEL_MEMORY_KEY, '{"provider_id":"openai"}');
+        expect(memory.read()).toBeNull();
+    });
+
+    it('never throws when the browser refuses storage', () => {
+        const blocked = localModelMemory(() => {
+            throw new Error('SecurityError');
+        });
+        expect(blocked.read()).toBeNull();
+        expect(() =>
+            blocked.write({ provider_id: 'openai', model: 'gpt-x' }),
+        ).not.toThrow();
+        const missing = localModelMemory(() => undefined);
+        expect(missing.read()).toBeNull();
+        expect(() => missing.write(null)).not.toThrow();
     });
 });

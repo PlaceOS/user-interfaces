@@ -41,14 +41,6 @@ describe('CateringOrderListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should show loading bar', () => {
-        expect('mat-progress-bar').toExist();
-    });
-
-    it('should show table', () => {
-        expect('simple-table').toExist();
-    });
-
     it('should show a banner when orders fail to load', () => {
         expect('[load-error]').not.toExist();
         load_error.set(true);

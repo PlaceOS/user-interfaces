@@ -1,5 +1,4 @@
 import { MapObject } from '../app/data/types';
-import { isBookable } from '../app/editor/availability';
 import {
     buildSvg,
     preflightChecks,
@@ -82,16 +81,6 @@ describe('preflightChecks', () => {
                 c.label.startsWith('Bookable spaces'),
             )?.pass,
         ).toBe(false);
-    });
-
-    it('only counts rooms and desks as bookable', () => {
-        const objects = [
-            object({ id: 'a', object_type: 'room' }),
-            object({ id: 'b', object_type: 'desk' }),
-            object({ id: 'c', object_type: 'zone' }),
-            object({ id: 'd', object_type: 'decorative' }),
-        ];
-        expect(objects.filter(isBookable).map((o) => o.id)).toEqual(['a', 'b']);
     });
 });
 

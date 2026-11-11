@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
@@ -7,9 +7,15 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
-import { ExploreSpacesService } from '../lib/explore-spaces.service';
+import { ExploreBookQrComponent } from '../lib/explore-book-qr.component';
+import { ExploreBookingModalComponent } from '../lib/explore-booking-modal.component';
+import {
+    DEFAULT_COLOURS,
+    ExploreSpacesService,
+} from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -21,31 +27,42 @@ describe('ExploreSpacesService', () => {
     const createService = createServiceFactory({
         service: ExploreSpacesService,
         providers: [
-            MockProvider(ExploreStateService, {
-                options: signal({ is_public: false }),
-                spaces: signal([]),
-                setStyles: vi.fn(),
-                setFeatures: vi.fn(),
-                setActions: vi.fn(),
-            }),
+            // A new state for each test, so late timers of an earlier
+            // service do not write to the spies of this test
+            {
+                provide: ExploreStateService,
+                useFactory: () => ({
+                    options: signal({ is_public: false }),
+                    spaces: signal([]),
+                    setStyles: vi.fn(),
+                    setFeatures: vi.fn(),
+                    setActions: vi.fn(),
+                }),
+            },
             MockProvider(SettingsService, { get: vi.fn() }),
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(OrganisationService, {
                 active_building: signal({ id: 'bld-1' }),
                 building: { id: 'bld-1' } as any,
+                organisation: { id: 'org-1' } as any,
             } as any),
-            MockProvider(EventFormService, { form: new UntypedFormGroup({}) } as any),
+            MockProvider(EventFormService, {
+                form: new UntypedFormGroup({}),
+                model: signal({}),
+                newForm: vi.fn(),
+                openEventLinkModal: vi.fn(),
+            } as any),
         ],
     });
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showMetadata).mockReturnValue(of({}) as any);
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {},
+        } as any);
         spectator = createService();
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
+        // Provider mocks are shared, so clear settings from earlier tests
+        vi.mocked(spectator.inject(SettingsService).get).mockReset();
     });
 
     it('should bind to spaces', () => {
@@ -54,9 +71,7 @@ describe('ExploreSpacesService', () => {
         const variableBinding = { bindThenSubscribe };
         const binding = vi.fn(() => variableBinding);
         const getModuleMock = vi.fn(() => ({ variable: binding }));
-        vi.mocked(ts_client.getModule).mockImplementation(
-            getModuleMock as any,
-        );
+        vi.mocked(ts_client.getModule).mockImplementation(getModuleMock as any);
         const state = spectator.inject(ExploreStateService);
         (state.spaces as any).set([
             { id: 'space-1', name: 'Test', bookable: true },
@@ -71,51 +86,185 @@ describe('ExploreSpacesService', () => {
         vi.useRealTimers();
     });
 
-    it('should listen to state changes', () => {
-        // TODO: Fix
-        // const spaces = [
-        //     { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
-        //     { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
-        // ].map((_) => new Space(_));
-        // const state = spectator.inject(ExploreStateService);
-        // spectator.service.handleStatusChange(spaces, spaces[0], '');
-        // tick(201);
-        // expect(state.setStyles).toHaveBeenCalledWith('spaces', {
-        //     '#space-1': { fill: DEFAULT_COLOURS['free'], opacity: 0.6 },
-        //     '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
-        // });
-        // spectator.service.handleStatusChange(spaces, spaces[0], 'busy');
-        // tick(401);
-        // expect(state.setStyles).toHaveBeenCalledWith('spaces', {
-        //     '#space-1': { fill: DEFAULT_COLOURS['busy'], opacity: 0.6 },
-        //     '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
-        // });
-        // spectator.service.handleStatusChange(spaces, spaces[1], 'free');
-        // tick(401);
-        // expect(state.setStyles).toHaveBeenCalledWith('spaces', {
-        //     '#space-1': { fill: DEFAULT_COLOURS['busy'], opacity: 0.6 },
-        //     '#space-2': { fill: DEFAULT_COLOURS['not-bookable'], opacity: 0.6 },
-        // });
+    it('should colour bookable spaces by status and skip the others', () => {
+        vi.useFakeTimers();
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockImplementation((key: string) =>
+            key === 'app.explore.colors' ? { 'space-busy': '#123456' } : null,
+        );
+        const state = spectator.inject(ExploreStateService);
+        const spaces = [
+            new Space({ id: 'space-1', map_id: 'map-1', bookable: true }),
+            new Space({ id: 'space-2', map_id: 'map-2', bookable: true }),
+            new Space({ id: 'space-3', map_id: 'map-3', bookable: false }),
+        ];
+
+        // An empty status means the space is free
+        spectator.service.handleStatusChange(spaces, spaces[0], '');
+        spectator.service.handleStatusChange(spaces, spaces[1], 'busy');
+        spectator.service.handleStatusChange(spaces, spaces[2], 'busy');
+        vi.advanceTimersByTime(100);
+
+        expect(vi.mocked(state.setStyles).mock.calls.at(-1)).toEqual([
+            'spaces',
+            {
+                '#map-1': { fill: DEFAULT_COLOURS.free, opacity: 0.6 },
+                '#map-2': { fill: '#123456', opacity: 0.6 },
+            },
+        ]);
+        vi.useRealTimers();
     });
 
-    // it('should allow making space bookings', () => {
-    //     vi.useFakeTimers();
-    //     const spaces = [
-    //         { id: '1', map_id: 'space-1', name: 'Test', bookable: true },
-    //         { id: '2', map_id: 'space-2', name: 'Test 2', bookable: false },
-    //     ].map((_) => new Space(_));
-    //     (notify as any).notifyError = vi.fn();
-    //     const dialog = spectator.inject(MatDialog);
-    //     spectator.service.handleStatusChange(spaces, spaces[0], '');
-    //     vi.runOnlyPendingTimers();
-    //     expect(dialog.open).not.toHaveBeenCalled();
-    //     spectator.service.bookSpace(spaces[0]);
-    //     expect(dialog.open).toHaveBeenCalled();
-    //     expect(notify.notifyError).not.toHaveBeenCalled();
-    //     spectator.service.bookSpace(spaces[1]);
-    //     expect(notify.notifyError).toHaveBeenCalled();
-    //     expect(dialog.open).toHaveBeenCalledTimes(1);
-    // });
+    describe('bookSpace', () => {
+        const notify_open = vi.fn((_message: string) => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        const notified = () => notify_open.mock.calls.map(([msg]) => msg);
+        const space = new Space({
+            id: 'space-1',
+            map_id: 'map-1',
+            name: 'Room 1',
+            email: 'room-1@place.tech',
+            bookable: true,
+        } as any);
+        let settings: Record<string, unknown>;
+
+        /** Load the booking rules and room alerts resources */
+        async function load(metadata: Record<string, unknown> = {}) {
+            vi.mocked(ts_client.showMetadata).mockImplementation(
+                (_, name) =>
+                    Promise.resolve({ details: metadata[name] ?? {} }) as any,
+            );
+            TestBed.tick();
+            await TestBed.inject(ApplicationRef).whenStable();
+        }
+
+        function setStatus(status: string) {
+            spectator.service.handleStatusChange([space], space, status);
+        }
+
+        beforeEach(() => {
+            settings = {};
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) => settings[key],
+            );
+            notify_open.mockClear();
+            setNotifyOutlet({ open: notify_open } as any, true);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        it('should refuse a space that is not free unless forced', async () => {
+            await load();
+            const dialog = spectator.inject(MatDialog);
+
+            await spectator.service.bookSpace(space);
+            setStatus('busy');
+            await spectator.service.bookSpace(space);
+            expect(notified()).toEqual([
+                'EXPLORE.SPACES_UNAVAILABLE_ERROR',
+                'EXPLORE.SPACES_UNAVAILABLE_ERROR',
+            ]);
+            expect(dialog.open).not.toHaveBeenCalled();
+
+            await spectator.service.bookSpace(space, true);
+            expect(dialog.open).toHaveBeenCalledTimes(1);
+        });
+
+        it('should refuse a space that is not bookable, even when forced', async () => {
+            await load();
+            const closed = new Space({ id: 'space-2', bookable: false });
+
+            await spectator.service.bookSpace(closed, true);
+
+            expect(notified()).toEqual(['EXPLORE.SPACES_UNAVAILABLE_ERROR']);
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        });
+
+        it('should refuse a space hidden by the booking rules', async () => {
+            await load({
+                room_booking_rules: [
+                    {
+                        zone: '*',
+                        rules: { hidden: true },
+                        conditions: { resource_ids: ['space-1'] },
+                    },
+                ],
+            });
+            setStatus('free');
+
+            await spectator.service.bookSpace(space);
+
+            expect(notified()).toEqual(['EXPLORE.SPACES_PERMISSIONS_ERROR']);
+        });
+
+        it('should show the alert message of a closed room', async () => {
+            await load({
+                room_alerts: { 'space-1': ['closed', 'Closed for repairs'] },
+            });
+            setStatus('free');
+
+            await spectator.service.bookSpace(space);
+
+            expect(notified()).toEqual(['Closed for repairs']);
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        });
+
+        it('should open the room booking URL with the space details', async () => {
+            const open = vi.spyOn(window, 'open').mockReturnValue(null);
+            await load();
+            const linked = new Space({
+                ...space,
+                display_name: 'Room & Co',
+                room_booking_url:
+                    'https://book.test/{id}?name={name}&map={map_id}&user={email_start}&domain={email_end}',
+            } as any);
+            spectator.service.handleStatusChange([linked], linked, 'free');
+
+            await spectator.service.bookSpace(linked);
+
+            expect(open).toHaveBeenCalledWith(
+                'https://book.test/space-1?name=Room%20%26%20Co&map=map-1&user=room-1&domain=place.tech',
+                '_blank',
+                'noopener,noreferrer',
+            );
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+            open.mockRestore();
+        });
+
+        it('should open the booking modal, or the QR code when set', async () => {
+            await load();
+            setStatus('free');
+            const dialog = spectator.inject(MatDialog);
+            const event_form = spectator.inject(EventFormService);
+
+            await spectator.service.bookSpace(space);
+            settings['app.explore.show_booking_qr'] = true;
+            await spectator.service.bookSpace(space);
+
+            expect(vi.mocked(dialog.open).mock.calls).toEqual([
+                [
+                    ExploreBookingModalComponent,
+                    { data: { space, alert: undefined } },
+                ],
+                [ExploreBookQrComponent, { data: { space, alert: undefined } }],
+            ]);
+            expect(event_form.model().resources).toEqual([space]);
+        });
+
+        it('should open the event link modal when room booking is off', async () => {
+            await load();
+            setStatus('free');
+            settings['app.events.booking_unavailable'] = true;
+            const event_form = spectator.inject(EventFormService);
+
+            await spectator.service.bookSpace(space);
+
+            expect(event_form.openEventLinkModal).toHaveBeenCalled();
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        });
+    });
 
     it('should keep stable room features and update their data in place', () => {
         vi.useFakeTimers();
@@ -162,4 +311,3 @@ describe('ExploreSpacesService', () => {
         vi.useRealTimers();
     });
 });
-

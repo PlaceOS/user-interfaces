@@ -34,10 +34,6 @@ describe('CalendarService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should not load calendars until requested', () => {
         expect(ts_client.get).not.toHaveBeenCalled();
     });
@@ -50,6 +46,16 @@ describe('CalendarService', () => {
         expect(list).toHaveLength(1);
         expect(list[0]).toBeInstanceOf(Calendar);
         expect(ts_client.get).toHaveBeenCalledWith(`/api/staff/v1/calendars`);
+    });
+
+    it('should share one request between concurrent loads', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([{}] as any);
+        await Promise.all([
+            spectator.service.loadCalendars(),
+            spectator.service.loadCalendars(),
+        ]);
+        await spectator.service.loadCalendars();
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
     });
 
     it('should handle a failed calendar request and retry on the next load', async () => {

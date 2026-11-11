@@ -12,9 +12,10 @@ import { differenceInMinutes, format } from 'date-fns';
 export class DateFromPipe implements PipeTransform {
     public transform(date: number): string {
         const now = Date.now();
-        let diff = differenceInMinutes(now, date);
-        const direction = diff < 0;
-        diff = Math.abs(diff);
+        // Take the direction from the times, as the minute count rounds to 0
+        // for times less than a minute away
+        const direction = date > now;
+        const diff = Math.abs(differenceInMinutes(now, date));
         if (diff < 1) {
             // Less than a minute
             return direction ? 'Soon' : 'Now';

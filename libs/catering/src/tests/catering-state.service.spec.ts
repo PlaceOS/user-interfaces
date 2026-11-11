@@ -1,4 +1,5 @@
-import { signal } from '@angular/core';
+import { signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
@@ -89,9 +90,16 @@ describe('CateringStateService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
+    /** Put items in the menu without a load from the server */
+    const setMenu = (items: CateringItem[]) => {
+        // Run the building load first, as it clears the menu
+        TestBed.tick();
+        (
+            spectator.service as unknown as {
+                _menu: WritableSignal<CateringItem[]>;
+            }
+        )._menu.set(items);
+    };
 
     it('should allow user to add new catering items to menu', async () => {
         const dialog = spectator.inject(MatDialog);
@@ -135,16 +143,37 @@ describe('CateringStateService', () => {
         );
     });
 
+    it('should replace the edited item in the menu after it saves', async () => {
+        const coffee = new CateringItem({ id: 'a', name: 'Coffee' });
+        setMenu([coffee, new CateringItem({ id: 'b', name: 'Tea' })]);
+        vi.mocked(spectator.inject(MatDialog).open).mockImplementation(
+            dialog_fn(false, {
+                item: new CateringItem({ id: 'a', name: 'Flat white' }),
+            }) as any,
+        );
+
+        await spectator.service.addItem(coffee);
+        await flush();
+
+        expect(spectator.service.menu().map((i) => i.name)).toEqual([
+            'Flat white',
+            'Tea',
+        ]);
+    });
+
     it('should allow user to remove catering items from menu', async () => {
+        const coffee = new CateringItem({ id: 'a', name: 'Coffee' });
+        setMenu([coffee, new CateringItem({ id: 'b', name: 'Tea' })]);
         const dialog = spectator.inject(MatDialog);
         (dialog.open as any).mockImplementation(dialog_fn(true));
-        await spectator.service.deleteItem(new CateringItem());
+        await spectator.service.deleteItem(coffee);
         await flush();
         expect(ts_client.removeAsset).not.toHaveBeenCalled();
         (dialog.open as any).mockImplementation(dialog_fn(false, [{}]));
-        await spectator.service.deleteItem(new CateringItem());
+        await spectator.service.deleteItem(coffee);
         await flush();
-        expect(ts_client.removeAsset).toHaveBeenCalledWith('');
+        expect(ts_client.removeAsset).toHaveBeenCalledWith('a');
+        expect(spectator.service.menu().map((i) => i.id)).toEqual(['b']);
     });
 
     it('should allow user to remove catering options to menu items', async () => {

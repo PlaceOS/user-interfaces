@@ -13,11 +13,6 @@ describe('ExploreDeskInfoComponent', () => {
         providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should show free until for the next booking', () => {
         const start = new Date();
         start.setHours(10, 0, 0, 0);

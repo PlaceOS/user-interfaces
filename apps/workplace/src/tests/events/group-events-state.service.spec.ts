@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -67,10 +70,6 @@ describe('GroupEventsStateService', () => {
         setCurrentUser(null);
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should clear events when no building is active', async () => {
         active_building.set(null);
         TestBed.flushEffects();
@@ -93,8 +92,14 @@ describe('GroupEventsStateService', () => {
 
     it('should keep only shared, visible events and collect their tags', async () => {
         vi.mocked(ts_client.get).mockResolvedValue([
-            buildEvent({ id: 'shared', extension_data: { shared_event: true, tags: ['music'] } }),
-            buildEvent({ id: 'not-shared', extension_data: { shared_event: false, tags: ['x'] } }),
+            buildEvent({
+                id: 'shared',
+                extension_data: { shared_event: true, tags: ['music'] },
+            }),
+            buildEvent({
+                id: 'not-shared',
+                extension_data: { shared_event: false, tags: ['x'] },
+            }),
             buildEvent({
                 id: 'private-hidden',
                 permission: 'private',
@@ -133,9 +138,19 @@ describe('GroupEventsStateService', () => {
 
     it('should filter events by selected tags and future end date', async () => {
         vi.mocked(ts_client.get).mockResolvedValue([
-            buildEvent({ id: 'music-future', extension_data: { shared_event: true, tags: ['Music'] } }),
-            buildEvent({ id: 'music-past', date_end: Date.now() - 1000, extension_data: { shared_event: true, tags: ['Music'] } }),
-            buildEvent({ id: 'no-tag', extension_data: { shared_event: true, tags: [] } }),
+            buildEvent({
+                id: 'music-future',
+                extension_data: { shared_event: true, tags: ['Music'] },
+            }),
+            buildEvent({
+                id: 'music-past',
+                date_end: Date.now() - 1000,
+                extension_data: { shared_event: true, tags: ['Music'] },
+            }),
+            buildEvent({
+                id: 'no-tag',
+                extension_data: { shared_event: true, tags: [] },
+            }),
         ] as any);
 
         TestBed.flushEffects();
@@ -146,6 +161,36 @@ describe('GroupEventsStateService', () => {
         expect(spectator.service.filtered_events().map((_) => _.id)).toEqual([
             'music-future',
         ]);
+    });
+
+    it('should flag a failed load', async () => {
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        TestBed.flushEffects();
+        await wait(10);
+
+        expect(spectator.service.failed()).toBe(true);
+        expect(spectator.service.loading()).toBe(false);
+        expect(spectator.service.events()).toEqual([]);
+    });
+
+    it('should not show the events of a period that is no longer selected', async () => {
+        let resolveOld: (value: unknown) => void = () => undefined;
+        vi.mocked(ts_client.get)
+            .mockImplementationOnce(
+                () => new Promise((resolve) => (resolveOld = resolve)),
+            )
+            .mockResolvedValue([buildEvent({ id: 'new' })] as any);
+        TestBed.flushEffects();
+        await wait(10);
+        spectator.service.setOptions({ date: Date.now() + 86400000 });
+        TestBed.flushEffects();
+        await wait(10);
+
+        resolveOld([buildEvent({ id: 'old' })]);
+        await wait(10);
+
+        expect(spectator.service.events().map((_) => _.id)).toEqual(['new']);
+        expect(spectator.service.loading()).toBe(false);
     });
 
     it('should merge option updates', () => {

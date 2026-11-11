@@ -112,14 +112,6 @@ describe('AlertConditionModalComponent', () => {
         expect(spectator.component.is_new).toBe(false);
     });
 
-    it('should expose the system and alert from the dialog data', () => {
-        const system = { id: 'sys-1' };
-        const alert = base_alert();
-        spectator = build({ system, alert });
-        expect(spectator.component.system).toBe(system);
-        expect(spectator.component.alert).toBe(alert);
-    });
-
     it('should not close the dialog when a compare condition is invalid', async () => {
         spectator = build({ system: {}, alert: base_alert() });
         // default model has an empty status variable on the left -> invalid

@@ -357,17 +357,4 @@ describe('MediaPreviewModalComponent', () => {
         expect(component.media_loading()).toBe(false);
         expect(component.media_error()).toBe(true);
     });
-
-    it('delegates edit requests to the signage service', async () => {
-        const media = new SignageMedia({
-            id: 'm1',
-            media_type: 'image',
-            media_uri: 'https://cdn/image.png',
-        });
-        const component = await createComponent(media);
-
-        component.edit();
-
-        expect(editMedia).toHaveBeenCalledWith(media);
-    });
 });

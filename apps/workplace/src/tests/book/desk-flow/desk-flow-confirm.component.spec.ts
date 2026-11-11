@@ -263,8 +263,21 @@ describe('NewDeskFlowConfirmComponent', () => {
         expect(spectator.component.booking_asset()?.name).toBe('Desk One');
     });
 
-    it('should provide an all-day label for all-day bookings', () => {
+    it('should show the all-day label for a one-day all-day booking', () => {
         model.update((m) => ({ ...m, all_day: true }));
-        expect(spectator.component.formattedTime()).toBeTruthy();
+        expect(spectator.component.formattedTime()).toBe(
+            i18n('COMMON.ALL_DAY'),
+        );
+    });
+
+    it('should show only the dates of a multi-day all-day booking', () => {
+        model.update((m) => ({
+            ...m,
+            all_day: true,
+            date: new Date('2026-04-08T12:00:00.000Z').valueOf(),
+            date_end: new Date('2026-04-10T12:00:00.000Z').valueOf(),
+            duration: 3 * 24 * 60,
+        }));
+        expect(spectator.component.formattedTime()).toBe('Apr 8 - Apr 10');
     });
 });

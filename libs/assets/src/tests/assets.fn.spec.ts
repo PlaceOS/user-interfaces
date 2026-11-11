@@ -93,12 +93,14 @@ describe('validateAssetRequestsForResource', () => {
         expect(delete_spy).not.toHaveBeenCalled();
     });
 
-    it('should link a request to a calendar event by event id', async () => {
+    it('should link a request to a calendar event only when saved', async () => {
         const create = await validateAssetRequestsForResource(
             { id: 'event-1', ical_uid: 'event-1@example.com' },
             period,
             [request],
         );
+        // Validation must not reserve the asset
+        expect(ts_client.post).not.toHaveBeenCalled();
         await create();
 
         const [url, body] = (ts_client.post as any).mock.calls[0] as [
@@ -107,5 +109,63 @@ describe('validateAssetRequestsForResource', () => {
         ];
         expect(url).toContain('event_id=event-1');
         expect(body.parent_id).toBeUndefined();
+        expect(body.extension_data.parent_id).toBe('event-1');
+        expect(body.asset_ids).toEqual(['unit-1']);
+    });
+
+    it('should replace a selected asset that another booking holds', async () => {
+        // Group results are cached per zone, so use a zone of its own
+        vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
+            total: 2,
+            next: null,
+            data: [
+                { id: 'unit-1', asset_type_id: 'group-1' },
+                { id: 'unit-2', asset_type_id: 'group-1' },
+            ],
+        } as never);
+        vi.spyOn(ts_client, 'get').mockResolvedValue([
+            { id: 'other', status: 'approved', asset_ids: ['unit-1'] },
+        ] as never);
+        const selected = new AssetRequest({
+            id: 'request-2',
+            items: [
+                {
+                    id: 'group-1',
+                    name: 'Projector',
+                    quantity: 1,
+                    item_ids: ['unit-1'],
+                },
+            ],
+        });
+
+        const create = await validateAssetRequestsForResource(
+            {},
+            { ...period, zones: ['zone-2'] },
+            [selected],
+        );
+        await create();
+
+        expect((ts_client.post as any).mock.calls[0][1].asset_ids).toEqual([
+            'unit-2',
+        ]);
+        expect(selected.conflict).toBe(false);
+    });
+
+    it('should flag a conflict when no asset is free', async () => {
+        vi.spyOn(ts_client, 'get').mockResolvedValue([
+            { id: 'other', status: 'approved', asset_ids: ['unit-1'] },
+        ] as never);
+        const blocked = new AssetRequest({
+            id: 'request-3',
+            items: [
+                { id: 'group-1', name: 'Projector', quantity: 1, item_ids: [] },
+            ],
+        });
+
+        await expect(
+            validateAssetRequestsForResource({}, period, [blocked]),
+        ).rejects.toBe('Unable to find available asset for request');
+        expect(blocked.conflict).toBe(true);
+        expect(ts_client.post).not.toHaveBeenCalled();
     });
 });

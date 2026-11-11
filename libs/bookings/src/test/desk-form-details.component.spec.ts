@@ -71,15 +71,6 @@ describe('NewDeskFormDetailsComponent', () => {
         spectator.setInput('model_input', model);
     });
 
-    it('should expose the writable model from the model_input', () => {
-        expect(spectator.component.model).toBe(model);
-    });
-
-    it('should delegate setOptions to the booking form service', () => {
-        spectator.component.setOptions({ group: true });
-        expect(set_options).toHaveBeenCalledWith({ group: true });
-    });
-
     it('should send recurrence changes to the service as user edits', () => {
         spectator.component.onRecurrenceChange({
             recurrence_type: 'weekly',

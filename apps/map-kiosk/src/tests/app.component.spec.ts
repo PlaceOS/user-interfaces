@@ -30,12 +30,6 @@ describe('AppComponent', () => {
         spectator = createComponent();
     });
 
-    it('should render the banner and loading indicator', () => {
-        expect('global-banner').toExist();
-        expect('global-loading').toExist();
-        expect('router-outlet').toExist();
-    });
-
     it('should initialise PlaceOS on init', () => {
         const placeos = spectator.inject(PlaceOS_Service);
         expect(placeos.init).toHaveBeenCalled();

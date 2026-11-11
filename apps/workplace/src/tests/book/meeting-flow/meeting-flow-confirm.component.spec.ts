@@ -136,11 +136,6 @@ describe('MeetingFlowConfirmComponent', () => {
 
     afterEach(() => setNotifyOutlet(null, true));
 
-    it('should create component', async () => {
-        await init();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the meeting title and attendee section', async () => {
         await init();
         expect(spectator.query('[details] h3')?.textContent).toContain(

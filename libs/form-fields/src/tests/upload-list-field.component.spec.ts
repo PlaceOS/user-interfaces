@@ -1,5 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
+import { Subject } from 'rxjs';
 
 import { Attachment } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -14,6 +15,11 @@ const attachment = (overrides: Partial<Attachment> = {}): Attachment => ({
     url: 'https://example.com/file.txt',
     ...overrides,
 });
+
+// Only the external cloud-uploads layer is stubbed
+vi.mock('@placeos/cloud-uploads', { spy: true });
+
+import * as cloud_uploads from '@placeos/cloud-uploads';
 
 describe('UploadListFieldComponent', () => {
     let spectator: Spectator<UploadListFieldComponent>;
@@ -61,7 +67,9 @@ describe('UploadListFieldComponent', () => {
         spectator.component.registerOnChange(on_change);
         spectator.component.removeFile(attachment({ id: 'one', url: 'a' }));
         expect(spectator.component.list().map((_) => _.id)).toEqual(['two']);
-        expect(on_change).toHaveBeenCalled();
+        expect(on_change).toHaveBeenCalledWith([
+            expect.objectContaining({ id: 'two' }),
+        ]);
     });
 
     it('should render uploaded files', () => {
@@ -93,5 +101,28 @@ describe('UploadListFieldComponent', () => {
         spectator.component.registerOnChange(on_change);
         spectator.component.onFileEvent({ target: { files: [] } });
         expect(on_change).not.toHaveBeenCalled();
+    });
+
+    it('should upload only the picked files within the limits and clear the input', () => {
+        vi.mocked(cloud_uploads.uploadFiles).mockImplementation(
+            () => [{ status: new Subject(), access_url: '' }] as any,
+        );
+        spectator.setInput({ accept: '.pdf', max_size: 100 });
+        const element = {
+            value: 'C:\\fakepath\\a.pdf',
+            files: [
+                new File([new Uint8Array(10)], 'a.pdf'),
+                new File([new Uint8Array(10)], 'b.png'),
+                new File([new Uint8Array(200)], 'c.pdf'),
+            ],
+        };
+
+        spectator.component.onFileEvent({ target: element });
+
+        expect(element.value).toBe('');
+        expect(cloud_uploads.uploadFiles).toHaveBeenCalledTimes(1);
+        expect(spectator.component.list().map((_) => _.name)).toEqual([
+            'a.pdf',
+        ]);
     });
 });

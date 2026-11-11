@@ -16,6 +16,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 const GUEST_ENDPOINT = '/api/staff/v1/guests';
 const EVENTS_ENDPOINT = '/api/staff/v1/events';
+const CHECKIN_URL = `${EVENTS_ENDPOINT}/event-1/guests/guest@example.com/checkin?state=true`;
 
 /** Build a JWT-shaped token with the payload the service expects */
 function userToken(payload: Record<string, unknown>) {
@@ -78,6 +79,16 @@ describe('EnrolmentStateService', () => {
         vi.restoreAllMocks();
     });
 
+    /** Edit the loaded details so the form is valid */
+    function acceptValidDetails() {
+        spectator.service.model.update((m) => ({
+            ...m,
+            name: 'New Name',
+            organisation: 'ACME',
+            accepted_terms_conditions: true,
+        }));
+    }
+
     /** Let the guest + event resources run their loaders */
     async function settle(rounds = 4) {
         for (let i = 0; i < rounds; i++) {
@@ -117,6 +128,8 @@ describe('EnrolmentStateService', () => {
                 `${EVENTS_ENDPOINT}/event-1`,
             );
             expect(spectator.service.event()?.id).toBe('event-1');
+            expect(spectator.service.error()).toBe('');
+            expect(spectator.service.loading()).toBe('');
         });
 
         it('should populate the form model from the loaded guest', async () => {
@@ -149,10 +162,12 @@ describe('EnrolmentStateService', () => {
             expect(ts_client.get).not.toHaveBeenCalled();
         });
 
-        it('should reject a token without guest or event details', async () => {
-            spectator.service.handleUserToken(
-                userToken({ exp: getUnixTime(Date.now()) + 3600, u: {} }),
-            );
+        it.each([
+            ['guest or event details', { u: {} }],
+            ['an event', { u: { e: 'guest@example.com', r: [] } }],
+            ['an expiry', { exp: undefined }],
+        ])('should reject a token without %s', async (_, overrides) => {
+            spectator.service.handleUserToken(validToken(overrides));
             await settle();
 
             expect(spectator.service.error()).toBe('link');
@@ -195,14 +210,6 @@ describe('EnrolmentStateService', () => {
     });
 
     describe('event validation', () => {
-        it('should clear the loading state for a valid event', async () => {
-            spectator.service.handleUserToken(validToken());
-            await settle();
-
-            expect(spectator.service.loading()).toBe('');
-            expect(spectator.service.error()).toBe('');
-        });
-
         it('should error with "link" for an event that has already finished', async () => {
             event_stub.event_start = getUnixTime(Date.now()) - 3600;
             event_stub.event_end = getUnixTime(Date.now()) - 60;
@@ -223,12 +230,7 @@ describe('EnrolmentStateService', () => {
         });
     });
 
-    describe('setView / setError', () => {
-        it('should change the active view', () => {
-            spectator.service.setView('guest');
-            expect(spectator.service.view()).toBe('guest');
-        });
-
+    describe('setError', () => {
         it('should switch to the error view and stop loading on error', () => {
             spectator.service.setView('guest');
             spectator.service.setError('meeting');
@@ -257,12 +259,7 @@ describe('EnrolmentStateService', () => {
         });
 
         it('should patch the guest with the edited details when valid', async () => {
-            spectator.service.model.update((m) => ({
-                ...m,
-                name: 'New Name',
-                organisation: 'ACME',
-                accepted_terms_conditions: true,
-            }));
+            acceptValidDetails();
             await spectator.service.updateGuest();
 
             expect(ts_client.patch).toHaveBeenCalledTimes(1);
@@ -276,6 +273,17 @@ describe('EnrolmentStateService', () => {
             );
             expect(spectator.service.loading()).toBe('');
         });
+
+        it('should show the update error and stop loading when the save fails', async () => {
+            (ts_client.patch as any).mockRejectedValue(new Error('offline'));
+            acceptValidDetails();
+
+            await spectator.service.updateGuest();
+
+            expect(spectator.service.error()).toBe('update');
+            expect(spectator.service.view()).toBe('error');
+            expect(spectator.service.loading()).toBe('');
+        });
     });
 
     describe('checkin', () => {
@@ -284,25 +292,40 @@ describe('EnrolmentStateService', () => {
             await settle();
         });
 
-        it('should check the guest in to the event', async () => {
+        it('should check the guest in without saving unedited details', async () => {
             await spectator.service.checkin();
 
+            expect(ts_client.patch).not.toHaveBeenCalled();
             expect(ts_client.post).toHaveBeenCalledTimes(1);
-            expect((ts_client.post as any).mock.calls[0][0]).toBe(
-                `${EVENTS_ENDPOINT}/event-1/guests/guest@example.com/checkin?state=true`,
-            );
-        });
-
-        it('should complete the flow and stop loading', async () => {
-            await spectator.service.checkin();
-
+            expect((ts_client.post as any).mock.calls[0][0]).toBe(CHECKIN_URL);
             expect(spectator.service.view()).toBe('complete');
             expect(spectator.service.loading()).toBe('');
         });
 
-        it('should not save guest details that were never edited', async () => {
+        it('should save edited details before checking in', async () => {
+            acceptValidDetails();
+            spectator.service.form().markAsDirty();
+
             await spectator.service.checkin();
-            expect(ts_client.patch).not.toHaveBeenCalled();
+
+            const [patch_order] = (ts_client.patch as any).mock
+                .invocationCallOrder;
+            const [post_order] = (ts_client.post as any).mock
+                .invocationCallOrder;
+            expect(patch_order).toBeLessThan(post_order);
+            expect(spectator.service.view()).toBe('complete');
+        });
+
+        it('should not check in when saving the edited details fails', async () => {
+            (ts_client.patch as any).mockRejectedValue(new Error('offline'));
+            acceptValidDetails();
+            spectator.service.form().markAsDirty();
+
+            await spectator.service.checkin();
+
+            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(spectator.service.error()).toBe('update');
+            expect(spectator.service.view()).toBe('error');
         });
 
         it('should show the error view and stop loading when check-in fails', async () => {

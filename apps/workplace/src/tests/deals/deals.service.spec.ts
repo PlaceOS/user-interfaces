@@ -1,15 +1,18 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
-import { DealsService } from '../../app/deals/deals.service';
 import { DealDetailsModalComponent } from '../../app/deals/deal-details-modal.component';
+import { DealsService } from '../../app/deals/deals.service';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -33,10 +36,6 @@ describe('DealsService', () => {
             details: [],
         } as any);
         spectator = createService();
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should clear deals and not query metadata without an active building', () => {
@@ -76,14 +75,47 @@ describe('DealsService', () => {
         expect(spectator.service.deals()).toEqual([]);
     });
 
-    it('should fall back to an empty list when the metadata request fails', async () => {
-        vi.mocked(ts_client.showMetadata).mockRejectedValue(new Error('nope'));
+    it('should flag a failed load and clear the flag when a reload succeeds', async () => {
+        vi.mocked(ts_client.showMetadata).mockRejectedValueOnce(
+            new Error('nope'),
+        );
         active_building.set({ id: 'bld-1' });
 
         TestBed.flushEffects();
         await wait(10);
 
         expect(spectator.service.deals()).toEqual([]);
+        expect(spectator.service.failed()).toBe(true);
+        expect(spectator.service.loading()).toBe(false);
+
+        const deals = [{ id: 'a', name: 'Deal A' }];
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: deals,
+        } as any);
+        spectator.service.reload();
+        TestBed.flushEffects();
+        await wait(10);
+
+        expect(spectator.service.failed()).toBe(false);
+        expect(spectator.service.deals()).toEqual(deals);
+    });
+
+    it('should not show the deals of a building that is no longer active', async () => {
+        let resolveOld: (value: unknown) => void = () => undefined;
+        vi.mocked(ts_client.showMetadata).mockImplementation(((id: string) =>
+            id === 'bld-old'
+                ? new Promise((resolve) => (resolveOld = resolve))
+                : Promise.resolve({ details: [{ id: 'new' }] })) as any);
+        active_building.set({ id: 'bld-old' });
+        TestBed.flushEffects();
+        active_building.set({ id: 'bld-new' });
+        TestBed.flushEffects();
+        await wait(10);
+
+        resolveOld({ details: [{ id: 'old' }] });
+        await wait(10);
+
+        expect(spectator.service.deals()).toEqual([{ id: 'new' }]);
         expect(spectator.service.loading()).toBe(false);
     });
 

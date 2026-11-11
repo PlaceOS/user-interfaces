@@ -63,12 +63,12 @@ export class MapEditorSession implements MapEditorSessionLike {
     private readonly _annotations = signal<readonly MapAIAnnotation[]>([]);
     public readonly annotations = this._annotations.asReadonly();
     private _next_annotation = 1;
-    /** Undo depth of the map when each mark was drawn, in mark order. */
+    /** Newest map change on the undo stack when each mark was drawn, in mark order. */
     private _annotation_depths: number[] = [];
 
     public addAnnotation(mark: Omit<MapAIAnnotation, 'n'>): void {
         if (this._annotations().length >= 20) return;
-        this._annotation_depths.push(this.history.length);
+        this._annotation_depths.push(this.history.head());
         this._annotations.update((marks) => [
             ...marks,
             structuredClone({ ...mark, n: this._next_annotation++ }),
@@ -89,7 +89,7 @@ export class MapEditorSession implements MapEditorSessionLike {
     public readonly mark_is_latest = computed(() => {
         this._version();
         if (!this._annotations().length) return false;
-        return (this._annotation_depths.at(-1) ?? 0) >= this.history.length;
+        return (this._annotation_depths.at(-1) ?? 0) >= this.history.head();
     });
 
     /** Something to undo, a mark or a map change. */

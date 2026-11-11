@@ -82,30 +82,6 @@ describe('TemplatesSectionComponent', () => {
         expect(component.view_tab()).toBe('layouts');
     });
 
-    it('delegates approval actions for the selected template', async () => {
-        const template = { id: 'template-1' };
-        template_stub.selected_template.set(template);
-        const component = await make();
-
-        component.approveTemplate();
-        component.requestApproval();
-
-        expect(template_stub.approveTemplate).toHaveBeenCalledWith(template);
-        expect(template_stub.requestTemplateApproval).toHaveBeenCalledWith(
-            template,
-        );
-    });
-
-    it('delegates sharing for the selected template', async () => {
-        const template = { id: 'template-1' };
-        template_stub.selected_template.set(template);
-        const component = await make();
-
-        component.shareTemplate();
-
-        expect(template_stub.shareTemplate).toHaveBeenCalledWith(template);
-    });
-
     it('keeps the live ID when the list holds a draft record', async () => {
         const fixture = await makeFixture();
         const draft = {

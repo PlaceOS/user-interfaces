@@ -12,10 +12,13 @@ import {
 
 import { stringToTopic } from '../app/dashboards/broker-alerts';
 import {
+    groupHierarchy,
     groupScope,
     inGroupScope,
+    queryAll,
     scopeZoneFilters,
     topicZoneIds,
+    zoneAncestors,
 } from '../app/support-groups';
 import { supportGroupsGuard } from '../app/support-groups.guard';
 import { SupportGroupsService } from '../app/support-groups.service';
@@ -127,6 +130,67 @@ describe('support group scope', () => {
     it('skips granted zones with no topic slot', () => {
         const custom = zone('zone-custom', 'org-1', ['custom']);
         expect(scopeZoneFilters(groupScope([custom], [custom]))).toEqual([]);
+    });
+
+    it('stops at a loop in the zone parents', () => {
+        const zones = new Map([
+            ['a', zone('a', 'b')],
+            ['b', zone('b', 'c')],
+            ['c', zone('c', 'a')],
+        ]);
+        expect(zoneAncestors('a', zones)).toEqual(['b', 'c']);
+    });
+});
+
+describe('groupHierarchy', () => {
+    it('lists a group and its parents, root first', () => {
+        const groups = [
+            supportGroup('child', 'parent'),
+            supportGroup('parent', 'root'),
+            supportGroup('root'),
+        ];
+        expect(
+            groupHierarchy(groups[0], groups).map((group) => group.id),
+        ).toEqual(['root', 'parent', 'child']);
+    });
+
+    it('stops at a loop in the group parents', () => {
+        const groups = [supportGroup('a', 'b'), supportGroup('b', 'a')];
+        expect(
+            groupHierarchy(groups[0], groups).map((group) => group.id),
+        ).toEqual(['b', 'a']);
+    });
+});
+
+describe('queryAll', () => {
+    const pages = (count: number) => {
+        let fetched = 0;
+        const next = (): any => {
+            fetched++;
+            return Promise.resolve({
+                data: [fetched],
+                next: fetched < count ? next : undefined,
+            });
+        };
+        return { first: next(), fetched: () => fetched };
+    };
+
+    it('collects every page', async () => {
+        const { first } = pages(3);
+        expect(await queryAll(first)).toEqual([1, 2, 3]);
+    });
+
+    it('stops at the most pages it may fetch', async () => {
+        const { first, fetched } = pages(100);
+        expect(await queryAll(first, 4)).toEqual([1, 2, 3, 4]);
+        expect(fetched()).toBe(4);
+    });
+
+    it('stops at an empty page', async () => {
+        const next = vi.fn();
+        const first = Promise.resolve({ data: [], next }) as any;
+        expect(await queryAll(first)).toEqual([]);
+        expect(next).not.toHaveBeenCalled();
     });
 });
 
@@ -260,6 +324,27 @@ describe('SupportGroupsService', () => {
         await settle();
         expect(service.can_view_all()).toBe(true);
         expect(service.scope()).toBeNull();
+    });
+
+    it('keeps the saved group when the groups fail to load', async () => {
+        localStorage.setItem(STORAGE_KEY, 'g2');
+        vi.mocked(currentGroups).mockRejectedValue(new Error('offline'));
+        create();
+        await settle();
+        expect(service.groups_failed()).toBe(true);
+        expect(service.selected_group_id()).toBe('g2');
+        expect(localStorage.getItem(STORAGE_KEY)).toBe('g2');
+    });
+
+    it("sees nothing, and is settled, when the group's zones fail to load", async () => {
+        vi.mocked(queryZones).mockImplementation(
+            () => Promise.reject(new Error('offline')) as any,
+        );
+        create();
+        await settle();
+        expect(service.group_id()).toBe('g1');
+        expect(service.scope()?.reachable.size).toBe(0);
+        expect(service.scope_ready()).toBe(true);
     });
 
     it('sees nothing for a user in no group', async () => {

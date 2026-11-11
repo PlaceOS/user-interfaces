@@ -243,7 +243,9 @@ export class EventPanelComponent extends AsyncHandler implements OnInit {
         this.system_id.set(params.get('system_id') || '');
         this._state.system = this.system_id();
         const query = this._route.snapshot.queryParamMap;
-        this.hide_qr.set(!!query.get('hide_qr_code'));
+        // Any value hides the QR code, except false and 0
+        const hide_qr = query.get('hide_qr_code');
+        this.hide_qr.set(!!hide_qr && !['false', '0'].includes(hide_qr));
         this.timeout(
             'size',
             () =>

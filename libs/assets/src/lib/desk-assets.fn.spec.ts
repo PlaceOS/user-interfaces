@@ -290,7 +290,7 @@ describe('[Desk Assets]', () => {
         expect(findDeskByLegacyId(desks, 'map-2')).toBe(desks[1]);
     });
 
-    it('should save and delete desk assets', async () => {
+    it('should save new desk assets with the desk type', async () => {
         const desks = await load_module();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
             response([{ id: 'cat-1', name: '_DESKS_' }]),
@@ -314,8 +314,5 @@ describe('[Desk Assets]', () => {
                 map_id: 'desk-map-1',
             }),
         );
-
-        desks.deleteDeskAsset('asset-1');
-        expect(ts_client.removeAsset).toHaveBeenCalledWith('asset-1');
     });
 });

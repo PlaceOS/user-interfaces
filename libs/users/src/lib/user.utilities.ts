@@ -3,7 +3,19 @@ import { email, form, required, validate } from '@angular/forms/signals';
 
 import { predictableRandomInt, unique, User } from '@placeos/common';
 
-const PHONE_PATTERN = /^\+?(\d[\d\s\-\(\)]{5,13}\d)$/;
+/**
+ * Digits with spaces, dashes, dots or brackets, an optional leading +, and an
+ * optional extension (x12, ext. 123). Group 1 is the number without the
+ * extension.
+ */
+const PHONE_FORMAT = /^(\+?[\d\s\-.()]+?)(?:\s*(?:x|ext\.?)\s*\d{1,6})?$/i;
+
+/** Whether the text is a phone number in a common format, with 6 to 15 digits (E.164) */
+function isPhoneNumber(text: string) {
+    const number = PHONE_FORMAT.exec(text.trim())?.[1] ?? '';
+    const digits = number.replace(/\D/g, '').length;
+    return digits >= 6 && digits <= 15;
+}
 
 let USER_COUNT = 0;
 
@@ -109,7 +121,7 @@ export function generateUserForm(user?: User, injector?: Injector) {
             email(p.email);
             required(p.organisation);
             validate(p.phone, ({ value }) =>
-                value() && !PHONE_PATTERN.test(value())
+                value() && !isPhoneNumber(value())
                     ? { kind: 'pattern' }
                     : undefined,
             );

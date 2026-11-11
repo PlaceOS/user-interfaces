@@ -61,10 +61,6 @@ describe('ExploreLockersService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should filter lockers by the active level', () => {
         const state = spectator.inject(ExploreStateService);
         (spectator.service as any)._lockers = {
@@ -121,5 +117,62 @@ describe('ExploreLockersService', () => {
         const features = feature_call[1];
         expect(features.length).toBe(1);
         expect(features[0].location).toBe('m1');
+    });
+
+    it('should colour a bank by the share of its lockers in use', () => {
+        const state = spectator.inject(ExploreStateService);
+        const org = spectator.inject(OrganisationService);
+        let update: (data: unknown) => void;
+        vi.mocked(org.module).mockReturnValue({
+            variable: () => ({
+                bindThenSubscribe: (callback) => {
+                    update = callback;
+                    return () => null;
+                },
+            }),
+        } as any);
+        const ids = Array.from({ length: 10 }, (_, i) => `l${i}`);
+        (spectator.service as any).locker_banks = () => [
+            { id: 'b1', map_id: 'm1', level_id: 'lvl-1', zones: ['lvl-1'] },
+        ];
+        (spectator.service as any).lockers = () =>
+            ids.map((id) => ({ id, bank_id: 'b1' }));
+        const inUse = (count: number) =>
+            update({
+                value: [
+                    ...ids.slice(0, count).map((locker_id) => ({
+                        location: 'locker',
+                        locker_id,
+                        allocated: true,
+                    })),
+                    // Not allocated, or not a locker, so not in use
+                    { location: 'locker', locker_id: 'l9', allocated: false },
+                    { location: 'desk', locker_id: 'l8', allocated: true },
+                ],
+            });
+        const bankStyle = () =>
+            vi
+                .mocked(state.setStyles)
+                .mock.calls.filter(([group]) => group === 'lockers')
+                .at(-1)[1]['#m1'];
+        (state.level as any).set({ id: 'lvl-1' });
+        TestBed.tick();
+
+        inUse(3);
+        TestBed.tick();
+        expect(bankStyle()).toEqual({ fill: DEFAULT_COLOURS.free });
+
+        inUse(4);
+        TestBed.tick();
+        expect(bankStyle()).toEqual({ fill: DEFAULT_COLOURS.pending });
+        const [, features] = vi.mocked(state.setFeatures).mock.calls.at(-1);
+        expect(features[0].data).toEqual(
+            expect.objectContaining({ in_use_count: 4, locker_count: 10 }),
+        );
+
+        inUse(9);
+        TestBed.tick();
+        expect(bankStyle()).toEqual({ fill: DEFAULT_COLOURS.busy });
+        vi.mocked(org.module).mockReturnValue(null);
     });
 });

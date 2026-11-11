@@ -287,7 +287,8 @@ export class PointsAssetModalComponent extends AsyncHandler {
         name: (this._data.asset?.name || '') as string,
         type: (this._data.asset?.type || '') as string,
         accept_points: (this._data.asset?.accept_points ?? false) as boolean,
-        discount_cap: (this._data.asset?.discount_cap || 50) as number,
+        // A cap of 0% is valid, so only default a missing value
+        discount_cap: (this._data.asset?.discount_cap ?? 50) as number,
         unit_price: (this._data.asset?.unit_price || 1000) as number,
         custom_rates: (this._data.asset?.custom_rates || []) as any[],
     });

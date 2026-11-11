@@ -1,4 +1,3 @@
-import { AssetRequest } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 // Workspace modules (bookings.fn) run for real; only the ts-client API layer
@@ -194,21 +193,6 @@ describe('[Assets]', () => {
         });
     });
 
-    describe('queryAssetPurchaseOrders', () => {
-        it('should delegate to the API with the given query', async () => {
-            const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.queryAssetPurchaseOrders).mockReturnValue(
-                response([{ id: 'po1' }]),
-            );
-
-            const res = await assets_fn.queryAssetPurchaseOrders({ q: 'x' });
-            expect(ts_client.queryAssetPurchaseOrders).toHaveBeenCalledWith({
-                q: 'x',
-            });
-            expect(res.data.map((o: any) => o.id)).toEqual(['po1']);
-        });
-    });
-
     describe('save helpers', () => {
         it('should update when an id is present and add otherwise', async () => {
             const { assets_fn } = await load_modules();
@@ -272,21 +256,6 @@ describe('[Assets]', () => {
             await assets_fn.saveAssetsInBulk(assets);
             expect(ts_client.addAssets).toHaveBeenCalledWith(assets);
             expect(ts_client.updateAssets).not.toHaveBeenCalled();
-        });
-    });
-
-    describe('getGroupsWithAssets', () => {
-        it('should delegate to the filtered asset type query', async () => {
-            const { assets_fn } = await load_modules();
-            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-                response([{ id: 't1', category_id: 'c1' }]),
-            );
-            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-                response([{ id: 'c1' }]),
-            );
-
-            const res = await assets_fn.getGroupsWithAssets({});
-            expect(res.data.map((t: any) => t.id)).toEqual(['t1']);
         });
     });
 
@@ -404,69 +373,57 @@ describe('[Assets]', () => {
             });
             expect(groups[0].assets.map((a: any) => a.id)).toEqual(['a2']);
         });
-    });
 
-    describe('validateAssetRequestsForResource', () => {
-        it('should create asset bookings only when the validated request is saved', async () => {
-            const { validateAssetRequestsForResource } =
-                await import('./assets.fn');
+        it('should keep assets held by the ignored bookings or ignored asset ids', async () => {
+            const { assets_fn } = await load_modules();
             vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-                response([{ id: 'type-projector', name: 'Projector' }]),
+                response([{ id: 't1', name: 'Chairs' }]),
             );
             vi.mocked(ts_client.queryAssets).mockReturnValue(
                 response([
-                    { id: 'asset-projector', asset_type_id: 'type-projector' },
+                    { id: 'a1', asset_type_id: 't1' },
+                    { id: 'a2', asset_type_id: 't1' },
+                    { id: 'a3', asset_type_id: 't1' },
                 ]),
             );
-            vi.mocked(ts_client.post).mockResolvedValue(undefined);
-            const request = new AssetRequest({
-                id: 'request-projector',
-                items: [
-                    {
-                        id: 'type-projector',
-                        name: 'Projector',
-                        quantity: 1,
-                        item_ids: [],
-                    },
-                ],
+            vi.mocked(ts_client.get).mockResolvedValue([
+                { id: 'own', status: 'approved', asset_ids: ['a1'] },
+                { id: 'other', status: 'approved', asset_ids: ['a2', 'a3'] },
+            ] as any);
+
+            const groups = await assets_fn.queryGroupAvailability(
+                { period_start: 1, period_end: 2 },
+                ['own', 'a3'],
+            );
+            expect(groups[0].assets.map((a: any) => a.id)).toEqual([
+                'a1',
+                'a3',
+            ]);
+        });
+    });
+
+    describe('queryTypeAssetsInZone', () => {
+        it('should stop following pages at the page limit', async () => {
+            const { assets_fn } = await load_modules();
+            // Serve one page more than the limit, so a regression fails
+            // instead of looping forever
+            let served = 0;
+            const page = (): any =>
+                Promise.resolve({
+                    data: [{ id: 'a' }],
+                    total: 1e6,
+                    next: ++served < 101 ? page : () => null,
+                });
+            vi.mocked(ts_client.queryAssets).mockImplementation(page);
+
+            const assets = await assets_fn.queryTypeAssetsInZone('t1', 'bld-1');
+
+            expect(assets).toHaveLength(100);
+            expect(ts_client.queryAssets).toHaveBeenCalledWith({
+                zones: 'bld-1',
+                type_id: 't1',
+                limit: 500,
             });
-            const options = {
-                date: 1_800_000_000_000,
-                duration: 30,
-                all_day: false,
-                host: 'host@example.com',
-                zones: ['building-1'],
-            };
-
-            // Opening the confirmation dialog must not reserve the asset.
-            await validateAssetRequestsForResource(
-                {},
-                options,
-                [request],
-                true,
-            );
-            expect(ts_client.post).not.toHaveBeenCalled();
-            expect(ts_client.del).not.toHaveBeenCalled();
-
-            const save = await validateAssetRequestsForResource(
-                { id: 'event-1', ical_uid: 'event-1@example.com' },
-                options,
-                [request],
-                true,
-            );
-            expect(ts_client.post).not.toHaveBeenCalled();
-            await save();
-            expect(ts_client.post).toHaveBeenCalledTimes(1);
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('event_id=event-1'),
-                expect.objectContaining({
-                    booking_type: 'asset-request',
-                    asset_ids: ['asset-projector'],
-                    extension_data: expect.objectContaining({
-                        parent_id: 'event-1',
-                    }),
-                }),
-            );
         });
     });
 

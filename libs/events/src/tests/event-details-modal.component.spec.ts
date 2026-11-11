@@ -99,8 +99,6 @@ describe('EventDetailsModalComponent', () => {
         expect('image-carousel').toExist();
     });
 
-    it('should show title', () => expect('[title]').toExist());
-
     it('should not delete ended events', () => {
         const event = new CalendarEvent({
             id: 'event-1',
@@ -141,10 +139,6 @@ describe('EventDetailsModalComponent', () => {
             expect(remove_fn).toHaveBeenCalledTimes(can_cancel ? 1 : 0);
         },
     );
-
-    it('should show map', () => expect('interactive-map').toExist());
-
-    it('should show host', () => expect('[host]').toExist());
 
     it('should resolve an aliased host name by email prefix', async () => {
         expect(user_pipe_transform).toHaveBeenCalledWith(

@@ -29,7 +29,7 @@ describe('LightingTooltipComponent', () => {
 
     it('should list light presets', () => {
         spectator.detectChanges();
-        expect('p').toContainText('');
+        expect('p').toExist();
         spectator.component.light = {
             states: ['One', 'Two', 'Three'],
             state: 'One',

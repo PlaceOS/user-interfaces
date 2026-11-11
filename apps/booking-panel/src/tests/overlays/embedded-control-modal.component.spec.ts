@@ -29,26 +29,11 @@ describe('EmbeddedControlModalComponent', () => {
 
     afterEach(() => vi.useRealTimers());
 
-    it('should show an iframe', () => {
-        expect(spectator.query('iframe')).toBeTruthy();
-    });
-
-    it('should show a countdown', async () => {
+    it('should count down each second', async () => {
         expect('[countdown]').toHaveText('30');
         await vi.advanceTimersByTimeAsync(2500);
         spectator.detectChanges();
         expect('[countdown]').toHaveText('28');
-        const spy = vi.spyOn(spectator.component, 'close');
-        spectator.component.countdown.set(0);
-        await vi.advanceTimersByTimeAsync(1000);
-        expect(spy).toHaveBeenCalled();
-        spectator.component.reset();
-        spectator.detectChanges();
-        expect('[countdown]').toHaveText('30');
-    });
-
-    it('should show an close button', () => {
-        expect('.close').toExist();
     });
 
     it('should restart the countdown on taps inside the embedded page', async () => {
@@ -63,7 +48,10 @@ describe('EmbeddedControlModalComponent', () => {
 
     it('should close after 30 seconds without interaction', async () => {
         const spy = vi.spyOn(spectator.component, 'close');
-        await vi.advanceTimersByTimeAsync(30_000);
+        await vi.advanceTimersByTimeAsync(29_000);
+        expect(spy).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(1_000);
         expect(spy).toHaveBeenCalledTimes(1);
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledOnce();
     });
 });

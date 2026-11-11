@@ -191,10 +191,6 @@ describe('AuthorisedUserGuard', () => {
         vi.useRealTimers();
     });
 
-    it('should create the service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should check if logged in user can activate a route', async () => {
         // Setup mocks
         setCurrentUser({ groups: [] } as any);

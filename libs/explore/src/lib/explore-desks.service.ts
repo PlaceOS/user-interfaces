@@ -526,9 +526,11 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                 }),
             );
         }
+        // The placeholder user has no groups before the user loads
+        const user_groups = currentUser()?.groups || [];
         if (
             desk.groups?.length &&
-            !desk.groups.find((_) => currentUser().groups.includes(_))
+            !desk.groups.find((_) => user_groups.includes(_))
         ) {
             return notifyError(
                 i18n('EXPLORE.DESK_GROUP_ERROR', { name: desk.name || 'Desk' }),

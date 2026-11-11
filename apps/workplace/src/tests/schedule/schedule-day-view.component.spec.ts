@@ -75,10 +75,6 @@ describe('ScheduleDayViewComponent', () => {
         dialog = spectator.inject(MatDialog);
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should build 24 hourly time slots for the whole day', () => {
         const slots = spectator.component.timeSlots();
         expect(slots).toHaveLength(24);

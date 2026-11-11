@@ -35,6 +35,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 const STORAGE_KEY = 'PlaceOS.SIGNAGE:selected-group:v1';
 const READ = 1 << 0;
 const UPDATE = 1 << 2;
+const MANAGE = 1 << 6;
 const SHARE = 1 << 7;
 const EMPTY_PAGE = { data: [], total: 0, next: () => null };
 
@@ -397,6 +398,93 @@ describe('SignageContextService group context', () => {
             service.setSelectedGroup('');
 
             expect(service.selected_group_id()).toBe('g1');
+        });
+    });
+
+    describe('group selection', () => {
+        it('opens the first group when the saved group is gone', async () => {
+            localStorage.setItem(STORAGE_KEY, 'removed');
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            expect(service.selected_group()?.group.id).toBe('g1');
+            expect(localStorage.getItem(STORAGE_KEY)).toBe('g1');
+        });
+
+        it('ignores a switch to a group the user is not in', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            service.setSelectedGroup('other');
+
+            expect(service.selected_group_id()).toBe('g1');
+        });
+    });
+
+    describe('group permissions', () => {
+        it('allows only the actions the permission bits grant', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            expect(service.can_update()).toBe(true);
+            expect(service.can_create()).toBe(false);
+            expect(service.can_delete()).toBe(false);
+            expect(service.can_approve()).toBe(false);
+            expect(service.can_share()).toBe(false);
+        });
+
+        it('allows every action to a group manager', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            vi.mocked(currentGroups).mockResolvedValue([
+                membership('g1', MANAGE),
+            ]);
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            expect(service.can_create()).toBe(true);
+            expect(service.can_delete()).toBe(true);
+            expect(service.can_approve()).toBe(true);
+            expect(service.can_share()).toBe(true);
+            expect(service.canManageSignageGroup('g1')).toBe(true);
+            expect(service.canManageSignageGroup('g2')).toBe(false);
+        });
+    });
+
+    describe('groupsHolding', () => {
+        const holds = (ids: string[]) => ({ data: ids.map((id) => ({ id })) });
+
+        it('uses only the selected group, without a query', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g2');
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+            const query = vi.fn();
+
+            const groups = await service.groupsHolding('item-1', query);
+
+            expect(groups.map(({ group }) => group.id)).toEqual(['g2']);
+            expect(query).not.toHaveBeenCalled();
+        });
+
+        it('finds the groups that hold the item in "All groups"', async () => {
+            signIn(['placeos_support']);
+            vi.mocked(currentGroups).mockResolvedValue([
+                membership('g1'),
+                membership('g2'),
+                membership('g3'),
+            ]);
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+            const query = vi.fn(async (group_id: string) => {
+                if (group_id === 'g2') throw new Error('403');
+                return holds(group_id === 'g3' ? ['item-1'] : ['other']);
+            });
+
+            const groups = await service.groupsHolding('item-1', query);
+
+            // A group the user cannot query is left out, not an error
+            expect(groups.map(({ group }) => group.id)).toEqual(['g3']);
         });
     });
 

@@ -546,12 +546,30 @@ describe('recovery watchdog', () => {
         expect(state.last_recovery_detail).toBeNull();
     });
 
-    it('should record errors as context without needing them to act', () => {
-        recordFatalError('boom');
+    it('should record uncaught errors and rejections as context', () => {
+        window.dispatchEvent(
+            new ErrorEvent('error', { message: 'Template failed' }),
+        );
+        const rejection = new Event('unhandledrejection');
+        Object.defineProperty(rejection, 'reason', {
+            value: new Error('Fetch failed'),
+        });
+        window.dispatchEvent(rejection);
 
         const state = watchdogState();
-        expect(state.error_count).toBe(1);
-        expect(state.last_error?.message).toBe('boom');
+        expect(state.error_count).toBe(2);
+        expect(state.last_error?.message).toBe('Fetch failed');
+        // Errors are context for a stall, not a reason to recover
+        expect(state.last_recovery_detail).toBeNull();
+    });
+
+    it('should stop listening for uncaught errors once stopped', () => {
+        stop();
+
+        window.dispatchEvent(new ErrorEvent('error', { message: 'Late' }));
+        window.dispatchEvent(new Event('unhandledrejection'));
+
+        expect(watchdogState().error_count).toBe(0);
     });
 
     it('should report its state for diagnostics', () => {

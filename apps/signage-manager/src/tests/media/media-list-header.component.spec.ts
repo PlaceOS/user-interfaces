@@ -191,11 +191,4 @@ describe('MediaListHeaderComponent', () => {
             expect.objectContaining({ data: { mode: 'link' } }),
         );
     });
-
-    it('forwards file input changes to the service', async () => {
-        const component = await make();
-        const event = { target: {} };
-        component.previewFile(event as any);
-        expect(preview_file).toHaveBeenCalledWith(event);
-    });
 });

@@ -45,6 +45,7 @@ describe('BootstrapComponent', () => {
     });
 
     beforeEach(() => {
+        vi.resetAllMocks();
         window.PLACEOS_PUBLIC_MODE = false;
         localStorage.clear();
         spectator = createComponent();
@@ -97,15 +98,26 @@ describe('BootstrapComponent', () => {
         );
     });
 
-    it('should re-direct if already bootstrapped', async () => {
-        const router = spectator.inject(Router);
-        expect(router.navigate).not.toHaveBeenCalled();
+    it('should stay on setup until the kiosk has a location', async () => {
         await spectator.component.ngOnInit();
+
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+    });
+
+    it('should open the default route when already bootstrapped', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) =>
+                key === 'app.default_route' ? 'checkin/scan' : undefined,
+        );
         localStorage.setItem('KIOSK.building', '1');
         localStorage.setItem('KIOSK.level', '1');
-        expect(router.navigate).not.toHaveBeenCalled();
+
         await spectator.component.ngOnInit();
-        expect(router.navigate).toHaveBeenCalled();
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'scan',
+        ]);
     });
 
     it('should show public mode blocker when enabled', () => {

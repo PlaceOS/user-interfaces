@@ -429,9 +429,11 @@ export class ExploreParkingService extends AsyncHandler {
                 name: space.name || 'Parking Space',
             });
         }
+        // The placeholder user has no groups before the user loads
+        const user_groups = currentUser()?.groups || [];
         if (
             space.place_groups?.length &&
-            !space.place_groups.find((_) => currentUser().groups.includes(_))
+            !space.place_groups.find((_) => user_groups.includes(_))
         ) {
             return i18n('EXPLORE.PARKING_GROUP_ERROR', { name: space.name });
         }

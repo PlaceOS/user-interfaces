@@ -65,11 +65,13 @@ export function registerMockEvents() {
                             (user) => user.email === ACTIVE_USER.email,
                         ),
                 );
-            } else if (_.query_params.zone_ids) {
+            } else {
+                // Compare whole IDs. Level IDs start with the building ID.
+                const zone_ids = `${_.query_params.zone_ids}`.split(',');
                 events = events.filter(
                     (event) =>
-                        !!event.system.zones.find((zone) =>
-                            _.query_params.zone_ids.includes(zone),
+                        !!event.system?.zones?.some((zone) =>
+                            zone_ids.includes(zone),
                         ),
                 );
             }
@@ -146,13 +148,15 @@ export function registerMockEvents() {
             );
             if (index >= 0) {
                 const event = MOCK_EVENTS[index];
-                if (event.host === ACTIVE_USER.email) {
-                    MOCK_EVENTS.splice(index, 1);
-                } else {
-                    const user = event.attendees.find(
-                        (_) => _.email === ACTIVE_USER.email,
-                    );
+                const user = event.attendees.find(
+                    (_) => _.email === ACTIVE_USER.email,
+                );
+                // A guest declines. The host, or staff who do not attend,
+                // such as Concierge users, remove the event.
+                if (user && event.host !== ACTIVE_USER.email) {
                     user.response_status = 'declined';
+                } else {
+                    MOCK_EVENTS.splice(index, 1);
                 }
                 pollSpaces(eventSpaces(event));
                 return;

@@ -108,6 +108,7 @@ export class ParkingComponent implements OnInit {
     /** Signal for the available parking spaces */
     public readonly available_spaces = this._parking.available_spaces;
 
+    /** Space counts for the footer. `percent` is 0 when the level has no spaces */
     public readonly counts = computed(() => {
         const spaces = this.active_spaces();
         const available = this.available_spaces();
@@ -115,7 +116,9 @@ export class ParkingComponent implements OnInit {
             total: spaces.length,
             free: available.length,
             busy: spaces.length - available.length,
-            percent: (available.length / spaces.length) * 100,
+            percent: spaces.length
+                ? (available.length / spaces.length) * 100
+                : 0,
         };
     });
 
@@ -126,7 +129,8 @@ export class ParkingComponent implements OnInit {
         ) {
             this._explore.setOptions({ is_public: true });
         }
-        while (!this._spaces.initialised()) {
+        // Wait up to 10 seconds for the spaces, then continue without them
+        for (let i = 0; i < 100 && !this._spaces.initialised(); i++) {
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
         this.resetKiosk(false);

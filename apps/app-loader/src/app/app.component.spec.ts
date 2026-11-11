@@ -104,9 +104,32 @@ describe('AppComponent', () => {
         expect(names).toEqual(['Concierge', 'Workplace']);
     });
 
-    it('links each tile to its redirect uri', async () => {
+    it('links each tile to its app root, without the oauth-resp.html page', async () => {
         vi.mocked(queryApplications).mockResolvedValue({
             data: [
+                {
+                    id: 'workplace',
+                    name: 'Workplace',
+                    redirect_uri: 'https://example.com/workplace/oauth-resp.html',
+                },
+            ],
+        } as any);
+
+        await runInit();
+
+        const tile = spectator.query('.app-grid a');
+        expect(tile?.getAttribute('href')).toBe('https://example.com/workplace/');
+    });
+
+    it('hides the tile that points back to the current page', async () => {
+        window.history.replaceState({}, '', '/app-loader/?x=1');
+        vi.mocked(queryApplications).mockResolvedValue({
+            data: [
+                {
+                    id: 'self',
+                    name: 'App Loader',
+                    redirect_uri: `${location.origin}/app-loader/oauth-resp.html`,
+                },
                 {
                     id: 'workplace',
                     name: 'Workplace',
@@ -117,8 +140,8 @@ describe('AppComponent', () => {
 
         await runInit();
 
-        const tile = spectator.query('.app-grid a');
-        expect(tile?.getAttribute('href')).toBe('https://example.com/workplace/');
+        const names = spectator.queryAll('.app-name').map((_) => _.textContent?.trim());
+        expect(names).toEqual(['Workplace']);
     });
 
     it('hides applications restricted to groups the user is not in', async () => {
@@ -194,6 +217,9 @@ describe('AppComponent', () => {
         await runInit();
 
         expect(setAPI_Key).toHaveBeenCalledWith('secret-key');
+        expect(vi.mocked(setAPI_Key).mock.invocationCallOrder[0]).toBeLessThan(
+            vi.mocked(setup).mock.invocationCallOrder[0],
+        );
     });
 
     it('does not register an api key when none is provided', async () => {
@@ -202,76 +228,45 @@ describe('AppComponent', () => {
         expect(setAPI_Key).not.toHaveBeenCalled();
     });
 
-    describe('helper methods', () => {
-        it('strips the oauth-resp.html suffix from redirect uris', () => {
-            expect(
-                spectator.component.uri('https://example.com/app/oauth-resp.html'),
-            ).toBe('https://example.com/app/');
-            expect(spectator.component.uri('https://example.com/app/')).toBe(
-                'https://example.com/app/',
-            );
-        });
-
-        it('returns the icon at the current index', () => {
-            const app = makeApp({ icon_index: 1 });
-            expect(spectator.component.currentIcon(app)).toBe(
-                'https://example.com/b.png',
-            );
-        });
-
-        it('returns an empty string when no icon exists at the index', () => {
-            const app = makeApp({ icon_urls: [], icon_index: 0 });
-            expect(spectator.component.currentIcon(app)).toBe('');
-        });
-
-        it('advances to the next icon for the matching application only', () => {
-            const app_a = makeApp({ id: 'a' });
-            const app_b = makeApp({ id: 'b' });
-            spectator.component.applications.set([app_a, app_b]);
-
-            spectator.component.loadNextIcon(app_a);
-
-            const state = spectator.component.applications();
-            expect(state.find((_) => _.id === 'a')?.icon_index).toBe(1);
-            expect(state.find((_) => _.id === 'b')?.icon_index).toBe(0);
-        });
-
-        it('clamps the icon index at the number of candidate urls', () => {
-            const app = makeApp({ icon_urls: ['only.svg'], icon_index: 1 });
-            spectator.component.applications.set([app]);
-
-            spectator.component.loadNextIcon(app);
-
-            expect(spectator.component.applications()[0].icon_index).toBe(1);
-        });
-    });
-
-    describe('icon fallback rendering', () => {
-        it('renders the application initial when no icon is available', () => {
+    describe('icon fallback', () => {
+        function renderApps(apps: LauncherApplication[]) {
             spectator.component.loading.set(false);
-            spectator.component.applications.set([
-                makeApp({ name: 'Delta', icon_urls: [], icon_index: 0 }),
-            ]);
+            spectator.component.applications.set(apps);
             spectator.detectChanges();
+        }
+
+        function failImage(index: number) {
+            spectator.queryAll('.app-grid a')[index].querySelector('img')!.dispatchEvent(
+                new Event('error'),
+            );
+            spectator.detectChanges();
+        }
+
+        it('loads the next icon only for the tile whose image failed', () => {
+            renderApps([makeApp({ id: 'a' }), makeApp({ id: 'b' })]);
+
+            failImage(0);
+
+            const sources = spectator
+                .queryAll('.app-grid img')
+                .map((_) => _.getAttribute('src'));
+            expect(sources).toEqual([
+                'https://example.com/b.png',
+                'https://example.com/a.svg',
+            ]);
+        });
+
+        it('shows the application initial once every icon has failed', () => {
+            renderApps([makeApp({ name: 'Delta' })]);
+
+            failImage(0);
+            failImage(0);
 
             expect(spectator.query('.app-grid img')).toBeNull();
-            expect(spectator.query('span')).toHaveText('D');
-        });
-
-        it('advances the icon when the image fails to load', () => {
-            spectator.component.loading.set(false);
-            spectator.component.applications.set([makeApp({ id: 'a' })]);
-            spectator.detectChanges();
-
-            const image = spectator.query('.app-grid img') as HTMLImageElement;
-            expect(image.getAttribute('src')).toBe('https://example.com/a.svg');
-
-            image.dispatchEvent(new Event('error'));
-            spectator.detectChanges();
-
-            expect(spectator.component.applications()[0].icon_index).toBe(1);
-            const next_image = spectator.query('.app-grid img') as HTMLImageElement;
-            expect(next_image.getAttribute('src')).toBe('https://example.com/b.png');
+            expect(spectator.query('.app-grid span')).toHaveText('D');
+            // Further errors cannot push the index past the candidate list.
+            spectator.component.loadNextIcon(spectator.component.applications()[0]);
+            expect(spectator.component.applications()[0].icon_index).toBe(2);
         });
     });
 });

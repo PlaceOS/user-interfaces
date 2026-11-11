@@ -72,9 +72,4 @@ describe('JoinRoomTooltipComponent', () => {
         spectator.click('button[btn]');
         expect(join_fn).toHaveBeenCalledWith('mode_a');
     });
-
-    it('should expose joined_id via active signal', () => {
-        joined_id.set('mode_x');
-        expect(spectator.component.active()).toBe('mode_x');
-    });
 });

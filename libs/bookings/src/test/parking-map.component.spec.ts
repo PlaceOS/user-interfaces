@@ -89,11 +89,6 @@ describe('ParkingMapComponent', () => {
         level_with_id.mockReturnValue(undefined);
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should only expose parking-tagged levels sorted by building then name', () => {
         levels_for_building.mockReturnValue([
             level({ id: 'l2', display_name: 'B', tags: ['parking'] }),

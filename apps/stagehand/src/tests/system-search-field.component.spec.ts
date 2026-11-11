@@ -26,10 +26,6 @@ describe('SystemSearchFieldComponent', () => {
         component = spectator.component;
     });
 
-    it('should create the component', () => {
-        expect(component).toBeTruthy();
-    });
-
     it('should exclude items that do not match by name, email or description', () => {
         const exclude = component.exclude();
         const match = makeSystem({ id: 's', name: 'Meeting Room', email: '' });

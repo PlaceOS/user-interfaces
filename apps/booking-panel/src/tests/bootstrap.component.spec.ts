@@ -49,6 +49,16 @@ describe('BootstrapComponent', () => {
         );
     });
 
+    it('should route to the events view when the flag is saved', () => {
+        localStorage.setItem('PLACEOS.Bookings.event', 'true');
+        spectator = createComponent();
+        submit('sys-B0');
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith(
+            ['events', 'sys-B0'],
+            { queryParamsHandling: 'preserve' },
+        );
+    });
+
     it('should route to the events view and save the flag with ?event', () => {
         spectator = createComponent({ queryParams: { event: 'true' } });
         submit('sys-B0');

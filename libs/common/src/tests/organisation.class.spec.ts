@@ -1,6 +1,6 @@
 import { Organisation } from '../lib/types/org.classes';
 
-describe('Level', () => {
+describe('Organisation', () => {
     let item: Organisation;
 
     beforeEach(() => (item = new Organisation()));

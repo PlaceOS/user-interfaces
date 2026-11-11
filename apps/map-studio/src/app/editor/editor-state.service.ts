@@ -633,14 +633,29 @@ export class EditorStateService extends AsyncHandler {
      * objects of the type about to be created ahead of this one.
      */
     public nextNaming(type: MapObjectType, pending = 0) {
-        const count =
-            this._objects().filter((o) => o.object_type === type).length +
-            pending;
+        const number = this._nextNumber(type, `${type}-`) + pending;
         const name = type.charAt(0).toUpperCase() + type.slice(1);
         return {
-            label: `${name} ${count + 1}`,
-            svg_id: sequentialId(`${type}-`, count + 1),
+            label: `${name} ${number}`,
+            svg_id: sequentialId(`${type}-`, number),
         };
+    }
+
+    /**
+     * Number for the next `prefix` id: one past the count of `type` objects,
+     * or past the highest `prefix` number in use, so that after a delete a
+     * new object cannot take an id that another object still has.
+     */
+    private _nextNumber(type: MapObjectType, prefix: string): number {
+        const pattern = new RegExp(`^${prefix}(\\d+)$`);
+        let count = 0;
+        let highest = 0;
+        for (const object of this._objects()) {
+            if (object.object_type === type) count++;
+            const match = object.svg_id?.match(pattern);
+            if (match) highest = Math.max(highest, Number(match[1]));
+        }
+        return Math.max(count, highest) + 1;
     }
 
     /** Fill and stroke a new object of this type should take */
@@ -941,13 +956,13 @@ export class EditorStateService extends AsyncHandler {
 
     private async _placeAmenity(id: string, x: number, y: number) {
         const asset = AMENITY_ICONS.find((a) => a.id === id);
-        const count = this._objects().filter(
-            (o) => o.object_type === 'amenity',
-        ).length;
         await this.createObject({
             object_type: 'amenity',
             label: asset?.label ?? 'Amenity',
-            svg_id: sequentialId('amenity-', count + 1),
+            svg_id: sequentialId(
+                'amenity-',
+                this._nextNumber('amenity', 'amenity-'),
+            ),
             geometry: { type: 'circle', x, y, r: 12 },
             layer: PLACE_LAYERS.amenity,
             fill_color: '#dc2626',
@@ -959,13 +974,13 @@ export class EditorStateService extends AsyncHandler {
     private async _placeFurniture(id: string, x: number, y: number) {
         const asset = FURNITURE_ASSETS.find((a) => a.id === id);
         if (!asset) return;
-        const count = this._objects().filter(
-            (o) => o.object_type === 'decorative',
-        ).length;
         await this.createObject({
             object_type: 'decorative',
             label: asset.label,
-            svg_id: sequentialId('furniture-', count + 1),
+            svg_id: sequentialId(
+                'furniture-',
+                this._nextNumber('decorative', 'furniture-'),
+            ),
             geometry: {
                 type: 'rect',
                 x: x - asset.w / 2,
@@ -991,15 +1006,13 @@ export class EditorStateService extends AsyncHandler {
             layout.rows * layout.deskH + (layout.rows - 1) * layout.gap;
         const start_x = x - total_w / 2;
         const start_y = y - total_h / 2;
-        const existing = this._objects().filter(
-            (o) => o.object_type === 'desk',
-        ).length;
+        const first = this._nextNumber('desk', 'desk-');
 
         this._placing.set(null);
         const desks: Partial<MapObject>[] = [];
         for (let row = 0; row < layout.rows; row++) {
             for (let col = 0; col < layout.cols; col++) {
-                const index = existing + row * layout.cols + col + 1;
+                const index = first + row * layout.cols + col;
                 desks.push({
                     object_type: 'desk',
                     label: `Desk ${index}`,

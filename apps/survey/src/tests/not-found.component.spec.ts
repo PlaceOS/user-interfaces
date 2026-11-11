@@ -24,21 +24,10 @@ describe('NotFoundComponent', () => {
         spectator = create_component();
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
-    it('should show the survey-not-found heading and message', () => {
+    it('should tell the user the survey was not found', () => {
         expect(spectator.query('h1')).toHaveText('Survey not found');
         expect(spectator.query('p')).toHaveText(
             'Unable to find the requested survey',
         );
-    });
-
-    it('should render the not-found illustration', () => {
-        const img = spectator.query('img');
-
-        expect(img).toBeTruthy();
-        expect(img.getAttribute('alt')).toBe('404 Not Found');
     });
 });

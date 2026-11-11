@@ -24,6 +24,7 @@ import { queryResourceAvailability } from 'libs/bookings/src/lib/bookings.fn';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import type { EventFormValue } from './event-form';
 import {
+    eventSpaceIds,
     findEventClashes,
     querySpaceAvailability,
     type CalendarEventShowParams,
@@ -58,10 +59,7 @@ export async function checkSpacesAvailable(
               id_list,
               date,
               duration,
-              event?.resources[0]?.id ||
-                  event?.system?.id ||
-                  event?.id ||
-                  undefined,
+              eventSpaceIds(event),
               undefined,
               [event?.date, event?.duration],
           ));

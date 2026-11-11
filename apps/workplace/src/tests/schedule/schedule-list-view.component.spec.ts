@@ -62,10 +62,6 @@ describe('ScheduleListViewComponent', () => {
         ).toContain('COMMON.TYPE_CANCELLED');
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should identify calendar events with isEvent', () => {
         expect(
             spectator.component.isEvent(new CalendarEvent({ id: 'e' })),

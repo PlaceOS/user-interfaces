@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import {
     AsyncHandler,
-    currentUser,
     OrganisationService,
     SettingsService,
     userSignal,
@@ -45,21 +44,23 @@ export class ParkingService extends AsyncHandler {
     /** List of available parking levels for the current building */
     public levels = computed(() => {
         const levels = this._org.level_list();
-        if (!this._settings.get('app.use_region')) {
+        // With regions, list the parking levels of every building in the
+        // region and name each level with its building
+        if (this._settings.get('app.use_region')) {
             const blds = this._org.buildingsForRegion();
             const bld_ids = blds.map((bld) => bld.id);
-            const list = levels.filter(
-                (lvl) =>
-                    bld_ids.includes(lvl.parent_id) &&
-                    lvl.tags.includes('parking'),
-            );
-            list.map((lvl) => ({
-                ...lvl,
-                display_name: `${
-                    blds.find((_) => _.id === lvl.parent_id)?.display_name
-                } - ${lvl.display_name}`,
-            }));
-            return list;
+            return levels
+                .filter(
+                    (lvl) =>
+                        bld_ids.includes(lvl.parent_id) &&
+                        lvl.tags.includes('parking'),
+                )
+                .map((lvl) => ({
+                    ...lvl,
+                    display_name: `${
+                        blds.find((_) => _.id === lvl.parent_id)?.display_name
+                    } - ${lvl.display_name}`,
+                }));
         }
         return levels.filter(
             (lvl) =>
@@ -75,20 +76,20 @@ export class ParkingService extends AsyncHandler {
 
     public readonly has_booking = this._has_booking.asReadonly();
 
-    public readonly assigned_space = computed(() =>
-        this._spaces().find(
-            (_) =>
-                _.assigned_to?.toLowerCase() ===
-                currentUser().email?.toLowerCase(),
-        ),
-    );
+    /** Read the user from its signal, so these update when the user loads */
+    public readonly assigned_space = computed(() => {
+        const email = userSignal()()?.email?.toLowerCase();
+        if (!email) return undefined;
+        return this._spaces().find(
+            (_) => _.assigned_to?.toLowerCase() === email,
+        );
+    });
 
-    public readonly user_details = computed(() =>
-        this._users().find(
-            (_) =>
-                _.email?.toLowerCase() === currentUser().email?.toLowerCase(),
-        ),
-    );
+    public readonly user_details = computed(() => {
+        const email = userSignal()()?.email?.toLowerCase();
+        if (!email) return undefined;
+        return this._users().find((_) => _.email?.toLowerCase() === email);
+    });
 
     public readonly deny_parking_access = computed(
         () => !!this.user_details()?.deny,

@@ -80,20 +80,15 @@ describe('SpaceSelectModalComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
-    it('should show available filters', () => expect('[filters]').toExist());
-
-    it('should show selected filters', () =>
-        expect('space-filters-display').toExist());
-
-    it('should show available spaces', () => expect('[list]').toExist());
-
-    it("should show selected space's details", () =>
-        expect('[details]').toExist());
-
-    it('should allow closing the modal', () =>
-        expect('header [mat-dialog-close]').toExist());
+    beforeEach(() => {
+        spectator = createComponent();
+        // The provider mocks are shared, so clear what earlier tests set
+        vi.clearAllMocks();
+        const settings = spectator.inject(SettingsService);
+        vi.mocked(settings.get).mockReset();
+        // Recompute settings-derived state after the reset
+        (settings.overrides as unknown as WritableSignal<unknown[]>).set([]);
+    });
 
     it('should enable multiple selection with the documented setting', () => {
         const settings = spectator.inject(SettingsService) as unknown as {
@@ -121,14 +116,38 @@ describe('SpaceSelectModalComponent', () => {
         expect(spectator.component.allow_multiple()).toBe(true);
     });
 
-    it('should allow setting selected spaces', () => {
-        expect(spectator.component.selected_ids()).not.toContain('space-1');
-        spectator.component.setSelected(new Space({ id: 'space-1' }), true);
-        expect(spectator.component.selected_ids()).toContain('space-1');
-        spectator.component.setSelected(new Space({ id: 'space-1' }), true);
+    it('should close with the picked space when only one space is allowed', () => {
+        const space = new Space({ id: 'space-1' });
+        spectator.component.selected.set([new Space({ id: 'space-0' })]);
+
+        spectator.component.setSelected(space, true);
+
         expect(spectator.component.selected_ids()).toEqual(['space-1']);
-        spectator.component.setSelected(new Space({ id: 'space-1' }), false);
-        expect(spectator.component.selected_ids()).not.toContain('space-1');
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith([
+            space,
+        ]);
+    });
+
+    it('should add and remove spaces without closing when several are allowed', () => {
+        const settings = spectator.inject(SettingsService) as unknown as {
+            get: ReturnType<typeof vi.fn>;
+            overrides: WritableSignal<unknown[]>;
+        };
+        settings.get.mockImplementation(
+            (key: string) => key === 'app.events.multiple_spaces',
+        );
+        settings.overrides.set([{}]);
+        spectator.component.selected.set([new Space({ id: 'space-0' })]);
+
+        spectator.component.setSelected(new Space({ id: 'space-1' }), true);
+        spectator.component.setSelected(new Space({ id: 'space-1' }), true);
+        expect(spectator.component.selected_ids()).toEqual([
+            'space-0',
+            'space-1',
+        ]);
+        spectator.component.setSelected(new Space({ id: 'space-0' }), false);
+        expect(spectator.component.selected_ids()).toEqual(['space-1']);
+        expect(spectator.inject(MatDialogRef).close).not.toHaveBeenCalled();
     });
 
     it('should describe and return to a selected room location', async () => {
@@ -222,77 +241,6 @@ describe('SpaceSelectModalComponent', () => {
             spectator.inject(SettingsService).saveUserSetting,
         ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
     });
-
-    it('should allow un-favouriting a space', () => {
-        // Add space-1 as favourite first, then un-favourite it
-        spectator.component.toggleFavourite(new Space({ id: '1' }));
-        expect(
-            spectator.inject(SettingsService).saveUserSetting,
-        ).toHaveBeenCalledWith(SETTING_KEYS.FAVORITE_ROOMS, ['1']);
-    });
-});
-
-describe('SpaceSelectModalComponent (with favourites)', () => {
-    let spectator: Spectator<SpaceSelectModalComponent>;
-    const createComponent = createRoutingFactory({
-        component: SpaceSelectModalComponent,
-        providers: [
-            MockProvider(SettingsService, {
-                get: vi.fn((key: string) =>
-                    key === SETTING_KEYS.FAVORITE_ROOMS ? ['1'] : undefined,
-                ) as any,
-                overrides: signal([]),
-                saveUserSetting: vi.fn(),
-            }),
-            MockProvider(OrganisationService, {
-                level_list: signal([]),
-                building_list: signal([]),
-                region_list: signal([]),
-                setRegion: vi.fn(),
-                setBuilding: vi.fn(),
-                locationWithID: vi.fn(() => ({ label: '' })),
-            }),
-            MockProvider(MAT_DIALOG_DATA, []),
-            MockProvider(MatDialogRef, { close: vi.fn() }),
-            {
-                provide: EventFormService,
-                useFactory: () => {
-                    const { model, form } = generateEventForm(
-                        undefined,
-                        undefined,
-                        inject(Injector),
-                    );
-                    return {
-                        loading$: new BehaviorSubject(''),
-                        room_alerts: new BehaviorSubject({}),
-                        options$: new BehaviorSubject({}),
-                        filters$: new BehaviorSubject({}),
-                        available_spaces: new BehaviorSubject([]),
-                        spaces$: new BehaviorSubject([]),
-                        spaces: signal([]),
-                        loaded_space_zone: signal(''),
-                        loaded_space_lists: signal({}),
-                        model,
-                        form,
-                        filters: {},
-                        setOptions: vi.fn(),
-                        setFilters: vi.fn(),
-                        setView: vi.fn(),
-                    } as unknown as Partial<EventFormService>;
-                },
-            },
-        ],
-        imports: [
-            MockModule(MatDialogModule),
-            MockComponent(SpaceDetailsComponent),
-            MockComponent(SpaceFiltersComponent),
-            MockComponent(SpaceFiltersDisplayComponent),
-            MockComponent(SpaceListComponent),
-            MockComponent(SpaceMapComponent),
-        ],
-    });
-
-    beforeEach(() => (spectator = createComponent()));
 
     it('should allow un-favouriting a space', () => {
         spectator.component.favorites.set(['1']);

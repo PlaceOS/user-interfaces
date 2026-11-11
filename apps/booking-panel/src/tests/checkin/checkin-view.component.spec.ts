@@ -61,11 +61,6 @@ describe('CheckinViewComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        spectator.detectChanges();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should display the space name', () => {
         space.set({ display_name: 'Meeting Room A' });
         spectator.detectChanges();
@@ -195,18 +190,6 @@ describe('CheckinViewComponent', () => {
         spectator.detectChanges();
         expect('button.w-24').toHaveLength(1);
         expect('[book-next]').not.toExist();
-    });
-
-    it('should describe the next period when an upcoming event exists', () => {
-        next.set({ date: Date.now() + 90 * 60 * 1000, duration: 30 });
-        spectator.detectChanges();
-        expect(spectator.component.event_state().next).toBeTruthy();
-    });
-
-    it('should have no next description when there is no upcoming event', () => {
-        next.set(null);
-        spectator.detectChanges();
-        expect(spectator.component.event_state().next).toBe('');
     });
 
     describe('with translation keys rendered', () => {

@@ -77,11 +77,6 @@ describe('CustomTooltipComponent', () => {
         });
     });
 
-    it('should create component', () => {
-        spectator = createDirective('<div customTooltip></div>');
-        expect(spectator.directive).toBeTruthy();
-    });
-
     it('should allow rendering components', async () => {
         spectator = createDirective(
             '<div customTooltip [content]="content"></div>',

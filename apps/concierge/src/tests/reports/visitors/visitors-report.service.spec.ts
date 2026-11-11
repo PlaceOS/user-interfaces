@@ -87,10 +87,6 @@ describe('VisitorsReportService', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should not load bookings until a report is requested', async () => {
         await settle();
         expect(ts_client.get).not.toHaveBeenCalled();

@@ -347,7 +347,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                             <mat-select
                                 name="start-time"
                                 [ngModel]="
-                                    form.value.conditions.is_between[0] || 6
+                                    form.value.conditions.is_between[0] ?? 6
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 (ngModelChange)="
@@ -368,7 +368,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                             <mat-select
                                 name="end-time"
                                 [ngModel]="
-                                    form.value.conditions.is_between[1] || 18
+                                    form.value.conditions.is_between[1] ?? 18
                                 "
                                 (ngModelChange)="
                                     setIsBetween(
@@ -381,7 +381,7 @@ const ITEM_LIST_CONDITIONS = ['groups', 'locations', 'tags', 'resource_ids'];
                                 @for (time of time_blocks; track time) {
                                     @if (
                                         time.id >
-                                        (form.value.conditions.is_between[0] ||
+                                        (form.value.conditions.is_between[0] ??
                                             6)
                                     ) {
                                         <mat-option [value]="time.id">
@@ -535,9 +535,11 @@ export class BookingRulesFormComponent implements OnChanges {
         }
     }
 
+    /** Set the allowed hours. 0 is midnight; 23.75 is the last time block. */
     public setIsBetween(start: number, end: number) {
-        if (!start || !end) return;
-        if (start > end) end = start + 0.25;
+        if (start == null || end == null) return;
+        if (start >= end) end = start + 0.25;
+        if (end > 23.75) [start, end] = [23.5, 23.75];
         this.form.patchValue({ conditions: { is_between: [start, end] } });
     }
 

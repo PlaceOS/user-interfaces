@@ -15,11 +15,6 @@ describe('ExploreParkingInfoComponent', () => {
         ],
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should fall back to the identifier when no name is set', () => {
         spectator = createComponent({
             providers: [

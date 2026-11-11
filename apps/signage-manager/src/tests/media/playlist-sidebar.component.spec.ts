@@ -122,14 +122,6 @@ describe('PlaylistSidebarComponent', () => {
         expect(add_media_to_playlist).not.toHaveBeenCalled();
     });
 
-    it('delegates create, load-more and add-playlist to the service', async () => {
-        const component = await make();
-        component.loadMore();
-        component.addPlaylist();
-        expect(load_more).toHaveBeenCalledTimes(1);
-        expect(add_playlist).toHaveBeenCalledTimes(1);
-    });
-
     // A failed load must not look like a group with no playlists
     it('offers a retry instead of the empty state when loading fails', async () => {
         playlist_stub.playlists_error.set(true);

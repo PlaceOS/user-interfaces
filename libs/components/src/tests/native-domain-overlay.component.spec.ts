@@ -32,9 +32,8 @@ describe('NativeDomainOverlayComponent', () => {
         global.fetch = original_fetch;
     });
 
-    it('should create component', () => {
+    it('should start in email mode when no domain is stored', () => {
         create();
-        expect(spectator.component).toBeTruthy();
         expect(spectator.query('input[name="email"]')).toExist();
         expect(spectator.query('input[name="server-address"]')).not.toExist();
     });

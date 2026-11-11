@@ -71,10 +71,6 @@ describe('DealsService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should append a new deal with a generated id when saving', async () => {
         const saved = await spectator.service.saveDeal({ name: 'Coffee Deal' });
 

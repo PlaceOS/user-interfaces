@@ -34,7 +34,16 @@ describe('ExploreSearchService', () => {
                 organisation: new Organisation(),
                 binding: vi.fn(() => 'sys-1'),
                 active_building: signal(new Building()),
-            }),
+                building: new Building(),
+                buildings: [],
+                levelWithID: vi.fn(
+                    (ids: string[]) =>
+                        ['lvl-1', 'lvl-2']
+                            .filter((id) => ids?.includes(id))
+                            .map((id) => ({ id }))[0],
+                ),
+                module: vi.fn(),
+            } as any),
             MockProvider(SettingsService, {
                 get: vi.fn(),
             }),
@@ -48,10 +57,11 @@ describe('ExploreSearchService', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createService()));
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
+    beforeEach(() => {
+        spectator = createService();
+        // Provider mocks are shared, so clear state from earlier tests
+        vi.mocked(spectator.inject(SettingsService).get).mockReset();
+        (spectator.inject(ExploreStateService).level as any).set(null);
     });
 
     it('should locate desk assets by their map id', () => {
@@ -125,71 +135,117 @@ describe('ExploreSearchService', () => {
         ).toEqual(['Zoe Warden', 'Alex Staff', 'Beta Warden', 'Boardroom']);
     });
 
-    it('should allow searching for users', async () => {
-        // TODO: Fix
-        // (ts_client.querySystems as any) = vi.fn(() => of([]));
-        // (user_mod as any).searchStaff = vi.fn((q) =>
-        //     of(
-        //         [{ name: 'Jim', email: 'jim@jim.com' }].filter((_) =>
-        //             _.name.includes(q)
-        //         )
-        //     )
-        // );
-        // spectator.service.setFilter('Jim');
-        // let result = await nextValueFrom(spectator.service.search_results);
-        // expect(result).toHaveLength(1);
-        // expect(result[0].type).toBe('user');
-        // expect(user_mod.searchStaff).toHaveBeenCalledWith('Jim');
-        // spectator.service.setFilter('James');
-        // await timer(401).toPromise();
-        // result = await nextValueFrom(spectator.service.search_results);
-        // expect(result).toHaveLength(0);
-        // expect(user_mod.searchStaff).toHaveBeenCalledWith('James');
+    describe('search_results', () => {
+        /** Mock each search source, then search for the text */
+        async function search(text: string, hidden: string[] = []) {
+            vi.useFakeTimers();
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) =>
+                    key === 'app.hide_global_search_items' ? hidden : null,
+            );
+            vi.mocked(ts_client.get).mockResolvedValue([] as any);
+            vi.mocked(ts_client.showMetadata).mockResolvedValue({
+                details: {},
+            } as any);
+            vi.mocked(ts_client.querySystems).mockResolvedValue({
+                data: [
+                    {
+                        id: 'sys-1',
+                        name: 'Alpha Room',
+                        map_id: 'm-1',
+                        zones: ['lvl-2'],
+                    },
+                    {
+                        id: 'sys-2',
+                        name: 'Alpha Lab',
+                        map_id: 'm-2',
+                        zones: ['lvl-1'],
+                    },
+                    // Spaces without a map location are not results
+                    { id: 'sys-3', name: 'Alpha Hidden', zones: ['lvl-1'] },
+                ],
+            } as any);
+            vi.mocked(ts_client.listChildMetadata).mockImplementation(
+                (_, { name }) =>
+                    Promise.resolve(
+                        name === 'desks'
+                            ? [
+                                  {
+                                      zone: { id: 'lvl-1' },
+                                      metadata: {
+                                          desks: {
+                                              details: [
+                                                  {
+                                                      id: 'desk-1',
+                                                      name: 'Alpha Desk',
+                                                  },
+                                                  {
+                                                      id: 'desk-2',
+                                                      name: 'Beta Desk',
+                                                  },
+                                              ],
+                                          },
+                                      },
+                                  },
+                              ]
+                            : [],
+                    ) as any,
+            );
+            spectator.service.search_fn = vi.fn(() =>
+                Promise.resolve([
+                    { name: 'Aaron Alpha', email: 'aaron@place.tech' },
+                ] as any),
+            );
+            (spectator.inject(ExploreStateService).level as any).set({
+                id: 'lvl-1',
+            });
+            spectator.service.setFilter(text);
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(400);
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(0);
+            vi.useRealTimers();
+            return spectator.service.search_results().map((_) => _.name);
+        }
+
+        it('should match the text and list items on the current level first', async () => {
+            expect(await search('alpha')).toEqual([
+                'Alpha Lab',
+                'Alpha Desk',
+                'Alpha Room',
+                'Aaron Alpha',
+            ]);
+        });
+
+        it('should leave out hidden result types', async () => {
+            expect(await search('alpha', ['desks', 'users'])).toEqual([
+                'Alpha Lab',
+                'Alpha Room',
+            ]);
+        });
     });
 
-    it('should allow searching for spaces', async () => {
-        // TODO: Fix
-        // (ts_client.querySystems as any) = vi.fn(() =>
-        //     of([
-        //         { id: 'space-1', name: 'Space 1', email: 'space-1@p.t' },
-        //         { id: 'space-2', name: 'Space 2', email: 'space-2@p.t' },
-        //     ])
-        // );
-        // (user_mod.searchStaff as any) = vi.fn(() => of([]));
-        // const spaces = spectator.inject(SpacesService);
-        // spectator.service.setFilter('Space');
-        // let result = await nextValueFrom(spectator.service.search_results);
-        // expect(result).toHaveLength(2);
-        // expect(result[0].type).toBe('space');
-        // spectator.service.setFilter('Space 1');
-        // await timer(401).toPromise();
-        // result = await nextValueFrom(spectator.service.search_results);
-        // expect(result).toHaveLength(1);
-    });
+    it('should list emergency contacts from LocationServices by type', async () => {
+        vi.useFakeTimers();
+        (spectator.inject(OrganisationService).module as any).mockReturnValue({
+            variable: () => ({
+                bindThenSubscribe: (callback: (value: unknown) => void) =>
+                    callback({
+                        first_aid: [{ name: 'Jo', email: 'jo@place.tech' }],
+                        fire_warden: [{ name: 'Sam', email: 'sam@place.tech' }],
+                    }),
+            }),
+        });
 
-    it('should allow searching for emergency contacts', async () => {
-        // TODO: Fix
-        // (user_mod as any).searchStaff = vi.fn(() => of([]));
-        // (ts_client as any).getModule = vi.fn(() => ({
-        //     binding: () => ({
-        //         listen: () =>
-        //             of({
-        //                 first_aid: [{ name: 'John', email: 'john@p.t' }],
-        //             }),
-        //         bind: () => null,
-        //     }),
-        // }));
-        // spectator.service.search_fn = (q) => of([]);
-        // await spectator.service.init();
-        // spectator.service.setFilter('John');
-        // let result = await nextValueFrom(spectator.service.search_results
-        //     );
-        // expect(result).toHaveLength(1);
-        // expect(result[0].type).toBe('first_aid');
-        // spectator.service.setFilter('fjggfdytrtuuf');
-        // result = await nextValueFrom(spectator.service.search_results
-        //     );
-        // expect(result).toHaveLength(0);
+        const done = spectator.service.init();
+        await vi.advanceTimersByTimeAsync(500);
+        await done;
+        vi.useRealTimers();
+
+        expect(spectator.service.emergency_contacts()).toEqual([
+            { name: 'Jo', email: 'jo@place.tech', type: 'first_aid' },
+            { name: 'Sam', email: 'sam@place.tech', type: 'fire_warden' },
+        ]);
     });
 
     it('should not load the emergency contacts again for each search', async () => {

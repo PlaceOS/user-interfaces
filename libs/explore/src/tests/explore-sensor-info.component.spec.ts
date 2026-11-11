@@ -12,11 +12,6 @@ describe('ExploreSensorInfoComponent', () => {
         providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should fallback to default sensor values', () => {
         spectator = createComponent();
         expect(spectator.component.temp()).toBe(0);

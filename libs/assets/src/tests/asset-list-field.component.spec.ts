@@ -218,17 +218,59 @@ describe('AssetListFieldComponent', () => {
         );
     });
 
-    it('should add a new request from the select modal result', () => {
+    it('should add a new request with a distinct asset for each unit', () => {
         dialog_result = [
-            { id: 'a', name: 'Projector', quantity: 1, assets: [{ id: 'x1' }] },
+            {
+                id: 'a',
+                name: 'Projector',
+                quantity: 2,
+                assets: [{ id: 'x1' }, { id: 'x2' }],
+            },
         ];
 
         spectator.component.editRequest();
 
         const requests = spectator.component.asset_requests();
-        expect(open_dialog).toHaveBeenCalled();
         expect(requests).toHaveLength(1);
-        expect(requests[0].items[0].id).toBe('a');
+        expect([...requests[0].items[0].item_ids].sort()).toEqual(['x1', 'x2']);
+    });
+
+    it('should reject a quantity larger than the available assets', () => {
+        dialog_result = [
+            { id: 'a', name: 'Projector', quantity: 2, assets: [{ id: 'x1' }] },
+        ];
+
+        spectator.component.editRequest();
+
+        expect(spectator.component.asset_requests()).toEqual([]);
+    });
+
+    it('should pass the quantities of the other requests to the modal', () => {
+        const editing = new AssetRequest({
+            id: 'req-1',
+            items: [{ id: 'a', quantity: 1 }],
+        });
+        spectator.component.setValue([
+            editing,
+            new AssetRequest({
+                id: 'req-2',
+                items: [{ id: 'a', quantity: 2 }],
+            }),
+            new AssetRequest({
+                id: 'req-3',
+                items: [{ id: 'a', quantity: 3 }],
+            }),
+        ]);
+        const date = new Date(2026, 5, 22, 9, 30).valueOf();
+        spectator.setInput('options', { date, duration: 60, all_day: true });
+
+        spectator.component.editRequest(editing);
+
+        const { data } = (open_dialog.mock.calls[0] as any)[1];
+        expect(data.requested).toEqual({ a: 5 });
+        // All day bookings ask for assets from the start of the day
+        expect(data.details.date).toBe(new Date(2026, 5, 22).valueOf());
+        expect(data.details.duration).toBe(24 * 60);
     });
 
     it('should keep the existing requests when the modal is cancelled', () => {

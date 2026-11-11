@@ -62,10 +62,6 @@ describe('ParkingReportService', () => {
         });
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should group bookings into daily buckets keyed by date', () => {
         bookings.set([
             { asset_id: 'bay-1', date: day_1 },

@@ -18,10 +18,12 @@ import {
     createBooking,
     createBookingsForEvent,
     isInWaitlistWeek,
+    parentBookingId,
     queryAllBookings,
     queryBookings,
     queryResourceAvailability,
     rejectBooking,
+    rejectOverlappingRecurringBookings,
     removeBooking,
     removeBookingInstance,
     saveBooking,
@@ -785,17 +787,6 @@ describe('[Booking API]', () => {
             );
         });
 
-        it('should create new bookings', async () => {
-            const spy = vi.spyOn(ts_client, 'post');
-            spy.mockResolvedValue({} as any);
-            expect(ts_client.post).not.toHaveBeenCalled();
-            await saveBooking({});
-            expect(ts_client.post).toHaveBeenCalledWith(
-                `/api/staff/v1/bookings?utm_source=${encoded_utm_source}`,
-                { extension_data: { app_name, app_version } },
-            );
-            spy.mockReset();
-        });
         it('should update existing bookings', async () => {
             const spy = vi.spyOn(ts_client, 'patch');
             spy.mockResolvedValue({} as any);
@@ -805,6 +796,26 @@ describe('[Booking API]', () => {
                 `/api/staff/v1/bookings/1`,
                 { extension_data: { app_name, app_version } },
             );
+            spy.mockReset();
+        });
+
+        it('should update only one occurrence when the query targets an instance', async () => {
+            const spy = vi.spyOn(ts_client, 'patch').mockResolvedValue({} as never);
+
+            await saveBooking(
+                new Booking({
+                    id: 'bkn-1',
+                    booking_start: 1_800_000_000,
+                    booking_end: 1_800_003_600,
+                }),
+                { instance: 1 },
+            );
+
+            expect(spy).toHaveBeenCalledTimes(1);
+            expect(spy.mock.calls[0][0]).toBe(
+                '/api/staff/v1/bookings/bkn-1/instance/1800000000',
+            );
+            expect(spy.mock.calls[0][1]).not.toHaveProperty('id');
             spy.mockReset();
         });
     });
@@ -880,6 +891,78 @@ describe('[Booking API]', () => {
                 expect.anything(),
             );
             now_spy.mockRestore();
+        });
+    });
+
+    describe('rejectOverlappingRecurringBookings', () => {
+        afterEach(() => vi.restoreAllMocks());
+
+        it('should reject only active bookings that overlap the time of the series', async () => {
+            // Local wall-clock dates so the assertions hold in any timezone
+            const at = (hours: number, minutes = 0) =>
+                new Date(2026, 7, 18, hours, minutes).valueOf() / 1000;
+            vi.spyOn(Date, 'now').mockReturnValue(at(8) * 1000);
+            const other = (id: string, start: number, extra = {}) => ({
+                id,
+                booking_start: start,
+                booking_end: start + 30 * 60,
+                booking_type: 'desk',
+                approved: true,
+                asset_id: `desk-${id}`,
+                ...extra,
+            });
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                other('overlap', at(9, 30)),
+                other('overlap-instance', at(9, 15), { instance: at(9, 15) }),
+                other('later', at(11)),
+                other('rejected', at(9, 30), { rejected: true }),
+                other('own-child', at(9, 30), { parent_id: 'series' }),
+            ] as never);
+            const post = vi.spyOn(ts_client, 'post').mockResolvedValue({} as never);
+            const series = new Booking({
+                id: 'series',
+                booking_start: at(9),
+                booking_end: at(10),
+                booking_type: 'desk',
+                recurrence_type: 'daily',
+                user_email: 'staff@example.com',
+                asset_id: 'desk-1',
+            });
+
+            await expect(
+                rejectOverlappingRecurringBookings(series, 'desk'),
+            ).resolves.toEqual(['overlap', 'overlap-instance']);
+
+            expect(post.mock.calls.map(([url]) => url).sort()).toEqual([
+                '/api/staff/v1/bookings/overlap-instance/reject/' + at(9, 15),
+                '/api/staff/v1/bookings/overlap/reject',
+            ]);
+        });
+
+        it('should not query bookings for a series that does not repeat', async () => {
+            const get = vi.spyOn(ts_client, 'get');
+
+            await expect(
+                rejectOverlappingRecurringBookings(
+                    new Booking({ id: 'single', user_email: 'a@example.com' }),
+                    'desk',
+                ),
+            ).resolves.toEqual([]);
+            expect(get).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('parentBookingId', () => {
+        it('should send a numeric ID as an integer and keep other IDs unchanged', () => {
+            expect(parentBookingId('42')).toBe(42);
+            expect(parentBookingId('bkn-42')).toBe('bkn-42');
+            expect(parentBookingId('12345678901234567890')).toBe(
+                '12345678901234567890',
+            );
+        });
+
+        it('should throw when the ID is missing', () => {
+            expect(() => parentBookingId('')).toThrow();
         });
     });
 

@@ -20,6 +20,7 @@ import {
     lockerBankFromAsset,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
+    visitorDisplayNameFor,
 } from '../lib/booking.utilities';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -81,6 +82,53 @@ describe('Booking Utilities', () => {
             expect(bookingLocationString(booking('desk'), org, true)).toBe(
                 'Bay 1 - L2',
             );
+        });
+    });
+
+    describe('visitorDisplayNameFor', () => {
+        const visitor = (data: Partial<Booking> = {}) =>
+            new Booking({
+                booking_type: 'visitor',
+                asset_id: 'jane.doe@example.com',
+                ...data,
+            });
+
+        it('should prefer the group member name, then the attendee name', () => {
+            const attendees = [
+                new User({ email: 'jane.doe@example.com', name: 'Jane A' }),
+            ];
+            expect(
+                visitorDisplayNameFor(
+                    visitor({
+                        attendees,
+                        extension_data: {
+                            group_members: [
+                                {
+                                    email: 'jane.doe@example.com',
+                                    name: 'Jane G',
+                                },
+                            ],
+                        },
+                    }),
+                ),
+            ).toBe('Jane G');
+            expect(visitorDisplayNameFor(visitor({ attendees }))).toBe('Jane A');
+        });
+
+        it('should not show the visit reason or email as the visitor name', () => {
+            expect(
+                visitorDisplayNameFor(
+                    visitor({
+                        description: 'Interview',
+                        extension_data: { visitor_name: 'interview' },
+                    }),
+                ),
+            ).toBe('Jane Doe');
+            expect(
+                visitorDisplayNameFor(
+                    visitor({ extension_data: { visitor_name: 'Jane Smith' } }),
+                ),
+            ).toBe('Jane Smith');
         });
     });
 

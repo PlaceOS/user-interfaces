@@ -44,65 +44,50 @@ describe('UserSearchFieldComponent', () => {
         expect(spec.query('input')?.getAttribute('autocomplete')).toBe('off');
     });
 
-    it('should allow searching for users', async () => {
-        const user_list = Array(20)
-            .fill(1)
-            .map(() => new User(generateMockUser()));
-
-        const spec = createComponent({
-            props: {
-                query_fn: () => Promise.resolve([...user_list]),
-            },
-        });
-
-        spec.component.search_term.set(user_list[0].name);
+    /** Search for a term and wait for the debounced search to finish */
+    const search = async (
+        spec: Spectator<UserSearchFieldComponent>,
+        term: string,
+    ) => {
+        spec.component.search_term.set(term);
         spec.detectChanges();
         await new Promise((r) => setTimeout(r, 350)); // debounce window
         spec.detectChanges();
         await spec.fixture.whenStable();
-        spec.detectChanges();
+        return spec.component.search_results();
+    };
 
-        expect(spec.component.search_results().length).toBeGreaterThan(0);
+    it('should query terms over two characters and sort the results by name', async () => {
+        const query_fn = vi.fn(() =>
+            Promise.resolve([
+                new User({ name: 'zed', email: 'zed@example.com' }),
+                EMPTY_USER as User,
+                new User({ name: 'Amy', email: 'amy@example.com' }),
+            ]),
+        );
+        const spec = createComponent({ props: { query_fn } });
+
+        expect(await search(spec, 'ab')).toEqual([]);
+        expect(query_fn).not.toHaveBeenCalled();
+
+        const results = await search(spec, 'ABC');
+        expect(query_fn).toHaveBeenCalledWith('abc', expect.anything());
+        expect(results.map((_) => _.name)).toEqual(['Amy', 'zed']);
     });
 
-    it('should allow limiting the selection of users', async () => {
-        const user_list = [
-            new User({
-                id: '1',
-                name: 'Test User 1',
-                email: 'test1@example.com',
-            }),
-            new User({
-                id: '2',
-                name: 'Test User 2',
-                email: 'test2@example.com',
-            }),
-            new User({
-                id: '3',
-                name: 'Test User 3',
-                email: 'test3@example.com',
-            }),
-            new User({
-                id: '4',
-                name: 'Test User 4',
-                email: 'test4@example.com',
-            }),
+    it('should limit results to the matching options without a query', async () => {
+        const query_fn = vi.fn(() => Promise.resolve([]));
+        const options = [
+            new User({ id: '1', name: 'Test User 1', email: 'one@example.com' }),
+            new User({ id: '2', name: 'Other', email: 'test2@example.com' }),
+            new User({ id: '3', name: 'Nobody', email: 'three@example.com' }),
         ];
+        const spec = createComponent({ props: { options, query_fn } });
 
-        const spec = createComponent({ props: { options: user_list } });
+        const results = await search(spec, 'TEST');
 
-        spec.component.search_term.set('test');
-        spec.detectChanges();
-        await new Promise((r) => setTimeout(r, 350)); // debounce window
-        spec.detectChanges();
-        await spec.fixture.whenStable();
-        spec.detectChanges();
-
-        expect(spec.component.search_results().length).toBeGreaterThan(0);
-
-        spec.component.setValue(user_list[0]);
-        spec.detectChanges();
-        expect(spec.component.user()).toBeTruthy();
+        expect(results.map((_) => _.id)).toEqual(['1', '2']);
+        expect(query_fn).not.toHaveBeenCalled();
     });
 
     it("should show the selected user's name in the input field", () => {

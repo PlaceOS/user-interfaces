@@ -3,20 +3,33 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService, setCurrentUser } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    StaffUser,
+} from '@placeos/common';
 import { ChatService, UserAvatarComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 
 import { PanelViewComponent } from '../app/panel-view.component';
 
-// LiteRT is only exercised in the webcam/model pipeline which the
-// behaviour tests never drive; stub it so the module import stays cheap.
+// Stub LiteRT so that tests can capture the tensor the webcam frame becomes.
 vi.mock('@litertjs/core', () => ({
     loadLiteRt: vi.fn(),
     loadAndCompile: vi.fn(),
     isWebGPUSupported: vi.fn(() => false),
-    Tensor: vi.fn(),
+    Tensor: vi.fn(function (
+        this: { data: Float32Array; delete: () => void },
+        data: Float32Array,
+    ) {
+        this.data = data;
+        this.delete = vi.fn();
+    }),
 }));
+
+const USER_ID = 'user-1';
+const GREETING = 'Hello, how may I help you?';
+const MODEL_PIXELS = 640 * 640;
 
 interface MockMessage {
     id: string;
@@ -24,7 +37,6 @@ interface MockMessage {
     user_id: string;
     message: string;
     content: string;
-    function?: string;
     timestamp: number;
 }
 
@@ -32,12 +44,52 @@ function make_message(overrides: Partial<MockMessage>): MockMessage {
     return {
         id: 'm-1',
         chat_id: 'c-1',
-        user_id: 'user-1',
+        user_id: USER_ID,
         message: 'Hello there',
         content: 'Hello there',
         timestamp: 0,
         ...overrides,
     };
+}
+
+/** Stand-in for the browser SpeechRecognition API */
+class FakeRecognition {
+    public static last?: FakeRecognition;
+    public interimResults = false;
+    public lang = '';
+    public onresult:
+        | ((event: { results: { transcript: string }[][] }) => void)
+        | null = null;
+    public onerror: ((event: { error: string }) => void) | null = null;
+    public onend: (() => void) | null = null;
+    public start = vi.fn();
+    public stop = vi.fn();
+    public abort = vi.fn();
+
+    constructor() {
+        FakeRecognition.last = this;
+    }
+
+    /** Emit a (possibly interim) transcript */
+    public say(transcript: string) {
+        this.onresult?.({ results: [[{ transcript }]] });
+    }
+}
+
+class FakeUtterance {
+    public rate = 1;
+    public pitch = 1;
+    public voice: { voiceURI: string } | null = null;
+    constructor(public text: string) {}
+}
+
+/** Private members of the panel that the tests drive directly */
+interface PanelInternals {
+    _recognition?: FakeRecognition;
+    _model?: Promise<unknown>;
+    _context: unknown;
+    _setupVoiceRecognition(): Promise<void>;
+    _containsPerson(predictions: Float32Array, shape: number[]): boolean;
 }
 
 describe('PanelViewComponent', () => {
@@ -50,6 +102,15 @@ describe('PanelViewComponent', () => {
         sendMessage: ReturnType<typeof vi.fn>;
         close: ReturnType<typeof vi.fn>;
     };
+    let synthesis: {
+        cancel: ReturnType<typeof vi.fn>;
+        speak: ReturnType<typeof vi.fn<(u: FakeUtterance) => void>>;
+        getVoices: ReturnType<typeof vi.fn<() => { voiceURI: string }[]>>;
+        onvoiceschanged: (() => void) | null;
+    };
+
+    const internals = () => spectator.component as unknown as PanelInternals;
+    const spoken = () => synthesis.speak.mock.calls.map(([u]) => u.text);
 
     const create_component = createRoutingFactory({
         component: PanelViewComponent,
@@ -66,12 +127,10 @@ describe('PanelViewComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        setCurrentUser({ id: 'user-1', name: 'Tester' } as any);
-        // ngOnInit wires up webcam/model/voice pipelines that use browser APIs
-        // missing under jsdom. Stub the canvas context and the Vosklet global
-        // so the window click listener it installs does not throw when tests
-        // dispatch clicks; the pipelines themselves stay dormant.
-        globalThis.loadVosklet = false;
+        FakeRecognition.last = undefined;
+        setCurrentUser(new StaffUser({ id: USER_ID, name: 'Tester' }));
+        // jsdom has no canvas or scrollTo. The panel needs both.
+        Element.prototype.scrollTo = vi.fn();
         HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
             drawImage: vi.fn(),
             getImageData: vi.fn(),
@@ -80,21 +139,18 @@ describe('PanelViewComponent', () => {
             moveTo: vi.fn(),
             lineTo: vi.fn(),
             stroke: vi.fn(),
-        })) as any;
-        // Provide speech synthesis stubs so the "speak on new message" effect
-        // does not flag an unsupported-synthesis error under jsdom.
-        (window as any).speechSynthesis = {
+        })) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+        synthesis = {
             cancel: vi.fn(),
             speak: vi.fn(),
-            getVoices: vi.fn(() => []),
+            getVoices: vi.fn(() => [{ voiceURI: 'Other' }]),
             onvoiceschanged: null,
         };
-        (window as any).SpeechSynthesisUtterance = class {
-            public rate = 1;
-            public pitch = 1;
-            public voice: unknown = null;
-            constructor(public text: string) {}
-        };
+        Object.assign(window, {
+            speechSynthesis: synthesis,
+            SpeechSynthesisUtterance: FakeUtterance,
+            SpeechRecognition: FakeRecognition,
+        });
         chat = {
             messages: signal<MockMessage[]>([]),
             progress: signal<unknown>(null),
@@ -109,15 +165,22 @@ describe('PanelViewComponent', () => {
         });
     });
 
-    it('should create the component', () => {
-        expect(spectator.component).toBeTruthy();
+    afterEach(() => {
+        vi.useRealTimers();
+        const win = window as unknown as Record<string, unknown>;
+        delete win['speechSynthesis'];
+        delete win['SpeechSynthesisUtterance'];
+        delete win['SpeechRecognition'];
+        Object.defineProperty(navigator, 'mediaDevices', {
+            value: undefined,
+            configurable: true,
+        });
     });
 
     it('should chat with the routed system', async () => {
         vi.useFakeTimers();
         spectator.detectChanges();
         await vi.advanceTimersByTimeAsync(0);
-        vi.useRealTimers();
 
         expect(chat.setBinding).toHaveBeenCalledWith('sys-7');
         expect(chat.startChat).toHaveBeenCalled();
@@ -126,220 +189,431 @@ describe('PanelViewComponent', () => {
         );
     });
 
-    it('should reveal a message timestamp when the message is tapped', async () => {
-        chat.messages.set([make_message({})]);
+    describe('UI', () => {
+        it('should show the splash prompt until the panel is set up', () => {
+            spectator.detectChanges();
+
+            expect(spectator.query('[splash]')?.textContent).toContain(
+                'Touch to Start',
+            );
+
+            spectator.click('[splash]');
+            spectator.detectChanges();
+
+            expect(spectator.component.setup()).toBe(true);
+            expect(spectator.query('[splash]')).toBeFalsy();
+        });
+
+        it('should end the session from the end-call button', () => {
+            const recognition = new FakeRecognition();
+            internals()._recognition = recognition;
+            spectator.component.setup.set(true);
+            spectator.component.listening.set(true);
+            spectator.detectChanges();
+
+            spectator.click('button[icon]');
+            spectator.detectChanges();
+
+            expect(spectator.component.listening()).toBe(false);
+            expect(recognition.stop).toHaveBeenCalledTimes(1);
+            expect(chat.close).toHaveBeenCalledTimes(1);
+            expect(spectator.query('[splash]')).toBeTruthy();
+        });
+
+        it('should label messages by author', () => {
+            chat.messages.set([
+                make_message({ id: 'u1', content: 'What time is it?' }),
+                make_message({
+                    id: 'a1',
+                    user_id: 'assistant',
+                    content: 'It is noon',
+                }),
+            ]);
+            spectator.detectChanges();
+
+            const rows = spectator
+                .queryAll('[message]')
+                .map((el) => el.parentElement?.textContent ?? '');
+            expect(rows[0]).toContain('You');
+            expect(rows[0]).toContain('What time is it?');
+            expect(rows[1]).toContain('Assistant');
+            expect(rows[1]).toContain('It is noon');
+        });
+
+        it('should toggle a message timestamp when the message is tapped', async () => {
+            chat.messages.set([make_message({})]);
+            spectator.detectChanges();
+
+            expect(spectator.query('[message-time]')).toBeFalsy();
+
+            spectator.click('[message]');
+            await spectator.fixture.whenStable();
+            expect(spectator.query('[message-time]')).toBeTruthy();
+
+            spectator.click('[message]');
+            await spectator.fixture.whenStable();
+            expect(spectator.query('[message-time]')).toBeFalsy();
+        });
+
+        it('should show the waiting indicator only while a reply is pending', () => {
+            const question = make_message({ id: 'q', message: 'A question' });
+            chat.messages.set([question]);
+            spectator.detectChanges();
+
+            expect(spectator.component.waiting()).toBe(true);
+            expect(spectator.query('.sr-only')?.textContent).toContain(
+                'Waiting for reply...',
+            );
+
+            chat.messages.set([
+                question,
+                make_message({ id: 'r', user_id: 'assistant' }),
+            ]);
+            spectator.detectChanges();
+
+            expect(spectator.component.waiting()).toBe(false);
+            expect(spectator.query('.sr-only')).toBeFalsy();
+        });
+
+        it('should render a progress notice and reveal detail when tapped', () => {
+            chat.progress.set({
+                function: 'call_function',
+                message: 'Working on it',
+                content: 'raw tool output',
+            });
+            spectator.detectChanges();
+            expect(spectator.element.textContent).toContain('Working on it');
+            expect(spectator.element.textContent).not.toContain(
+                'raw tool output',
+            );
+
+            spectator.click('button.bg-info');
+            spectator.detectChanges();
+
+            expect(spectator.element.textContent).toContain('raw tool output');
+        });
+    });
+
+    describe('voice input', () => {
+        beforeEach(async () => {
+            vi.useFakeTimers();
+            await internals()._setupVoiceRecognition();
+        });
+
+        it('should start listening once recognition is set up', () => {
+            expect(FakeRecognition.last?.start).toHaveBeenCalledTimes(1);
+            expect(spectator.component.setup()).toBe(true);
+            expect(spectator.component.listening()).toBe(true);
+        });
+
+        it('should send the phrase after 3 seconds without new speech', () => {
+            const recognition = FakeRecognition.last!;
+
+            recognition.say('Book');
+            vi.advanceTimersByTime(2000);
+            recognition.say('Book a room');
+            vi.advanceTimersByTime(2999);
+            expect(chat.sendMessage).not.toHaveBeenCalled();
+            expect(spectator.component.current_text()).toBe('Book a room');
+
+            vi.advanceTimersByTime(1);
+            expect(chat.sendMessage).toHaveBeenCalledTimes(1);
+            expect(chat.sendMessage).toHaveBeenCalledWith('Book a room');
+            expect(spectator.component.current_text()).toBe('');
+        });
+
+        it('should ignore short phrases and a repeat of the last phrase', () => {
+            const recognition = FakeRecognition.last!;
+
+            recognition.say('hey');
+            vi.advanceTimersByTime(3000);
+            recognition.say('Book a room');
+            vi.advanceTimersByTime(3000);
+            recognition.say('Book a room');
+            vi.advanceTimersByTime(3000);
+
+            expect(chat.sendMessage.mock.calls).toEqual([['Book a room']]);
+        });
+
+        it('should ignore speech after the service ends until set up again', () => {
+            const recognition = FakeRecognition.last!;
+            recognition.say('Book a room');
+            vi.advanceTimersByTime(3000);
+
+            spectator.component.endService();
+            recognition.say('Find a desk');
+            vi.advanceTimersByTime(3000);
+            expect(chat.sendMessage).toHaveBeenCalledTimes(1);
+
+            // A new session can ask the same thing as the last one
+            spectator.component.setup.set(true);
+            recognition.say('Book a room');
+            vi.advanceTimersByTime(3000);
+            expect(chat.sendMessage.mock.calls).toEqual([
+                ['Book a room'],
+                ['Book a room'],
+            ]);
+        });
+
+        it('should treat no-speech as idle and other errors as unsupported', () => {
+            const recognition = FakeRecognition.last!;
+            spectator.component.current_text.set('partial');
+
+            recognition.onerror?.({ error: 'no-speech' });
+            expect(spectator.component.current_text()).toBe('');
+            expect(spectator.component.listening()).toBe(false);
+            expect(spectator.component.error()).toEqual({});
+
+            recognition.onerror?.({ error: 'not-allowed' });
+            expect(spectator.component.error().speech_recognition).toBe(true);
+        });
+    });
+
+    it('should flag speech recognition as unsupported when the API is missing', async () => {
+        delete (window as unknown as Record<string, unknown>)[
+            'SpeechRecognition'
+        ];
+
+        await internals()._setupVoiceRecognition();
         spectator.detectChanges();
 
-        expect(spectator.query('[message-time]')).toBeFalsy();
-
-        spectator.click('[message]');
-        await spectator.fixture.whenStable();
-
-        expect(spectator.query('[message-time]')).toBeTruthy();
-
-        spectator.click('[message]');
-        await spectator.fixture.whenStable();
-
-        expect(spectator.query('[message-time]')).toBeFalsy();
+        expect(spectator.component.setup()).toBe(false);
+        expect(spectator.element.textContent).toContain(
+            'Speech Recognition is not supported',
+        );
     });
 
-    it('should mark itself waiting when the last message is from the user', () => {
-        expect(spectator.component.waiting()).toBe(false);
+    describe('voice output', () => {
+        /** Run the component effects and the queued speech callback */
+        const flush = async () => {
+            spectator.detectChanges();
+            await new Promise((resolve) => setTimeout(resolve));
+        };
 
-        chat.messages.set([
-            make_message({ id: 'a', user_id: 'assistant', message: 'Hi' }),
-            make_message({ id: 'b', user_id: 'user-1', message: 'A question' }),
-        ]);
-        expect(spectator.component.waiting()).toBe(true);
+        it('should speak each new assistant reply once', async () => {
+            const reply = make_message({
+                id: 'a1',
+                user_id: 'assistant',
+                message: 'Room booked',
+            });
+            chat.messages.set([make_message({ id: 'u1' }), reply]);
+            await flush();
+            expect(spoken()).toEqual(['Room booked']);
 
-        chat.messages.set([
-            make_message({ id: 'b', user_id: 'user-1', message: 'A question' }),
-            make_message({ id: 'c', user_id: 'assistant', message: 'Reply' }),
-        ]);
-        expect(spectator.component.waiting()).toBe(false);
+            chat.messages.set([
+                make_message({ id: 'u1' }),
+                reply,
+                make_message({ id: 'u2', message: 'Thanks' }),
+            ]);
+            await flush();
+            expect(spoken()).toEqual(['Room booked']);
+
+            chat.messages.update((list) => [
+                ...list,
+                make_message({
+                    id: 'a2',
+                    user_id: 'assistant',
+                    message: 'You are welcome',
+                }),
+            ]);
+            await flush();
+            expect(spoken()).toEqual(['Room booked', 'You are welcome']);
+        });
+
+        it('should wait for voices to load and prefer the Karen voice', async () => {
+            const karen = { voiceURI: 'Karen' };
+            synthesis.getVoices.mockReturnValue([]);
+            chat.messages.set([
+                make_message({ id: 'a1', user_id: 'assistant' }),
+            ]);
+            await flush();
+            expect(synthesis.speak).not.toHaveBeenCalled();
+
+            synthesis.getVoices.mockReturnValue([{ voiceURI: 'Other' }, karen]);
+            synthesis.onvoiceschanged?.();
+            await new Promise((resolve) => setTimeout(resolve));
+
+            expect(synthesis.speak).toHaveBeenCalledTimes(1);
+            expect(synthesis.speak.mock.calls[0][0].voice).toBe(karen);
+        });
+
+        it('should flag speech synthesis as unsupported when the API is missing', async () => {
+            delete (window as unknown as Record<string, unknown>)[
+                'speechSynthesis'
+            ];
+            chat.messages.set([
+                make_message({ id: 'a1', user_id: 'assistant' }),
+            ]);
+            await flush();
+            spectator.detectChanges();
+
+            expect(spectator.element.textContent).toContain(
+                'Speech Synthesis is not supported',
+            );
+        });
     });
 
-    it('should not start listening without a person in view', () => {
-        const recognition = { start: vi.fn(), stop: vi.fn() };
-        (spectator.component as any)._recognition = recognition;
-        spectator.component.person_in_view.set(false);
+    describe('presence detection', () => {
+        let person_score: number;
+        let image_data: Uint8ClampedArray;
+        let recognition: FakeRecognition;
+        let model: { run: ReturnType<typeof vi.fn> };
+
+        /** Let the 500ms frame interval process one webcam frame */
+        const frame = () => vi.advanceTimersByTimeAsync(500);
+
+        beforeEach(async () => {
+            vi.useFakeTimers();
+            spectator.detectChanges();
+            // Let ngOnInit finish so that it does not replace the stubs below
+            await vi.advanceTimersByTimeAsync(0);
+            person_score = 0;
+            image_data = new Uint8ClampedArray(MODEL_PIXELS * 4);
+            internals()._context = {
+                drawImage: vi.fn(),
+                getImageData: vi.fn(() => ({ data: image_data })),
+            };
+            // One prediction: 4 box values then the person score
+            model = {
+                run: vi.fn(async () => [
+                    {
+                        toTypedArray: () =>
+                            new Float32Array([0, 0, 0, 0, person_score]),
+                        type: { layout: { dimensions: [1, 84, 1] } },
+                        delete: vi.fn(),
+                    },
+                ]),
+            };
+            internals()._model = Promise.resolve(model);
+            recognition = new FakeRecognition();
+            internals()._recognition = recognition;
+            spectator.component.setup.set(true);
+        });
+
+        it('should ignore frames until the panel is set up', async () => {
+            spectator.component.setup.set(false);
+
+            await frame();
+
+            expect(model.run).not.toHaveBeenCalled();
+        });
+
+        it('should pass the frame to the model as planar normalised RGB', async () => {
+            image_data.set([255, 102, 51, 255, 51, 255, 102, 255], 0);
+
+            await frame();
+
+            const [tensor] = model.run.mock.calls[0];
+            const at = (channel: number, pixel: number) =>
+                tensor.data[MODEL_PIXELS * channel + pixel];
+            const f32 = (values: number[]) => values.map(Math.fround);
+            expect([at(0, 0), at(1, 0), at(2, 0)]).toEqual(f32([1, 0.4, 0.2]));
+            expect([at(0, 1), at(1, 1), at(2, 1)]).toEqual(f32([0.2, 1, 0.4]));
+        });
+
+        it('should detect a person only above the 0.2 confidence threshold', () => {
+            const predictions = new Float32Array(15);
+            predictions[13] = 0.21;
+            expect(internals()._containsPerson(predictions, [1, 84, 3])).toBe(
+                true,
+            );
+
+            predictions[13] = 0.19;
+            expect(internals()._containsPerson(predictions, [1, 84, 3])).toBe(
+                false,
+            );
+        });
+
+        it('should greet a visitor once while they stay in view', async () => {
+            person_score = 0.9;
+
+            await frame();
+            await frame();
+
+            expect(spectator.component.person_in_view()).toBe(true);
+            expect(spoken()).toEqual([GREETING]);
+        });
+
+        it('should stop listening and close the chat 15s after the visitor leaves', async () => {
+            person_score = 0.9;
+            await frame();
+            spectator.component.listening.set(true);
+
+            person_score = 0;
+            await frame();
+            expect(spectator.component.person_in_view()).toBe(false);
+            expect(spectator.component.listening()).toBe(false);
+            expect(recognition.stop).toHaveBeenCalledTimes(1);
+
+            await vi.advanceTimersByTimeAsync(14_999);
+            expect(chat.close).not.toHaveBeenCalled();
+            await vi.advanceTimersByTimeAsync(1);
+            expect(chat.close).toHaveBeenCalledTimes(1);
+        });
+
+        it('should keep the chat and greet again when the visitor returns in time', async () => {
+            person_score = 0.9;
+            await frame();
+            person_score = 0;
+            await vi.advanceTimersByTimeAsync(10_000);
+
+            person_score = 0.9;
+            await frame();
+            await vi.advanceTimersByTimeAsync(10_000);
+
+            expect(chat.close).not.toHaveBeenCalled();
+            expect(spoken()).toEqual([GREETING, GREETING]);
+        });
+    });
+
+    it('should start listening only when idle with a person in view', () => {
+        const recognition = new FakeRecognition();
+        internals()._recognition = recognition;
 
         spectator.component.startListening();
-
         expect(recognition.start).not.toHaveBeenCalled();
-        expect(spectator.component.listening()).toBe(false);
-    });
 
-    it('should start listening when a person is in view', () => {
-        const recognition = { start: vi.fn(), stop: vi.fn() };
-        (spectator.component as any)._recognition = recognition;
         spectator.component.person_in_view.set(true);
-
+        spectator.component.startListening();
         spectator.component.startListening();
 
         expect(recognition.start).toHaveBeenCalledTimes(1);
         expect(spectator.component.listening()).toBe(true);
     });
 
-    it('should not restart recognition while already listening', () => {
-        const recognition = { start: vi.fn(), stop: vi.fn() };
-        (spectator.component as any)._recognition = recognition;
-        spectator.component.person_in_view.set(true);
-        spectator.component.listening.set(true);
-
-        spectator.component.startListening();
-
-        expect(recognition.start).not.toHaveBeenCalled();
-    });
-
-    it('should detect a person above the confidence threshold', () => {
-        const predictions = new Float32Array(15);
-        predictions[13] = 0.21;
-
-        expect(
-            (spectator.component as any)._containsPerson(
-                predictions,
-                [1, 84, 3],
-            ),
-        ).toBe(true);
-
-        predictions[13] = 0.19;
-        expect(
-            (spectator.component as any)._containsPerson(
-                predictions,
-                [1, 84, 3],
-            ),
-        ).toBe(false);
-    });
-
-    it('should tear down the session and close the chat on endService', () => {
-        const recognition = { start: vi.fn(), stop: vi.fn() };
-        (spectator.component as any)._recognition = recognition;
-        spectator.component.setup.set(true);
-        spectator.component.listening.set(true);
-
-        spectator.component.endService();
-
-        expect(spectator.component.setup()).toBe(false);
-        expect(spectator.component.listening()).toBe(false);
-        expect(recognition.stop).toHaveBeenCalledTimes(1);
-        expect(chat.close).toHaveBeenCalledTimes(1);
-    });
-
-    it('should show the splash prompt until the panel is set up', () => {
-        spectator.detectChanges();
-
-        expect(spectator.query('[splash]')).toBeTruthy();
-        expect(spectator.query('[splash]')?.textContent).toContain(
-            'Touch to Start',
+    it('should release camera and microphone streams on destroy, even late ones', async () => {
+        const track = () => ({ stop: vi.fn() });
+        const camera = track();
+        const microphone = track();
+        let resolve_microphone!: (stream: MediaStream) => void;
+        const getUserMedia = vi.fn(
+            (constraints: MediaStreamConstraints): Promise<MediaStream> =>
+                constraints.video
+                    ? Promise.resolve({
+                          getTracks: () => [camera],
+                      } as unknown as MediaStream)
+                    : new Promise((resolve) => (resolve_microphone = resolve)),
         );
-
-        spectator.click('[splash]');
-        spectator.detectChanges();
-
-        expect(spectator.component.setup()).toBe(true);
-        expect(spectator.query('[splash]')).toBeFalsy();
-    });
-
-    it('should render an end-service control once set up', () => {
-        spectator.component.setup.set(true);
-        spectator.detectChanges();
-
-        const end_button = spectator.query('button[icon]');
-        expect(end_button).toBeTruthy();
-        expect(end_button?.textContent).toContain('call_end');
-    });
-
-    it('should render each chat message with its author label', () => {
-        chat.messages.set([
-            make_message({
-                id: 'u1',
-                user_id: 'user-1',
-                message: 'What time is it?',
-                content: 'What time is it?',
-            }),
-            make_message({
-                id: 'a1',
-                user_id: 'assistant',
-                message: 'It is noon',
-                content: 'It is noon',
-            }),
-        ]);
-        spectator.detectChanges();
-
-        const text = spectator.query('[message_element]')
-            ? ''
-            : spectator.element.textContent || '';
-        expect(text).toContain('You');
-        expect(text).toContain('Assistant');
-        expect(text).toContain('What time is it?');
-        expect(text).toContain('It is noon');
-    });
-
-    it('should show the empty state when there are no messages', () => {
-        spectator.detectChanges();
-
-        const placeholder = spectator.query(
-            'img[src="assets/icons/no-pending.svg"]',
-        );
-        expect(placeholder).toBeTruthy();
-    });
-
-    it('should render the waiting indicator while awaiting a reply', () => {
-        chat.messages.set([
-            make_message({ id: 'a', user_id: 'assistant', message: 'Hi' }),
-            make_message({ id: 'b', user_id: 'user-1', message: 'A question' }),
-        ]);
-        spectator.detectChanges();
-
-        expect(spectator.query('.sr-only')?.textContent).toContain(
-            'Waiting for reply...',
-        );
-    });
-
-    it('should surface a speech recognition error banner', () => {
-        spectator.component.error.set({ speech_recognition: true });
-        spectator.detectChanges();
-
-        expect(spectator.element.textContent).toContain(
-            'Speech Recognition is not supported',
-        );
-    });
-
-    it('should surface a speech synthesis error banner', () => {
-        spectator.component.error.set({ speech_synthesis: true });
-        spectator.detectChanges();
-
-        expect(spectator.element.textContent).toContain(
-            'Speech Synthesis is not supported',
-        );
-    });
-
-    it('should render a progress notice and reveal detail when tapped', () => {
-        chat.progress.set({
-            function: 'call_function',
-            message: 'Working on it',
-            content: 'raw tool output',
+        Object.defineProperty(navigator, 'mediaDevices', {
+            value: { getUserMedia },
+            configurable: true,
         });
+
         spectator.detectChanges();
-        expect(spectator.element.textContent).toContain('Working on it');
-        expect(spectator.component.show_info()).toBe(false);
+        await spectator.fixture.whenStable();
+        const video = spectator.query<HTMLVideoElement>('video')!;
+        await vi.waitFor(() => expect(video.srcObject).toBeTruthy());
+        await vi.waitFor(() => expect(getUserMedia).toHaveBeenCalledTimes(2));
+        expect(camera.stop).not.toHaveBeenCalled();
 
-        spectator.click('button.bg-info');
-        spectator.detectChanges();
+        spectator.fixture.destroy();
+        expect(camera.stop).toHaveBeenCalledTimes(1);
 
-        expect(spectator.component.show_info()).toBe(true);
-        expect(spectator.element.textContent).toContain('raw tool output');
-    });
-
-    it('should show the listening indicator while recording', () => {
-        spectator.component.listening.set(true);
-        spectator.detectChanges();
-
-        const indicators = spectator.queryAll('icon');
-        const has_mic = indicators.some((el) =>
-            (el.textContent || '').includes('mic'),
+        resolve_microphone({
+            getTracks: () => [microphone],
+        } as unknown as MediaStream);
+        await vi.waitFor(() =>
+            expect(microphone.stop).toHaveBeenCalledTimes(1),
         );
-        expect(has_mic).toBe(true);
     });
 });

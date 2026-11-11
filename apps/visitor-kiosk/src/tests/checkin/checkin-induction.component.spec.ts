@@ -41,6 +41,7 @@ function resetSettings() {
 describe('CheckinInductionComponent', () => {
     let spectator: SpectatorRouting<CheckinInductionComponent>;
     let snackbar: ReturnType<typeof createSnackbarSpy>;
+    let console_error: ReturnType<typeof vi.spyOn>;
     const createComponent = createRoutingFactory({
         component: CheckinInductionComponent,
         detectChanges: false,
@@ -64,6 +65,9 @@ describe('CheckinInductionComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
+        console_error = vi
+            .spyOn(console, 'error')
+            .mockImplementation(() => undefined);
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         resetSettings();
@@ -73,12 +77,18 @@ describe('CheckinInductionComponent', () => {
         });
     });
 
-    afterEach(() => setNotifyOutlet(null, true));
+    afterEach(() => {
+        setNotifyOutlet(null, true);
+        console_error.mockRestore();
+    });
 
     describe('ngOnInit navigation', () => {
-        it('redirects to checkin when there is no event', async () => {
+        it('only redirects to checkin when there is no event', async () => {
+            settingSignal('induction_enabled', false).set(true);
+            settingSignal('induction_details').set('Terms and conditions');
             (spectator.inject(CheckinStateService) as any).event.set(null);
             await spectator.component.ngOnInit();
+            expect(spectator.inject(Router).navigate).toHaveBeenCalledTimes(1);
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkin',
             ]);
@@ -153,6 +163,20 @@ describe('CheckinInductionComponent', () => {
                 'error',
             ]);
         });
+
+        it('stays on the induction when declining fails', async () => {
+            const state = spectator.inject(CheckinStateService);
+            state.declineInduction.mockRejectedValueOnce(new Error('failed'));
+            await spectator.component.decline();
+            expect(snackbar.open).toHaveBeenCalledWith(
+                'Error declining induction',
+                'OK',
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            expect(state.setError).not.toHaveBeenCalled();
+            expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+            expect(spectator.component.loading()).toBe(false);
+        });
     });
 
     describe('continue', () => {
@@ -189,6 +213,30 @@ describe('CheckinInductionComponent', () => {
                 '/checkin',
                 'results',
             ]);
+        });
+
+        it('stays on the induction when accepting fails', async () => {
+            settingSignal('induction_after_details', false).set(true);
+            const state = spectator.inject(CheckinStateService);
+            state.completeInduction.mockRejectedValueOnce(new Error('failed'));
+            await spectator.component.continue();
+            expect(snackbar.open).toHaveBeenCalledWith(
+                'Error completing induction',
+                'OK',
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            expect(state.checkinGuest).not.toHaveBeenCalled();
+            expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+            expect(spectator.component.loading()).toBe(false);
+        });
+
+        it('stays on the induction when check-in after details fails', async () => {
+            settingSignal('induction_after_details', false).set(true);
+            const state = spectator.inject(CheckinStateService);
+            state.checkinGuest.mockRejectedValueOnce(new Error('failed'));
+            await spectator.component.continue();
+            expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+            expect(spectator.component.loading()).toBe(false);
         });
 
         it('accepts the induction before checking in', async () => {

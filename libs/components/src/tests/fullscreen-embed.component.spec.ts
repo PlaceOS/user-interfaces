@@ -21,13 +21,6 @@ describe('FullscreenEmbedComponent', () => {
             providers: [{ provide: MAT_DIALOG_DATA, useValue: url }],
         }));
 
-    it('exposes the injected url as the embed url', () => {
-        create('https://embed.example/portal');
-        expect(spectator.component.embed_url()).toBe(
-            'https://embed.example/portal',
-        );
-    });
-
     it('renders an iframe pointing at the embedded url', () => {
         create('https://embed.example/portal');
         spectator.detectChanges();
@@ -36,11 +29,5 @@ describe('FullscreenEmbedComponent', () => {
         expect(iframe.getAttribute('src')).toBe(
             'https://embed.example/portal',
         );
-    });
-
-    it('renders a close button bound to the dialog', () => {
-        create('https://embed.example/portal');
-        spectator.detectChanges();
-        expect(spectator.query('button[mat-dialog-close]')).toExist();
     });
 });

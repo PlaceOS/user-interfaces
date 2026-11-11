@@ -1,7 +1,9 @@
-import { Booking, User } from '@placeos/common';
+import { Booking, setCurrentUser, StaffUser, User } from '@placeos/common';
 import {
     isGroupBooking,
+    mapGroupMembers,
     mapGroupMembersFromBookings,
+    matchGroupSiblings,
     visitorMemberPatch,
 } from '../lib/booking-group.utilities';
 
@@ -115,5 +117,64 @@ describe('visitorMemberPatch', () => {
         });
         const patch = visitorMemberPatch(member, base_form, opts);
         expect(patch.visitor_internal_or_external).toBe('internal');
+    });
+});
+
+describe('mapGroupMembers', () => {
+    beforeEach(() =>
+        setCurrentUser(
+            new StaffUser({ id: 'me', email: 'me@place.tech', name: 'Me' }),
+        ),
+    );
+
+    const members = [
+        new User({ email: 'adam@place.tech', name: 'Adam' }),
+        new User({ email: 'me@place.tech', name: 'Me again' }),
+        new User({ email: 'adam@place.tech', name: 'Adam copy' }),
+        new User({ name: 'No email' }),
+    ];
+
+    it('should add the current user once to a staff group and drop duplicates', () => {
+        expect(
+            mapGroupMembers('desk', members).map((_) => [_.email, _.name]),
+        ).toEqual([
+            ['me@place.tech', 'Me'],
+            ['adam@place.tech', 'Adam'],
+        ]);
+    });
+
+    it('should not add the current user to a visitor group', () => {
+        expect(mapGroupMembers('visitor', members).map((_) => _.email)).toEqual(
+            ['adam@place.tech', 'me@place.tech'],
+        );
+    });
+});
+
+describe('matchGroupSiblings', () => {
+    const members = [new User({ email: 'adam@place.tech' })];
+
+    it('should match visitor bookings by asset ID and staff bookings by user email', () => {
+        const visitor = new Booking({ id: 'v1', asset_id: 'adam@place.tech' });
+        const staff = new Booking({ id: 's1', user_email: 'adam@place.tech' });
+
+        expect(
+            matchGroupSiblings([visitor], members, true).sibling_map,
+        ).toEqual({ 'adam@place.tech': visitor });
+        expect(matchGroupSiblings([staff], members, false).sibling_map).toEqual(
+            { 'adam@place.tech': staff },
+        );
+    });
+
+    it('should delete the bookings of members removed from the group', () => {
+        const kept = new Booking({ id: 'b1', user_email: 'adam@place.tech' });
+        const removed = new Booking({ id: 'b2', user_email: 'zoe@place.tech' });
+
+        const { to_delete } = matchGroupSiblings(
+            [kept, removed],
+            members,
+            false,
+        );
+
+        expect(to_delete).toEqual([removed]);
     });
 });

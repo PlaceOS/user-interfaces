@@ -31,26 +31,34 @@ function createSnackbarSpy() {
     };
 }
 
+function guestForm() {
+    return {
+        host: '',
+        name: 'Visitor',
+        email: 'visitor@example.com',
+        phone: '',
+        organisation: '',
+        pass_number: '',
+    };
+}
+
 describe('CheckinDetailsComponent', () => {
     let spectator: SpectatorRouting<CheckinDetailsComponent>;
     let snackbar: ReturnType<typeof createSnackbarSpy>;
+    /** Shared by every test, so reset before each component is created */
+    const form = signal(guestForm());
+    const state = {
+        updateGuest: vi.fn(async () => undefined),
+        checkinGuest: vi.fn(async () => null),
+        form,
+        event: signal({}),
+        metadata: '',
+    };
     const createComponent = createRoutingFactory({
         component: CheckinDetailsComponent,
         declarations: [mockComponent(IconComponent)],
         providers: [
-            MockProvider(CheckinStateService, {
-                updateGuest: vi.fn(async () => undefined),
-                checkinGuest: vi.fn(async () => null),
-                form: signal({
-                    host: '',
-                    name: 'Visitor',
-                    email: 'visitor@example.com',
-                    phone: '',
-                    organisation: '',
-                    pass_number: '',
-                }),
-                event: signal({}),
-            } as any),
+            MockProvider(CheckinStateService, state as any),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
         imports: [
@@ -70,6 +78,8 @@ describe('CheckinDetailsComponent', () => {
         settingSignal('allow_printing_label').set(undefined);
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
+        form.set(guestForm());
+        state.metadata = '';
         spectator = createComponent();
     });
 
@@ -109,7 +119,6 @@ describe('CheckinDetailsComponent', () => {
 
         expect(service.updateGuest).not.toHaveBeenCalled();
         expect(service.checkinGuest).not.toHaveBeenCalled();
-        service.form.update((form) => ({ ...form, name: 'Visitor' }));
     });
 
     it('waits for induction acceptance before checking in', async () => {
@@ -145,9 +154,54 @@ describe('CheckinDetailsComponent', () => {
         expect(spectator.component.loading()).toBe(false);
     });
 
-    it('offers a photo when label printing uses its default setting', () => {
+    it('offers a photo after check-in when label printing uses its default setting', async () => {
         settingSignal('allow_user_photo', false).set(true);
 
-        expect(spectator.component.allow_user_photo()).toBe(true);
+        await spectator.component.updateGuest();
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'photo',
+        ]);
+    });
+
+    it('stays on the form when check-in fails', async () => {
+        const service = spectator.inject(CheckinStateService);
+        vi.mocked(service.checkinGuest).mockRejectedValueOnce(
+            new Error('Check-in failed'),
+        );
+
+        await spectator.component.updateGuest();
+
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe(false);
+    });
+
+    it('checks in a self-registered visitor without saving again', async () => {
+        const service = spectator.inject(CheckinStateService);
+        service.metadata = 'registered';
+
+        await spectator.component.ngOnInit();
+
+        await vi.waitFor(() =>
+            expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+                '/checkin',
+                'results',
+            ]),
+        );
+        expect(service.updateGuest).not.toHaveBeenCalled();
+        expect(service.checkinGuest).toHaveBeenCalledTimes(1);
+    });
+
+    it('returns to the scan page when no visitor is loaded', async () => {
+        const service = spectator.inject(CheckinStateService);
+        service.form.update((form) => ({ ...form, email: '' }));
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'scan',
+        ]);
     });
 });

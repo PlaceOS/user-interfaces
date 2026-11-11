@@ -1,6 +1,7 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ExploreBookQrComponent } from '../lib/explore-book-qr.component';
@@ -16,11 +17,6 @@ describe('ExploreBookQrComponent', () => {
             }),
             MockProvider(SettingsService, { get: vi.fn(() => '') } as any),
         ],
-    });
-
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
     });
 
     it('should expose the selected space', () => {
@@ -43,19 +39,34 @@ describe('ExploreBookQrComponent', () => {
         expect(spectator.query('button[mat-dialog-close]')).toBeTruthy();
     });
 
-    it('should generate a QR code using the configured booking path', () => {
+    it('should link the QR code to the explore page for the space email', () => {
+        spectator = createComponent();
+        expect(spectator.component.qr_code()).toBe(
+            generateQRCode(
+                `${location.origin}workplace/#/explore?space=space-1`,
+            ),
+        );
+    });
+
+    it('should link the QR code to the configured booking path', () => {
         spectator = createComponent({
             providers: [
                 MockProvider(MAT_DIALOG_DATA, {
-                    space: { id: 'abc', name: 'Custom', email: 'abc' },
+                    space: {
+                        id: 'abc',
+                        name: 'Custom',
+                        email: 'abc@place.tech',
+                    },
                 }),
                 MockProvider(SettingsService, {
                     get: vi.fn(() => 'custom/#/book?space={{id}}'),
                 } as any),
             ],
         });
-        // The generated QR code encodes the resolved link, so it should
-        // produce a valid data URL regardless of the configured path.
-        expect(spectator.component.qr_code()).toContain('data:image/svg+xml');
+        expect(spectator.component.qr_code()).toBe(
+            generateQRCode(
+                `${location.origin}custom/#/book?space=abc@place.tech`,
+            ),
+        );
     });
 });

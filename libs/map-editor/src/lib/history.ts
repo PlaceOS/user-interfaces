@@ -6,6 +6,8 @@ export interface HistoryEntry {
     bytes: number;
     label: string;
     at: number;
+    /** Order of the change this entry undoes. Undo and redo keep it. */
+    seq?: number;
 }
 
 export interface HistoryOptions {
@@ -69,6 +71,15 @@ export class MapHistory {
     }
 
     private _position = 0;
+    private _seq = 0;
+
+    /**
+     * Order of the newest change still on the undo stack, or 0 when there is
+     * none. A new change always gets a higher number, also after an undo.
+     */
+    public head(): number {
+        return this._undo.at(-1)?.seq ?? 0;
+    }
 
     /**
      * How many changes deep the document is: up one per push or redo, down one
@@ -93,7 +104,7 @@ export class MapHistory {
     /** Records a snapshot from `capture` as the newest undo step. Clears the redo stack. */
     public commit(entry: HistoryEntry): void {
         this._position++;
-        this._undo.push(entry);
+        this._undo.push({ ...entry, seq: ++this._seq });
         this._redo = [];
         this._trim();
     }
@@ -102,7 +113,10 @@ export class MapHistory {
         const entry = this._undo.pop();
         if (!entry) return false;
         this._position--;
-        this._redo.push(this._currentEntry(entry.label));
+        this._redo.push({
+            ...this._currentEntry(entry.label),
+            seq: entry.seq,
+        });
         this._doc.replaceRoot(entry.root);
         return true;
     }
@@ -111,7 +125,10 @@ export class MapHistory {
         const entry = this._redo.pop();
         if (!entry) return false;
         this._position++;
-        this._undo.push(this._currentEntry(entry.label));
+        this._undo.push({
+            ...this._currentEntry(entry.label),
+            seq: entry.seq,
+        });
         this._doc.replaceRoot(entry.root);
         return true;
     }

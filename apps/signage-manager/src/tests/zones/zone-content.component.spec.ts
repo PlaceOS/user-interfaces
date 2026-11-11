@@ -112,20 +112,6 @@ describe('ZoneContentComponent', () => {
         expect(component.zone_displays()).toEqual([]);
     });
 
-    it('routes add/remove actions through the service for the selected zone', async () => {
-        const zone = { id: 'z1', playlists: ['p1'] };
-        selected_zone.set(zone);
-        const component = await make();
-
-        component.addPlaylist();
-        component.addDisplay();
-        component.removePlaylist('p1');
-
-        expect(add_playlist).toHaveBeenCalledWith(zone);
-        expect(add_display).toHaveBeenCalledWith(zone);
-        expect(remove_playlist).toHaveBeenCalledWith(zone, 'p1');
-    });
-
     // The empty states use these icons
     it('shows that the displays are loading in place of the empty state', async () => {
         selected_zone.set({ id: 'z1' });

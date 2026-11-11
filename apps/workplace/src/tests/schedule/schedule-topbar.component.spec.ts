@@ -8,8 +8,8 @@ import {
     DateCalendarComponent,
     DateRangeCalendarComponent,
 } from '@placeos/form-fields';
-import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 import { addDays, isSameDay, startOfDay, subDays } from 'date-fns';
+import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 import { ScheduleTopbarComponent } from '../../app/schedule/schedule-topbar.component';
 
 describe('ScheduleTopbarComponent', () => {
@@ -34,10 +34,6 @@ describe('ScheduleTopbarComponent', () => {
         spectator = createComponent({ props: { date: fixed_day } });
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should read the week start offset from settings', () => {
         settings_get.mockReturnValue(1);
         expect(spectator.component.offset_weekday).toBe(1);
@@ -53,7 +49,9 @@ describe('ScheduleTopbarComponent', () => {
         it('sets the date to today and clears any end date', () => {
             spectator.setInput('end_date', addDays(fixed_day, 3).valueOf());
             spectator.component.resetDate();
-            expect(isSameDay(spectator.component.date(), Date.now())).toBe(true);
+            expect(isSameDay(spectator.component.date(), Date.now())).toBe(
+                true,
+            );
             expect(spectator.component.end_date()).toBeNull();
         });
     });

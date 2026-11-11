@@ -55,10 +55,6 @@ describe('EnrolmentGuestConfirmComponent', () => {
         spectator.detectChanges();
     });
 
-    it('should ask the guest to confirm their details', () => {
-        expect(spectator.element.textContent).toContain('Confirm your details');
-    });
-
     it('should block both actions while the form is invalid', () => {
         expect(buttons().every((btn) => btn.disabled)).toBe(true);
     });
@@ -71,12 +67,15 @@ describe('EnrolmentGuestConfirmComponent', () => {
         expect(buttons().every((btn) => !btn.disabled)).toBe(true);
     });
 
-    it('should still block actions when the terms are not accepted', () => {
+    it.each([
+        ['no name', { name: '' }],
+        ['no organisation', { organisation: '' }],
+        ['no email', { email: '' }],
+        ['a malformed email', { email: 'not-an-email' }],
+        ['unaccepted terms', { accepted_terms_conditions: false }],
+    ])('should block both actions with %s', (_, change) => {
         fillValidDetails();
-        state.model.update((m) => ({
-            ...m,
-            accepted_terms_conditions: false,
-        }));
+        state.model.update((m) => ({ ...m, ...change }));
         spectator.detectChanges();
 
         expect(buttons().every((btn) => btn.disabled)).toBe(true);

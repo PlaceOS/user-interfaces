@@ -4,13 +4,21 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { SettingsService } from '@placeos/common';
+import {
+    clearCacheCheck,
+    reloadForNewVersion,
+    SettingsService,
+} from '@placeos/common';
+import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { MediaPlayerComponent } from '../app/media-player.component';
 import { SignagePanelComponent } from '../app/signage.component';
 import { SignageService } from '../app/signage.service';
 import { MediaPlayerItem } from '../app/types';
+import { resetWatchdog, watchdogState } from '../app/watchdog';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignagePanelComponent', () => {
     let spectator: SpectatorRouting<SignagePanelComponent>;
@@ -39,6 +47,8 @@ describe('SignagePanelComponent', () => {
             setDisplay: vi.fn(),
             clearPlaylistOverride: vi.fn(),
             storeMetricEvent: vi.fn(),
+            refresh: vi.fn(),
+            diagnostics: vi.fn(() => ({ display_id: 'display-1' })),
         };
     });
 
@@ -59,10 +69,6 @@ describe('SignagePanelComponent', () => {
         });
         return spectator;
     }
-
-    it('should create the component', () => {
-        expect(build_component().component).toBeTruthy();
-    });
 
     it('should expose the configured animation time', () => {
         build_component();
@@ -382,5 +388,130 @@ describe('SignagePanelComponent', () => {
         spectator.component.handlePlayerEvent(event);
 
         expect(signage_service.storeMetricEvent).toHaveBeenCalledWith(event);
+    });
+
+    describe('watchdog visibility', () => {
+        let overlay: HTMLElement | undefined;
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            resetWatchdog();
+        });
+
+        afterEach(() => {
+            overlay?.remove();
+            overlay = undefined;
+            resetWatchdog();
+        });
+
+        it('should report content as visible while nothing covers it', () => {
+            build_component();
+
+            vi.advanceTimersByTime(1000);
+
+            expect(watchdogState().booted).toBe(true);
+        });
+
+        it('should not report content as visible behind the loading overlay', () => {
+            // A player stuck behind the overlay must look stalled to the
+            // watchdog, even though its timers keep running.
+            overlay = document.createElement('global-loading');
+            overlay.innerHTML = '<div loader></div>';
+            document.body.appendChild(overlay);
+            build_component();
+
+            vi.advanceTimersByTime(5000);
+
+            expect(watchdogState().booted).toBe(false);
+        });
+    });
+
+    describe('application update reloads', () => {
+        let reload: ReturnType<typeof vi.fn>;
+        let location_descriptor: PropertyDescriptor | undefined;
+
+        const player = () =>
+            spectator.query(MediaPlayerComponent) as MediaPlayerComponent;
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            clearCacheCheck();
+            vi.mocked(ts_client.isOnline).mockReturnValue(true);
+            reload = vi.fn();
+            location_descriptor = Object.getOwnPropertyDescriptor(
+                globalThis,
+                'location',
+            );
+            Object.defineProperty(globalThis, 'location', {
+                configurable: true,
+                value: { reload },
+            });
+            build_component();
+        });
+
+        afterEach(() => {
+            clearCacheCheck();
+            if (location_descriptor) {
+                Object.defineProperty(
+                    globalThis,
+                    'location',
+                    location_descriptor,
+                );
+            }
+        });
+
+        it('should hold an update back until the player finishes its item', () => {
+            const mid_play = vi
+                .spyOn(player(), 'isMidPlayThroughItem')
+                .mockReturnValue(true);
+
+            reloadForNewVersion();
+            vi.advanceTimersByTime(60_000);
+            expect(reload).not.toHaveBeenCalled();
+
+            mid_play.mockReturnValue(false);
+            vi.advanceTimersByTime(5_000);
+
+            expect(reload).toHaveBeenCalledTimes(1);
+        });
+
+        it('should stop holding updates back once it is destroyed', () => {
+            vi.spyOn(player(), 'isMidPlayThroughItem').mockReturnValue(true);
+
+            spectator.fixture.destroy();
+            reloadForNewVersion();
+
+            expect(reload).toHaveBeenCalledTimes(1);
+        });
+    });
+
+    it('should publish the state of each player for console diagnostics', () => {
+        build_component();
+        signage_service.override_playlist.set({
+            ends_at: 0,
+            playlist: [
+                {
+                    id: 'takeover-1',
+                    playlist: 'playlist-1',
+                    type: 'image',
+                    getURL: async () => 'https://media.test/takeover.png',
+                },
+            ],
+        });
+        spectator.detectChanges();
+
+        const state = JSON.parse(window.signage?.json() || '{}');
+
+        expect(state.display_id).toBe('display-1');
+        expect(state.players.map((_: { role: string }) => _.role)).toEqual([
+            'background',
+            'takeover',
+        ]);
+
+        window.signage?.poll();
+        expect(signage_service.refresh).toHaveBeenCalledTimes(1);
+
+        spectator.fixture.destroy();
+        expect(window.signage).toBeUndefined();
     });
 });

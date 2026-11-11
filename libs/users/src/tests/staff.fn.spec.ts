@@ -1,4 +1,8 @@
-import { searchStaff as searchDirectory, showStaff } from '../lib/staff.fn';
+import {
+    searchStaff as searchDirectory,
+    searchStaffByEmailPrefix,
+    showStaff,
+} from '../lib/staff.fn';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -10,9 +14,7 @@ const searchStaff = (q: string, signal?: AbortSignal) =>
     searchDirectory(q, { exclude_guests, signal });
 
 const mockGet = vi.mocked(
-    ts_client.get as unknown as (
-        url: string,
-    ) => Promise<Record<string, unknown>[]>,
+    ts_client.get as unknown as (url: string) => Promise<unknown>,
 );
 
 describe('[Staff API]', () => {
@@ -22,27 +24,18 @@ describe('[Staff API]', () => {
         vi.mocked(ts_client.responseHeaders).mockReturnValue({});
     });
     describe('searchStaff', () => {
-        it('should perform GET on staff endpoint', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
+        it('should GET staff as StaffUser objects without a query', async () => {
+            mockGet.mockResolvedValue([{ name: 'Jim' }]);
             const list = await searchStaff('');
-            expect(list).toBeInstanceOf(Array);
-            expect(spy).toHaveBeenCalledWith('/api/staff/v1/people');
-        });
-
-        it('should return StaffUser objects', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
-            const list = await searchStaff('');
-            expect(list).toBeInstanceOf(Array);
+            expect(ts_client.get).toHaveBeenCalledWith('/api/staff/v1/people');
+            expect(list).toHaveLength(1);
             expect(list[0]).toBeInstanceOf(StaffUser);
         });
 
         it('should allow filtering staff', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue([{ name: 'Jim' }] as any);
+            mockGet.mockResolvedValue([{ name: 'Jim' }]);
             await searchStaff('Jim');
-            expect(spy).toHaveBeenCalledWith(
+            expect(ts_client.get).toHaveBeenCalledWith(
                 '/api/staff/v1/people?q=Jim&fields=id%2Cname%2Cemail%2Cusername%2Corganisation%2Cdepartment',
             );
         });
@@ -159,13 +152,39 @@ describe('[Staff API]', () => {
         });
     });
 
+    it('rejects a pagination link that points back to a visited page', async () => {
+        exclude_guests = true;
+        mockGet.mockResolvedValue([]);
+        vi.mocked(ts_client.responseHeaders).mockImplementation((href) => ({
+            link: `<${href}>; rel="next"`,
+        }));
+        await expect(searchStaff('Jack')).rejects.toThrow(
+            'Invalid staff directory pagination link',
+        );
+        expect(ts_client.get).toHaveBeenCalledTimes(1);
+    });
+
+    describe('searchStaffByEmailPrefix', () => {
+        it('escapes single quotes in the startsWith filter', async () => {
+            mockGet.mockResolvedValue([{ id: 'o', name: "Jim O'Neil" }]);
+            const list = await searchStaffByEmailPrefix("jim.o'neil");
+            const url = new URL(mockGet.mock.calls[0][0], location.origin);
+            expect(url.pathname).toBe('/api/staff/v1/people');
+            expect(url.searchParams.get('filter')).toBe(
+                "startsWith(mail,'jim.o''neil')",
+            );
+            expect(list[0]).toBeInstanceOf(StaffUser);
+        });
+    });
+
     describe('showStaff', () => {
-        it('should GET staff', async () => {
-            const spy = vi.spyOn(ts_client, 'get');
-            spy.mockResolvedValue({ name: 'Jim' } as any);
-            const item = await showStaff('jim');
+        it('should GET staff with an encoded ID', async () => {
+            mockGet.mockResolvedValue({ name: 'Jim' });
+            const item = await showStaff('jim@place.tech');
             expect(item).toBeInstanceOf(StaffUser);
-            expect(spy).toHaveBeenCalledWith('/api/staff/v1/people/jim');
+            expect(ts_client.get).toHaveBeenCalledWith(
+                '/api/staff/v1/people/jim%40place.tech',
+            );
         });
     });
 });

@@ -14,6 +14,19 @@ import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 // boundary instead.
 vi.mock('@placeos/ts-client', { spy: true });
 
+/** `get` typed for plain JSON responses */
+const getJson = () => vi.mocked(get as (url: string) => Promise<unknown>);
+
+/** Spy on the snackbar outlet that `notify*` functions route to */
+function createSnackbarSpy() {
+    return {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
+}
+
 describe('CheckinStateService', () => {
     let spectator: SpectatorService<CheckinStateService>;
     const createService = createServiceFactory({
@@ -26,10 +39,11 @@ describe('CheckinStateService', () => {
     });
 
     beforeEach(() => {
+        vi.clearAllMocks();
         vi.mocked(get).mockImplementation(async (url: string) => {
             if (url.includes('/bookings/')) {
                 return {
-                    id: 'event-1234',
+                    id: url.split('/').pop(),
                     asset_id: 'a@b.com',
                     user_email: 'host@b.com',
                 };
@@ -44,30 +58,93 @@ describe('CheckinStateService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
-    it('should allow loading guest and event details', async () => {
-        // No event_id -> guest without a booking falls through to a query for
-        // the guest's upcoming bookings today.
-        vi.mocked(query).mockResolvedValue({
-            data: [{ date: Date.now(), asset_id: 'a@b.com' }],
-            next: null,
-        } as any);
-        await spectator.service.loadGuestAndEvent('a@b.com');
-        // showGuest -> get on the guest endpoint with the encoded email
-        expect(get).toHaveBeenCalledWith(expect.stringContaining('guests'));
-        // queryAllBookings was used to resolve today's booking
-        expect(query).toHaveBeenCalled();
-        // showBooking was NOT used when no event id is supplied
-        expect(get).not.toHaveBeenCalledWith(
-            expect.stringContaining('event-1234'),
-        );
+    it("uses the guest's own booking without other lookups", async () => {
+        getJson().mockResolvedValueOnce({
+            email: 'a@b.com',
+            booking: { id: 'own-event', user_email: 'own-host@b.com' },
+        });
 
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
-        // showBooking -> get on the bookings endpoint with the event id
-        expect(get).toHaveBeenCalledWith(expect.stringContaining('event-1234'));
+
+        expect(spectator.service.event().id).toBe('own-event');
+        expect(spectator.service.form().host).toBe('own-host@b.com');
+        expect(get).toHaveBeenCalledTimes(1);
+        expect(query).not.toHaveBeenCalled();
+    });
+
+    it('loads the event from the QR code when the guest has no booking', async () => {
+        getJson().mockResolvedValueOnce({
+            email: 'a@b.com',
+            name: 'Visitor',
+        });
+
+        await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
+
+        expect(spectator.service.event().id).toBe('event-1234');
+        expect(spectator.service.form()).toEqual(
+            expect.objectContaining({
+                host: 'host@b.com',
+                name: 'Visitor',
+                email: 'a@b.com',
+            }),
+        );
+    });
+
+    describe('without an event id', () => {
+        const at = (hours: number, minutes = 0) =>
+            new Date(2026, 0, 1, hours, minutes).valueOf();
+
+        beforeEach(() => {
+            vi.useFakeTimers({ toFake: ['Date'] });
+            vi.setSystemTime(at(10));
+        });
+
+        afterEach(() => vi.useRealTimers());
+
+        it("picks the visitor's earliest booking today", async () => {
+            vi.mocked(query).mockResolvedValue({
+                data: [
+                    { id: 'other', date: at(10, 5), asset_id: 'x@b.com' },
+                    { id: 'later', date: at(11), asset_id: 'a@b.com' },
+                    { id: 'hosted', date: at(10, 50), user_email: 'a@b.com' },
+                    { id: 'earliest', date: at(10, 30), asset_id: 'a@b.com' },
+                ],
+                next: null,
+            } as any);
+
+            await spectator.service.loadGuestAndEvent('a@b.com');
+
+            expect(spectator.service.event().id).toBe('earliest');
+        });
+
+        it('rejects when the visitor has no booking today', async () => {
+            vi.mocked(query).mockResolvedValue({
+                data: [
+                    { id: 'tomorrow', date: at(34), asset_id: 'a@b.com' },
+                    { id: 'other', date: at(10, 30), asset_id: 'x@b.com' },
+                ],
+                next: null,
+            } as any);
+
+            await expect(
+                spectator.service.loadGuestAndEvent('a@b.com'),
+            ).rejects.toThrow('APP.VISITOR_KIOSK.NOT_FOUND');
+            expect(spectator.service.event()).toBeNull();
+        });
+    });
+
+    it('keeps only the result of the newest lookup', async () => {
+        let resolveFirst: (value: unknown) => void;
+        vi.mocked(get).mockImplementationOnce(
+            () => new Promise((resolve) => (resolveFirst = resolve)) as any,
+        );
+        const first = spectator.service.loadGuestAndEvent('a@b.com', 'old');
+        await spectator.service.loadGuestAndEvent('a@b.com', 'new');
+
+        resolveFirst({});
+
+        await expect(first).rejects.toThrow('Lookup was replaced.');
+        expect(spectator.service.event().id).toBe('new');
     });
 
     it('only looks up visitors in the kiosk building', async () => {
@@ -103,13 +180,6 @@ describe('CheckinStateService', () => {
         vi.useRealTimers();
     });
 
-    it('should allow updating guests', async () => {
-        await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
-        await spectator.service.updateGuest({ one: true });
-        // updateBooking issues a patch under the hood
-        expect(patch).toHaveBeenCalled();
-    });
-
     it('ignores a guest details save that times out', async () => {
         vi.useFakeTimers();
         const booking = new Booking({
@@ -135,15 +205,21 @@ describe('CheckinStateService', () => {
         vi.useRealTimers();
     });
 
-    it('stores additional guest details on the booking', async () => {
+    it('saves the edited details and extra data to the booking', async () => {
         spectator.service.setBooking(
             new Booking({
                 id: 'event-1234',
                 asset_id: 'a@b.com',
                 user_email: 'host@b.com',
-                extension_data: { existing: true },
+                extension_data: { existing: true, phone: '111' },
             }),
         );
+        spectator.service.form.update((form) => ({
+            ...form,
+            name: 'New Name',
+            email: 'new@b.com',
+            organisation: 'Org',
+        }));
 
         await spectator.service.updateGuest({
             covid: false,
@@ -153,13 +229,28 @@ describe('CheckinStateService', () => {
         expect(patch).toHaveBeenLastCalledWith(
             expect.stringContaining('event-1234'),
             expect.objectContaining({
+                asset_id: 'new@b.com',
+                asset_name: 'New Name',
                 extension_data: expect.objectContaining({
                     existing: true,
+                    phone: '111',
+                    organisation: 'Org',
                     covid: false,
                     symptoms: true,
                 }),
             }),
         );
+    });
+
+    it('does not save details for a self-registered visitor', async () => {
+        spectator.service.setBooking(
+            new Booking({ id: 'event-1234', asset_id: 'a@b.com' }),
+            'registered',
+        );
+
+        await spectator.service.updateGuest();
+
+        expect(patch).not.toHaveBeenCalled();
     });
 
     it('ignores booking actions when no guest is loaded', async () => {
@@ -204,23 +295,32 @@ describe('CheckinStateService', () => {
         );
     });
 
-    it('should allow checking in guests', async () => {
-        await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
+    it('checks in the guest, shows success and clears the registration mark', async () => {
+        const snackbar = createSnackbarSpy();
+        setNotifyOutlet(snackbar as any, true);
+        spectator.service.setBooking(
+            new Booking({ id: 'event-1234', asset_id: 'a@b.com' }),
+            'registered',
+        );
+        vi.mocked(post).mockResolvedValueOnce({ id: 'event-1234' } as any);
+
         await spectator.service.checkinGuest();
-        // checkinBooking issues a post to the check_in endpoint
+
         expect(post).toHaveBeenCalledWith(
-            expect.stringContaining('check_in'),
+            expect.stringMatching(/event-1234\/check_in\?state=true/),
             '',
         );
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'APP.VISITOR_KIOSK.SUCCESS_CHECKIN',
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+        expect(spectator.service.metadata).toBe('');
+        setNotifyOutlet(null, true);
     });
 
     it('shows a plain checkout message when checkout fails', async () => {
-        const snackbar = {
-            open: vi.fn(() => ({
-                onAction: () => ({ subscribe: () => undefined }),
-                dismiss: () => undefined,
-            })),
-        };
+        const snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');

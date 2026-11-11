@@ -16,10 +16,11 @@ import { CateringSelectModalComponent } from '../lib/catering-select-modal/cater
 
 describe('CateringSelectModalComponent', () => {
     let spectator: Spectator<CateringSelectModalComponent>;
+    const settings = createSettingsServiceMock();
     const createComponent = createRoutingFactory({
         component: CateringSelectModalComponent,
         providers: [
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(SettingsService, settings),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
             MockProvider(OrganisationService, {}),
             MockProvider(CateringOrderStateService, {}),
@@ -32,136 +33,147 @@ describe('CateringSelectModalComponent', () => {
         imports: [MatDialogModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => settings.get.mockImplementation(() => undefined));
 
-    it('should treat different option selections as separate items', () => {
-        const item = new CateringItem({ id: '1' });
-        const variant = new CateringItem({
-            id: '1',
-            options: [
-                {
-                    id: 'milk',
-                    name: 'Milk',
-                    group: 'Extras',
-                    multiple: false,
-                    active: true,
-                    unit_price: 100,
-                },
-            ],
-        });
-        spectator.component.setSelected(item, true);
-        expect(spectator.component.selected()).toHaveLength(1);
-        expect(spectator.component.selectionKey(variant)).not.toBe(
-            spectator.component.selectionKey(item),
+    // Allowed range is 15 to 45 minutes: duration 60 less end offset 15
+    it.each([
+        [5, 15],
+        [30, 30],
+        [90, 45],
+    ])('should move a delivery offset of %i to %i', (offset, expected) => {
+        settings.get.mockImplementation(
+            (key: string) =>
+                ({
+                    'app.catering.min_offset': 15,
+                    'app.catering.end_offset': 15,
+                })[key],
         );
-        spectator.component.setSelected(variant, true);
-        expect(spectator.component.selected()).toHaveLength(2);
-    });
-
-    it('should stop treating an item as selected when options change', () => {
-        const item = new CateringItem({
-            id: '1',
-            options: [
+        spectator = createComponent({
+            providers: [
                 {
-                    id: 'milk',
-                    name: 'Milk',
-                    group: 'Extras',
-                    multiple: false,
-                    active: false,
-                    unit_price: 100,
+                    provide: MAT_DIALOG_DATA,
+                    useValue: { details: { duration: 60 }, offset },
                 },
             ],
         });
-        const key = spectator.component.selectionKey(item);
-        item.options[0].active = true;
-        expect(spectator.component.selectionKey(item)).not.toBe(key);
+        expect(spectator.component.offset()).toBe(expected);
     });
 
-    it('should reset the menu item and show the ordered item after adding it', () => {
-        const item = new CateringItem({
-            id: '1',
-            quantity: 3,
-            options: [
-                {
-                    id: 'milk',
-                    name: 'Milk',
-                    group: 'Extras',
-                    multiple: false,
-                    active: true,
-                    unit_price: 100,
-                },
-            ],
+    describe('selection', () => {
+        beforeEach(() => (spectator = createComponent()));
+
+        it('should treat different option selections as separate items', () => {
+            const item = new CateringItem({ id: '1' });
+            const variant = new CateringItem({
+                id: '1',
+                options: [
+                    {
+                        id: 'milk',
+                        name: 'Milk',
+                        group: 'Extras',
+                        multiple: false,
+                        active: true,
+                        unit_price: 100,
+                    },
+                ],
+            });
+            spectator.component.setSelected(item, true);
+            expect(spectator.component.selected()).toHaveLength(1);
+            expect(spectator.component.selectionKey(variant)).not.toBe(
+                spectator.component.selectionKey(item),
+            );
+            spectator.component.setSelected(variant, true);
+            expect(spectator.component.selected()).toHaveLength(2);
         });
-        spectator.component.displayed.set(item);
-        spectator.component.setSelected(item, true);
-        expect(spectator.component.displayed()).not.toBe(item);
-        expect(spectator.component.displayed()?.in_order).toBe(true);
-        expect(spectator.component.displayed()?.quantity).toBe(3);
-        expect(item.in_order).toBe(false);
-        expect(item.quantity).toBe(1);
-        expect(item.options[0].active).toBeUndefined();
-    });
 
-    it('should reset draft quantity before adding the same menu item again', () => {
-        const item = new CateringItem({ id: '1', quantity: 2 });
-        spectator.component.setSelected(item, true);
-        spectator.component.setSelected(item, true);
-        expect(spectator.component.selected()).toHaveLength(1);
-        expect(spectator.component.selected()[0].quantity).toBe(3);
-        expect(item.quantity).toBe(1);
-    });
-
-    it('should clear displayed item when removing the selected ordered item', () => {
-        const item = new CateringItem({ id: '1', quantity: 1, in_order: true });
-        spectator.component.selected.set([item]);
-        spectator.component.displayed.set(item);
-        spectator.component.setSelected(item, false);
-        expect(spectator.component.displayed()).toBeNull();
-        expect(spectator.component.selected()).toHaveLength(0);
-    });
-
-    it('should bind delivery settings into the filter component', () => {
-        spectator.component.exact_time.set(true);
-        spectator.component.offset.set(45);
-        spectator.component.offset_day.set(1);
-        spectator.detectChanges();
-
-        const filters = spectator.query(CateringItemFiltersComponent);
-        expect(filters.at_time).toBe(true);
-        expect(filters.offset).toBe(45);
-        expect(filters.offset_day).toBe(1);
-    });
-
-    it('should keep an ordered item in place when updating its quantity', () => {
-        const first = new CateringItem({
-            id: '1',
-            quantity: 1,
-            in_order: true,
+        it('should reset the menu item and show the ordered item after adding it', () => {
+            const item = new CateringItem({
+                id: '1',
+                quantity: 3,
+                options: [
+                    {
+                        id: 'milk',
+                        name: 'Milk',
+                        group: 'Extras',
+                        multiple: false,
+                        active: true,
+                        unit_price: 100,
+                    },
+                ],
+            });
+            spectator.component.displayed.set(item);
+            spectator.component.setSelected(item, true);
+            expect(spectator.component.displayed()).not.toBe(item);
+            expect(spectator.component.displayed()?.in_order).toBe(true);
+            expect(spectator.component.displayed()?.quantity).toBe(3);
+            expect(item.in_order).toBe(false);
+            expect(item.quantity).toBe(1);
+            expect(item.options[0].active).toBeUndefined();
         });
-        const second = new CateringItem({
-            id: '2',
-            quantity: 2,
-            in_order: true,
-        });
-        const third = new CateringItem({
-            id: '3',
-            quantity: 1,
-            in_order: true,
-        });
-        spectator.component.selected.set([first, second, third]);
-        spectator.component.displayed.set(second);
 
-        spectator.component.setSelected(
-            new CateringItem({ ...second, quantity: 5, in_order: true }),
-            true,
-        );
+        it('should reset draft quantity before adding the same menu item again', () => {
+            const item = new CateringItem({ id: '1', quantity: 2 });
+            spectator.component.setSelected(item, true);
+            spectator.component.setSelected(item, true);
+            expect(spectator.component.selected()).toHaveLength(1);
+            expect(spectator.component.selected()[0].quantity).toBe(3);
+            expect(item.quantity).toBe(1);
+        });
 
-        expect(spectator.component.selected().map((item) => item.id)).toEqual([
-            '1',
-            '2',
-            '3',
-        ]);
-        expect(spectator.component.selected()[1].quantity).toBe(5);
-        expect(spectator.component.displayed()?.id).toBe('2');
+        it('should clear displayed item when removing the selected ordered item', () => {
+            const item = new CateringItem({
+                id: '1',
+                quantity: 1,
+                in_order: true,
+            });
+            spectator.component.selected.set([item]);
+            spectator.component.displayed.set(item);
+            spectator.component.setSelected(item, false);
+            expect(spectator.component.displayed()).toBeNull();
+            expect(spectator.component.selected()).toHaveLength(0);
+        });
+
+        it('should bind delivery settings into the filter component', () => {
+            spectator.component.exact_time.set(true);
+            spectator.component.offset.set(45);
+            spectator.component.offset_day.set(1);
+            spectator.detectChanges();
+
+            const filters = spectator.query(CateringItemFiltersComponent);
+            expect(filters.at_time).toBe(true);
+            expect(filters.offset).toBe(45);
+            expect(filters.offset_day).toBe(1);
+        });
+
+        it('should keep an ordered item in place when updating its quantity', () => {
+            const first = new CateringItem({
+                id: '1',
+                quantity: 1,
+                in_order: true,
+            });
+            const second = new CateringItem({
+                id: '2',
+                quantity: 2,
+                in_order: true,
+            });
+            const third = new CateringItem({
+                id: '3',
+                quantity: 1,
+                in_order: true,
+            });
+            spectator.component.selected.set([first, second, third]);
+            spectator.component.displayed.set(second);
+
+            spectator.component.setSelected(
+                new CateringItem({ ...second, quantity: 5, in_order: true }),
+                true,
+            );
+
+            expect(
+                spectator.component.selected().map((item) => item.id),
+            ).toEqual(['1', '2', '3']);
+            expect(spectator.component.selected()[1].quantity).toBe(5);
+            expect(spectator.component.displayed()?.id).toBe('2');
+        });
     });
 });

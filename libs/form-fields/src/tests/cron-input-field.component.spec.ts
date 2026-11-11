@@ -42,6 +42,25 @@ describe('CronInputFieldComponent', () => {
         expect(on_change).not.toHaveBeenCalled();
     });
 
+    // Each field accepts `*`, steps, ranges and lists within its own bounds
+    it.each([
+        ['minute', ['0', '59', '*/15', '0-30/5', '0,15,30,45'], ['60', '5-', ',5', '1,,2']],
+        ['hour', ['0', '23', '9-17', '*/2', '8,12'], ['24', '-1', '9-24']],
+        ['day', ['1', '31', '1-15', '*/3'], ['0', '32', '00']],
+        ['month', ['1', '12', '1-6', '*/3'], ['0', '13']],
+        ['day_of_week', ['0', '6', '1-5', '0,6'], ['7', '1-7']],
+    ] as const)('should validate the %s field', (field, valid, invalid) => {
+        const control = spectator.component.form.controls[field];
+        for (const value of valid) {
+            control.setValue(value);
+            expect(control.valid, `${field} "${value}"`).toBe(true);
+        }
+        for (const value of invalid) {
+            control.setValue(value);
+            expect(control.valid, `${field} "${value}"`).toBe(false);
+        }
+    });
+
     it('should apply presets and emit the value', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);

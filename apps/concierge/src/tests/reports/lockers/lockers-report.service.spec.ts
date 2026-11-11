@@ -100,10 +100,6 @@ describe('LockersReportService', () => {
         downloads.restore();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should merge local options and delegate them to the shared state', () => {
         spectator.service.setOptions({ start: 1 });
         spectator.service.setOptions({ end: 2 });

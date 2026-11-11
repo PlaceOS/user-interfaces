@@ -37,11 +37,6 @@ describe('RecurringClashModalComponent', () => {
         time_format_signal.set('h:mm a');
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should list the date and time of each clash', () => {
         spectator = createComponent();
         const rows = spectator.queryAll('tbody tr');

@@ -394,7 +394,7 @@ export class PanelViewComponent
         this.listening.set(false);
         this._last_text = '';
         this._spoken = false;
-        this._chat.close();
+        this._closeChat();
     }
 
     public override ngOnDestroy(): void {
@@ -467,7 +467,7 @@ export class PanelViewComponent
                     this._spoken = false;
                     this.timeout(
                         'clean_chat',
-                        () => this._chat.close(),
+                        () => this._closeChat(),
                         15 * 1000,
                     );
                 }
@@ -657,6 +657,12 @@ export class PanelViewComponent
         this._chat.sendMessage(last_text);
         this._previous_message = last_text;
         this.last_text.set('');
+    }
+
+    /** Close the chat session. A new session can repeat the last message */
+    private _closeChat() {
+        this._previous_message = '';
+        this._chat.close();
     }
 
     private _scrollToBottom() {

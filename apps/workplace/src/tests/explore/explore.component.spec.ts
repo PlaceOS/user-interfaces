@@ -37,10 +37,6 @@ describe('ExploreComponent', () => {
         spectator = createComponent();
     });
 
-    it('should create component', () => {
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should place the upcoming booking pill below map controls on mobile', () => {
         upcoming_events.set([
             {

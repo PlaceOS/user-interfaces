@@ -1173,3 +1173,125 @@ describe('canvas expansion', () => {
         expect(row.applied).toBe(false);
     });
 });
+
+describe('structural ops', () => {
+    it('accounts for the group a group op adds and refuses targets that are not siblings', async () => {
+        const grouped = await single({
+            op: 'group',
+            why: '',
+            targets: [{ id: 'plant-1' }, { id: 'plant-2' }],
+            new_id: 'pod-1',
+        });
+        expect(grouped.result.issues).toEqual([]);
+        expect(grouped.result.blocking).toBe(false);
+        expect(grouped.result.element_delta).toBe(1);
+        expect(grouped.result.trial?.byId('pod-1')?.children.length).toBe(2);
+        const group = (targets: string[], new_id?: string) =>
+            single({
+                op: 'group',
+                why: '',
+                targets: targets.map((id) => ({ id })),
+                new_id,
+            });
+        expect((await group(['plant-1', 'bg'])).codes).toEqual(['not_sibling']);
+        expect((await group(['plant-1', 'plant-2'], 'desks')).codes).toEqual([
+            'duplicate_id',
+        ]);
+        expect((await group(['plant-1', 'plant-2'], '1pod')).codes).toEqual([
+            'bad_id',
+        ]);
+    });
+
+    it('accounts for the group an ungroup removes and locks a bound group until unlocked', async () => {
+        const plants = await single({
+            op: 'ungroup',
+            why: '',
+            target: { id: 'plants' },
+        });
+        expect(plants.result.issues).toEqual([]);
+        expect(plants.result.blocking).toBe(false);
+        expect(plants.result.element_delta).toBe(-1);
+        expect(plants.result.trial?.byId('plant-1')?.parentElement).toBe(
+            plants.result.trial?.root,
+        );
+        const bound = await single({
+            op: 'ungroup',
+            why: '',
+            target: { id: 'desks' },
+        });
+        expect(bound.codes).toEqual(['protected_ungroup']);
+        expect(bound.row.issues[0].message).toContain('Desk bank');
+        expect(bound.row.locked).toBe(true);
+        expect(bound.row.applied).toBe(false);
+        const unlocked = await single(
+            { op: 'ungroup', why: '', target: { id: 'desks' } },
+            { unlocked: ['desks'] },
+        );
+        expect(unlocked.row.locked).toBe(false);
+        expect(unlocked.row.applied).toBe(true);
+        expect(
+            (await single({ op: 'ungroup', why: '', target: { id: 'bg' } }))
+                .codes,
+        ).toEqual(['not_group']);
+    });
+
+    it('moves only among siblings with exactly one placement', async () => {
+        const moved = await single({
+            op: 'reorder',
+            why: '',
+            target: { id: 'table-01.003' },
+            position: 'first',
+        });
+        expect(moved.result.issues).toEqual([]);
+        expect(moved.row.applied).toBe(true);
+        expect(
+            (
+                await single({
+                    op: 'reorder',
+                    why: '',
+                    target: { id: 'table-01.003' },
+                    before: { id: 'bg' },
+                })
+            ).codes,
+        ).toEqual(['not_sibling']);
+        const neither = await single({
+            op: 'reorder',
+            why: '',
+            target: { id: 'table-01.003' },
+        });
+        expect(neither.codes).toEqual(['schema']);
+        expect(neither.row.locked).toBe(true);
+    });
+
+    it('checks replacement path data and that the target is a path', async () => {
+        const replaced = await single({
+            op: 'replace_path',
+            why: '',
+            target: { id: 'area-1.02-status' },
+            d: 'M240 20 h100 v100 h-100 z',
+        });
+        expect(replaced.result.issues).toEqual([]);
+        expect(replaced.row.applied).toBe(true);
+        expect(
+            replaced.result.trial?.byId('area-1.02-status')?.getAttribute('d'),
+        ).toBe('M240 20 h100 v100 h-100 z');
+        const broken = await single({
+            op: 'replace_path',
+            why: '',
+            target: { id: 'area-1.02-status' },
+            d: 'M0 0 L10',
+        });
+        expect(broken.codes).toEqual(['bad_path']);
+        expect(broken.row.issues[0].message).toContain('partial');
+        expect(
+            (
+                await single({
+                    op: 'replace_path',
+                    why: '',
+                    target: { id: 'bg' },
+                    d: 'M0 0 L10 10',
+                })
+            ).codes,
+        ).toEqual(['not_path']);
+    });
+});

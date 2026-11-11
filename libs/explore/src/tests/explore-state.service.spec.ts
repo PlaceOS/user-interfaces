@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
@@ -13,6 +14,7 @@ import { MockProvider } from 'ng-mocks';
 describe('ExploreStateService', () => {
     let spectator: SpectatorService<ExploreStateService>;
     const settings_overrides = signal([]);
+    const active_levels = signal([{ id: 'lvl-1' }, { id: 'lvl-2' }]);
     const createService = createServiceFactory({
         service: ExploreStateService,
         providers: [
@@ -28,7 +30,7 @@ describe('ExploreStateService', () => {
                         l.includes(lvl.id),
                     ),
                 ),
-                active_levels: signal([{ id: 'lvl-1' }, { id: 'lvl-2' }]),
+                active_levels,
             } as any),
             MockProvider(SpacesService, {
                 list: of([
@@ -45,11 +47,41 @@ describe('ExploreStateService', () => {
 
     beforeEach(() => {
         settings_overrides.set([]);
+        active_levels.set([{ id: 'lvl-1' }, { id: 'lvl-2' }]);
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
+    it('should select the first active level when the level is not active', () => {
+        TestBed.tick();
+        expect(spectator.service.level()).toEqual({ id: 'lvl-1' });
+
+        // The current level is still active, so keep it
+        active_levels.set([{ id: 'lvl-2' }, { id: 'lvl-1' }]);
+        TestBed.tick();
+        expect(spectator.service.level()).toEqual({ id: 'lvl-1' });
+
+        active_levels.set([{ id: 'lvl-2' }]);
+        TestBed.tick();
+        expect(spectator.service.level()).toEqual({ id: 'lvl-2' });
+    });
+
+    it('should find map items by ID and skip excluded groups', () => {
+        spectator.service.setStyles('spaces', { '#room-1': {} });
+        spectator.service.setFeatures('desks', [{ location: 'desk-1' } as any]);
+        spectator.service.setActions('desks', [{ id: 'desk-1' } as any]);
+        spectator.service.setLabels('zones', [{ location: 'zone-1' } as any]);
+
+        expect(spectator.service.has('style', 'room-1')).toBe(true);
+        expect(spectator.service.has('style', 'room-1', ['spaces'])).toBe(
+            false,
+        );
+        expect(spectator.service.has('feature', 'desk-1')).toBe(true);
+        expect(spectator.service.has('feature', 'desk-1', ['desks'])).toBe(
+            false,
+        );
+        expect(spectator.service.has('action', 'desk-1')).toBe(true);
+        expect(spectator.service.has('label', 'zone-1')).toBe(true);
+        expect(spectator.service.has('label', 'room-1')).toBe(false);
     });
 
     it('should handle changes to map features', async () => {

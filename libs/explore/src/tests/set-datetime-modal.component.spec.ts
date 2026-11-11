@@ -39,11 +39,6 @@ describe('SetDatetimeModalComponent', () => {
         spectator.detectChanges();
     }
 
-    it('should create component', () => {
-        setup();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should use the room booking wording', () => {
         setup();
         expect(spectator.query('header h2')).toContainText(

@@ -1,10 +1,12 @@
 import { CalendarEvent, GuestUser, Space, VERSION } from '@placeos/common';
 import {
     checkinEventGuest,
+    eventSpaceIds,
     MAX_EVENT_PAGES,
     queryAllEvents,
     queryEventListOrThrow,
     queryEvents,
+    querySpaceAvailability,
     saveEvent,
     showEvent,
 } from '../lib/events.fn';
@@ -22,7 +24,6 @@ describe('Event API Methods', () => {
     describe('queryEvents', () => {
         it('should allow calling GET request for listing events', async () => {
             const spy = vi.spyOn(ts_client, 'get');
-            expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue([{}] as any);
             const events = await queryEvents({
                 period_start: 1,
@@ -34,6 +35,15 @@ describe('Event API Methods', () => {
                 `/api/staff/v1/events?period_start=1&period_end=2`,
             );
             spy.mockReset();
+        });
+
+        it('should return an empty list when the request fails', async () => {
+            vi.mocked(ts_client.get).mockRejectedValueOnce(
+                new Error('offline'),
+            );
+            await expect(
+                queryEvents({ period_start: 1, period_end: 2 }),
+            ).resolves.toEqual([]);
         });
     });
 
@@ -98,7 +108,6 @@ describe('Event API Methods', () => {
     describe('showEvent', () => {
         it('should allow calling GET request for a specific event', async () => {
             const spy = vi.spyOn(ts_client, 'get');
-            expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const event = await showEvent('1');
             expect(event).toBeInstanceOf(CalendarEvent);
@@ -109,53 +118,10 @@ describe('Event API Methods', () => {
         });
     });
 
-    // describe('createEvent', () => {
-    //     it('should allow calling POST request for creating a new event', async () => {
-    //         const spy = vi.spyOn(ts_client, 'post');
-    //         expect(spy).not.toHaveBeenCalled();
-    //         spy.mockImplementation(() => of({}) as any);
-    //         const event = await createEvent({}).toPromise();
-    //         expect(event).toBeInstanceOf(CalendarEvent);
-    //         expect(ts_client.post).toHaveBeenCalledWith(
-    //             `/api/staff/v1/events`,
-    //             {}
-    //         );
-    //         spy.mockReset();
-    //     });
-    // });
-
-    // describe('updateEvent', () => {
-    //     it('should allow calling PATCH request for updating an event', async () => {
-    //         const spy = vi.spyOn(ts_client, 'patch');
-    //         expect(spy).not.toHaveBeenCalled();
-    //         spy.mockImplementation(() => of({}) as any);
-    //         const event = await updateEvent('1', {}).toPromise();
-    //         expect(event).toBeInstanceOf(CalendarEvent);
-    //         expect(ts_client.patch).toHaveBeenCalledWith(
-    //             `/api/staff/v1/events/1`,
-    //             new CalendarEvent().toJSON()
-    //         );
-    //         spy.mockReset();
-    //     });
-    //     it('should allow calling PUT request for updating an event', async () => {
-    //         const spy = vi.spyOn(ts_client, 'put');
-    //         expect(spy).not.toHaveBeenCalled();
-    //         spy.mockImplementation(() => of({}) as any);
-    //         const event = await updateEvent('1', {}, {}, 'put').toPromise();
-    //         expect(event).toBeInstanceOf(CalendarEvent);
-    //         expect(ts_client.put).toHaveBeenCalledWith(
-    //             `/api/staff/v1/events/1`,
-    //             new CalendarEvent().toJSON()
-    //         );
-    //         spy.mockReset();
-    //     });
-    // });
-
     describe('saveEvent', () => {
         it('should create new events', async () => {
             const spy = vi.spyOn(ts_client, 'post');
             spy.mockResolvedValue({} as any);
-            expect(ts_client.post).not.toHaveBeenCalled();
             await saveEvent({});
             expect(ts_client.post).toHaveBeenCalledWith(
                 `/api/staff/v1/events`,
@@ -197,7 +163,6 @@ describe('Event API Methods', () => {
         it('should update existing events', async () => {
             const spy = vi.spyOn(ts_client, 'patch');
             spy.mockResolvedValue({} as any);
-            expect(ts_client.patch).not.toHaveBeenCalled();
             await saveEvent({ id: '1' });
             expect(ts_client.patch).toHaveBeenCalledWith(
                 `/api/staff/v1/events/1`,
@@ -210,12 +175,136 @@ describe('Event API Methods', () => {
             );
             spy.mockReset();
         });
+
+        it('should save a whole series to the recurring master', async () => {
+            vi.mocked(ts_client.patch).mockResolvedValue({} as never);
+            await saveEvent({
+                id: 'instance-1',
+                recurring_event_id: 'master-1',
+                update_master: true,
+            });
+            expect(ts_client.patch).toHaveBeenCalledWith(
+                `/api/staff/v1/events/master-1`,
+                expect.objectContaining({ id: 'master-1' }),
+            );
+        });
+    });
+
+    describe('querySpaceAvailability', () => {
+        const start = new Date(2028, 5, 15, 10).valueOf();
+        const own_period: [number, number] = [start, 60];
+        /** Stub the availability and free/busy endpoints. */
+        const mockCalendars = (
+            available: string[],
+            busy: { date: number; duration: number }[] = [],
+        ) =>
+            vi.mocked(ts_client.get).mockImplementation((async (url: string) =>
+                url.includes('/free_busy')
+                    ? [
+                          {
+                              id: 'room-1@test.com',
+                              resource: { id: 'room-1', bookable: true },
+                              availability: busy.map((block) => ({
+                                  ...block,
+                                  status: 'busy',
+                              })),
+                          },
+                      ]
+                    : available.map((id) => ({
+                          id: `${id}@test.com`,
+                          resource: { id },
+                      }))) as unknown as typeof ts_client.get);
+
+        it('should mark rooms that the availability API leaves out as busy', async () => {
+            mockCalendars(['room-2']);
+            await expect(
+                querySpaceAvailability(['room-1', 'room-2'], start, 60),
+            ).resolves.toEqual([false, true]);
+            expect(ts_client.get).not.toHaveBeenCalledWith(
+                expect.stringContaining('/free_busy'),
+            );
+        });
+
+        it('should ignore the edited booking when it is the only busy block', async () => {
+            mockCalendars([], [{ date: start, duration: 60 }]);
+            await expect(
+                querySpaceAvailability(
+                    ['room-1', 'room-2'],
+                    start,
+                    60,
+                    'room-1',
+                    undefined,
+                    own_period,
+                ),
+            ).resolves.toEqual([true, false]);
+        });
+
+        it('should ignore the edited booking in every room of the event', async () => {
+            vi.mocked(ts_client.get).mockImplementation((async (url: string) =>
+                url.includes('/free_busy')
+                    ? ['room-1', 'room-2'].map((id) => ({
+                          id: `${id}@test.com`,
+                          resource: { id, bookable: true },
+                          availability: [
+                              { date: start, duration: 60, status: 'busy' },
+                          ],
+                      }))
+                    : []) as unknown as typeof ts_client.get);
+            await expect(
+                querySpaceAvailability(
+                    ['room-1', 'room-2'],
+                    start,
+                    60,
+                    ['room-1', 'room-2'],
+                    undefined,
+                    own_period,
+                ),
+            ).resolves.toEqual([true, true]);
+        });
+
+        it('should keep a room busy when another booking overlaps the edited one', async () => {
+            mockCalendars(
+                [],
+                [
+                    { date: start, duration: 60 },
+                    { date: start + 30 * 60 * 1000, duration: 60 },
+                ],
+            );
+            await expect(
+                querySpaceAvailability(
+                    ['room-1'],
+                    start,
+                    60,
+                    'room-1',
+                    undefined,
+                    own_period,
+                ),
+            ).resolves.toEqual([false]);
+        });
+    });
+
+    it('should list every room of an event, or fall back to its system', () => {
+        expect(
+            eventSpaceIds(
+                new CalendarEvent({
+                    resources: [
+                        { id: 'room-1', email: 'room-1@test.com' },
+                        { id: 'room-2', email: 'room-2@test.com' },
+                    ] as any,
+                }),
+            ),
+        ).toEqual(['room-1', 'room-2']);
+        expect(
+            eventSpaceIds(
+                new CalendarEvent({ system: { id: 'sys-1' } } as any),
+            ),
+        ).toEqual(['sys-1']);
+        expect(eventSpaceIds(undefined)).toEqual([]);
     });
 
     describe('checkinEventGuests', () => {
         it('should allow calling POST request for checking in an event guest', async () => {
             const spy = vi.spyOn(ts_client, 'post');
-            expect(spy).not.toHaveBeenCalled();
             spy.mockResolvedValue({} as any);
             const guest = await checkinEventGuest('1', 'guest-1', true);
             expect(guest).toBeInstanceOf(GuestUser);

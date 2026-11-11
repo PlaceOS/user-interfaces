@@ -84,12 +84,6 @@ describe('AppComponent', () => {
         expect(placeos.setInitialToken).not.toHaveBeenCalled();
     });
 
-    it('should expose chat state from settings', () => {
-        expect(spectator.component.has_chat()).toBe(false);
-        settingSignal<boolean>('chat.enabled', false).set(true);
-        expect(spectator.component.has_chat()).toBe(true);
-    });
-
     it('should render the chat component only when chat is enabled', async () => {
         spectator.detectChanges();
         expect(spectator.query('global-chat')).toBeFalsy();

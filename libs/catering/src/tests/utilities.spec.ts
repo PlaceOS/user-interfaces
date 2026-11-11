@@ -22,52 +22,19 @@ const makeEvent = (overrides: Record<string, unknown> = {}) =>
 describe('catering utilities', () => {
     beforeEach(() => vi.clearAllMocks());
 
-    describe('getCateringRulesForZone', () => {
-        it('should resolve empty for missing zone id', async () => {
-            const rules = await getCateringRulesForZone('');
-            expect(rules).toEqual([]);
-            expect(ts_client.showMetadata).not.toHaveBeenCalled();
-        });
-
-        it('should return the rules from zone metadata', async () => {
-            const details = [{ name: '*', rules: [] }];
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details,
-            } as any);
-            const rules = await getCateringRulesForZone('zone-a');
-            expect(rules).toEqual(details);
-            expect(ts_client.showMetadata).toHaveBeenCalledWith(
-                'zone-a',
-                'catering_config',
-            );
-        });
-
-        it('should cache requests per zone', async () => {
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details: [],
-            } as any);
-            await getCateringRulesForZone('zone-b');
-            await getCateringRulesForZone('zone-b');
-            expect(ts_client.showMetadata).toHaveBeenCalledTimes(1);
-            await getCateringRulesForZone('zone-b', true);
-            expect(ts_client.showMetadata).toHaveBeenCalledTimes(2);
-        });
-
-        it('should resolve empty when metadata request fails', async () => {
-            vi.mocked(ts_client.showMetadata).mockRejectedValue(
-                new Error('nope'),
-            );
-            const rules = await getCateringRulesForZone('zone-c');
-            expect(rules).toEqual([]);
-        });
-
-        it('should coerce non-array details to empty', async () => {
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details: { not: 'an array' },
-            } as any);
-            const rules = await getCateringRulesForZone('zone-d');
-            expect(rules).toEqual([]);
-        });
+    // Caching and error handling are tested with zoneRulesetLoader in components
+    it('should load rules from the catering config of the zone', async () => {
+        const details = [{ name: '*', rules: [] }];
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details,
+        } as any);
+        await expect(getCateringRulesForZone('zone-a')).resolves.toEqual(
+            details,
+        );
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'zone-a',
+            'catering_config',
+        );
     });
 
     describe('cateringItemAvailable', () => {
@@ -90,24 +57,36 @@ describe('catering utilities', () => {
                 { name: '*', rules: [['min_length', 1]] },
             ] as unknown as AttachedResourceRuleset[];
             expect(
-                cateringItemAvailable(item, passing, makeEvent({ duration: 120 })),
+                cateringItemAvailable(
+                    item,
+                    passing,
+                    makeEvent({ duration: 120 }),
+                ),
             ).toBe(true);
             const failing = [
                 { name: '*', rules: [['min_length', 3]] },
             ] as unknown as AttachedResourceRuleset[];
             expect(
-                cateringItemAvailable(item, failing, makeEvent({ duration: 120 })),
+                cateringItemAvailable(
+                    item,
+                    failing,
+                    makeEvent({ duration: 120 }),
+                ),
             ).toBe(false);
         });
 
         it('should match rules by item category', () => {
             const item = new CateringItem({ category: 'Drinks' });
             const rules = [
-                { name: 'Drinks', rules: [['max_length', 3]] },
+                { name: 'Drinks', rules: [['max_length', 1]] },
             ] as unknown as AttachedResourceRuleset[];
             expect(
-                cateringItemAvailable(item, rules, makeEvent({ duration: 120 })),
-            ).toBe(true);
+                cateringItemAvailable(
+                    item,
+                    rules,
+                    makeEvent({ duration: 120 }),
+                ),
+            ).toBe(false);
         });
 
         it('should match rules by item tag', () => {
@@ -116,7 +95,11 @@ describe('catering utilities', () => {
                 { name: 'Hot', rules: [['min_length', 5]] },
             ] as unknown as AttachedResourceRuleset[];
             expect(
-                cateringItemAvailable(item, rules, makeEvent({ duration: 120 })),
+                cateringItemAvailable(
+                    item,
+                    rules,
+                    makeEvent({ duration: 120 }),
+                ),
             ).toBe(false);
         });
 
@@ -126,10 +109,72 @@ describe('catering utilities', () => {
                 { name: 'Drinks', rules: [['visitor_type', 'VIP']] },
             ] as AttachedResourceRuleset[];
             const vip_event = makeEvent({
-                ext: (key: string) => (key === 'visitor_type' ? 'VIP' : undefined),
+                ext: (key: string) =>
+                    key === 'visitor_type' ? 'VIP' : undefined,
             });
             expect(cateringItemAvailable(item, rules, vip_event)).toBe(true);
             expect(cateringItemAvailable(item, rules, makeEvent())).toBe(false);
+        });
+
+        it('should match rules by a zone of the event room', () => {
+            const item = new CateringItem({ category: 'Drinks' });
+            const rules = [
+                { name: 'level-1', rules: [['min_length', 5]] },
+            ] as unknown as AttachedResourceRuleset[];
+            const room = (zones: string[]) =>
+                makeEvent({ resources: [{ zones }], duration: 120 });
+            expect(cateringItemAvailable(item, rules, room(['level-1']))).toBe(
+                false,
+            );
+            expect(cateringItemAvailable(item, rules, room(['level-2']))).toBe(
+                true,
+            );
+        });
+
+        it('should check how far ahead the order is made', () => {
+            const item = new CateringItem({ category: 'Drinks' });
+            const hours = (count: number) =>
+                makeEvent({ date: Date.now() + count * 60 * 60 * 1000 });
+            const rule = (type: string) =>
+                [
+                    { name: '*', rules: [[type, 24]] },
+                ] as unknown as AttachedResourceRuleset[];
+
+            expect(
+                cateringItemAvailable(item, rule('is_before'), hours(48)),
+            ).toBe(true);
+            expect(
+                cateringItemAvailable(item, rule('is_before'), hours(12)),
+            ).toBe(false);
+            expect(
+                cateringItemAvailable(item, rule('within_hours'), hours(12)),
+            ).toBe(true);
+            expect(
+                cateringItemAvailable(item, rule('within_hours'), hours(48)),
+            ).toBe(false);
+        });
+
+        it('should check the hour of day of the event', () => {
+            const item = new CateringItem({ category: 'Drinks' });
+            const at = (hour: number) =>
+                makeEvent({ date: new Date(2026, 0, 1, hour).valueOf() });
+            const rule = (type: string, hour: number) =>
+                [
+                    { name: '*', rules: [[type, hour]] },
+                ] as unknown as AttachedResourceRuleset[];
+
+            expect(
+                cateringItemAvailable(item, rule('after_hour', 10), at(11)),
+            ).toBe(true);
+            expect(
+                cateringItemAvailable(item, rule('after_hour', 10), at(9)),
+            ).toBe(false);
+            expect(
+                cateringItemAvailable(item, rule('before_hour', 12), at(9)),
+            ).toBe(true);
+            expect(
+                cateringItemAvailable(item, rule('before_hour', 12), at(13)),
+            ).toBe(false);
         });
 
         it('should require all rules in a matched ruleset to pass', () => {
@@ -144,7 +189,11 @@ describe('catering utilities', () => {
                 },
             ] as unknown as AttachedResourceRuleset[];
             expect(
-                cateringItemAvailable(item, rules, makeEvent({ duration: 120 })),
+                cateringItemAvailable(
+                    item,
+                    rules,
+                    makeEvent({ duration: 120 }),
+                ),
             ).toBe(false);
         });
     });

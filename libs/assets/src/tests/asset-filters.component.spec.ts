@@ -13,8 +13,6 @@ import { AssetStateService } from '../lib/asset-state.service';
 describe('AssetFiltersComponent', () => {
     let spectator: Spectator<AssetFiltersComponent>;
     let state_options: { date: number; duration: number };
-    const set_search = vi.fn();
-    const toggle_category = vi.fn();
     const category_list = signal<{ id: string; name: string }[]>([]);
     const options = signal<any>({});
 
@@ -32,15 +30,11 @@ describe('AssetFiltersComponent', () => {
                 category_list: category_list,
                 options: options,
                 getOptions: () => state_options,
-                setSearch: set_search,
-                toggleCategory: toggle_category,
             }),
         ],
     });
 
     beforeEach(() => {
-        set_search.mockClear();
-        toggle_category.mockClear();
         state_options = {
             date: new Date('2026-04-01T09:00:00').valueOf(),
             duration: 60,
@@ -59,16 +53,6 @@ describe('AssetFiltersComponent', () => {
         expect(spectator.queryAll('settings-toggle')).toHaveLength(3);
     });
 
-    it('should delegate search changes to the state service', () => {
-        spectator.component.setSearch('projector');
-        expect(set_search).toHaveBeenCalledWith('projector');
-    });
-
-    it('should delegate category toggles to the state service', () => {
-        spectator.component.toggleCategory('cat-1');
-        expect(toggle_category).toHaveBeenCalledWith('cat-1');
-    });
-
     it('should not generate day options for single-day durations', () => {
         spectator.detectChanges();
         TestBed.tick();
@@ -85,6 +69,21 @@ describe('AssetFiltersComponent', () => {
         TestBed.tick();
 
         expect(spectator.component.day_options().length).toBeGreaterThan(1);
+    });
+
+    it('should limit the delivery time to the booking and the selected day', () => {
+        spectator.detectChanges();
+        expect(spectator.component.max_offset()).toBe(60);
+
+        spectator.setInput('search', true);
+        state_options.duration = 3 * 24 * 60;
+        options.set({ ...state_options });
+        TestBed.tick();
+        // 09:00 to the end of the first day
+        expect(spectator.component.max_offset()).toBe(14 * 60 + 59);
+
+        spectator.component.offset_day.set(1);
+        expect(spectator.component.max_offset()).toBe(24 * 60 - 1);
     });
 
     it('should ignore the minimum offset once a later day is selected', () => {

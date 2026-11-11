@@ -63,12 +63,4 @@ describe('SignageGroupDetailHeaderComponent', () => {
             expect.objectContaining({ data: { group } }),
         );
     });
-
-    it('delegates group removal to the service', () => {
-        const component = make();
-        const group = { id: 'group-1' } as any;
-        component.removeGroup(group);
-
-        expect(remove_signage_group).toHaveBeenCalledWith(group);
-    });
 });

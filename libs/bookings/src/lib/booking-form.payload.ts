@@ -93,7 +93,8 @@ export function buildBookingExtensionData(
                   requires_manual_approval: !!value.requires_manual_approval,
                   user_groups: [
                       ...(value.user &&
-                      value.user.email !== currentUser()?.email
+                      value.user.email?.toLowerCase() !==
+                          currentUser()?.email?.toLowerCase()
                           ? value.user.groups || []
                           : currentUser()?.groups || []),
                   ],

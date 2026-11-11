@@ -30,10 +30,9 @@ describe('PublicEventDetailsComponent', () => {
     }
 
     function backLink(fixture: ComponentFixture<PublicEventDetailsComponent>) {
-        return Array.from(
-            fixture.nativeElement.querySelectorAll('a'),
-        ).find((anchor) =>
-            (anchor as HTMLElement).textContent?.includes('Back to events'),
+        return Array.from(fixture.nativeElement.querySelectorAll('a')).find(
+            (anchor) =>
+                (anchor as HTMLElement).textContent?.includes('Back to events'),
         ) as HTMLAnchorElement | undefined;
     }
 
@@ -47,20 +46,26 @@ describe('PublicEventDetailsComponent', () => {
         expect(backLink(fixture)).toBeUndefined();
     });
 
-    it('renders the event title, location and description html', () => {
+    it('renders the event title, location and sanitised description html', () => {
         const fixture = create({
             event: {
                 id: 'e1',
                 title: 'Rooftop Mixer',
                 location: 'Level 10 Terrace',
-                description: '<b>Great</b> event',
+                description:
+                    '<b>Great</b> event<img src="x" onerror="alert(1)"><script>alert(2)</script>',
             },
         });
         expect(fixture.nativeElement.textContent).toContain('Rooftop Mixer');
         expect(fixture.nativeElement.textContent).toContain('Level 10 Terrace');
-        const description =
+        const description: HTMLElement =
             fixture.nativeElement.querySelector('.event-description');
-        expect(description?.innerHTML).toContain('<b>Great</b> event');
+        expect(description.innerHTML).toContain('<b>Great</b> event');
+        // The description comes from the event organiser, so handlers and scripts must not run
+        expect(description.querySelector('img')?.hasAttribute('onerror')).toBe(
+            false,
+        );
+        expect(description.querySelector('script')).toBeNull();
     });
 
     it('shows the confirmation message once registered', () => {

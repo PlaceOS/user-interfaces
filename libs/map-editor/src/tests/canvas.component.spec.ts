@@ -10,6 +10,19 @@ import { ProtectedIdSet } from '../lib/protected-ids';
 import { MapEditorSession } from '../lib/session';
 import { anchor, OFFICE } from './fixtures';
 
+/** Records like RecordingNotifier, with an answer a test can change. */
+class AnsweringNotifier extends RecordingNotifier {
+    public answer = true;
+
+    public override async confirm(
+        title: string,
+        message: string,
+    ): Promise<boolean> {
+        await super.confirm(title, message);
+        return this.answer;
+    }
+}
+
 @Component({
     imports: [MapEditorComponent],
     template: `
@@ -25,7 +38,7 @@ import { anchor, OFFICE } from './fixtures';
 })
 class HostComponent {
     public saves = 0;
-    public readonly notifier = new RecordingNotifier(true);
+    public readonly notifier = new AnsweringNotifier();
     public readonly session = new MapEditorSession(
         MapDocument.load(OFFICE, { geometry: new AttributeGeometryProvider() }),
         {
@@ -331,6 +344,48 @@ describe('MapEditorComponent', () => {
         expect(host.notifier.confirms.length).toBe(1);
         expect(host.notifier.confirms[0].message).toContain('Desk 1');
         expect(doc.byId('table-01.001')).toBeNull();
+    });
+
+    it('keeps a bound element when the delete is declined', async () => {
+        host.notifier.answer = false;
+        const doc = host.session.doc;
+        host.session.select([anchor(doc, 'table-01.001')]);
+        key(viewport, { key: 'Delete' });
+        await settle(fixture);
+        expect(host.notifier.confirms.length).toBe(1);
+        expect(doc.byId('table-01.001')).not.toBeNull();
+        expect(host.session.history.length).toBe(0);
+    });
+
+    it('asks before renaming a bound id and puts the field back on a decline or a rejection', async () => {
+        host.notifier.answer = false;
+        const doc = host.session.doc;
+        host.session.select([anchor(doc, 'table-01.001')]);
+        await settle(fixture);
+        const strip: HTMLElement = fixture.nativeElement.querySelector(
+            'map-editor-properties',
+        );
+        const id_input = () =>
+            strip.querySelector('label.field input.text') as HTMLInputElement;
+        id_input().value = 'table-01.009';
+        id_input().dispatchEvent(new Event('change', { bubbles: true }));
+        await settle(fixture);
+        expect(host.notifier.confirms[0].message).toContain('table-01.001');
+        expect(doc.byId('table-01.001')).not.toBeNull();
+        expect(id_input().value).toBe('table-01.001');
+
+        host.session.select([anchor(doc, 'plant-1')]);
+        await settle(fixture);
+        id_input().value = '9plant';
+        id_input().dispatchEvent(new Event('change', { bubbles: true }));
+        await settle(fixture);
+        expect(host.notifier.confirms.length).toBe(1);
+        expect(doc.byId('plant-1')).not.toBeNull();
+        expect(id_input().value).toBe('plant-1');
+        expect(host.notifier.notices).toEqual([
+            { kind: 'error', message: expect.stringContaining('9plant') },
+        ]);
+        expect(host.session.history.length).toBe(0);
     });
 
     it('undoes and redoes from the keyboard and keeps the swapped root mounted', async () => {

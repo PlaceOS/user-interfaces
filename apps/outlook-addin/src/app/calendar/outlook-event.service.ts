@@ -111,9 +111,12 @@ export class OutlookEventService extends AsyncHandler {
             return event;
         } catch (error) {
             log('Outlook', 'Unable to read the Outlook event', error, 'warn');
-            this._error.set(
-                errorMessage(error) || 'Unable to read the Outlook event.',
-            );
+            // A newer refresh owns the state. Do not show an old failure.
+            if (count === this._refresh_count) {
+                this._error.set(
+                    errorMessage(error) || 'Unable to read the Outlook event.',
+                );
+            }
             return null;
         } finally {
             if (count === this._refresh_count) this._loading.set(false);

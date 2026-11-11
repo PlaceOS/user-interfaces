@@ -104,10 +104,6 @@ describe('AssetsReportService', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should merge partial options without dropping existing values', () => {
         spectator.service.setOptions({ start: 1 });
         spectator.service.setOptions({ end: 2 });

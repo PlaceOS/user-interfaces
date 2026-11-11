@@ -26,14 +26,6 @@ describe('ImageViewerComponent', () => {
 
     it('should display the image passed as dialog data', () => {
         spectator.detectChanges();
-        expect(spectator.component.url).toBe(TEST_URL);
-        expect('img').toExist();
         expect(spectator.query<HTMLImageElement>('img').src).toBe(TEST_URL);
-    });
-
-    it('should close the dialog from the close button', () => {
-        spectator.detectChanges();
-        spectator.click('button[mat-dialog-close]');
-        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
 });

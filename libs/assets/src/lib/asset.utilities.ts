@@ -137,7 +137,7 @@ export function assetAvailable(
 
     const isRuleMatch = (rule: AttachedResourceRuleset): boolean =>
         item.name === rule.name ||
-        item.category?.name.includes(rule.name) ||
+        item.category?.name?.includes(rule.name) ||
         event.resources?.some((resource) =>
             resource.zones?.includes(rule.name),
         ) ||
