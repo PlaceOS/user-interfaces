@@ -294,7 +294,7 @@ These settings override the matching `bookings.*` settings for visitor invites.
 | `parking.request_shift_options` | object[] | – | Shift presets shown in the parking request flow (see example below). The custom shift option is always shown separately. |
 | `parking.request_types` | object[] | standard, special, after_hours | Request type options shown in the parking request flow (see example below). |
 | `parking.request_space_restrictions` | object[] | – | Space restriction options shown as a radio set in the parking request flow. If the list is empty, the field is hidden. Each item needs an `id` and a `name`. |
-| `parking.require_space_restriction` | boolean | `true` | Require users to select a configured space restriction in the parking request flow. |
+| `parking.require_space_restriction` | boolean | `true` | Require users to select a configured space restriction in the parking request flow. Has no effect when `parking.request_space_restrictions` is empty. |
 | `parking.extra_space_restrictions` | object[] | – | Additional space restriction options shown as on/off toggles; multiple can be enabled at once. Each item needs an `id` and a `name` (label or translation key). |
 | `parking.auto_approved_groups` | string[] | – | User group names that are auto-approved for parking requests. Users in these groups will not see the approver group selector. |
 | `parking.approver_groups` | object[] | `[]` | Approver options for parking requests. Each option needs an `id` and a `name`. A request type can restrict this list with its `approver_groups` array of IDs. |

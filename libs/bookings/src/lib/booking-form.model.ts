@@ -274,6 +274,17 @@ export function generateBookingForm(
         'parking.require_space_restriction',
         false,
     );
+    const space_restriction_options = settingSignal<{ id?: string }[]>(
+        'parking.request_space_restrictions',
+        [],
+    );
+    // The parking request form hides the restriction choice when no option
+    // has an `id`, so a restriction is required only when one can be picked.
+    const space_restriction_required = computed(
+        () =>
+            !!require_space_restriction() &&
+            (space_restriction_options() || []).some((_) => !!_?.id),
+    );
     const require_visitor_reason = settingSignal<boolean>(
         'visitors.reason_required',
         false,
@@ -326,7 +337,7 @@ export function generateBookingForm(
             );
             validate(p.space_restrictions, ({ value, valueOf }) =>
                 valueOf(p.booking_type) === 'parking' &&
-                require_space_restriction() &&
+                space_restriction_required() &&
                 !value()
                     ? { kind: 'required' }
                     : undefined,
