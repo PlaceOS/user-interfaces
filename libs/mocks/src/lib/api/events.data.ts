@@ -7,6 +7,7 @@ import {
     setMinutes,
     startOfDay,
 } from 'date-fns';
+import { mockEventCatering } from './catering.data';
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
@@ -493,12 +494,14 @@ export const MOCK_EVENTS = (() => {
         }
     }
 
-    // Remove duplicates (keep the first event for each id) and sort by time.
+    // Remove duplicates (keep the first event for each id), add catering
+    // orders and sort by time.
     // This runs on every app load, so it uses a set, not a search per event.
     const seen = new Set<string>();
     const uniqueEvents = events.filter((event) => {
         if (seen.has(event.id)) return false;
         seen.add(event.id);
+        event.extension_data.catering = mockEventCatering(event);
         return true;
     });
 
