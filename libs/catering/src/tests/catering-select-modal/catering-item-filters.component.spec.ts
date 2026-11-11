@@ -7,7 +7,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
-import { addDays, addMinutes, startOfDay } from 'date-fns';
+import { addDays, startOfDay } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
@@ -30,6 +30,7 @@ describe('CateringItemFiltersComponent', () => {
     const getFilters = vi.fn(() => ({ ...filters() }));
     const categories = signal<string[]>(['Drinks', 'Snacks']);
     const caterers = signal<string[]>(['Cafe']);
+    const settings = createSettingsServiceMock();
 
     const createComponent = createComponentFactory({
         component: CateringItemFiltersComponent,
@@ -46,7 +47,7 @@ describe('CateringItemFiltersComponent', () => {
                 categories,
                 caterers,
             }),
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            MockProvider(SettingsService, settings),
         ],
         imports: [
             FormsModule,
@@ -67,6 +68,7 @@ describe('CateringItemFiltersComponent', () => {
         });
         setFilters.mockClear();
         getFilters.mockClear();
+        settings.get.mockImplementation(() => undefined);
         spectator = createComponent();
     });
 
@@ -109,18 +111,26 @@ describe('CateringItemFiltersComponent', () => {
         );
     });
 
-    it('should force the minimum offset to zero on later days', () => {
-        spectator.component.offset_day.set(0);
-        const first_day_min = spectator.component.min_offset();
+    it('should only apply the minimum offset on the first day', () => {
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.catering.min_offset' ? 15 : undefined,
+        );
+        spectator.component.ngOnInit();
+        expect(spectator.component.min_offset()).toBe(15);
         spectator.component.offset_day.set(1);
         expect(spectator.component.min_offset()).toBe(0);
-        expect(first_day_min).toBe(0);
     });
 
-    it('should cap the maximum offset to the event duration', () => {
+    it('should end delivery the end offset before the event ends', () => {
+        settings.get.mockImplementation((key: string) =>
+            key === 'app.catering.end_offset' ? 30 : undefined,
+        );
         spectator.component.ngOnInit();
-        const end = Math.min(addMinutes(base_date, 120).valueOf());
-        expect(spectator.component.max_offset()).toBeLessThanOrEqual(120);
-        expect(end).toBeGreaterThan(base_date);
+        expect(spectator.component.max_offset()).toBe(90);
+
+        // Short events still allow 15 minutes
+        filters.set({ ...filters(), duration: 30 });
+        spectator.component.ngOnInit();
+        expect(spectator.component.max_offset()).toBe(15);
     });
 });

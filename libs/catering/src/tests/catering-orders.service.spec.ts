@@ -58,28 +58,39 @@ describe('CateringOrdersService', () => {
         await flush();
     };
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
+    /** Run one poll of the orders, then wait for the load */
+    const pollOrders = async () => {
+        spectator.service.startPolling(10);
+        await new Promise((resolve) => setTimeout(resolve, 30));
+        spectator.service.stopPolling();
+        TestBed.tick();
+        await flush();
+    };
 
-    it('should expose an empty order list before polling', () => {
-        expect(spectator.service.orders()).toEqual([]);
-        expect(spectator.service.loading()).toBe(false);
-    });
+    /** Put orders in the list without a load from the server */
+    const setOrders = (orders: CateringOrder[]) =>
+        (
+            spectator.service as unknown as {
+                _orders: WritableSignal<CateringOrder[]>;
+            }
+        )._orders.set(orders);
 
-    it('should register and tear down a polling interval', () => {
-        const stop = spectator.service.startPolling(1000);
-        expect(typeof stop).toBe('function');
-        // Calling the returned stop function clears the polling interval
-        stop();
-        // Direct stopPolling is idempotent and safe to call again
-        expect(() => spectator.service.stopPolling()).not.toThrow();
-    });
+    const ids = (orders: readonly CateringOrder[]) => orders.map((o) => o.id);
 
-    it('should update filters via the setter', () => {
-        spectator.service.filters = { caterer: 'Acme' };
-        expect(spectator.service.filters.caterer).toBe('Acme');
-        expect(spectator.service.order_filters().caterer).toBe('Acme');
+    /** 9am on the day that the load tests show */
+    const DAY = new Date(2026, 0, 1, 9).valueOf();
+
+    /** Event data from the API with one coffee in each order */
+    const apiEvent = (id: string, order_ids: string[], start = DAY) => ({
+        id,
+        event_start: start / 1000,
+        event_end: start / 1000 + 60 * 60,
+        extension_data: {
+            catering: order_ids.map((order_id) => ({
+                id: order_id,
+                items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+            })),
+        },
     });
 
     it('should use the assigned room for order metadata', () => {
@@ -128,26 +139,6 @@ describe('CateringOrdersService', () => {
         });
 
         expect(cateringOrderSystemId(order)).toBe('room-1');
-    });
-
-    it('should filter orders that have no resolvable room or location', () => {
-        const order = new CateringOrder({
-            id: 'order-1',
-            items: [
-                new CateringItem({
-                    id: 'coffee',
-                    name: 'Coffee',
-                    quantity: 1,
-                }),
-            ],
-        });
-        (
-            spectator.service as unknown as {
-                _orders: WritableSignal<CateringOrder[]>;
-            }
-        )._orders.set([order]);
-
-        expect(spectator.service.filtered()).toEqual([order]);
     });
 
     it('should flag a failed load instead of showing an empty day', async () => {
@@ -202,11 +193,7 @@ describe('CateringOrdersService', () => {
                 status,
                 items: [new CateringItem({ name: 'Coffee', quantity: 1 })],
             });
-        (
-            spectator.service as unknown as {
-                _orders: WritableSignal<CateringOrder[]>;
-            }
-        )._orders.set([order('1', 'ready'), order('2', 'delivered')]);
+        setOrders([order('1', 'ready'), order('2', 'delivered')]);
 
         spectator.service.filters = { status: 'active' };
 
@@ -226,11 +213,7 @@ describe('CateringOrdersService', () => {
             notes: 'Nut allergy',
             items: [new CateringItem({ name: 'Coffee', quantity: 1 })],
         });
-        (
-            spectator.service as unknown as {
-                _orders: WritableSignal<CateringOrder[]>;
-            }
-        )._orders.set([order]);
+        setOrders([order]);
 
         spectator.service.filters = { search: 'cc-42' };
         expect(spectator.service.filtered()).toEqual([order]);
@@ -287,33 +270,130 @@ describe('CateringOrdersService', () => {
     it('should report orders added since the previous poll', async () => {
         const changes = vi.fn();
         spectator.service.order_changes.subscribe(changes);
-        const event = (id: string, order_id: string) => ({
-            id,
-            event_start: Math.floor(Date.now() / 1000),
-            extension_data: {
-                catering: [
-                    {
-                        id: order_id,
-                        items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
-                    },
-                ],
-            },
-        });
-        vi.mocked(ts_client.get).mockResolvedValue([event('e1', 'o1')] as any);
+        spectator.service.filters = { date: DAY };
+        vi.mocked(ts_client.get).mockResolvedValue([
+            apiEvent('e1', ['o1']),
+        ] as any);
         await loadOrders();
         expect(changes).not.toHaveBeenCalled();
 
         vi.mocked(ts_client.get).mockResolvedValue([
-            event('e1', 'o1'),
-            event('e2', 'o2'),
+            apiEvent('e1', ['o1']),
+            apiEvent('e2', ['o2']),
         ] as any);
-        spectator.service.startPolling(10);
-        await new Promise((resolve) => setTimeout(resolve, 30));
-        TestBed.tick();
-        await flush();
-        spectator.service.stopPolling();
+        await pollOrders();
 
         expect(changes).toHaveBeenCalledTimes(1);
-        expect(changes.mock.calls[0][0].added.map((o) => o.id)).toEqual(['o2']);
+        expect(ids(changes.mock.calls[0][0].added)).toEqual(['o2']);
+    });
+
+    it('should keep each order of the shown day once', async () => {
+        spectator.service.filters = { date: DAY };
+        const next_day = DAY + 24 * 60 * 60 * 1000;
+        vi.mocked(ts_client.get).mockResolvedValue([
+            apiEvent('e1', ['o1']),
+            apiEvent('e2', ['o1']),
+            apiEvent('e3', ['o2'], next_day),
+        ] as any);
+
+        await loadOrders();
+
+        expect(ids(spectator.service.orders())).toEqual(['o1']);
+    });
+
+    it('should keep the list after a failed poll, and clear it for a new day', async () => {
+        spectator.service.filters = { date: DAY };
+        vi.mocked(ts_client.get).mockResolvedValue([
+            apiEvent('e1', ['o1']),
+        ] as any);
+        await loadOrders();
+
+        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        await pollOrders();
+        expect(spectator.service.load_error()).toBe(true);
+        expect(ids(spectator.service.orders())).toEqual(['o1']);
+
+        spectator.service.filters = { date: DAY + 24 * 60 * 60 * 1000 };
+        TestBed.tick();
+        await flush();
+        expect(spectator.service.orders()).toEqual([]);
+    });
+
+    it('should ignore a slow response from an older load', async () => {
+        let resolveOld: (events: unknown[]) => void = () => undefined;
+        vi.mocked(ts_client.get).mockReturnValueOnce(
+            new Promise((resolve) => (resolveOld = resolve)) as any,
+        );
+        spectator.service.filters = { date: DAY };
+        await loadOrders();
+
+        const next_day = DAY + 24 * 60 * 60 * 1000;
+        vi.mocked(ts_client.get).mockResolvedValueOnce([
+            apiEvent('e2', ['new'], next_day),
+        ] as any);
+        spectator.service.filters = { date: next_day };
+        TestBed.tick();
+        await flush();
+
+        resolveOld([apiEvent('e1', ['old'])]);
+        await flush();
+
+        expect(ids(spectator.service.orders())).toEqual(['new']);
+        expect(spectator.service.loading()).toBe(false);
+    });
+
+    it('should save the new status into the event catering list', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue({} as any);
+        vi.mocked(ts_client.patch).mockResolvedValue({} as any);
+        const event = new CalendarEvent({
+            id: 'event-1',
+            extension_data: {
+                catering: [
+                    new CateringOrder({ id: 'o1', status: 'accepted' }),
+                    new CateringOrder({ id: 'o2', status: 'accepted' }),
+                ],
+            },
+        });
+        const order = new CateringOrder({
+            id: 'o1',
+            system_id: 'room-1',
+            status: 'accepted',
+            event,
+        });
+
+        await spectator.service.updateStatus(order, 'ready');
+
+        const [url, metadata] = vi.mocked(ts_client.patch).mock.calls[0];
+        expect(url).toContain('/event-1/metadata/room-1');
+        const saved = (metadata as { catering: CateringOrder[] }).catering;
+        expect(saved.map((o) => [o.id, o.status])).toEqual([
+            ['o2', 'accepted'],
+            ['o1', 'ready'],
+        ]);
+        expect(order.status).toBe('ready');
+    });
+
+    it('should match orders by caterer, in delivery order', () => {
+        const order = (id: string, caterer: string, hour: number) =>
+            new CateringOrder({
+                id,
+                caterer,
+                event: new CalendarEvent({
+                    date: new Date(2026, 0, 1, hour).valueOf(),
+                }),
+                items: [
+                    new CateringItem({ name: 'Coffee', caterer, quantity: 1 }),
+                ],
+            });
+        setOrders([
+            order('late', 'Cafe', 11),
+            order('no-caterer', '', 9),
+            order('early', 'Cafe', 8),
+        ]);
+
+        spectator.service.filters = { caterer: 'Cafe' };
+        expect(ids(spectator.service.matching())).toEqual(['early', 'late']);
+        spectator.service.filters = { caterer: '<empty>' };
+        expect(ids(spectator.service.matching())).toEqual(['no-caterer']);
     });
 });

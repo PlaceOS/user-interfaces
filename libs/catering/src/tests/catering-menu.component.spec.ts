@@ -25,6 +25,8 @@ describe('CateringMenuComponent', () => {
                 currency: signal('USD'),
                 categories: [],
                 caterer_list: [],
+                zone: 'z1',
+                updateItem: vi.fn(),
             }),
             MockProvider(CateringOrdersService, {
                 filters: {},
@@ -42,10 +44,6 @@ describe('CateringMenuComponent', () => {
         spectator = createComponent();
     });
 
-    it('should show table', () => {
-        expect('simple-table').toExist();
-    });
-
     it('should only show items that match the search', () => {
         menu.set([
             new CateringItem({ id: '1', name: 'Coffee', category: 'Drinks' }),
@@ -54,5 +52,20 @@ describe('CateringMenuComponent', () => {
         order_filters.set({ search: 'drinks' });
 
         expect(spectator.component.menu().map((i) => i.id)).toEqual(['1']);
+    });
+
+    it('should stop and allow ordering of an item from the current zone', () => {
+        const update = vi.mocked(
+            spectator.inject(CateringStateService).updateItem,
+        );
+        const item = new CateringItem({ id: '1', hide_for_zones: ['z2'] });
+
+        spectator.component.setEnabled(item, false);
+        expect(update.mock.lastCall[0].hide_for_zones).toEqual(['z2', 'z1']);
+
+        const hidden = new CateringItem({ id: '1', hide_for_zones: ['z1'] });
+        expect(spectator.component.isEnabled(hidden)).toBe(false);
+        spectator.component.setEnabled(hidden, true);
+        expect(update.mock.lastCall[0].hide_for_zones).toEqual([]);
     });
 });

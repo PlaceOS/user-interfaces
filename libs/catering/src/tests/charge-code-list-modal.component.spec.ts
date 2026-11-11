@@ -56,33 +56,20 @@ describe('ChargeCodeListModalComponent', () => {
 
     afterEach(() => setNotifyOutlet(null, true));
 
-    it('should load charge codes from state on init', () => {
-        expect(spectator.component.charge_codes()).toEqual([
-            'CODE-1',
-            'CODE-2',
-        ]);
-    });
-
-    it('should append a new empty code', () => {
+    it('should edit a copy of the saved codes', () => {
         spectator.component.newCode();
         expect(spectator.component.charge_codes()).toEqual([
             'CODE-1',
             'CODE-2',
             '',
         ]);
-    });
-
-    it('should remove a code by index', () => {
+        spectator.component.updateCode(2, 'CODE-3');
         spectator.component.removeCode(0);
-        expect(spectator.component.charge_codes()).toEqual(['CODE-2']);
-    });
-
-    it('should update a code at an index', () => {
-        spectator.component.updateCode(1, 'CODE-9');
         expect(spectator.component.charge_codes()).toEqual([
-            'CODE-1',
-            'CODE-9',
+            'CODE-2',
+            'CODE-3',
         ]);
+        expect(charge_codes()).toEqual(['CODE-1', 'CODE-2']);
     });
 
     it('should save trimmed non-empty codes and close', async () => {

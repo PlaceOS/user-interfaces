@@ -31,10 +31,6 @@ describe('CateringItemListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should expose the currency code from state', () => {
-        expect(spectator.component.code()).toBe('AUD');
-    });
-
     it('should determine favourite state from the favorites input', () => {
         spectator.setInput({ favorites: ['a', 'b'] });
         expect(spectator.component.isFavourite('a')).toBe(true);

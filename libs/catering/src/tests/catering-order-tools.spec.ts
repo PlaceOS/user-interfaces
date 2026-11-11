@@ -73,12 +73,34 @@ describe('catering order tools', () => {
         ]);
     });
 
+    it('should put ready orders with no known level in one run', () => {
+        const at = (id: string, hour: number) =>
+            new CateringOrder({
+                id,
+                status: 'ready',
+                event: { date: new Date(2026, 0, 1, hour).valueOf() } as any,
+            });
+
+        const runs = deliveryRuns([at('late', 11), at('early', 9)], () => null);
+
+        expect(runs).toHaveLength(1);
+        expect(runs[0].id).toBe('');
+        expect(runs[0].orders.map((o) => o.id)).toEqual(['early', 'late']);
+    });
+
     it('should find new and cancelled orders', () => {
-        const previous = [order('1', 'accepted', []), order('2', 'ready', [])];
+        const previous = [
+            order('1', 'accepted', []),
+            order('2', 'ready', []),
+            order('4', 'cancelled', []),
+        ];
         const next = [
             order('1', 'cancelled', []),
             order('2', 'ready', []),
             order('3', 'pending', []),
+            // Already cancelled before, or cancelled before it was seen
+            order('4', 'cancelled', []),
+            order('5', 'cancelled', []),
         ];
 
         const changes = diffOrders(previous, next);
