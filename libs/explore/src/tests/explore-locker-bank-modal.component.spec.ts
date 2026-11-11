@@ -16,11 +16,6 @@ describe('ExploreLockerBankModalComponent', () => {
         providers: [MockProvider(MAT_DIALOG_DATA, { bank, lockers })],
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the locker bank name', () => {
         spectator = createComponent();
         spectator.detectChanges();

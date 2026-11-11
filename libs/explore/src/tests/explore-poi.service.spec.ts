@@ -40,10 +40,6 @@ describe('ExplorePointOfInterestService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('should register features and actions for valid points of interest', () => {
         const state = spectator.inject(ExploreStateService);
         const list = [

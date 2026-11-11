@@ -49,10 +49,6 @@ describe('ExploreStateService', () => {
         spectator = createService();
     });
 
-    it('should create the service', () => {
-        expect(spectator.service).toBeTruthy();
-    });
-
     it('clears stale zone state when binding to another level', () => {
         const org = spectator.inject(OrganisationService);
         const state = spectator.inject(ExploreStateService);

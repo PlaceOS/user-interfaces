@@ -2,7 +2,14 @@ import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    setHours,
+    startOfDay,
+} from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
@@ -87,21 +94,13 @@ describe('ExploreParkingService', () => {
         vi.mocked(ts_client.queryAssets).mockResolvedValue({
             data: [],
         } as any);
+        // Provider mocks are shared, so clear settings from earlier tests
+        vi.mocked(TestBed.inject(SettingsService).get).mockReset();
         spectator = createService();
-    });
-
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
     });
 
     it('should default booking to enabled', () => {
         expect(spectator.service.options().enable_booking).toBe(true);
-    });
-
-    it('should update options via setOptions', () => {
-        spectator.service.setOptions({ date: 123, custom: true });
-        expect(spectator.service.options().date).toBe(123);
-        expect(spectator.service.options().custom).toBe(true);
     });
 
     it('should query parking bookings around the set time', async () => {
@@ -341,9 +340,122 @@ describe('ExploreParkingService', () => {
         expect(on_book).toHaveBeenCalledWith(space);
     });
 
-    it('should provide a stop function from startPolling', () => {
-        const stop = spectator.service.startPolling();
-        expect(typeof stop).toBe('function');
-        stop();
+    it('should only offer free, bookable and unrestricted spaces', () => {
+        const state = spectator.inject(ExploreStateService);
+        const parking = spectator.inject(ParkingService);
+        (parking.users as any).set([
+            { email: 'bob@place.tech', plate_number: 'BOB-1' },
+        ]);
+        const service = spectator.service as any;
+        service._spaces = {
+            value: () =>
+                ['p1', 'p2', 'p3', 'p4', 'p5'].map((id) => ({
+                    id,
+                    map_id: id,
+                    zone_id: 'lvl-1',
+                    bookable: id !== 'p3',
+                })),
+        };
+        service._events = {
+            value: () => [
+                { asset_id: 'p2', user_email: 'Bob@place.tech' },
+                // A rejected booking does not take the space
+                {
+                    asset_id: 'p5',
+                    user_email: 'amy@place.tech',
+                    rejected: true,
+                },
+            ],
+        };
+        service._booking_rules = {
+            value: () => [
+                {
+                    zone: '*',
+                    rules: { hidden: true },
+                    conditions: { resource_ids: ['p4'] },
+                },
+            ],
+        };
+
+        TestBed.tick();
+
+        expect(spectator.service.available_spaces().map((_) => _.id)).toEqual([
+            'p1',
+            'p5',
+        ]);
+        const [, features] = vi.mocked(state.setFeatures).mock.calls.at(-1);
+        const booked = features.find((_) => _.location === 'p2').data as any;
+        expect(booked.user).toBe('bob@place.tech');
+        expect(booked.plate_number).toBe('BOB-1');
+        expect(booked.status).toBe('busy');
+        expect(features.map((_) => (_.data as any).status)).toEqual([
+            'free',
+            'busy',
+            'not-bookable',
+            'busy',
+            'free',
+        ]);
+    });
+
+    describe('booking errors', () => {
+        const space = {
+            id: 'p1',
+            name: 'Bay 1',
+            zone_id: 'lvl-1',
+            place_groups: [],
+        };
+        const bookingError = (value = space, status = 'free') =>
+            (spectator.service as any)._bookingError(value, status);
+
+        afterEach(() => {
+            const parking = spectator.inject(ParkingService) as any;
+            parking.deny_parking_access.set(false);
+            parking.assigned_space.set(null);
+            parking.booked_space.set(null);
+        });
+
+        it('should allow a free space', () => {
+            expect(bookingError()).toBeNull();
+        });
+
+        it('should check access, then existing bookings, then the space', () => {
+            const parking = spectator.inject(ParkingService) as any;
+            expect(bookingError(space, 'busy')).toBe(
+                'EXPLORE.PARKING_AVAILABLE_ERROR',
+            );
+            expect(bookingError({ ...space, place_groups: ['vip'] })).toBe(
+                'EXPLORE.PARKING_GROUP_ERROR',
+            );
+            parking.booked_space.set({ id: 'p9' });
+            expect(bookingError(space, 'busy')).toBe(
+                'EXPLORE.PARKING_EXISTING_ERROR',
+            );
+            parking.assigned_space.set({ id: 'p9' });
+            expect(bookingError()).toBe('EXPLORE.PARKING_ASSIGNED_ERROR');
+            parking.deny_parking_access.set(true);
+            expect(bookingError()).toBe('EXPLORE.PARKING_PERMISSIONS_ERROR');
+        });
+    });
+
+    it('should book a future day from 8am in the zones of the space', async () => {
+        const bookings = spectator.inject(BookingFormService);
+        (bookings.model as any).set({});
+        const day = addDays(startOfDay(Date.now()), 3);
+        spectator.service.setOptions({ date: setHours(day, 15).valueOf() });
+        const space = { id: 'p1', name: 'Bay 1', zone_id: 'lvl-1' };
+
+        await (spectator.service as any)._bookSpace(space, 'free');
+
+        expect(bookings.newForm).toHaveBeenCalledWith('parking');
+        expect(bookings.model()).toEqual(
+            expect.objectContaining({
+                asset_id: 'p1',
+                date: setHours(day, 8).valueOf(),
+                all_day: true,
+                booking_type: 'parking',
+                zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
+            }),
+        );
+        expect(bookings.confirmPost).toHaveBeenCalled();
     });
 });

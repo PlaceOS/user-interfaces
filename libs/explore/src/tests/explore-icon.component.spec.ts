@@ -12,11 +12,6 @@ describe('ExploreIconComponent', () => {
         providers: [{ provide: MAP_FEATURE_DATA, useValue: {} }],
     });
 
-    it('should create component', () => {
-        spectator = createComponent();
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should fallback to default icon, color and text colour', () => {
         spectator = createComponent();
         expect(spectator.component.icon()).toEqual({ content: 'done' });

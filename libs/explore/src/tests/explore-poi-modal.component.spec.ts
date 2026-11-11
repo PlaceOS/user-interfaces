@@ -32,11 +32,6 @@ describe('ExplorePointOfInterestModalComponent', () => {
         spectator.detectChanges();
     }
 
-    it('should create component', () => {
-        setup(createPOI());
-        expect(spectator.component).toBeTruthy();
-    });
-
     it('should render the point of interest name', () => {
         setup(createPOI({ name: 'Main Lobby' }));
         expect(spectator.query('header h2')).toHaveText('Main Lobby');

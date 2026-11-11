@@ -1,4 +1,5 @@
 import { Injector, signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import {
@@ -8,10 +9,13 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { endOfDay } from 'date-fns';
+
 import { generateBookingForm } from 'libs/bookings/src/lib/booking-form.model';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 
 import { ExploreDesksService } from '../lib/explore-desks.service';
+import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -25,13 +29,18 @@ describe('ExploreDesksService', () => {
     const createService = createServiceFactory({
         service: ExploreDesksService,
         providers: [
-            MockProvider(ExploreStateService, {
-                level: signal(null),
-                options: signal({ is_public: false }),
-                setFeatures: vi.fn(),
-                setStyles: vi.fn(),
-                setActions: vi.fn(),
-            }),
+            // A new state for each test, so late timers of an earlier
+            // service do not write to the spies of this test
+            {
+                provide: ExploreStateService,
+                useFactory: () => ({
+                    level: signal(null),
+                    options: signal({ is_public: false }),
+                    setFeatures: vi.fn(),
+                    setStyles: vi.fn(),
+                    setActions: vi.fn(),
+                }),
+            },
             MockProvider(OrganisationService, {
                 binding: vi.fn(() => 'sys-1'),
                 active_building: signal(new Building()),
@@ -63,58 +72,101 @@ describe('ExploreDesksService', () => {
         spectator = createService();
     });
 
-    it('should create service', () => {
-        expect(spectator.service).toBeTruthy();
+    describe('desk statuses', () => {
+        const DESKS = [
+            { id: 'desk-1', bookable: true },
+            { id: 'desk-2', bookable: true },
+            { id: 'desk-3', bookable: true },
+            { id: 'desk-4', bookable: false },
+        ];
+        const BINDING = [
+            { location: 'booking', type: 'desk', map_id: 'desk-1' },
+            { location: 'desk', at_location: true, map_id: 'desk-2' },
+            { location: 'desk', signs_of_life: true, map_id: 'desk-3' },
+            // Devices are not desks, so they do not change desk statuses
+            { location: 'wireless', map_id: 'desk-4', x: 1, y: 1 },
+        ];
+
+        /** Show the level with the desks, then return the latest desk styles */
+        async function deskStyles(options = {}) {
+            vi.useFakeTimers();
+            vi.mocked(ts_client.showMetadata).mockImplementation(
+                (_, name) =>
+                    Promise.resolve({
+                        details: name === 'desks' ? DESKS : [],
+                    }) as any,
+            );
+            const state = spectator.inject(ExploreStateService);
+            spectator.service.setOptions(options);
+            (state.level as any).set({ id: 'lvl-1', parent_id: 'bld-1' });
+            TestBed.tick();
+            // Let the desk list load
+            await vi.advanceTimersByTimeAsync(0);
+            TestBed.tick();
+            spectator.service.processBindingChange({ value: BINDING }, 'sys-1');
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(200);
+            vi.useRealTimers();
+            return vi
+                .mocked(state.setStyles)
+                .mock.calls.filter(([group]) => group === 'desks')
+                .at(-1)?.[1];
+        }
+
+        it('should colour desks from the AreaManagement binding for today', async () => {
+            expect(await deskStyles()).toEqual({
+                '#desk-1': { fill: DEFAULT_COLOURS.pending },
+                '#desk-2': { fill: DEFAULT_COLOURS.busy },
+                '#desk-3': { fill: DEFAULT_COLOURS['signs-of-life'] },
+                '#desk-4': { fill: DEFAULT_COLOURS['not-bookable'] },
+            });
+        });
+
+        it('should use API bookings instead of the binding for a future date', async () => {
+            vi.mocked(ts_client.get).mockResolvedValue([
+                { id: 'booking-1', asset_id: 'desk-3', checked_in: true },
+            ] as any);
+
+            const styles = await deskStyles({
+                date: endOfDay(Date.now()).valueOf() + 60 * 60 * 1000,
+            });
+
+            expect(styles).toEqual({
+                '#desk-1': { fill: DEFAULT_COLOURS.free },
+                '#desk-2': { fill: DEFAULT_COLOURS.free },
+                '#desk-3': { fill: DEFAULT_COLOURS.busy },
+                '#desk-4': { fill: DEFAULT_COLOURS['not-bookable'] },
+            });
+        });
     });
 
-    it('should bind to AreaManagement driver', () => {
-        // TODO: Fix this test
-        // (booking_mod as any).queryBookings = vi.fn(() => of([]));
-        // const bind = vi.fn();
-        // const binding = vi.fn(() => ({ listen: () => of(), bind }));
-        // (ts_client.getModule as any) = vi.fn(() => () => null);
-        // (ts_client.getModule as any).mockImplementation(() => ({ binding }));
-        // const state = spectator.inject(ExploreStateService);
-        // expect(ts_client.getModule).not.toHaveBeenCalled();
-        // (state as any).level.next(
-        //     new BuildingLevel({ id: 'lvl-1', parent_id: '1' })
-        // );
-        // tick(350);
-        // expect(ts_client.getModule).toHaveBeenCalledWith(
-        //     'sys-1',
-        //     'AreaManagement'
-        // );
-        // expect(bind).toHaveBeenCalledTimes(1);
-        // expect(binding).toHaveBeenCalledWith('lvl-1');
-    });
+    it('should refuse to book a desk that is not free or not in the user groups', async () => {
+        const notify_open = vi.fn((_message: string) => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        const booking_service = spectator.inject(BookingFormService) as any;
+        booking_service.newForm = vi.fn();
+        const service = spectator.service as any;
+        service._statuses['desk-1'] = signal('busy');
+        service._statuses['desk-2'] = signal('free');
 
-    it('should handle binding changes', () => {
-        expect(spectator.service).toBeTruthy();
-        // TODO: Fix this test
-        // vi.useFakeTimers();
-        // const state = spectator.inject(ExploreStateService);
-        // (state.setActions as any).mockReset();
-        // (state.setFeatures as any).mockReset();
-        // (state.setStyles as any).mockReset();
-        // (state as any).level.next({ id: 'lvl-1' });
-        // spectator.service.processBindingChange(
-        //     {
-        //         value: [
-        //             { location: 'desk', at_location: true, map_id: 'desk-1' },
-        //         ],
-        //     },
-        //     'sys-1'
-        // );
-        // vi.runOnlyPendingTimers();
-        // vi.runOnlyPendingTimers();
-        // expect(state.setActions).toHaveBeenCalled();
-        // expect(state.setFeatures).toHaveBeenCalled();
-        // expect(state.setStyles).toHaveBeenCalledWith('desks', {
-        //     '#desk-1': { fill: DEFAULT_COLOURS['busy'] },
-        //     '#desk-2': { fill: DEFAULT_COLOURS['not-bookable'] },
-        // });
-        // // TODO: Test various desk states
-        // vi.useRealTimers();
+        try {
+            await service._bookDesk(new Desk({ id: 'desk-1' }), {});
+            await service._bookDesk(
+                new Desk({ id: 'desk-2', groups: ['vip'] }),
+                {},
+            );
+
+            expect(notify_open.mock.calls.map(([msg]) => msg)).toEqual([
+                'EXPLORE.DESK_AVAILABLE_ERROR',
+                'EXPLORE.DESK_GROUP_ERROR',
+            ]);
+            expect(booking_service.newForm).not.toHaveBeenCalled();
+        } finally {
+            setNotifyOutlet(null, true);
+        }
     });
 
     it('should use the desk map id as the asset id when booking a map-only desk', async () => {
@@ -209,14 +261,7 @@ describe('ExploreDesksService', () => {
             new Desk({ id: 'desk-3', bookable: false }),
         ];
 
-        service._updateDeskStatuses(
-            desks,
-            ['desk-1'],
-            ['desk-2'],
-            [],
-            [],
-            [],
-        );
+        service._updateDeskStatuses(desks, ['desk-1'], ['desk-2'], [], [], []);
 
         expect(service._statuses['desk-1']()).toBe('pending');
         expect(service._statuses['desk-2']()).toBe('busy');
