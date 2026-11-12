@@ -572,6 +572,7 @@ export class UserListFieldComponent
     /**
      * Add users to the user list. A user that is already in the list is
      * replaced. The form value changes once for the whole list.
+     * A user keeps its `visit_expected` value. It is `true` when not set.
      */
     public addUsers(users: User[]) {
         let list = this.active_list();
@@ -582,10 +583,7 @@ export class UserListFieldComponent
                 new User({
                     ...user,
                     id: user.id || user.email,
-                    visit_expected:
-                        (!user.id && user.is_external !== true
-                            ? user.visit_expected
-                            : null) ?? true,
+                    visit_expected: user.visit_expected ?? true,
                 }),
             ];
         }
