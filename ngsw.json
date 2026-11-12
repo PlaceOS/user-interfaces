@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794449702763,
+  "timestamp": 1794450059629,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -40,7 +40,7 @@
         "./main.js",
         "./manifest.webmanifest",
         "./native-domain-overlay.component-BTSR2MX4.js",
-        "./panel-view.component-CZQmN4Te.js",
+        "./panel-view.component-CB969IQ1.js",
         "./sentry-sdk-CP1KJf-w.js",
         "./settings-debug-panel-launcher.component-JezOhRPF.js",
         "./settings-debug-panel.component-Bzp8Ecn4.js",
@@ -297,10 +297,10 @@
     "./index.html": "d40983bfa1643f29ee7d41839d0024e42058ac5e",
     "./it-DP3AYVRR.js": "a51a72d5c10576215eea03259a8373b67cbd0ae5",
     "./ja-KPFTZVOP.js": "a61dec0f4798a81adf9c57d791d36b35893528c1",
-    "./main.js": "ebdb1769f5b2c5a4435db3b2c6394f40c3bfa94f",
+    "./main.js": "d047e751fbc2be8dadcd008515d5021c43febc5c",
     "./manifest.webmanifest": "0f9e03c270ee4bfa54fcd3632c7a13596b4c8303",
     "./native-domain-overlay.component-BTSR2MX4.js": "0bea5522ec9c271fb114de9ebdd414dfc53df322",
-    "./panel-view.component-CZQmN4Te.js": "ed58f8484291c33617eac2a795cfd0132408f995",
+    "./panel-view.component-CB969IQ1.js": "284e7a60f201341b047caa293e7de32fdabc935e",
     "./sentry-sdk-CP1KJf-w.js": "d40fda78f4764d7c64c05c2a586b614ea1da2e57",
     "./settings-debug-panel-launcher.component-JezOhRPF.js": "984ba60b7dd7604f6969b98f978fdbf80b8fe7f1",
     "./settings-debug-panel.component-Bzp8Ecn4.js": "0783dfc76358a1c7794d0a69a04ff3ac53d0ce23",
