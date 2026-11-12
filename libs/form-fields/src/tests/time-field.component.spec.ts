@@ -105,6 +105,14 @@ describe('TimeFieldComponent', () => {
         );
     });
 
+    it('should space time options by a step above 30 minutes', () => {
+        spectator.setInput({ step: 45, no_past_times: false });
+        spectator.detectChanges();
+        const ids = spectator.component._time_options().map((_) => _.id);
+        expect(ids.slice(0, 3)).toEqual(['00:00', '00:45', '01:30']);
+        expect(ids.at(-1)).toBe('23:15');
+    });
+
     it('should allow the current time as an option', () => {
         const current_time = addMinutes(startOfDay(new Date()), 35);
         const date_str = format(current_time, 'HH:mm');
