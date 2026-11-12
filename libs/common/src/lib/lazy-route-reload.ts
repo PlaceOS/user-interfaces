@@ -1,4 +1,6 @@
 import { log } from './general';
+import { i18n } from './locale.service';
+import { notifyError } from './notifications';
 
 const LAZY_ROUTE_RELOAD_KEY = 'placeos.lazy_route_reload';
 const RELOAD_THROTTLE = 30 * 1000;
@@ -68,6 +70,36 @@ export function reloadOnChunkLoadError(
         true,
     );
     location_ref.reload();
+}
+
+/**
+ * Loads a lazy chunk for an action outside the router, such as opening a
+ * dialog. A redeploy removes the old hashed chunks, so a page open from before
+ * then can fail to load one. Then this shows an error with a Reload button and
+ * resolves `undefined`. It does not reload by itself, because the page can
+ * hold work that is not saved, such as an upload. Other errors are thrown.
+ *
+ * @example
+ * const chunk = await loadLazyChunk(() => import('./edit-modal.component'));
+ * if (!chunk) return;
+ */
+export async function loadLazyChunk<T>(
+    load: () => Promise<T>,
+    reload: () => void = () => location.reload(),
+): Promise<T | undefined> {
+    try {
+        return await load();
+    } catch (error) {
+        if (!isLazyRouteLoadError(error)) throw error;
+        log('LAZY', 'Lazy chunk load failed.', error, 'warn', true);
+        notifyError(
+            i18n('COMMON.CHUNK_LOAD_ERROR'),
+            i18n('COMMON.RELOAD'),
+            reload,
+            { duration: 0 },
+        );
+        return undefined;
+    }
 }
 
 function getLazyRouteErrorMessage(error: unknown) {

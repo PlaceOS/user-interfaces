@@ -263,6 +263,8 @@
         "PEOPLE_COUNT": "{{ count }} people",
         "LOAD_ERROR": "Could not load the data. Check your connection, then try again.",
         "RETRY": "Retry",
+        "CHUNK_LOAD_ERROR": "Could not load this part of the app. It may have been updated. Reload to continue.",
+        "RELOAD": "Reload",
         "SELECT_ALL": "Select all",
         "SELECT_ROW": "Select row",
         "CLEAR_SELECTION": "Clear selection",

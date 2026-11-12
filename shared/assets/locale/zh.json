@@ -259,6 +259,8 @@
         "PEOPLE_COUNT": "{{ count }} 人",
         "LOAD_ERROR": "无法加载数据。请检查网络连接，然后重试。",
         "RETRY": "重试",
+        "CHUNK_LOAD_ERROR": "无法加载应用的此部分。应用可能已更新。请重新加载以继续。",
+        "RELOAD": "重新加载",
         "SELECT_ALL": "全选",
         "SELECT_ROW": "选择行",
         "CLEAR_SELECTION": "清除选择",
