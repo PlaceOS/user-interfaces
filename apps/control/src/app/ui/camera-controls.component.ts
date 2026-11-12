@@ -170,7 +170,7 @@ export class CameraControlsComponent {
         const cam = this.active_camera();
         if (!cam) return;
         this.zoom.set(dir === 'in' ? ZoomDirection.In : ZoomDirection.Out);
-        await zoomCamera(this.id, cam, this.zoom()).catch(() => null);
+        await zoomCamera(this.id, cam, this.zoom());
     }
 
     public stopZoom() {
