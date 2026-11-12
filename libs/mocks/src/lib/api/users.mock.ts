@@ -1,4 +1,4 @@
-import { persist, registerMockEndpoint } from '../session';
+import { MOCK_PAGE_SIZE, persist, registerMockEndpoint } from '../session';
 
 import { HashMap, predictableRandomInt } from '@placeos/common';
 import { MOCK_SPACES } from './spaces.data';
@@ -31,16 +31,16 @@ export function registerMockUsers() {
     registerMockEndpoint({
         path: '/api/engine/v2/users',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             const search = (request.query_params.q || '').toLowerCase();
-            const limit = Number(request.query_params.limit || 100);
             return MOCK_STAFF.filter(({ name, email }) => {
                 return (
                     !search ||
                     name.toLowerCase().includes(search) ||
                     email.toLowerCase().includes(search)
                 );
-            }).slice(0, limit);
+            });
         },
     });
 
@@ -83,6 +83,7 @@ export function registerMockUsers() {
     registerMockEndpoint({
         path: '/api/staff/v1/people',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             if (request.query_params.q) {
                 const search = request.query_params.q.toLowerCase();

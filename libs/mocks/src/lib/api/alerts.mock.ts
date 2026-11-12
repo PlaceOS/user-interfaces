@@ -1,4 +1,4 @@
-import { persist, registerMockEndpoint } from '../session';
+import { MOCK_PAGE_SIZE, persist, registerMockEndpoint } from '../session';
 import { registerCrudEndpoints } from './crud.mock';
 
 const BASE = '/api/engine/v2';
@@ -52,6 +52,7 @@ export function registerMockAlerts() {
     registerMockEndpoint({
         path: `${BASE}/alert_dashboards`,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: () => MOCK_DASHBOARDS,
     });
     registerMockEndpoint({
@@ -72,6 +73,7 @@ export function registerMockAlerts() {
     registerMockEndpoint({
         path: `${BASE}/alerts`,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             const id = request.query_params?.alert_dashboard_id;
             return id

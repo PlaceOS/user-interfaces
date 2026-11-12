@@ -42,6 +42,8 @@ Some items do not work fully in mock mode:
 
 When you add a mock endpoint, import `registerMockEndpoint` from `libs/mocks/src/lib/session.ts`, not from `@placeos/ts-client`. Call `persist` (or `persistById` for a large generated list) for each dataset that a write request changes.
 
+For a list endpoint that the PlaceOS API pages, set `page_size` (usually `MOCK_PAGE_SIZE`). The callback returns the full list. The mock then applies the `offset` and `limit` query parameters, and adds the `x-total-count` and `link` response headers.
+
 ## External backend authentication
 
 OAuth redirects do not work through the local development server. Use the basic authentication form at `/login/?continue=/` when the user requests an external backend. Treat access tokens as secrets.

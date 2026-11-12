@@ -20,6 +20,7 @@ describe('registerMockBookings', () => {
         if (!match) throw new Error(`No handler for ${method} ${path}`);
         return (req: Record<string, unknown>) =>
             match.callback({
+                url: path,
                 route_params: {},
                 query_params: {},
                 ...req,

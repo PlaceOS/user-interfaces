@@ -1,7 +1,7 @@
 import { ShortURL } from '@placeos/common';
 import { getUnixTime } from 'date-fns';
 
-import { persist, registerMockEndpoint } from '../session';
+import { MOCK_PAGE_SIZE, persist, registerMockEndpoint } from '../session';
 import { registerCrudEndpoints } from './crud.mock';
 import { ACTIVE_USER } from './users.data';
 
@@ -34,6 +34,7 @@ export function registerMockShortUrls() {
     registerMockEndpoint({
         path: PATH,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             const q = `${request.query_params?.q || ''}`.toLowerCase();
             return MOCK_SHORT_URLS.filter(

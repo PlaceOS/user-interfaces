@@ -1,6 +1,11 @@
 import { mockSystem } from '@placeos/ts-client';
 
-import { mockId, persist, registerMockEndpoint } from '../session';
+import {
+    MOCK_PAGE_SIZE,
+    mockId,
+    persist,
+    registerMockEndpoint,
+} from '../session';
 import { createSystem, moduleState } from '../systems-bindings.mock';
 import { MOCK_SPACES } from './spaces.data';
 
@@ -18,6 +23,7 @@ export function registerMockSystems() {
     registerMockEndpoint({
         path: '/api/engine/v2/systems',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             const systems = request.query_params?.zone_id
                 ? MOCK_SPACES.filter((_) =>
@@ -110,6 +116,7 @@ export function registerMockSystems() {
     registerMockEndpoint({
         path: '/api/engine/v2/modules',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             const system_id = request.query_params?.control_system_id;
             const system = system_id ? mockSystem(system_id) : null;
