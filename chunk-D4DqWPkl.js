@@ -1,1 +1,0 @@
-import{t as So}from"./main-NTJALA2Q.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
