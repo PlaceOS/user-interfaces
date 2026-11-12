@@ -59,7 +59,7 @@
         },
         "features": {
             "type": "array",
-            "description": "List of features enabled in the app. Each value shows the sidebar links with the same ID. Values: `spaces`, `desks`, `parking`, `parking-bookings`, `parking-manage`, `lockers`, `assets`, `catering`, `visitors`, `visitor-rules`, `zones`, `maps`, `points`, `emergency-contacts`, `points-of-interest`, `url-management`, `email-templates`, `deals-n-offers`, `internal-users`, `events`, `surveys`, `attendance-report`, `booking-report`, `desk-report`, `parking-report`, `lockers-report`, `catering-report`, `contact-tracing-report`, `assets-report`, `visitors-report`, `user-report`",
+            "description": "List of features enabled in the app. Each value shows the sidebar links with the same ID. Values: `spaces`, `desks`, `parking`, `parking-bookings`, `parking-manage`, `lockers`, `assets`, `catering`, `visitors`, `visitor-rules`, `zones`, `maps`, `points`, `emergency-contacts`, `points-of-interest`, `url-management`, `remote-setup`, `email-templates`, `deals-n-offers`, `internal-users`, `events`, `surveys`, `attendance-report`, `booking-report`, `desk-report`, `parking-report`, `lockers-report`, `catering-report`, `contact-tracing-report`, `assets-report`, `visitors-report`, `user-report`",
             "items": { "type": "string" }
         },
         "feature_groups": {

@@ -38,6 +38,10 @@
             "type": "string",
             "description": "URL of the background image to render on the event panel view"
         },
+        "remote_setup_url": {
+            "type": "string",
+            "description": "Address of the remote setup flow that the setup QR code opens. The device adds `?device=<id>` to the address. Defaults to `https://<PlaceOS domain>/concierge/#/remote-setup`."
+        },
         "refresh_when_websocket_unstable": {
             "type": "boolean",
             "description": "Whether to reload the page when the websocket connection to the PlaceOS backend is repeatedly dropping"

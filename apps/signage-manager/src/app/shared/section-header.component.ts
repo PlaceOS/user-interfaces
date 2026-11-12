@@ -6,7 +6,8 @@ import { GroupBreadcrumbsComponent } from './group-breadcrumbs.component';
 
 /**
  * Sticky header of a list page. Shows the page title, the item count, the
- * group breadcrumbs and an icon button that emits `add`.
+ * group breadcrumbs and an icon button that emits `add`. Projected content
+ * shows before the add button.
  */
 @Component({
     selector: 'section-header',
@@ -32,6 +33,7 @@ import { GroupBreadcrumbsComponent } from './group-breadcrumbs.component';
                 </div>
             </div>
             <div class="w-px flex-1"></div>
+            <ng-content />
             @if (can_add()) {
                 <button
                     icon

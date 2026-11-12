@@ -30,6 +30,8 @@ export * from './lib/misconfigured.component';
 export * from './lib/plugin-embed.component';
 export * from './lib/printable.component';
 export * from './lib/redirect.component';
+export * from './lib/remote-setup-flow.component';
+export * from './lib/remote-setup-qr.component';
 export * from './lib/schema-form.component';
 export * from './lib/service-worker-update-card.component';
 export * from './lib/settings-debug-panel-launcher.component';

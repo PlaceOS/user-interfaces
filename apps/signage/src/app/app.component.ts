@@ -1,7 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import {
     PlaceOS_Service,
+    RemoteSetupService,
     setInitReloadHandler,
     setMocks,
     setNotifyFilter,
@@ -15,6 +16,7 @@ import { SettingsDebugPanelLauncherComponent } from '@placeos/components/setting
 import { hasStoredApiKey } from './api-key';
 import { hasBootstrappedDisplay } from './bootstrap-state';
 import { isDebugMode } from './debug-state';
+import { signageRemoteSetup } from './remote-setup-target';
 import { requestRecovery, startWatchdog } from './watchdog';
 
 @Component({
@@ -62,6 +64,8 @@ export class AppComponent implements OnInit {
     public readonly uses_api_key = hasStoredApiKey();
 
     private _placeos = inject(PlaceOS_Service);
+    private _remote_setup = inject(RemoteSetupService);
+    private _router = inject(Router);
 
     public ngOnInit(): void {
         // Started before anything else so it covers startup itself. The route
@@ -85,5 +89,6 @@ export class AppComponent implements OnInit {
             import('@placeos/mocks').then(({ mocksInit }) => mocksInit()),
         );
         this._placeos.init();
+        this._remote_setup.start(signageRemoteSetup(this._router));
     }
 }

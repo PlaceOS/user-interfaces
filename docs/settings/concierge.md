@@ -105,6 +105,7 @@ Each locale entry requires an `id` and `name`:
 | `emergency-contacts` | Emergency contacts | No |
 | `points-of-interest` | Map features | No |
 | `url-management` | URL management | No |
+| `remote-setup` | Remote setup of booking panels and control panels. See [Remote setup](../remote-setup.md) | No |
 | `email-templates` | Email templates | Yes |
 | `deals-n-offers` | Deals and offers | No |
 | `internal-users` | User list | Yes |

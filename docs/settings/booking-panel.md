@@ -112,6 +112,14 @@ The `features` setting is a list of opt-in panel features. All features are off 
 | `prevent_space_init`              | boolean | `true`  | Whether to prevent the spaces service from loading the full list of bookable spaces on startup. Leave enabled for panels — a panel only cares about its own room, so loading every space slows startup unnecessarily. |
 | `refresh_when_websocket_unstable` | boolean | –       | Whether to reload the page when the websocket connection to the PlaceOS backend is repeatedly dropping. Useful for unattended panels that need to recover on their own.                                               |
 
+## Remote Setup
+
+When the domain has a RemoteSetup driver, the setup screen shows a QR code. The QR code opens the remote setup flow in Concierge. See [Remote setup](../remote-setup.md).
+
+| Setting            | Type   | Default | Description                                                                                                                                                      |
+| ------------------ | ------ | ------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `remote_setup_url` | string | –       | Address of the remote setup flow. The device adds `?device=<id>` to the address. When not set, the app uses `https://<PlaceOS domain>/concierge/#/remote-setup`. |
+
 ## System Settings
 
 The panel also reads values from the `Bookings` module of the room's System. Set these values in the System, zone or driver settings in Backoffice, not in `booking-panel_app` metadata. The Concierge booking panel settings form writes the first group of keys to the settings of the zone.

@@ -30,6 +30,7 @@ import {
 } from '@placeos/common';
 
 import { AnnounceDirective } from './announce.directive';
+import { RemoteSetupQrComponent } from './remote-setup-qr.component';
 import { TranslatePipe } from './translate.pipe';
 
 /**
@@ -40,7 +41,9 @@ import { TranslatePipe } from './translate.pipe';
  * Searches wait until the organisation is loaded.
  * `?clear=true` removes the saved system. On load, a system ID from MDM
  * managed config overrides the saved system. Otherwise a saved system
- * goes to its route at once.
+ * goes to its route at once. When the RemoteSetup driver is connected, the
+ * screen also shows a QR code card for the remote setup flow, to the right
+ * of the form in landscape and below it in portrait.
  *
  * ```html
  * <system-bootstrap
@@ -54,7 +57,7 @@ import { TranslatePipe } from './translate.pipe';
     selector: 'system-bootstrap',
     template: `
         <div
-            class="bg-base-200 absolute inset-0 flex flex-col items-center p-3"
+            class="bg-base-200 absolute inset-0 flex flex-col items-center gap-3 overflow-y-auto p-3 landscape:flex-row landscape:flex-wrap landscape:items-start landscape:justify-center"
         >
             <div
                 form
@@ -170,6 +173,9 @@ import { TranslatePipe } from './translate.pipe';
                     </div>
                 }
             </div>
+            @if (!loading() || loading() === 'search') {
+                <remote-setup-qr />
+            }
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
                 <div class="text-xs opacity-70">
                     {{ 'COMMON.CONTROLS_VERSION' | translate }}:
@@ -199,6 +205,7 @@ import { TranslatePipe } from './translate.pipe';
         CommonModule,
         TranslatePipe,
         AnnounceDirective,
+        RemoteSetupQrComponent,
         MatProgressSpinnerModule,
         MatRippleModule,
         MatAutocompleteModule,

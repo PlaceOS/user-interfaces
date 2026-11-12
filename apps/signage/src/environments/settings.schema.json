@@ -14,6 +14,10 @@
             "type": "number",
             "description": "Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`. If the value is `0` or not set, the player uses `3000`"
         },
+        "remote_setup_url": {
+            "type": "string",
+            "description": "Address of the remote setup flow that the setup QR code opens. The device adds `?device=<id>` to the address. Defaults to `https://<PlaceOS domain>/signage-manager/#/remote-setup`."
+        },
         "templates_enabled": {
             "type": "boolean",
             "description": "Whether template selection is available during signage bootstrap. Defaults to `true`."
