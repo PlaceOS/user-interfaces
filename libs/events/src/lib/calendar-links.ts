@@ -118,7 +118,9 @@ export function generateGoogleCalendarLink(event: CalEvent): string {
         (event.resources?.length ? event.resources : null) || [event.system]
     ).map((_) => _?.email || _);
     if (emails.length || resources.length)
-        details.add = unique([...emails, ...resources]).join();
+        details.add = unique([...emails, ...resources])
+            .filter((_) => !!_)
+            .join(',');
     return `https://calendar.google.com/calendar/render?${toQueryString(
         details,
     )}`;

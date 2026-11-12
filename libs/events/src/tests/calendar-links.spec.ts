@@ -1,5 +1,5 @@
-import { addDays, addMinutes, format } from 'date-fns';
 import { localToTimezone } from '@placeos/common';
+import { addDays, addMinutes, format } from 'date-fns';
 import {
     CalEvent,
     generateCalendarFileLink,
@@ -139,6 +139,19 @@ describe('generateGoogleCalendarLink', () => {
         });
         const params = new URLSearchParams(link.split('?')[1]);
         expect(params.get('add')).toBe('a@place.tech,system@place.tech');
+    });
+
+    it('should leave out empty guests when there are no resources or system', () => {
+        const params = (event: CalEvent) =>
+            new URLSearchParams(
+                generateGoogleCalendarLink(event).split('?')[1],
+            );
+        expect(params({ ...EVENT, resources: [] }).get('add')).toBe(
+            'a@place.tech,b@place.tech',
+        );
+        expect(
+            params({ ...EVENT, attendees: [], resources: [] }).has('add'),
+        ).toBe(false);
     });
 });
 
