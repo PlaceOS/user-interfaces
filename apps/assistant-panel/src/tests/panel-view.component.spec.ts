@@ -490,6 +490,25 @@ describe('PanelViewComponent', () => {
             spectator.component.setup.set(true);
         });
 
+        it('should retry loading the model on a later frame after a failed load', async () => {
+            const { loadLiteRt, loadAndCompile } =
+                await import('@litertjs/core');
+            vi.mocked(loadLiteRt)
+                .mockRejectedValueOnce(new Error('offline'))
+                .mockResolvedValueOnce(undefined);
+            vi.mocked(loadAndCompile).mockResolvedValueOnce(
+                model as unknown as Awaited<ReturnType<typeof loadAndCompile>>,
+            );
+            internals()._model = undefined;
+
+            await frame();
+            expect(model.run).not.toHaveBeenCalled();
+
+            await frame();
+            expect(loadLiteRt).toHaveBeenCalledTimes(2);
+            expect(model.run).toHaveBeenCalledTimes(1);
+        });
+
         it('should ignore frames until the panel is set up', async () => {
             spectator.component.setup.set(false);
 
