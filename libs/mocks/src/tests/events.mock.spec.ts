@@ -86,6 +86,19 @@ describe('registerMockEvents', () => {
         expect(polled()).toEqual(['sys-new']);
     });
 
+    it('should create an event for a host who is not in the staff list', () => {
+        const attendee = { email: 'guest@place.tech' };
+        const created = endpoint<HashMap>(
+            'POST',
+            API,
+        )({
+            body: { host: 'unknown@place.tech', attendees: [attendee] },
+        });
+        added.push(created.id);
+
+        expect(created.attendees).toEqual([attendee]);
+    });
+
     it('should list only the events of the requested level', () => {
         // Level IDs start with the building ID, so a text match on the
         // query would also match every event in the building
