@@ -118,7 +118,7 @@ export async function bookRoomViaUI(
     await flow.title.fill(title);
     if (options.date !== undefined) await setDate(flow, page, options.date);
     if (options.allDay !== undefined) await flow.setAllDay(options.allDay);
-    if (options.host) await flow.chooseHost(options.host);
+    const host_name = options.host ? await flow.chooseHost(options.host) : '';
     if (options.startTime) await flow.setStartTime(options.startTime);
     if (options.duration !== undefined) await flow.setDuration(options.duration);
 
@@ -138,12 +138,11 @@ export async function bookRoomViaUI(
         ).toBe(options.allDay);
     }
     if (options.host) {
-        const shown = await flow.hostValue();
-        expect(
-            shown.toLowerCase(),
-            `the host field must still show ${options.host} when the details are ` +
-                `left; it shows "${shown}"`,
-        ).toContain(options.host.toLowerCase());
+        await expect(
+            flow.hostInput,
+            `the host field must still show ${host_name} (${options.host}) when ` +
+                `the details are left`,
+        ).toHaveValue(host_name);
     }
 
     // STEP 2, the room.

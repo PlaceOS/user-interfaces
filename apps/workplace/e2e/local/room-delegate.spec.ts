@@ -10,31 +10,12 @@
  * against the booker does not appear on the colleague's schedule, so as far as
  * the app is concerned they have no room, and the booker holds two.
  *
- * ## `fixme` — the new meeting flow cannot name a colleague on this stack
- *
- * The flow that this one replaced rendered a user SEARCH field from
- * `events.can_book_for_anyone`, and this test picked the colleague there.
- * `meeting-flow-new` does not read that setting. Measured 13 Oct 2026:
- *
- *   `can_book_for_anyone` ..... the details step has no host field at all
- *                               (0 `host-select-field`, 0 `a-user-search-field`)
- *   `can_book_for_others` ..... the step has a `host-select-field`. It is a
- *                               select of the signed-in user and the CALENDARS
- *                               that the user can edit. On this stack
- *                               `GET /api/staff/v1/calendars` answers 500, so
- *                               the select holds one option: the signed-in user.
- *
- * So no colleague can be chosen, and the stored owner cannot be tested. The
- * test body drives the `host-select-field`, which is the control that exists.
- * It runs as far as `chooseHost`, which fails with the list that the select
- * offers.
- *
- * To unblock it, one of these has to be true: the flow gets a host search for
- * `events.can_book_for_anyone`, or the stack has a calendar tenant in which the
- * staff user can edit the calendar of a colleague.
+ * The new meeting flow picks the colleague from the host search that
+ * `events.can_book_for_anyone` renders (PPT-2873). See `BOOK_FOR_ANYONE`.
  */
 import { test, expect } from '../../../../e2e/support/fixtures';
 import {
+    apiFor,
     currentUser,
     deleteBooking,
     getBooking,
@@ -45,7 +26,7 @@ import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import {
-    BOOK_FOR_OTHERS,
+    BOOK_FOR_ANYONE,
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
@@ -56,8 +37,7 @@ const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 test.describe('booking a room for a colleague', () => {
-    // See the file header: the flow offers no colleague to choose on this stack.
-    test.fixme('the chosen colleague is stored as the host, and you as the booker', async ({
+    test('the chosen colleague is stored as the host, and you as the booker', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
@@ -72,27 +52,46 @@ test.describe('booking a room for a colleague', () => {
         let booking_id: number | undefined;
 
         await releaseRoom(staffApi, room.id, window_from(), window_to());
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...BOOK_FOR_OTHERS });
+        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...BOOK_FOR_ANYONE });
 
         try {
             const me = await currentUser(staffApi);
+            const their_api = await apiFor('staff', theirs);
+            const them = await currentUser(their_api).finally(() => their_api.dispose());
             const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
                 date: slot.date_ms,
                 host: colleague,
             });
             booking_id = created.id;
 
-            const stored: any = await getBooking(staffApi, booking_id!);
+            const stored = await getBooking(staffApi, booking_id!);
             expect(
-                `${stored.user_email}`.toLowerCase(),
+                {
+                    user_email: `${stored.user_email}`.toLowerCase(),
+                    user_id: stored.user_id,
+                    user_name: stored.user_name,
+                },
                 'the room must be booked FOR the colleague. If this comes back as the ' +
                     'person who filled the form, the host choice was discarded — which ' +
-                    'is exactly what the visitor form used to do (VIS-09)',
-            ).toBe(colleague.toLowerCase());
+                    'is exactly what the visitor form used to do (VIS-09). user_id ' +
+                    'must be the user ID, not the address',
+            ).toEqual({
+                user_email: colleague.toLowerCase(),
+                user_id: them.id,
+                user_name: them.name,
+            });
             expect(
-                `${stored.booked_by_email ?? stored.user_email}`.toLowerCase(),
+                {
+                    booked_by_email: `${stored.booked_by_email}`.toLowerCase(),
+                    booked_by_id: stored.booked_by_id,
+                    booked_by_name: stored.booked_by_name,
+                },
                 'and BY the person who filled the form',
-            ).toBe(me.email.toLowerCase());
+            ).toEqual({
+                booked_by_email: me.email.toLowerCase(),
+                booked_by_id: me.id,
+                booked_by_name: me.name,
+            });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
             await releaseRoom(staffApi, room.id, window_from(), window_to());

@@ -47,6 +47,9 @@ const MAX_LIST_READS = 6;
 /** Upper bound on the tries of `addAssetRequest`. */
 const MAX_ASSET_ATTEMPTS = 3;
 
+/** Upper bound on the searches that `chooseHost` makes. */
+const MAX_HOST_ATTEMPTS = 3;
+
 /** A pattern that matches an element whose whole text is `text`. */
 function wholeText(text: string): RegExp {
     return new RegExp(`^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
@@ -123,11 +126,16 @@ export class MeetingFlow {
     }
 
     /**
-     * The host field. Rendered only when `app.events.can_book_for_others` is
-     * set. It is a select of the calendars that the user can edit.
+     * The host search. Rendered only when `app.events.can_book_for_anyone` is
+     * set. `app.events.can_book_for_others` alone renders a select of the
+     * calendars that the user can edit (`host-select-field`) in its place.
      */
     get hostField(): Locator {
-        return this.details.locator('host-select-field');
+        return this.details.locator('a-user-search-field');
+    }
+
+    get hostInput(): Locator {
+        return this.hostField.locator('input').first();
     }
 
     /** The recurrence select. Needs `app.events.allow_recurrence`. */
@@ -235,53 +243,56 @@ export class MeetingFlow {
         return values.filter((v) => Number.isFinite(v));
     }
 
-    /** The people that the host select offers, as the text of each option. */
-    async hostOptions(): Promise<string[]> {
-        await expect(
-            this.hostField,
-            'no host field on the details step — it is only rendered when ' +
-                '`app.events.can_book_for_others` is set',
-        ).toBeVisible({ timeout: 20_000 });
-        await this.hostField.locator('mat-select').click();
-        const options = this.page.locator('mat-option');
-        await expect(options.first(), 'the host select did not open').toBeVisible({
-            timeout: 10_000,
-        });
-        const texts = await options.allInnerTexts();
-        await this.page.keyboard.press('Escape');
-        await expect(options.first(), 'the host select stayed open').toBeHidden({
-            timeout: 10_000,
-        });
-        return texts.map((t) => t.replace(/\s+/g, ' ').trim());
-    }
-
     /**
-     * Choose who the meeting is for, from the host select.
+     * Choose who the meeting is for, from the host search, and return the name
+     * that the field then shows.
      *
      * Options show the name of the person above the address. The address is
-     * test data, so the option is matched on it.
+     * test data, so the option is matched on it. The search is debounced, so
+     * this waits for an option with an avatar, which is a directory user, and
+     * not for the placeholder option that shows while the search runs.
      */
-    async chooseHost(email: string): Promise<void> {
-        const offered = await this.hostOptions();
-        if (!offered.some((text) => text.toLowerCase().includes(email.toLowerCase()))) {
-            throw new Error(
-                `no host option for ${email}. The select offers ${offered.length}: ` +
-                    `${JSON.stringify(offered)}. It lists the signed-in user and the ` +
-                    `calendars that the user can edit (\`GET /api/staff/v1/calendars\`).`,
-            );
-        }
-        await this.hostField.locator('mat-select').click();
-        await this.page.locator('mat-option').filter({ hasText: email }).first().click();
+    async chooseHost(email: string): Promise<string> {
         await expect(
-            this.hostField.locator('mat-select'),
-            `the host select does not show ${email}`,
-        ).toContainText(email, { timeout: 10_000 });
-    }
-
-    /** What the host select currently shows, for proving a choice stuck. */
-    async hostValue(): Promise<string> {
-        if (!(await this.hostField.count())) return '';
-        return (await this.hostField.locator('mat-select').innerText()).trim();
+            this.hostField,
+            'no host search on the details step — it is only rendered when ' +
+                '`app.events.can_book_for_anyone` is set',
+        ).toBeVisible({ timeout: 20_000 });
+        const input = this.hostInput;
+        const option = this.page
+            .locator('mat-option')
+            .filter({ has: this.page.locator('a-user-avatar') })
+            .filter({ hasText: email })
+            .first();
+        for (let attempt = 1; attempt <= MAX_HOST_ATTEMPTS; attempt++) {
+            await input.click();
+            await input.press('ControlOrMeta+a');
+            await input.press('Backspace');
+            await input.pressSequentially(email, { delay: 30 });
+            // The field selects its text a moment after it gets the focus. On a
+            // busy page that comes after the first key, which the second key
+            // then replaces. Type again in that case.
+            if ((await input.inputValue()) !== email) continue;
+            const appeared = await option
+                .waitFor({ state: 'visible', timeout: 10_000 })
+                .then(() => true)
+                .catch(() => false);
+            if (!appeared) continue;
+            await option.click();
+            await expect(
+                this.hostField.locator('a-user-avatar'),
+                `the host field did not take ${email}`,
+            ).toBeVisible();
+            return input.inputValue();
+        }
+        const offered = await this.page.locator('mat-option').allInnerTexts();
+        throw new Error(
+            `no host option for ${email} after ${MAX_HOST_ATTEMPTS} tries. The panel ` +
+                `offered ${offered.length}: ${JSON.stringify(
+                    offered.map((t) => t.replace(/\s+/g, ' ').trim()).slice(0, 8),
+                )}. With \`app.basic_user_search\` the field searches the PlaceOS ` +
+                `user list, where seed.ts creates one staff user per worker.`,
+        );
     }
 
     /** Go from the details to the room list, and wait for the list to load. */

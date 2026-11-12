@@ -29,6 +29,7 @@ import {
     HostSelectFieldComponent,
     RecurrenceFieldComponent,
     TimeFieldComponent,
+    UserSearchFieldComponent,
 } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
 import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
@@ -167,7 +168,16 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             </div>
                         </div>
                     }
-                    @if (can_book_for_others()) {
+                    @if (can_book_for_anyone()) {
+                        <div class="flex w-full flex-col">
+                            <label for="host" class="uppercase">
+                                {{ 'FORM.HOST' | translate }}<span>*</span>
+                            </label>
+                            <a-user-search-field
+                                [formField]="form.organiser"
+                            ></a-user-search-field>
+                        </div>
+                    } @else if (can_book_for_others()) {
                         <div class="flex w-full flex-col">
                             <label for="host" class="uppercase">
                                 {{ 'FORM.HOST' | translate }}<span>*</span>
@@ -295,6 +305,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
         SettingsToggleComponent,
         MatCheckboxModule,
         HostSelectFieldComponent,
+        UserSearchFieldComponent,
     ],
 })
 export class MeetingFlowDetailsComponent {
@@ -331,6 +342,12 @@ export class MeetingFlowDetailsComponent {
     public readonly end_date = computed(() =>
         endOfDay(addDays(Date.now(), this.allowed_future_days())).valueOf(),
     );
+    /** Shows a user search for the host. Takes priority over `can_book_for_others`. */
+    public readonly can_book_for_anyone = settingSignal(
+        'events.can_book_for_anyone',
+        false,
+    );
+    /** Shows a select of the calendars that the user can edit for the host. */
     public readonly can_book_for_others = settingSignal(
         'events.can_book_for_others',
         false,
