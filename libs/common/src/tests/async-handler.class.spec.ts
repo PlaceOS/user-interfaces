@@ -43,6 +43,23 @@ describe('AsyncHandler', () => {
         expect(second).toHaveBeenCalledTimes(1);
     });
 
+    it('should name the missing name or callback in the error', () => {
+        const no_fn = undefined as unknown as () => void;
+
+        expect(() => handler.timeout('save', no_fn)).toThrow(
+            'Cannot create a timeout without a callback',
+        );
+        expect(() => handler.timeout('', vi.fn())).toThrow(
+            'Cannot create named timeout without a name',
+        );
+        expect(() => handler.interval('poll', no_fn)).toThrow(
+            'Cannot create a interval without a callback',
+        );
+        expect(() => handler.interval('', vi.fn())).toThrow(
+            'Cannot create named interval without a name',
+        );
+    });
+
     it('should stop pending timeouts and intervals on destroy', () => {
         const on_timeout = vi.fn();
         const on_interval = vi.fn();
