@@ -1,0 +1,1 @@
+import{t as Ro}from"./main-SPI4AWYI.js";function n(){Ro(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
