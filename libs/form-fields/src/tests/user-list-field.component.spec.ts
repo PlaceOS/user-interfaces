@@ -192,6 +192,23 @@ describe('UserListFieldComponent', () => {
         expect(spectator.component.active_list()[0].phone).toBe('01234567890');
     });
 
+    it('should keep the visit expected value set by the CSV import', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) =>
+                key === 'app.bookings.internal_emails'
+                    ? ['place.tech']
+                    : undefined,
+        );
+        vi.spyOn(spectator.component, 'confirmCsvImport').mockResolvedValue(
+            true,
+        );
+        await importCsv(
+            'Name,Email\nInternal,jo@place.tech\nExternal,jo@example.com',
+        );
+        const list = spectator.component.active_list();
+        expect(list.map((_) => _.visit_expected)).toEqual([false, true]);
+    });
+
     it('should not add CSV users when the preview is cancelled', async () => {
         vi.spyOn(spectator.component, 'confirmCsvImport').mockResolvedValue(
             false,
