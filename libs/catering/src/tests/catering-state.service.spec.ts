@@ -1,6 +1,7 @@
 import { signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of, Subject } from 'rxjs';
@@ -12,6 +13,7 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 
 import { CateringStateService } from '../lib/catering-state.service';
+import { CateringOption } from '../lib/catering.interfaces';
 
 // The `@placeos/assets` catering fns run for real; only the ts-client API
 // layer beneath them (asset/type/category queries + mutations) is stubbed.
@@ -186,6 +188,54 @@ describe('CateringStateService', () => {
         await flush();
         expect(ts_client.addAsset).toHaveBeenCalledWith(
             expect.objectContaining({ zone_id: 'bld-1' }),
+        );
+    });
+
+    it('should keep other menu items when the item is not in the menu', async () => {
+        setMenu([
+            new CateringItem({ id: 'a', name: 'Coffee' }),
+            new CateringItem({ id: 'b', name: 'Tea' }),
+        ]);
+        vi.mocked(spectator.inject(MatDialog).open).mockImplementation(
+            dialog_fn(false) as unknown as MatDialog['open'],
+        );
+        const option = { id: 'opt-1', name: 'Milk' } as CateringOption;
+
+        await spectator.service.deleteOption(
+            new CateringItem({ id: 'c', name: 'Cake', options: [option] }),
+            option,
+        );
+        await flush();
+
+        expect(spectator.service.menu().map((i) => i.id)).toEqual([
+            'a',
+            'b',
+            'c',
+        ]);
+    });
+
+    it('should show an error when the option removal fails', async () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+        setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
+        vi.mocked(spectator.inject(MatDialog).open).mockImplementation(
+            dialog_fn(false) as unknown as MatDialog['open'],
+        );
+        vi.mocked(ts_client.addAsset).mockRejectedValueOnce('save failed');
+
+        await spectator.service.deleteOption(
+            new CateringItem({ name: 'Cake' }),
+            { id: 'opt-1' } as CateringOption,
+        );
+        await flush();
+        setNotifyOutlet(null, true);
+
+        expect(notify_open).toHaveBeenCalledWith(
+            'CATERING.ITEM_OPTION_REMOVE_ERROR',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
         );
     });
 
