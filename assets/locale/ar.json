@@ -1979,6 +1979,7 @@
             "VC_LEAVE_ERROR": "فشل إنهاء المكالمة. خطأ: {{ error }}",
             "VC_DIAL_ERROR": "تعذر إجراء المكالمة. خطأ: {{ error }}",
             "VC_COMMAND_ERROR": "فشل أمر مؤتمر الفيديو. خطأ: {{ error }}",
+            "CAMERA_COMMAND_ERROR": "فشل أمر الكاميرا. خطأ: {{ error }}",
             "VC_LEAVE_LOADING": "جاري إنهاء المكالمة...",
             "VC_LOADING": "جاري تحميل تفاصيل المكالمة...",
             "ROUTE_ERROR": "تعذر تبديل المصدر. خطأ: {{ error }}",
