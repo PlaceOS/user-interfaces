@@ -1,0 +1,1 @@
+import{t as So}from"./main-3CBDSSLM.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
