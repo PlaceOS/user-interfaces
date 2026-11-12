@@ -155,6 +155,40 @@ describe('registerMockBookings', () => {
         vi.useRealTimers();
     });
 
+    describe('guests', () => {
+        const email = 'guest+1@place.tech';
+        const guest = (method: string, path: string, id: string) =>
+            handler(
+                method,
+                `${API}/:id/guests/:email${path}`,
+            )({
+                route_params: { id, email: encodeURIComponent(email) },
+            });
+        const attendees = (id: string) =>
+            (
+                handler('GET', `${API}/:id`)({ route_params: { id } }) as {
+                    attendees: { email: string }[];
+                }
+            ).attendees;
+
+        it('should mark a guest checked in, not remove them', () => {
+            const { id } = create({ attendees: [{ email }] });
+
+            expect(guest('POST', '/checkin', id)).toMatchObject({
+                email,
+                checked_in: true,
+            });
+            expect(attendees(id)).toEqual([{ email, checked_in: true }]);
+        });
+
+        it('should remove a guest from the booking', () => {
+            const { id } = create({ attendees: [{ email }] });
+
+            expect(guest('DELETE', '', id)).toMatchObject({ email });
+            expect(attendees(id)).toEqual([]);
+        });
+    });
+
     it('should raise a 404 for an unknown booking', () => {
         expect(() => route('approve', 'not-a-booking')).toThrow(
             expect.objectContaining({ status: 404 }),

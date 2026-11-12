@@ -20,6 +20,19 @@ function findBooking(id: string | number) {
     return booking;
 }
 
+/** Find the attendee of `booking` with the URL encoded email, or throw a 404 */
+function findGuest(booking: ReturnType<typeof findBooking>, email: string) {
+    const address = decodeURIComponent(email);
+    const guest = booking.attendees?.find((user) => user.email === address);
+    if (!guest) {
+        throw {
+            status: 404,
+            message: `Unable to find guest with email ${address}`,
+        };
+    }
+    return guest;
+}
+
 function approveBooking(id: string, approved: boolean) {
     const booking = findBooking(id);
     booking.approved = approved;
@@ -228,23 +241,11 @@ export function registerMockBookings() {
         path: '/api/staff/v1/bookings/:id/guests/:email',
         method: 'DELETE',
         callback: (_) => {
-            const { id, email } = _.route_params;
-            const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${id}`);
-            if (!event) {
-                throw {
-                    status: 404,
-                    message: `Unable to find booking with ID ${id}`,
-                };
-            }
-            const guest = event.attendees.find(
-                (_) => _.email === decodeURIComponent(email),
+            const booking = findBooking(_.route_params.id);
+            const guest = findGuest(booking, _.route_params.email);
+            booking.attendees = booking.attendees.filter(
+                (user) => user !== guest,
             );
-            if (!guest) {
-                throw {
-                    status: 404,
-                    message: `Unable to find guest with email ${decodeURIComponent(email)}`,
-                };
-            }
             return guest;
         },
     });
@@ -253,18 +254,10 @@ export function registerMockBookings() {
         path: '/api/staff/v1/bookings/:id/guests/:email/checkin',
         method: 'POST',
         callback: (_) => {
-            const { id, email } = _.route_params;
-            const event = ALL_BOOKINGS.find((e) => `${e.id}` === `${id}`);
-            if (!event) {
-                throw {
-                    status: 404,
-                    message: `Unable to find booking with ID ${id}`,
-                };
-            }
-            event.attendees = event.attendees.filter(
-                (_) => _.email !== decodeURIComponent(email),
-            );
-            return {};
+            const booking = findBooking(_.route_params.id);
+            const guest = findGuest(booking, _.route_params.email);
+            guest.checked_in = `${_.query_params.state ?? 'true'}` === 'true';
+            return guest;
         },
     });
 

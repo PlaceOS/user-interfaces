@@ -97,8 +97,10 @@ export function registerMockEvents() {
                 ...request.body,
                 id: mockId('-cal-event-'),
             };
+            // Add the host as an attendee when they are a known staff member
+            const host = MOCK_STAFF.find((_) => _.email === new_event.host);
             new_event.attendees = [
-                MOCK_STAFF.find((_) => _.email === new_event.host),
+                ...(host ? [host] : []),
                 ...(new_event.attendees || []),
             ];
             new_event.attendees.forEach((user) => {
