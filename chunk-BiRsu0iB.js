@@ -1,1 +1,0 @@
-import{t as So}from"./main-E3WFEP4E.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
