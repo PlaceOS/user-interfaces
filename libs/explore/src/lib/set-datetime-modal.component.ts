@@ -186,12 +186,12 @@ export class SetDatetimeModalComponent implements OnInit {
                 this.form.patchValue({ date: aligned_date });
             }
         }
+        // Keep the chosen start time and only move it when it is outside bookable hours.
         this.form.controls.date.valueChanges.subscribe((date) => {
             if (this.bookable_hours() && date) {
                 const aligned = alignDateToBookableHours(
                     date,
                     this.bookable_hours(),
-                    this._data.date,
                 );
                 if (aligned !== date) {
                     this.form.patchValue({ date: aligned });
