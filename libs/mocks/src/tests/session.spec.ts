@@ -189,4 +189,31 @@ describe('mock session', () => {
         startMockSession();
         expect(localStorage.getItem('PLACEOS.mock.new')).toBe('[]');
     });
+
+    it('should page a list endpoint with the PlaceOS API headers', () => {
+        const items = [1, 2, 3, 4, 5];
+        registerMockEndpoint({
+            path: '/items',
+            method: 'GET',
+            page_size: 2,
+            callback: () => items,
+        });
+        const { callback, headers } = vi
+            .mocked(registerEndpoint)
+            .mock.calls.at(-1)[0];
+        const request = (query_params: Record<string, string>) =>
+            ({ url: 'http://localhost/items?q=a%20b', query_params }) as never;
+        const read = typeof headers === 'function' ? headers : () => ({});
+
+        const first = request({ q: 'a b' });
+        expect(callback(first)).toEqual([1, 2]);
+        expect(read(first)).toEqual({
+            'x-total-count': '5',
+            link: '</items?q=a%20b&offset=2&limit=2>; rel="next"',
+        });
+
+        const last = request({ q: 'a b', offset: '3', limit: '5' });
+        expect(callback(last)).toEqual([4, 5]);
+        expect(read(last)).toEqual({ 'x-total-count': '5' });
+    });
 });

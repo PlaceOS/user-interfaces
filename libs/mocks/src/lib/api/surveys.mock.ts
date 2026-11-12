@@ -1,6 +1,6 @@
 import { Survey, SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
 
-import { persist, registerMockEndpoint } from '../session';
+import { MOCK_PAGE_SIZE, persist, registerMockEndpoint } from '../session';
 
 export const MOCK_SURVEYS: Survey[] = [
     {
@@ -628,6 +628,7 @@ export function registerMockSurveys() {
     registerMockEndpoint({
         path: '/api/staff/v1/surveys/questions',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             const { query_params } = request;
             let filteredQuestions = MOCK_QUESTIONS.filter((q) => !q.deleted);

@@ -1,4 +1,9 @@
-import { mockId, persist, registerMockEndpoint } from '../session';
+import {
+    MOCK_PAGE_SIZE,
+    mockId,
+    persist,
+    registerMockEndpoint,
+} from '../session';
 import {
     generateMockParkingAssets,
     MOCK_ASSETS,
@@ -29,6 +34,7 @@ export function registerMockAssets() {
     registerMockEndpoint({
         path: `${BASE_PATH}/asset_categories`,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (req) => {
             let results = MOCK_CATEGORIES;
             if (req.query_params?.hidden !== undefined) {
@@ -48,6 +54,7 @@ export function registerMockAssets() {
     registerMockEndpoint({
         path: `${BASE_PATH}/asset_types`,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (req) => {
             let results = MOCK_PRODUCTS;
             if (req.query_params?.category_id) {
@@ -68,6 +75,7 @@ export function registerMockAssets() {
     registerMockEndpoint({
         path: `${BASE_PATH}/asset_purchase_orders`,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: () => MOCK_PURCHASE_ORDERS,
     });
     registerCrudEndpoints(
@@ -80,6 +88,7 @@ export function registerMockAssets() {
     registerMockEndpoint({
         path: `${BASE_PATH}/assets`,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (req) => {
             const type_id = req.query_params?.type_id;
             const zone_id = req.query_params?.zone_id;

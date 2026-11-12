@@ -1,5 +1,10 @@
 import { HashMap, padLength, predictableRandomInt } from '@placeos/common';
-import { mockId, persist, registerMockEndpoint } from '../session';
+import {
+    MOCK_PAGE_SIZE,
+    mockId,
+    persist,
+    registerMockEndpoint,
+} from '../session';
 import { MOCK_MENU } from './catering.data';
 import { MOCK_SPACES } from './spaces.data';
 import { MOCK_STAFF } from './users.data';
@@ -83,6 +88,7 @@ export function registerMockZones() {
     registerMockEndpoint({
         path: '/api/engine/v2/zones',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => {
             let zones = all_zones();
             const tag_list = `${request.query_params?.tags || ''}`

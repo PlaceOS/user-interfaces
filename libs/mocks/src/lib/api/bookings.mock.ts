@@ -90,6 +90,7 @@ export function registerMockBookings() {
     registerMockEndpoint({
         path: '/api/staff/v1/bookings',
         method: 'GET',
+        page_size: 50,
         callback: (_) => {
             let events = ALL_BOOKINGS;
             if (!_.query_params.zone_ids && !_.query_params.zones) {
@@ -152,11 +153,6 @@ export function registerMockBookings() {
                         event.booking_type === _.query_params.type,
                 );
             }
-
-            // Pagination
-            const limit = +_.query_params.limit || 50;
-            const offset = +_.query_params.offset || 0;
-            events = events.slice(offset, offset + limit);
 
             return events;
         },

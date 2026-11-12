@@ -1,6 +1,11 @@
 import { HashMap, predictableRandomInt } from '@placeos/common';
 import { addDays, getUnixTime, subDays } from 'date-fns';
-import { mockId, persist, registerMockEndpoint } from '../session';
+import {
+    MOCK_PAGE_SIZE,
+    mockId,
+    persist,
+    registerMockEndpoint,
+} from '../session';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS, MOCK_ZONES } from './zone.data';
 
@@ -804,7 +809,7 @@ const SIGNAGE_GROUP_ZONES: any[] = [
 ];
 
 function listSignageMockGroups(query_params: Record<string, string> = {}) {
-    const groups = SIGNAGE_GROUPS.map((item) => item.group).filter((group) => {
+    return SIGNAGE_GROUPS.map((item) => item.group).filter((group) => {
         if (
             query_params.subsystem &&
             !group.subsystems?.includes(query_params.subsystem)
@@ -826,9 +831,6 @@ function listSignageMockGroups(query_params: Record<string, string> = {}) {
         }
         return true;
     });
-    const limit = Number(query_params.limit || groups.length) || groups.length;
-    const offset = Number(query_params.offset || 0) || 0;
-    return groups.slice(offset, offset + limit);
 }
 
 function filterByGroup<T>(items: T[], group_id = '') {
@@ -1055,6 +1057,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/groups',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) => listSignageMockGroups(request.query_params),
     });
 
@@ -1161,6 +1164,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/group_users',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) =>
             SIGNAGE_GROUP_USERS.filter(
                 (item) => item.group_id === request.query_params?.group_id,
@@ -1228,6 +1232,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/group_zones',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) =>
             SIGNAGE_GROUP_ZONES.filter(
                 (item) => item.group_id === request.query_params?.group_id,
@@ -1288,6 +1293,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/media',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) =>
             filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(
                 toEngineMedia,
@@ -1451,6 +1457,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/plugins',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: () => MOCK_PLUGINS,
     });
 
@@ -1466,6 +1473,7 @@ export function registerMockSignage() {
     registerMockEndpoint({
         path: '/api/engine/v2/signage/playlists',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: (request) =>
             filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(
                 toEnginePlaylist,
@@ -1658,6 +1666,7 @@ function registerMockSignageTemplates() {
     registerMockEndpoint({
         path: BASE,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: ({ query_params }) =>
             filterByGroup(MOCK_TEMPLATES, query_params?.group_id).filter(
                 (item) =>
@@ -1764,6 +1773,7 @@ function registerMockSignageTemplates() {
     registerMockEndpoint({
         path: MAPPINGS,
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: ({ query_params }) =>
             MOCK_TEMPLATE_MAPPINGS.filter((item) =>
                 ['control_system_id', 'zone_id', 'template_id'].every(

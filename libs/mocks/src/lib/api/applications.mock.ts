@@ -1,4 +1,4 @@
-import { registerMockEndpoint } from '../session';
+import { MOCK_PAGE_SIZE, registerMockEndpoint } from '../session';
 
 /** OAuth applications that the App Loader lists as launchable apps */
 const MOCK_APPLICATIONS = [
@@ -24,6 +24,7 @@ export function registerMockApplications() {
     registerMockEndpoint({
         path: '/api/engine/v2/oauth_apps',
         method: 'GET',
+        page_size: MOCK_PAGE_SIZE,
         callback: () => MOCK_APPLICATIONS,
     });
 }

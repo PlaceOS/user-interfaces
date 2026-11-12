@@ -1,5 +1,6 @@
-import { log } from '@placeos/common';
+import { HashMap, log, toQueryString } from '@placeos/common';
 import {
+    MockHttpRequest,
     MockHttpRequestHandlerOptions,
     registerMockEndpoint as registerEndpoint,
 } from '@placeos/ts-client';
@@ -276,14 +277,71 @@ export function saveMockSession() {
     for (const [key, store] of _stores) write(key, store.dump());
 }
 
+/** Page size of the PlaceOS API when a request does not set `limit` */
+export const MOCK_PAGE_SIZE = 100;
+
+/** Options for `registerMockEndpoint` */
+export interface MockEndpointOptions extends MockHttpRequestHandlerOptions {
+    /**
+     * Page size when the request does not set `limit`. Set it on list
+     * endpoints to page the array that `callback` returns. The response then
+     * has the `x-total-count` and `link` headers of the PlaceOS API.
+     */
+    page_size?: number;
+}
+
+/** Headers of the page that each paged request returned */
+const _page_headers = new WeakMap<MockHttpRequest, HashMap<string>>();
+
+/**
+ * Return the page of `items` that the `offset` and `limit` query parameters
+ * of `request` select. Keeps the headers of the page for `pageHeaders`.
+ */
+function pageOf(request: MockHttpRequest, items: unknown, page_size: number) {
+    if (!Array.isArray(items)) return items;
+    const params = request.query_params || {};
+    const offset = Math.max(0, Math.floor(+params.offset) || 0);
+    const limit =
+        Math.floor(+params.limit) > 0 ? Math.floor(+params.limit) : page_size;
+    const headers: HashMap<string> = { 'x-total-count': `${items.length}` };
+    if (offset + limit < items.length) {
+        const path = request.url.replace(/^https?:\/\/[^/]+/, '').split('?')[0];
+        const next = toQueryString({
+            ...params,
+            offset: offset + limit,
+            limit,
+        });
+        headers['link'] = `<${path}?${next}>; rel="next"`;
+    }
+    _page_headers.set(request, headers);
+    return items.slice(offset, offset + limit);
+}
+
+/** Headers for a paged request. ts-client reads them after `callback` */
+function pageHeaders(request: MockHttpRequest) {
+    return _page_headers.get(request) || {};
+}
+
 /**
  * Register a mock HTTP endpoint. Use it in place of the ts-client function.
  * Requests other than GET save the mock session after they complete, so the
  * change survives a reload and reaches other tabs. The `:id` route parameter
- * and the `id` of the response name the items that changed.
+ * and the `id` of the response name the items that changed. Set `page_size`
+ * to page the results of a list endpoint.
  */
-export function registerMockEndpoint(options: MockHttpRequestHandlerOptions) {
+export function registerMockEndpoint({
+    page_size,
+    ...options
+}: MockEndpointOptions) {
     const { callback } = options;
+    if (page_size && callback) {
+        return registerEndpoint({
+            ...options,
+            callback: (request) =>
+                pageOf(request, callback(request), page_size),
+            headers: pageHeaders,
+        });
+    }
     if (options.method === 'GET' || !callback) {
         return registerEndpoint(options);
     }
