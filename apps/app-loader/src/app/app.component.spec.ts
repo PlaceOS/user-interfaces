@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
+import { EMPTY_USER, setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
 import {
     authority,
     PlaceApplication,
@@ -76,7 +76,7 @@ describe('AppComponent', () => {
         respondWith([]);
         vi.mocked(setup).mockResolvedValue(undefined);
         vi.mocked(setAPI_Key).mockReturnValue(undefined);
-        setCurrentUser(new StaffUser({ id: 'user-1', groups: [] }));
+        setCurrentUser(new StaffUser({ email: 'user@example.com', groups: [] }));
         window.history.replaceState({}, '', '/');
         spectator = create_component();
     });
@@ -162,7 +162,7 @@ describe('AppComponent', () => {
             composer: {},
             'app.application_restrictions': [{ id: 'admin', groups: ['admins'] }],
         });
-        setCurrentUser(new StaffUser({ id: 'u', groups: ['staff'] }));
+        setCurrentUser(new StaffUser({ email: 'u@example.com', groups: ['staff'] }));
         respondWith([
             {
                 id: 'admin',
@@ -180,6 +180,28 @@ describe('AppComponent', () => {
 
         const names = spectator.queryAll('.app-name').map((_) => _.textContent?.trim());
         expect(names).toEqual(['Workplace']);
+    });
+
+    it('waits for the signed-in user before applying application restrictions', async () => {
+        useSettings({
+            composer: {},
+            'app.application_restrictions': [{ id: 'admin', groups: ['admins'] }],
+        });
+        respondWith([
+            { id: 'admin', name: 'Admin', redirect_uri: 'https://example.com/admin/' },
+            { id: 'workplace', name: 'Workplace', redirect_uri: 'https://example.com/workplace/' },
+        ]);
+        // The store holds the empty placeholder until the user request returns
+        setCurrentUser(EMPTY_USER);
+        settings_mock.initialised.next(true);
+
+        const init = spectator.component.ngOnInit();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        setCurrentUser(new StaffUser({ email: 'admin@example.com', groups: ['admins'] }));
+        await init;
+
+        const names = spectator.component.applications().map((_) => _.name);
+        expect(names).toEqual(['Admin', 'Workplace']);
     });
 
     it('shows an empty-state message when no applications are configured', async () => {

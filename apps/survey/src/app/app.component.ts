@@ -4,7 +4,6 @@ import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
     AsyncHandler,
-    current_user,
     failInitialisation,
     firstTruthyValueFrom,
     HotkeysService,
@@ -22,6 +21,7 @@ import {
     setupCache,
     setupPlace,
     storeApiKeyFromUrl,
+    waitForCurrentUser,
     withTimeout,
 } from '@placeos/common';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
@@ -156,7 +156,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         setupCache(this._cache, this._settings.get('service_worker') || {});
         try {
             await withTimeout(
-                firstTruthyValueFrom(current_user),
+                waitForCurrentUser(),
                 30_000,
                 'Current user loading timed out.',
             );
