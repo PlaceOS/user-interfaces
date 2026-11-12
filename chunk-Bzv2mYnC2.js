@@ -1,4 +1,0 @@
-import{It as Ci,Oi as ot,Vi as se,Zr as gn,ta as v,ya as yi}from"./main.js";function y(r,o){let e=v(r,o?.in).getDay();return e===0||e===6}function _(r,o,e){let[i,n]=gn(e?.in,r,o);if(!Ci(i)||!Ci(n))return NaN;let m=yi(i,n),d=m<0?-1:1,l=Math.trunc(m/7),a=l*5,t=ot(n,l*7);for(;!se(i,t);)a+=y(t,e)?0:d,t=ot(t,d);return a===0?0:a}export{_ as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="13cc7d1c-9d3e-5a13-bb99-ff3e434c1336")}catch(e){}}();
-//# debugId=13cc7d1c-9d3e-5a13-bb99-ff3e434c1336
-//# sourceMappingURL=chunk-Bzv2mYnC2.js.map
