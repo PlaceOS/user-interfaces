@@ -336,11 +336,9 @@ export class CateringStateService extends AsyncHandler {
         saveCateringItem(updated_item, this._org.building.id).then(
             (saved_item) => {
                 const menu = this._menu();
-                menu.splice(
-                    menu.findIndex((itm) => itm.id === item.id),
-                    1,
-                    saved_item,
-                );
+                const index = menu.findIndex((itm) => itm.id === item.id);
+                if (index >= 0) menu.splice(index, 1, saved_item);
+                else menu.push(saved_item);
                 this._menu.set([...menu]);
                 notifySuccess(
                     i18n('CATERING.ITEM_OPTION_REMOVE_SUCCESS', {
@@ -349,10 +347,11 @@ export class CateringStateService extends AsyncHandler {
                 );
                 details.close();
             },
-            () => {
-                notifySuccess(
+            (e) => {
+                notifyError(
                     i18n('CATERING.ITEM_OPTION_REMOVE_ERROR', {
                         item: item.name,
+                        error: e,
                     }),
                 );
                 details.loading('');
