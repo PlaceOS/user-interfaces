@@ -179,15 +179,20 @@ export const ALLOW_MULTIDAY = {
 /**
  * Book a meeting on somebody else's behalf.
  *
- * `app.events.can_book_for_others` renders a `host-select-field` on the details
- * step (`meeting-flow-details.component.ts`). It is a select of the signed-in
- * user and the calendars that the user can edit.
+ * `app.events.can_book_for_anyone` renders a host search
+ * (`a-user-search-field`) on the details step
+ * (`meeting-flow-details.component.ts`). `app.basic_user_search` makes it
+ * search the PlaceOS user list, which holds the seeded staff users. Without it
+ * the field searches the directory of the calendar tenant.
  *
- * The flow does not read `events.can_book_for_anyone`, which gave the flow it
- * replaced a user search field. See `room-delegate.spec.ts`.
+ * `app.events.can_book_for_others` is left out on purpose. Alone it renders a
+ * select of the calendars that the user can edit, and on this stack
+ * `GET /api/staff/v1/calendars` answers 500, so the select holds only the
+ * signed-in user.
  */
-export const BOOK_FOR_OTHERS = {
-    'app.events.can_book_for_others': true,
+export const BOOK_FOR_ANYONE = {
+    'app.events.can_book_for_anyone': true,
+    'app.basic_user_search': true,
 };
 
 /**

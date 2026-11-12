@@ -245,6 +245,7 @@ needs, and its row says what the spec has to set up.
 | ROOM-21 | P2 | With `app.bookings.no_approval`, a standard user can still book: the booking is stored, and it is stored **pending**, not approved. | **done** — `local/room-approval.spec.ts`. The app does not send `approved` for such a user, so the backend keeps the booking pending. ROOM-B1 (the `500`) does not occur, because the booking now has zones. |
 | ROOM-22 | P1 | **Catering** ordered on the form reaches the backend as its own `catering-order` booking, linked to the meeting. | **done** — `local/room-catering.spec.ts`. The catering order is stored and names the item. ROOM-B5 does not occur. |
 | ROOM-23 | P1 | **Checking in** to a room booking. | **unblocked, no spec yet.** The check-in button only renders when a websocket `binding` to a **`Bookings` driver module** on the room's System reports a status (`event-details-modal.component.ts`: `mod="Bookings" bind="status"`, and the button also needs `room_status() !== 'free'`). The stack now runs core, and every seeded room carries `Place::Bookings` polling a demo calendar in the same system (`e2e/support/room/room.seed.ts`); `home-availability.spec.ts` (HOME-10) proves that chain end to end, since the home page lists a room only while its module reports `free`. A spec here has to put an event covering now into the room's `Calendar_1` (`create_event`, through the module exec route) so the module reports a meeting, then the control renders. Contrast VIS-11, where visitor check-in is a plain API call and is covered. |
+| ROOM-28 | P1 | A meeting booked for a colleague is stored with that colleague as the host (`user_email`, `user_id`, `user_name`) and the signed-in user as the booker (`booked_by_*`). | **done** — `local/room-delegate.spec.ts`. Needs `events.can_book_for_anyone` and `basic_user_search`: the new flow then shows a host search (PPT-2873). `events.can_book_for_others` alone shows a select that is filled from `GET /calendars`, which answers `500` without a calendar tenant. |
 
 ### Findings from building this coverage
 
@@ -364,12 +365,10 @@ of WP-E2E-05, and its two checks of the success view are now in that test.
 
 ### Blocked by the new views
 
-Each of these is `test.fixme` with the measurement in its comment. The first passed on the views
-before PR #561.
+Each of these is `test.fixme` with the measurement in its comment.
 
 | ID | Story | What blocks it |
 |----|-------|----------------|
-| ROOM-28 | A meeting booked for a colleague is stored with that colleague as the host. | The new meeting flow cannot name a colleague on this stack. `events.can_book_for_anyone` renders no host field. `events.can_book_for_others` renders a select that is filled from `GET /calendars`, which answers `500` without a calendar tenant, so the select holds only the signed-in user. |
 | NEW-DESK-03 | A desk can be selected when another desk of the building has no `features` list. | `desk-flow-select.component.ts` calls `.trim()` on the features of every desk with no guard. One desk without the list throws `TypeError: Cannot read properties of undefined (reading 'trim')`, and after that no row of the list shows as selected. The earlier flow read the list through `BookingFormService.features`, which has the guard. |
 
 **Not covered, and why.**
@@ -523,9 +522,9 @@ nothing, so the broker keeps its last value. source would need redis keyspace no
   or through `use_bookings`?** Nobody has answered it. If the answer is "the calendar", the
   green rows in §1b guard a path those customers never take. This needs a product answer, not more
   specs.
-- **Four rows are blocked on product fixes, not on test effort** (REG-08, REG-09, ROOM-28 and
-  NEW-DESK-03). The last two are gaps or faults of
-  the views that PR #561 made the default; §1c has them. All were found by this suite. Leaving
+- **Three rows are blocked on product fixes, not on test effort** (REG-08, REG-09 and
+  NEW-DESK-03). The last one is a fault of
+  the views that PR #561 made the default; §1c has it. All were found by this suite. Leaving
   them visible here is the point — a blocked row is coverage information, a deleted row is not.
 - **One row is blocked by the environment rather than by a bug** (AUTH-E2E-08), and it says
   what would unblock it. ROOM-23 was the other until the stack gained core and a `Bookings`
