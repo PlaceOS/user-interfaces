@@ -27,18 +27,18 @@ import {
     startOfDayInTimezone,
 } from '@placeos/common';
 import {
-    addMinutes,
     endOfDay,
     format,
-    isAfter,
     isBefore,
-    roundToNearestMinutes,
     startOfDay,
     startOfMinute,
 } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+/** Upper bound on time options in one day (a 25 hour day at a 1 minute step) */
+const MAX_TIME_OPTIONS = 25 * 60 + 1;
 
 export interface TimeFieldRange {
     /** Earliest allowed hour of the day (0–24). For example, `8` means 8:00 AM. */
@@ -561,14 +561,17 @@ export class TimeFieldComponent
             return blocks;
         }
 
-        let date = this._roundUpToStep(range_start, step);
-        const end = this._roundDownToStep(range_end, step);
-        while (!isAfter(date, end)) {
-            blocks.push({
-                date: date.valueOf(),
-                id: formatTimeInTimezone(date, tz),
-            });
-            date = addMinutes(date, step);
+        // Options sit on whole steps from the start of the day
+        const step_ms = step * 60 * 1000;
+        const first = Math.ceil((range_start - day_start) / step_ms);
+        const last = Math.floor((range_end - day_start) / step_ms);
+        for (
+            let i = first;
+            i <= last && blocks.length < MAX_TIME_OPTIONS;
+            i++
+        ) {
+            const date = day_start + i * step_ms;
+            blocks.push({ date, id: formatTimeInTimezone(date, tz) });
         }
         return blocks;
     }
@@ -592,21 +595,5 @@ export class TimeFieldComponent
             return false;
         }
         return true;
-    }
-
-    private _roundUpToStep(datestamp: number, step: number): Date {
-        let date = roundToNearestMinutes(datestamp, { nearestTo: step as any });
-        if (isBefore(date, datestamp)) {
-            date = addMinutes(date, step);
-        }
-        return startOfMinute(date);
-    }
-
-    private _roundDownToStep(datestamp: number, step: number): Date {
-        let date = roundToNearestMinutes(datestamp, { nearestTo: step as any });
-        if (isAfter(date, datestamp)) {
-            date = addMinutes(date, -step);
-        }
-        return startOfMinute(date);
     }
 }
