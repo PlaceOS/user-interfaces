@@ -123,4 +123,17 @@ describe('SetDatetimeModalComponent', () => {
         date.setHours(8);
         expect(spectator.component.form.value.date).toBe(date.valueOf());
     });
+
+    it('should keep a new start time inside bookable hours and move one outside them', () => {
+        setup({ bookable_hours: { start: 8, end: 18 } });
+        const tomorrow = new Date(base_date);
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const { date } = spectator.component.form.controls;
+
+        date.setValue(new Date(tomorrow).setHours(14, 0, 0, 0));
+        expect(date.value).toBe(new Date(tomorrow).setHours(14, 0, 0, 0));
+
+        date.setValue(new Date(tomorrow).setHours(20, 0, 0, 0));
+        expect(date.value).toBe(new Date(tomorrow).setHours(8, 0, 0, 0));
+    });
 });
