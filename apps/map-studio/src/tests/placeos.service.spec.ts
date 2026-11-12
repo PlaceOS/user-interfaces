@@ -373,6 +373,115 @@ describe('PlaceOSService', () => {
         );
     });
 
+    it('stops reading pages at the page limit', async () => {
+        stubFetch(true);
+        await service.init();
+        // A server that always returns a full page must not loop forever
+        const fetch = vi.fn(async () => ({
+            ok: true,
+            json: async () => Array.from({ length: 100 }, () => ({})),
+        }));
+        vi.stubGlobal('fetch', fetch);
+
+        await expect(service.getSystems('level-1')).resolves.toHaveLength(
+            5_000,
+        );
+        expect(fetch).toHaveBeenCalledTimes(50);
+    });
+
+    it('publishes an SVG by reserving, storing and completing the upload', async () => {
+        stubFetch(true);
+        await service.init();
+        const fetch = vi.mocked(globalThis.fetch);
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    id: 'up-1',
+                    upload_url: 'https://storage.example/signed',
+                    upload_headers: { 'x-amz-acl': 'public-read' },
+                }),
+            } as Response)
+            .mockResolvedValueOnce({ ok: true } as Response)
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({}),
+            } as Response);
+
+        await expect(
+            service.uploadSvg('<svg/>', 'level-1.svg'),
+        ).resolves.toEqual({
+            upload_id: 'up-1',
+            file_url: '/api/engine/v2/uploads/up-1/url',
+        });
+
+        const [reserve, store, complete] = fetch.mock.calls.slice(-3) as [
+            string,
+            RequestInit,
+        ][];
+        expect(reserve[0]).toBe('/api/engine/v2/uploads');
+        expect(JSON.parse(reserve[1].body as string)).toMatchObject({
+            file_name: 'level-1.svg',
+            file_size: 6,
+        });
+        expect(store[0]).toBe('https://storage.example/signed');
+        expect(store[1]).toMatchObject({
+            method: 'PUT',
+            body: '<svg/>',
+            headers: {
+                'Content-Type': 'image/svg+xml',
+                'x-amz-acl': 'public-read',
+            },
+        });
+        expect(complete[0]).toBe('/api/engine/v2/uploads/up-1');
+        expect(JSON.parse(complete[1].body as string)).toEqual({
+            upload_complete: true,
+        });
+    });
+
+    it('does not complete an upload that storage refused', async () => {
+        stubFetch(true);
+        await service.init();
+        const fetch = vi.mocked(globalThis.fetch);
+        const before = fetch.mock.calls.length;
+        fetch
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({
+                    id: 'up-1',
+                    upload_url: 'https://storage.example/signed',
+                }),
+            } as Response)
+            .mockResolvedValueOnce({ ok: false, status: 403 } as Response);
+
+        await expect(
+            service.uploadSvg('<svg/>', 'level-1.svg'),
+        ).rejects.toThrow('Upload to storage failed: 403');
+        // Reserve and store only; no completion request follows
+        expect(fetch.mock.calls.length - before).toBe(2);
+    });
+
+    it('rejects a level map that is not an SVG', async () => {
+        const calls = stubFetch(true);
+        await service.init();
+        vi.mocked(globalThis.fetch)
+            .mockResolvedValueOnce({
+                ok: true,
+                json: async () => ({ map_id: '/maps/level-1.svg' }),
+            } as Response)
+            .mockResolvedValueOnce({
+                ok: true,
+                text: async () => '<html><body>Sign in</body></html>',
+            } as Response);
+
+        await expect(service.getLevelMap('level-1')).rejects.toThrow(
+            'not an SVG',
+        );
+        calls.length = 0;
+        await expect(service.getLevelMap('level-3')).resolves.toBeNull();
+        expect(calls.some(([url]) => url.endsWith('.svg'))).toBe(false);
+    });
+
     it('sends an imported SVG once, not as both source and output', async () => {
         const details = () =>
             (

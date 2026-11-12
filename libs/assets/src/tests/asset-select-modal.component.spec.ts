@@ -42,14 +42,28 @@ describe('AssetSelectModalComponent', () => {
         expect(set_options).toHaveBeenCalledWith(dialog_data.details);
     });
 
-    it('should clamp the delivery offset to the booking window', () => {
-        // Mutate the same data object the injector already cached, then rebuild
-        // the component with change detection off so the mock filter component
-        // does not push its default offset back through the two-way binding
+    // Each test below mutates the data object the injector already cached,
+    // then rebuilds the component with change detection off so the mock
+    // filter component does not push its default offset back through the
+    // two-way binding
+    it('should clamp the delivery offset to the booking end', () => {
+        settings_mock.get.mockImplementation((key: string) =>
+            key === 'app.assets.end_offset' ? 10 : undefined,
+        );
         dialog_data.offset = 100;
         spectator = createComponent({ detectChanges: false });
 
-        expect(spectator.component.offset()).toBe(60);
+        expect(spectator.component.offset()).toBe(50);
+    });
+
+    it('should raise the delivery offset to the minimum offset', () => {
+        settings_mock.get.mockImplementation((key: string) =>
+            key === 'app.assets.min_offset' ? 15 : undefined,
+        );
+        dialog_data.offset = 5;
+        spectator = createComponent({ detectChanges: false });
+
+        expect(spectator.component.offset()).toBe(15);
     });
 
     it('should add and remove groups from the selection', () => {

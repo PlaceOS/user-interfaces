@@ -191,6 +191,49 @@ describe('checkRulesMatch', () => {
             conditions: { locations: ['Desk 1'] },
         };
         expect(checkRulesMatch(details(), ruleset)).toBe(true);
+        expect(
+            checkRulesMatch(
+                details({ resource: { id: 'desk-2', name: 'Desk 2' } }),
+                ruleset,
+            ),
+        ).toBe(false);
+    });
+
+    describe('relative booking windows', () => {
+        const now = new Date('2024-01-01T09:00:00').valueOf();
+        const hours = (count: number) => now + count * 60 * 60 * 1000;
+
+        beforeEach(() => vi.useFakeTimers({ now }));
+        afterEach(() => vi.useRealTimers());
+
+        it('should match bookings that end before is_before from now', () => {
+            const ruleset: BookingRuleset = {
+                zone: '*',
+                rules: {},
+                conditions: { is_before: '1 day' },
+            };
+            // 60 minute bookings
+            expect(checkRulesMatch(details({ date: hours(2) }), ruleset)).toBe(
+                true,
+            );
+            expect(checkRulesMatch(details({ date: hours(23) }), ruleset)).toBe(
+                false,
+            );
+        });
+
+        it('should match bookings that start after is_after from now', () => {
+            const ruleset: BookingRuleset = {
+                zone: '*',
+                rules: {},
+                conditions: { is_after: '2 hours' },
+            };
+            expect(checkRulesMatch(details({ date: hours(3) }), ruleset)).toBe(
+                true,
+            );
+            expect(checkRulesMatch(details({ date: hours(1) }), ruleset)).toBe(
+                false,
+            );
+        });
     });
 });
 

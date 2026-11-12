@@ -28,4 +28,10 @@ describe('parseIdList', () => {
             'namecheap-2',
         ]);
     });
+
+    it('ignores blank lines and rows with no id', () => {
+        expect(parseIdList('  \n')).toEqual([]);
+        const ids = parseIdList('room-01\n\n,Orphan label\nroom-02');
+        expect(ids.map((entry) => entry.id)).toEqual(['room-01', 'room-02']);
+    });
 });

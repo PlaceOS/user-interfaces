@@ -4,8 +4,12 @@ import {
     SpectatorRouting,
     createRoutingFactory,
 } from '@ngneat/spectator/vitest';
-import { BuildingLevel, OrganisationService } from '@placeos/common';
-import { VirtualKeyboardComponent } from '@placeos/components';
+import { Building, BuildingLevel, OrganisationService } from '@placeos/common';
+import {
+    KioskLocationPickerComponent,
+    SettingsToggleComponent,
+    VirtualKeyboardComponent,
+} from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
@@ -30,7 +34,7 @@ describe('BootstrapComponent', () => {
         ),
         region_list: signal([]),
         active_buildings: signal([]),
-        active_levels: signal([]),
+        active_levels: signal<BuildingLevel[]>([]),
         initialised: signal(true),
     };
     const createComponent = createRoutingFactory({
@@ -51,6 +55,7 @@ describe('BootstrapComponent', () => {
         vi.useFakeTimers();
         vi.clearAllMocks();
         org_ready = Promise.resolve();
+        org.active_levels.set([]);
         localStorage.clear();
         VirtualKeyboardComponent.enabled = false;
     });
@@ -80,6 +85,30 @@ describe('BootstrapComponent', () => {
         spectator.component.bootstrapKiosk(kiosk);
         expect(localStorage.getItem('KIOSK.parking')).toBeNull();
         expect(router.navigate).toHaveBeenLastCalledWith(['/explore']);
+    });
+
+    it('should offer the parking display only for a parking level', async () => {
+        const office = new BuildingLevel({ id: 'lvl-1', parent_id: 'bld-1' });
+        const parking = new BuildingLevel({
+            id: 'lvl-p',
+            parent_id: 'bld-1',
+            tags: ['parking'],
+        });
+        org.active_levels.set([office, parking]);
+        await setup();
+        const picker = spectator.query(KioskLocationPickerComponent);
+        picker.setBuilding(new Building({ id: 'bld-1' }));
+        picker.setLevel(office);
+        spectator.detectChanges();
+        expect('settings-toggle').not.toExist();
+
+        picker.setLevel(parking);
+        spectator.detectChanges();
+        spectator.query(SettingsToggleComponent).setValue(true);
+        picker.submit();
+        expect(localStorage.getItem('KIOSK.level')).toBe('lvl-p');
+        expect(localStorage.getItem('KIOSK.parking')).toBe('true');
+        expect(router.navigate).toHaveBeenCalledWith(['/parking']);
     });
 
     it('should remove the saved setup when clear=true', async () => {
@@ -145,6 +174,16 @@ describe('BootstrapComponent', () => {
         await vi.advanceTimersByTimeAsync(1);
         expect(router.navigate).toHaveBeenCalledWith(['/parking']);
         expect(VirtualKeyboardComponent.enabled).toBe(true);
+    });
+
+    it('should redirect a saved non-parking setup to explore', async () => {
+        localStorage.setItem('KIOSK.building', 'bld-1');
+        localStorage.setItem('KIOSK.level', 'lvl-1');
+        VirtualKeyboardComponent.enabled = true;
+        await setup();
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(router.navigate).toHaveBeenCalledWith(['/explore']);
+        expect(VirtualKeyboardComponent.enabled).toBe(false);
     });
 
     it('should stay on setup when only part of a setup is saved', async () => {

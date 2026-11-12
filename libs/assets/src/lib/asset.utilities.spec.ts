@@ -1,8 +1,9 @@
 import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CalendarEvent } from '@placeos/common';
+import { AssetGroup, CalendarEvent } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { addHours, subHours } from 'date-fns';
+import { AttachedResourceRuleset } from 'libs/components/src/lib/attached-resource-config-modal.component';
 
 import {
     assetAvailable,
@@ -225,6 +226,64 @@ describe('asset.utilities', () => {
             expect(
                 assetAvailable({ name: 'Chairs' } as any, rules, imminent),
             ).toBe(false);
+        });
+
+        it('should honour within_hours timing rules', () => {
+            const rules: AttachedResourceRuleset[] = [
+                { id: 'r1', name: 'Chairs', rules: [['within_hours', 2]] },
+            ];
+            const chairs = { name: 'Chairs' } as AssetGroup;
+
+            const imminent = make_event({
+                date: addHours(new Date(), 1).valueOf(),
+            });
+            expect(assetAvailable(chairs, rules, imminent)).toBe(true);
+
+            const later = make_event({
+                date: addHours(new Date(), 5).valueOf(),
+            });
+            expect(assetAvailable(chairs, rules, later)).toBe(false);
+        });
+
+        it('should honour min_length and max_length duration rules', () => {
+            const rules: AttachedResourceRuleset[] = [
+                {
+                    id: 'r1',
+                    name: '*',
+                    rules: [
+                        ['min_length', '30 minutes'],
+                        ['max_length', '2 hours'],
+                    ],
+                },
+            ];
+            const chairs = { name: 'Chairs' } as AssetGroup;
+            const with_duration = (duration: number) =>
+                assetAvailable(chairs, rules, make_event({ duration }));
+
+            expect(with_duration(29)).toBe(false);
+            expect(with_duration(30)).toBe(true);
+            expect(with_duration(120)).toBe(true);
+            expect(with_duration(121)).toBe(false);
+        });
+
+        it('should be unavailable when any matching ruleset fails', () => {
+            const event = make_event({ duration: 60 });
+            const chairs = { name: 'Chairs' } as AssetGroup;
+            const passing: AttachedResourceRuleset = {
+                id: 'r1',
+                name: '*',
+                rules: [['max_length', '2 hours']],
+            };
+            const failing: AttachedResourceRuleset = {
+                id: 'r2',
+                name: 'Chairs',
+                rules: [['min_length', '2 hours']],
+            };
+
+            expect(assetAvailable(chairs, [passing], event)).toBe(true);
+            expect(assetAvailable(chairs, [passing, failing], event)).toBe(
+                false,
+            );
         });
 
         it('should not throw for a category without a name', () => {

@@ -6,7 +6,8 @@ import {
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-import { StaffUser } from '@placeos/common';
+import { TestBed } from '@angular/core/testing';
+import { SettingsService, StaffUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
 let exclude_guests: boolean | undefined;
@@ -113,6 +114,27 @@ describe('[Staff API]', () => {
                 );
             },
         );
+
+        it('uses the app setting when the caller does not override it', async () => {
+            exclude_guests = undefined;
+            // `setting()` reads from the SettingsService once it is created
+            const get = vi
+                .spyOn(TestBed.inject(SettingsService), 'get')
+                .mockImplementation(
+                    (key: string) => key === 'app.staff_search_exclude_guests',
+                );
+            onTestFinished(() => get.mockRestore());
+            mockGet.mockResolvedValue([
+                { id: 'guest', unmapped: { userType: 'Guest' } },
+                { id: 'member', unmapped: { userType: 'Member' } },
+            ]);
+            expect((await searchStaff('')).map((u) => u.id)).toEqual([
+                'member',
+            ]);
+            const url = new URL(mockGet.mock.calls[0][0], location.origin);
+            expect(url.searchParams.get('fields')).toContain('unmapped');
+            expect(url.searchParams.get('additional_fields')).toBe('userType');
+        });
 
         it('stops paging once 100 eligible results have been found', async () => {
             mockGet.mockResolvedValue(

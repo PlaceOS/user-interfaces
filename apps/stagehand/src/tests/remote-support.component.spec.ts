@@ -23,7 +23,7 @@ const room = (over: Record<string, any> = {}) => ({
 
 describe('RemoteSupportComponent', () => {
     let spectator: Spectator<RemoteSupportComponent>;
-    let region_id: unknown;
+    let region_id: ReturnType<typeof signal<string>>;
     let building_id: any;
     let dashboard_alerts: any;
     let space_list: any;
@@ -97,29 +97,26 @@ describe('RemoteSupportComponent', () => {
         expect(spectator.component.status()).toBe(previous_ref);
     });
 
-    it('should set and clear the current booking for a room', () => {
+    it('should set and clear the current and next booking for a room', () => {
         const space = room() as any;
-        const event = { id: 'evt-1', title: 'Standup' } as any;
-        spectator.component.setCurrentBooking(space, event);
-        expect(spectator.component.current()['sys-1']).toBe(event);
+        const current = { id: 'evt-1', title: 'Standup' } as any;
+        const next = { id: 'evt-2', title: 'Review' } as any;
+        spectator.component.setCurrentBooking(space, current);
+        spectator.component.setNextBooking(space, next);
+        expect(spectator.component.current()['sys-1']).toBe(current);
+        expect(spectator.component.next()['sys-1']).toBe(next);
         const before = spectator.component.current();
+        const before_next = spectator.component.next();
 
         spectator.component.setCurrentBooking(space, null);
         expect(spectator.component.current()['sys-1']).toBeUndefined();
         // a new map, so the template sees the booking end
         expect(spectator.component.current()).not.toBe(before);
-    });
-
-    it('should set and clear the next booking for a room', () => {
-        const space = room() as any;
-        const event = { id: 'evt-2', title: 'Review' } as any;
-        spectator.component.setNextBooking(space, event);
-        expect(spectator.component.next()['sys-1']).toBe(event);
-        const before = spectator.component.next();
+        expect(spectator.component.next()['sys-1']).toBe(next);
 
         spectator.component.setNextBooking(space, null);
         expect(spectator.component.next()['sys-1']).toBeUndefined();
-        expect(spectator.component.next()).not.toBe(before);
+        expect(spectator.component.next()).not.toBe(before_next);
     });
 
     it('should mirror the support service space list into the room list', () => {
@@ -131,15 +128,39 @@ describe('RemoteSupportComponent', () => {
         ]);
     });
 
-    it('should scope zone rooms to the selected building', () => {
+    it('should scope zone rooms to the selected region or building', () => {
         spectator.component.room_list.set([
-            room({ id: 'a', zones: ['bld-1'] }),
-            room({ id: 'b', zones: ['bld-2'] }),
+            room({ id: 'a', zones: ['rgn-1', 'bld-1'] }),
+            room({ id: 'b', zones: ['rgn-1', 'bld-2'] }),
+            room({ id: 'c', zones: ['rgn-2', 'bld-3'] }),
         ] as any);
-        building_id.set('bld-1');
-        expect(spectator.component.zone_rooms().map((r) => r.id)).toEqual([
-            'a',
-        ]);
+        const ids = () => spectator.component.zone_rooms().map((r) => r.id);
+        expect(ids()).toEqual(['a', 'b', 'c']);
+
+        region_id.set('rgn-1');
+        expect(ids()).toEqual(['a', 'b']);
+
+        // a building picked narrows the region to it
+        building_id.set('bld-2');
+        expect(ids()).toEqual(['b']);
+    });
+
+    it('should keep the search, state and location in the URL', () => {
+        spectator.component.ngOnInit();
+        spectator.component.search_term.set('board');
+        spectator.component.state.set('issues');
+        TestBed.tick();
+        expect(navigate).toHaveBeenLastCalledWith(
+            [],
+            expect.objectContaining({
+                queryParams: {
+                    search: 'board',
+                    state: 'issues',
+                    region: 'all',
+                },
+                replaceUrl: true,
+            }),
+        );
     });
 
     it('should attach matching alerts to each room and de-duplicate them', () => {

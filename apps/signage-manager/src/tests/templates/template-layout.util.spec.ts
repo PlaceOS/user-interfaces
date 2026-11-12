@@ -4,7 +4,11 @@ import {
     TEMPLATE_SIDEBAR_WIDTH_PC,
 } from '@placeos/common';
 import { SignageTemplateLayout } from '@placeos/ts-client';
-import { applyLayoutPositionDefaults } from '../../app/templates/template-layout.util';
+import {
+    applyLayoutPositionDefaults,
+    layoutPercentageToRatio,
+    layoutPositionValid,
+} from '../../app/templates/template-layout.util';
 
 const layout = (
     position: SignageTemplateLayout['position'],
@@ -29,6 +33,18 @@ describe('applyLayoutPositionDefaults', () => {
             x_pos: TEMPLATE_FLOATING_POSITION_PC / 100,
             y_pos: TEMPLATE_FLOATING_POSITION_PC / 100,
         });
+    });
+
+    it('accepts edge panel sizes only between 0 and 100 percent', () => {
+        expect(layoutPositionValid(layout('top'))).toBe(true);
+        expect(layoutPositionValid(layout('left', { x_pos: 0.25 }))).toBe(true);
+        for (const percentage of [0, 100, 150]) {
+            const x_pos = layoutPercentageToRatio(percentage);
+            expect(layoutPositionValid(layout('right', { x_pos }))).toBe(false);
+        }
+        expect(
+            layoutPositionValid(layout('floating', { x_pos: 0, y_pos: 1 })),
+        ).toBe(true);
     });
 
     it('preserves explicit positions, including zero', () => {

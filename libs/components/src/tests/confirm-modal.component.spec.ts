@@ -1,10 +1,14 @@
-import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { EventEmitter, signal } from '@angular/core';
-import { of } from 'rxjs';
+import { NEVER, Observable, of } from 'rxjs';
 
 import {
     ConfirmModalComponent,
@@ -55,35 +59,45 @@ describe('ConfirmModalComponent', () => {
         expect('[content] img').not.toExist();
     });
 
-    it('should allow toggling user being able to close modal', () => {
-        spectator.component.disableClose();
-        expect(spectator.inject(MatDialogRef).disableClose).toBe(true);
-        spectator.component.enableClose();
-        expect(spectator.inject(MatDialogRef).disableClose).toBe(false);
-        spectator.component.disableClose();
-        expect(spectator.inject(MatDialogRef).disableClose).toBe(true);
-    });
-
-    it('should stop the user closing the modal while it is loading', async () => {
+    const openWith = (afterClosed: Observable<unknown>) => {
         const ref = {
             componentInstance: {
-                event: new EventEmitter(),
+                event: new EventEmitter<{ reason: string }>(),
                 loading: signal(''),
             },
-            afterClosed: () => of({ reason: 'done' }),
+            afterClosed: () => afterClosed,
             close: vi.fn(),
             disableClose: false,
         };
-        const result = await openConfirmModal(
-            {} as any,
-            {
-                open: () => ref,
-            } as any,
-        );
-        result.loading('Working...');
+        const dialog = { open: () => ref } as unknown as MatDialog;
+        return {
+            ref,
+            result: openConfirmModal(
+                { title: '', content: '', icon: { content: 'delete' } },
+                dialog,
+            ),
+        };
+    };
+
+    it('should resolve on accept while the modal stays open for work', async () => {
+        const { ref, result } = openWith(NEVER);
+        ref.componentInstance.event.emit({ reason: 'other' });
+        ref.componentInstance.event.emit({ reason: 'done' });
+        const response = await result;
+        expect(response.reason).toBe('done');
+
+        response.loading('Working...');
+        expect(ref.componentInstance.loading()).toBe('Working...');
         expect(ref.disableClose).toBe(true);
-        result.loading('');
+        response.loading('');
         expect(ref.disableClose).toBe(false);
+        response.close();
+        expect(ref.close).toHaveBeenCalledOnce();
+    });
+
+    it('should resolve with the close reason when the user dismisses the modal', async () => {
+        const { result } = openWith(of({ reason: 'cancel' }));
+        await expect(result).resolves.toMatchObject({ reason: 'cancel' });
     });
 });
 

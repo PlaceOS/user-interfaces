@@ -1,9 +1,16 @@
 import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
-import { OrganisationService } from '@placeos/common';
+import {
+    AssetCategory,
+    AssetGroup,
+    OrganisationService,
+} from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import { EmergencyContactsService } from '../../app/staff/emergency-contacts.service';
+import {
+    EmergencyContact,
+    EmergencyContactsService,
+} from '../../app/staff/emergency-contacts.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -114,5 +121,96 @@ describe('EmergencyContactsService', () => {
                 description: JSON.stringify({ roles: ['Aider', 'Warden'] }),
             }),
         );
+    });
+
+    describe('role changes', () => {
+        const contact = (id: string, roles: string[]): EmergencyContact => ({
+            id,
+            name: id,
+            email: `${id}@x.com`,
+            phone: '',
+            roles,
+            zone: '',
+        });
+
+        beforeEach(() => {
+            spectator.service.category.set(new AssetCategory({ id: 'cat-1' }));
+            spectator.service.asset_type.set({ id: 'at1' } as AssetGroup);
+            spectator.service.roles.set(['Aider', 'Warden']);
+            spectator.service.contacts.set([
+                contact('asset-1', ['Warden', 'Aider']),
+                contact('asset-2', ['Aider']),
+            ]);
+        });
+
+        it('should rename a role in the role list and in each contact that has it', async () => {
+            const ok = await spectator.service.renameRole('Warden', 'Chief');
+
+            expect(ok).toBe(true);
+            expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
+                'cat-1',
+                expect.objectContaining({
+                    description: JSON.stringify({ roles: ['Aider', 'Chief'] }),
+                }),
+            );
+            expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
+            expect(ts_client.updateAsset).toHaveBeenCalledWith(
+                'asset-1',
+                expect.objectContaining({
+                    other_data: expect.objectContaining({
+                        roles: ['Chief', 'Aider'],
+                    }),
+                }),
+            );
+        });
+
+        it('should remove a role from the role list and from each contact that has it', async () => {
+            const ok = await spectator.service.removeRole('Aider');
+
+            expect(ok).toBe(true);
+            expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
+                'cat-1',
+                expect.objectContaining({
+                    description: JSON.stringify({ roles: ['Warden'] }),
+                }),
+            );
+            const updated = vi
+                .mocked(ts_client.updateAsset)
+                .mock.calls.map(([id, asset]) => [id, asset.other_data?.['roles']]);
+            expect(updated).toEqual([
+                ['asset-1', ['Warden']],
+                ['asset-2', []],
+            ]);
+        });
+    });
+
+    describe('needsMigration', () => {
+        const legacy: EmergencyContact = {
+            id: 'c1',
+            name: 'Jane',
+            email: 'jane@x.com',
+            phone: '',
+            roles: [],
+            zone: '',
+        };
+
+        it.each([
+            [{ contacts: [legacy], roles: [] }, true],
+            [{ contacts: [], roles: ['Warden'] }, true],
+            [{ contacts: [legacy], roles: [], migrated: true }, false],
+            [{ contacts: [], roles: [] }, false],
+        ])('should check the legacy metadata %j', async (details, expected) => {
+            vi.mocked(ts_client.showMetadata).mockResolvedValue(
+                new ts_client.PlaceMetadata({ details }),
+            );
+
+            expect(await spectator.service.needsMigration()).toBe(expected);
+        });
+
+        it('should not need migration when the metadata cannot be read', async () => {
+            vi.mocked(ts_client.showMetadata).mockRejectedValue(new Error('404'));
+
+            expect(await spectator.service.needsMigration()).toBe(false);
+        });
     });
 });

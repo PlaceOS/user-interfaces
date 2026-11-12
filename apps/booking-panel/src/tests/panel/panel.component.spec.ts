@@ -153,6 +153,22 @@ describe('PanelViewComponent', () => {
         },
     );
 
+    it('should show the offline image without actions when booking is disabled', () => {
+        settings.set({
+            disable_book_now: true,
+            offline_image: 'https://example.com/offline.png',
+            room_name: 'Board Room',
+        });
+        spectator.detectChanges();
+        expect(spectator.element).toContainText('Board Room');
+        expect('panel-view-actions').not.toExist();
+
+        settings.set({ disable_book_now: true });
+        spectator.detectChanges();
+        expect(spectator.element).not.toContainText('Board Room');
+        expect('panel-view-actions').toExist();
+    });
+
     it('should show the version details by default', () => {
         spectator.detectChanges();
         expect(spectator.query('[version]').children.length).toBe(2);

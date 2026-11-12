@@ -101,6 +101,25 @@ describe('imported SVG preservation', () => {
         );
     });
 
+    it('hides a hidden imported shape and rewrites an edited text label', () => {
+        const fixture = imported();
+        const text = fixture.analysis.objects.findIndex(
+            (p) => p.tag === 'text',
+        );
+        fixture.objects[0].visible = false;
+        fixture.objects[text].label = 'Office 202';
+        const doc = parse(fixture.export());
+
+        expect(
+            (doc.getElementById('room-1') as unknown as SVGElement).style
+                .display,
+        ).toBe('none');
+        expect(doc.querySelector('text')?.textContent).toBe('Office 202');
+        expect(doc.querySelector('text')?.getAttribute('data-label')).toBe(
+            'Office 202',
+        );
+    });
+
     it('deletes an imported shape without deleting its siblings or definitions', () => {
         const fixture = imported();
         const doc = parse(fixture.export(fixture.objects.slice(1)));

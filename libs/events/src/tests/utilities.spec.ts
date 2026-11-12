@@ -1,6 +1,6 @@
 import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CalendarEvent, User } from '@placeos/common';
+import { Booking, CalendarEvent, SettingsService, User } from '@placeos/common';
 
 import {
     attendeeFlagsFrom,
@@ -8,6 +8,11 @@ import {
     generateEventForm,
 } from '../lib/event-form';
 import { generateSystemsFormFields } from '../lib/space.utilities';
+import {
+    multipleSpacesEnabled,
+    newCalendarEventFromBooking,
+    organiserTimezone,
+} from '../lib/utilities';
 
 describe('utilities', () => {
     let injector: Injector;
@@ -206,6 +211,91 @@ describe('utilities', () => {
                 }),
             );
             expect(attendeeFlagsFrom(value.attendees)).toEqual({});
+        });
+    });
+
+    describe('multipleSpacesEnabled', () => {
+        const settings = (values: Record<string, unknown>) =>
+            ({ get: (key: string) => values[key] }) as SettingsService;
+
+        it('should accept the current or the legacy setting', () => {
+            expect(multipleSpacesEnabled(settings({}))).toBe(false);
+            expect(
+                multipleSpacesEnabled(
+                    settings({ 'app.events.multiple_spaces': true }),
+                ),
+            ).toBe(true);
+            expect(
+                multipleSpacesEnabled(
+                    settings({ 'app.events.allow_multiple_spaces': true }),
+                ),
+            ).toBe(true);
+        });
+
+        it('should ignore values that are not exactly true', () => {
+            expect(
+                multipleSpacesEnabled(
+                    settings({ 'app.events.multiple_spaces': 'true' }),
+                ),
+            ).toBe(false);
+        });
+    });
+
+    describe('organiserTimezone', () => {
+        const organiser = (extension_data: Record<string, unknown>) =>
+            ({ extension_data }) as unknown as User;
+
+        it('should read either timezone field of the organiser', () => {
+            expect(
+                organiserTimezone(organiser({ timezone: 'Europe/London' })),
+            ).toBe('Europe/London');
+            expect(
+                organiserTimezone(organiser({ time_zone: 'Asia/Tokyo' })),
+            ).toBe('Asia/Tokyo');
+        });
+
+        it('should return an empty string without a text timezone', () => {
+            expect(organiserTimezone(undefined)).toBe('');
+            expect(organiserTimezone(organiser({ timezone: 10 }))).toBe('');
+        });
+    });
+
+    describe('newCalendarEventFromBooking', () => {
+        const booking = (fields: Partial<Booking>) =>
+            new Booking({
+                id: 'booking-1',
+                user_id: 'host-1',
+                user_name: 'Host',
+                user_email: 'host@example.com',
+                attendees: [new User({ email: 'guest@example.com' })],
+                ...fields,
+            });
+
+        it('should make the booking user the host', () => {
+            const event = newCalendarEventFromBooking(booking({}));
+            expect(event.id).toBe('booking-1');
+            expect(event.host).toBe('host@example.com');
+            expect(event.from_bookings).toBe(true);
+            expect(event.attendees.map((_) => _.email)).toEqual([
+                'host@example.com',
+                'guest@example.com',
+            ]);
+        });
+
+        it('should add the visitor of a visitor booking as an attendee', () => {
+            const event = newCalendarEventFromBooking(
+                booking({
+                    booking_type: 'visitor',
+                    asset_id: 'visitor@example.com',
+                    asset_name: 'Visitor',
+                }),
+            );
+            expect(event.attendees.map((_) => _.email)).toEqual([
+                'host@example.com',
+                'visitor@example.com',
+                'guest@example.com',
+            ]);
+            expect(event.attendees[1].name).toBe('Visitor');
         });
     });
 });

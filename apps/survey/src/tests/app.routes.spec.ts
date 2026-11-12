@@ -3,6 +3,8 @@ import { Router } from '@angular/router';
 import { LocaleService } from '@placeos/common';
 
 import { appConfig } from '../app/app.config';
+import { NotFoundComponent } from '../app/not-found.component';
+import { SurveyComponent } from '../app/survey.component';
 
 // Uses the real app router config. No outlet renders, so a navigation loads
 // the route components but does not create them.
@@ -23,14 +25,15 @@ describe('app routes', () => {
         location.hash = '';
     });
 
-    /** Navigate, then give the path of the route that matched. */
+    /** Navigate, then give the route and component that matched. */
     async function matched(url: string) {
         await router.navigateByUrl(url);
+        const route = router.routerState.snapshot.root.firstChild;
         return {
             url: router.url,
-            path: router.routerState.snapshot.root.firstChild?.routeConfig
-                ?.path,
-            id: router.routerState.snapshot.root.firstChild?.params['id'],
+            path: route?.routeConfig?.path,
+            id: route?.params['id'],
+            component: route?.component,
         };
     }
 
@@ -39,6 +42,7 @@ describe('app routes', () => {
             url: '/survey-1',
             path: ':id',
             id: 'survey-1',
+            component: SurveyComponent,
         });
     });
 
@@ -47,6 +51,7 @@ describe('app routes', () => {
             url: '/survey/survey-1',
             path: 'survey/:id',
             id: 'survey-1',
+            component: SurveyComponent,
         });
     });
 
@@ -55,6 +60,7 @@ describe('app routes', () => {
             url: '/not-found',
             path: 'not-found',
             id: undefined,
+            component: NotFoundComponent,
         });
     });
 });

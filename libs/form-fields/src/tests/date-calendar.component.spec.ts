@@ -44,6 +44,31 @@ describe('DateCalendarComponent', () => {
         expect(on_change).toHaveBeenCalledWith(last_day);
     });
 
+    it('should ignore a day outside the allowed dates', () => {
+        spectator.setInput({
+            from: new Date(2026, 3, 10).valueOf(),
+            to: new Date(2026, 3, 20).valueOf(),
+        });
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.component.setValue(new Date(2026, 3, 9).valueOf());
+        spectator.component.setValue(new Date(2026, 3, 21).valueOf());
+        expect(on_change).not.toHaveBeenCalled();
+        expect(spectator.component.active_date()).toBe(
+            new Date(2026, 3, 22).valueOf(),
+        );
+    });
+
+    it('should keep the time of day when a day is picked', () => {
+        spectator.component.setValue(new Date(2026, 3, 25).valueOf());
+        expect(spectator.component.date()).toBe(
+            new Date(2026, 3, 25, 12).valueOf(),
+        );
+        expect(spectator.component.active_date()).toBe(
+            new Date(2026, 3, 25).valueOf(),
+        );
+    });
+
     it('should disable every day when the control is disabled', () => {
         spectator.component.setDisabledState(true);
         spectator.detectChanges();

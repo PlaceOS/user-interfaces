@@ -25,13 +25,6 @@ describe('signage diagnostics', () => {
         vi.restoreAllMocks();
     });
 
-    it('should publish the diagnostics api on the window', () => {
-        expect(typeof window.signage?.state).toBe('function');
-        expect(typeof window.signage?.json).toBe('function');
-        expect(typeof window.signage?.poll).toBe('function');
-        expect(typeof window.signage?.reload).toBe('function');
-    });
-
     it('should return and log the current state', () => {
         expect(window.signage?.state()).toBe(state);
         expect(console.groupCollapsed).toHaveBeenCalled();
@@ -65,5 +58,19 @@ describe('signage diagnostics', () => {
         remove();
 
         expect(window.signage).toBeUndefined();
+    });
+
+    it('should leave a newer registration in place when torn down', () => {
+        const newer_poll = vi.fn();
+        const remove_newer = registerSignageDiagnostics({
+            getState: () => state,
+            poll: newer_poll,
+        });
+
+        remove();
+        window.signage?.poll();
+
+        expect(newer_poll).toHaveBeenCalledTimes(1);
+        remove_newer();
     });
 });

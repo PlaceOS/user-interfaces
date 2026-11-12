@@ -273,6 +273,48 @@ describe('AssetListFieldComponent', () => {
         expect(data.details.duration).toBe(24 * 60);
     });
 
+    it('should replace the edited request instead of adding one', () => {
+        const editing = new AssetRequest({
+            id: 'req-1',
+            items: [{ id: 'a', name: 'Projector', quantity: 1 }],
+        });
+        spectator.component.setValue([editing]);
+        dialog_result = [
+            {
+                id: 'a',
+                name: 'Projector',
+                quantity: 2,
+                assets: [{ id: 'x1' }, { id: 'x2' }],
+            },
+        ];
+
+        spectator.component.editRequest(editing);
+
+        const requests = spectator.component.asset_requests();
+        expect(requests.map((_) => _.id)).toEqual(['req-1']);
+        expect(requests[0].items[0].quantity).toBe(2);
+    });
+
+    it('should count units held by other requests against the available assets', () => {
+        const other = new AssetRequest({
+            id: 'req-1',
+            items: [{ id: 'a', name: 'Projector', quantity: 1 }],
+        });
+        spectator.component.setValue([other]);
+        dialog_result = [
+            {
+                id: 'a',
+                name: 'Projector',
+                quantity: 2,
+                assets: [{ id: 'x1' }, { id: 'x2' }],
+            },
+        ];
+
+        spectator.component.editRequest();
+
+        expect(spectator.component.asset_requests()).toEqual([other]);
+    });
+
     it('should keep the existing requests when the modal is cancelled', () => {
         const request = new AssetRequest({
             id: 'req-1',

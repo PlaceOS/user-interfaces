@@ -38,15 +38,18 @@ describe('Calendar API Methods', () => {
         });
     });
     describe('querySpaceFreeBusy', () => {
-        it('should GET space availability status from API', async () => {
+        it('should GET free/busy status for bookable room calendars', async () => {
             vi.mocked(ts_client.get).mockResolvedValue([
-                { resource: { bookable: true } },
-            ] as any);
+                { resource: { id: 'room-1', bookable: true } },
+                { resource: { id: 'room-2', bookable: false } },
+                { id: 'personal@place.tech' },
+            ] as never);
             const list = await querySpaceFreeBusy({
                 period_start: 1,
                 period_end: 2,
             });
-            expect(list).toHaveLength(1);
+            // Calendars without a bookable room resource are left out
+            expect(list.map((_) => _.id)).toEqual(['room-1']);
             expect(ts_client.get).toHaveBeenCalledWith(
                 `/api/staff/v1/calendars/free_busy?period_start=1&period_end=2`,
             );

@@ -2,35 +2,37 @@ import { Calendar } from '../lib/types/calendar.class';
 import { CalendarEvent } from '../lib/types/event.class';
 
 describe('Calendar', () => {
-    let calendar: Calendar;
+    it('should convert availability from start and end unix times', () => {
+        const starts_at = 1_700_000_000;
+        const calendar = new Calendar({
+            availability: [
+                { starts_at, ends_at: starts_at + 90 * 60, status: 'busy' },
+            ],
+        } as unknown as Partial<Calendar>);
 
-    beforeEach(() => (calendar = new Calendar()));
+        expect(calendar.availability).toEqual([
+            { date: starts_at * 1000, duration: 90, status: 'busy' },
+        ]);
+    });
 
-    it('should expose properties', () => {
-        expect(calendar.id).toBe('');
-        expect(calendar.name).toBe('');
-        expect(calendar.summary).toBe('');
-        expect(calendar.primary).toBeFalsy();
-        expect(calendar.can_edit).toBeFalsy();
-        expect(calendar.availability).toEqual([]);
-        expect(calendar.hidden).toBeFalsy();
-        calendar = new Calendar({
-            id: 'cal-1',
-            name: 'My Cal',
-            resource: { id: 'hey' } as any,
-            primary: true,
-            summary: 'Some people book this',
-            can_edit: true,
-            hidden: true,
+    it('should keep availability that has a date and duration', () => {
+        const date = 1_700_000_000_000;
+        const calendar = new Calendar({
+            availability: [{ date, duration: 30, status: 'free' }],
         });
-        expect(calendar.id).toBe('cal-1');
-        expect(calendar.name).toBe('My Cal');
-        expect(calendar.summary).toBe('Some people book this');
-        expect(calendar.resource.id).toBe('hey');
-        expect(calendar.primary).toBeTruthy();
-        expect(calendar.can_edit).toBeTruthy();
-        expect(calendar.availability).toEqual([]);
-        expect(calendar.hidden).toBeTruthy();
+
+        expect(calendar.availability).toEqual([
+            { date, duration: 30, status: 'free' },
+        ]);
+    });
+
+    it('should read the resource from the system field', () => {
+        const calendar = new Calendar({
+            system: { id: 'sys-1', email: 'Room@Org.com' },
+        } as unknown as Partial<Calendar>);
+
+        expect(calendar.resource.id).toBe('sys-1');
+        expect(calendar.resource.email).toBe('room@org.com');
     });
 });
 

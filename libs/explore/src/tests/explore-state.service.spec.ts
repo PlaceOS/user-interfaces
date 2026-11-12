@@ -106,6 +106,33 @@ describe('ExploreStateService', () => {
         expect(spectator.service.map_features()).toEqual([{ id: 'zone' }]);
     });
 
+    it('should hide the zone canvas with the zones', () => {
+        spectator.service.setFeatures('zones-canvas', [{ location: 'canvas' }]);
+
+        expect(spectator.service.map_features()).toEqual([]);
+        spectator.service.setOptions({ disable: [] });
+        expect(spectator.service.map_features()).toEqual([
+            { location: 'canvas' },
+        ]);
+    });
+
+    it('should keep groups locked by settings off when options enable them', () => {
+        // A new `get` on this instance, so other tests keep the shared mock
+        Object.assign(spectator.inject(SettingsService), {
+            get: (name: string) =>
+                name === 'app.explore.disable' ? 'sensors' : undefined,
+        });
+        spectator.service.setFeatures('sensors', [{ location: 'sensor' }]);
+        spectator.service.setFeatures('desks', [{ location: 'desk' }]);
+
+        spectator.service.setOptions({ disable: [] });
+
+        expect(spectator.service.options().disable).toEqual(['sensors']);
+        expect(spectator.service.map_features()).toEqual([
+            { location: 'desk' },
+        ]);
+    });
+
     it('should handle changes to map actions', async () => {
         let actions = spectator.service.map_actions();
         expect(actions).toEqual([]);
@@ -196,18 +223,6 @@ describe('ExploreStateService', () => {
         spectator.service.setLabels('spaces', [{ id: 'space-1' } as any]);
         const labels = spectator.service.map_labels();
         expect(labels).toEqual([{ id: 'space-1' }]);
-    });
-
-    it('should retain disabled actions after reset', async () => {
-        (spectator.inject(SettingsService) as any).get = vi.fn(
-            (name: string) =>
-                name === 'app.explore.disable_actions' ? 'parking' : undefined,
-        );
-        spectator.service.reset();
-        spectator.service.setActions('parking', [{ id: 'park-1' } as any]);
-        spectator.service.setActions('spaces', [{ id: 'space-1' } as any]);
-        const actions = spectator.service.map_actions();
-        expect(actions).toEqual([{ id: 'space-1' }]);
     });
 
     it('should apply disabled styles when settings overrides change', async () => {

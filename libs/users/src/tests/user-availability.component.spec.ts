@@ -13,29 +13,20 @@ describe('UserAvailabilityComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should not render any blocks by default', () => {
-        spectator.detectChanges();
-        expect('[event]').not.toExist();
-    });
-
-    it('should render a block for each availability entry', () => {
+    it('should position, size and label a block for each busy period', () => {
+        const nine = new Date('2030-06-01T09:00:00').valueOf();
         const availability: AvailabilityBlock[] = [
-            { date: Date.now(), duration: 30, start: 25, size: 10 },
-            { date: Date.now(), duration: 60, start: 50, size: 20 },
+            { date: nine, duration: 90, start: 37.5, size: 6.25 },
+            { date: nine, duration: 60, start: 50, size: 20 },
         ];
         spectator.setInput({ availability });
         spectator.detectChanges();
-        expect(spectator.queryAll('[event]').length).toBe(2);
-    });
-
-    it('should position and size blocks from the block data', () => {
-        const availability: AvailabilityBlock[] = [
-            { date: Date.now(), duration: 30, start: 25, size: 10 },
-        ];
-        spectator.setInput({ availability });
-        spectator.detectChanges();
-        const block = spectator.query('[event]') as HTMLElement;
-        expect(block.style.left).toBe('25%');
-        expect(block.style.width).toBe('10%');
+        const blocks = spectator.queryAll<HTMLElement>('[event]');
+        expect(blocks).toHaveLength(2);
+        expect(blocks[0].style.left).toBe('37.5%');
+        expect(blocks[0].style.width).toBe('6.25%');
+        expect(blocks[0].textContent?.replace(/\s+/g, ' ').trim()).toBe(
+            '9:00 AM - 10:30 AM',
+        );
     });
 });

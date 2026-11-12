@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetGroup } from '@placeos/common';
+import { PlaceAsset } from '@placeos/ts-client';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { MockDirective, MockProvider } from 'ng-mocks';
 
@@ -42,16 +43,6 @@ describe('AssetListComponent', () => {
 
         expect('[empty]').toExist();
         expect('[asset]').not.toExist();
-    });
-
-    it('should render an entry for each available asset', () => {
-        filtered_assets.set([
-            { id: '1', name: 'Projector', assets: [{}, {}] } as AssetGroup,
-            { id: '2', name: 'Laptop', assets: [{}] } as AssetGroup,
-        ]);
-        spectator.detectChanges();
-
-        expect(spectator.queryAll('[asset]')).toHaveLength(2);
     });
 
     it('should hide assets with no availability', () => {
@@ -102,6 +93,19 @@ describe('AssetListComponent', () => {
         const [projector, laptop] = spectator.queryAll('[asset]');
         expect(projector.querySelector('span')).toBeNull();
         expect(laptop.querySelector('span')).toHaveText('2');
+    });
+
+    // The asset list field reads these assets to check the quantity
+    it('should copy the loaded assets onto the selected items', () => {
+        const units = [{ id: 'x1' }, { id: 'x2' }] as PlaceAsset[];
+        filtered_assets.set([
+            { id: '1', name: 'Projector', assets: units } as AssetGroup,
+        ]);
+        const selected = { id: '1', quantity: 1 } as AssetGroup;
+        spectator.setInput('selected_items', [selected]);
+        spectator.detectChanges();
+
+        expect(selected.assets).toBe(units);
     });
 
     it('should emit onSelect when an asset is clicked', () => {

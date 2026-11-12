@@ -3,9 +3,15 @@ import {
     isGroupBooking,
     mapGroupMembers,
     mapGroupMembersFromBookings,
+    mapGroupMembersFromExtension,
     matchGroupSiblings,
+    rollbackGroupBookings,
     visitorMemberPatch,
 } from '../lib/booking-group.utilities';
+
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('isGroupBooking', () => {
     it('is true for a parent, a group reference or group members', () => {
@@ -117,6 +123,83 @@ describe('visitorMemberPatch', () => {
         });
         const patch = visitorMemberPatch(member, base_form, opts);
         expect(patch.visitor_internal_or_external).toBe('internal');
+    });
+
+    it('takes zones from the form, then the existing booking, then the fallback, after the org zones', () => {
+        const member = new User({ email: 'zoe@place.tech' });
+        const zone_opts = {
+            ...opts,
+            org_zones: ['org-1', ''],
+            existing_zones: ['bld-old'],
+            fallback_zones: ['bld-default'],
+        };
+        const zonesFor = (form: Record<string, unknown>, extra = {}) =>
+            visitorMemberPatch(member, form, { ...zone_opts, ...extra }).zones;
+
+        expect(zonesFor({ zones: ['bld-1', 'org-1'] })).toEqual([
+            'org-1',
+            'bld-1',
+        ]);
+        expect(zonesFor({ zones: [] })).toEqual(['org-1', 'bld-old']);
+        expect(zonesFor({}, { existing_zones: [] })).toEqual([
+            'org-1',
+            'bld-default',
+        ]);
+    });
+});
+
+describe('mapGroupMembersFromExtension', () => {
+    const members = [
+        {
+            email: 'adam@place.tech',
+            company: 'ACME',
+            international: true,
+            visitor_internal_or_external: 'external',
+        },
+        { email: 'adam@place.tech', name: 'Adam copy' },
+        { name: 'No email' },
+    ];
+
+    it('should build one visitor per email with its visitor details', () => {
+        const [adam, ...rest] = mapGroupMembersFromExtension(members, true);
+
+        expect(rest).toEqual([]);
+        expect(adam.name).toBe('adam@place.tech');
+        expect(adam.organisation).toBe('ACME');
+        expect(adam.extension_data).toMatchObject({
+            international: true,
+            visitor_internal_or_external: 'external',
+        });
+    });
+
+    it('should not give staff group members a visitor type', () => {
+        const [adam] = mapGroupMembersFromExtension(members, false);
+
+        expect(adam.organisation).toBe('ACME');
+        expect(
+            adam.extension_data.visitor_internal_or_external,
+        ).toBeUndefined();
+    });
+});
+
+describe('rollbackGroupBookings', () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it('should try to remove every booking and only log the failures', async () => {
+        const del = vi
+            .spyOn(ts_client, 'del')
+            .mockImplementation(async (url: string) => {
+                if (url.includes('bkn-2')) throw new Error('offline');
+            });
+        const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+        await expect(
+            rollbackGroupBookings(['bkn-1', 'bkn-2', 'bkn-3']),
+        ).resolves.toBeUndefined();
+
+        expect(del).toHaveBeenCalledTimes(3);
+        expect(log).toHaveBeenCalledTimes(1);
+        expect(log.mock.calls[0][1]).toHaveLength(1);
     });
 });
 

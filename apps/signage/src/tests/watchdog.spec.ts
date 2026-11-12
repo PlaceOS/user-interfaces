@@ -1,3 +1,5 @@
+import type { Mock } from 'vitest';
+
 import {
     clearApplicationCache,
     recordFatalError,
@@ -14,8 +16,8 @@ import {
 const MINUTE = 60 * 1000;
 
 describe('recovery watchdog', () => {
-    let reload: any;
-    let clear_cache: any;
+    let reload: Mock<() => void>;
+    let clear_cache: Mock<() => Promise<boolean>>;
     let stop: () => void;
 
     let expected_to_run: boolean;
@@ -563,6 +565,12 @@ describe('recovery watchdog', () => {
         expect(state.last_recovery_detail).toBeNull();
     });
 
+    it('should keep only the start of a long error message', () => {
+        recordFatalError('a'.repeat(500) + 'b'.repeat(1500));
+
+        expect(watchdogState().last_error?.message).toBe('a'.repeat(500));
+    });
+
     it('should stop listening for uncaught errors once stopped', () => {
         stop();
 
@@ -586,7 +594,7 @@ describe('recovery watchdog', () => {
 });
 
 describe('cache clearing recovery', () => {
-    let reload: any;
+    let reload: Mock<() => void>;
     let stop: () => void;
     let unregister: unknown;
     let delete_cache: unknown;

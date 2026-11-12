@@ -58,6 +58,17 @@ describe('findValidPlaylistIndex', () => {
         expect(findValidPlaylistIndex(playlist, 0, 1)).toBe(2);
     });
 
+    it('wraps around the ends of the playlist in both directions', () => {
+        const playlist = [
+            create_item('first', true),
+            create_item('middle', false),
+            create_item('last', true),
+        ];
+
+        expect(findValidPlaylistIndex(playlist, 2, 1)).toBe(0);
+        expect(findValidPlaylistIndex(playlist, 0, -1)).toBe(2);
+    });
+
     it('can include the starting item when it is valid', () => {
         const playlist = [create_item('valid', true)];
 
@@ -66,7 +77,10 @@ describe('findValidPlaylistIndex', () => {
 });
 
 describe('time helpers', () => {
-    afterEach(() => setMockTime(0));
+    afterEach(() => {
+        vi.restoreAllMocks();
+        setMockTime(0);
+    });
 
     it('returns a static mocked time when progress is disabled', () => {
         setMockTime(1234);
@@ -90,11 +104,18 @@ describe('time helpers', () => {
         expect(time()).toBe(3400);
     });
 
-    it('exposes the active mock time state', () => {
+    it('reports real time at normal speed once the mocked time is cleared', () => {
         setMockTime(1000, 0.5);
+        expect(mockTimeState()).toMatchObject({ active: true, speed: 0.5 });
 
-        expect(mockTimeState().active).toBe(true);
-        expect(mockTimeState().speed).toBe(0.5);
+        vi.spyOn(Date, 'now').mockReturnValue(5000);
+        setMockTime(0, 4);
+
+        expect(mockTimeState()).toEqual({
+            active: false,
+            speed: 1,
+            time: 5000,
+        });
     });
 });
 

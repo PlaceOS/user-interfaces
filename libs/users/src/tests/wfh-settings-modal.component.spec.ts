@@ -7,7 +7,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { WorktimePreference } from '@placeos/common';
+import {
+    currentUser,
+    setCurrentUser,
+    StaffUser,
+    WorktimePreference,
+} from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockComponent } from 'ng-mocks';
 
@@ -90,12 +95,37 @@ describe('WFHSettingsModalComponent', () => {
         expect(prefs).toEqual([monday()]);
     });
 
-    it('should add a default block after the index and keep the last block', () => {
+    it('should load the current user preferences outside local mode', () => {
+        const previous = currentUser();
+        onTestFinished(() => setCurrentUser(previous));
+        setCurrentUser(new StaffUser({ work_preferences: [monday()] }));
+        spectator = createComponent();
+        expect(spectator.component.settings()[1].blocks).toEqual(
+            monday().blocks,
+        );
+        expect(spectator.component.weekdays_enabled()).toEqual({ 1: true });
+    });
+
+    it('should start an empty day with one default block', () => {
         spectator = createWithPreferences([]);
         spectator.component.initialiseDay(3);
-        const pref = spectator.component.settings()[3];
-        expect(pref.blocks).toEqual([
+        expect(spectator.component.settings()[3].blocks).toEqual([
             { start_time: 9, end_time: 17, location: 'wfo' },
+        ]);
+    });
+
+    it('should add a block after the index and remove blocks down to the last one', () => {
+        spectator = createWithPreferences([monday()]);
+        const pref = spectator.component.settings()[1];
+        spectator.component.addBlock(pref, 0);
+        // The new 9-17 block starts when the 8-12 block before it ends
+        expect(pref.blocks).toEqual([
+            { start_time: 8, end_time: 12, location: 'wfh' },
+            { start_time: 12, end_time: 17, location: 'wfo' },
+        ]);
+        spectator.component.removeBlock(pref, 0);
+        expect(pref.blocks).toEqual([
+            { start_time: 12, end_time: 17, location: 'wfo' },
         ]);
         spectator.component.removeBlock(pref, 0);
         expect(pref.blocks).toHaveLength(1);
@@ -149,6 +179,19 @@ describe('WFHSettingsModalComponent', () => {
         expect(body.groups).toEqual(['team-a']);
         expect(body.work_preferences[2].blocks).toHaveLength(1);
         expect(spectator.component.loading()).toBe(false);
+    });
+
+    it('should close with the saved week after saving to the user', async () => {
+        // Keep the user reload that runs after closing from firing
+        vi.useFakeTimers({ toFake: ['setTimeout'] });
+        spectator = createComponent();
+        vi.mocked(ts_client.showUser).mockResolvedValue({
+            id: 'user-1',
+            groups: [],
+        } as Awaited<ReturnType<typeof ts_client.showUser>>);
+        await spectator.component.saveChanges();
+        const [, body] = vi.mocked(ts_client.updateUser).mock.calls[0];
+        expect(close_fn).toHaveBeenCalledWith(body.work_preferences);
     });
 
     it('should restore modal controls when loading the user fails', async () => {

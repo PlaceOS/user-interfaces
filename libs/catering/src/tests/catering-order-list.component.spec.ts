@@ -12,7 +12,7 @@ describe('CateringOrderListComponent', () => {
     let spectator: Spectator<CateringOrderListComponent>;
     const load_error = signal(false);
     const filtered = signal<CateringOrder[]>([]);
-    const changeStatus = vi.fn();
+    const updateStatus = vi.fn();
     const createComponent = createComponentFactory({
         component: CateringOrderListComponent,
         declarations: [MockComponent(SimpleTableComponent)],
@@ -27,7 +27,8 @@ describe('CateringOrderListComponent', () => {
                 caterers: signal([]),
                 startPolling: vi.fn(),
                 stopPolling: vi.fn(),
-                changeStatus,
+                changeStatus: vi.fn(),
+                updateStatus,
             }),
             MockProvider(SettingsService, { get: vi.fn() }),
         ],
@@ -37,7 +38,8 @@ describe('CateringOrderListComponent', () => {
     beforeEach(() => {
         load_error.set(false);
         filtered.set([]);
-        changeStatus.mockReset();
+        updateStatus.mockReset();
+        updateStatus.mockResolvedValue(undefined);
         spectator = createComponent();
     });
 
@@ -48,10 +50,20 @@ describe('CateringOrderListComponent', () => {
         expect('[load-error]').toExist();
     });
 
-    it('should change status through the orders service', async () => {
-        const order = new CateringOrder({ status: 'accepted' });
-        await spectator.component.updateStatus(order, 'ready');
-        expect(changeStatus).toHaveBeenCalledWith(order, 'ready');
+    it('should change the status of the selected listed orders', async () => {
+        const orders = ['a', 'b', 'c'].map((id) => new CateringOrder({ id }));
+        filtered.set(orders);
+        updateStatus.mockRejectedValueOnce(new Error('offline'));
+        // Orders that are no longer listed are not changed
+        spectator.component.selected.set(['a', 'c', 'gone']);
+
+        await spectator.component.setSelectedStatus('ready');
+
+        expect(updateStatus).toHaveBeenCalledTimes(2);
+        expect(updateStatus).toHaveBeenCalledWith(orders[0], 'ready');
+        expect(updateStatus).toHaveBeenCalledWith(orders[2], 'ready');
+        expect(spectator.component.selected()).toEqual([]);
+        expect(spectator.component.bulk_busy()).toBe(false);
     });
 
     it('should expand and collapse every listed order', () => {

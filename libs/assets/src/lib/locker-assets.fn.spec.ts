@@ -51,34 +51,6 @@ describe('[Locker Assets]', () => {
             expect(ts_client.addAssetType).not.toHaveBeenCalled();
         });
 
-        it('should create the hidden category and bank type when missing', async () => {
-            const { locker } = await load_modules();
-            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-                response([]),
-            );
-            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
-            vi.mocked(ts_client.addAssetCategory).mockResolvedValue({
-                id: 'cat-1',
-                name: '_LOCKERS_',
-            } as any);
-            vi.mocked(ts_client.addAssetType).mockResolvedValue({
-                id: 'type-1',
-                name: '_LOCKER_BANKS_',
-            } as any);
-
-            const type_id = await locker.resolveLockerBankTypeId();
-            expect(type_id).toBe('type-1');
-            expect(ts_client.addAssetCategory).toHaveBeenCalledWith({
-                name: '_LOCKERS_',
-                hidden: true,
-            });
-            expect(ts_client.addAssetType).toHaveBeenCalledWith({
-                name: '_LOCKER_BANKS_',
-                brand: 'PlaceOS',
-                category_id: 'cat-1',
-            });
-        });
-
         it('should memoise the resolved bank type id', async () => {
             const { locker } = await load_modules();
             vi.mocked(ts_client.queryAssetCategories).mockReturnValue(

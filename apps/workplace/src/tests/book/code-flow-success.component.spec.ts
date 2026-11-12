@@ -13,9 +13,6 @@ describe('CodeFlowSuccessComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should render a success message', () =>
-        expect(spectator.query('h2')).toExist());
-
     it('should render a continue link back to home', () => {
         const link = spectator.query('a[btn]');
         expect(link).toExist();

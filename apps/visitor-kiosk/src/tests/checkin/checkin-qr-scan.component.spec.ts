@@ -140,6 +140,17 @@ describe('CheckinQRScanComponent', () => {
         ]);
     });
 
+    it('ignores an event id in the QR code that is not a number', async () => {
+        await spectator.component.checkQRCode(
+            'visit:visitor@example.com,system,abc',
+        );
+
+        expect(state.loadGuestAndEvent).toHaveBeenCalledWith(
+            'visitor@example.com',
+            undefined,
+        );
+    });
+
     it('shows visitor details before an induction configured after details', async () => {
         spectator.component.induction_enabled.set(true);
         spectator.component.induction_details.set('Terms and conditions');
@@ -205,6 +216,20 @@ describe('CheckinQRScanComponent', () => {
             'error',
         ]);
         expect(spectator.component.checking_code()).toBe(false);
+    });
+
+    it('shows the status text when the API rejects the lookup', async () => {
+        state.loadGuestAndEvent.mockRejectedValueOnce({
+            statusText: 'Forbidden',
+        });
+
+        await spectator.component.checkQRCode('visitor@example.com');
+
+        expect(state.setError).toHaveBeenCalledWith('Forbidden');
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'error',
+        ]);
     });
 
     it('magnifies the center of the frame after a full-frame miss', async () => {
@@ -324,7 +349,7 @@ describe('CheckinQRScanComponent', () => {
     });
 
     it('sends a checked-in visitor to checkout confirmation', async () => {
-        (spectator.component as any).flow = 'checkout';
+        Object.assign(spectator.component, { flow: 'checkout' });
         event.set({ checked_in_at: Date.now() });
 
         await spectator.component.checkEmail('visitor@example.com');
@@ -336,7 +361,7 @@ describe('CheckinQRScanComponent', () => {
     });
 
     it('keeps a visitor who has not checked in out of checkout', async () => {
-        (spectator.component as any).flow = 'checkout';
+        Object.assign(spectator.component, { flow: 'checkout' });
         event.set({});
 
         await spectator.component.checkEmail('visitor@example.com');

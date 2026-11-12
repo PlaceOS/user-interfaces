@@ -47,7 +47,9 @@ describe('public event helpers', () => {
     it('should use the first id field that is set as the event id', () => {
         expect(eventId({ id: 'a', event_id: 'b' })).toBe('a');
         expect(eventId({ event_id: 'b', uid: 'd' })).toBe('b');
+        expect(eventId({ calendar_event_id: 'c', uid: 'd' })).toBe('c');
         expect(eventId({ uid: 'd', name: 'e' })).toBe('d');
+        expect(eventId({ name: 'e' })).toBe('e');
         expect(eventId({})).toBe('');
     });
 
@@ -83,6 +85,17 @@ describe('public event helpers', () => {
             const text = eventTime({ start: start_ms, end: end_ms });
             expect(text).toContain('2026');
             expect(text).toContain(`, ${time(start_ms)} - ${time(end_ms)}`);
+        });
+
+        it('should read ISO date strings and prefer the event_start field', () => {
+            const iso = (ms: number) => new Date(ms).toISOString();
+            expect(
+                eventTime({
+                    event_start: iso(start_ms),
+                    start: 'not a date',
+                    ends_at: iso(end_ms),
+                }),
+            ).toBe(eventTime({ start: start_ms, end: end_ms }));
         });
 
         it('should leave out the end time when it is missing or invalid', () => {

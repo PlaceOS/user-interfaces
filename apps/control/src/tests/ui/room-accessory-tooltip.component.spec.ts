@@ -13,7 +13,6 @@ import { RoomAccessoryTooltipComponent } from '../../app/ui/room-accessory-toolt
 describe('RoomAccessoryTooltipComponent', () => {
     let spectator: Spectator<RoomAccessoryTooltipComponent>;
     const room_accessories = signal<unknown[]>([]);
-    const close_fn = vi.fn();
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: RoomAccessoryTooltipComponent,
@@ -29,14 +28,13 @@ describe('RoomAccessoryTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: close_fn },
+                useValue: { close: vi.fn() },
             },
         ],
     });
 
     beforeEach(() => {
         room_accessories.set([]);
-        close_fn.mockClear();
         execute_fn.mockClear();
         (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
@@ -83,10 +81,5 @@ describe('RoomAccessoryTooltipComponent', () => {
         (client.getModule as any).mockReturnValue(null);
         spectator.component.performAction('Blinds', 'Open');
         expect(execute_fn).not.toHaveBeenCalled();
-    });
-
-    it('should close via the tooltip data', () => {
-        spectator.component.close();
-        expect(close_fn).toHaveBeenCalled();
     });
 });

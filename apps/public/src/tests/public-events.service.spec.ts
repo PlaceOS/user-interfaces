@@ -83,6 +83,16 @@ describe('PublicEventsService', () => {
             expect(service.error()).toBe('Unable to load PlaceOS authority.');
         });
 
+        it('should not add the recaptcha script when no recaptcha key is set', async () => {
+            stubAuthorityFetch();
+            const service = TestBed.inject(PublicEventsService);
+
+            await service.init();
+
+            expect(service.authority()).not.toBeNull();
+            expect(document.getElementById('placeos-recaptcha')).toBeNull();
+        });
+
         it('should prefer the public events config for the logo and default system', () => {
             const service = TestBed.inject(PublicEventsService);
             expect(service.logo_url()).toBe('assets/logo-light.svg');
@@ -162,13 +172,21 @@ describe('PublicEventsService', () => {
                 );
                 expect(cleared.getItem(GUEST_KEY)).toBeNull();
                 expect(setStorage).toHaveBeenLastCalledWith(storage);
-                expect(setToken).toHaveBeenCalledWith(
-                    'new-token',
-                    expect.any(Number),
-                );
                 expect(service.guest()).toEqual(guest);
             },
         );
+
+        it('should set the guest token to expire after two hours', async () => {
+            vi.useFakeTimers({ now: new Date(2026, 4, 12, 9, 0) });
+            const service = TestBed.inject(PublicEventsService);
+
+            await service.requestGuestAccess('system-1', guest);
+
+            expect(setToken).toHaveBeenCalledWith(
+                'new-token',
+                Date.now() + 2 * 60 * 60 * 1000,
+            );
+        });
 
         it('should show the error and keep the visitor signed out when no token is returned', async () => {
             vi.mocked(publicEventGuestToken).mockResolvedValue('');
@@ -217,6 +235,27 @@ describe('PublicEventsService', () => {
                 service.requestGuestAccess('system-1', guest),
             ).rejects.toThrow('Guest access check returned no response.');
             expect(publicEventGuestToken).not.toHaveBeenCalled();
+        });
+
+        it('should wait for the recaptcha script to load', async () => {
+            vi.useFakeTimers();
+            const service = TestBed.inject(PublicEventsService);
+            service.authority.set(authority({ recaptcha_key: 'site-key' }));
+
+            const request = service.requestGuestAccess('system-1', guest);
+            await vi.advanceTimersByTimeAsync(2 * 250);
+            expect(publicEventGuestToken).not.toHaveBeenCalled();
+            vi.stubGlobal('grecaptcha', {
+                ready: (callback: () => void) => callback(),
+                execute: vi.fn().mockResolvedValue('captcha-token'),
+            });
+            await vi.advanceTimersByTimeAsync(250);
+
+            await request;
+            expect(publicEventGuestToken).toHaveBeenCalledWith('system-1', {
+                ...guest,
+                captcha: 'captcha-token',
+            });
         });
 
         it('should stop waiting for recaptcha after a bounded number of tries', async () => {
@@ -315,6 +354,15 @@ describe('PublicEventsService', () => {
                 ...guest,
             });
             expect(service.loading()).toBe('');
+        });
+
+        it('should reject without a request when there are no guest details', async () => {
+            const service = TestBed.inject(PublicEventsService);
+
+            await expect(
+                service.register('system-1', 'event-1'),
+            ).rejects.toThrow('Guest details are required.');
+            expect(registerPublicEvent).not.toHaveBeenCalled();
         });
 
         it('should show a registration failure as the error and rethrow it', async () => {

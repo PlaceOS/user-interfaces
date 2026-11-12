@@ -19,7 +19,6 @@ describe('IconComponent', () => {
             content: 'test-contents',
         });
         spectator.detectChanges();
-        expect('i').toBeTruthy();
         expect('i').toContainText('test-contents');
         expect('i').toHaveClass('material-symbols-rounded');
     });
@@ -27,11 +26,26 @@ describe('IconComponent', () => {
     it('should show images', () => {
         spectator.setInput('icon', { type: 'img', src: '/test-image.png' });
         spectator.detectChanges();
-        expect('img').toBeTruthy();
+        expect('i').not.toExist();
         expect('img').toContainProperty(
             'src',
             `${location.origin}/test-image.png`,
         );
+    });
+
+    it('should map icon styles to Material Symbols classes', () => {
+        spectator.setInput('className', 'sharp');
+        spectator.detectChanges();
+        expect('i').toHaveClass('material-symbols-sharp');
+        // The icon's own class wins over the component class
+        spectator.setInput('icon', { type: 'icon', class: 'outlined' });
+        spectator.detectChanges();
+        expect('i').toHaveClass('material-symbols-outlined');
+        // Other class names pass through as they are
+        spectator.setInput('icon', undefined);
+        spectator.setInput('className', 'fa fa-home');
+        spectator.detectChanges();
+        expect(spectator.query('i')).toHaveProperty('className', 'fa fa-home');
     });
 
     it('should hide decorative icons from assistive technology', () => {

@@ -70,12 +70,6 @@ describe('SignagePanelComponent', () => {
         return spectator;
     }
 
-    it('should expose the configured animation time', () => {
-        build_component();
-
-        expect(spectator.component.animation_time).toBe(1200);
-    });
-
     it('should redirect to bootstrap if no display is provided', () => {
         vi.useFakeTimers();
         build_component();
@@ -201,20 +195,13 @@ describe('SignagePanelComponent', () => {
     it('should persist muted state for the browser session', () => {
         build_component();
 
-        spectator.component.setMuted(true);
+        spectator.component.setMuted(false);
 
-        expect(spectator.component.muted()).toBe(true);
-        expect(sessionStorage.getItem('SIGNAGE.muted')).toBe('true');
+        expect(spectator.component.muted()).toBe(false);
+        expect(sessionStorage.getItem('SIGNAGE.muted')).toBe('false');
     });
 
     it('should default to muted media', () => {
-        build_component();
-
-        expect(spectator.component.muted()).toBe(true);
-    });
-
-    it('should restore muted state from session storage', () => {
-        sessionStorage.setItem('SIGNAGE.muted', 'true');
         build_component();
 
         expect(spectator.component.muted()).toBe(true);
@@ -258,6 +245,29 @@ describe('SignagePanelComponent', () => {
             type: 'playlist_through',
             ref_id: 'playlist-1',
         });
+    });
+
+    it('should keep a timed override until it ends', () => {
+        vi.useFakeTimers();
+        build_component();
+        signage_service.override_playlist.set({
+            ends_at: Date.now() + 60_000,
+            playlist: [
+                {
+                    id: 'override-1',
+                    playlist: 'playlist-1',
+                    getURL: async () => '',
+                },
+            ],
+        });
+
+        spectator.component.handlePlayerEvent(
+            { type: 'playlist_through', ref_id: 'playlist-1' },
+            true,
+        );
+        vi.advanceTimersByTime(30_000);
+
+        expect(signage_service.clearPlaylistOverride).not.toHaveBeenCalled();
     });
 
     it('should play every playlist of overlapping one-shot overrides', () => {

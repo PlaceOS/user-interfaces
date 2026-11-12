@@ -76,25 +76,12 @@ describe('DateRangeFieldComponent', () => {
         expect(spectator.component.end_date()?.control?.value).toBe(new_end);
     });
 
-    it('should render the selected start and end dates', () => {
-        spectator.component.setStartDate(new Date(2026, 5, 1).valueOf());
-        spectator.component.setEndDate(new Date(2026, 5, 5).valueOf());
-        spectator.detectChanges();
-        const button = spectator.query('button[customTooltip]');
-        expect(button).toContainText('Jun 1, 2026');
-        expect(button).toContainText('Jun 5, 2026');
-    });
-
-    it('should update the end control when an end date is set', () => {
-        const new_date = new Date(2026, 6, 9).valueOf();
-        spectator.component.setEndDate(new_date);
-        expect(spectator.component.end_date()?.control?.value).toBe(new_date);
-    });
-
-    it('should expose the earliest allowed date via the from computed', () => {
-        const from = new Date(2026, 5, 10).valueOf();
-        spectator.setHostInput({ from });
-        spectator.detectChanges();
-        expect(spectator.component.from()).toBe(from);
+    it('should keep the start when only the end is picked', () => {
+        const new_end = new Date(2026, 6, 9).valueOf();
+        spectator.component.setEndDate(new_end);
+        expect(spectator.component.start_date()?.control?.value).toBe(
+            new Date(2026, 5, 1).valueOf(),
+        );
+        expect(spectator.component.end_date()?.control?.value).toBe(new_end);
     });
 });

@@ -51,6 +51,7 @@ describe('FindAvailabilityModalComponent', () => {
         mockGet.mockResolvedValue([]);
         spectator = createComponent();
     });
+    afterEach(() => vi.useRealTimers());
 
     it('should seed users, date and duration from the dialog data', () => {
         expect(spectator.component.users().length).toBe(1);
@@ -141,6 +142,38 @@ describe('FindAvailabilityModalComponent', () => {
         expect(url.searchParams.get('calendars')).toBe(
             'host@place.tech,a@place.tech',
         );
+        expect(url.searchParams.get('period_start')).toBe(
+            `${getUnixTime(new Date('2030-06-01T00:00:00'))}`,
+        );
+        expect(url.searchParams.get('period_end')).toBe(
+            `${getUnixTime(new Date('2030-06-01T23:59:59'))}`,
+        );
+    });
+
+    it('should move the selection by dragging, in 5 minute steps and not into the past', () => {
+        vi.useFakeTimers({
+            now: new Date('2030-06-01T08:30:00'),
+            toFake: ['Date'],
+        });
+        const nine = new Date('2030-06-01T09:00:00').valueOf();
+        const minutes = (n: number) => nine + n * 60 * 1000;
+        expect(spectator.component.selection_left()).toBe(45);
+        expect(spectator.component.selection_width()).toBe(5);
+        spectator.component.startMovePeriod(
+            new MouseEvent('mousedown', { clientX: 500 }),
+        );
+        expect(spectator.component.move_time()).toBe(true);
+        // 80px is one hour; 10px is 7.5 minutes, which rounds down to 5
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 580 }));
+        expect(spectator.component.date()).toBe(minutes(60));
+        expect(spectator.component.selection_left()).toBe(50);
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 490 }));
+        expect(spectator.component.date()).toBe(minutes(-5));
+        // 08:00 is before the current time, so the last valid time is kept
+        window.dispatchEvent(new MouseEvent('mousemove', { clientX: 420 }));
+        expect(spectator.component.date()).toBe(minutes(-5));
+        window.dispatchEvent(new MouseEvent('mouseup'));
+        expect(spectator.component.move_time()).toBe(false);
     });
 
     it('should resize the duration by dragging, down to 30 minutes', () => {

@@ -38,14 +38,6 @@ describe('AppComponent', () => {
         expect(placeos_service.init).toHaveBeenCalledTimes(1);
     });
 
-    it('should render the banner, router outlet and loading shells', () => {
-        spectator.detectChanges();
-
-        expect(spectator.query('global-banner')).toBeTruthy();
-        expect(spectator.query('router-outlet')).toBeTruthy();
-        expect(spectator.query('global-loading')).toBeTruthy();
-    });
-
     it('should only render the chat when chat is available', async () => {
         settingSignal('chat.enabled', false).set(false);
         spectator.detectChanges();

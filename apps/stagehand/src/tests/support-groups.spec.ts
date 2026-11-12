@@ -219,7 +219,16 @@ describe('SupportGroupsService', () => {
             membership('g1'),
         ]);
         vi.mocked(queryGroups).mockReturnValue(
-            page([supportGroup('all-1'), supportGroup('all-2')]),
+            page([
+                supportGroup('all-2'),
+                // not a support group, so admins don't see it either
+                new PlaceGroup({
+                    id: 'signage',
+                    name: 'signage',
+                    subsystems: ['signage'],
+                }),
+                supportGroup('all-1'),
+            ]),
         );
         vi.mocked(queryZones).mockImplementation((params: any) =>
             page(params.descendants ? [building, level] : [building, level_2]),

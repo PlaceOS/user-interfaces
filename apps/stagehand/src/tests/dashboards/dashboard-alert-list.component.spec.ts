@@ -63,16 +63,12 @@ describe('DashboardAlertListComponent', () => {
         expect(table.data).toEqual(service.alerts_list());
     });
 
-    it('should hide the progress bar when nothing is loading', () => {
+    it('should show the progress bar only while loading', () => {
         build({ params: { id: 'dash-1' } });
-
         expect(spectator.query('mat-progress-bar')?.classList).toContain(
             'opacity-0',
         );
-    });
 
-    it('should reveal the progress bar while loading', () => {
-        build({ params: { id: 'dash-1' } });
         service.loading.set(['ALERT_LIST']);
         spectator.detectChanges();
 

@@ -1,6 +1,12 @@
+import { CalendarEvent, Space } from '@placeos/common';
+import { setHours, startOfDay } from 'date-fns';
+
 import {
     groupRoomTimelineEvents,
     isActiveRoomTimelineEvent,
+    timelineEvents,
+    timelineLength,
+    timelineOffset,
 } from '../../app/day-view/room-timeline.utilities';
 
 describe('room-timeline.utilities', () => {
@@ -94,6 +100,55 @@ describe('room-timeline.utilities', () => {
             expect(map['r1'].map((e) => e.id)).toEqual(['e1']);
             expect(map['r2'].map((e) => e.id)).toEqual(['e1', 'e2']);
             expect(map['r3']).toEqual([]);
+        });
+    });
+
+    describe('timelineEvents', () => {
+        const HOUR = 60 * 60 * 1000;
+        const window = { start: 10 * HOUR, end: 18 * HOUR };
+        const event = (id: string, start: number, end: number) =>
+            new CalendarEvent({
+                id,
+                date: start,
+                duration: (end - start) / 60_000,
+                resources: [new Space({ id: 'sp1', email: 'sp1@x' })],
+            });
+
+        it('should keep events that overlap the window, edges included', () => {
+            const map = timelineEvents(
+                [{ id: 'sp1', email: 'sp1@x' }],
+                [
+                    event('before', 8 * HOUR, 9 * HOUR),
+                    event('ends-at-start', 9 * HOUR, 10 * HOUR),
+                    event('inside', 12 * HOUR, 13 * HOUR),
+                    event('starts-at-end', 18 * HOUR, 19 * HOUR),
+                    event('after', 19 * HOUR, 20 * HOUR),
+                ],
+                window,
+            );
+
+            expect(map['sp1'].map((e) => e.id)).toEqual([
+                'ends-at-start',
+                'inside',
+                'starts-at-end',
+            ]);
+        });
+    });
+
+    describe('timelineOffset and timelineLength', () => {
+        const day = startOfDay(Date.now()).valueOf();
+
+        it('should clamp a start before the shown hours to zero', () => {
+            const before = setHours(day, 7).valueOf();
+            expect(timelineOffset(before, day, 9, 8, '')).toBe(0);
+            expect(
+                timelineOffset(setHours(day, 13).valueOf(), day, 9, 8, ''),
+            ).toBe(50);
+        });
+
+        it('should cap a length longer than the shown hours at 100 percent', () => {
+            expect(timelineLength(120, 8)).toBe(25);
+            expect(timelineLength(24 * 60, 8)).toBe(100);
         });
     });
 });

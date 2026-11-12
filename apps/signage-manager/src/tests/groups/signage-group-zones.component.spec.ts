@@ -51,14 +51,6 @@ describe('SignageGroupZonesComponent', () => {
         ]);
     });
 
-    it('exposes the managed group zones from the service', () => {
-        const component = make();
-        expect(component.zones().map((row) => row.zone_id)).toEqual([
-            'zone-1',
-            'zone-2',
-        ]);
-    });
-
     it('opens the zone picker excluding assigned zones and adds the result', async () => {
         dialog.open.mockReturnValue(dialogRef({ id: 'zone-3' }));
         const component = make();

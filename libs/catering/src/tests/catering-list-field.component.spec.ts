@@ -30,13 +30,15 @@ describe('CateringListFieldComponent', () => {
         zones: ['building-1', 'level-1'],
     });
     const settings_service = createSettingsServiceMock();
+    /** Delivery settings that the user picks in the modal */
+    let dialog_modal: {
+        exact_time: boolean;
+        offset: number;
+        offset_day: number;
+    };
     const open_dialog = vi.fn((_component?: unknown, _config?: unknown) => ({
         afterClosed: () => of(dialog_result),
-        componentInstance: {
-            exact_time: false,
-            offset: 0,
-            offset_day: 0,
-        },
+        componentInstance: dialog_modal,
     }));
 
     const createComponent = createComponentFactory({
@@ -66,6 +68,7 @@ describe('CateringListFieldComponent', () => {
 
     beforeEach(() => {
         dialog_result = undefined;
+        dialog_modal = { exact_time: false, offset: 0, offset_day: 0 };
         settings_service.get.mockReset();
         settings_service.get.mockImplementation(() => undefined);
         spectator = createComponent();
@@ -76,26 +79,6 @@ describe('CateringListFieldComponent', () => {
         });
         open_dialog.mockClear();
         (spectator.component as any)._dialog = { open: open_dialog };
-    });
-
-    it('should remove an edited order when the confirmed selection is empty', () => {
-        const order = new CateringOrder({
-            id: 'order-1',
-            caterer: 'Cafe',
-            items: [
-                new CateringItem({
-                    id: 'coffee',
-                    caterer: 'Cafe',
-                    quantity: 1,
-                }),
-            ],
-        });
-        spectator.component.setValue([order]);
-        dialog_result = [];
-
-        spectator.component.editOrder(order);
-
-        expect(spectator.component.orders()).toEqual([]);
     });
 
     it('should keep the existing order when the modal is cancelled', () => {
@@ -319,6 +302,60 @@ describe('CateringListFieldComponent', () => {
             resources: [room],
         });
 
+        expect(spectator.component.orders()).toEqual([]);
+    });
+
+    it('should save the delivery settings from the modal on the order', () => {
+        spectator.setInput('options', {
+            date: new Date('2026-04-01T09:30:00').valueOf(),
+            duration: 60,
+            resources: [room],
+        });
+        dialog_modal = { exact_time: true, offset: 15, offset_day: 1 };
+        dialog_result = [
+            new CateringItem({ id: 'coffee', caterer: 'Cafe', quantity: 1 }),
+        ];
+
+        spectator.component.addOrder();
+
+        const [order] = spectator.component.orders();
+        expect(order.caterer).toBe('Cafe');
+        expect(order.deliver_time).toBe(9.5);
+        expect(order.deliver_offset).toBe(15);
+        expect(order.deliver_day_offset).toBe(1);
+    });
+
+    it('should remove an item, and the order with its last item', () => {
+        const coffee = new CateringItem({
+            id: 'coffee',
+            caterer: 'Cafe',
+            quantity: 1,
+        });
+        const tea = new CateringItem({
+            id: 'tea',
+            caterer: 'Cafe',
+            quantity: 1,
+        });
+        spectator.component.setValue([
+            new CateringOrder({
+                id: 'order-1',
+                caterer: 'Cafe',
+                items: [coffee, tea],
+            }),
+        ]);
+
+        spectator.component.removeOrderItem(
+            spectator.component.orders()[0],
+            coffee,
+        );
+        expect(
+            spectator.component.orders()[0].items.map((item) => item.id),
+        ).toEqual(['tea']);
+
+        spectator.component.removeOrderItem(
+            spectator.component.orders()[0],
+            tea,
+        );
         expect(spectator.component.orders()).toEqual([]);
     });
 });

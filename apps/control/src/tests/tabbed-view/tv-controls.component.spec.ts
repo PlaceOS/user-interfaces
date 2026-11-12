@@ -35,10 +35,6 @@ describe('TVControlsComponent', () => {
         spectator = createComponent();
     });
 
-    it('should expose the active system id', () => {
-        expect(spectator.component.system_id).toBe('sys-1');
-    });
-
     it('should render a button per channel', () => {
         spectator.component.channel_list = [
             { name: 'BBC', channel: 'bbc' },

@@ -54,6 +54,19 @@ describe('CateringMenuComponent', () => {
         expect(spectator.component.menu().map((i) => i.id)).toEqual(['1']);
     });
 
+    it('should only show items from the chosen caterer', () => {
+        menu.set([
+            new CateringItem({ id: '1', caterer: 'Cafe' }),
+            new CateringItem({ id: '2', caterer: 'Deli' }),
+            new CateringItem({ id: '3' }),
+        ]);
+
+        order_filters.set({ caterer: 'Cafe' });
+        expect(spectator.component.menu().map((i) => i.id)).toEqual(['1']);
+        order_filters.set({ caterer: '<empty>' });
+        expect(spectator.component.menu().map((i) => i.id)).toEqual(['3']);
+    });
+
     it('should stop and allow ordering of an item from the current zone', () => {
         const update = vi.mocked(
             spectator.inject(CateringStateService).updateItem,

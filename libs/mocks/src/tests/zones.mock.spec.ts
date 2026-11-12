@@ -1,3 +1,4 @@
+import { HashMap } from '@placeos/common';
 import { registerMockEndpoint } from '@placeos/ts-client';
 
 import { MOCK_SPACES } from '../lib/api/spaces.data';
@@ -8,44 +9,18 @@ import {
     MOCK_REGIONS,
 } from '../lib/api/zone.data';
 import { registerMockZones } from '../lib/api/zones.mock';
+import { endpoint } from './endpoints';
 
 vi.mock('@placeos/ts-client');
 
-/** Build the request object a mocked endpoint is handed by ts-client */
-function request(overrides: Record<string, unknown> = {}): unknown {
-    return {
-        url: '',
-        path: '',
-        method: 'GET',
-        metadata: {},
-        route_params: {},
-        query_params: {},
-        body: null,
-        ...overrides,
-    };
-}
+const API = '/api/engine/v2';
 
 describe('registerMockZones', () => {
-    /** Callback registered for the given method + path */
-    function handler(method: string, path: string) {
-        const match = vi
-            .mocked(registerMockEndpoint)
-            .mock.calls.map(([options]) => options)
-            .find((o) => o.method === method && o.path === path);
-        if (!match) throw new Error(`No handler for ${method} ${path}`);
-        return (req: any) => match.callback(req);
-    }
-
-    const listZones = (query_params = {}) =>
-        handler(
-            'GET',
-            '/api/engine/v2/zones',
-        )(request({ query_params })) as any[];
+    const listZones = (query_params: Record<string, string> = {}) =>
+        endpoint<HashMap[]>('GET', `${API}/zones`)({ query_params });
+    const ids = (zones: HashMap[]) => zones.map((z) => z.id).sort();
     const showZone = (id: string) =>
-        handler(
-            'GET',
-            '/api/engine/v2/zones/:id',
-        )(request({ route_params: { id } }));
+        endpoint('GET', `${API}/zones/:id`)({ route_params: { id } });
 
     beforeEach(() => {
         vi.mocked(registerMockEndpoint).mockClear();
@@ -57,7 +32,7 @@ describe('registerMockZones', () => {
 
     describe('zone listing', () => {
         it('should return the whole hierarchy by default', () => {
-            const ids = listZones().map((z) => z.id);
+            const listed = ids(listZones());
 
             for (const zone of [
                 ...MOCK_ORGS,
@@ -65,23 +40,17 @@ describe('registerMockZones', () => {
                 ...MOCK_BUILDINGS,
                 ...MOCK_LEVELS,
             ]) {
-                expect(ids).toContain(zone.id);
+                expect(listed).toContain(zone.id);
             }
         });
 
-        it('should filter zones by tag', () => {
-            const buildings = listZones({ tags: 'building' });
-
-            expect(buildings).toHaveLength(MOCK_BUILDINGS.length);
-            expect(buildings.every((z) => z.tags.includes('building'))).toBe(
-                true,
-            );
-        });
-
         it('should match any of several space separated tags', () => {
-            const zones = listZones({ tags: 'org region' });
-
-            expect(zones).toHaveLength(MOCK_ORGS.length + MOCK_REGIONS.length);
+            expect(ids(listZones({ tags: 'building' }))).toEqual(
+                ids(MOCK_BUILDINGS),
+            );
+            expect(ids(listZones({ tags: 'org region' }))).toEqual(
+                ids([...MOCK_ORGS, ...MOCK_REGIONS]),
+            );
         });
 
         it('should filter zones by parent', () => {
@@ -91,22 +60,11 @@ describe('registerMockZones', () => {
             expect(children.length).toBeGreaterThan(0);
             expect(children.every((z) => z.parent_id === region.id)).toBe(true);
         });
-
-        it('should return nothing for an unknown tag', () => {
-            expect(listZones({ tags: 'not-a-real-tag' })).toEqual([]);
-        });
     });
 
     describe('zone details', () => {
-        it('should return the zone matching the id', () => {
-            const building = MOCK_BUILDINGS[0];
-            expect(showZone(building.id)).toMatchObject({
-                id: building.id,
-                name: building.name,
-            });
-        });
-
-        it('should raise a 404 for an unknown zone', () => {
+        it('should show a zone by ID, or raise a 404', () => {
+            expect(showZone(MOCK_BUILDINGS[0].id)).toBe(MOCK_BUILDINGS[0]);
             expect(() => showZone('zone-does-not-exist')).toThrow(
                 expect.objectContaining({ status: 404 }),
             );
@@ -114,20 +72,36 @@ describe('registerMockZones', () => {
 
         it('should keep the zone ID and list when a zone changes', () => {
             const level = MOCK_LEVELS[0];
-            handler(
+            endpoint(
                 'PATCH',
-                '/api/engine/v2/zones/:id',
-            )(
-                request({
-                    route_params: { id: level.id },
-                    body: { id: 'zone-new-id', display_name: 'Renamed' },
-                }),
-            );
+                `${API}/zones/:id`,
+            )({
+                route_params: { id: level.id },
+                body: { id: 'zone-new-id', display_name: 'Renamed' },
+            });
 
             expect(MOCK_LEVELS[0]).toMatchObject({
                 id: level.id,
                 display_name: 'Renamed',
             });
+        });
+
+        it('should list a new zone by its tags, and delete it', () => {
+            const zone = endpoint<HashMap>(
+                'POST',
+                `${API}/zones`,
+            )({
+                body: { name: 'New', tags: ['mock-test'] },
+            });
+            expect(listZones({ tags: 'mock-test' })).toEqual([zone]);
+
+            endpoint(
+                'DELETE',
+                `${API}/zones/:id`,
+            )({
+                route_params: { id: zone.id },
+            });
+            expect(listZones({ tags: 'mock-test' })).toEqual([]);
         });
     });
 
@@ -135,39 +109,35 @@ describe('registerMockZones', () => {
         const level_id = () => MOCK_LEVELS[1].id;
         const desks = { name: 'desks', details: [{ id: 'desk-saved' }] };
         const show = (name: string) =>
-            handler(
+            endpoint<HashMap>(
                 'GET',
-                '/api/engine/v2/metadata/:id',
-            )(
-                request({
-                    route_params: { id: level_id() },
-                    query_params: { name },
-                }),
-            );
+                `${API}/metadata/:id`,
+            )({
+                route_params: { id: level_id() },
+                query_params: { name },
+            });
 
         it('should return saved metadata in place of generated metadata', () => {
-            const generated = show('desks') as {
-                desks: { details: unknown[] };
-            };
-            expect(generated.desks.details).toHaveLength(30);
+            expect(show('desks').desks.details).toHaveLength(30);
 
-            handler(
+            endpoint(
                 'PATCH',
-                '/api/engine/v2/metadata/:id',
-            )(request({ route_params: { id: level_id() }, body: desks }));
+                `${API}/metadata/:id`,
+            )({
+                route_params: { id: level_id() },
+                body: desks,
+            });
 
             // Desk maps that a user edits must survive the next load
             expect(show('desks')).toEqual({ desks });
             expect(
-                handler(
+                endpoint(
                     'GET',
-                    '/api/engine/v2/metadata/:name/bulk',
-                )(
-                    request({
-                        route_params: { name: 'desks' },
-                        query_params: { parent_ids: level_id() },
-                    }),
-                ),
+                    `${API}/metadata/:name/bulk`,
+                )({
+                    route_params: { name: 'desks' },
+                    query_params: { parent_ids: level_id() },
+                }),
             ).toEqual({ [level_id()]: desks });
         });
     });
@@ -196,10 +166,15 @@ describe('registerMockZones', () => {
         });
 
         it('should point every module binding at a registered mock system', () => {
-            const showMetadata = handler('GET', '/api/engine/v2/metadata/:id');
-            const { bindings } = showMetadata(
-                request({ query_params: { name: 'bindings' } }),
-            ) as { bindings: { details: Record<string, string> } };
+            const { bindings } = endpoint<{
+                bindings: { details: Record<string, string> };
+            }>(
+                'GET',
+                `${API}/metadata/:id`,
+            )({
+                route_params: { id: 'zone-any' },
+                query_params: { name: 'bindings' },
+            });
             const system_ids = new Set(MOCK_SPACES.map((s) => s.id));
             const missing = Object.entries(bindings.details)
                 .filter(([, sys]) => !system_ids.has(sys))

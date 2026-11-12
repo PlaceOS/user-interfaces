@@ -73,6 +73,26 @@ describe('normaliseFloorplanAnalysis', () => {
         expect(result.rooms[0].type).toBe('other');
     });
 
+    it('drops an outline with fewer than three usable points and names unlabelled rooms', () => {
+        const result = normaliseFloorplanAnalysis(
+            JSON.stringify({
+                outline: {
+                    points: [
+                        { x: 0, y: 0 },
+                        { x: 50, y: 0 },
+                        { x: 'far', y: 50 },
+                    ],
+                },
+                rooms: [{ x: 0, y: 0, width: 40, height: 40 }],
+            }),
+            100,
+            100,
+        );
+
+        expect(result.outline).toBeNull();
+        expect(result.rooms.map((room) => room.label)).toEqual(['Room 1']);
+    });
+
     it('rejects invalid JSON', () => {
         expect(() => normaliseFloorplanAnalysis('not JSON', 100, 100)).toThrow(
             'invalid JSON',

@@ -11,13 +11,14 @@ import {
     VirtualKeyboardComponent,
 } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 import { AppComponent } from '../app/app.component';
 
 describe('AppComponent', () => {
     let spectator: SpectatorRouting<AppComponent>;
     let placeos: {
-        init: any;
-        setInitialToken: any;
+        init: Mock<PlaceOS_Service['init']>;
+        setInitialToken: Mock<PlaceOS_Service['setInitialToken']>;
     };
 
     const createComponent = createRoutingFactory({
@@ -61,6 +62,7 @@ describe('AppComponent', () => {
     });
 
     it('should disable the virtual keyboard when OSK is not enabled', () => {
+        VirtualKeyboardComponent.enabled = true;
         localStorage.setItem('OSK.enabled', 'false');
         spectator.component.ngOnInit();
         expect(VirtualKeyboardComponent.enabled).toBe(false);

@@ -52,4 +52,14 @@ describe('SpaceEventDetailsComponent', () => {
         expect('[event]').toHaveClass('opacity-30!');
         expect('[event]').not.toHaveClass('border-info');
     });
+
+    it('should show the booking times in the time format', () => {
+        const times = () =>
+            spectator.query('p').textContent.replace(/\s+/g, ' ').trim();
+        spectator.setInput({ event: event() });
+        expect(times()).toBe('10:00 AM – 11:00 AM');
+
+        spectator.setInput({ time_format: 'HH:mm' });
+        expect(times()).toBe('10:00 – 11:00');
+    });
 });

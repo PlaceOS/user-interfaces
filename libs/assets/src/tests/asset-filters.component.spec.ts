@@ -13,6 +13,7 @@ import { AssetStateService } from '../lib/asset-state.service';
 describe('AssetFiltersComponent', () => {
     let spectator: Spectator<AssetFiltersComponent>;
     let state_options: { date: number; duration: number };
+    let settings_mock: ReturnType<typeof createSettingsServiceMock>;
     const category_list = signal<{ id: string; name: string }[]>([]);
     const options = signal<any>({});
 
@@ -23,7 +24,7 @@ describe('AssetFiltersComponent', () => {
             MockComponent(DurationFieldComponent),
         ],
         providers: [
-            MockProvider(SettingsService, createSettingsServiceMock()),
+            { provide: SettingsService, useFactory: () => settings_mock },
             MockProvider(AssetStateService, {
                 search: signal(''),
                 category: signal<string[]>([]),
@@ -35,6 +36,7 @@ describe('AssetFiltersComponent', () => {
     });
 
     beforeEach(() => {
+        settings_mock = createSettingsServiceMock();
         state_options = {
             date: new Date('2026-04-01T09:00:00').valueOf(),
             duration: 60,
@@ -68,7 +70,13 @@ describe('AssetFiltersComponent', () => {
         options.set({ ...state_options });
         TestBed.tick();
 
-        expect(spectator.component.day_options().length).toBeGreaterThan(1);
+        // 09:00 on the 1st to 09:00 on the 4th touches four days
+        expect(spectator.component.day_options()).toEqual(
+            [1, 2, 3, 4].map((day, id) => ({
+                id,
+                value: new Date(2026, 3, day).valueOf(),
+            })),
+        );
     });
 
     it('should limit the delivery time to the booking and the selected day', () => {
@@ -87,8 +95,13 @@ describe('AssetFiltersComponent', () => {
     });
 
     it('should ignore the minimum offset once a later day is selected', () => {
+        settings_mock.get.mockImplementation((key: string) =>
+            key === 'app.assets.min_offset' ? 15 : undefined,
+        );
+        spectator = createComponent();
+        expect(spectator.component.min_offset()).toBe(15);
+
         spectator.component.offset_day.set(1);
-        spectator.detectChanges();
 
         expect(spectator.component.min_offset()).toBe(0);
     });

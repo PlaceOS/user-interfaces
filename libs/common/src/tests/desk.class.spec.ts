@@ -2,42 +2,31 @@ import { PlaceZone } from '@placeos/ts-client';
 import { Desk } from '../lib/types/desk.class';
 
 describe('Desk', () => {
-    let item: Desk;
-
-    beforeEach(() => (item = new Desk()));
-
-    it('should expose properties', () => {
-        expect(item.id).toBe('');
-        expect(item.name).toBe('');
-        expect(item.bookable).toBe(false);
-        expect(item.zone).toBeInstanceOf(PlaceZone);
-        expect(item.zone?.id).toBe('');
-        expect(item.groups).toEqual([]);
-        expect(item.homebase).toBe('');
-        item = new Desk({
-            id: 'desk-1',
-            name: 'Some Desk',
-            bookable: true,
-            zone: new PlaceZone({ id: 'zone-1' }),
-            groups: ['Admin'],
-            homebase: 'Sydney HQ',
-        });
-        expect(item.id).toBe('desk-1');
-        expect(item.name).toBe('Some Desk');
-        expect(item.bookable).toBe(true);
-        expect(item.zone).toBeInstanceOf(PlaceZone);
-        expect(item.zone?.id).toBe('zone-1');
-        expect(item.groups).toEqual(['Admin']);
-        expect(item.homebase).toBe('Sydney HQ');
+    it('should use the ID as the map ID when none is given', () => {
+        expect(new Desk({ id: 'desk-1' }).map_id).toBe('desk-1');
+        expect(new Desk({ id: 'desk-1', map_id: 'map-1' }).map_id).toBe(
+            'map-1',
+        );
     });
 
-    it('should allow getting simplified version of desk data', () => {
-        const obj = item.toJSON();
-        expect(obj.zone).toBeUndefined();
-        expect(obj.id).toBe('');
-        expect(obj.name).toBe('');
-        expect(obj.bookable).toBe(false);
-        expect(obj.groups).toEqual([]);
-        expect(obj.homebase).toBe('');
+    it('should keep fields that the class does not declare', () => {
+        const desk = new Desk({ id: 'desk-1', floor_area: 4 } as Partial<Desk>);
+
+        expect(desk['floor_area']).toBe(4);
+    });
+
+    it('should remove the zone and QR code when serialised', () => {
+        const json = new Desk({
+            id: 'desk-1',
+            zone: new PlaceZone({ id: 'zone-1' }),
+            qr_code: 'data:image/png',
+            groups: ['Admin'],
+        }).toJSON();
+
+        expect(json).not.toHaveProperty('zone');
+        expect(json).not.toHaveProperty('qr_code');
+        expect(json).not.toHaveProperty('toJSON');
+        expect(json.id).toBe('desk-1');
+        expect(json.groups).toEqual(['Admin']);
     });
 });

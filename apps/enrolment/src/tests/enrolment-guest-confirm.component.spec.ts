@@ -1,7 +1,6 @@
-import { signal } from '@angular/core';
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
-import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
-import { SettingsService } from '@placeos/common';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { settingSignal, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
@@ -13,14 +12,14 @@ vi.mock('@placeos/ts-client', { spy: true });
 describe('EnrolmentGuestConfirmComponent', () => {
     let spectator: Spectator<EnrolmentGuestConfirmComponent>;
     let state: EnrolmentStateService;
-    let vaccine_check: any;
 
     const createComponent = createComponentFactory({
         component: EnrolmentGuestConfirmComponent,
         providers: [
             MockProvider(SettingsService, {
-                signal: vi.fn(() => vaccine_check),
-            }),
+                // The real setting store, so the field follows its own key
+                signal: settingSignal,
+            } as Partial<SettingsService>),
             // Zoneless shallow rendering of mat-form-field/signal-forms
             // otherwise trips endless change detection (NG0103)
             { provide: ComponentFixtureAutoDetect, useValue: false },
@@ -43,7 +42,7 @@ describe('EnrolmentGuestConfirmComponent', () => {
     }
 
     beforeEach(() => {
-        vaccine_check = signal(false);
+        settingSignal('guests.vaccine_check').set(false);
         (ts_client.get as any).mockReset();
         (ts_client.get as any).mockResolvedValue({});
         (ts_client.post as any).mockReset();
@@ -108,7 +107,7 @@ describe('EnrolmentGuestConfirmComponent', () => {
     });
 
     it('should show the vaccination proof field when the setting is enabled', () => {
-        vaccine_check.set(true);
+        settingSignal('guests.vaccine_check').set(true);
         spectator.detectChanges();
 
         expect(spectator.element.textContent).toContain('Vaccination Proof');

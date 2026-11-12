@@ -65,6 +65,8 @@ describe('ExploreSpacesService', () => {
         vi.mocked(spectator.inject(SettingsService).get).mockReset();
     });
 
+    afterEach(() => vi.useRealTimers());
+
     it('should bind to spaces', () => {
         vi.useFakeTimers();
         const bindThenSubscribe = vi.fn(() => of().subscribe());
@@ -264,6 +266,85 @@ describe('ExploreSpacesService', () => {
             expect(event_form.openEventLinkModal).toHaveBeenCalled();
             expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
         });
+
+        it('should refuse to book outside the bookable hours', async () => {
+            await load();
+            setStatus('free');
+            // 6am is before the bookable hours
+            vi.useFakeTimers({
+                toFake: ['Date'],
+                now: new Date(2026, 6, 9, 6, 0),
+            });
+            settings['app.events.bookable_hours'] = { start: 8, end: 18 };
+
+            await spectator.service.bookSpace(space);
+            vi.useRealTimers();
+
+            expect(notified()).toEqual(['EXPLORE.OUTSIDE_BOOKABLE_HOURS']);
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        });
+
+        it('should book on a short press but not after a long press', async () => {
+            await load();
+            vi.useFakeTimers();
+            setStatus('free');
+            (
+                spectator.service as unknown as {
+                    updateActions(spaces: Space[]): void;
+                }
+            ).updateActions([space]);
+            vi.advanceTimersByTime(50);
+            const [, actions] = vi
+                .mocked(spectator.inject(ExploreStateService).setActions)
+                .mock.calls.at(-1);
+            const down = actions.find((_) => _.action === 'mousedown');
+            const up = actions.find((_) => _.action === 'mouseup');
+            const dialog = spectator.inject(MatDialog);
+
+            down.callback(new Event('mousedown'));
+            up.callback(new Event('mouseup'));
+            await vi.advanceTimersByTimeAsync(0);
+            expect(dialog.open).toHaveBeenCalledTimes(1);
+
+            // A long press pans the map, so it does not book
+            down.callback(new Event('mousedown'));
+            await vi.advanceTimersByTimeAsync(300);
+            up.callback(new Event('mouseup'));
+            await vi.advanceTimersByTimeAsync(0);
+            expect(dialog.open).toHaveBeenCalledTimes(1);
+            vi.useRealTimers();
+        });
+    });
+
+    it('should show presence icons only when the setting is on', () => {
+        vi.useFakeTimers();
+        const state = spectator.inject(ExploreStateService);
+        const spaces = [
+            new Space({ id: 'space-1', map_id: 'map-1' }),
+            new Space({ id: 'space-2', map_id: 'map-2' }),
+        ];
+        const presence_calls = () =>
+            vi
+                .mocked(state.setFeatures)
+                .mock.calls.filter(([group]) => group === 'spaces-presence');
+
+        spectator.service.handlePresenceChange(spaces, spaces[0], true);
+        vi.advanceTimersByTime(100);
+        expect(presence_calls()).toEqual([]);
+
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) => key === 'app.show_presence_indicators',
+        );
+        spectator.service.handlePresenceChange(spaces, spaces[1], false);
+        vi.advanceTimersByTime(100);
+        const [, features] = presence_calls().at(-1);
+        expect(
+            features.map(({ location, data }) => [location, data['color']]),
+        ).toEqual([
+            ['map-1', 'var(--success)'],
+            ['map-2', 'var(--base-content)'],
+        ]);
+        vi.useRealTimers();
     });
 
     it('should keep stable room features and update their data in place', () => {

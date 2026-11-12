@@ -44,7 +44,7 @@ describe('new-panel helpers', () => {
 
         it('should return an empty string when the next booking is more than a day away', () => {
             const date = FIXED_NOW + 24 * 60 * 60 * 1000;
-            expect(nextPeriod({ date, duration: 30 } as any)).toBe('');
+            expect(nextPeriod(event(date))).toBe('');
         });
 
         it('should format a start-to-end range for an upcoming booking', () => {
@@ -53,12 +53,12 @@ describe('new-panel helpers', () => {
                 addMinutes(date, 30),
                 'h:mm a',
             )}`;
-            expect(nextPeriod({ date, duration: 30 } as any)).toBe(expected);
+            expect(nextPeriod(event(date))).toBe(expected);
         });
 
         it('should show the weekday for a booking tomorrow', () => {
             const date = addDays(startOfDay(FIXED_NOW), 1).valueOf() + 1000;
-            expect(nextPeriod({ date, duration: 30 } as any)).toBe(
+            expect(nextPeriod(event(date))).toBe(
                 `${format(date, 'EEE h:mm a')} - ${format(
                     addMinutes(date, 30),
                     'h:mm a',
@@ -68,8 +68,11 @@ describe('new-panel helpers', () => {
 
         it('should use the given time format', () => {
             const date = FIXED_NOW + 60 * 1000;
-            expect(nextPeriod({ date, duration: 30 } as any, 'HH:mm')).toMatch(
-                /^(\w{3} )?\d{2}:\d{2} - \d{2}:\d{2}$/,
+            expect(nextPeriod(event(date), 'HH:mm')).toBe(
+                `${format(date, 'HH:mm')} - ${format(
+                    addMinutes(date, 30),
+                    'HH:mm',
+                )}`,
             );
         });
     });
@@ -80,38 +83,25 @@ describe('new-panel helpers', () => {
         });
 
         it('should return an empty tuple when the next booking is more than a day away', () => {
-            const next = { date: FIXED_NOW + 24 * 60 * 60 * 1000 } as any;
+            const next = event(FIXED_NOW + 24 * 60 * 60 * 1000);
             expect(currentPeriod([], null, next)).toEqual([]);
         });
 
         it('should count down to the next booking when there is no current booking', () => {
-            const next = { date: FIXED_NOW + 90 * 60 * 1000 } as any;
+            const next = event(FIXED_NOW + 90 * 60 * 1000);
             expect(currentPeriod([], null, next)).toEqual([false, 1, 30]);
         });
 
         it('should count down to the next free slot when a booking is current', () => {
             // A 120 minute booking starting now leaves the next free slot
             // beginning 120 minutes from now.
-            const bookings = [{ date: FIXED_NOW, duration: 120 }] as any;
-            const current = { date: FIXED_NOW } as any;
-            const next = { date: FIXED_NOW + 200 * 60 * 1000 } as any;
-            const result = currentPeriod(bookings, current, next);
-            expect(result).toEqual([true, 2, 0]);
-        });
-
-        it('should report a checked-in state regardless of the next booking', () => {
-            // A 45 minute booking starting now leaves the next free slot
-            // beginning 45 minutes from now.
-            const bookings = [{ date: FIXED_NOW, duration: 45 }] as any;
-            const current = { date: FIXED_NOW } as any;
-            const [checked_in, hours, minutes] = currentPeriod(
-                bookings,
-                current,
-                null,
-            ) as [boolean, number, number];
-            expect(checked_in).toBe(true);
-            expect(hours).toBe(0);
-            expect(minutes).toBe(45);
+            const current = event(FIXED_NOW, 120);
+            const next = event(FIXED_NOW + 200 * 60 * 1000);
+            expect(currentPeriod([current], current, next)).toEqual([
+                true,
+                2,
+                0,
+            ]);
         });
     });
 
@@ -122,17 +112,39 @@ describe('new-panel helpers', () => {
             expect(blocks.filter((block) => block.on_hour)).toHaveLength(12);
         });
 
+        it('should label hours in the 24 hour format', () => {
+            const start = new Date(2026, 6, 4, 13, 0).valueOf();
+            expect(timelineBlocks(start)[0].hour).toBe('1PM');
+            expect(timelineBlocks(start, 10, 'HH:mm')[0].hour).toBe('13');
+        });
+
         it('should position bookings using their exact start and end times', () => {
-            const booking = {
-                date: FIXED_NOW + 33 * 60 * 1000,
-                duration: 17,
-            } as any;
+            const booking = event(FIXED_NOW + 33 * 60 * 1000, 17);
             const start = timelineStart(FIXED_NOW);
             const bookings = timelineBookings([booking], start);
 
             expect(timelineBlocks(start)).toHaveLength(72);
             expect(bookings[0].start).toBeCloseTo((93 / 720) * 100);
             expect(bookings[0].size).toBeCloseTo((17 / 720) * 100);
+        });
+
+        it('should clip bookings to the timeline and drop the ones outside it', () => {
+            const start = timelineStart(FIXED_NOW);
+            const bookings = timelineBookings(
+                [
+                    // Starts 30 minutes before the timeline
+                    event(addMinutes(start, -30).valueOf(), 60),
+                    // Ends when the timeline starts
+                    event(addMinutes(start, -30).valueOf(), 30),
+                    // Starts when the timeline ends
+                    event(addMinutes(start, 12 * 60).valueOf(), 30),
+                ],
+                start,
+            );
+
+            expect(bookings).toHaveLength(1);
+            expect(bookings[0].start).toBe(0);
+            expect(bookings[0].size).toBeCloseTo((30 / 720) * 100);
         });
 
         it('should move the current-time marker between grid intervals', () => {
@@ -177,6 +189,14 @@ describe('new-panel helpers', () => {
             expect(freeMinutes(bookings, FIXED_NOW)).toBe(40);
         });
 
+        it('should ignore bookings that have started', () => {
+            const bookings = [
+                event(addMinutes(FIXED_NOW, -10).valueOf()),
+                event(addMinutes(FIXED_NOW, 50).valueOf()),
+            ];
+            expect(freeMinutes(bookings, FIXED_NOW)).toBe(50);
+        });
+
         it('should return the max without later bookings', () => {
             expect(freeMinutes([], FIXED_NOW, 120)).toBe(120);
         });
@@ -212,6 +232,11 @@ describe('new-panel helpers', () => {
 
         it('should return null earlier in the meeting', () => {
             const now = addMinutes(FIXED_NOW, 10).valueOf();
+            expect(endingSoon(current, next, now)).toBeNull();
+        });
+
+        it('should return null after the current booking ends', () => {
+            const now = addMinutes(FIXED_NOW, 31).valueOf();
             expect(endingSoon(current, next, now)).toBeNull();
         });
 

@@ -51,13 +51,9 @@ describe('DurationFieldComponent', () => {
 
     it('should allow changing the max duration', () => {
         spectator.setInput({ max: 240 });
-        spectator.detectChanges();
-        let options = spectator.component.duration_options();
-        expect(options[options.length - 1].id).toBe(240);
-        spectator.setInput({ max: Math.floor(Math.random() * 10 + 10) * 15 });
-        spectator.detectChanges();
-        options = spectator.component.duration_options();
-        expect(options[options.length - 1].id).toBe(spectator.component.max());
+        expect(spectator.component.duration_options().at(-1).id).toBe(240);
+        spectator.setInput({ max: 165 });
+        expect(spectator.component.duration_options().at(-1).id).toBe(165);
     });
 
     it('should allow changing the duration step', () => {
@@ -76,28 +72,17 @@ describe('DurationFieldComponent', () => {
         expect(diff).toBe(spectator.component.step());
     });
 
-    it('should allow changing the reference time', () => {
-        spectator.setInput({ time: 1 });
-        spectator.detectChanges();
-        let options = spectator.component.duration_options();
-        expect(options[0].date).toBeGreaterThanOrEqual(1);
-        spectator.setInput({
-            time: addHours(1, 12).valueOf(),
-        });
-        spectator.detectChanges();
-        options = spectator.component.duration_options();
-        expect(options[0].date).toBeGreaterThanOrEqual(1 + 12 * 60 * 60 * 1000);
+    it('should give each option the end time from the reference time', () => {
+        const time = new Date(2026, 0, 1, 9).valueOf();
+        spectator.setInput({ time, min: 30, max: 90, step: 30 });
+        expect(
+            spectator.component.duration_options().map((_) => _.date),
+        ).toEqual([30, 60, 90].map((minutes) => time + minutes * 60_000));
+        spectator.setInput({ time: addHours(time, 12).valueOf() });
+        expect(spectator.component.duration_options()[0].date).toBe(
+            addHours(time, 12).valueOf() + 30 * 60_000,
+        );
     });
-
-    it('should allow setting the value', () =>
-        new Promise<void>((done) => {
-            const duration = 35;
-            spectator.component.registerOnChange((value) => {
-                expect(value).toBe(35);
-                done();
-            });
-            spectator.component.setValue(duration);
-        }));
 
     it('should de-duplicate merged custom duration options', () => {
         spectator.setInput({

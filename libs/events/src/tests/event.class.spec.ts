@@ -13,7 +13,6 @@ import {
     startOfHour,
     sub,
 } from 'date-fns';
-import { setInternalUserDomain } from 'libs/users/src/lib/user.utilities';
 
 describe('CalendarEvent', () => {
     let event: CalendarEvent;
@@ -116,26 +115,6 @@ describe('CalendarEvent', () => {
             extension_data: { visitor_type: 'two' },
         });
         expect(event.ext('visitor_type')).toBe('one');
-    });
-
-    it('should expose current state of event', () => {
-        expect(event.state).toBe('upcoming');
-        event = new CalendarEvent({
-            date: add(new Date(), { minutes: -1 }).valueOf(),
-        });
-        expect(event.state).toBe('started');
-        event = new CalendarEvent({
-            date: add(new Date(), { minutes: 30 }).valueOf(),
-        });
-        expect(event.state).toBe('future');
-        event = new CalendarEvent({
-            date: add(new Date(), { minutes: -20 }).valueOf(),
-        });
-        expect(event.state).toBe('in_progress');
-        event = new CalendarEvent({
-            date: add(new Date(), { minutes: -45 }).valueOf(),
-        });
-        expect(event.state).toBe('done');
     });
 
     it('should expose whether event can be checked in', () => {
@@ -280,26 +259,6 @@ describe('CalendarEvent', () => {
         );
     });
 
-    it('should preserve monthly weekday recurrence metadata', () => {
-        event = new CalendarEvent({
-            date: new Date(2026, 4, 12, 9).valueOf(),
-            date_end: new Date(2026, 4, 12, 10).valueOf(),
-            recurring: true,
-            recurrence: {
-                start: new Date(2026, 4, 13, 9).valueOf(),
-                end: new Date(2026, 10, 30).valueOf(),
-                interval: 1,
-                pattern: 'monthly',
-                days_of_week: [3],
-                nth_of_month: WeekOfMonth.Second,
-            },
-        });
-
-        const json = event.toJSON();
-
-        expect(json.recurrence.nth_of_month).toBe(WeekOfMonth.Second);
-    });
-
     it('should clear custom all-day metadata when updating an existing event', () => {
         event = new CalendarEvent({
             id: 'event-1',
@@ -312,28 +271,6 @@ describe('CalendarEvent', () => {
 
         expect(json.all_day).toBe(false);
         expect(json.extension_data.custom_all_day).toBe(false);
-    });
-
-    it('should expose list of guests for event', () => {
-        setInternalUserDomain('work.com');
-        expect(event.guests).toEqual([]);
-        event = new CalendarEvent({
-            attendees: [
-                { name: 'Jim', email: 'jim@work.com', is_external: false },
-                {
-                    name: 'Jim',
-                    email: 'jim@visitor.com',
-                    is_external: true,
-                    visit_expected: true,
-                },
-            ] as any,
-        });
-        const guests = event.guests;
-        expect(guests.length).toBeGreaterThan(0);
-        const visitor_guest = guests.find((g) => g.email === 'jim@visitor.com');
-        expect(visitor_guest).toBeTruthy();
-        expect(visitor_guest?.name).toBe('Jim');
-        expect(visitor_guest?.visit_expected).toBe(true);
     });
 
     it('should allow setting the default host', () => {

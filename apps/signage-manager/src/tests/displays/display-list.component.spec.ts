@@ -48,20 +48,6 @@ describe('DisplayListComponent', () => {
         displays_loading.set(false);
     });
 
-    it('exposes the service search term as a writable signal', () => {
-        const component = make();
-        component.search.set('lobby');
-        expect(display_search_term()).toBe('lobby');
-    });
-
-    it('reflects the filtered display list and current selection', () => {
-        const component = make();
-        filtered_displays.set([{ id: 'd1' }, { id: 'd2' }]);
-        selected_display.set({ id: 'd2' });
-        expect(component.displays().map((d) => d.id)).toEqual(['d1', 'd2']);
-        expect(component.selected()?.id).toBe('d2');
-    });
-
     it('reports a display offline when its player has not checked in recently', () => {
         const component = make();
         const now_s = Date.now() / 1000;

@@ -173,6 +173,63 @@ describe('ControlStateService', () => {
         expect(execute).not.toHaveBeenCalledWith('route', expect.anything());
     });
 
+    it('should route the selected input at once when an output is chosen', async () => {
+        vi.useFakeTimers();
+        connect([{ id: 'out-1', source: '' }]);
+        bindings['selected_input']('in-1');
+        spectator.service.setOutput('out-1');
+        await vi.advanceTimersByTimeAsync(0);
+        expect(execute).toHaveBeenCalledWith('route', ['in-1', 'out-1']);
+        expect(spectator.service.active_output()).toBe('');
+    });
+
+    it('should not send the selected input again when it is already selected', () => {
+        vi.useFakeTimers();
+        connect();
+        bindings['selected_input']('in-1');
+        spectator.service.setSelectedInput('in-1');
+        vi.advanceTimersByTime(50);
+        expect(execute).not.toHaveBeenCalled();
+        spectator.service.setSelectedInput('in-2');
+        vi.advanceTimersByTime(50);
+        expect(execute.mock.calls).toEqual([['selected_input', ['in-2']]]);
+    });
+
+    it('should bind the phone hook states when dial bindings arrive', () => {
+        connect();
+        bindings['qsc_dial_bindings']({
+            offhook_id: 'hook-1',
+            ringing_id: 'ring-1',
+        });
+        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'Mixer');
+        bindings['hook-1'](true);
+        bindings['ring-1'](false);
+        expect(spectator.service.system()).toMatchObject({
+            dial_bindings: { offhook_id: 'hook-1', ringing_id: 'ring-1' },
+            offhook: true,
+            ringing: false,
+        });
+    });
+
+    it("should only list events for the room's meeting URL", async () => {
+        vi.mocked(client.responseHeaders).mockReturnValue({});
+        // `get` is overloaded, so cast the event list response to its type
+        vi.mocked(client.get).mockImplementation((async () => [
+            { id: 'e1', meeting_url: 'https://meet.room/abc' },
+            { id: 'e2', meeting_url: 'https://other.site/abc' },
+        ]) as unknown as typeof client.get);
+        connect();
+        bindings['supported_meeting_url']('https://meet.room');
+        spectator.service.setCalendar({ id: 'cal-1' } as Calendar);
+        TestBed.tick();
+        await vi.waitFor(() =>
+            expect(spectator.service.events().map((_) => _.id)).toEqual(['e1']),
+        );
+        expect(client.get).toHaveBeenCalledWith(
+            expect.stringContaining('calendars=cal-1'),
+        );
+    });
+
     it('should only unroute outputs that show a source', async () => {
         connect([
             { id: 'out-1', source: 'in-1' },

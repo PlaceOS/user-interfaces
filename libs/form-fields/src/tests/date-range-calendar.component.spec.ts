@@ -1,11 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import {
-    addDays,
-    addMonths,
-    isSameMonth,
-    startOfDay,
-    startOfMonth,
-} from 'date-fns';
+import { addDays, addMonths, isSameMonth, startOfMonth } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -42,11 +36,6 @@ describe('DateRangeCalendarComponent', () => {
         spectator.component.nextMonth();
         expect(spectator.component.at_first_month()).toBe(false);
         expect(spectator.component.at_last_month()).toBe(true);
-    });
-
-    it('should render a full six week grid of days', () => {
-        expect(spectator.component.month_days()).toHaveLength(42);
-        expect(spectator.component.weekdays()).toHaveLength(7);
     });
 
     it('should set the start date on the first selection', () => {
@@ -136,30 +125,57 @@ describe('DateRangeCalendarComponent', () => {
         expect(isSameMonth(spectator.component.month(), month)).toBe(true);
     });
 
-    it('should disable days before the earliest allowed date', () => {
-        const from = addDays(month, 10).valueOf();
-        spectator.setInput('from', from);
-        spectator.component.ngOnChanges({
-            start: { currentValue: undefined } as any,
+    it('should disable days outside the allowed dates', () => {
+        spectator.setInput({
+            from: addDays(month, 10).valueOf(),
+            to: addDays(month, 20).valueOf(),
         });
-        const before = spectator.component
-            .month_days()
-            .find((_) => _.id === addDays(month, 5).valueOf());
-        expect(before?.disabled).toBe(true);
+        // Changing the month redraws the days with the new limits
+        spectator.component.nextMonth();
+        spectator.component.previousMonth();
+        const disabled = (offset: number) =>
+            spectator.component
+                .month_days()
+                .find((_) => _.id === addDays(month, offset).valueOf())
+                ?.disabled;
+        expect([9, 10, 20, 21].map(disabled)).toEqual([
+            true,
+            false,
+            false,
+            true,
+        ]);
     });
 
-    it('should flag today and month membership', () => {
-        const today = spectator.component
-            .month_days()
-            .find(
-                (_) =>
-                    startOfDay(_.id).valueOf() ===
-                    startOfDay(Date.now()).valueOf(),
-            );
-        if (today) expect(today.is_today).toBe(true);
-        const in_month = spectator.component
-            .month_days()
-            .find((_) => _.id === addDays(month, 4).valueOf());
-        expect(in_month?.is_month).toBe(true);
+    it('should disable days past the longest range while picking the end', () => {
+        // No earliest date, so the past days of this month are enabled
+        spectator.setInput({ from: 0, max_range_days: 5 });
+        spectator.component.selectDate(addDays(month, 2).valueOf());
+        spectator.component.setHoveredDate(addDays(month, 20).valueOf());
+        expect(spectator.component.hovered_date()).toBe(
+            addDays(month, 6).valueOf(),
+        );
+        const day = (offset: number) =>
+            spectator.component
+                .month_days()
+                .find((_) => _.id === addDays(month, offset).valueOf());
+        expect(day(6).disabled).toBe(false);
+        expect(day(6).is_end).toBe(true);
+        expect(day(7).disabled).toBe(true);
+    });
+
+    it('should flag today and the days outside the shown month', () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(2026, 5, 10, 12));
+        spectator.component.nextMonth();
+        spectator.component.previousMonth();
+        vi.useRealTimers();
+        const days = spectator.component.month_days();
+        // June 2026 starts on a Monday, so the grid starts on Sunday 31 May
+        expect(days).toHaveLength(42);
+        expect(days[0].is_month).toBe(false);
+        expect(days[1]).toMatchObject({ id: month, is_month: true });
+        expect(days.filter((_) => _.is_today).map((_) => _.id)).toEqual([
+            new Date(2026, 5, 10).valueOf(),
+        ]);
     });
 });

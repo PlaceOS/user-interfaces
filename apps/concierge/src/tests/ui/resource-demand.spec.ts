@@ -29,4 +29,20 @@ describe('ResourceDemand', () => {
         building.set('bld-2');
         expect(params()).toEqual({ building: 'bld-2' });
     });
+
+    it('should stay active until the last view that uses it is destroyed', () => {
+        const demand = new ResourceDemand<'list' | 'map'>();
+        const parent = TestBed.inject(EnvironmentInjector);
+        const first = createEnvironmentInjector([], parent);
+        const second = createEnvironmentInjector([], parent);
+        first.runInContext(() => demand.use('list', 'map'));
+        second.runInContext(() => demand.use('list'));
+
+        first.destroy();
+        expect(demand.isActive('list')).toBe(true);
+        expect(demand.isActive('map')).toBe(false);
+
+        second.destroy();
+        expect(demand.isActive('list')).toBe(false);
+    });
 });

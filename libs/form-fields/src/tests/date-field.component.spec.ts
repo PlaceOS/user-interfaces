@@ -1,6 +1,5 @@
 import { FormsModule, NgControl } from '@angular/forms';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { addDays, format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
@@ -8,11 +7,7 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 
-import {
-    getTimeInTimezone,
-    getTimezoneOffsetInMinutes,
-    randomInt,
-} from '@placeos/common';
+import { getTimeInTimezone, getTimezoneOffsetInMinutes } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -100,36 +95,42 @@ describe('DateFieldComponent', () => {
         expect(spectator.query('button')).toHaveAttribute('type', 'button');
     });
 
-    it('should handler external changes to the date selected', () => {
+    it('should show a date written by the form', () => {
+        const date = new Date(2030, 3, 12, 10).valueOf();
+        spectator.component.writeValue(date);
+        spectator.detectChanges();
+        expect(spectator.query('button')).toContainText('April 12, 2030');
+    });
+
+    it('should clear the selected date and tell the form', () => {
+        const on_change = vi.fn();
+        const on_touch = vi.fn();
+        spectator.setInput('clear', true);
+        spectator.component.registerOnChange(on_change);
+        spectator.component.registerOnTouched(on_touch);
         spectator.component.writeValue(Date.now());
         spectator.detectChanges();
 
-        expect(spectator.component.date()).not.toBeNull();
-        const new_date = addDays(new Date(), randomInt(12, 2));
-        spectator.component.writeValue(new_date.valueOf());
-        spectator.detectChanges();
-        expect(format(spectator.component.date(), 'MMMM d, yyyy')).toEqual(
-            format(new_date, 'MMMM d, yyyy'),
-        );
-    });
-
-    it('should allow clearing the selected date', () => {
-        spectator.component.writeValue(Date.now());
-        spectator.detectChanges();
-
-        spectator.component.clearValue();
+        spectator.click('button[icon]');
         spectator.detectChanges();
 
         expect(spectator.component.date()).toBeNull();
-        expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+        expect(on_change).toHaveBeenCalledWith(null);
+        expect(on_touch).toHaveBeenCalledWith(null);
+        expect(spectator.query('button[icon]')).toBeDisabled();
     });
 
-    it('should keep empty values empty when written externally', () => {
-        spectator.component.writeValue(null);
-        spectator.detectChanges();
+    it('should not set a date before the minimum', () => {
+        const from = new Date(2030, 3, 10, 12).valueOf();
+        const on_change = vi.fn();
+        spectator.setInput('from', from);
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue(new Date(2030, 3, 12, 9).valueOf());
 
-        expect(spectator.component.date()).toBeNull();
-        expect(spectator.query('button[aria-label="Clear date"]')).toBeNull();
+        spectator.component.setValue(new Date(2030, 3, 10).valueOf());
+
+        expect(on_change).toHaveBeenCalledWith(from);
+        expect(spectator.component.date()).toBe(from);
     });
 
     it('should preserve wall-clock time in the configured timezone', () => {

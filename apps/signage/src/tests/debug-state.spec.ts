@@ -31,6 +31,22 @@ describe('debug state', () => {
         expect(isDebugMode()).toBe(false);
     });
 
+    it('should let the url override the remembered session value', () => {
+        sessionStorage.setItem('SIGNAGE.debug', 'true');
+        set_hash('#/signage/display-1?debug=false');
+
+        expect(isDebugMode()).toBe(false);
+    });
+
+    it('should read the debug parameter from the search string without a routed query', () => {
+        Object.defineProperty(globalThis, 'location', {
+            configurable: true,
+            value: { hash: '#/signage/display-1', search: '?debug' },
+        });
+
+        expect(isDebugMode()).toBe(true);
+    });
+
     it('should remember debug mode for the session', () => {
         sessionStorage.setItem('SIGNAGE.debug', 'true');
         expect(isDebugMode()).toBe(true);

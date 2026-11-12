@@ -160,6 +160,32 @@ describe('ParkingLinkService', () => {
         expect(spectator.service.error()).toBe('Item is read-only');
     });
 
+    it('keeps the link on the event when the booking cannot store the item ID', async () => {
+        vi.mocked(ts_client.patch).mockRejectedValue('Server error');
+
+        await spectator.service.add(space());
+
+        expect(spectator.service.booking()?.id).toBe('bkn-1');
+        expect(spectator.service.state()).toBe('idle');
+        expect(await adapter.getProperty(PARKING_BOOKING_PROPERTY)).toBe(
+            'bkn-1',
+        );
+    });
+
+    it('does not book when Outlook cannot read the event', async () => {
+        vi.spyOn(adapter, 'read').mockRejectedValue('Item not available');
+
+        await spectator.service.add(space());
+
+        expect(spectator.inject(BookingFormService).postForm).not.toBeCalled();
+        expect(spectator.service.state()).toBe('failed');
+        expect(spectator.service.error()).toBe('Item not available');
+
+        spectator.service.clearError();
+        expect(spectator.service.state()).toBe('idle');
+        expect(spectator.service.error()).toBe('');
+    });
+
     it('does not book parking for a recurring event', async () => {
         adapter.update({ is_recurring: true });
 
@@ -229,5 +255,33 @@ describe('ParkingLinkService', () => {
         expect(outlook.item_version()).toBe(1);
         expect(spectator.service.booking()).toBeNull();
         expect(spectator.service.out_of_sync()).toBe(false);
+    });
+
+    it('keeps the booking of the new item when a load for the old item finishes last', async () => {
+        await outlook.init();
+        await adapter.setProperty(PARKING_BOOKING_PROPERTY, 'bkn-old');
+        let finishOldLoad = () => {};
+        vi.mocked(ts_client.get)
+            .mockImplementationOnce(
+                ((_url: string) =>
+                    new Promise<HashMap>(
+                        (resolve) =>
+                            (finishOldLoad = () => resolve({ id: 'bkn-old' })),
+                    )) as typeof ts_client.get,
+            )
+            .mockImplementationOnce(((_url: string) =>
+                Promise.resolve<HashMap>({
+                    id: 'bkn-new',
+                })) as typeof ts_client.get);
+        const old_load = spectator.service.load();
+        await vi.waitFor(() => expect(ts_client.get).toHaveBeenCalled());
+
+        moveToNextItem();
+        await adapter.setProperty(PARKING_BOOKING_PROPERTY, 'bkn-new');
+        await spectator.service.load();
+        finishOldLoad();
+        await old_load;
+
+        expect(spectator.service.booking()?.id).toBe('bkn-new');
     });
 });

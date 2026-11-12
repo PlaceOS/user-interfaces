@@ -6,8 +6,10 @@ import {
     CalendarEvent,
     DialogEvent,
     OrganisationService,
+    setCurrentUser,
     SettingsService,
     Space,
+    StaffUser,
     User,
 } from '@placeos/common';
 import { EventFormService, SpacePipe, SpacesService } from '@placeos/events';
@@ -42,6 +44,10 @@ describe('PanelStateService', () => {
         onAction: () => new Subject<void>(),
     }));
     const messages = () => notify_open.mock.calls.map(([msg]) => msg);
+    const org_initialised = signal(false);
+    const navigate = vi.fn();
+    let ws_status: Subject<boolean>;
+    let after_closed: Subject<void>;
     const event_form = {
         newForm: vi.fn(),
         model: signal<Partial<CalendarEvent>>({}),
@@ -70,10 +76,18 @@ describe('PanelStateService', () => {
         event_form.postForm.mockResolvedValue(undefined);
         execute.mockResolvedValue(undefined);
         dialog_events = new Subject<DialogEvent>();
+        after_closed = new Subject<void>();
         open.mockReturnValue({
             componentInstance: { event: dialog_events },
+            afterClosed: () => after_closed,
             close,
         });
+        org_initialised.set(false);
+        // A Subject emits repeated values. A ts-client signal drops them.
+        ws_status = new Subject<boolean>();
+        vi.mocked(ts_client.status).mockReturnValue(
+            ws_status as unknown as ts_client.Signal<boolean>,
+        );
         vi.mocked(ts_client.getModule).mockReturnValue(module);
         vi.spyOn(SpacePipe.prototype, 'transform').mockResolvedValue(room);
         TestBed.configureTestingModule({
@@ -89,12 +103,17 @@ describe('PanelStateService', () => {
                 {
                     provide: OrganisationService,
                     useValue: {
-                        // Not initialised, so the service binds no system
-                        initialised: signal(false),
+                        // Not initialised until a test sets it, so the
+                        // service binds no system
+                        initialised: org_initialised,
                         waitUntilInitialised: () => Promise.resolve(),
+                        levelWithID: () => null,
                     },
                 },
-                { provide: Router, useValue: { events: new Subject() } },
+                {
+                    provide: Router,
+                    useValue: { events: new Subject(), navigate },
+                },
             ],
         });
         service = TestBed.inject(PanelStateService);
@@ -209,6 +228,19 @@ describe('PanelStateService', () => {
             });
         });
 
+        it.each([
+            [undefined, 30],
+            [45, 45],
+        ])(
+            'needs at least 30 minutes for an API booking (min_duration %s)',
+            async (min_duration, expected) => {
+                setSettings({ min_duration });
+                void service.newBooking(NOW, false, false, true);
+                await vi.waitFor(() => expect(open).toHaveBeenCalledOnce());
+                expect(modalData().min_duration).toBe(expected);
+            },
+        );
+
         it('refuses a booking with less than 15 free minutes', async () => {
             service._next.set(event({ date: minutes(10) }));
             await service.newBooking(NOW);
@@ -281,6 +313,13 @@ describe('PanelStateService', () => {
             );
             expect(ts_client.patch).not.toHaveBeenCalled();
         });
+
+        it('shows an error when the update fails', async () => {
+            vi.mocked(ts_client.patch).mockRejectedValue('Forbidden');
+            await service.extendMeeting();
+            expect(messages()).toContain('Error extending meeting. Forbidden');
+            expect(messages()).not.toContain('Extended meeting by 15 minutes.');
+        });
     });
 
     describe('startMeeting', () => {
@@ -293,6 +332,15 @@ describe('PanelStateService', () => {
                 getUnixTime(current.date),
             ]);
             expect(service.status()).toBe('busy');
+        });
+
+        it('keeps the meeting pending when the driver call fails', async () => {
+            service._current.set(event({ date: minutes(-2) }));
+            setSettings({ status: 'pending' });
+            execute.mockRejectedValue('Timeout');
+            await service.startMeeting();
+            expect(service.status()).toBe('pending');
+            expect(messages()).toContain('Error starting meeting. Timeout');
         });
 
         it('does nothing when the meeting is not pending', async () => {
@@ -352,6 +400,188 @@ describe('PanelStateService', () => {
             setSettings({ status: 'pending', presence: true });
             check();
             expect(endCalls()).toEqual([]);
+        });
+    });
+
+    describe('confirmEnd', () => {
+        const current = event({ date: minutes(-5) });
+        beforeEach(() => service._current.set(current));
+
+        it('ends the meeting when the user confirms', async () => {
+            const pending = service.confirmEnd();
+            dialog_events.next({ reason: 'done' });
+            await pending;
+            expect(execute).toHaveBeenCalledWith('end_meeting', [
+                getUnixTime(current.date),
+                true,
+                'user_input',
+            ]);
+            expect(close).toHaveBeenCalledOnce();
+        });
+
+        it('shows an error and closes the modal when ending fails', async () => {
+            execute.mockRejectedValue(new Error('Driver offline'));
+            const pending = service.confirmEnd();
+            dialog_events.next({ reason: 'done' });
+            await pending;
+            expect(messages()).toContain(
+                'Error ending meeting. Driver offline',
+            );
+            expect(close).toHaveBeenCalledOnce();
+        });
+
+        it('does not end the meeting when the user cancels', async () => {
+            const pending = service.confirmEnd();
+            after_closed.complete();
+            await pending;
+            expect(execute).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('driver requests', () => {
+        afterEach(() => setCurrentUser(null));
+
+        it('uses the signed-in user as host with user_as_default_host', async () => {
+            app_settings['app.user_as_default_host'] = true;
+            setCurrentUser(new StaffUser({ email: 'me@example.com' }));
+            await service.makeBooking({
+                date: NOW,
+                duration: 30,
+                title: 'Sync',
+            });
+            expect(execute).toHaveBeenCalledWith('book_now', [
+                1800,
+                'Sync',
+                'me@example.com',
+            ]);
+        });
+
+        it('shows an error and no success when the driver refuses a booking', async () => {
+            execute.mockRejectedValue('Room offline');
+            await service.makeBooking({
+                date: NOW,
+                duration: 30,
+                title: 'Sync',
+            });
+            expect(messages()).toContain(
+                'Error creating meeting. Room offline',
+            );
+            expect(messages()).not.toContain('Successfully created meeting.');
+        });
+
+        it('rejects a failed check-in after showing the error', async () => {
+            execute.mockRejectedValue('Timeout');
+            await expect(service.checkin()).rejects.toBe('Timeout');
+            expect(messages()).toContain('Error checking in booking. Timeout');
+        });
+    });
+
+    describe('current and next bookings', () => {
+        it('drops the current booking when the clock passes its end', () => {
+            service._current.set(event({ date: minutes(-10), duration: 30 }));
+            expect(service.current()?.id).toBe('event-1');
+            vi.advanceTimersByTime(20 * 60 * 1000);
+            expect(service.current()).toBeNull();
+        });
+
+        it('drops the next booking when the clock passes its start', () => {
+            service._next.set(event({ date: minutes(5) }));
+            expect(service.next()?.id).toBe('event-1');
+            vi.advanceTimersByTime(6 * 60 * 1000);
+            expect(service.next()).toBeNull();
+        });
+    });
+
+    it('keeps the first offline time until the websocket reconnects', () => {
+        ws_status.next(false);
+        expect(service.offline_since()).toBe(NOW);
+        vi.advanceTimersByTime(60 * 1000);
+        ws_status.next(false);
+        expect(service.offline_since()).toBe(NOW);
+        ws_status.next(true);
+        expect(service.offline_since()).toBe(0);
+    });
+
+    describe('system binding', () => {
+        /** Values the fake driver bindings return */
+        const values: Record<string, unknown> = {
+            room_name: 'Board Room',
+            bookings: [{ id: 'b1', date: minutes(30), duration: 30 }],
+            current_booking: { id: 'c1', date: minutes(-5), duration: 30 },
+        };
+
+        beforeEach(() => {
+            // The system loads after a 1 second timeout
+            vi.useFakeTimers({
+                toFake: [
+                    'Date',
+                    'setInterval',
+                    'clearInterval',
+                    'setTimeout',
+                    'clearTimeout',
+                ],
+            });
+            vi.setSystemTime(NOW);
+            vi.spyOn(module, 'variable').mockImplementation(
+                (name: string) =>
+                    ({
+                        bindThenSubscribe: (next: (value: unknown) => void) => {
+                            next(values[name]);
+                            return () => undefined;
+                        },
+                        bind: () => () => undefined,
+                        listen: () => ts_client.createSignal(values[name]),
+                    }) as unknown as ts_client.PlaceVariableBinding,
+            );
+            org_initialised.set(true);
+            TestBed.tick();
+        });
+
+        it('binds the settings and bookings, then loads the room', async () => {
+            vi.mocked(ts_client.showSystem).mockResolvedValue(
+                new ts_client.PlaceSystem({ id: room.id }),
+            );
+            expect(service.setting('room_name')).toBe('Board Room');
+            expect(service.bookings().map(({ id }) => id)).toEqual(['b1']);
+            expect(service.current()?.id).toBe('c1');
+            expect(service.space()).toBeNull();
+
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(ts_client.showSystem).toHaveBeenCalledWith(room.id);
+            expect(service.space()?.id).toBe(room.id);
+        });
+
+        it('returns to the setup screen when the system does not exist', async () => {
+            vi.mocked(ts_client.showSystem).mockRejectedValue({
+                status: 404,
+                message: 'Not found',
+            });
+            await vi.advanceTimersByTimeAsync(10 * 1000);
+            expect(navigate).toHaveBeenCalledWith(['/bootstrap']);
+            expect(ts_client.showSystem).toHaveBeenCalledOnce();
+        });
+
+        it('retries the load after other errors', async () => {
+            vi.mocked(ts_client.showSystem)
+                .mockRejectedValueOnce({ status: 500, message: 'Down' })
+                .mockResolvedValue(new ts_client.PlaceSystem({ id: room.id }));
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(ts_client.showSystem).toHaveBeenCalledOnce();
+            // Retries after 2 to 5 seconds, then waits 1 second to load
+            await vi.advanceTimersByTimeAsync(6000);
+            expect(ts_client.showSystem).toHaveBeenCalledTimes(2);
+            expect(service.space()?.id).toBe(room.id);
+            expect(navigate).not.toHaveBeenCalled();
+        });
+
+        it('clears the room and cancels the load when the system is unset', async () => {
+            service.system = '';
+            TestBed.tick();
+            await vi.advanceTimersByTimeAsync(1000);
+            expect(ts_client.showSystem).not.toHaveBeenCalled();
+            expect(service.settings()).toEqual({});
+            expect(service.bookings()).toEqual([]);
+            expect(service.current()).toBeNull();
         });
     });
 });

@@ -40,7 +40,6 @@ describe('parseWakePhrase', () => {
 describe('VoiceAssistantService', () => {
     let spectator: SpectatorService<VoiceAssistantService>;
     let messages: ReturnType<typeof signal<unknown[]>>;
-    let progress: ReturnType<typeof signal<unknown>>;
     let chat: any;
     let capture: { start: any; stop: any; resume: any };
     let capture_events: VoiceActivityEvents;
@@ -80,10 +79,9 @@ describe('VoiceAssistantService', () => {
             busy_until: 0,
         };
         messages = signal<unknown[]>([]);
-        progress = signal<unknown>(null);
         chat = {
             messages,
-            progress,
+            progress: signal<unknown>(null),
             connected: true,
             setBinding: vi.fn(),
             startChat: vi.fn(),
@@ -121,14 +119,6 @@ describe('VoiceAssistantService', () => {
         capture_events.end(new Float32Array(16000));
         await vi.advanceTimersByTimeAsync(0);
     }
-
-    it('should expose the chat service progress signal', () => {
-        progress.set({ function: 'call_function', message: 'busy' });
-        expect(spectator.service.progress()).toEqual({
-            function: 'call_function',
-            message: 'busy',
-        });
-    });
 
     it('should bind the chat service to the configured system id', () => {
         spectator.service.setBinding('sys-9');
@@ -328,6 +318,35 @@ describe('VoiceAssistantService', () => {
         vi.advanceTimersByTime(1000);
         expect(chat.sendMessage).not.toHaveBeenCalled();
         expect(spectator.service.state()).toBe('idle');
+    });
+
+    it('should apologise and stop waiting when the chat does not connect', async () => {
+        await enable();
+        chat.connected = false;
+        await hear('Hey room turn on the projector');
+        // The default timeout is 300ms. The service gives up after 20 retries.
+        vi.advanceTimersByTime(20 * 300);
+        expect(spectator.service.state()).toBe('idle');
+        expect(chat.sendMessage).not.toHaveBeenCalled();
+        expect(engine.synthesize).toHaveBeenLastCalledWith(
+            "Sorry, I can't reach the assistant.",
+            expect.any(Function),
+            expect.any(AbortSignal),
+        );
+    });
+
+    it('should apologise when the assistant does not reply in time', async () => {
+        await enable();
+        await hear('Hey room turn on the projector');
+        vi.advanceTimersByTime(59 * 1000);
+        expect(spectator.service.state()).toBe('processing');
+        vi.advanceTimersByTime(1000);
+        expect(spectator.service.state()).toBe('idle');
+        expect(engine.synthesize).toHaveBeenLastCalledWith(
+            "Sorry, I didn't get a response.",
+            expect.any(Function),
+            expect.any(AbortSignal),
+        );
     });
 
     it('should drop a transcript that arrives after voice control turns off', async () => {

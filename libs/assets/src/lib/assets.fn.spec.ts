@@ -1,4 +1,6 @@
+import { AssetGroup } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { PlaceAsset } from '@placeos/ts-client';
 
 // Workspace modules (bookings.fn) run for real; only the ts-client API layer
 // beneath them is stubbed. Booking assertions that used to target
@@ -121,6 +123,37 @@ describe('[Assets]', () => {
             expect(
                 await assets_fn.resolveHiddenAssetTypeId('_DESKS_', '_DESKS_'),
             ).toBe('type-1');
+        });
+
+        it('should reject with the create error when the category is still missing', async () => {
+            const { assets_fn } = await load_modules();
+            const error = { status: 500 };
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([]),
+            );
+            vi.mocked(ts_client.addAssetCategory).mockRejectedValue(error);
+
+            await expect(
+                assets_fn.resolveHiddenAssetTypeId('_DESKS_', '_DESKS_'),
+            ).rejects.toBe(error);
+            // Two reads before the create and one after it fails
+            expect(ts_client.queryAssetCategories).toHaveBeenCalledTimes(3);
+            expect(ts_client.addAssetType).not.toHaveBeenCalled();
+        });
+
+        it('should reject with the create error when the type is still missing', async () => {
+            const { assets_fn } = await load_modules();
+            const error = { status: 500 };
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([{ id: 'cat-1', name: '_DESKS_' }]),
+            );
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
+            vi.mocked(ts_client.addAssetType).mockRejectedValue(error);
+
+            await expect(
+                assets_fn.resolveHiddenAssetTypeId('_DESKS_', '_DESKS_'),
+            ).rejects.toBe(error);
+            expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(2);
         });
     });
 
@@ -309,6 +342,31 @@ describe('[Assets]', () => {
             await assets_fn.queryAssetGroupsExtended({ zone_id: 'z' });
             await assets_fn.queryAssetGroupsExtended({ zone_id: 'z' });
             expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
+        });
+
+        it('should keep only the requested type and its assets', async () => {
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                response([
+                    { id: 't1', name: 'Chairs' },
+                    { id: 't2', name: 'Tables' },
+                ]),
+            );
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
+                response([
+                    { id: 'a1', asset_type_id: 't1' },
+                    { id: 'a2', asset_type_id: 't2' },
+                ]),
+            );
+
+            const groups = await assets_fn.queryAssetGroupsExtended({
+                type_id: 't2',
+            });
+
+            expect(groups.map((g: AssetGroup) => g.id)).toEqual(['t2']);
+            expect(groups[0].assets.map((a: PlaceAsset) => a.id)).toEqual([
+                'a2',
+            ]);
         });
     });
 

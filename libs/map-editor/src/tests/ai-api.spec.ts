@@ -9,6 +9,7 @@ import {
     queryMapAIJobs,
     resolveMapAIJob,
     showMapAIJob,
+    sleep,
     submitMapAIEdit,
     toQuery,
     WatchAbortedError,
@@ -90,6 +91,31 @@ describe('map AI client', () => {
         expect(isFinalJob(job({ state: 'done' }))).toBe(true);
         expect(isFinalJob(job({ state: 'running' }))).toBe(false);
         expect(isFinalJob(null)).toBe(false);
+    });
+
+    it('sleeps until the delay, or wakes at once when the signal aborts', async () => {
+        vi.useFakeTimers();
+        try {
+            let woke = false;
+            void sleep(1000).then(() => (woke = true));
+            await vi.advanceTimersByTimeAsync(999);
+            expect(woke).toBe(false);
+            await vi.advanceTimersByTimeAsync(1);
+            expect(woke).toBe(true);
+
+            const controller = new AbortController();
+            woke = false;
+            void sleep(60_000, controller.signal).then(() => (woke = true));
+            controller.abort();
+            await vi.advanceTimersByTimeAsync(0);
+            expect(woke).toBe(true);
+            expect(vi.getTimerCount()).toBe(0);
+
+            await sleep(60_000, controller.signal);
+            expect(vi.getTimerCount()).toBe(0);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     describe('watchJob', () => {

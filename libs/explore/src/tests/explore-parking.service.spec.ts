@@ -1,5 +1,6 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import {
@@ -15,7 +16,12 @@ import { MockProvider } from 'ng-mocks';
 import { BookingFormService } from 'libs/bookings/src/lib/booking-form.service';
 import { ParkingService } from 'libs/bookings/src/lib/parking.service';
 
-import { ExploreParkingService } from '../lib/explore-parking.service';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+
+import {
+    ExploreParkingService,
+    ParkingSpace,
+} from '../lib/explore-parking.service';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
 import { ExploreStateService } from '../lib/explore-state.service';
 
@@ -98,6 +104,16 @@ describe('ExploreParkingService', () => {
         vi.mocked(TestBed.inject(SettingsService).get).mockReset();
         spectator = createService();
     });
+
+    /** Private members that the tests drive directly */
+    interface ParkingInternals {
+        _updateParkingSpaces(
+            spaces: Partial<ParkingSpace>[],
+            available: Partial<ParkingSpace>[],
+        ): void;
+        _bookSpace(space: Partial<ParkingSpace>, status: string): Promise<void>;
+    }
+    const internals = () => spectator.service as unknown as ParkingInternals;
 
     it('should default booking to enabled', () => {
         expect(spectator.service.options().enable_booking).toBe(true);
@@ -323,6 +339,41 @@ describe('ExploreParkingService', () => {
         expect(actions.length).toBe(0);
     });
 
+    it('should register no booking actions when booking is off', () => {
+        const state = spectator.inject(ExploreStateService);
+        const space = { id: 'p1', map_id: 'p1', bookable: true };
+        spectator.service.setOptions({ enable_booking: false });
+
+        internals()._updateParkingSpaces([space], [space]);
+
+        expect(state.setActions).toHaveBeenCalledWith('parking', []);
+    });
+
+    it('should show assigned spaces as reserved outside the workplace app', () => {
+        const state = spectator.inject(ExploreStateService);
+        const settings = spectator.inject(SettingsService);
+        const space = {
+            id: 'p1',
+            map_id: 'p1',
+            bookable: true,
+            assigned_to: 'amy@place.tech',
+        };
+        const status = () => {
+            internals()._updateParkingSpaces([space], [space]);
+            const [, features] = vi.mocked(state.setFeatures).mock.calls.at(-1);
+            const [, styles] = vi.mocked(state.setStyles).mock.calls.at(-1);
+            return [features[0].data['status'], styles['#p1'].fill];
+        };
+
+        expect(status()).toEqual(['free', DEFAULT_COLOURS.free]);
+        Object.assign(settings, { app_name: 'Concierge' });
+        try {
+            expect(status()).toEqual(['reserved', DEFAULT_COLOURS.pending]);
+        } finally {
+            Object.assign(settings, { app_name: 'workplace' });
+        }
+    });
+
     it('should delegate to on_book when a booking action fires', async () => {
         const state = spectator.inject(ExploreStateService);
         const space = {
@@ -457,5 +508,29 @@ describe('ExploreParkingService', () => {
             }),
         );
         expect(bookings.confirmPost).toHaveBeenCalled();
+    });
+
+    it('should show a failed booking and pass the error on', async () => {
+        const open = vi.fn((_message: string) => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open } as unknown as MatSnackBar, true);
+        const error = { message: 'Conflicting booking' };
+        vi.mocked(
+            spectator.inject(BookingFormService).confirmPost,
+        ).mockRejectedValueOnce(error);
+        const space = { id: 'p1', name: 'Bay 1', zone_id: 'lvl-1' };
+
+        try {
+            await expect(internals()._bookSpace(space, 'free')).rejects.toBe(
+                error,
+            );
+            expect(open.mock.calls.map(([message]) => message)).toEqual([
+                'EXPLORE.PARKING_BOOKING_ERROR',
+            ]);
+        } finally {
+            setNotifyOutlet(null, true);
+        }
     });
 });

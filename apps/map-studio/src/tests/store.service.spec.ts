@@ -1,51 +1,11 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-import { DbChanges, DbService } from '../app/data/db';
+import { DbService } from '../app/data/db';
 import { PlaceOSService } from '../app/data/placeos.service';
 import { StoreService } from '../app/data/store.service';
 import { analyzeSvg } from '../app/data/svg-import';
-
-/**
- * jsdom has no IndexedDB, so the persistence layer is backed by a plain Map.
- * Everything above it — key layout, CSV handling, validation — is the real
- * service.
- */
-class MapDbService implements Partial<DbService> {
-    private readonly _records = new Map<string, unknown>();
-
-    private _matching(prefix: string) {
-        return [...this._records.keys()]
-            .filter((key) => key.startsWith(prefix))
-            .sort();
-    }
-
-    public async get<T>(key: string) {
-        return this._records.get(key) as T | undefined;
-    }
-
-    public async set(key: string, value: unknown) {
-        this._records.set(key, value);
-    }
-
-    public async delete(key: string) {
-        this._records.delete(key);
-    }
-
-    public async list<T>(prefix: string) {
-        return this._matching(prefix).map((key) => this._records.get(key) as T);
-    }
-
-    public async deleteWhere(prefix: string) {
-        this._matching(prefix).forEach((key) => this._records.delete(key));
-    }
-
-    public async write(changes: DbChanges) {
-        if (changes.clear) await this.deleteWhere(changes.clear);
-        changes.delete?.forEach((key) => this._records.delete(key));
-        changes.put?.forEach(([key, value]) => this._records.set(key, value));
-    }
-}
+import { MapDbService } from './map-db';
 
 describe('StoreService', () => {
     let store: StoreService;
@@ -126,6 +86,19 @@ describe('StoreService', () => {
             floor_name: 'Ground',
             svg_source: '<svg/>',
         });
+    });
+
+    it('drops the cached thumbnail only when the plan SVG changes', async () => {
+        const floorplan = await store.addFloorplan('p1', 'Level 1');
+        const db = TestBed.inject(DbService);
+        const thumbnail = `thumbnail:${floorplan.id}`;
+        await db.set(thumbnail, new Blob(['png']));
+
+        await store.updateFloorplan(floorplan.id, { floor_name: 'Ground' });
+        expect(await db.get(thumbnail)).toBeDefined();
+
+        await store.updateFloorplan(floorplan.id, { svg_output: '<svg/>' });
+        expect(await db.get(thumbnail)).toBeUndefined();
     });
 
     it('lists the project with the latest floor edit first', async () => {
@@ -249,18 +222,18 @@ describe('StoreService', () => {
         expect(added.floor_index).toBe(5);
     });
 
-    it('imports an SVG into an existing project', async () => {
+    it('imports only the mapped SVG shapes into an existing project', async () => {
         const project = await store.createProject('Sydney HQ');
         await store.addFloorplan(project.id, 'Level 1');
         const svg_content =
-            '<svg viewBox="0 0 800 600"><rect id="room-1" width="20" height="30"/></svg>';
+            '<svg viewBox="0 0 800 600"><rect id="room-1" width="20" height="30"/><rect id="desk-1" width="5" height="5"/></svg>';
 
         const result = await store.importSvg({
             svg_content,
             analysis: analyzeSvg(svg_content),
             project_id: project.id,
             floor_name: 'Level 2',
-            mappings: [{ svgId: 'room-1', objectType: 'room' }],
+            mappings: [{ svgId: 'room-1', objectType: 'zone', label: 'Lobby' }],
         });
 
         expect(result.project_id).toBe(project.id);
@@ -272,6 +245,37 @@ describe('StoreService', () => {
         });
         expect(floorplan.svg_source).toContain('room-1');
         expect(await store.listProjects()).toHaveLength(1);
+        await expect(store.listObjects(result.floorplan_id)).resolves.toEqual([
+            expect.objectContaining({
+                svg_id: 'room-1',
+                object_type: 'zone',
+                label: 'Lobby',
+            }),
+        ]);
+    });
+
+    it('keeps an existing project and its floors when an SVG import into it fails', async () => {
+        const project = await store.createProject('Sydney HQ');
+        await store.addFloorplan(project.id, 'Level 1');
+        const svg_content = '<svg viewBox="0 0 10 10"></svg>';
+        vi.spyOn(store, 'bulkUpsertObjects').mockRejectedValueOnce(
+            new Error('disk full'),
+        );
+
+        await expect(
+            store.importSvg({
+                svg_content,
+                analysis: analyzeSvg(svg_content),
+                project_id: project.id,
+                floor_name: 'Level 2',
+                mappings: [],
+            }),
+        ).rejects.toThrow('disk full');
+        const [listed, ...rest] = await store.listProjects();
+        expect(rest).toHaveLength(0);
+        expect(listed.floorplans?.map((f) => f.floor_name)).toEqual([
+            'Level 1',
+        ]);
     });
 
     it('removes the new project when an SVG import fails', async () => {

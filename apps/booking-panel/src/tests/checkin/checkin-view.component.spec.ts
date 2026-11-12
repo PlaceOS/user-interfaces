@@ -111,13 +111,6 @@ describe('CheckinViewComponent', () => {
         expect(start_meeting).toHaveBeenCalledTimes(1);
     });
 
-    it('should show the checkin button only while pending', () => {
-        status.set('free');
-        setting.mockReturnValue(true); // disable book -> no book buttons
-        spectator.detectChanges();
-        expect('button.w-24').not.toExist();
-    });
-
     it('should start a new booking when the book button is used', () => {
         status.set('free');
         setting.mockReturnValue(undefined); // book allowed

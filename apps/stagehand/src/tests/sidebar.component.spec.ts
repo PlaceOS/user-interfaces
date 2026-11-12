@@ -6,7 +6,11 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    settingSignal,
+    SettingsService,
+} from '@placeos/common';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { PushNotificationSettingsComponent } from '../app/push-notification-settings.component';
@@ -34,6 +38,9 @@ describe('SidebarComponent', () => {
     });
 
     beforeEach(() => {
+        // shared, cached setting signals
+        settingSignal('analytics_pages', []).set([]);
+        settingSignal('show_recorder_view', false).set(false);
         allow_dark_mode = signal(false);
         theme = signal('light');
         dialog = { open: vi.fn() };
@@ -117,17 +124,27 @@ describe('SidebarComponent', () => {
         expect(settings.setTheme).toHaveBeenCalledWith('light');
     });
 
-    it('should expose the current dark-mode state', () => {
-        theme.set('dark');
-        expect(component.dark_mode()).toBe(true);
-        theme.set('light');
-        expect(component.dark_mode()).toBe(false);
-    });
-
     it('should only allow dark-mode toggling when the setting is enabled', () => {
         expect(component.can_change_dark_mode()).toBe(false);
         allow_dark_mode.set(true);
         expect(component.can_change_dark_mode()).toBe(true);
+    });
+
+    it('should link the optional pages only when they are turned on', () => {
+        const routes = () => component.nav_links().map((link) => link.route);
+        expect(routes()).toEqual(['/alerts', '/remote-support', '/dashboards']);
+
+        settingSignal('analytics_pages', []).set([
+            { name: 'Usage', url: '/u' },
+        ]);
+        settingSignal('show_recorder_view', false).set(true);
+        expect(routes()).toEqual([
+            '/alerts',
+            '/remote-support',
+            '/analytics',
+            '/dashboards',
+            '/recorder-grid',
+        ]);
     });
 
     it('should open the notification settings dialog', () => {

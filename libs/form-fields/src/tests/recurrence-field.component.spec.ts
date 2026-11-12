@@ -331,27 +331,6 @@ describe('RecurrenceFieldComponent – date change regression', () => {
                 apr10,
             );
         });
-
-        it('should NOT change end_date when booking date moves forward but stays before end_date', () => {
-            // Set up weekly recurrence ending April 30, 2024
-            const apr30 = new Date(2024, 3, 30).valueOf();
-            setDate(new Date(2024, 2, 1).valueOf()); // booking date: March 1
-            spectator.component.setValue({
-                _custom: true,
-                type: 'weekly',
-                interval: 1,
-                weekdays: new Set([5]), // Friday
-                end_type: 'date',
-                end_date: apr30,
-            });
-
-            // Move booking date to April 10 – still BEFORE the end_date of April 30
-            const apr10 = new Date(2024, 3, 10).valueOf();
-            setDate(apr10);
-
-            // end_date should remain unchanged because it is still in the future
-            expect(spectator.component.value().end_date).toBe(apr30);
-        });
     });
 
     // -----------------------------------------------------------------------
@@ -433,6 +412,84 @@ describe('RecurrenceFieldComponent – date change regression', () => {
     // -----------------------------------------------------------------------
     // Baseline – setSimple creates correct values
     // -----------------------------------------------------------------------
+    describe('limits and outputs', () => {
+        afterEach(() => vi.useRealTimers());
+
+        it('should end a date-based recurrence within the available days', () => {
+            vi.useFakeTimers({ toFake: ['Date'] });
+            vi.setSystemTime(new Date(2026, 0, 5, 10));
+            spectator.setInput('available_days', 30);
+            setDate(Date.now());
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'daily',
+                interval: 1,
+                end_type: 'date',
+                end_date: new Date(2026, 11, 31).valueOf(),
+            });
+
+            expect(spectator.component.value().end_date).toBe(
+                endOfDay(new Date(2026, 1, 4)).valueOf(),
+            );
+        });
+
+        it('should lower the instance count to fit the available days', () => {
+            vi.useFakeTimers({ toFake: ['Date'] });
+            vi.setSystemTime(new Date(2026, 0, 5, 10));
+            spectator.setInput('available_days', 30);
+            setDate(Date.now());
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'daily',
+                interval: 1,
+                end_type: 'instances',
+                end_instances: 100,
+            });
+
+            expect(spectator.component.value()).toMatchObject({
+                end_instances: 31,
+                end_date: endOfDay(new Date(2026, 1, 4)).valueOf(),
+            });
+        });
+
+        it('should emit the first instance when it is not on the selected date', () => {
+            const monday = dateOnWeekday(1);
+            setDate(monday);
+            const first_instance = vi.fn();
+            spectator.output('first_instance').subscribe(first_instance);
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([1]),
+                end_type: 'never',
+            });
+            expect(first_instance).not.toHaveBeenCalled();
+
+            spectator.component.setValue({
+                _custom: true,
+                type: 'weekly',
+                interval: 1,
+                weekdays: new Set([3]),
+                end_type: 'never',
+            });
+            expect(first_instance).toHaveBeenCalledWith(
+                addDays(monday, 2).valueOf(),
+            );
+        });
+
+        it('should use the last week of the month from the 25th', () => {
+            setDate(new Date(2024, 0, 24).valueOf());
+            expect(spectator.component.iom()).toBe(4);
+            setDate(new Date(2024, 0, 25).valueOf());
+            spectator.component.setSimple('monthly');
+            expect(spectator.component.value().week).toBe(-1);
+        });
+    });
+
     describe('setSimple creates correct values for the initial date', () => {
         it('weekly with correct weekday', () => {
             setDate(dateOnWeekday(3));

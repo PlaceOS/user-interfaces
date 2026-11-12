@@ -1,6 +1,8 @@
 import {
     loadPersistedZones,
     persistZones,
+    sameZones,
+    zoneScopeId,
 } from '../../app/ui/zone-persistence';
 
 describe('zone-persistence', () => {
@@ -54,5 +56,20 @@ describe('zone-persistence', () => {
             'zone-a',
             'zone-b',
         ]);
+    });
+
+    it('should scope by region or building, and be empty without one', () => {
+        type Org = Parameters<typeof zoneScopeId>[0];
+        const org = { region: { id: 'reg-1' }, building: { id: 'bld-1' } };
+        expect(zoneScopeId(org as Org, true)).toBe('reg-1');
+        expect(zoneScopeId(org as Org, false)).toBe('bld-1');
+        expect(zoneScopeId({} as Org, true)).toBe('');
+    });
+
+    it('should compare zone lists by ids and order', () => {
+        expect(sameZones(['a', 'b'], ['a', 'b'])).toBe(true);
+        expect(sameZones(['a', 'b'], ['b', 'a'])).toBe(false);
+        expect(sameZones(['a'], ['a', 'b'])).toBe(false);
+        expect(sameZones(undefined, [])).toBe(true);
     });
 });

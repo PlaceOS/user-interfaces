@@ -1,4 +1,4 @@
-import { CateringItem, CateringOrder } from '@placeos/common';
+import { CalendarEvent, CateringItem, CateringOrder } from '@placeos/common';
 
 import {
     deliveryRuns,
@@ -109,14 +109,29 @@ describe('catering order tools', () => {
         expect(changes.cancelled.map((o) => o.id)).toEqual(['1']);
     });
 
-    it('should list order items in CSV rows', () => {
+    it('should list order items, delivery time and cost in CSV rows', () => {
+        const coffee = new CateringItem({
+            ...item('Coffee', 2, ['Oat milk']),
+            unit_price: 250,
+        });
         const [row] = ordersToCsvRows([
-            order('1', 'accepted', [item('Coffee', 2, ['Oat milk'])]),
+            new CateringOrder({
+                id: '1',
+                status: 'accepted',
+                items: [coffee, item('Muffin', 1)],
+                event: new CalendarEvent({
+                    date: new Date(2026, 0, 1, 9, 30).valueOf(),
+                }),
+            }),
         ]);
 
         expect(row['CATERING.ORDER_SELECTED_HEADER']).toBe(
-            '2× Coffee (Oat milk)',
+            '2× Coffee (Oat milk); 1× Muffin',
         );
         expect(row['COMMON.STATUS']).toBe('CATERING.STATUS_ACCEPTED');
+        expect(row['FORM.DATE']).toBe('2026-01-01');
+        expect(row['COMMON.TIME']).toBe('09:30');
+        // Prices are in cents
+        expect(row['CATERING.TOTAL_COST']).toBe('5.00');
     });
 });

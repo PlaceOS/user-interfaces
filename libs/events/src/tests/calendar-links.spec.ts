@@ -129,6 +129,17 @@ describe('generateGoogleCalendarLink', () => {
         const params = new URLSearchParams(link.split('?')[1]);
         expect(params.get('add')).toBe('a@place.tech,room1@place.tech');
     });
+
+    it('should invite the event system when there are no resources', () => {
+        const link = generateGoogleCalendarLink({
+            ...EVENT,
+            attendees: ['a@place.tech'],
+            resources: [],
+            system: { email: 'system@place.tech' } as CalEvent['system'],
+        });
+        const params = new URLSearchParams(link.split('?')[1]);
+        expect(params.get('add')).toBe('a@place.tech,system@place.tech');
+    });
 });
 
 describe('generateMicrosoftCalendarLink', () => {

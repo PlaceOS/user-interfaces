@@ -1,15 +1,27 @@
 import { signal } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
     createComponentFactory,
     mockProvider,
     Spectator,
 } from '@ngneat/spectator/vitest';
-import { OrganisationService, Space } from '@placeos/common';
+import {
+    HashMap,
+    OrganisationService,
+    setCurrentUser,
+    setNotifyOutlet,
+    Space,
+    StaffUser,
+} from '@placeos/common';
 import { EventFormOptions, EventFormService } from '@placeos/events';
+import * as ts_client from '@placeos/ts-client';
 
 import { OutlookEventService } from '../app/calendar/outlook-event.service';
 import { MemoryItemAdapter } from '../app/calendar/outlook-item.adapter';
 import { RoomSearchComponent } from '../app/calendar/room-search.component';
+
+// Mock the HTTP boundary used by `showEvent`.
+vi.mock('@placeos/ts-client', { spy: true });
 
 const START = new Date(2026, 9, 1, 9).valueOf();
 const HOUR = 60 * 60 * 1000;
@@ -28,6 +40,13 @@ const room = (id: string, capacity: number, details: Partial<Space> = {}) =>
 describe('RoomSearchComponent', () => {
     let spectator: Spectator<RoomSearchComponent>;
     let adapter: MemoryItemAdapter;
+    /** Snackbar that `notifyError` shows its message in */
+    const snackbar = {
+        open: vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        })),
+    };
     const available = signal<Space[]>([]);
     const options = signal<Partial<EventFormOptions>>({});
 
@@ -53,6 +72,8 @@ describe('RoomSearchComponent', () => {
     });
 
     beforeEach(async () => {
+        vi.clearAllMocks();
+        setNotifyOutlet(snackbar as unknown as MatSnackBar, true);
         options.set({});
         available.set([
             room('large', 10, { features: ['VC'] }),
@@ -127,5 +148,53 @@ describe('RoomSearchComponent', () => {
             }),
         );
         expect(spectator.component.busy()).toBe('');
+    });
+
+    it('keeps a room in the results and shows the error when Outlook cannot add it', async () => {
+        vi.spyOn(adapter, 'addRoom').mockRejectedValue('Room is not bookable');
+
+        await spectator.component.addRoom(available()[1]);
+
+        expect(snackbar.open).toHaveBeenCalledWith(
+            'Room is not bookable',
+            'OK',
+            expect.anything(),
+        );
+        expect(results()).toContain('small');
+        expect(spectator.component.busy()).toBe('');
+    });
+
+    it('shows the Exchange response of a room on the saved event', async () => {
+        setCurrentUser(new StaffUser({ email: 'jon@place.tech' }));
+        adapter.item_id = 'item-1';
+        const saved: HashMap = {
+            resources: [
+                { email: 'On-Event@place.tech', response_status: 'accepted' },
+            ],
+        };
+        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
+            Promise.resolve(saved)) as typeof ts_client.get);
+
+        await spectator.inject(OutlookEventService).refresh();
+
+        expect(spectator.component.event_rooms()).toEqual([
+            {
+                email: 'on-event@place.tech',
+                space: available()[3],
+                state: 'confirmed',
+            },
+        ]);
+    });
+
+    it('sets the event time again when the event form resets the options', () => {
+        options.set({
+            date: START,
+            duration: 60,
+            all_day: true,
+            zones: ['lvl-1'],
+        });
+        spectator.detectChanges();
+
+        expect(options()).toMatchObject({ all_day: false, zones: [] });
     });
 });

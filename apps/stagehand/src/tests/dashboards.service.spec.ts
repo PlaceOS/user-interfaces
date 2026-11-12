@@ -105,11 +105,6 @@ describe('DashboardsService', () => {
         } as any);
         vi.mocked(ts_client.removeAlertDashboard).mockResolvedValue(undefined);
         vi.mocked(ts_client.removeAlert).mockResolvedValue(undefined);
-        vi.mocked(ts_client.queryModules).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.systemModuleState).mockResolvedValue({});
-        vi.mocked(ts_client.token).mockReturnValue('jwt-token');
         vi.mocked(ts_client.authorise).mockResolvedValue('jwt-token');
         const broker = mock_mqtt_connect() as any;
         broker.options = {};
@@ -226,6 +221,65 @@ describe('DashboardsService', () => {
             expect(spectator.service.location_query_params().building).toBe(
                 'building-1',
             );
+        });
+    });
+
+    // The service picks its first region as it is created, so each test
+    // creates another one once the org and URL are set
+    describe('initial location', () => {
+        type OrgStub = {
+            region?: { id: string };
+            regions: { id: string }[];
+            buildings: { id: string }[];
+        };
+        let created: DashboardsService[];
+        const org_stub = () =>
+            spectator.inject(OrganisationService) as unknown as OrgStub;
+        const create = async () => {
+            const service = TestBed.runInInjectionContext(
+                () => new DashboardsService(),
+            );
+            created.push(service);
+            await flush();
+            return service;
+        };
+
+        beforeEach(() => (created = []));
+        afterEach(() => {
+            created.forEach((service) => service.ngOnDestroy());
+            location.hash = '';
+        });
+
+        it('starts on the org region and every building', async () => {
+            org_stub().region = { id: 'rgn-1' };
+            const service = await create();
+            expect(service.region_id()).toBe('rgn-1');
+            expect(service.building_id()).toBe('');
+        });
+
+        it('starts on the region and building in the URL', async () => {
+            const stub = org_stub();
+            stub.region = { id: 'rgn-1' };
+            stub.regions = [{ id: 'rgn-2' }];
+            stub.buildings = [{ id: 'bld-2' }];
+            location.hash = '#/alerts?region=rgn-2&building=bld-2';
+            const service = await create();
+            expect(service.region_id()).toBe('rgn-2');
+            expect(service.building_id()).toBe('bld-2');
+
+            // the org region changing does not override the URL
+            active_region.set({ id: 'rgn-3' });
+            TestBed.tick();
+            expect(service.region_id()).toBe('rgn-2');
+        });
+
+        it('follows the org region, picking every building', async () => {
+            const service = await create();
+            service.building_id.set('bld-1');
+            active_region.set({ id: 'rgn-2' });
+            TestBed.tick();
+            expect(service.region_id()).toBe('rgn-2');
+            expect(service.building_id()).toBe('');
         });
     });
 
@@ -654,9 +708,6 @@ describe('DashboardsService', () => {
             expect(
                 spectator.service.dashboard_alerts().map((a) => a.location),
             ).toEqual(['sys-2']);
-
-            expect(ts_client.queryModules).not.toHaveBeenCalled();
-            expect(ts_client.systemModuleState).not.toHaveBeenCalled();
         });
 
         it('updates the alerts while messages keep arriving', () => {
@@ -867,6 +918,24 @@ describe('DashboardsService', () => {
             TestBed.tick();
             expect(spectator.service.region_id()).toBe('');
             expect(spectator.service.building_id()).toBe('');
+        });
+
+        it('keeps a region the group can see, resetting only the building', () => {
+            spectator.service.setRegionFromParams('rgn-1', 'bld-x');
+            TestBed.tick();
+            expect(spectator.service.region_id()).toBe('rgn-1');
+            expect(spectator.service.building_id()).toBe('');
+        });
+
+        it('waits for the group scope to settle before resetting', () => {
+            scope_ready.set(false);
+            spectator.service.setRegionFromParams('rgn-elsewhere', 'bld-x');
+            TestBed.tick();
+            expect(spectator.service.region_id()).toBe('rgn-elsewhere');
+
+            scope_ready.set(true);
+            TestBed.tick();
+            expect(spectator.service.region_id()).toBe('');
         });
 
         it('listens again when the group changes', async () => {

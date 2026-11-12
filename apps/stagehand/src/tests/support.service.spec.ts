@@ -80,7 +80,6 @@ describe('SupportService', () => {
         await create();
         const ids = spectator.service.space_list().map((s) => s.id);
         expect(ids).toEqual(['support', 'camera', 'timetable', 'snapshot']);
-        expect(ids).not.toContain('plain');
     });
 
     it('should normalise camera snapshot urls, dropping empty entries', async () => {
@@ -100,12 +99,13 @@ describe('SupportService', () => {
         ]);
     });
 
-    it('should leave the space list empty when the query fails', async () => {
+    it('should finish loading with no systems when the query fails', async () => {
         (ts_client.querySystems as any).mockReturnValue(
             Promise.reject(new Error('boom')),
         );
         await create();
         expect(spectator.service.space_list()).toEqual([]);
+        expect(spectator.service.loading()).toBe(false);
     });
 
     describe('support groups', () => {

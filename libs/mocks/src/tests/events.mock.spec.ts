@@ -1,45 +1,26 @@
+import { HashMap } from '@placeos/common';
 import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
 
 import { MOCK_EVENTS } from '../lib/api/events.data';
 import { registerMockEvents } from '../lib/api/events.mock';
 import { MOCK_SPACES } from '../lib/api/spaces.data';
 import { ACTIVE_USER } from '../lib/api/users.data';
+import { endpoint } from './endpoints';
 
 vi.mock('@placeos/ts-client');
 
-/** Build the request object a mocked endpoint is handed by ts-client */
-function request(overrides: Record<string, unknown> = {}): unknown {
-    return {
-        url: '',
-        path: '',
-        method: 'GET',
-        metadata: {},
-        route_params: {},
-        query_params: {},
-        body: null,
-        ...overrides,
-    };
-}
+const API = '/api/staff/v1/events';
+/** Far after the generated mock events, so only test events match */
+const START = Date.UTC(2099, 0, 1) / 1000;
 
 describe('registerMockEvents', () => {
-    /** Callback registered for the given method + path */
-    function handler(method: string, path: string) {
-        const match = vi
-            .mocked(registerMockEndpoint)
-            .mock.calls.map(([options]) => options)
-            .find((o) => o.method === method && o.path === path);
-        if (!match) throw new Error(`No handler for ${method} ${path}`);
-        return (req: unknown) => match.callback(req as never);
-    }
-
     /** IDs of the systems told to poll their bookings */
     const polled = () => vi.mocked(mockSystem).mock.calls.map(([id]) => id);
     const deleteEvent = (id: string) =>
-        handler(
-            'DELETE',
-            '/api/staff/v1/events/:id',
-        )(request({ route_params: { id } }));
+        endpoint('DELETE', `${API}/:id`)({ route_params: { id } });
     const findEvent = (id: string) => MOCK_EVENTS.find((e) => e.id === id);
+    const listIds = (query_params: Record<string, string>) =>
+        endpoint<HashMap[]>('GET', API)({ query_params }).map((e) => e.id);
 
     const event = {
         id: 'mock-test-event',
@@ -77,18 +58,32 @@ describe('registerMockEvents', () => {
     });
 
     it('should poll the spaces an event leaves and joins on update', () => {
-        handler(
+        endpoint(
             'PATCH',
-            '/api/staff/v1/events/:id',
-        )(
-            request({
-                route_params: { id: event.id },
-                body: { system: { id: 'sys-new' }, resources: [] },
-            }),
-        );
+            `${API}/:id`,
+        )({
+            route_params: { id: event.id },
+            body: { system: { id: 'sys-new' }, resources: [] },
+        });
         expect(polled()).toEqual(
             expect.arrayContaining(['sys-old', 'sys-resource', 'sys-new']),
         );
+    });
+
+    it('should add the host and the space as attendees of a new event', () => {
+        const created = endpoint<HashMap>(
+            'POST',
+            API,
+        )({
+            body: { host: ACTIVE_USER.email, system: { id: 'sys-new' } },
+        });
+        added.push(created.id);
+
+        expect(created.attendees).toEqual([
+            expect.objectContaining({ email: ACTIVE_USER.email }),
+            { id: 'sys-new', resource: true },
+        ]);
+        expect(polled()).toEqual(['sys-new']);
     });
 
     it('should list only the events of the requested level', () => {
@@ -96,15 +91,74 @@ describe('registerMockEvents', () => {
         // query would also match every event in the building
         const space = MOCK_SPACES[0];
         const level_id = space.zones.at(-1);
-        const events = handler(
+        const events = endpoint<HashMap[]>(
             'GET',
-            '/api/staff/v1/events',
-        )(request({ query_params: { zone_ids: level_id } })) as any[];
+            API,
+        )({
+            query_params: { zone_ids: level_id },
+        });
 
         expect(events.length).toBeGreaterThan(0);
         expect(
             events.filter((e) => !e.system.zones.includes(level_id)),
         ).toEqual([]);
+    });
+
+    it('should list the events the user attends in the period, without a zone', () => {
+        const period = (start: number) => ({
+            period_start: `${start}`,
+            period_end: `${start + 3600}`,
+        });
+        addEvent({
+            id: 'mock-test-attended',
+            event_start: START,
+            event_end: START + 1800,
+            attendees: [{ email: ACTIVE_USER.email }],
+        });
+        addEvent({
+            id: 'mock-test-not-attended',
+            event_start: START,
+            event_end: START + 1800,
+        });
+
+        expect(listIds(period(START))).toEqual(['mock-test-attended']);
+        expect(listIds(period(START + 3600))).toEqual([]);
+    });
+
+    it('should list the spaces that other events book at the same time', () => {
+        const clashes = (body: HashMap, include_clash_time = 'false') =>
+            endpoint(
+                'POST',
+                `${API}/clashing-assets`,
+            )({
+                body,
+                query_params: { include_clash_time },
+            });
+        addEvent({
+            id: 'mock-test-clash',
+            event_start: START,
+            event_end: START + 1800,
+            system: { id: 'sys-clash' },
+            resources: [],
+        });
+        const booking = {
+            id: 'mock-test-edited',
+            event_start: START + 900,
+            event_end: START + 2700,
+            system: { id: 'sys-clash' },
+            resources: [{ id: 'sys-free' }],
+        };
+
+        expect(clashes(booking)).toEqual(['sys-clash']);
+        expect(clashes(booking, 'true')).toEqual([
+            {
+                asset_id: 'sys-clash',
+                booking_start: START,
+                booking_end: START + 1800,
+            },
+        ]);
+        // An event does not clash with itself when it is edited
+        expect(clashes({ ...booking, id: 'mock-test-clash' })).toEqual([]);
     });
 
     describe('delete', () => {
@@ -144,18 +198,16 @@ describe('registerMockEvents', () => {
 
     it('should check a guest in and out without duplicates', () => {
         const checkin = (state: string) =>
-            handler(
+            endpoint(
                 'POST',
-                '/api/staff/v1/events/:id/guests/:email/checkin',
-            )(
-                request({
-                    route_params: {
-                        id: event.id,
-                        email: encodeURIComponent('guest+1@place.tech'),
-                    },
-                    query_params: { state },
-                }),
-            );
+                `${API}/:id/guests/:email/checkin`,
+            )({
+                route_params: {
+                    id: event.id,
+                    email: encodeURIComponent('guest+1@place.tech'),
+                },
+                query_params: { state },
+            });
         const checked_in = () => findEvent(event.id).extension_data.checked_in;
 
         expect(checkin('true')).toMatchObject({ checked_in: true });
@@ -163,5 +215,46 @@ describe('registerMockEvents', () => {
         expect(checked_in()).toEqual(['guest+1@place.tech']);
         expect(checkin('false')).toMatchObject({ checked_in: false });
         expect(checked_in()).toEqual([]);
+    });
+
+    it('should replace an attendee with the same email, and remove one', () => {
+        const route_params = { id: event.id };
+        const add = (body: HashMap) =>
+            endpoint('POST', `${API}/:id/attendee`)({ route_params, body });
+        const remove = (email: string) =>
+            endpoint(
+                'DELETE',
+                `${API}/:id/attendee/:email`,
+            )({
+                route_params: { ...route_params, email },
+            });
+
+        add({ email: 'a@acme.com', name: 'Old' });
+        add({ email: 'a@acme.com', name: 'New' });
+        expect(findEvent(event.id).attendees).toEqual([
+            { email: 'a@acme.com', name: 'New' },
+        ]);
+
+        remove(encodeURIComponent('a@acme.com'));
+        expect(findEvent(event.id).attendees).toEqual([]);
+        expect(() => remove('a@acme.com')).toThrow(
+            expect.objectContaining({ status: 404 }),
+        );
+    });
+
+    it('should merge changes into the extension data of an event', () => {
+        const metadata = (method: 'GET' | 'PATCH', body?: HashMap) =>
+            endpoint(
+                method,
+                `${API}/:id/metadata/:system_id`,
+            )({
+                route_params: { id: event.id, system_id: 'sys-old' },
+                body,
+            });
+
+        metadata('PATCH', { notes: 'Hello' });
+        metadata('PATCH', { catering: [] });
+
+        expect(metadata('GET')).toEqual({ notes: 'Hello', catering: [] });
     });
 });

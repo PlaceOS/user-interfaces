@@ -26,8 +26,6 @@ describe('NewUserModalComponent', () => {
         imports: [MatProgressSpinnerModule],
     });
 
-    beforeEach(() => (spectator = createComponent()));
-
     const emitted = () => {
         const events: DialogEvent[] = [];
         spectator.component.event.subscribe((e) => events.push(e));
@@ -35,6 +33,7 @@ describe('NewUserModalComponent', () => {
     };
 
     it('should not emit and should mark fields touched when the form is invalid', () => {
+        spectator = createComponent();
         const events = emitted();
         spectator.click('footer button:not([mat-dialog-close])');
         expect(events).toEqual([]);
@@ -42,6 +41,7 @@ describe('NewUserModalComponent', () => {
     });
 
     it('should emit the entered details as an external user on save', () => {
+        spectator = createComponent();
         const events = emitted();
         const form = spectator.component.form();
         form.name().value.set('support');
@@ -56,5 +56,36 @@ describe('NewUserModalComponent', () => {
         expect(user.organisation).toBe('placeOS');
         expect(user.email).toBe('support@aca.im');
         expect(user.is_external).toBe(true);
+    });
+
+    it('should start from the user passed in the dialog data', () => {
+        spectator = createComponent({
+            providers: [
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: {
+                        user: new User({
+                            id: 'u1',
+                            name: 'Jim',
+                            email: 'jim@place.tech',
+                            organisation: 'PlaceOS',
+                            phone: '0412 345 678',
+                        }),
+                    },
+                },
+            ],
+        });
+        const events = emitted();
+        expect(spectator.component.form()().value()).toMatchObject({
+            name: 'Jim',
+            email: 'jim@place.tech',
+            organisation: 'PlaceOS',
+            phone: '0412 345 678',
+        });
+        spectator.component.form().name().value.set('James');
+        spectator.click('footer button:not([mat-dialog-close])');
+        const user = events[0].metadata as User;
+        expect(user.name).toBe('James');
+        expect(user.email).toBe('jim@place.tech');
     });
 });

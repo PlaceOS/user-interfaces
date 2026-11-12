@@ -1,46 +1,21 @@
 import { BuildingLevel } from '../lib/types/org.classes';
 
 describe('Level', () => {
-    let item: BuildingLevel;
-
-    beforeEach(() => (item = new BuildingLevel()));
-
-    it('should expose properties', () => {
-        expect(item.id).toBe('');
-        expect(item.parent_id).toBe('');
-        expect(item.name).toBe('');
-        expect(item.display_name).toBe('');
-        expect(item.capacity).toBe(0);
-        expect(item.number).toBe('');
-        expect(item.map_id).toBe('');
-        expect(item.settings).toEqual({});
-        expect(item.locations).toEqual([]);
-        item = new BuildingLevel({
-            id: 'level-1',
-            parent_id: 'bld-1',
-            name: 'Building Level 2',
-            display_name: 'Level 2',
-            capacity: 420,
-            map_id: 'bld-1-level-1',
-            locations: [{ id: '1', name: 'One' }],
-        });
-        expect(item.id).toBe('level-1');
-        expect(item.parent_id).toBe('bld-1');
-        expect(item.name).toBe('Building Level 2');
-        expect(item.display_name).toBe('Level 2');
-        expect(item.capacity).toBe(420);
-        expect(item.number).toBe('2');
-        expect(item.map_id).toBe('bld-1-level-1');
-        expect(item.locations).toEqual([{ id: '1', name: 'One' }]);
+    it('should try to get level number from display name', () => {
+        expect(new BuildingLevel().number).toBe('');
+        expect(new BuildingLevel({ display_name: 'Level 2' }).number).toBe('2');
+        expect(new BuildingLevel({ display_name: 'Mezzanine' }).number).toBe(
+            'M',
+        );
+        expect(
+            new BuildingLevel({ display_name: 'Building Level 42' }).number,
+        ).toBe('42');
     });
 
-    it('should try to get level number from display name', () => {
-        expect(item.number).toBe('');
-        item = new BuildingLevel({ display_name: 'Level 2' });
-        expect(item.number).toBe('2');
-        item = new BuildingLevel({ display_name: 'Mezzanine' });
-        expect(item.number).toBe('M');
-        item = new BuildingLevel({ display_name: 'Building Level 42' });
-        expect(item.number).toBe('42');
+    it('should keep at most two characters of the level number', () => {
+        expect(new BuildingLevel({ display_name: 'Level 123' }).number).toBe(
+            '12',
+        );
+        expect(new BuildingLevel({ display_name: 'Level g' }).number).toBe('G');
     });
 });

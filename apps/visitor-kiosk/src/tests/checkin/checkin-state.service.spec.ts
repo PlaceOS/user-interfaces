@@ -319,21 +319,40 @@ describe('CheckinStateService', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('shows a plain checkout message when checkout fails', async () => {
-        const snackbar = createSnackbarSpy();
-        setNotifyOutlet(snackbar as any, true);
-        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    it.each([
+        [true, 'APP.VISITOR_KIOSK.ERROR_CHECKIN'],
+        [false, 'APP.VISITOR_KIOSK.ERROR_CHECKOUT'],
+    ])(
+        'shows a plain message when setting check-in to %s fails',
+        async (checked_in, message) => {
+            const snackbar = createSnackbarSpy();
+            setNotifyOutlet(snackbar as never, true);
+            vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
+            vi.mocked(post).mockRejectedValueOnce(new Error('e.json'));
+
+            await expect(
+                spectator.service.checkinGuest(checked_in),
+            ).rejects.toThrow();
+
+            expect(snackbar.open).toHaveBeenCalledTimes(1);
+            expect(snackbar.open).toHaveBeenCalledWith(
+                message,
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+            setNotifyOutlet(null, true);
+        },
+    );
+
+    it('removes the visitor from the state when cleared', async () => {
         await spectator.service.loadGuestAndEvent('a@b.com', 'event-1234');
-        vi.mocked(post).mockRejectedValueOnce(new Error('e.json'));
+        spectator.service.setPhoto('data:jpg');
 
-        await expect(spectator.service.checkinGuest(false)).rejects.toThrow();
+        spectator.service.clear();
 
-        expect(snackbar.open).toHaveBeenCalledTimes(1);
-        expect(snackbar.open).toHaveBeenCalledWith(
-            'APP.VISITOR_KIOSK.ERROR_CHECKOUT',
-            expect.anything(),
-            expect.objectContaining({ panelClass: ['error'] }),
-        );
-        setNotifyOutlet(null, true);
+        expect(spectator.service.event()).toBeNull();
+        expect(spectator.service.guest()).toBeNull();
+        expect(spectator.service.photo()).toBeFalsy();
     });
 });

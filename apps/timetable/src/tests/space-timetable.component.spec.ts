@@ -4,6 +4,7 @@ import {
 } from '@ngneat/spectator/vitest';
 import { Space } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
+import { ngMocks } from 'ng-mocks';
 
 import { SpaceEventDetailsComponent } from '../app/space-event-details.component';
 import { SpaceTimetableComponent } from '../app/space-timetable.component';
@@ -78,6 +79,9 @@ describe('SpaceTimetableComponent', () => {
         expect(statusAt(9)).toEqual({ busy: false, until: time(10) });
         // Back-to-back and overlapping bookings make one busy period
         expect(statusAt(10.5)).toEqual({ busy: true, until: time(12.5) });
+        // `a` is over the moment it ends. `b` is busy the moment it starts
+        expect(statusAt(11)).toEqual({ busy: true, until: time(12.5) });
+        expect(statusAt(12.5)).toEqual({ busy: false, until: time(14) });
         expect(statusAt(13)).toEqual({ busy: false, until: time(14) });
         expect(statusAt(15)).toEqual({ busy: false, until: 0 });
     });
@@ -98,5 +102,48 @@ describe('SpaceTimetableComponent', () => {
         spectator.component.updateBookings(null);
         spectator.detectChanges();
         expect(text('[status]')).toBe('Free');
+    });
+
+    it('should place each booking on the grid and hide titles when the room asks', () => {
+        spectator.setInput({
+            space: new Space({ id: '1', name: 'R-01' }),
+            day,
+            time_offset: 8,
+            time_period: 10,
+        });
+        spectator.component.updateBookings([
+            booking('a', 9, 11),
+            booking('b', 10, 12),
+        ]);
+        spectator.detectChanges();
+
+        expect('.text-xl').toHaveText('R-01');
+        const position = ({ style }: HTMLElement) => [
+            style.top,
+            style.height,
+            style.left,
+            style.width,
+        ];
+        expect(
+            spectator
+                .queryAll<HTMLElement>('space-event-details')
+                .map(position),
+        ).toEqual([
+            ['10%', '20%', '0%', '50%'],
+            ['20%', '20%', '50%', '50%'],
+        ]);
+
+        const hidden = () =>
+            ngMocks
+                .findAll('space-event-details')
+                .map((_) => ngMocks.input(_, 'hide_title'));
+        expect(hidden()).toEqual([false, false]);
+        spectator.triggerEventHandler(
+            'i[bind="hide_meeting_title"]',
+            'modelChange',
+            true,
+        );
+        spectator.detectChanges();
+        expect(hidden()).toEqual([true, true]);
     });
 });

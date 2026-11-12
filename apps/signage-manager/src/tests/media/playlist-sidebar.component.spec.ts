@@ -67,21 +67,6 @@ describe('PlaylistSidebarComponent', () => {
         context_stub.can_upload_to_playlist.set(true);
     });
 
-    it('returns the full list when no search term is set', async () => {
-        playlists.set([
-            { id: 'a', name: 'News' },
-            { id: 'b', name: 'Ads' },
-        ]);
-        const component = await make();
-        expect(component.filtered_playlists().length).toBe(2);
-    });
-
-    it('uses the service search state for backend searching', async () => {
-        const component = await make();
-        component.search.set('new');
-        expect(playlist_stub.playlist_search_term()).toBe('new');
-    });
-
     it('derives an awaiting-review status once approval is requested', async () => {
         playlist_approval_status.set({ p: false });
         playlist_approval_requested_status.set({ p: true });

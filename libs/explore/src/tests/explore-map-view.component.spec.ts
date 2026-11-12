@@ -2,6 +2,7 @@ import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import {
     SpectatorRouting,
     createRoutingFactory,
@@ -9,7 +10,12 @@ import {
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    BuildingLevel,
+    OrganisationService,
+    SettingsService,
+    Space,
+} from '@placeos/common';
 import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
@@ -35,7 +41,7 @@ import * as ts_client from '@placeos/ts-client';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 const fake_snackbar = {
-    open: vi.fn(() => ({
+    open: vi.fn((_message: string) => ({
         onAction: () => of(),
         dismiss: vi.fn(),
     })),
@@ -110,6 +116,8 @@ describe('ExploreMapViewComponent', () => {
     });
 
     afterEach(() => {
+        setNotifyOutlet(null, true);
+        vi.useRealTimers();
         if (spectator) {
             spectator.component.hide_zones.set(false);
             spectator.component.hide_devices.set(true);
@@ -118,8 +126,6 @@ describe('ExploreMapViewComponent', () => {
             spectator.inject(ExploreStateService).setFeatures.mockReset();
         }
     });
-
-    it('should show map component', () => expect('interactive-map').toExist());
 
     it('should handle option changes', () => {
         spectator.component.hide_devices.set(false);
@@ -257,16 +263,70 @@ describe('ExploreMapViewComponent', () => {
         vi.useRealTimers();
     });
 
-    it('should handle location spaces', () => {
+    it('should pin a located space and show its level', async () => {
         const state = spectator.inject(ExploreStateService);
-        const spaces = spectator.inject(SpacesService);
-        (spaces as any).find = vi.fn(() => ({}));
+        const org = spectator.inject(OrganisationService);
+        const space_pipe = spectator.inject(SpacePipe, true);
+        vi.mocked(org.levelWithID).mockReturnValue(
+            new BuildingLevel({ id: 'lvl-2' }),
+        );
+        vi.mocked(space_pipe.transform).mockResolvedValue(
+            new Space({
+                id: 'space-1',
+                name: 'Room 1',
+                map_id: 'map-1',
+                zones: ['lvl-2'],
+            }),
+        );
+        setNotifyOutlet(fake_snackbar as unknown as MatSnackBar, true);
+        fake_snackbar.open.mockClear();
+        vi.useFakeTimers();
+
         spectator.setRouteQueryParam('space', 'space-1');
-        spectator.detectChanges();
-        expect(state.setFeatures).toHaveBeenCalledTimes(2);
-        (spaces as any).find = vi.fn(() => null);
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(state.setLevel).toHaveBeenCalledWith('lvl-2');
+        expect(state.setFeatures).toHaveBeenLastCalledWith('_located', [
+            expect.objectContaining({
+                location: 'map-1',
+                data: { message: 'Room 1 is here' },
+            }),
+        ]);
+
+        vi.mocked(space_pipe.transform).mockResolvedValue(null);
         spectator.setRouteQueryParam('space', 'space-2');
-        spectator.detectChanges();
-        expect(state.setFeatures).toHaveBeenCalledTimes(3);
+        await vi.advanceTimersByTimeAsync(300);
+        expect(
+            fake_snackbar.open.mock.calls.map(([message]) => message),
+        ).toEqual(['EXPLORE.LOCATE_SPACE_DETAILS_FAILED']);
+        vi.useRealTimers();
+    });
+
+    it('should pin a map id or coordinates from the locate parameter', async () => {
+        const state = spectator.inject(ExploreStateService);
+        const located = () => {
+            const [, [feature]] = vi
+                .mocked(state.setFeatures)
+                .mock.calls.filter(([group]) => group === '_located')
+                .at(-1);
+            return feature;
+        };
+        vi.useFakeTimers();
+
+        spectator.triggerNavigation({
+            queryParams: { locate: 'desk-1', name: 'Desk 1' },
+        });
+        await vi.advanceTimersByTimeAsync(300);
+        expect(located()).toEqual(
+            expect.objectContaining({
+                location: 'desk-1',
+                data: { message: 'Desk 1' },
+            }),
+        );
+
+        spectator.triggerNavigation({ queryParams: { locate: '0.25,0.75' } });
+        await vi.advanceTimersByTimeAsync(300);
+        expect(located().location).toEqual({ x: 0.25, y: 0.75 });
+        vi.useRealTimers();
     });
 });

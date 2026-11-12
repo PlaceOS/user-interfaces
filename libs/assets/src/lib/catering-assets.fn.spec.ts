@@ -204,4 +204,71 @@ describe('[Catering Assets]', () => {
         expect(item.id).toBe('asset-1');
         expect(item.caterer).toBe('standalone');
     });
+
+    it('should rethrow save errors other than a missing asset', async () => {
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_CATERING_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([{ id: 'type-1', name: 'CATERING:_STANDALONE_' }]),
+        );
+        const error = { status: 500 };
+        vi.mocked(ts_client.updateAsset).mockRejectedValueOnce(error);
+
+        await expect(
+            catering_assets.saveCateringItem(
+                { id: 'item-1', name: 'Coffee' },
+                'bld-1',
+            ),
+        ).rejects.toBe(error);
+        expect(ts_client.addAsset).not.toHaveBeenCalled();
+    });
+
+    it('should fall back to the identifier or id and sanitise item details', async () => {
+        const { catering_assets } = await load_modules();
+        const asset = new ts_client.PlaceAsset({
+            id: 'asset-1',
+            identifier: 'Tea',
+            other_data: { options: 'not-a-list', unit_price: '250' },
+        });
+
+        const item = catering_assets.toCateringItem(asset, 'Acme');
+        expect(item.name).toBe('Tea');
+        expect(item.options).toEqual([]);
+        expect(item.unit_price).toBe(250);
+        expect(
+            catering_assets.toCateringItem(
+                new ts_client.PlaceAsset({ id: 'asset-2' }),
+                'Acme',
+            ).name,
+        ).toBe('asset-2');
+    });
+
+    it('should sort catering items by name across caterers', async () => {
+        const { catering_assets } = await load_modules();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_CATERING_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([
+                { id: 'type-1', name: 'CATERING:Acme' },
+                { id: 'type-2', name: 'CATERING:Bistro' },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssets).mockImplementation(({ type_id }) =>
+            response(
+                type_id === 'type-1'
+                    ? [{ id: 'a1', name: 'Tea' }]
+                    : [{ id: 'a2', name: 'Coffee' }],
+            ),
+        );
+
+        const items = await catering_assets.queryCateringItems('bld-1');
+
+        expect(items.map((_) => [_.name, _.caterer])).toEqual([
+            ['Coffee', 'Bistro'],
+            ['Tea', 'Acme'],
+        ]);
+    });
 });

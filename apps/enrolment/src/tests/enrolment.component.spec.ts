@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { signal } from '@angular/core';
 import {
     ComponentFixtureAutoDetect,
@@ -122,7 +123,28 @@ describe('EnrolmentComponent', () => {
             state.setView('complete');
             spectator.detectChanges();
 
-            expect(text()).toContain('You are now checked in');
+            expect(text()).toContain('You are now checked in. See you soon');
+        });
+
+        it('should give the meeting time on the complete view once the meeting loads', async () => {
+            const start = getUnixTime(Date.now()) + 3600;
+            (ts_client.get as any).mockImplementation(async (url: string) =>
+                url.includes('/guests/')
+                    ? { id: 'guest@example.com', email: 'guest@example.com' }
+                    : { id: 'event-1', event_start: start },
+            );
+            state.setView('complete');
+            query_params.next(param_map({ uid: userToken() }));
+            for (let i = 0; i < 4; i++) {
+                await vi.advanceTimersByTimeAsync(100);
+                spectator.detectChanges();
+            }
+
+            const time = formatDate(start * 1000, 'shortTime', 'en-US').replace(
+                /\s+/g,
+                ' ',
+            );
+            expect(text()).toContain(`See you at ${time}`);
         });
 
         it('should render the error panel for any other view', () => {
@@ -140,9 +162,9 @@ describe('EnrolmentComponent', () => {
         });
 
         it('should leave the view alone when the route has no view', () => {
-            const view = state.view();
+            state.setView('event');
             params.next(param_map({}));
-            expect(state.view()).toBe(view);
+            expect(state.view()).toBe('event');
         });
 
         it('should authenticate with the uid query parameter', () => {
@@ -160,7 +182,7 @@ describe('EnrolmentComponent', () => {
         it('should not time out once a uid has been handled', () => {
             query_params.next(param_map({ uid: userToken() }));
             vi.advanceTimersByTime(5000);
-            expect(state.error()).not.toBe('guest');
+            expect(state.error()).toBe('');
         });
     });
 
