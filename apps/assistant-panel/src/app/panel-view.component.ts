@@ -412,6 +412,7 @@ export class PanelViewComponent
 
     private _model?: Promise<CompiledModel>;
 
+    /** Load the presence model once. A failed load is dropped so that the next frame tries again. */
     private _loadModel() {
         if (!this._model) {
             const assets_path = `${location.origin}${location.pathname}assets`;
@@ -423,6 +424,7 @@ export class PanelViewComponent
                     },
                 ),
             );
+            this._model.catch(() => (this._model = undefined));
         }
         return this._model;
     }
@@ -472,6 +474,9 @@ export class PanelViewComponent
                     );
                 }
             }
+        } catch (error) {
+            // The 500ms frame interval limits the retry rate
+            console.warn('Unable to process webcam frame:', error);
         } finally {
             input_tensor?.delete();
             output_tensors.forEach((tensor) => tensor.delete());
