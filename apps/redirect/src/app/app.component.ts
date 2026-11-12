@@ -2,7 +2,6 @@ import { Component, inject, OnInit } from '@angular/core';
 import { authority, setAPI_Key } from '@placeos/ts-client';
 
 import {
-    current_user,
     currentUser,
     failInitialisation,
     firstTruthyValueFrom,
@@ -13,6 +12,7 @@ import {
     SettingsService,
     setupPlace,
     storeApiKeyFromUrl,
+    waitForCurrentUser,
     withTimeout,
 } from '@placeos/common';
 
@@ -117,7 +117,7 @@ export class AppComponent implements OnInit {
         try {
             await setupPlace(settings).finally(storeApiKeyFromUrl);
             await withTimeout(
-                firstTruthyValueFrom(current_user),
+                waitForCurrentUser(),
                 30_000,
                 'Current user loading timed out.',
             );

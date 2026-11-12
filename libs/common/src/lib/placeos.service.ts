@@ -63,7 +63,7 @@ import { initSentryFromSettings } from './sentry';
 import { SettingsService } from './settings.service';
 import { finishTeamsSignIn, startTeamsHost } from './teams-host';
 import { setInternalUserDomain } from './types/user.class';
-import { current_user, currentUser } from './user-state';
+import { currentUser, waitForCurrentUser } from './user-state';
 
 const START_QUERY = location.search;
 /** Longest startup waits on the authority before continuing without it */
@@ -490,7 +490,7 @@ export class PlaceOS_Service extends AsyncHandler {
         setupCache(this._cache, this._settings.get('service_worker') || {});
         try {
             await withTimeout(
-                firstTruthyValueFrom(current_user),
+                waitForCurrentUser(),
                 30_000,
                 'Current user loading timed out.',
             );

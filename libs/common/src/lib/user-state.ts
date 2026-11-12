@@ -5,8 +5,15 @@ import {
     showUser,
     token,
 } from '@placeos/ts-client';
-import { BehaviorSubject, combineLatest, defer, of, timer } from 'rxjs';
-import { catchError, map, retry } from 'rxjs/operators';
+import {
+    BehaviorSubject,
+    combineLatest,
+    defer,
+    firstValueFrom,
+    of,
+    timer,
+} from 'rxjs';
+import { catchError, first, map, retry } from 'rxjs/operators';
 import { mockModeRequested, placeSetupDone } from './placeos';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
@@ -368,13 +375,18 @@ export function currentUserIsLoaded() {
 export function currentUserLoaded(): Promise<StaffUser> {
     const user = currentUser();
     if (currentUserIsLoaded()) return Promise.resolve(user);
-    return new Promise((resolve) => {
-        const sub = _current_user.subscribe((user) => {
-            if (isEmptyUser(user)) return;
-            sub.unsubscribe();
-            resolve(user);
-        });
-    });
+    return waitForCurrentUser();
+}
+
+/**
+ * Resolve with the first user that is not the empty placeholder. Use it to
+ * gate app start-up on the signed-in user. Unlike `currentUserLoaded`, it
+ * also waits in tests.
+ */
+export function waitForCurrentUser(): Promise<StaffUser> {
+    return firstValueFrom(
+        _current_user.pipe(first((user) => !isEmptyUser(user))),
+    );
 }
 
 export function userSignal() {
