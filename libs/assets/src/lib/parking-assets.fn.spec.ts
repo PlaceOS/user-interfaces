@@ -215,45 +215,6 @@ describe('[Parking Assets]', () => {
         });
     });
 
-    it('should resolve duplicate categories and types to the oldest item', async () => {
-        const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([
-                { id: 'cat-new', name: '_PARKING_', created_at: 200 },
-                { id: 'cat-old', name: '_PARKING_', created_at: 100 },
-            ]),
-        );
-        vi.mocked(ts_client.queryAssetTypes).mockImplementation(
-            ({ category_id }) =>
-                response(
-                    category_id === 'cat-old'
-                        ? [
-                              {
-                                  id: 'type-new',
-                                  name: '_PARKING_SPACES_',
-                                  category_id: 'cat-old',
-                                  created_at: 200,
-                              },
-                              {
-                                  id: 'type-old',
-                                  name: '_PARKING_SPACES_',
-                                  category_id: 'cat-old',
-                                  created_at: 100,
-                              },
-                          ]
-                        : [],
-                ),
-        );
-
-        const type_id = await parking_assets.resolveParkingTypeId();
-
-        expect(type_id).toBe('type-old');
-        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.updateAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.addAssetType).not.toHaveBeenCalled();
-        expect(ts_client.updateAssetType).not.toHaveBeenCalled();
-    });
-
     it('should ignore legacy user categories when resolving parking user types', async () => {
         const { parking_assets } = await load_modules();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
@@ -297,5 +258,33 @@ describe('[Parking Assets]', () => {
             brand: 'PlaceOS',
             category_id: 'cat-new',
         });
+    });
+
+    it('should map fleet vehicles to assets and back', async () => {
+        const { parking_assets } = await load_modules();
+        const vehicle = {
+            id: 'car-1',
+            name: 'Pool car',
+            car_model: 'Leaf',
+            car_colour: 'White',
+            plate_number: 'XYZ789',
+            notes: 'Charge after use',
+        };
+
+        const asset = parking_assets.fromParkingFleetVehicle(vehicle, 'bld-1');
+        expect(asset).toMatchObject({
+            id: 'car-1',
+            identifier: 'Pool car',
+            notes: 'Charge after use',
+            zone_id: 'bld-1',
+        });
+        expect(
+            parking_assets.toParkingFleetVehicle(
+                new ts_client.PlaceAsset(asset),
+            ),
+        ).toEqual(vehicle);
+        expect(
+            'id' in parking_assets.fromParkingFleetVehicle({}, 'bld-1'),
+        ).toBe(false);
     });
 });

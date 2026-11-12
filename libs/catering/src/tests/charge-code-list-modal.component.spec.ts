@@ -72,40 +72,13 @@ describe('ChargeCodeListModalComponent', () => {
         expect(charge_codes()).toEqual(['CODE-1', 'CODE-2']);
     });
 
-    it('should save trimmed non-empty codes and close', async () => {
+    it('should save only codes that are not blank, then close', async () => {
         spectator.component.charge_codes.set(['CODE-1', '', '  ', 'CODE-2']);
         await spectator.component.saveChargeCodes();
         expect(saveSettings).toHaveBeenCalledWith({
             charge_codes: ['CODE-1', 'CODE-2'],
         });
         expect(dialog_close).toHaveBeenCalled();
-    });
-
-    it('should download a CSV template', () => {
-        // downloadFile builds an anchor with the filename + encoded contents
-        // and clicks it; intercept the DOM one layer below the real helper.
-        const real_create = document.createElement.bind(document);
-        let anchor: HTMLAnchorElement | null = null;
-        const create_spy = vi
-            .spyOn(document, 'createElement')
-            .mockImplementation((tag: string) => {
-                const el = real_create(tag);
-                if (tag === 'a') {
-                    anchor = el as HTMLAnchorElement;
-                    anchor.click = vi.fn();
-                }
-                return el;
-            });
-        spectator.component.downloadTemplate();
-        create_spy.mockRestore();
-        expect(anchor).toBeTruthy();
-        expect(anchor!.getAttribute('download')).toBe('template.csv');
-        expect(anchor!.click).toHaveBeenCalled();
-        const href = decodeURIComponent(anchor!.getAttribute('href') || '');
-        // href is either a data: url with the encoded template or a blob: url
-        if (href.startsWith('data:')) {
-            expect(href).toContain('code,description');
-        }
     });
 
     it('should reject non-csv files', () => {

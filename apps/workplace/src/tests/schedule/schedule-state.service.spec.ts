@@ -758,20 +758,106 @@ describe('ScheduleStateService', () => {
         });
     });
 
-    describe('room cancellation', () => {
-        function confirmRemoval(reason = 'done') {
-            const close = vi.fn();
-            vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
-                afterClosed: () => of({ reason }),
-                componentInstance: {
-                    event: reason === 'done' ? of({ reason }) : NEVER,
-                    loading: { set: vi.fn() },
-                },
-                close,
-            } as unknown as ReturnType<MatDialog['open']>);
-            return close;
+    /** Make the next confirm modal resolve with `reason` */
+    function confirmRemoval(reason = 'done') {
+        const close = vi.fn();
+        vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+            afterClosed: () => of({ reason }),
+            componentInstance: {
+                event: reason === 'done' ? of({ reason }) : NEVER,
+                loading: { set: vi.fn() },
+            },
+            close,
+        } as unknown as ReturnType<MatDialog['open']>);
+        return close;
+    }
+
+    describe('booking removal', () => {
+        const SECOND = 1000;
+        const start = 1_800_000_000;
+
+        function deskBooking(fields: Partial<Booking> = {}) {
+            return new Booking({
+                id: 'desk-booking-1',
+                booking_type: 'desk',
+                asset_id: 'desk-1',
+                booking_start: start,
+                booking_end: start + 3600,
+                ...fields,
+            });
         }
 
+        it('removes only the selected instance of a recurring booking', async () => {
+            confirmRemoval();
+            const poll = vi.spyOn(spectator.service, 'triggerPoll');
+
+            await spectator.service.remove(deskBooking({ instance: start }));
+
+            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+                expect.stringMatching(
+                    new RegExp(`/bookings/desk-booking-1/instance/${start}\\?`),
+                ),
+                { response_type: 'void' },
+            );
+            expect(poll).toHaveBeenCalled();
+        });
+
+        it('removes the whole series when asked', async () => {
+            confirmRemoval();
+
+            await spectator.service.remove(
+                deskBooking({ instance: start }),
+                true,
+            );
+
+            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+                expect.stringMatching(/\/bookings\/desk-booking-1\?/),
+                { response_type: 'void' },
+            );
+        });
+
+        it('does not end a booking that has already ended', async () => {
+            vi.setSystemTime((start + 7200) * SECOND);
+
+            await spectator.service.end(deskBooking());
+
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(ts_client.del).not.toHaveBeenCalled();
+        });
+
+        it('removes a booking that has not started when it is ended', async () => {
+            confirmRemoval();
+            vi.setSystemTime((start - 60) * SECOND);
+
+            await spectator.service.end(deskBooking());
+
+            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
+                expect.stringMatching(/\/bookings\/desk-booking-1\?/),
+                { response_type: 'void' },
+            );
+            expect(ts_client.post).not.toHaveBeenCalled();
+        });
+
+        it('checks out a booking in progress when it is ended', async () => {
+            confirmRemoval();
+            vi.setSystemTime((start + 60) * SECOND);
+            const poll = vi.spyOn(spectator.service, 'triggerPoll');
+
+            await spectator.service.end(deskBooking());
+
+            expect(ts_client.post).toHaveBeenCalledExactlyOnceWith(
+                expect.stringMatching(
+                    /\/bookings\/desk-booking-1\/check_in\?state=false/,
+                ),
+                '',
+            );
+            expect(ts_client.del).not.toHaveBeenCalled();
+            expect(poll).toHaveBeenCalled();
+        });
+    });
+
+    describe('room cancellation', () => {
         function nativeRoom() {
             return newCalendarEventFromBooking(
                 new Booking({

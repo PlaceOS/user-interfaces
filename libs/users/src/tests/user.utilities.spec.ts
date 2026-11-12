@@ -1,19 +1,32 @@
 import { TestBed } from '@angular/core/testing';
 import { User } from '@placeos/common';
-import { generateMockUser, generateUserForm } from '../lib/user.utilities';
+import { generateUserForm } from '../lib/user.utilities';
 
 describe('[User Utilities]', () => {
     const makeUserForm = (user: User) =>
         TestBed.runInInjectionContext(() => generateUserForm(user));
 
     describe('generateUserForm', () => {
-        it('should generate form', () => {
-            const user = new User(generateMockUser());
+        it('should copy the user details into the form', () => {
+            const user = new User({
+                name: 'Jim',
+                email: 'jim@place.tech',
+                organisation: 'PlaceOS',
+                phone: '0412 345 678',
+                assistance_required: true,
+            });
             const form = makeUserForm(user);
-            const value = form().value();
-            for (const key in value) {
-                expect(value[key]).toEqual(user[key]);
-            }
+            expect(form().value()).toEqual({
+                name: 'Jim',
+                email: 'jim@place.tech',
+                organisation: 'PlaceOS',
+                phone: '0412 345 678',
+                assistance_required: true,
+                visit_expected: true,
+            });
+            expect(form().valid()).toBe(true);
+            form.name().value.set('');
+            expect(form.name().invalid()).toBe(true);
         });
 
         it('should validate emails', () => {

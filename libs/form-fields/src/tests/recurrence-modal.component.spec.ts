@@ -64,6 +64,36 @@ describe('RecurrenceModalComponent', () => {
         expect(spectator.component.model().end_date).toBe(default_end_date);
     });
 
+    it.each([
+        [
+            'before the booking date',
+            new Date(2026, 0, 1).valueOf(),
+            booking_date,
+        ],
+        [
+            'after the booking window',
+            addDays(Date.now(), 365).valueOf(),
+            default_end_date,
+        ],
+    ])('should move a saved end date %s into range', (_, saved, expected) => {
+        dialog_data.value = { ...dialog_data.value, end_date: saved };
+        spectator = createComponent();
+        expect(spectator.component.model().end_date).toBe(expected);
+    });
+
+    it('should only return the end fields for the chosen end type', () => {
+        spectator.component.model.update((m) => ({ ...m, end_type: 'never' }));
+        expect(spectator.component.confirmValue()).toMatchObject({
+            end_date: undefined,
+            end_instances: undefined,
+        });
+        spectator.component.model.update((m) => ({ ...m, end_type: 'date' }));
+        expect(spectator.component.confirmValue()).toMatchObject({
+            end_date: default_end_date,
+            end_instances: undefined,
+        });
+    });
+
     it('should return a default end_date when confirming without one', () => {
         spectator.component.model.update((m) => ({ ...m, end_date: null }));
         spectator.detectChanges();

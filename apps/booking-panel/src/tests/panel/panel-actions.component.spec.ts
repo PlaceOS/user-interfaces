@@ -74,6 +74,17 @@ describe('PanelViewActionsComponent', () => {
         expect(state.quickBook).toHaveBeenCalledTimes(2);
     });
 
+    it('should only offer quick book durations within max_duration while free', () => {
+        features = ['quick_book'];
+        panel_settings.set({ max_duration: 30 });
+        spectator.detectChanges();
+        expect(spectator.queryAll('[quick-book]')).toHaveLength(2);
+
+        status.set('busy');
+        spectator.detectChanges();
+        expect('[quick-book]').not.toExist();
+    });
+
     it('should hide quick book when the booking form needs a host', () => {
         features = ['quick_book'];
         panel_settings.set({ disable_book_now_host: false });
@@ -94,6 +105,28 @@ describe('PanelViewActionsComponent', () => {
         spectator.detectChanges();
         spectator.click('[extend]');
         expect(state.extendMeeting).toHaveBeenCalled();
+    });
+
+    it('should hide extend when the room is booked after the meeting', () => {
+        features = ['extend_meeting'];
+        status.set('busy');
+        const now = Date.now();
+        const meeting = new CalendarEvent({
+            id: 'event-1',
+            date: now,
+            duration: 30,
+        });
+        current.set(meeting);
+        bookings.set([
+            meeting,
+            new CalendarEvent({
+                id: 'event-2',
+                date: now + 30 * 60 * 1000,
+                duration: 30,
+            }),
+        ]);
+        spectator.detectChanges();
+        expect('[extend]').not.toExist();
     });
 
     it('should show room services for configured UIs', () => {

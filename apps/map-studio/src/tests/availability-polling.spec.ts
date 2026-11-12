@@ -77,6 +77,30 @@ describe('AvailabilityPollingService', () => {
         expect(service.last_updated()).not.toBeNull();
     });
 
+    it('maps each bookable object to the first system with its map id', async () => {
+        getSystems.mockResolvedValue([
+            { map_id: 'desk-1', bookable: false },
+            { map_id: 'room-1', bookable: true },
+            { map_id: 'room-1', bookable: false },
+        ]);
+        service.start(
+            [
+                object('room-1'),
+                object('desk-1', 'desk'),
+                object('desk-2', 'desk'),
+                object('lobby', 'zone'),
+            ],
+            'zone-1',
+        );
+
+        await vi.advanceTimersByTimeAsync(2_000);
+        expect(service.states()).toEqual({
+            'room-1': 'free',
+            'desk-1': 'unavailable',
+            'desk-2': 'available',
+        });
+    });
+
     it('keeps the same states when a poll changes nothing', async () => {
         getSystems.mockResolvedValue([{ map_id: 'room-1', bookable: true }]);
         service.start([object('room-1')], 'zone-1');

@@ -8,6 +8,7 @@ import {
 import {
     CateringItem,
     CateringOrder,
+    ExternalCateringService,
     OrganisationService,
     SettingsService,
     Space,
@@ -22,22 +23,31 @@ import { CateringSettings } from '../../lib/catering-state.service';
 
 describe('CateringOrderStateService', () => {
     let spectator: SpectatorService<CateringOrderStateService>;
+    // New signal per test, so services from earlier tests do not load a menu
+    let active_building: WritableSignal<{ id?: string }>;
+    const loadMenu = vi.fn<() => Promise<CateringItem[]>>();
+    const settings_get = vi.fn();
     const createService = createServiceFactory({
         service: CateringOrderStateService,
         providers: [
             MockProvider(MatDialog, { open: vi.fn() }),
-            MockProvider(OrganisationService, {
-                building: { id: '' },
-                active_building: signal({}),
-            } as any),
+            {
+                provide: OrganisationService,
+                useFactory: () =>
+                    ({ active_building }) as unknown as OrganisationService,
+            },
             MockProvider(SettingsService, {
-                get: vi.fn(),
+                get: settings_get,
                 signal: vi.fn(() => signal(undefined)),
             }),
+            MockProvider(ExternalCateringService, { enabled: true, loadMenu }),
         ],
     });
 
     beforeEach(() => {
+        active_building = signal({});
+        loadMenu.mockReset();
+        settings_get.mockReset();
         spectator = createService();
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
@@ -157,5 +167,58 @@ describe('CateringOrderStateService', () => {
         expect(await filtered({ categories: ['Bakery'] })).toEqual(['cake']);
         expect(await filtered({ caterer: 'Cafe' })).toEqual(['latte', 'cake']);
         expect(await filtered({ caterer: '<empty>' })).toEqual(['tea']);
+    });
+
+    describe('menu load', () => {
+        const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
+        const item = (id: string, caterer = '') =>
+            new CateringItem({ id, caterer });
+        /** Set a building so the service loads the menu, then wait for it */
+        const loadFor = async (items: CateringItem[]) => {
+            loadMenu.mockResolvedValue(items);
+            active_building.set({ id: 'bld-1' });
+            TestBed.tick();
+            await flush();
+        };
+
+        it('should pick the first caterer when the menu has more than one', async () => {
+            await loadFor([item('1', 'Cafe'), item('2'), item('3', 'Deli')]);
+            expect(spectator.service.filters().caterer).toBe('Cafe');
+            expect(spectator.service.available_menu()).toHaveLength(3);
+        });
+
+        it('should keep all caterers when the menu has only one', async () => {
+            await loadFor([item('1', 'Cafe'), item('2')]);
+            expect(spectator.service.filters().caterer).toBe('');
+        });
+
+        it('should use the caterer from the app settings', async () => {
+            settings_get.mockImplementation((key: string) =>
+                key === 'app.catering_provider' ? 'Deli' : undefined,
+            );
+            await loadFor([item('1', 'Cafe'), item('2', 'Deli')]);
+            expect(spectator.service.filters().caterer).toBe('Deli');
+        });
+
+        it('should ignore a slow response from an older load', async () => {
+            let resolveOld: (items: CateringItem[]) => void = () => undefined;
+            loadMenu.mockReturnValueOnce(
+                new Promise((resolve) => (resolveOld = resolve)),
+            );
+            active_building.set({ id: 'bld-1' });
+            TestBed.tick();
+
+            loadMenu.mockResolvedValueOnce([item('new')]);
+            spectator.service.setOptions({ zone: 'zone-2' });
+            TestBed.tick();
+            await flush();
+            resolveOld([item('old')]);
+            await flush();
+
+            expect(spectator.service.available_menu().map((i) => i.id)).toEqual(
+                ['new'],
+            );
+            expect(spectator.service.loading()).toBe('');
+        });
     });
 });

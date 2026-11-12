@@ -191,6 +191,109 @@ describe('MapViewer overlays', () => {
     });
 });
 
+describe('MapViewer zoom and pan', () => {
+    let container: HTMLDivElement;
+    let viewer: MapViewer;
+
+    beforeEach(() => {
+        vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+            {} as CanvasRenderingContext2D,
+        );
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                public observe() {}
+                public disconnect() {}
+            },
+        );
+        // Drawing needs a real canvas, so frames never run
+        vi.stubGlobal('requestAnimationFrame', () => 1);
+        container = document.createElement('div');
+        Object.defineProperties(container, {
+            clientWidth: { value: 100 },
+            clientHeight: { value: 100 },
+        });
+        vi.spyOn(container, 'getBoundingClientRect').mockReturnValue({
+            left: 0,
+            top: 0,
+            width: 100,
+            height: 100,
+        } as DOMRect);
+        viewer = new MapViewer(container);
+        viewer.map = {
+            raw_data: '',
+            element_bounds: new Map(),
+            aspect_ratio: 1,
+        };
+        viewer.map_image = document.createElement('canvas');
+    });
+
+    afterEach(() => {
+        viewer.destroy();
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
+
+    const wheel = (deltaY: number, clientX = 75, clientY = 50) =>
+        container.dispatchEvent(
+            new WheelEvent('wheel', { deltaY, clientX, clientY }),
+        );
+    const pointer = (type: string, x: number, target: EventTarget) =>
+        target.dispatchEvent(
+            Object.assign(
+                new MouseEvent(type, {
+                    bubbles: true,
+                    button: 0,
+                    clientX: x,
+                    clientY: 50,
+                }),
+                { pointerId: 1 },
+            ),
+        );
+
+    it('should keep the map point under the cursor in place on wheel zoom', () => {
+        // At zoom 1 the map fits 90% of the 100px view: 90px per map unit
+        const point_under_cursor = 0.5 + 25 / 90;
+        wheel(-1);
+
+        expect(viewer.zoom).toBeCloseTo(1.03, 6);
+        expect(viewer.center.x + 25 / (90 * viewer.zoom)).toBeCloseTo(
+            point_under_cursor,
+            6,
+        );
+        expect(viewer.center.y).toBeCloseTo(0.5, 6);
+    });
+
+    it('should keep zoom and center within the map bounds', () => {
+        wheel(1);
+        expect(viewer.zoom).toBe(1);
+        expect(viewer.center).toEqual({ x: 0.5, y: 0.5 });
+
+        viewer.setZoom(50);
+        expect(viewer.zoom).toBe(10);
+        viewer.setZoom(0);
+        expect(viewer.zoom).toBe(1);
+        viewer.setCenter({ x: -1, y: 2 });
+        expect(viewer.center).toEqual({ x: 0, y: 1 });
+    });
+
+    it('should pan with a drag unless panning or zooming is disabled', () => {
+        pointer('pointerdown', 50, container);
+        pointer('pointermove', 32, window);
+        pointer('pointerup', 32, window);
+        expect(viewer.center.x).toBeCloseTo(0.5 + 18 / 90, 6);
+
+        viewer.setOptions({ disable_pan: true, disable_zoom: true });
+        const center = { ...viewer.center };
+        pointer('pointerdown', 50, container);
+        pointer('pointermove', 32, window);
+        pointer('pointerup', 32, window);
+        wheel(-1);
+        expect(viewer.center).toEqual(center);
+        expect(viewer.zoom).toBe(1);
+    });
+});
+
 describe('getMapDetails', () => {
     beforeEach(() => {
         // jsdom has no layout, so measure shapes from their own attributes

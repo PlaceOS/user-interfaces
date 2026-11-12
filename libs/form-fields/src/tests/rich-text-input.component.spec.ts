@@ -61,13 +61,6 @@ describe('RichTextInputComponent', () => {
         spectator = createComponent();
     });
 
-    it('should emit changes when the value is set', () => {
-        const on_change = vi.fn();
-        spectator.component.registerOnChange(on_change);
-        spectator.component.setValue('<p>hi</p>');
-        expect(on_change).toHaveBeenCalledWith('<p>hi</p>');
-    });
-
     it('should write html into the editor once initialised', async () => {
         await initialiseEditor();
         spectator.component.writeValue('<p>external</p>');
@@ -133,6 +126,18 @@ describe('RichTextInputComponent', () => {
         expect(mockEditor.makeLink).toHaveBeenCalledWith(
             'https://example.com/page',
         );
+    });
+
+    it('should remove a link from linked text without asking for a url', async () => {
+        const on_change = vi.fn();
+        await initialiseEditor();
+        spectator.component.registerOnChange(on_change);
+        mockEditor.hasFormat.mockReturnValue(true);
+        const prompt = vi.spyOn(window, 'prompt').mockClear();
+        spectator.component.insertLink();
+        expect(mockEditor.removeLink).toHaveBeenCalled();
+        expect(prompt).not.toHaveBeenCalled();
+        expect(on_change).toHaveBeenCalledWith('<p>content</p>');
     });
 
     it('should change editor attributes through modifyDocument when disabled', async () => {

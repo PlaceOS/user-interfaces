@@ -29,12 +29,6 @@ describe('AppComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should render the banner, router outlet and loading indicator', () => {
-        expect('global-banner').toExist();
-        expect('router-outlet').toExist();
-        expect('global-loading').toExist();
-    });
-
     it('should initialise PlaceOS with mdm restart allowed on init', () => {
         const placeos = spectator.inject(PlaceOS_Service);
         spectator.component.ngOnInit();

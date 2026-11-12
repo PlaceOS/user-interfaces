@@ -140,4 +140,29 @@ describe('schedule summary util', () => {
             recurrence_interval: 3,
         });
     });
+
+    it('reads daily, weekly and monthly crons the form can edit', () => {
+        expect(parseRecurringCron(null)).toMatchObject({
+            recurrence_type: 'daily',
+            recurrence_time: '00:00',
+        });
+        expect(parseRecurringCron('30 7 * * *')).toMatchObject({
+            recurrence_type: 'daily',
+            recurrence_time: '07:30',
+        });
+        expect(parseRecurringCron('0 9 * * 5,1,3')).toMatchObject({
+            recurrence_type: 'weekly',
+            recurrence_weekdays: [1, 3, 5],
+        });
+        expect(parseRecurringCron('0 9 15,1 * *')).toMatchObject({
+            recurrence_type: 'monthly',
+            recurrence_day_of_month: [1, 15],
+        });
+    });
+
+    it('reads crons the form cannot edit as custom', () => {
+        for (const cron of ['*/15 * * * *', '0 9 * 6 *', '0 9 32 * *']) {
+            expect(parseRecurringCron(cron).recurrence_type).toBe('custom');
+        }
+    });
 });

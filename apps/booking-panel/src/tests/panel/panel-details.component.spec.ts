@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 
 import { PanelViewDetailsComponent } from '../../app/new-panel/panel-view-details.component';
 import { PanelStateService } from '../../app/panel-state.service';
@@ -11,6 +12,7 @@ describe('PanelViewDetailsComponent', () => {
     const current = signal<CalendarEvent | null>(null);
     const next = signal<CalendarEvent | null>(null);
     const clock = signal(Date.now());
+    const qr_settings = signal<{ custom_qr_url?: string }>({});
     let features: string[] = [];
     let panel_settings: Record<string, unknown> = {};
     const createComponent = createComponentFactory({
@@ -24,7 +26,7 @@ describe('PanelViewDetailsComponent', () => {
                     current,
                     next,
                     clock,
-                    settings: signal({}),
+                    settings: qr_settings,
                     setting: (name: string) => panel_settings[name],
                     hasFeature: (name: string) => features.includes(name),
                     system: 'test-system',
@@ -37,6 +39,7 @@ describe('PanelViewDetailsComponent', () => {
         space.set(null);
         current.set(null);
         next.set(null);
+        qr_settings.set({});
         features = [];
         panel_settings = {};
         spectator = createComponent();
@@ -53,6 +56,22 @@ describe('PanelViewDetailsComponent', () => {
         panel_settings = { show_qr_code: false };
         spectator.detectChanges();
         expect('[qr-checkin]').not.toExist();
+    });
+
+    it.each([
+        [
+            undefined,
+            `${location.origin}${location.pathname}#/checkin/test-system`,
+        ],
+        [
+            'https://example.com/rooms/{system_id}',
+            'https://example.com/rooms/test-system',
+        ],
+    ])('should encode the check-in URL (custom_qr_url %s)', (custom, url) => {
+        qr_settings.set({ custom_qr_url: custom });
+        expect(spectator.component.qr_code()).toBe(
+            generateQRCode(url, '#fff0', '#fff'),
+        );
     });
 
     describe('current meeting', () => {

@@ -69,11 +69,24 @@ describe('PublicGuestDetailsComponent', () => {
     }
 
     it('shows the not-configured message when no source id is resolved', async () => {
+        // An authenticated visitor has no events page to go to without a source
+        service.authenticated.set(true);
         const fixture = await init();
         expect(fixture.nativeElement.textContent).toContain(
             'Public events are not configured yet',
         );
         expect(fixture.nativeElement.querySelector('form')).toBeNull();
+        expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('reads the default source after the authority loads', async () => {
+        service.init.mockImplementation(async () => {
+            await Promise.resolve();
+            service.default_system_id.set('sys-authority');
+        });
+        const fixture = await init();
+        expect(fixture.componentInstance.source_id()).toBe('sys-authority');
+        expect(fixture.nativeElement.querySelector('form')).toBeTruthy();
     });
 
     function type(
@@ -130,6 +143,19 @@ describe('PublicGuestDetailsComponent', () => {
         expect(router.navigate).toHaveBeenCalledWith(['/events', 'sys-1'], {
             queryParams: {},
         });
+    });
+
+    it('shows the loading text in the disabled continue button', async () => {
+        service.default_system_id.set('sys-1');
+        const fixture = await init();
+        type(fixture, 'name', 'Guest User');
+        type(fixture, 'email', 'guest@example.com');
+        service.loading.set('Checking guest access...');
+        fixture.detectChanges();
+        const button: HTMLButtonElement =
+            fixture.nativeElement.querySelector('form button');
+        expect(button.textContent?.trim()).toBe('Checking guest access...');
+        expect(button.disabled).toBe(true);
     });
 
     it('stays on the page when guest access fails', async () => {

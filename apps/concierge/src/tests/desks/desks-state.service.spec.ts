@@ -1331,6 +1331,34 @@ describe('DesksStateService', () => {
         );
         expect(refresh_spy).not.toHaveBeenCalled();
     });
+
+    it('should approve only the selected desk bookings that can still change', async () => {
+        const booking = (id: string, state: Partial<Booking> = {}) =>
+            new Booking({
+                id,
+                booking_start: getUnixTime(Date.now()),
+                duration: 60,
+                status: 'tentative',
+                ...state,
+            });
+        const refresh_spy = vi.spyOn(spectator.service, 'refresh');
+
+        const done = await spectator.service.setBookingsApproval(
+            [
+                booking('booking-1'),
+                booking('booking-2', { status: 'declined' }),
+                booking('booking-3', { deleted: true }),
+            ],
+            true,
+        );
+
+        expect(done).toBe(true);
+        expect(posted_bookings().map(([url]) => url)).toEqual([
+            expect.stringContaining('/bookings/booking-1/approve'),
+        ]);
+        expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        expect(refresh_spy).toHaveBeenCalled();
+    });
 });
 
 describe('matchesDeskSearch', () => {

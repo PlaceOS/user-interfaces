@@ -243,13 +243,25 @@ describe('UserListFieldComponent', () => {
         expect(saved[1].startsWith('a@b.com|a|')).toBe(true);
     });
 
-    it('should allow user to remove selected users', () => {
-        spectator.component.writeValue([new User(generateMockUser())]);
-        spectator.detectChanges();
-        expect('[user]').toHaveLength(1);
-        expect('[user] [remove]').toExist();
-        spectator.click('[user] [remove]');
-        expect(spectator.component.active_list().length).toBe(0);
+    it('should replace a user already in the list and emit once', () => {
+        const on_change = vi.fn();
+        spectator.component.writeValue([
+            new User({ id: 'a', email: 'a@place.tech', name: 'Old' }),
+        ]);
+        spectator.component.registerOnChange(on_change);
+
+        spectator.component.addUsers([
+            new User({ id: 'a', email: 'a@place.tech', name: 'New' }),
+            { name: 'Guest', email: 'guest@example.com' } as User,
+        ]);
+
+        expect(on_change).toHaveBeenCalledTimes(1);
+        expect(
+            spectator.component.active_list().map((_) => [_.id, _.name]),
+        ).toEqual([
+            ['a', 'New'],
+            ['guest@example.com', 'Guest'],
+        ]);
     });
 
     it('should only remove the selected user when users have no IDs', () => {
@@ -368,7 +380,10 @@ describe('UserListFieldComponent', () => {
             const onChange = vi.fn();
             spectator.component.registerOnChange(onChange);
             spectator.click('mat-checkbox input');
-            expect(onChange).toHaveBeenCalled();
+            expect(onChange).toHaveBeenCalledTimes(1);
+            const [list] = onChange.mock.calls[0];
+            expect(list).toHaveLength(1);
+            expect(list[0].extension_data.international).toBe(true);
         });
 
         it('should hide the flag controls when the settings are off', () => {

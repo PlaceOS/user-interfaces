@@ -7,14 +7,17 @@ import {
 } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
+    Booking,
     EMPTY_USER,
     isEmptyUser,
     OrganisationService,
     Region,
+    settingSignal,
     SettingsService,
     User,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
+import { CheckinStateService } from '../app/checkin/checkin-state.service';
 import { VisitorRegistrationComponent } from '../app/visitor-registration.component';
 
 describe('VisitorRegistrationComponent', () => {
@@ -31,7 +34,7 @@ describe('VisitorRegistrationComponent', () => {
                 initialised: signal(true),
                 active_building: signal({ id: 'bld-1' }),
                 waitUntilInitialised: vi.fn(() => Promise.resolve()),
-            } as any),
+            } as unknown as Partial<OrganisationService>),
             MockProvider(SettingsService, {
                 get: vi.fn(),
                 overrides: settings_overrides,
@@ -40,7 +43,23 @@ describe('VisitorRegistrationComponent', () => {
         ],
     });
 
+    /** Fill every field that a visitor registration needs */
+    function fillValidForm() {
+        spectator.component.setHost(
+            new User({ id: 'host-1', email: 'host@example.com' }),
+        );
+        spectator.inject(BookingFormService).model.update((m) => ({
+            ...m,
+            asset_name: 'Visitor',
+            asset_id: 'visitor@example.com',
+        }));
+    }
+
     beforeEach(() => {
+        settingSignal('allow_self_registration', false).set(false);
+        settingSignal('induction_enabled', false).set(false);
+        settingSignal('induction_details').set(undefined);
+        settingSignal('induction_after_details', false).set(false);
         window.PLACEOS_PUBLIC_MODE = false;
         sessionStorage.clear();
         settings_overrides.set([]);
@@ -57,22 +76,21 @@ describe('VisitorRegistrationComponent', () => {
         await vi.advanceTimersByTimeAsync(350);
         spectator.detectChanges();
 
-        expect(typeof spectator.component.form.asset_name).toBe('function');
-        expect(spectator.component.form.asset_name()).toBeDefined();
-        expect(typeof spectator.component.form.asset_id).toBe('function');
-        expect(spectator.component.form.asset_id()).toBeDefined();
-        expect(typeof spectator.component.form.user).toBe('function');
-        expect(spectator.component.form.user()).toBeDefined();
-        expect(typeof spectator.component.form.phone).toBe('function');
-        expect(spectator.component.form.phone()).toBeDefined();
-        expect(typeof spectator.component.form.company).toBe('function');
-        expect(spectator.component.form.company()).toBeDefined();
-        expect(typeof spectator.component.form.title).toBe('function');
-        expect(spectator.component.form.title()).toBeDefined();
-        expect(typeof spectator.component.form.pass_number).toBe('function');
-        expect(spectator.component.form.pass_number()).toBeDefined();
-        expect(typeof spectator.component.form.duration).toBe('function');
-        expect(spectator.component.form.duration()).toBeDefined();
+        const fields = [
+            'asset_name',
+            'asset_id',
+            'user',
+            'phone',
+            'company',
+            'title',
+            'pass_number',
+            'duration',
+        ] as const;
+        for (const name of fields) {
+            const field = spectator.component.form[name];
+            expect(typeof field, name).toBe('function');
+            expect(field(), name).toBeDefined();
+        }
         expect(spectator.component.host()).toBeNull();
         expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         expect(console_error).not.toHaveBeenCalled();
@@ -177,5 +195,85 @@ describe('VisitorRegistrationComponent', () => {
         expect(console_error).not.toHaveBeenCalled();
         console_error.mockRestore();
         vi.useRealTimers();
+    });
+
+    it('returns to the welcome page when self-registration is turned off', async () => {
+        vi.useFakeTimers();
+        TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
+        await vi.advanceTimersByTimeAsync(1_000);
+        vi.useRealTimers();
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/welcome',
+        ]);
+    });
+
+    describe('register', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            settingSignal('allow_self_registration', false).set(true);
+            TestBed.runInInjectionContext(() => spectator.component.ngOnInit());
+            vi.useRealTimers();
+            fillValidForm();
+        });
+
+        it('saves the visitor as self-registered and opens the details', async () => {
+            const booking = new Booking({ id: 'visit-1', asset_id: 'v@b.com' });
+            const post_form = vi
+                .spyOn(spectator.inject(BookingFormService), 'postForm')
+                .mockResolvedValue(booking);
+
+            await spectator.component.register();
+
+            expect(post_form).toHaveBeenCalledWith(true);
+            expect(spectator.component.form_value()).toEqual(
+                expect.objectContaining({
+                    self_registered: true,
+                    attendees: [
+                        expect.objectContaining({
+                            name: 'Visitor',
+                            email: 'visitor@example.com',
+                        }),
+                    ],
+                    zones: ['org-1', 'region-1', 'bld-1'],
+                }),
+            );
+            const checkin = spectator.inject(CheckinStateService);
+            expect(checkin.event()).toBe(booking);
+            expect(checkin.metadata).toBe('registered');
+            expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+                '/checkin',
+                'details',
+            ]);
+        });
+
+        it('opens the induction first when it comes before the details', async () => {
+            settingSignal('induction_enabled', false).set(true);
+            settingSignal('induction_details').set('Terms');
+            vi.spyOn(
+                spectator.inject(BookingFormService),
+                'postForm',
+            ).mockResolvedValue(new Booking({ id: 'visit-1' }));
+
+            await spectator.component.register();
+
+            expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+                '/checkin',
+                'induction',
+            ]);
+        });
+
+        it('stays on the form when the registration fails', async () => {
+            vi.spyOn(
+                spectator.inject(BookingFormService),
+                'postForm',
+            ).mockRejectedValue(new Error('Server error'));
+
+            await spectator.component.register();
+
+            expect(spectator.inject(CheckinStateService).event()).toBeNull();
+            expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+            expect(spectator.component.loading()).toBe(false);
+        });
     });
 });

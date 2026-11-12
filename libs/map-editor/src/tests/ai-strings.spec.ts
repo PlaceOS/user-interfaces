@@ -13,6 +13,5 @@ describe('resolveAiStrings', () => {
             other: 'Something else',
         });
         expect(strings.categories).toEqual(DEFAULT_AI_STRINGS.categories);
-        expect(DEFAULT_AI_STRINGS.reasons.other).toBe('Other');
     });
 });

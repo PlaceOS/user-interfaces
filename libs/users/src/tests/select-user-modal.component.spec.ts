@@ -46,4 +46,23 @@ describe('SelectUserModalComponent', () => {
         expect('main button').not.toExist();
         expect(spectator.component.users()).toEqual([]);
     });
+
+    it('should query users with the typed search', async () => {
+        const queryUsers = vi.spyOn(ts_client, 'queryUsers').mockImplementation(
+            async ({ q }) =>
+                ({
+                    data: q
+                        ? [{ id: 'u2', name: 'Pat', email: 'pat@place.tech' }]
+                        : [],
+                }) as Awaited<ReturnType<typeof ts_client.queryUsers>>,
+        );
+        spectator = createComponent();
+        await spectator.fixture.whenStable();
+        spectator.typeInElement('Pat', 'input');
+        await vi.waitFor(() => {
+            spectator.detectChanges();
+            expect(spectator.query('main button')).toHaveText('pat@place.tech');
+        });
+        expect(queryUsers).toHaveBeenLastCalledWith({ q: 'Pat' });
+    });
 });

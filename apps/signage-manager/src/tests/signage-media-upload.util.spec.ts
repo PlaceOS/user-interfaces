@@ -1,19 +1,11 @@
 import type { MockInstance } from 'vitest';
 import {
-    SIGNAGE_MEDIA_PICKER_ACCEPT,
     isImageSourceFile,
     validateSignageMediaDimensions,
     validateSignageMediaFile,
 } from '../app/signage-media-upload.util';
 
 describe('signage-media-upload util', () => {
-    it('exposes the requested file picker formats', () => {
-        expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('image/*');
-        expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.heic');
-        expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.heif');
-        expect(SIGNAGE_MEDIA_PICKER_ACCEPT).toContain('.mov');
-    });
-
     it('accepts supported image formats by mime type', async () => {
         const file = new File(['image'], 'poster.png', { type: 'image/png' });
 

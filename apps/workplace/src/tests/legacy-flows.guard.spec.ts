@@ -15,19 +15,21 @@ describe('legacyFlowsGuard', () => {
     /**
      * Runs the guard against an org whose active building has `building`
      * settings, with `overrides` as the override stack of the settings
-     * service. `org_value` stands for an organisation-level value.
+     * service. `org_value` stands for an organisation-level value. An empty
+     * `building_id` stands for an org with no active building.
      */
     function setup(
         building: Settings,
         overrides: Settings[],
         org_value?: boolean,
+        building_id = 'bld-1',
     ) {
         const stack = signal(overrides);
         TestBed.configureTestingModule({
             providers: [
                 MockProvider(OrganisationService, {
                     initialised: signal(true),
-                    active_building: signal(new Building({ id: 'bld-1' })),
+                    active_building: signal(new Building({ id: building_id })),
                     active_building_loaded: signal(true),
                     buildingSettings: () => building,
                 }),
@@ -69,6 +71,15 @@ describe('legacyFlowsGuard', () => {
         stack.set([building]);
         TestBed.tick();
         expect(await result).toBe(true);
+    });
+
+    it('uses the org settings at once when no building is active', async () => {
+        vi.useFakeTimers();
+        const { result } = setup({}, [{}], true, '');
+        let value: boolean | undefined;
+        result.then((_) => (value = _));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(value).toBe(true);
     });
 
     it('stops waiting for settings that do not load', async () => {

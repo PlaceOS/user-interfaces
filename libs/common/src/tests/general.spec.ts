@@ -1,6 +1,7 @@
 import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { form, required } from '@angular/forms/signals';
 import { addMinutes, differenceInMinutes } from 'date-fns';
 import {
     alignDateToBookableHours,
@@ -8,14 +9,20 @@ import {
     downloadFile,
     errorMessage,
     extractTextFromHTML,
+    getAllDayTimeRange,
     getInvalidFields,
+    getInvalidSignalFields,
     getItemWithKeys,
     getNextBookableTime,
+    guardModelUndefinedWrites,
     isWithinBookableHours,
     jsonToCsv,
     mapWithLimit,
     markUserDateChange,
+    onFieldChange,
     parseJWT,
+    parseWebUrl,
+    patchSignalModel,
     removeUrlParam,
     responseErrorMessage,
     setupFormTimeSync,
@@ -1657,6 +1664,172 @@ describe('General Methods', () => {
             expect(
                 getInvalidFields(form, { 'host.email': 'Host email' }),
             ).toEqual(['name', 'Host email', 'guests']);
+        });
+    });
+
+    describe('getInvalidSignalFields', () => {
+        it('should list invalid fields with their friendly names', () => {
+            const model = signal({ name: '', email: '', notes: '' });
+            const fields = TestBed.runInInjectionContext(() =>
+                form(model, (path) => {
+                    required(path.name);
+                    required(path.email);
+                }),
+            );
+
+            expect(
+                getInvalidSignalFields(fields, model, { email: 'Email' }),
+            ).toEqual(['name', 'Email']);
+            model.set({ name: 'Alex', email: 'a@b.com', notes: '' });
+            expect(getInvalidSignalFields(fields, model)).toEqual([]);
+        });
+
+        it('should skip model keys that have no field state', () => {
+            const model = signal({ name: '' });
+
+            expect(getInvalidSignalFields(null, model)).toEqual([]);
+            expect(
+                getInvalidSignalFields(
+                    {
+                        name: () => {
+                            throw new Error('no state');
+                        },
+                    },
+                    model,
+                ),
+            ).toEqual([]);
+        });
+    });
+
+    describe('patchSignalModel', () => {
+        it('should only write keys that the model already has', () => {
+            const model = signal({ name: 'Old', count: 1 });
+
+            patchSignalModel(model, { name: 'New', unknown: true });
+
+            expect(model()).toEqual({ name: 'New', count: 1 });
+        });
+
+        it('should ignore an empty patch', () => {
+            const model = signal({ name: 'Old' });
+            const before = model();
+
+            patchSignalModel(model, null);
+
+            expect(model()).toBe(before);
+        });
+    });
+
+    describe('guardModelUndefinedWrites', () => {
+        interface Model {
+            name: string;
+            host: { email: string } | null;
+            notes: string | null;
+        }
+        const defaults: Model = {
+            name: '',
+            host: { email: '' },
+            notes: null,
+        };
+
+        it('should replace undefined and invalid null writes with defaults', () => {
+            const model: WritableSignal<Model> = signal({ ...defaults });
+            guardModelUndefinedWrites(model, defaults);
+
+            model.set({ name: undefined, host: null, notes: null });
+            expect(model()).toEqual({
+                name: '',
+                host: { email: '' },
+                notes: null,
+            });
+
+            model.update((current) => ({ ...current, name: undefined }));
+            expect(model().name).toBe('');
+        });
+
+        it('should keep defined values', () => {
+            const model: WritableSignal<Model> = signal({ ...defaults });
+            guardModelUndefinedWrites(model, defaults);
+
+            model.set({ name: 'Alex', host: { email: 'a@b.com' }, notes: 'x' });
+
+            expect(model()).toEqual({
+                name: 'Alex',
+                host: { email: 'a@b.com' },
+                notes: 'x',
+            });
+        });
+    });
+
+    describe('onFieldChange', () => {
+        it('should pass the current and previous value only on change', () => {
+            const model = signal({ name: 'a', count: 0 });
+            const handler = vi.fn();
+            const watcher = onFieldChange(
+                model,
+                (_) => _.name,
+                handler,
+                TestBed.inject(Injector),
+            );
+
+            TestBed.flushEffects();
+            expect(handler).not.toHaveBeenCalled();
+            model.update((_) => ({ ..._, count: 1 }));
+            TestBed.flushEffects();
+            expect(handler).not.toHaveBeenCalled();
+            model.update((_) => ({ ..._, name: 'b' }));
+            TestBed.flushEffects();
+            expect(handler).toHaveBeenCalledExactlyOnceWith('b', 'a');
+
+            watcher.destroy();
+            model.update((_) => ({ ..._, name: 'c' }));
+            TestBed.flushEffects();
+            expect(handler).toHaveBeenCalledTimes(1);
+        });
+
+        it('should return a no-op outside an injection context', () => {
+            const watcher = onFieldChange(signal(1), (_) => _, vi.fn());
+
+            expect(() => watcher.destroy()).not.toThrow();
+        });
+    });
+
+    describe('getAllDayTimeRange', () => {
+        const date = new Date(2024, 0, 10, 13, 30).valueOf();
+        const day_start = new Date(2024, 0, 10).valueOf();
+
+        it('should cover the whole day without a period', () => {
+            const range = getAllDayTimeRange(date);
+
+            expect(range.date).toBe(day_start);
+            expect(range.duration).toBe(24 * 60 - 1);
+        });
+
+        it('should use the period hours and keep them within the day', () => {
+            expect(getAllDayTimeRange(date, '', 8, 17)).toEqual({
+                date: new Date(2024, 0, 10, 8).valueOf(),
+                duration: 9 * 60,
+                date_end: new Date(2024, 0, 10, 17).valueOf(),
+            });
+            const clamped = getAllDayTimeRange(date, '', -2, 30);
+            expect(clamped.date).toBe(day_start);
+            expect(clamped.duration).toBe(24 * 60);
+            // An end before the start still gives at least one hour
+            expect(getAllDayTimeRange(date, '', 10, 9).duration).toBe(60);
+        });
+    });
+
+    describe('parseWebUrl', () => {
+        it('should only accept http and https URLs', () => {
+            expect(parseWebUrl('https://place.tech/a')?.href).toBe(
+                'https://place.tech/a',
+            );
+            expect(parseWebUrl('/page', 'http://place.tech')?.href).toBe(
+                'http://place.tech/page',
+            );
+            expect(parseWebUrl('javascript:alert(1)')).toBeNull();
+            expect(parseWebUrl('data:text/html,hi')).toBeNull();
+            expect(parseWebUrl('/page')).toBeNull();
         });
     });
 });

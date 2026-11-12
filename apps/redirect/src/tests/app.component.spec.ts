@@ -6,7 +6,7 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import { authority, setAPI_Key, setup } from '@placeos/ts-client';
+import { authority, clientId, setAPI_Key, setup } from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
@@ -102,14 +102,11 @@ describe('AppComponent', () => {
         it.each([
             ['an absolute URL', 'https://evil.example.com'],
             ['a relative path', 'evil.example.com'],
-        ])(
-            'should ignore a "continue" value that is %s',
-            async (_, value) => {
-                setQuery({ continue: value });
-                await spectator.component.ngOnInit();
-                expect(redirectUrl()).toBe('http://localhost:3000');
-            },
-        );
+        ])('should ignore a "continue" value that is %s', async (_, value) => {
+            setQuery({ continue: value });
+            await spectator.component.ngOnInit();
+            expect(redirectUrl()).toBe('http://localhost:3000');
+        });
 
         it('should keep the current host for a protocol-relative "continue" value', async () => {
             setQuery({ continue: '//evil.example.com/path' });
@@ -122,12 +119,40 @@ describe('AppComponent', () => {
             await spectator.component.ngOnInit();
             expect(setAPI_Key).toHaveBeenCalledWith('secret-key');
         });
+
+        it('should remove the API key from the URL when setup fails', async () => {
+            setQuery({ 'x-api-key': 'secret-key' });
+            vi.mocked(clientId).mockReturnValue('client-id');
+            vi.mocked(setup).mockRejectedValue(new Error('offline'));
+            await spectator.component.ngOnInit();
+            expect(location.search).not.toContain('x-api-key');
+        });
+    });
+
+    it('should pass the composer settings to PlaceOS setup', async () => {
+        settings_get.mockImplementation((key: string) =>
+            key === 'composer'
+                ? {
+                      domain: 'api.example.com',
+                      port: '8443',
+                      protocol: 'https:',
+                      use_domain: true,
+                  }
+                : undefined,
+        );
+        await spectator.component.ngOnInit();
+        expect(setup).toHaveBeenCalledWith(
+            expect.objectContaining({
+                host: 'api.example.com:8443',
+                auth_uri: 'https://api.example.com:8443/auth/oauth/authorize',
+            }),
+        );
     });
 
     describe('mock mode resolution', () => {
         it('should enable mock mode when the mock setting is truthy', async () => {
             settings_get.mockImplementation((key: string) => {
-                if (key === 'composer') return { foo: 'bar' };
+                if (key === 'composer') return {};
                 if (key === 'mock') return true;
                 return undefined;
             });
@@ -177,6 +202,15 @@ describe('AppComponent', () => {
             await spectator.component.ngOnInit();
             expect(redirectUrl()).toBe('http://acme.place.tech/new/path');
         });
+
+        it('should apply every path mapping for the current host when no domain mapping matches', async () => {
+            setQuery({ continue: '/a/b' });
+            setAuthorityConfig({
+                path_mappings: { 'localhost:3000': { '/a': '/x', '/b': '/y' } },
+            });
+            await spectator.component.ngOnInit();
+            expect(redirectUrl()).toBe('http://localhost:3000/x/y');
+        });
     });
 
     describe('startup failures', () => {
@@ -184,6 +218,7 @@ describe('AppComponent', () => {
             vi.mocked(authority).mockReturnValue(undefined);
             await spectator.component.ngOnInit();
             expect(redirectUrl()).toBeUndefined();
+            expect(initialisationComplete()()).toBe(false);
             expect(spectator.component.initialisation_error()).toContain(
                 'could not load its redirect configuration',
             );

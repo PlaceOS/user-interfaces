@@ -6,6 +6,7 @@ import {
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
+import { PlaceAlertDashboard } from '@placeos/ts-client';
 import { DashboardListComponent } from '../../app/dashboards/dashboard-list.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
 
@@ -67,6 +68,17 @@ describe('DashboardListComponent', () => {
         expect(spectator.component.show_children()).toEqual({ 'dash-1': true });
     });
 
+    it('should close the open row when another one opens', async () => {
+        build();
+        spectator.component.show_children.set({ 'dash-1': true });
+
+        await spectator.component.toggleChildren(
+            new PlaceAlertDashboard({ id: 'dash-2' }),
+        );
+
+        expect(spectator.component.show_children()).toEqual({ 'dash-2': true });
+    });
+
     it('should collapse an already-open dashboard row without reloading alerts', async () => {
         build();
         spectator.component.show_children.set({ 'dash-1': true });
@@ -79,16 +91,12 @@ describe('DashboardListComponent', () => {
         });
     });
 
-    it('should hide the progress bar when nothing is loading', () => {
+    it('should show the progress bar only while loading', () => {
         build();
-
         expect(spectator.query('mat-progress-bar')?.classList).toContain(
             'opacity-0',
         );
-    });
 
-    it('should show the progress bar while loading', () => {
-        build();
         service.loading.set(['DASHBOARD_LIST']);
         spectator.detectChanges();
 

@@ -5,7 +5,11 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
-import { ControlStateService } from '../app/control-state.service';
+import {
+    ControlStateService,
+    RoomInput,
+    SystemState,
+} from '../app/control-state.service';
 
 import {
     AuthenticatedImageDirective,
@@ -21,6 +25,14 @@ describe('TopbarHeaderComponent', () => {
     let spectator: Spectator<TopbarHeaderComponent>;
     let can_change_room = true;
     const dialog_close = vi.fn();
+    const system = signal<SystemState>({});
+    const microphones = signal<unknown[]>([]);
+    const camera_list = signal<Partial<RoomInput>[]>([]);
+    const join_modes = signal<Record<string, { name: string }>>({});
+    const joined = signal<{ room_ids: string[] } | null>(null);
+    const hide_join_button = signal(false);
+    const join_status = signal<[boolean, boolean]>([false, false]);
+    const speaker_track = signal<boolean | null>(null);
     const createComponent = createComponentFactory({
         component: TopbarHeaderComponent,
         declarations: [
@@ -34,18 +46,18 @@ describe('TopbarHeaderComponent', () => {
                 active_building: signal({} as any),
             }),
             MockProvider(ControlStateService, {
-                system: signal([]),
+                system,
                 mic_list: signal([]),
-                microphones: signal([]),
-                camera_list: signal([]),
+                microphones,
+                camera_list,
                 lights: signal([]),
                 blinds: signal([]),
                 lighting_scenes: signal([]),
                 lighting_levels: signal([]),
-                joined: signal([]),
-                join_modes: signal([]),
-                join_status: signal([false, false]),
-                hide_join_button: signal(false),
+                joined,
+                join_modes,
+                join_status,
+                hide_join_button,
                 help_items: signal({}),
                 room_accessories: signal([]),
                 powerOff: vi.fn(),
@@ -58,7 +70,7 @@ describe('TopbarHeaderComponent', () => {
             MockProvider(VideoCallStateService, {
                 call: signal(null),
                 connected: signal(null),
-                speaker_track: signal(null),
+                speaker_track,
             }),
         ],
         imports: [MatMenuModule],
@@ -66,16 +78,19 @@ describe('TopbarHeaderComponent', () => {
 
     beforeEach(() => {
         can_change_room = true;
+        system.set({});
+        microphones.set([]);
+        camera_list.set([]);
+        join_modes.set({});
+        joined.set(null);
+        hide_join_button.set(false);
+        join_status.set([false, false]);
+        speaker_track.set(null);
         vi.clearAllMocks();
         vi.useFakeTimers();
     });
 
     afterEach(() => vi.useRealTimers());
-
-    it('should show the logo', () => {
-        spectator = createComponent();
-        expect('img[auth]').toExist();
-    });
 
     it('should open change room after holding the logo', () => {
         spectator = createComponent();
@@ -84,6 +99,43 @@ describe('TopbarHeaderComponent', () => {
         expect(
             spectator.inject(ControlStateService).changeRoom,
         ).toHaveBeenCalled();
+    });
+
+    it('should not change room when the logo is released early', () => {
+        spectator = createComponent();
+        spectator.component.startHold();
+        vi.advanceTimersByTime(2000);
+        spectator.component.cancelHold();
+        vi.advanceTimersByTime(2000);
+        expect(
+            spectator.inject(ControlStateService).changeRoom,
+        ).not.toHaveBeenCalled();
+    });
+
+    it('should show each action only when the room supports it', () => {
+        spectator = createComponent();
+        const action = (id: string) =>
+            spectator.component.action_list().find((_) => _.id === id);
+        expect(action('phone').show).toBe(false);
+        expect(action('join').show).toBe(false);
+        expect(action('camera').show).toBe(false);
+        expect(action('mics').show).toBe(false);
+
+        system.set({ dial_bindings: {}, ringing: true });
+        join_modes.set({ a: { name: 'A' }, b: { name: 'B' } });
+        joined.set({ room_ids: ['r1', 'r2'] });
+        camera_list.set([{ id: 'cam-1' }]);
+        microphones.set([{ name: 'Lectern' }]);
+        expect(action('phone')).toMatchObject({ show: true, enabled: true });
+        expect(action('join')).toMatchObject({ show: true, enabled: true });
+        expect(action('camera').show).toBe(true);
+        expect(action('mics').show).toBe(true);
+
+        // The codec moves the camera itself while speaker tracking
+        speaker_track.set(true);
+        hide_join_button.set(true);
+        expect(action('camera').show).toBe(false);
+        expect(action('join').show).toBe(false);
     });
 
     it('should not change room on a fixed device', () => {
@@ -134,9 +186,8 @@ describe('TopbarHeaderComponent', () => {
 
     it('should lock the controls on a locked secondary room', () => {
         spectator = createComponent();
-        const state: any = spectator.inject(ControlStateService);
         expect(spectator.component.locked()).toBe(false);
-        state.join_status.set([false, true]);
+        join_status.set([false, true]);
         expect(spectator.component.locked()).toBe(true);
     });
 });

@@ -31,12 +31,6 @@ describe('AnalyticsComponent', () => {
         spectator = create_component();
     });
 
-    it('should render the sidebar and page heading', () => {
-        spectator.detectChanges();
-        expect(spectator.query('sidebar')).toBeTruthy();
-        expect(spectator.query('h1')).toHaveText('AV Systems Analytics');
-    });
-
     it('should show the empty state when no dashboard is selected', () => {
         spectator.detectChanges();
         expect(spectator.query('iframe')).toBeFalsy();

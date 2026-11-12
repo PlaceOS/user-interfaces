@@ -92,9 +92,9 @@ describe('MapEditorComponent', () => {
         });
         await settle(fixture);
         const toggle = Array.from(
-            fixture.nativeElement.querySelectorAll('button'),
-        ).find((button: any) =>
-            button.textContent.includes('Show marks'),
+            (fixture.nativeElement as HTMLElement).querySelectorAll('button'),
+        ).find((button) =>
+            button.textContent?.includes('Show marks'),
         ) as HTMLButtonElement;
         expect(viewport.shadowRoot?.querySelector('ellipse')).not.toBeNull();
         toggle.click();
@@ -405,6 +405,72 @@ describe('MapEditorComponent', () => {
         expect(shadow.querySelector('.map-wrapper > svg')).toBe(doc.root);
     });
 
+    it('drags the element under the pointer as one move and pans or clears on empty space', async () => {
+        const canvas = fixture.debugElement.query(
+            By.directive(MapEditorCanvasComponent),
+        ).componentInstance as MapEditorCanvasComponent;
+        const doc = host.session.doc;
+        const shadow = viewport.shadowRoot as ShadowRoot;
+        const plant = doc.byId('plant-1') as Element;
+        let hits: Element[] = [plant];
+        shadow.elementsFromPoint = () => hits;
+        canvas.view.set({ scale: 2, tx: 0, ty: 0 });
+        const event = (x: number, y: number) =>
+            ({
+                button: 0,
+                pointerId: 1,
+                clientX: x,
+                clientY: y,
+                preventDefault() {},
+            }) as PointerEvent;
+
+        canvas.onPointerDown(event(100, 100));
+        canvas.onPointerUp(event(102, 101));
+        expect(host.session.selection()).toEqual([anchor(doc, 'plant-1')]);
+        expect(host.session.history.length).toBe(0);
+
+        canvas.onPointerDown(event(100, 100));
+        canvas.onPointerMove(event(120, 100));
+        canvas.onPointerUp(event(120, 100));
+        expect(plant.getAttribute('transform')).toBe('translate(10 0)');
+        expect(host.session.history.length).toBe(1);
+
+        hits = [];
+        canvas.onPointerDown(event(50, 50));
+        canvas.onPointerMove(event(80, 90));
+        canvas.onPointerUp(event(80, 90));
+        expect(canvas.view()).toEqual({ scale: 2, tx: 30, ty: 40 });
+        expect(host.session.selection()).toEqual([anchor(doc, 'plant-1')]);
+
+        canvas.onPointerDown(event(50, 50));
+        canvas.onPointerUp(event(50, 50));
+        expect(host.session.selection()).toEqual([]);
+        expect(host.session.history.length).toBe(1);
+    });
+
+    it('zooms in and out with the wheel and the keyboard', () => {
+        const canvas = fixture.debugElement.query(
+            By.directive(MapEditorCanvasComponent),
+        ).componentInstance as MapEditorCanvasComponent;
+        const start = { scale: 1, tx: 0, ty: 0 };
+        canvas.view.set(start);
+        const wheel = new WheelEvent('wheel', {
+            deltaY: -100,
+            clientX: 0,
+            clientY: 0,
+            cancelable: true,
+        });
+        canvas.onWheel(wheel);
+        expect(wheel.defaultPrevented).toBe(true);
+        expect(canvas.view().scale).toBeGreaterThan(1);
+        canvas.onWheel(new WheelEvent('wheel', { deltaY: 100 }));
+        expect(canvas.view().scale).toBeCloseTo(1);
+        key(viewport, { key: '+' });
+        expect(canvas.view().scale).toBeGreaterThan(1);
+        key(viewport, { key: '-' });
+        expect(canvas.view().scale).toBeCloseTo(1);
+    });
+
     it('nudges the selection with the arrow keys', async () => {
         const doc = host.session.doc;
         host.session.select([anchor(doc, 'plant-1')]);
@@ -438,6 +504,44 @@ describe('MapEditorComponent', () => {
         await settle(fixture);
         expect(doc.byId('table-01.002')?.getAttribute('fill')).toBeNull();
         expect(strip.textContent).not.toContain('Changed');
+    });
+
+    it('recolours a multiple selection in one step', async () => {
+        const doc = host.session.doc;
+        host.session.select([anchor(doc, 'plant-1'), anchor(doc, 'plant-2')]);
+        await settle(fixture);
+        const strip: HTMLElement = fixture.nativeElement.querySelector(
+            'map-editor-properties',
+        );
+        const fill_text =
+            strip.querySelectorAll<HTMLInputElement>('input.text.short')[0];
+        fill_text.value = '#123456';
+        fill_text.dispatchEvent(new Event('change', { bubbles: true }));
+        await settle(fixture);
+        expect(doc.byId('plant-1')?.getAttribute('fill')).toBe('#123456');
+        expect(doc.byId('plant-2')?.getAttribute('fill')).toBe('#123456');
+        expect(host.session.history.length).toBe(1);
+        expect(host.session.undo_label()).toMatch(/\(2\)$/);
+    });
+
+    it('applies edited text on change and keeps Shift+Enter for a new line', async () => {
+        const doc = host.session.doc;
+        host.session.select([anchor(doc, 'label-1')]);
+        await settle(fixture);
+        const textarea = fixture.nativeElement.querySelector(
+            'map-editor-properties textarea',
+        ) as HTMLTextAreaElement;
+        expect(
+            key(textarea, { key: 'Enter', shiftKey: true }).defaultPrevented,
+        ).toBe(false);
+        expect(key(textarea, { key: 'Enter' }).defaultPrevented).toBe(true);
+        textarea.value = 'Room A';
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+        await settle(fixture);
+        expect(doc.byId('label-1')?.textContent).toBe('Room A');
+        expect(host.session.history.length).toBe(1);
+        textarea.dispatchEvent(new Event('change', { bubbles: true }));
+        expect(host.session.history.length).toBe(1);
     });
 
     it('reflects dirty state in the toolbar and emits save', async () => {

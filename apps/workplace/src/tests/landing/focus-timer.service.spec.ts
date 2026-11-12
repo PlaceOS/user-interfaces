@@ -35,6 +35,14 @@ describe('FocusTimerService', () => {
         expect(service.remaining()).toBe(23 * 60);
     });
 
+    it('should use the clock for the time left when ticks are late', () => {
+        service.start();
+        // A background tab can delay the interval, but not the clock
+        vi.setSystemTime(Date.now() + 10 * 60 * 1000);
+        service.pause();
+        expect(service.remaining()).toBe(15 * 60);
+    });
+
     it('should stop and put back the full time when the session ends', () => {
         service.setDuration(15);
         service.start();

@@ -290,6 +290,44 @@ describe('[Desk Assets]', () => {
         expect(findDeskByLegacyId(desks, 'map-2')).toBe(desks[1]);
     });
 
+    it('should find the desk asset in a building by its original desk id', async () => {
+        const desks = await load_module();
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([{ id: 'type-1', name: '_DESKS_' }]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            response([
+                { id: 'asset-1', map_id: 'desk-1' },
+                {
+                    id: 'asset-2',
+                    map_id: 'map-2',
+                    client_ids: { place_id: 'desk-1' },
+                },
+            ]),
+        );
+
+        const asset = await desks.queryDeskAssetByLegacyId('bld-1', 'desk-1');
+
+        expect(asset?.id).toBe('asset-2');
+        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+            expect.objectContaining({ zones: 'bld-1', type_id: 'type-1' }),
+        );
+        expect(
+            await desks.queryDeskAssetByLegacyId('bld-1', 'missing'),
+        ).toBeUndefined();
+    });
+
+    it('should not query desks in a zone without a zone id', async () => {
+        const desks = await load_module();
+
+        expect(await desks.queryDeskAssetsInZone('')).toEqual([]);
+        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+        expect(ts_client.queryAssets).not.toHaveBeenCalled();
+    });
+
     it('should save new desk assets with the desk type', async () => {
         const desks = await load_module();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(

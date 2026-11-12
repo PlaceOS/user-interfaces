@@ -154,6 +154,8 @@ describe('ParkingComponent', () => {
 
         it('should navigate home on reset by default', () => {
             spectator.component.resetKiosk();
+            // No level is stored, so the shown level does not change
+            expect(state_mock.setLevel).not.toHaveBeenCalled();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/',
             ]);
@@ -177,6 +179,34 @@ describe('ParkingComponent', () => {
                 y: 0.5,
             });
             expect(VirtualKeyboardComponent.enabled).toBe(true);
+        });
+
+        it('should stop waiting for spaces after 10 seconds', async () => {
+            vi.useFakeTimers();
+            spaces_initialised.set(false);
+            spectator = createComponent();
+            await vi.advanceTimersByTimeAsync(9999);
+            expect(state_mock.setPositions).not.toHaveBeenCalled();
+
+            await vi.advanceTimersByTimeAsync(1);
+            expect(state_mock.setPositions).toHaveBeenCalledWith(1, {
+                x: 0.5,
+                y: 0.5,
+            });
+        });
+
+        it('should apply the level param only after init', async () => {
+            vi.useFakeTimers();
+            spaces_initialised.set(false);
+            spectator = createComponent();
+            spectator.setRouteQueryParam('level', 'lvl-1');
+            spectator.detectChanges();
+            expect(state_mock.setLevel).not.toHaveBeenCalled();
+
+            spaces_initialised.set(true);
+            await vi.advanceTimersByTimeAsync(100);
+            spectator.detectChanges();
+            expect(state_mock.setLevel).toHaveBeenCalledWith('lvl-1');
         });
 
         it('should keep the map private by default', async () => {
@@ -210,11 +240,26 @@ describe('ParkingComponent', () => {
         });
 
         it('should keep the building when the level is not known', () => {
+            const building = { id: 'bld-0' };
+            org_mock.building = building;
             org_mock.levelWithID.mockReturnValueOnce(null);
             spectator.setRouteQueryParam('level', 'missing');
             spectator.detectChanges();
             expect(state_mock.setLevel).toHaveBeenCalledWith('missing');
-            expect(org_mock.building).toBeNull();
+            expect(org_mock.building).toBe(building);
+        });
+
+        it('should keep the building when the level building is not known', () => {
+            const building = { id: 'bld-0' };
+            org_mock.building = building;
+            org_mock.levelWithID.mockReturnValueOnce({
+                id: 'lvl-2',
+                parent_id: 'bld-missing',
+            });
+            spectator.setRouteQueryParam('level', 'lvl-2');
+            spectator.detectChanges();
+            expect(state_mock.setLevel).toHaveBeenCalledWith('lvl-2');
+            expect(org_mock.building).toBe(building);
         });
     });
 });

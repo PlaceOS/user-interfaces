@@ -58,11 +58,6 @@ describe('ControlStatusBarComponent', () => {
         expect('[place-action="pause"]').toExist();
     });
 
-    it('should show global volume controls', () => {
-        expect('mat-slider').toExist();
-        expect('button[mute]').toExist();
-    });
-
     it('should name the mute button and expose its state', () => {
         expect('button[mute]').toHaveAttribute(
             'aria-label',

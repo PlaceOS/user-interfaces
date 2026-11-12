@@ -137,6 +137,12 @@ describe('PublicEventsComponent', () => {
         expect(service.loadEvents).toHaveBeenCalledWith('sys-1');
         expect(fixture.nativeElement.querySelector('.list-stub')).toBeTruthy();
         expect(fixture.nativeElement.querySelector('.details-stub')).toBeNull();
+
+        const list = fixture.debugElement.query(
+            By.directive(PublicEventsListComponent),
+        ).componentInstance as PublicEventsListComponent;
+        list.refresh.emit();
+        expect(service.loadEvents).toHaveBeenCalledTimes(2);
     });
 
     it('shows the event details when an event id is present in the route', async () => {
@@ -178,12 +184,17 @@ describe('PublicEventsComponent', () => {
         );
     });
 
-    it('registers for an event and marks the visitor as registered', async () => {
+    it('registers for the event the details emit and marks the visitor as registered', async () => {
         service.authenticated.set(true);
         service.guest.set({ name: 'A', email: 'a@b.com' });
-        service.default_system_id.set('sys-1');
+        param_map$.next(
+            convertToParamMap({ system_id: 'sys-1', event_id: 'e1' }),
+        );
         const fixture = await init();
-        await fixture.componentInstance.register({ id: 'e1' });
+        const details = fixture.debugElement.query(
+            By.directive(PublicEventDetailsComponent),
+        ).componentInstance as PublicEventDetailsComponent;
+        details.register_event.emit({ id: 'e1' });
         await flush();
         expect(service.register).toHaveBeenCalledWith('sys-1', 'e1');
         expect(fixture.componentInstance.registered()).toBe(true);

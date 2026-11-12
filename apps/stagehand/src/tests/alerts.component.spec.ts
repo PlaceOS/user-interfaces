@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { showSystem } from '@placeos/ts-client';
+import { PlaceSystem, showSystem } from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import type { Mock } from 'vitest';
 
@@ -142,9 +142,27 @@ describe('AlertsComponent', () => {
         expect(spectator.component.show_alert_list_loading()).toBe(false);
     });
 
-    it('should return an empty location name when none is cached', () => {
+    it("should name each alert's location after its system", async () => {
         spectator = build();
+        vi.mocked(showSystem).mockImplementation((id: string) =>
+            Promise.resolve(
+                new PlaceSystem(
+                    id === 'sys-1'
+                        ? { id, name: 'room-1', display_name: 'Room 1' }
+                        : { id, name: 'room-2' },
+                ),
+            ),
+        );
+        dashboard_alerts.set([
+            make_alert({ location: 'sys-1' }),
+            make_alert({ id: 'a-2', location: 'sys-2' }),
+        ]);
         expect(spectator.component.locationName('sys-1')).toBe('');
+        TestBed.tick();
+        await vi.waitFor(() =>
+            expect(spectator.component.locationName('sys-1')).toBe('Room 1'),
+        );
+        expect(spectator.component.locationName('sys-2')).toBe('room-2');
     });
 
     it('should ask for each location name once', async () => {
@@ -182,6 +200,41 @@ describe('AlertsComponent', () => {
         expect(dashboards_service.applyLocationParams).toHaveBeenCalledWith(
             params,
         );
+    });
+
+    it('should keep the filters and location in the URL', () => {
+        spectator = build({ search: 'projector' });
+        // the first tick runs ngOnInit
+        TestBed.tick();
+        spectator.component.severity.set('critical');
+        TestBed.tick();
+        expect(router.navigate).toHaveBeenLastCalledWith([], {
+            relativeTo: route,
+            queryParams: {
+                search: 'projector',
+                severity: 'critical',
+                device_type: undefined,
+                status: undefined,
+                region: 'all',
+            },
+            replaceUrl: true,
+        });
+    });
+
+    it('should open on the dashboard in the route and listen for its alerts', async () => {
+        vi.useFakeTimers();
+        spectator = build({}, 'dash-3');
+        spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(dashboards_service.setDashboard).toHaveBeenCalledTimes(1);
+        expect(dashboards_service.setDashboard).toHaveBeenCalledWith('dash-3');
+        expect(spectator.component.dashboard()).toBe('dash-3');
+        expect(
+            dashboards_service.listenForDashboardAlerts,
+        ).toHaveBeenCalledWith(true);
+        vi.clearAllTimers();
+        vi.useRealTimers();
     });
 
     it('should navigate to the selected dashboard route, keeping the filters', () => {

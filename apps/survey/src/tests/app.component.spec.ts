@@ -2,7 +2,9 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
+import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { DefaultUrlSerializer, UrlTree } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
 import {
     HotkeysService,
@@ -13,6 +15,7 @@ import {
     PlaceOS_Service,
     setCurrentUser,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -27,6 +30,13 @@ import { BehaviorSubject, of, Subject } from 'rxjs';
 // default `initialised` Subject never emits, which blocks `ngOnInit` at its
 // first await, so the synchronous setup work is asserted on its own.
 vi.mock('@placeos/ts-client', { spy: true });
+
+// The app reads the page query once, when its module loads. Set it before the
+// imports run, so startup copies it into the hash route. The router is a stub
+// with a real URL parser, so that navigation does not change other tests.
+vi.hoisted(() => {
+    history.replaceState(null, '', '/?ref=page&shared=page');
+});
 
 import * as ts_client from '@placeos/ts-client';
 
@@ -66,6 +76,8 @@ describe('AppComponent', () => {
         open: vi.fn(() => ({ onAction: () => of(), dismiss: vi.fn() })),
     };
 
+    const url_serializer = new DefaultUrlSerializer();
+
     const create_component = createRoutingFactory({
         component: AppComponent,
         declarations: [
@@ -101,8 +113,11 @@ describe('AppComponent', () => {
         vi.mocked(ts_client.setAPI_Key).mockReturnValue(undefined);
         vi.mocked(ts_client.setup).mockResolvedValue(undefined);
         vi.mocked(ts_client.clientId).mockReturnValue('');
-        setCurrentUser({ email: 'user@example.com' } as any);
+        setCurrentUser(new StaffUser({ email: 'user@example.com' }));
         spectator = create_component();
+        vi.mocked(spectator.router.parseUrl).mockImplementation((url) =>
+            url_serializer.parse(url),
+        );
     });
 
     afterEach(() => {
@@ -122,6 +137,7 @@ describe('AppComponent', () => {
             expect(ts_client.setup).toHaveBeenCalledWith(
                 expect.objectContaining({ mock: false }),
             );
+            expect(ts_client.registerMockEndpoint).not.toHaveBeenCalled();
             expect(locale.zone_id).toBe('org-1');
             expect(locale.init).toHaveBeenCalled();
             expect(initialisationComplete()()).toBe(true);
@@ -136,6 +152,35 @@ describe('AppComponent', () => {
             expect(ts_client.setup).toHaveBeenCalledWith(
                 expect.objectContaining({ mock: true }),
             );
+        });
+
+        it('should start PlaceOS in mock mode when the stored mock flag is on', async () => {
+            localStorage.setItem('mock', 'true');
+
+            await spectator.component.ngOnInit();
+
+            // PlaceOS setup reads the flag too, so check that the app itself
+            // registered the mock endpoints.
+            expect(ts_client.registerMockEndpoint).toHaveBeenCalled();
+            expect(ts_client.setup).toHaveBeenCalledWith(
+                expect.objectContaining({ mock: true }),
+            );
+        });
+
+        it('should copy the page query into the hash route, with hash values first', async () => {
+            vi.spyOn(spectator.inject(Location), 'path').mockReturnValue(
+                '/survey-1?shared=hash',
+            );
+
+            await spectator.component.ngOnInit();
+
+            const [url, extras] = vi.mocked(spectator.router.navigateByUrl)
+                .mock.calls[0];
+            expect(url).toBeInstanceOf(UrlTree);
+            expect(url_serializer.serialize(url as UrlTree)).toBe(
+                '/survey-1?ref=page&shared=hash',
+            );
+            expect(extras).toEqual({ replaceUrl: true });
         });
 
         it('should pass the composer settings to PlaceOS setup', async () => {
@@ -199,6 +244,20 @@ describe('AppComponent', () => {
                 queryParamsHandling: 'merge',
                 replaceUrl: true,
             });
+        });
+
+        it('should store the key when PlaceOS setup fails after it sets a client ID', async () => {
+            vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            vi.mocked(ts_client.setup).mockImplementation(async () => {
+                vi.mocked(ts_client.clientId).mockReturnValue('client-1');
+                vi.mocked(ts_client.setAPI_Key).mockClear();
+                throw new Error('offline');
+            });
+
+            await spectator.component.ngOnInit();
+
+            expect(ts_client.setAPI_Key).toHaveBeenCalledWith('secret');
+            expect(spectator.router.navigate).toHaveBeenCalled();
         });
 
         it('should keep the key in the URL when PlaceOS has no client ID', async () => {

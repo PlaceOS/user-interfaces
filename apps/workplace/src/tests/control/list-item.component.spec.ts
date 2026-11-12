@@ -2,35 +2,50 @@ import { SpectatorRouting } from '@ngneat/spectator';
 import { createRoutingFactory } from '@ngneat/spectator/vitest';
 import { MockComponent, MockPipe, MockProvider } from 'ng-mocks';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { OrganisationService, SettingsService, Space } from '@placeos/common';
 
 import { IconComponent, SafePipe } from '@placeos/components';
 import { ControlSpaceListItemComponent } from '../../app/control/list-item.component';
 
 describe('ControlSpaceListItemComponent', () => {
     let spectator: SpectatorRouting<ControlSpaceListItemComponent>;
+    let features: string[] = [];
+    const space = new Space({ id: 'space-1', name: 'Space 1', capacity: 32 });
     const createComponent = createRoutingFactory({
         component: ControlSpaceListItemComponent,
+        // A real router gives the locate link its URL
+        stubsEnabled: false,
         providers: [
             MockProvider(SettingsService, {
-                get: vi.fn(() => ['explore']),
-            } as any),
+                get: vi.fn((key: string) =>
+                    key === 'app.features' ? features : undefined,
+                ) as SettingsService['get'],
+            }),
             MockProvider(OrganisationService, { buildings: [] }),
         ],
         declarations: [MockComponent(IconComponent), MockPipe(SafePipe)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => (features = ['explore']));
 
-    it('should allow user to locate space', () => {
-        expect('a[btn][locate]').not.toExist();
-        spectator.setInput({ space: { name: 'Space 1', capacity: 32 } });
-        expect('a[btn][locate]').toExist();
+    it('should render nothing until it has a space', () => {
+        spectator = createComponent();
+        expect('a[btn]').not.toExist();
     });
 
-    it('should allow user to open support URL', () => {
-        expect('a[btn][control]').not.toExist();
-        spectator.setInput({ space: { name: 'Space 1', capacity: 32 } });
+    it('should link to the space on the map when explore is enabled', () => {
+        spectator = createComponent({ props: { space } });
         expect('a[btn][control]').toExist();
+        expect(spectator.query('a[btn][locate]')).toHaveAttribute(
+            'href',
+            '/explore?space=space-1',
+        );
+    });
+
+    it('should not offer to locate the space when explore is disabled', () => {
+        features = ['spaces'];
+        spectator = createComponent({ props: { space } });
+        expect('a[btn][control]').toExist();
+        expect('a[btn][locate]').not.toExist();
     });
 });

@@ -36,7 +36,7 @@ describe('mock session', () => {
             method: 'GET',
             callback: () => items.push({ id: 'read' }),
         });
-        lastCallback()({} as any);
+        lastCallback()({} as never);
         expect(localStorage.getItem('PLACEOS.mock.writes')).toBeNull();
 
         registerMockEndpoint({
@@ -44,7 +44,7 @@ describe('mock session', () => {
             method: 'POST',
             callback: () => items.push({ id: 'written' }),
         });
-        lastCallback()({} as any);
+        lastCallback()({} as never);
         expect(JSON.parse(localStorage.getItem('PLACEOS.mock.writes'))).toEqual(
             [{ id: 'read' }, { id: 'written' }],
         );
@@ -66,7 +66,7 @@ describe('mock session', () => {
                 return item;
             },
         });
-        lastCallback()({ route_params: { id: '2' } } as any);
+        lastCallback()({ route_params: { id: '2' } } as never);
         list.splice(0, 1);
         list.push({ id: 4, name: 'Four' });
         saveMockSession();

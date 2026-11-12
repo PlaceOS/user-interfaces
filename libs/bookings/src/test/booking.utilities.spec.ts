@@ -16,17 +16,20 @@ import {
 import { generateBookingForm } from '../lib/booking-form.model';
 import {
     bookingLocationString,
+    formatEmailName,
     loadLockersForScope,
     lockerBankFromAsset,
+    lockerFromAsset,
     newBookingFromCalendarEvent,
     parkingRequestStatus,
     visitorDisplayNameFor,
 } from '../lib/booking.utilities';
+import type { LockerBank } from '../lib/locker.class';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
-import { PlaceSystem } from '@placeos/ts-client';
+import { PlaceAsset, PlaceSystem } from '@placeos/ts-client';
 
 describe('Booking Utilities', () => {
     let injector: Injector;
@@ -112,7 +115,9 @@ describe('Booking Utilities', () => {
                     }),
                 ),
             ).toBe('Jane G');
-            expect(visitorDisplayNameFor(visitor({ attendees }))).toBe('Jane A');
+            expect(visitorDisplayNameFor(visitor({ attendees }))).toBe(
+                'Jane A',
+            );
         });
 
         it('should not show the visit reason or email as the visitor name', () => {
@@ -129,6 +134,19 @@ describe('Booking Utilities', () => {
                     visitor({ extension_data: { visitor_name: 'Jane Smith' } }),
                 ),
             ).toBe('Jane Smith');
+        });
+    });
+
+    describe('formatEmailName', () => {
+        it('should turn the local part of an email into title case words', () => {
+            expect(formatEmailName('mary_ann-lee..jones@example.com')).toBe(
+                'Mary Ann Lee Jones',
+            );
+        });
+
+        it('should return values without a usable local part unchanged', () => {
+            expect(formatEmailName('Visitor')).toBe('Visitor');
+            expect(formatEmailName('._@example.com')).toBe('._@example.com');
         });
     });
 
@@ -356,6 +374,65 @@ describe('Booking Utilities', () => {
         });
     });
 
+    describe('lockerFromAsset', () => {
+        const bank = {
+            id: 'bank-1',
+            zone: { id: 'lvl-1' },
+        } as LockerBank;
+
+        it('should read locker details from other data and link the bank', () => {
+            const locker = lockerFromAsset(
+                {
+                    id: 'locker-1',
+                    parent_id: 'bank-1',
+                    other_data: {
+                        name: 'Locker A',
+                        map_id: 'm-locker-1',
+                        accessible: 'true',
+                        position: '[2,3]',
+                        size: 'not json',
+                        features: '["usb"]',
+                    },
+                } as Partial<PlaceAsset> as PlaceAsset,
+                [bank],
+            );
+
+            expect(locker).toMatchObject({
+                bank_id: 'bank-1',
+                name: 'Locker A',
+                map_id: 'm-locker-1',
+                accessible: true,
+                bookable: true,
+                position: [2, 3],
+                size: [1, 1],
+                features: ['usb'],
+            });
+            expect(locker.bank).toBe(bank);
+            expect(locker.zone).toBe(bank.zone);
+        });
+
+        it('should keep a locker without a known bank unlinked', () => {
+            const locker = lockerFromAsset(
+                {
+                    id: 'locker-2',
+                    parent_id: 'bank-x',
+                    bookable: false,
+                    other_data: { accessible: 'false' },
+                } as Partial<PlaceAsset> as PlaceAsset,
+                [bank],
+            );
+
+            expect(locker).toMatchObject({
+                bank_id: 'bank-x',
+                accessible: false,
+                bookable: false,
+                position: [0, 0],
+                features: [],
+            });
+            expect(locker.bank).toBeUndefined();
+        });
+    });
+
     describe('loadLockersForScope', () => {
         it('should list lockers under their bank without a reference cycle', async () => {
             vi.spyOn(ts_client, 'queryAssetCategories').mockResolvedValue({
@@ -380,6 +457,15 @@ describe('Booking Utilities', () => {
                         asset_type_id: 'type-1',
                         other_data: {},
                     },
+                    // A locker whose bank is not loaded is not listed
+                    {
+                        id: 'locker-2',
+                        identifier: 'Locker 2',
+                        parent_id: 'bank-x',
+                        zone_id: 'level-1',
+                        asset_type_id: 'type-1',
+                        other_data: {},
+                    },
                 ],
             } as any);
             const bank = { id: 'bank-1', name: 'Bank 1', lockers: [] } as any;
@@ -396,6 +482,25 @@ describe('Booking Utilities', () => {
             expect(bank.lockers[0].bank.id).toBe('bank-1');
             expect(bank.lockers[0].bank.lockers).toEqual([]);
             expect(() => JSON.stringify(bank)).not.toThrow();
+        });
+
+        it('should list no lockers without a scope or when the query fails', async () => {
+            const org = {
+                levelWithID: () => null,
+            } as Partial<OrganisationService> as OrganisationService;
+            vi.spyOn(ts_client, 'queryAssetCategories').mockRejectedValue(
+                new Error('offline'),
+            );
+            const query = vi
+                .spyOn(ts_client, 'queryAssets')
+                .mockRejectedValue(new Error('offline'));
+            query.mockClear();
+
+            expect(await loadLockersForScope(org, '', [])).toEqual([]);
+            expect(query).not.toHaveBeenCalled();
+            expect(await loadLockersForScope(org, 'building-1', [])).toEqual(
+                [],
+            );
         });
     });
 

@@ -88,6 +88,23 @@ describe('CheckinResultsComponent', () => {
         ]);
     });
 
+    it('offers beverages for a standalone visit with a visitor location', async () => {
+        settings['app.allow_beverages'] = true;
+        settings['app.standalone_visitor_location'] = 'zone-lobby';
+        event.update(
+            (booking) => new Booking({ ...booking, linked_event: undefined }),
+        );
+
+        await spectator.component.ngOnInit();
+        await spectator.component.next();
+
+        expect(spectator.component.allow_beverages()).toBeTruthy();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkin',
+            'preferences',
+        ]);
+    });
+
     it('does not offer beverages for a standalone visit', async () => {
         settings['app.allow_beverages'] = true;
         event.update(

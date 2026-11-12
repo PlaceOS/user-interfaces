@@ -1,13 +1,13 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import { addDays, addMinutes, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 
 import {
     Booking,
@@ -198,15 +198,62 @@ describe('VisitorStateService', () => {
         expect(spectator.service.filtered_bookings()).toHaveLength(0);
     });
 
-    it('should allow polling of visitor events', async () => {
-        // Polling behaviour is driven by the AsyncHandler interval timer and is
-        // exercised indirectly via the load effect; retained as a placeholder.
+    it('should poll no more often than every 3 minutes', () => {
+        vi.useFakeTimers();
+        try {
+            const poll = vi.spyOn(spectator.service, 'poll');
+            spectator.service.startPolling(1000);
+
+            vi.advanceTimersByTime(3 * 60 * 1000 - 1);
+            expect(poll).not.toHaveBeenCalled();
+            vi.advanceTimersByTime(1);
+            expect(poll).toHaveBeenCalledTimes(1);
+
+            spectator.service.stopPolling();
+            vi.advanceTimersByTime(3 * 60 * 1000);
+            expect(poll).toHaveBeenCalledTimes(1);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('should allow checking in visitors', async () => {
         expect(ts_client.post).not.toHaveBeenCalled();
         await spectator.service.setCheckinState({ id: '1' } as any);
 
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/1/check_in?state=true'),
+            '',
+        );
+    });
+
+    it('should not check in a visitor for a rejected meeting', async () => {
+        await expect(
+            spectator.service.setCheckinState(
+                new Booking({ id: '1', rejected: true }),
+            ),
+        ).rejects.toBe('You cannot check-in a rejected meeting');
+        expect(ts_client.post).not.toHaveBeenCalled();
+    });
+
+    it('should approve an unapproved visitor before checking them in', async () => {
+        await spectator.service.setCheckinState(
+            new Booking({ id: '1', approved: false }),
+        );
+
+        const urls = vi.mocked(ts_client.post).mock.calls.map(([url]) => url);
+        expect(urls).toEqual([
+            expect.stringContaining('/1/approve'),
+            expect.stringContaining('/1/check_in?state=true'),
+        ]);
+    });
+
+    it('should not approve an approved visitor again on check-in', async () => {
+        await spectator.service.setCheckinState(
+            new Booking({ id: '1', approved: true }),
+        );
+
+        expect(ts_client.post).toHaveBeenCalledTimes(1);
         expect(ts_client.post).toHaveBeenCalledWith(
             expect.stringContaining('/1/check_in?state=true'),
             '',
@@ -239,20 +286,56 @@ describe('VisitorStateService', () => {
         );
     });
 
-    it('should allow checking out all visitors', async () => {
+    it('should check out all visitors of an event after the user confirms', async () => {
         vi.mocked(ts_client.query).mockResolvedValue({
-            data: [{ parent_id: '1', extension_data: {} }],
+            data: [
+                { id: 'g1', parent_id: '1', extension_data: {} },
+                { id: 'g2', parent_id: '1', extension_data: {} },
+                { id: 'other', parent_id: '2', extension_data: {} },
+            ],
+            total: 3,
+            next: null,
+        });
+        TestBed.flushEffects();
+        await wait(10);
+        const confirm_ref = {
+            componentInstance: {
+                event: of({ reason: 'done' }),
+                loading: { set: vi.fn() },
+            },
+            afterClosed: () => NEVER,
+            close: vi.fn(),
+        };
+        vi.mocked(spectator.inject(MatDialog).open).mockReturnValue(
+            confirm_ref as unknown as MatDialogRef<unknown>,
+        );
+
+        await spectator.service.setCheckinStateForEvent('1', false);
+
+        expect(confirm_ref.close).toHaveBeenCalled();
+        const urls = vi.mocked(ts_client.post).mock.calls.map(([url]) => url);
+        expect(urls).toEqual([
+            expect.stringContaining('/g1/check_in?state=false'),
+            expect.stringContaining('/g2/check_in?state=false'),
+        ]);
+    });
+
+    it('should not check out visitors when the user cancels', async () => {
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [{ id: 'g1', parent_id: '1', extension_data: {} }],
             total: 1,
             next: null,
         });
         TestBed.flushEffects();
         await wait(10);
-        vi.mocked(ts_client.post).mockClear();
+        vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+            componentInstance: { event: NEVER, loading: { set: vi.fn() } },
+            afterClosed: () => of({ reason: 'cancel' }),
+            close: vi.fn(),
+        } as unknown as MatDialogRef<unknown>);
+
+        await spectator.service.setCheckinStateForEvent('1', false);
+
         expect(ts_client.post).not.toHaveBeenCalled();
-        await spectator.service.setCheckinStateForEvent('1');
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/check_in?state=true'),
-            '',
-        );
     });
 });

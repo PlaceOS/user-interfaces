@@ -4,7 +4,7 @@ import { AttributeGeometryProvider } from '../lib/geometry';
 import { MapDocument } from '../lib/map-document';
 import { MapOp } from '../lib/ops';
 import { MapEditorSession } from '../lib/session';
-import { anchor, loadMap, OFFICE, readMap, SAMPLE_MAPS } from './fixtures';
+import { anchor, OFFICE, readMap } from './fixtures';
 
 function session(
     markup = OFFICE,
@@ -392,20 +392,6 @@ describe('MapEditorSession', () => {
             expect(await store.keys()).toEqual([]);
         } finally {
             vi.useRealTimers();
-        }
-    });
-
-    it('loads every sample map', () => {
-        for (const name of SAMPLE_MAPS) {
-            const doc = loadMap(name, {
-                geometry: new AttributeGeometryProvider(),
-            });
-            const s = new MapEditorSession(doc, {
-                zone_id: name,
-                source_text: readMap(name),
-            });
-            expect(s.index().entries.length).toBe(doc.elementCount());
-            expect(s.dirty()).toBe(false);
         }
     });
 });

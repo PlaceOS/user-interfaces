@@ -218,6 +218,17 @@ describe('cron helpers', () => {
         expectLocalDate(result, localDate(2024, 2, 29, 0, 0));
     });
 
+    it('finds no run for a cron whose time fields can never match', () => {
+        const now = localDate(2026, 3, 2, 10, 0).getTime();
+
+        expect(
+            getNextCronRunTimestampInRange('61 * * * *', 365 * 86400, now),
+        ).toBeNull();
+        expect(
+            getLastCronRunTimestampInRange('61 * * * *', 365 * 86400, now),
+        ).toBeNull();
+    });
+
     it('rejects last-run cron strings that are not five fields', () => {
         expect(() =>
             getLastCronRunTimestampInRange(

@@ -78,7 +78,11 @@ describe('UserSearchFieldComponent', () => {
     it('should limit results to the matching options without a query', async () => {
         const query_fn = vi.fn(() => Promise.resolve([]));
         const options = [
-            new User({ id: '1', name: 'Test User 1', email: 'one@example.com' }),
+            new User({
+                id: '1',
+                name: 'Test User 1',
+                email: 'one@example.com',
+            }),
             new User({ id: '2', name: 'Other', email: 'test2@example.com' }),
             new User({ id: '3', name: 'Nobody', email: 'three@example.com' }),
         ];
@@ -209,7 +213,15 @@ describe('UserSearchFieldComponent', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);
         spectator.component.selectOption('jane@external.com');
-        expect(on_change.mock.calls[0][0].email).toBe('jane@external.com');
+        expect(on_change).toHaveBeenCalledTimes(1);
+        const user = on_change.mock.calls[0][0];
+        expect(user).toBeInstanceOf(User);
+        expect(user).toMatchObject({
+            name: 'jane',
+            email: 'jane@external.com',
+        });
+        // A typed email is not a directory user, so no details are loaded
+        expect(showUser).not.toHaveBeenCalled();
     });
 
     it('should validate email addresses correctly', () => {
@@ -221,23 +233,6 @@ describe('UserSearchFieldComponent', () => {
         expect(spectator.component.isValidEmail('missing@')).toBe(false);
         expect(spectator.component.isValidEmail('@domain.com')).toBe(false);
         expect(spectator.component.isValidEmail('')).toBe(false);
-    });
-
-    it('should allow selecting a user from an email when allow_externals is true', () => {
-        const spec = createComponent({
-            props: { allow_externals: true },
-        });
-
-        const on_change = vi.fn();
-        spec.component.registerOnChange(on_change);
-
-        spec.component.setValueFromEmail('john.doe@external.com');
-
-        expect(on_change).toHaveBeenCalledTimes(1);
-        const set_user = on_change.mock.calls[0][0];
-        expect(set_user).toBeInstanceOf(User);
-        expect(set_user.name).toBe('john.doe');
-        expect(set_user.email).toBe('john.doe@external.com');
     });
 
     it('should blur the input after selecting a user from an email', async () => {
@@ -260,33 +255,5 @@ describe('UserSearchFieldComponent', () => {
         await new Promise((r) => setTimeout(r, 10));
 
         expect(select_spy).toHaveBeenCalled();
-    });
-
-    it('should not create user from email when allow_externals is false', () => {
-        const spec = createComponent({
-            props: { allow_externals: false },
-        });
-
-        const on_change = vi.fn();
-        spec.component.registerOnChange(on_change);
-
-        // The email is valid, but allow_externals is false so the
-        // setValueFromEmail path should not be triggered by the template.
-        // Verify the guard: isValidEmail returns true but allow_externals is false.
-        expect(spec.component.isValidEmail('user@example.com')).toBe(true);
-        expect(spec.component.allow_externals()).toBe(false);
-
-        // Directly calling setValueFromEmail still works at the method level,
-        // but the template condition (allow_externals() && isValidEmail(term))
-        // prevents the option from appearing. Simulate what the template does:
-        const term = 'user@example.com';
-        const should_show_option =
-            !!term &&
-            spec.component.allow_externals() &&
-            spec.component.isValidEmail(term);
-        expect(should_show_option).toBe(false);
-
-        // Ensure no value was set through the form control
-        expect(on_change).not.toHaveBeenCalled();
     });
 });

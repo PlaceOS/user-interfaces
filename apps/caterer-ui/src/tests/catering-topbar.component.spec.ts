@@ -148,6 +148,7 @@ describe('CateringTopbarComponent', () => {
                 parent_id: 'bld-2',
             });
             spectator.setRouteQueryParam('zone_ids', 'zone-9');
+            expect(org.levelWithID).toHaveBeenLastCalledWith(['zone-9']);
             expect(org.building).toEqual({ id: 'bld-2' });
         });
 
@@ -287,6 +288,20 @@ describe('CateringTopbarComponent', () => {
             spectator.click(buttonWithIcon(spectator, 'add'));
             expect(state.addItem).toHaveBeenCalledTimes(1);
         });
+
+        it('should call the matching catering action for each menu button', () => {
+            const actions = {
+                menu_book: state.editConfig,
+                cloud_upload: state.importMenu,
+                event_available: state.setRoomAvailability,
+                payments: state.setChargeCodes,
+            };
+            for (const [icon, action] of Object.entries(actions)) {
+                spectator.click(buttonWithIcon(spectator, icon));
+                expect(action).toHaveBeenCalledTimes(1);
+            }
+            expect(state.addItem).not.toHaveBeenCalled();
+        });
     });
 
     describe('orders page', () => {
@@ -297,8 +312,13 @@ describe('CateringTopbarComponent', () => {
 
         beforeEach(() => spectator.setRouteParam('view', 'orders'));
 
-        it('should show the date options', () => {
+        it('should show the date options and the home and kitchen links', () => {
             expect(spectator.query('date-options')).toBeTruthy();
+            // The routing factory stubs the Router, so read the link commands from it
+            const links = vi
+                .mocked(spectator.inject(Router).createUrlTree)
+                .mock.calls.map(([commands]) => commands.join('/'));
+            expect(new Set(links)).toEqual(new Set(['/', '/kitchen']));
         });
 
         it('should show the caterer selector only for multiple caterers', () => {
@@ -308,7 +328,36 @@ describe('CateringTopbarComponent', () => {
             expect(spectator.queryAll('mat-select')).toHaveLength(2);
         });
 
+        it('should filter by the empty caterer with the <empty> value', () => {
+            state.caterers.set(['Cafe Nine', '']);
+            spectator.detectChanges();
+            const [, caterer_select] = spectator.queryAll(
+                '.mat-mdc-select-trigger',
+            );
+            spectator.click(caterer_select);
+
+            const options = Array.from(
+                document.querySelectorAll<HTMLElement>('mat-option'),
+            );
+            // Options: all caterers, 'Cafe Nine', then the empty caterer
+            expect(options).toHaveLength(3);
+            expect(options[1]).toHaveText('Cafe Nine');
+            spectator.click(options[2]);
+            expect(orders.filters).toEqual({ caterer: '<empty>' });
+            expect(navigate).toHaveBeenLastCalledWith(
+                [],
+                expect.objectContaining({
+                    queryParams: { caterer: '<empty>' },
+                }),
+            );
+        });
+
         it('should toggle the summary query param', () => {
+            expect(
+                buttonWithIcon(spectator, 'summarize')?.getAttribute(
+                    'aria-pressed',
+                ),
+            ).toBe('false');
             spectator.click(buttonWithIcon(spectator, 'summarize'));
             expect(navigate).toHaveBeenLastCalledWith(
                 [],
@@ -379,6 +428,25 @@ describe('CateringTopbarComponent', () => {
             expect(rest).toEqual([]);
         });
 
+        it('should name the CSV after today when there is no filter date', () => {
+            vi.useFakeTimers({ toFake: ['Date'] });
+            vi.setSystemTime(new Date(2026, 6, 9, 12));
+            let filename: string | null = null;
+            vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(
+                function (this: HTMLAnchorElement) {
+                    filename = this.getAttribute('download');
+                },
+            );
+            vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:orders');
+            orders.filtered.set([order]);
+            spectator.detectChanges();
+
+            spectator.click(buttonWithIcon(spectator, 'download'));
+            vi.useRealTimers();
+
+            expect(filename).toBe('catering-orders-2026-07-09.csv');
+        });
+
         it('should toggle order alerts', () => {
             const { alerts } = stubs;
             spectator.click(buttonWithIcon(spectator, 'notifications_off'));
@@ -422,11 +490,13 @@ describe('CateringTopbarComponent with filters in the URL', () => {
         queryParams: { search: 'tea', caterer: 'Cafe' },
     });
 
-    it('should restore search and caterer filters from the URL', () => {
+    it('should restore search and caterer filters from the URL and keep the others', () => {
         const stubs = createStubs();
+        stubs.orders.filters = { date: 1234, search: 'old' };
         create_component({ providers: stubProviders(stubs) });
 
         expect(stubs.orders.filters).toEqual({
+            date: 1234,
             search: 'tea',
             caterer: 'Cafe',
         });

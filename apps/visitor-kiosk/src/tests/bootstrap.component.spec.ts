@@ -29,7 +29,8 @@ describe('BootstrapComponent', () => {
                     new BuildingLevel({ id: '1' }),
                     new BuildingLevel({ id: '2' }),
                 ],
-                levelWithID: () => new BuildingLevel({ id: '1' }),
+                levelWithID: (ids: string[]) =>
+                    new BuildingLevel({ id: ids[0], parent_id: 'bld-1' }),
                 region_list: signal([new Region({ name: '1', id: '1' })]),
                 active_buildings: signal([
                     new Building({ name: '1', id: '1', parent_id: '1' }),
@@ -51,16 +52,26 @@ describe('BootstrapComponent', () => {
         spectator = createComponent();
     });
 
-    it('should handle clearing bootstrap details', () => {
-        vi.spyOn(Storage.prototype, 'removeItem');
-        expect(localStorage.removeItem).not.toHaveBeenCalled();
+    it('should clear the saved kiosk location when the URL asks', () => {
+        localStorage.setItem('KIOSK.building', '1');
+        localStorage.setItem('KIOSK.level', '1');
+        localStorage.setItem('KIOSK.orientation', '90');
+
         spectator.setRouteQueryParam('clear', 'true');
-        spectator.detectChanges();
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.building');
-        expect(localStorage.removeItem).toHaveBeenCalledWith('KIOSK.level');
-        expect(localStorage.removeItem).toHaveBeenCalledWith(
-            'KIOSK.orientation',
-        );
+
+        expect(localStorage.getItem('KIOSK.building')).toBeNull();
+        expect(localStorage.getItem('KIOSK.level')).toBeNull();
+        expect(localStorage.getItem('KIOSK.orientation')).toBeNull();
+    });
+
+    it('should save the level from the URL and open the start page', () => {
+        spectator.setRouteQueryParam('level', 'lvl-1');
+
+        expect(localStorage.getItem('KIOSK.level')).toBe('lvl-1');
+        expect(localStorage.getItem('KIOSK.building')).toBe('bld-1');
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/welcome',
+        ]);
     });
 
     it('should navigate to checkin preferences when action is preferences', () => {

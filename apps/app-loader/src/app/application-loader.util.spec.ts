@@ -14,6 +14,7 @@ describe('application loader utilities', () => {
                 { id: '2', name: 'Zeta', redirect_uri: 'https://example.com/zeta' },
                 { id: '1', redirect_uri: 'https://alpha.example.com' },
                 { id: '3', name: 'Mail Link', redirect_uri: 'mailto:test@example.com' },
+                { id: '5', name: 'Script', redirect_uri: 'javascript:alert(1)' },
                 { id: '4', name: 'No Link' },
             ]);
 
@@ -140,6 +141,10 @@ describe('application loader utilities', () => {
         const current = 'https://example.com/apps/app-loader/index.html#fragment';
         expect(isSelfReference('https://example.com/apps/app-loader/', current)).toBe(true);
         expect(isSelfReference('https://example.com/apps/app-loader-v2/', current)).toBe(
+            false,
+        );
+        // The same path on another origin is a different application.
+        expect(isSelfReference('https://other.example.com/apps/app-loader/', current)).toBe(
             false,
         );
         expect(isSelfReference(undefined, current)).toBe(false);

@@ -48,6 +48,48 @@ describe('Event API Methods', () => {
     });
 
     describe('queryAllEvents', () => {
+        it('should join the events of every page', async () => {
+            const last = vi.fn(async () => ({
+                data: [new CalendarEvent({ id: 'event-3' })],
+                next: null,
+            }));
+            const second = vi.fn(async () => ({
+                data: [new CalendarEvent({ id: 'event-2' })],
+                next: last,
+            }));
+            vi.mocked(ts_client.query).mockResolvedValue({
+                data: [new CalendarEvent({ id: 'event-1' })],
+                next: second,
+            } as never);
+            const events = await queryAllEvents({
+                period_start: 1,
+                period_end: 2,
+            });
+            expect(events.map((_) => _.id)).toEqual([
+                'event-1',
+                'event-2',
+                'event-3',
+            ]);
+            expect(ts_client.query).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query_params: { period_start: 1, period_end: 2 },
+                    endpoint: '/api/staff/v1/events',
+                }),
+            );
+        });
+
+        it('should return an empty list when a page request fails', async () => {
+            vi.mocked(ts_client.query).mockResolvedValue({
+                data: [new CalendarEvent({ id: 'event-1' })],
+                next: async () => {
+                    throw new Error('offline');
+                },
+            } as never);
+            await expect(
+                queryAllEvents({ period_start: 1, period_end: 2 }),
+            ).resolves.toEqual([]);
+        });
+
         it('should stop and throw when the page chain does not end', async () => {
             const next = vi.fn(async () => ({ data: [{}], next }));
             vi.spyOn(ts_client, 'query').mockResolvedValue({

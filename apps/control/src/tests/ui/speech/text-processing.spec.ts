@@ -1,5 +1,13 @@
+import { CompiledModel } from '@litertjs/core';
+
+vi.mock('@litertjs/core', { spy: true });
+
+import * as litert from '@litertjs/core';
 import {
+    G2P,
+    G2PConfig,
     numberToWords,
+    parseDictionary,
     phonemize,
     spellAcronyms,
 } from '../../../app/ui/speech/g2p';
@@ -10,6 +18,73 @@ describe('numberToWords', () => {
         expect(numberToWords('42')).toBe('forty two');
         expect(numberToWords('1500')).toBe('one thousand five hundred');
         expect(numberToWords('2.5')).toBe('two point five');
+    });
+
+    it('should read numbers longer than 12 digits digit by digit', () => {
+        expect(numberToWords('999999999999')).toBe(
+            'nine hundred ninety nine billion nine hundred ninety nine million nine hundred ninety nine thousand nine hundred ninety nine',
+        );
+        expect(numberToWords('1234567890123')).toBe(
+            'one two three four five six seven eight nine zero one two three',
+        );
+    });
+});
+
+describe('parseDictionary', () => {
+    it('should read word and IPA pairs and skip lines without a word', () => {
+        const dictionary = parseDictionary('hello\thəˈloʊ\n\tbad\nnone\n');
+        expect([...dictionary]).toEqual([['hello', 'həˈloʊ']]);
+    });
+});
+
+describe('G2P', () => {
+    // Phoneme 0 is the blank, `$` is a special symbol and `-` is a separator
+    const config: G2PConfig = {
+        char2idx: { a: 1, b: 2 },
+        idx2ph: { 0: '_', 1: 'ə', 2: 'b-', 3: '$' },
+        char_repeats: 1,
+        start: 3,
+        end: 3,
+        MAXT: 8,
+        n_phonemes: 4,
+        special: ['$'],
+    };
+    /** Model that picks one phoneme per input position */
+    const model = (best: number[]) => {
+        const logits = new Float32Array(config.MAXT * config.n_phonemes);
+        best.forEach((k, position) => {
+            logits[position * config.n_phonemes + k] = 1;
+        });
+        const run = vi.fn(async () => [
+            { data: async () => logits, delete: vi.fn() },
+        ]);
+        return { run } as unknown as CompiledModel & { run: typeof run };
+    };
+
+    beforeEach(() => {
+        vi.mocked(litert.Tensor.fromTypedArray).mockImplementation(
+            () =>
+                ({ delete: vi.fn() }) as unknown as ReturnType<
+                    typeof litert.Tensor.fromTypedArray
+                >,
+        );
+    });
+
+    it('should use the dictionary before the model', async () => {
+        const compiled = model([]);
+        const g2p = new G2P(new Map([['ab', 'æb']]), config, compiled);
+        expect(await g2p.wordToIpa('ab')).toBe('æb');
+        expect(compiled.run).not.toHaveBeenCalled();
+    });
+
+    it('should decode the model output once per word', async () => {
+        // Positions: start, a, a, b, end
+        const compiled = model([0, 1, 1, 3, 2]);
+        const g2p = new G2P(new Map(), config, compiled);
+        // Repeats collapse, and the blank and special symbols are dropped
+        expect(await g2p.wordToIpa('aab')).toBe('əb');
+        expect(await g2p.wordToIpa('aab')).toBe('əb');
+        expect(compiled.run).toHaveBeenCalledTimes(1);
     });
 });
 

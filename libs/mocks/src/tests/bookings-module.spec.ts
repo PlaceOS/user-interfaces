@@ -68,6 +68,34 @@ describe('MockBookingModule', () => {
         );
     });
 
+    it('should start a meeting at once when the space has no pending state', () => {
+        const mod = createBookingsModule(space, { pending: false });
+        addEvent(1);
+        vi.setSystemTime(NOW + 2 * MINUTE);
+        mod.$poll_bookings();
+        expect(mod.status).toBe('busy');
+        expect(mod.presence).toBe(true);
+    });
+
+    it('should show a space that is not bookable as not bookable', () => {
+        const mod = createBookingsModule({ ...space, bookable: false });
+        addEvent(-1);
+        mod.$poll_bookings();
+        expect(mod.current_booking?.id).toBe('mock-test--1');
+        expect(mod.status).toBe('not-bookable');
+    });
+
+    it('should decline, not shorten, a later booking that is ended', () => {
+        const mod = createBookingsModule(space);
+        const event = addEvent(60);
+        mod.$poll_bookings();
+        expect(mod.next_booking?.id).toBe(event.id);
+
+        mod.$end_meeting(event.event_start);
+        expect(event.event_end).toBe(event.event_start + 30 * 60);
+        expect(mod.next_booking).toBeNull();
+    });
+
     it('should show events that book the space only as a resource', () => {
         const mod = createBookingsModule(space);
         addEvent(-5, 30, { system: null, resources: [space] });

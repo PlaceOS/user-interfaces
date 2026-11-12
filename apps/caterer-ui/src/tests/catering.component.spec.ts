@@ -1,3 +1,4 @@
+import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
@@ -20,6 +21,15 @@ const CHILD_VIEWS = [
     CateringKitchenBoardComponent,
     CateringPrepSummaryComponent,
 ];
+
+/**
+ * Paths that the router links in the view point to.
+ * The routing factory stubs the Router, so read the commands each link passes to it.
+ */
+function linkPaths(spectator: SpectatorRouting<CateringComponent>) {
+    const calls = vi.mocked(spectator.inject(Router).createUrlTree).mock.calls;
+    return [...new Set(calls.map(([commands]) => commands.join('/')))];
+}
 
 describe('CateringComponent', () => {
     let spectator: SpectatorRouting<CateringComponent>;
@@ -44,7 +54,7 @@ describe('CateringComponent', () => {
         expect(spectator.query('catering-topbar')).toBeFalsy();
         expect(spectator.query('catering-order-list')).toBeFalsy();
         expect(spectator.query('catering-menu')).toBeFalsy();
-        expect(spectator.queryAll('a[matRipple]')).toHaveLength(2);
+        expect(linkPaths(spectator)).toEqual(['/menu', '/orders']);
     });
 
     it('should render the order list when viewing orders', () => {
@@ -77,11 +87,13 @@ describe('CateringComponent', () => {
     });
 
     it('should show the kitchen board with a back link and no topbar', () => {
+        vi.mocked(spectator.inject(Router).createUrlTree).mockClear();
         spectator.setRouteParam('view', 'kitchen');
 
         expect(spectator.query('catering-kitchen-board')).toBeTruthy();
         expect(spectator.query('catering-topbar')).toBeFalsy();
         expect(spectator.query('main')).toBeFalsy();
         expect(spectator.query('catering-kitchen-board a')).toBeTruthy();
+        expect(linkPaths(spectator)).toEqual(['/orders']);
     });
 });

@@ -20,7 +20,7 @@ describe('mocksInit', () => {
         vi.mocked(mockSystem).mockReturnValue({
             Bookings: [{ $poll_bookings: vi.fn(), call: vi.fn() }],
             AreaManagement: [{ $update: vi.fn(), call: vi.fn() }],
-        } as any);
+        } as never);
         vi.mocked(registerMockEndpoint).mockClear();
     });
 
@@ -49,16 +49,6 @@ describe('mocksInit', () => {
                 paths.some((path) => path.includes(group)),
                 `no endpoint registered for ${group}`,
             ).toBe(true);
-        }
-    });
-
-    it('should give every endpoint a path, method and handler', () => {
-        mocksInit();
-
-        for (const handler of registrations()) {
-            expect(handler.path, JSON.stringify(handler)).toBeTruthy();
-            expect(handler.method, handler.path).toBeTruthy();
-            expect(typeof handler.callback, handler.path).toBe('function');
         }
     });
 

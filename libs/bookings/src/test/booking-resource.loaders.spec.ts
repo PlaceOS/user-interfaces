@@ -9,6 +9,7 @@ import {
     hasAssignedDesk,
     loadDeskResources,
     loadMetadataResources,
+    loadParkingResources,
 } from '../lib/booking-resource.loaders';
 
 const desksIn = (zone: string, assigned_to = '') => [
@@ -61,6 +62,89 @@ describe('booking resource loaders', () => {
             false,
         );
     });
+
+    it('should load the metadata of every building in the region', async () => {
+        vi.mocked(ts_client.listChildMetadata).mockImplementation(
+            async (id: string) =>
+                [
+                    {
+                        zone: { id: `${id}-lvl` },
+                        metadata: {
+                            desks: { details: [{ map_id: `${id}-m` }] },
+                        },
+                    },
+                    // A level without the metadata adds nothing
+                    { zone: { id: `${id}-empty` }, metadata: {} },
+                ] as never,
+        );
+        const region_org = {
+            building: { id: 'bld-1', parent_id: 'reg-1' },
+            buildings: [
+                { id: 'bld-1', parent_id: 'reg-1' },
+                { id: 'bld-2', parent_id: 'reg-1' },
+                { id: 'bld-3', parent_id: 'reg-2' },
+            ],
+        } as unknown as OrganisationService;
+
+        const desks = await loadMetadataResources(region_org, 'desks', true);
+
+        expect(desks.map((desk) => [desk.id, desk.zone.id])).toEqual([
+            ['bld-1-m', 'bld-1-lvl'],
+            ['bld-2-m', 'bld-2-lvl'],
+        ]);
+        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+    });
+
+    it('should query parking spaces on the parking levels only', async () => {
+        const page = (data: object[]) =>
+            Promise.resolve({
+                data,
+                total: data.length,
+                next: () => null,
+            }) as never;
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            page([{ id: 'cat-p', name: '_PARKING_', hidden: true }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            page([{ id: 'type-p', name: '_PARKING_SPACES_' }]),
+        );
+        vi.mocked(ts_client.queryAssets).mockImplementation((query) =>
+            page(
+                query.zone_id === 'lvl-p'
+                    ? [
+                          {
+                              map_id: 'bay-1',
+                              zone_id: 'lvl-p',
+                              place_groups: ['staff'],
+                          },
+                      ]
+                    : [],
+            ),
+        );
+        const parking_org = {
+            levelsForBuilding: () => [
+                { id: 'lvl-p', tags: ['parking'] },
+                { id: 'lvl-o', tags: [] },
+            ],
+            levelWithID: ([id]: string[]) => ({ id }),
+        } as unknown as OrganisationService;
+
+        const spaces = await loadParkingResources(parking_org, false);
+
+        expect(spaces).toEqual([
+            expect.objectContaining({
+                id: 'bay-1',
+                groups: ['staff'],
+                zone: { id: 'lvl-p' },
+            }),
+        ]);
+        expect(
+            vi
+                .mocked(ts_client.queryAssets)
+                .mock.calls.map(([query]) => query.zone_id),
+        ).toEqual(['lvl-p']);
+    });
+
     describe('desk assets', () => {
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });

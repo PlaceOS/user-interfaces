@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
-import { of, Subject } from 'rxjs';
+import { NEVER, of, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
 import { Building, CateringItem, OrganisationService } from '@placeos/common';
@@ -12,7 +12,6 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AvailableRoomsStateModalComponent } from 'libs/components/src/lib/available-rooms-state-modal.component';
 
 import { CateringStateService } from '../lib/catering-state.service';
-import { ChargeCodeListModalComponent } from '../lib/charge-code-list-modal.component';
 
 // The `@placeos/assets` catering fns run for real; only the ts-client API
 // layer beneath them (asset/type/category queries + mutations) is stubbed.
@@ -205,13 +204,6 @@ describe('CateringStateService', () => {
         });
     });
 
-    it('should open the charge codes modal', () => {
-        spectator.service.setChargeCodes();
-        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
-            ChargeCodeListModalComponent,
-        );
-    });
-
     describe('setRoomAvailability', () => {
         const change = new Subject<string[]>();
         const loading = signal(true);
@@ -280,21 +272,85 @@ describe('CateringStateService', () => {
         });
     });
 
-    it('should allow user to get catering config', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
-        let config = await spectator.service.getCateringConfig();
-        expect(config).toEqual([]);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            'catering_config',
-        );
-        vi.mocked(ts_client.showMetadata).mockResolvedValue([] as any);
-        config = await spectator.service.getCateringConfig('bld-2');
-        expect(config).toEqual([]);
+    it('should get the catering rules of a zone, or none when not a list', async () => {
+        const details = [{ name: '*', rules: [] }];
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details,
+        } as never);
+        await expect(
+            spectator.service.getCateringConfig('bld-2'),
+        ).resolves.toEqual(details);
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-2',
             'catering_config',
         );
+
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: { name: '*' },
+        } as never);
+        await expect(spectator.service.getCateringConfig()).resolves.toEqual(
+            [],
+        );
+        expect(ts_client.showMetadata).toHaveBeenLastCalledWith(
+            'bld-1',
+            'catering_config',
+        );
+    });
+
+    describe('importMenu', () => {
+        const close = vi.fn();
+        /** Make the import modal emit the items */
+        const importItems = (items: CateringItem[]) =>
+            vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+                componentInstance: {
+                    event: of({ reason: 'done', metadata: items }),
+                    loading: signal(''),
+                },
+                afterClosed: () => NEVER,
+                close,
+            } as unknown as ReturnType<MatDialog['open']>);
+
+        beforeEach(() => close.mockClear());
+
+        it('should save imported items over menu items with the same ID', async () => {
+            setMenu([
+                new CateringItem({ id: 'a', name: 'Coffee' }),
+                new CateringItem({ id: 'b', name: 'Tea' }),
+            ]);
+            importItems([
+                new CateringItem({ id: 'a', name: 'Flat white' }),
+                new CateringItem({ id: 'c', name: 'Muffin' }),
+            ]);
+
+            await spectator.service.importMenu();
+
+            expect(spectator.service.menu().map((i) => i.name)).toEqual([
+                'Flat white',
+                'Muffin',
+                'Tea',
+            ]);
+            expect(close).toHaveBeenCalled();
+        });
+
+        it('should keep the menu and close the modal when a save fails', async () => {
+            setMenu([new CateringItem({ id: 'a', name: 'Coffee' })]);
+            vi.mocked(ts_client.addAsset).mockRejectedValue(
+                new Error('offline'),
+            );
+            vi.mocked(ts_client.updateAsset).mockRejectedValue(
+                new Error('offline'),
+            );
+            importItems([new CateringItem({ id: 'c', name: 'Muffin' })]);
+
+            await expect(spectator.service.importMenu()).rejects.toThrow(
+                'offline',
+            );
+
+            expect(spectator.service.menu().map((i) => i.name)).toEqual([
+                'Coffee',
+            ]);
+            expect(close).toHaveBeenCalled();
+        });
     });
 
     it('should open a copy of an item without its ID', async () => {

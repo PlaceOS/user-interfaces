@@ -84,4 +84,30 @@ describe('runBulkAction', () => {
             expect.objectContaining({ panelClass: ['error'] }),
         );
     });
+
+    it('should run without a confirm and show one success notification', async () => {
+        const action = vi.fn(async () => undefined);
+
+        await expect(runBulkAction([1, 2, 3], action)).resolves.toEqual([]);
+
+        expect(action).toHaveBeenCalledTimes(3);
+        expect(notify_open).toHaveBeenCalledTimes(1);
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.anything(),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['success'] }),
+        );
+    });
+
+    it('should do nothing for an empty list', async () => {
+        const dialog = dialogWith('done');
+        const action = vi.fn(async () => undefined);
+
+        await expect(
+            runBulkAction([], action, { confirm, dialog }),
+        ).resolves.toEqual([]);
+
+        expect(dialog.open).not.toHaveBeenCalled();
+        expect(notify_open).not.toHaveBeenCalled();
+    });
 });

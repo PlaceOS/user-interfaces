@@ -41,6 +41,7 @@ function resetSettings() {
 describe('CheckinInductionComponent', () => {
     let spectator: SpectatorRouting<CheckinInductionComponent>;
     let snackbar: ReturnType<typeof createSnackbarSpy>;
+    const event = signal<unknown>({ induction: 'pending' });
     let console_error: ReturnType<typeof vi.spyOn>;
     const createComponent = createRoutingFactory({
         component: CheckinInductionComponent,
@@ -49,7 +50,7 @@ describe('CheckinInductionComponent', () => {
             {
                 provide: CheckinStateService,
                 useValue: {
-                    event: signal<unknown>({ induction: 'pending' }),
+                    event,
                     declineInduction: vi.fn(async () => null),
                     completeInduction: vi.fn(async () => null),
                     checkinGuest: vi.fn(async () => null),
@@ -72,7 +73,7 @@ describe('CheckinInductionComponent', () => {
         setNotifyOutlet(snackbar as any, true);
         resetSettings();
         spectator = createComponent();
-        (spectator.inject(CheckinStateService) as any).event.set({
+        event.set({
             induction: 'pending',
         });
     });
@@ -86,7 +87,7 @@ describe('CheckinInductionComponent', () => {
         it('only redirects to checkin when there is no event', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            (spectator.inject(CheckinStateService) as any).event.set(null);
+            event.set(null);
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledTimes(1);
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
@@ -114,7 +115,7 @@ describe('CheckinInductionComponent', () => {
         it('redirects past induction when it has already been accepted', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            (spectator.inject(CheckinStateService) as any).event.set({
+            event.set({
                 induction: 'accepted',
             });
             await spectator.component.ngOnInit();
@@ -127,7 +128,7 @@ describe('CheckinInductionComponent', () => {
         it('stays on the induction when enabled and not yet accepted', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms and conditions');
-            (spectator.inject(CheckinStateService) as any).event.set({
+            event.set({
                 induction: 'pending',
             });
             await spectator.component.ngOnInit();
@@ -257,7 +258,7 @@ describe('CheckinInductionComponent', () => {
         it('declines when the decline button is clicked', async () => {
             settingSignal('induction_enabled', false).set(true);
             settingSignal('induction_details').set('Terms');
-            (spectator.inject(CheckinStateService) as any).event.set({
+            event.set({
                 induction: 'pending',
             });
             spectator.detectChanges();

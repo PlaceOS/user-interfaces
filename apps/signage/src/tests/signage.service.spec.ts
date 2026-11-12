@@ -501,6 +501,45 @@ describe('SignageService', () => {
         expect(spectator.service.playlist()).toHaveLength(0);
     });
 
+    it('ignores a one-off run that starts before its schedule is valid', async () => {
+        const now = new Date(2026, 2, 2, 9).getTime();
+        vi.setSystemTime(now);
+        vi.mocked(ts_client.showSignage).mockResolvedValue(
+            display_with_schedules([
+                {
+                    play_at: now / 1000 - 60,
+                    play_period: 60,
+                    valid_from: now / 1000,
+                },
+            ]),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.playlist().map((item) => item.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+    });
+
+    it('keeps playing other playlists when a schedule has a malformed cron', async () => {
+        vi.mocked(ts_client.showSignage).mockResolvedValue(
+            display_with_schedules([{ play_cron: '0 9 * *', play_period: 60 }]),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+        vi.advanceTimersByTime(15_000);
+        await flush();
+
+        expect(spectator.service.playlist().map((item) => item.id)).toEqual([
+            'media-1',
+            'media-2',
+        ]);
+        expect(spectator.service.diagnostics().upcoming_schedules).toEqual([]);
+    });
+
     it('should stop normal playlist playback when its schedule expires', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);

@@ -90,6 +90,38 @@ describe('registerMockBookings', () => {
         ).toEqual([theirs.id]);
     });
 
+    it('should filter the listed bookings by type, and page them', () => {
+        const zones = ['zone-page'];
+        const desk = create({ zones, type: 'desk' });
+        const legacy_desk = create({ zones, booking_type: 'desk' });
+        const parking = create({ zones, type: 'parking' });
+
+        expect(list({ zones: 'zone-page', type: 'desk' })).toEqual([
+            desk.id,
+            legacy_desk.id,
+        ]);
+        expect(list({ zones: 'zone-page', limit: '2' })).toEqual([
+            desk.id,
+            legacy_desk.id,
+        ]);
+        expect(list({ zones: 'zone-page', limit: '2', offset: '2' })).toEqual([
+            parking.id,
+        ]);
+    });
+
+    it('should approve and reject a booking', () => {
+        const { id } = create({});
+
+        expect(route('approve', id)).toMatchObject({
+            approved: true,
+            rejected: false,
+        });
+        expect(route('reject', id)).toMatchObject({
+            approved: false,
+            rejected: true,
+        });
+    });
+
     it('should soft delete a booking', () => {
         const booking = create({ zones: ['zone-delete'] });
         handler('DELETE', `${API}/:id`)({ route_params: { id: booking.id } });

@@ -201,8 +201,8 @@ describe('applyOps', () => {
                     why: '',
                     selector: '*',
                     declarations: [{ name: 'fill', value: '#eee' }],
-                }).rejected,
-            ).toBeDefined();
+                }).rejected?.reason,
+            ).toMatch(/not allowed/);
             expect(
                 one(doc, {
                     op: 'set_style_rule',
@@ -217,8 +217,8 @@ describe('applyOps', () => {
                     why: '',
                     selector: '.desk',
                     declarations: [{ name: 'fill', value: 'url(http://x)' }],
-                }).rejected,
-            ).toBeDefined();
+                }).rejected?.reason,
+            ).toMatch(/value for "fill" is not allowed/);
             expect(
                 one(doc, {
                     op: 'set_style_rule',
@@ -978,8 +978,9 @@ describe('applyOps', () => {
                     why: '',
                     target: { id: 'bg' },
                     markup: '<script>x</script>',
-                }).rejected,
-            ).toBeDefined();
+                }).rejected?.reason,
+            ).toBe('the root element is not allowed');
+            expect(doc.byId('bg')?.localName).toBe('rect');
             expect(
                 one(doc, {
                     op: 'replace_element',

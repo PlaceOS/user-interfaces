@@ -81,6 +81,26 @@ describe('KioskLocationPickerComponent', () => {
         expect(spectator.component.active_location()).toBeNull();
     });
 
+    it('should list the set orientations of a building and select the first', () => {
+        const building = new Building({
+            id: 'bld-1',
+            orientations: { north_east: 1, south: 0, west: 3 },
+        });
+        spectator.component.setLevel(new BuildingLevel({ id: 'lvl-1' }));
+        spectator.component.setBuilding(building);
+
+        expect(spectator.component.active_level()).toBeNull();
+        expect(spectator.component.rotations()).toEqual([
+            { id: 'north_east', name: 'north east (90°)', value: 1 },
+            { id: 'west', name: 'west (270°)', value: 3 },
+        ]);
+        expect(spectator.component.active_rotation()?.id).toBe('north_east');
+
+        spectator.component.setBuilding(new Building({ id: 'bld-2' }));
+        expect(spectator.component.rotations()).toEqual([]);
+        expect(spectator.component.active_rotation()).toBeNull();
+    });
+
     it('should save the kiosk location', () => {
         localStorage.setItem('KIOSK.orientation', '180');
         localStorage.setItem('KIOSK.location', 'old-kiosk');

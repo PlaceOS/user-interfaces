@@ -30,6 +30,26 @@ describe('MapHistory', () => {
         expect(history.redo()).toBe(false);
     });
 
+    it('lists redo labels newest first and keeps change order through undo and redo', () => {
+        const doc = MapDocument.load(OFFICE);
+        const history = new MapHistory(doc);
+        expect(history.head()).toBe(0);
+        history.push('a');
+        history.push('b');
+        const b = history.head();
+        history.undo();
+        history.undo();
+        expect(history.head()).toBe(0);
+        expect(history.redoLabels()).toEqual(['a', 'b']);
+        history.redo();
+        history.redo();
+        expect(history.head()).toBe(b);
+        history.undo();
+        history.push('c');
+        expect(history.head()).toBeGreaterThan(b);
+        expect(history.labels()).toEqual(['a', 'c']);
+    });
+
     it('clears redo on push and caps the depth', () => {
         const doc = MapDocument.load(OFFICE);
         const history = new MapHistory(doc, { depth: 3 });

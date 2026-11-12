@@ -808,6 +808,50 @@ describe('validateProposal', () => {
         ).toMatch(/target has the wrong type/);
     });
 
+    it('locks unsafe style rules, text on a shape and edits to the root', async () => {
+        const rule = (selector: string, name: string, value: string) =>
+            single({
+                op: 'set_style_rule',
+                why: '',
+                selector,
+                declarations: [{ name, value }],
+            });
+        for (const selector of ['*', '.desk, .room', '.desk[']) {
+            const { codes, row } = await rule(selector, 'fill', '#fff');
+            expect(codes).toEqual(['bad_selector']);
+            expect(row.locked).toBe(true);
+        }
+        expect((await rule('.desk', 'display', 'none')).codes).toEqual([
+            'forbidden_property',
+        ]);
+        expect((await rule('.desk', 'fill', 'url(http://x)')).codes).toEqual([
+            'bad_value',
+        ]);
+        expect(
+            (
+                await single({
+                    op: 'set_text',
+                    why: '',
+                    target: { id: 'bg' },
+                    text: 'Kitchen',
+                })
+            ).codes,
+        ).toEqual(['not_text']);
+        const doc = office();
+        const root = { a: doc.anchorOf(doc.root) };
+        for (const op of ['transform', 'delete'] as const) {
+            const { codes, row } = await single(
+                op === 'transform'
+                    ? { op, why: '', target: root, translate: [1, 0] }
+                    : { op, why: '', target: root },
+                {},
+                doc,
+            );
+            expect(codes).toEqual(['root']);
+            expect(row.locked).toBe(true);
+        }
+    });
+
     it('replaces the tspan lines of a text element without blocking the batch', async () => {
         const doc = office();
         const line = anchor(doc, 'sub-1');

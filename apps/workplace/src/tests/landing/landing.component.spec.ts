@@ -40,11 +40,9 @@ describe('LandingComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should match snapshot', () => {
-        spectator.component.time.set(1);
+    it('should show the full date of the clock time', () => {
+        spectator.component.time.set(new Date(2026, 5, 22, 9).valueOf());
         spectator.detectChanges();
-        expect(spectator.query('[date]')?.textContent || '').toMatch(
-            /1969|1970/,
-        );
+        expect(spectator.query('[date]')).toHaveText('Monday, June 22, 2026');
     });
 });

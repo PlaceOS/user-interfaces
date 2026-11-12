@@ -83,6 +83,22 @@ describe('SpacePipe', () => {
         expect(ts_client.querySystemsWithEmails).toHaveBeenCalledTimes(1);
     });
 
+    it('should query a failed lookup again once its retry time passes', async () => {
+        const now = Date.now();
+        const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
+        (ts_client.showSystem as any).mockRejectedValue('404');
+        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
+            data: [],
+        });
+
+        await pipe.transform('sys-retry');
+        clock.mockReturnValue(now + 30 * 1000 + 1);
+        await pipe.transform('sys-retry');
+
+        expect(ts_client.showSystem).toHaveBeenCalledTimes(2);
+        clock.mockRestore();
+    });
+
     it('should fallback to an email query when the ID lookup fails', async () => {
         (ts_client.showSystem as any).mockRejectedValue('404');
         (ts_client.querySystemsWithEmails as any).mockResolvedValue({

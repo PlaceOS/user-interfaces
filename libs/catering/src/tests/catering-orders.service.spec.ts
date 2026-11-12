@@ -18,7 +18,7 @@ import {
     Space,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
+import { EMPTY, Observable, of } from 'rxjs';
 
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
@@ -225,7 +225,7 @@ describe('CateringOrdersService', () => {
 
     describe('changeStatus', () => {
         const notify_open = vi.fn(() => ({
-            onAction: () => of(),
+            onAction: (): Observable<void> => EMPTY,
             dismiss: vi.fn(),
         }));
 
@@ -236,19 +236,43 @@ describe('CateringOrdersService', () => {
 
         afterEach(() => setNotifyOutlet(null, true));
 
-        it('should offer undo after a status change', async () => {
+        it('should offer undo that puts back the previous status', async () => {
             const update = vi
                 .spyOn(spectator.service, 'updateStatus')
-                .mockResolvedValue(undefined);
+                .mockImplementation(async (order, status) => {
+                    order.status = status;
+                    return undefined;
+                });
+            // Click the undo action as soon as the message shows
+            notify_open.mockImplementationOnce(() => ({
+                onAction: () => of(undefined),
+                dismiss: vi.fn(),
+            }));
             const order = new CateringOrder({ status: 'accepted' });
             await spectator.service.changeStatus(order, 'ready');
+            await flush();
 
-            expect(update).toHaveBeenCalledWith(order, 'ready');
             expect(notify_open).toHaveBeenCalledWith(
                 expect.anything(),
                 'COMMON.UNDO',
                 expect.anything(),
             );
+            expect(update.mock.calls).toEqual([
+                [order, 'ready'],
+                [order, 'accepted'],
+            ]);
+            expect(order.status).toBe('accepted');
+            // The undo does not offer undo again
+            expect(notify_open).toHaveBeenCalledTimes(1);
+        });
+
+        it('should do nothing when the status does not change', async () => {
+            const update = vi.spyOn(spectator.service, 'updateStatus');
+            const order = new CateringOrder({ status: 'ready' });
+            await spectator.service.changeStatus(order, 'ready');
+
+            expect(update).not.toHaveBeenCalled();
+            expect(notify_open).not.toHaveBeenCalled();
         });
 
         it('should notify without undo when a status change fails', async () => {

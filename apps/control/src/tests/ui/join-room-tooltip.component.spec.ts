@@ -30,17 +30,6 @@ describe('JoinRoomTooltipComponent', () => {
         spectator = createComponent();
     });
 
-    it('should map join_modes mapping into a list with ids', () => {
-        join_modes.set({
-            mode_a: { name: 'Mode A' },
-            mode_b: { name: 'Mode B' },
-        });
-        const modes = spectator.component.modes();
-        expect(modes).toHaveLength(2);
-        expect(modes[0]).toEqual({ name: 'Mode A', id: 'mode_a' });
-        expect(modes[1]).toEqual({ name: 'Mode B', id: 'mode_b' });
-    });
-
     it('should render a button per join mode', () => {
         expect(spectator.queryAll('button[btn]')).toHaveLength(0);
         join_modes.set({

@@ -74,12 +74,18 @@ describe('UserPipe', () => {
         );
         expect(user).toBeInstanceOf(GuestUser);
         expect(user.email).toBe('e@place.tech');
+        mockGet.mockClear();
+        expect(await pipe.transform('e@place.tech')).toBe(user);
+        expect(ts_client.get).not.toHaveBeenCalled();
     });
 
-    it('should return an empty user when neither staff nor guest is found', async () => {
+    it('should return an empty user when neither is found, and retry later', async () => {
         mockGet.mockRejectedValue(new Error('nope'));
+        expect(await pipe.transform('user-id-6')).toEqual({});
+        mockGet.mockResolvedValue({ id: 'user-id-6' });
         const user = await pipe.transform('user-id-6');
-        expect(user).toEqual({});
+        expect(user).toBeInstanceOf(StaffUser);
+        expect(user.id).toBe('user-id-6');
     });
 
     it('should de-duplicate concurrent lookups for the same id', async () => {

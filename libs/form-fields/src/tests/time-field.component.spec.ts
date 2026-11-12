@@ -95,14 +95,38 @@ describe('TimeFieldComponent', () => {
 
     it('should allow customising the step between time options', () => {
         spectator.setInput({ step: 5, no_past_times: false });
-        spectator.detectChanges();
         expect(spectator.component._time_options()[1].id).toBe('00:05');
-        const step = Math.floor(Math.random() * 4 + 1) * 5;
-        spectator.setInput({ step });
-        spectator.detectChanges();
-        expect(spectator.component._time_options()[1].id).toBe(
-            format(addMinutes(startOfDay(new Date()), step), 'HH:mm'),
-        );
+        spectator.setInput({ step: 20 });
+        expect(
+            spectator.component
+                ._time_options()
+                .slice(0, 4)
+                .map((_) => _.id),
+        ).toEqual(['00:00', '00:20', '00:40', '01:00']);
+    });
+
+    it('should leave room for the minimum duration before the range end', () => {
+        // A fixed day with no daylight saving change
+        const date = new Date(2026, 0, 1).valueOf();
+        const on_change = vi.fn();
+        spectator.setInput({
+            allow_time_entry: true,
+            no_past_times: false,
+            from: date,
+            range: { start: 9, end: 11 },
+            min_duration: 60,
+            step: 30,
+        });
+        spectator.component.registerOnChange(on_change);
+        spectator.component.writeValue(addMinutes(date, 9 * 60).valueOf());
+        expect(spectator.component.time_options().map((_) => _.id)).toEqual([
+            '09:00',
+            '09:30',
+            '10:00',
+        ]);
+        spectator.component.setTypedTime('10:15');
+        expect(spectator.component.time_entry_error()).toBe(true);
+        expect(on_change).not.toHaveBeenCalled();
     });
 
     it('should allow the current time as an option', () => {

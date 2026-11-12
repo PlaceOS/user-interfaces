@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { Signal, signal, WritableSignal } from '@angular/core';
 import {
     createRoutingFactory,
     SpectatorRouting,
@@ -14,6 +14,7 @@ import {
 import {
     ControlStateService,
     RoomInput,
+    TabDetails,
 } from '../../app/control-state.service';
 import { MobileLayoutService } from '../../app/mobile-layout';
 import { DeviceOutputListComponent } from '../../app/tabbed-view/output-list.component';
@@ -25,6 +26,9 @@ import { VoiceAssistantComponent } from '../../app/ui/voice-assistant.component'
 import { VideoCallDialViewComponent } from '../../app/video-call/video-call-dial-view.component';
 import { VideoCallPageComponent } from '../../app/video-call/video-call-page.component';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
+
+/** The mock service holds writable signals behind its read-only types */
+const writable = <T>(value: Signal<T>) => value as WritableSignal<T>;
 
 describe('TabOutletComponent', () => {
     let spectator: SpectatorRouting<TabOutletComponent>;
@@ -91,17 +95,6 @@ describe('TabOutletComponent', () => {
         expect(spectator.query('a[matRipple]')).toContainText('Tab 1');
     });
 
-    it('should resolve the active tab details', () => {
-        const service: any = spectator.inject(ControlStateService);
-        service.tabs.set([{ id: 'tab1', name: 'Tab 1', icon: 'tv' }]);
-        spectator.detectChanges();
-        expect(spectator.component.tab()).toEqual({
-            id: 'tab1',
-            name: 'Tab 1',
-            icon: 'tv',
-        });
-    });
-
     it('should list the inputs available for the active tab', () => {
         const service: any = spectator.inject(ControlStateService);
         service.tabs.set([{ id: 'tab1', name: 'Tab 1', icon: 'tv' }]);
@@ -129,10 +122,40 @@ describe('TabOutletComponent', () => {
         ]);
     });
 
-    it('should set the output source when an input is chosen', () => {
-        const service = spectator.inject(ControlStateService);
-        spectator.component.setInput({ id: 'i9' } as RoomInput);
-        expect(service.setOutputSource).toHaveBeenCalledWith('i9');
+    it('should only list the inputs that the tab names', () => {
+        const state = spectator.inject(ControlStateService);
+        writable(state.tabs).set([
+            { id: 'tab1', inputs: ['i2'] } as TabDetails,
+        ]);
+        writable(state.available_inputs).set([
+            { id: 'i1', type: 'HDMI' } as RoomInput,
+            { id: 'i2', type: 'VGA' } as RoomInput,
+        ]);
+        expect(spectator.component.inputs().map((_) => _.id)).toEqual(['i2']);
+    });
+
+    it('should select the first input of a tab the user opens', () => {
+        vi.useFakeTimers();
+        const state = spectator.inject(ControlStateService);
+        writable(state.tabs).set([
+            { id: 'tab1', name: 'Tab 1', inputs: ['i1', 'i2'] } as TabDetails,
+        ]);
+        writable(state.available_inputs).set([
+            { id: 'i1' } as RoomInput,
+            { id: 'i2' } as RoomInput,
+        ]);
+        writable(state.system).set({
+            selected_input: 'other',
+        });
+        spectator.detectChanges();
+        vi.advanceTimersByTime(300);
+        // The driver changed the inputs, not the user, so keep its selection
+        expect(state.setSelectedInput).not.toHaveBeenCalled();
+        spectator.click('a[matRipple]');
+        spectator.detectChanges();
+        vi.advanceTimersByTime(300);
+        expect(state.setSelectedInput).toHaveBeenCalledWith('i1');
+        vi.useRealTimers();
     });
 
     it('should show the tv controls for a tv-channels tab', () => {
@@ -211,7 +234,7 @@ describe('TabOutletComponent', () => {
         const service: any = spectator.inject(ControlStateService);
         service.output_list.set([{ id: 'o1' }]);
         spectator.detectChanges();
-        expect(spectator.query('button:not([btn])')).toBeNull();
+        expect('[output-actions]').not.toExist();
         service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
         spectator.detectChanges();
         expect(spectator.query('[output-actions]')).toExist();

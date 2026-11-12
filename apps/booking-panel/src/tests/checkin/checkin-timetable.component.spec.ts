@@ -1,4 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { CalendarEvent } from '@placeos/common';
+import { addHours } from 'date-fns';
 
 import { CheckinTimetableComponent } from '../../app/checkin/checkin-timetable.component';
 
@@ -8,6 +10,9 @@ describe('CheckinTimetableComponent', () => {
         component: CheckinTimetableComponent,
         detectChanges: false,
     });
+
+    const event = (date: number, duration: number) =>
+        new CalendarEvent({ date, duration });
 
     beforeEach(() => {
         spectator = createComponent();
@@ -47,20 +52,24 @@ describe('CheckinTimetableComponent', () => {
         expect(emitted).toBe(first_id);
     });
 
-    it('should map events into positioned blocks with the correct duration', async () => {
-        spectator.setInput('events', [{ date: Date.now(), duration: 30 }]);
+    it('should position events in minutes from the first block', () => {
+        vi.useFakeTimers({ now: new Date(2026, 6, 4, 9, 1) });
+        spectator.setInput('events', [event(Date.now(), 30)]);
         spectator.detectChanges();
-        const blocks = spectator.component.event_blocks();
-        expect(blocks.length).toBe(1);
-        expect(blocks[0].length).toBe(30);
-        // event starts after the first block, so offset is positive
-        expect(blocks[0].start).toBeGreaterThan(0);
+        expect(spectator.component.event_blocks()).toEqual([
+            { start: 61, length: 30 },
+        ]);
     });
 
-    it('should render an event overlay for in-range events', () => {
-        spectator.setInput('events', [{ date: Date.now(), duration: 30 }]);
+    it('should only draw events inside the 24 hour range', () => {
+        const now = Date.now();
+        spectator.setInput('events', [
+            event(addHours(now, -3).valueOf(), 30),
+            event(now, 30),
+            event(addHours(now, 30).valueOf(), 30),
+        ]);
         spectator.detectChanges();
-        expect('[event]').toExist();
+        expect(spectator.queryAll('[event]')).toHaveLength(1);
     });
 
     it('should keep the time blocks until the start time moves', () => {

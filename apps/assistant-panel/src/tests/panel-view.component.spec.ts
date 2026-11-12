@@ -167,6 +167,7 @@ describe('PanelViewComponent', () => {
 
     afterEach(() => {
         vi.useRealTimers();
+        vi.unstubAllGlobals();
         const win = window as unknown as Record<string, unknown>;
         delete win['speechSynthesis'];
         delete win['SpeechSynthesisUtterance'];
@@ -282,6 +283,9 @@ describe('PanelViewComponent', () => {
                 content: 'raw tool output',
             });
             spectator.detectChanges();
+            expect(
+                spectator.query('button.bg-info icon')?.textContent?.trim(),
+            ).toBe('settings');
             expect(spectator.element.textContent).toContain('Working on it');
             expect(spectator.element.textContent).not.toContain(
                 'raw tool output',
@@ -355,6 +359,32 @@ describe('PanelViewComponent', () => {
             ]);
         });
 
+        it('should send the pending phrase at once when recognition ends', () => {
+            const recognition = FakeRecognition.last!;
+
+            recognition.say('Book a room');
+            recognition.onend?.();
+
+            expect(chat.sendMessage).toHaveBeenCalledWith('Book a room');
+            expect(spectator.component.listening()).toBe(false);
+            // The pending 3s timer must not send it a second time
+            vi.advanceTimersByTime(3000);
+            expect(chat.sendMessage).toHaveBeenCalledTimes(1);
+        });
+
+        it('should resume listening every 500ms while a person is in view', () => {
+            const recognition = FakeRecognition.last!;
+            recognition.onend?.();
+            vi.advanceTimersByTime(500);
+            expect(recognition.start).toHaveBeenCalledTimes(1);
+
+            spectator.component.person_in_view.set(true);
+            vi.advanceTimersByTime(500);
+
+            expect(recognition.start).toHaveBeenCalledTimes(2);
+            expect(spectator.component.listening()).toBe(true);
+        });
+
         it('should treat no-speech as idle and other errors as unsupported', () => {
             const recognition = FakeRecognition.last!;
             spectator.component.current_text.set('partial');
@@ -367,6 +397,36 @@ describe('PanelViewComponent', () => {
             recognition.onerror?.({ error: 'not-allowed' });
             expect(spectator.component.error().speech_recognition).toBe(true);
         });
+    });
+
+    it('should set up voice recognition on the first click anywhere only', async () => {
+        vi.useFakeTimers();
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(FakeRecognition.last).toBeUndefined();
+
+        document.body.click();
+        const recognition = FakeRecognition.last;
+        document.body.click();
+
+        expect(recognition?.start).toHaveBeenCalledTimes(1);
+        expect(FakeRecognition.last).toBe(recognition);
+    });
+
+    it('should hide the webcam preview when the debug query param is false', async () => {
+        vi.useFakeTimers();
+        spectator.detectChanges();
+        await vi.advanceTimersByTimeAsync(0);
+        const video = () => spectator.query('video')!;
+        expect(video().classList).not.toContain('opacity-0');
+
+        spectator.setRouteQueryParam('debug', 'false');
+        spectator.detectChanges();
+        expect(video().classList).toContain('opacity-0');
+
+        spectator.setRouteQueryParam('debug', 'true');
+        spectator.detectChanges();
+        expect(video().classList).not.toContain('opacity-0');
     });
 
     it('should flag speech recognition as unsupported when the API is missing', async () => {
@@ -445,7 +505,6 @@ describe('PanelViewComponent', () => {
                 make_message({ id: 'a1', user_id: 'assistant' }),
             ]);
             await flush();
-            spectator.detectChanges();
 
             expect(spectator.element.textContent).toContain(
                 'Speech Synthesis is not supported',
@@ -461,6 +520,12 @@ describe('PanelViewComponent', () => {
 
         /** Let the 500ms frame interval process one webcam frame */
         const frame = () => vi.advanceTimersByTimeAsync(500);
+        /** Model output with one prediction: 4 box values then the person score */
+        const output = (score: number) => ({
+            toTypedArray: () => new Float32Array([0, 0, 0, 0, score]),
+            type: { layout: { dimensions: [1, 84, 1] } },
+            delete: vi.fn(),
+        });
 
         beforeEach(async () => {
             vi.useFakeTimers();
@@ -473,17 +538,7 @@ describe('PanelViewComponent', () => {
                 drawImage: vi.fn(),
                 getImageData: vi.fn(() => ({ data: image_data })),
             };
-            // One prediction: 4 box values then the person score
-            model = {
-                run: vi.fn(async () => [
-                    {
-                        toTypedArray: () =>
-                            new Float32Array([0, 0, 0, 0, person_score]),
-                        type: { layout: { dimensions: [1, 84, 1] } },
-                        delete: vi.fn(),
-                    },
-                ]),
-            };
+            model = { run: vi.fn(async () => [output(person_score)]) };
             internals()._model = Promise.resolve(model);
             recognition = new FakeRecognition();
             internals()._recognition = recognition;
@@ -509,6 +564,33 @@ describe('PanelViewComponent', () => {
             const f32 = (values: number[]) => values.map(Math.fround);
             expect([at(0, 0), at(1, 0), at(2, 0)]).toEqual(f32([1, 0.4, 0.2]));
             expect([at(0, 1), at(1, 1), at(2, 1)]).toEqual(f32([0.2, 1, 0.4]));
+        });
+
+        it('should free the input and output tensors after each frame', async () => {
+            const result = output(0);
+            model.run.mockResolvedValueOnce([result]);
+
+            await frame();
+
+            const [input] = model.run.mock.calls[0];
+            expect(input.delete).toHaveBeenCalledTimes(1);
+            expect(result.delete).toHaveBeenCalledTimes(1);
+        });
+
+        it('should skip frames while the model still runs the last one', async () => {
+            let finish!: (outputs: unknown[]) => void;
+            model.run.mockReturnValueOnce(
+                new Promise((resolve) => (finish = resolve)),
+            );
+
+            await frame();
+            await frame();
+            await frame();
+            expect(model.run).toHaveBeenCalledTimes(1);
+
+            finish([output(0)]);
+            await frame();
+            expect(model.run).toHaveBeenCalledTimes(2);
         });
 
         it('should detect a person only above the 0.2 confidence threshold', () => {
@@ -579,6 +661,40 @@ describe('PanelViewComponent', () => {
 
         expect(recognition.start).toHaveBeenCalledTimes(1);
         expect(spectator.component.listening()).toBe(true);
+    });
+
+    it('should close the microphone waveform pipeline on destroy', async () => {
+        const source = { connect: vi.fn(), disconnect: vi.fn() };
+        const audio_close = vi.fn(async () => undefined);
+        class FakeAudioContext {
+            public state = 'running';
+            public close = audio_close;
+            public createAnalyser = () => ({
+                frequencyBinCount: 4,
+                getByteTimeDomainData: vi.fn(),
+            });
+            public createMediaStreamSource = () => source;
+        }
+        const cancel_frame = vi.fn();
+        vi.stubGlobal('AudioContext', FakeAudioContext);
+        vi.stubGlobal(
+            'requestAnimationFrame',
+            vi.fn(() => 42),
+        );
+        vi.stubGlobal('cancelAnimationFrame', cancel_frame);
+        const stream = { getTracks: () => [] } as unknown as MediaStream;
+        Object.defineProperty(navigator, 'mediaDevices', {
+            value: { getUserMedia: vi.fn(async () => stream) },
+            configurable: true,
+        });
+
+        spectator.detectChanges();
+        await vi.waitFor(() => expect(source.connect).toHaveBeenCalled());
+        spectator.fixture.destroy();
+
+        expect(cancel_frame).toHaveBeenCalledWith(42);
+        expect(source.disconnect).toHaveBeenCalledTimes(1);
+        expect(audio_close).toHaveBeenCalledTimes(1);
     });
 
     it('should release camera and microphone streams on destroy, even late ones', async () => {

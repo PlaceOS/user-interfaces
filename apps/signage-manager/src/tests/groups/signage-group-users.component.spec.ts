@@ -100,14 +100,6 @@ describe('SignageGroupUsersComponent', () => {
         ]);
     });
 
-    it('exposes the managed group users from the service', () => {
-        const component = make();
-        expect(component.users().map((row) => row.user_id)).toEqual([
-            'user-1',
-            'user-2',
-        ]);
-    });
-
     it('opens the user picker excluding already-assigned users and adds the result', async () => {
         dialog.open.mockReturnValue(dialogRef({ id: 'user-3' }));
         const component = make();

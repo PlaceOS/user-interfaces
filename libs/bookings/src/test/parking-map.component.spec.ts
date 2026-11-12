@@ -1,4 +1,3 @@
-import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -7,8 +6,10 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 import { BookingFormService } from '../lib/booking-form.service';
 import { BookingAsset } from '../lib/booking-form.types';
 import { ParkingMapComponent } from '../lib/parking-select-modal/parking-map.component';
@@ -143,7 +144,7 @@ describe('ParkingMapComponent', () => {
         expect(spectator.component.map_url()).toBe('map-42');
     });
 
-    it('should build a status style for every resource', () => {
+    it('should colour each resource by status, preferring parking colours over generic and default colours', () => {
         resources.set([
             asset({ id: 'free-1', map_id: 'm-free' }),
             asset({ id: 'busy-1', map_id: 'm-busy' }),
@@ -154,10 +155,20 @@ describe('ParkingMapComponent', () => {
             id === 'busy-1' ? 'Alice' : '',
         );
         spectator = createComponent();
+        (spectator.inject(SettingsService).get as Mock).mockImplementation(
+            (key: string) =>
+                key === 'app.explore.colors'
+                    ? {
+                          'parking-free': '#00ff00',
+                          free: '#111111',
+                          busy: '#ff0000',
+                      }
+                    : undefined,
+        );
         const styles = spectator.component.styles();
-        expect(styles['#m-free'].fill).toBeTruthy();
-        expect(styles['#m-busy'].fill).toBeTruthy();
-        expect(styles['#m-block'].fill).toBeTruthy();
+        expect(styles['#m-free'].fill).toBe('#00ff00');
+        expect(styles['#m-busy'].fill).toBe('#ff0000');
+        expect(styles['#m-block'].fill).toBe(DEFAULT_COLOURS['not-bookable']);
     });
 
     it('should mark the active resource as pending in styles', () => {

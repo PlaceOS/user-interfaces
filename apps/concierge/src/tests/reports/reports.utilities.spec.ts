@@ -1,8 +1,13 @@
 import { convertToParamMap } from '@angular/router';
+import { Booking, CalendarEvent, User } from '@placeos/common';
+import { PlaceSystem } from '@placeos/ts-client';
 import {
     activeReportBookings,
     activeReportEvents,
+    cappedReportAttendeeCount,
+    formatReportPercentage,
     generateReportForBookings,
+    generateReportForDeskBookings,
     noShowReportBookings,
     reportBookableMinutes,
     reportBookedTimeUtilisationPercent,
@@ -87,6 +92,63 @@ describe('report utilities', () => {
             expect(reportBookingDuration({ duration: 90 } as any, 720)).toBe(
                 90,
             );
+        });
+    });
+
+    describe('formatReportPercentage', () => {
+        it('should round the percent down to one decimal place', () => {
+            expect(formatReportPercentage(1, 3)).toBe('1 (33.3%)');
+            expect(formatReportPercentage(2, 3)).toBe('2 (66.6%)');
+        });
+
+        it('should show zero percent when the total is zero', () => {
+            expect(formatReportPercentage(4, 0)).toBe('4 (0%)');
+            expect(formatReportPercentage()).toBe('0 (0%)');
+        });
+    });
+
+    describe('cappedReportAttendeeCount', () => {
+        const event = (capacity: number) =>
+            new CalendarEvent({
+                attendees: ['a@x', 'b@x', 'c@x'].map(
+                    (email) => new User({ email }),
+                ),
+                system: new PlaceSystem({ id: 'sys-1', capacity }),
+            });
+
+        it('should cap attendees at the room capacity', () => {
+            expect(cappedReportAttendeeCount(event(2))).toBe(2);
+            expect(cappedReportAttendeeCount(event(10), 1)).toBe(1);
+        });
+
+        it('should count every attendee when the room has no capacity', () => {
+            expect(cappedReportAttendeeCount(event(0))).toBe(3);
+        });
+    });
+
+    describe('generateReportForDeskBookings', () => {
+        const bookings = () => [
+            new Booking({ id: 'b1' }),
+            new Booking({ id: 'b2' }),
+            new Booking({ id: 'b3' }),
+        ];
+
+        it('should divide bookings by the desk count and period', () => {
+            const report = generateReportForDeskBookings(bookings(), 2, {
+                lvl_1: 4,
+                lvl_2: 2,
+            });
+
+            expect(report.total).toBe(6);
+            expect(report.count).toBe(3);
+            expect(report.utilisation).toBe(0.25);
+        });
+
+        it('should use at least one desk and one day to avoid dividing by zero', () => {
+            const report = generateReportForDeskBookings(bookings(), 0, {});
+
+            expect(report.total).toBe(1);
+            expect(report.utilisation).toBe(3);
         });
     });
 

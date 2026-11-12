@@ -80,6 +80,20 @@ describe('OutlookEventService', () => {
         expect(spectator.service.event()?.all_day).toBeNull();
     });
 
+    it('uses the All day flag from Outlook over the saved flag', async () => {
+        adapter.item_id = 'item-1';
+        adapter.update({ all_day: false });
+        const saved: HashMap = {
+            event_start: MIDNIGHT / 1000,
+            event_end: (MIDNIGHT + DAY) / 1000,
+            all_day: true,
+        };
+        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
+            Promise.resolve(saved)) as typeof ts_client.get);
+        await spectator.service.refresh();
+        expect(spectator.service.event()?.all_day).toBe(false);
+    });
+
     it('groups saved room responses by lower-case email', async () => {
         adapter.item_id = 'item-1';
         const saved: HashMap = {

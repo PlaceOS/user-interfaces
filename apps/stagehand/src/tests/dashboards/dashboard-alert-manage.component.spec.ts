@@ -9,7 +9,14 @@ import {
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { delay, of } from 'rxjs';
 
-import { addAlert, updateAlert } from '@placeos/ts-client';
+import {
+    addAlert,
+    TriggerComparison,
+    TriggerConditionOperator,
+    TriggerTimeCondition,
+    TriggerTimeConditionType,
+    updateAlert,
+} from '@placeos/ts-client';
 
 import {
     IconComponent,
@@ -157,20 +164,36 @@ describe('DashboardAlertManageComponent', () => {
         expect(addAlert).not.toHaveBeenCalled();
     });
 
-    it('should remove a comparison condition from the model', () => {
+    it('should remove a comparison, keeping the time dependents', () => {
         build();
-        const condition = { left: 'connected', operator: '==', right: false };
+        const condition: TriggerComparison = {
+            left: 'connected',
+            operator: TriggerConditionOperator.EQ,
+            right: false,
+        };
+        const kept: TriggerComparison = {
+            left: 'power',
+            operator: TriggerConditionOperator.EQ,
+            right: true,
+        };
+        const time_dependent: TriggerTimeCondition = {
+            type: TriggerTimeConditionType.AT,
+            time: 0,
+        };
         spectator.component.model.update((m) => ({
             ...m,
             conditions: {
-                comparisons: [condition as any],
-                time_dependents: [],
+                comparisons: [condition, kept],
+                time_dependents: [time_dependent],
             },
         }));
 
-        spectator.component.removeCondition(condition as any);
+        spectator.component.removeCondition(condition);
 
-        expect(spectator.component.model().conditions.comparisons).toEqual([]);
+        expect(spectator.component.model().conditions).toEqual({
+            comparisons: [kept],
+            time_dependents: [time_dependent],
+        });
     });
 
     it('should not open the condition dialog without a selected system', async () => {

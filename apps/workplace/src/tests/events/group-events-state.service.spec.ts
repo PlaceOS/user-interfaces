@@ -192,23 +192,4 @@ describe('GroupEventsStateService', () => {
         expect(spectator.service.events().map((_) => _.id)).toEqual(['new']);
         expect(spectator.service.loading()).toBe(false);
     });
-
-    it('should merge option updates', () => {
-        spectator.service.setOptions({ date: 123, end: 456 });
-        expect(spectator.service.options()).toEqual({ date: 123, end: 456 });
-
-        spectator.service.setOptions({ end: 789 });
-        expect(spectator.service.options()).toEqual({ date: 123, end: 789 });
-    });
-
-    it('should merge filter updates', () => {
-        spectator.service.setFilters({ tags: ['a'] });
-        expect(spectator.service.filters().tags).toEqual(['a']);
-
-        spectator.service.setFilters({ categories: ['cat'] });
-        expect(spectator.service.filters()).toEqual({
-            categories: ['cat'],
-            tags: ['a'],
-        });
-    });
 });

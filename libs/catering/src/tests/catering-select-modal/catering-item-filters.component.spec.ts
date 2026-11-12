@@ -13,20 +13,25 @@ import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
+import {
+    CateringOrderSelectFilters,
+    CateringOrderStateService,
+} from '../../lib/catering-order-modal/catering-order-state.service';
 import { CateringItemFiltersComponent } from '../../lib/catering-select-modal/catering-item-filters.component';
 
 describe('CateringItemFiltersComponent', () => {
     let spectator: Spectator<CateringItemFiltersComponent>;
     const base_date = startOfDay(new Date('2026-06-15T00:00:00')).valueOf();
-    const filters = signal<any>({
+    const filters = signal<CateringOrderSelectFilters>({
         date: base_date,
         duration: 120,
         search: '',
         tags: [],
         categories: [],
     });
-    const setFilters = vi.fn((f) => filters.set({ ...filters(), ...f }));
+    const setFilters = vi.fn((f: Partial<CateringOrderSelectFilters>) =>
+        filters.set({ ...filters(), ...f }),
+    );
     const getFilters = vi.fn(() => ({ ...filters() }));
     const categories = signal<string[]>(['Drinks', 'Snacks']);
     const caterers = signal<string[]>(['Cafe']);
@@ -95,13 +100,13 @@ describe('CateringItemFiltersComponent', () => {
         expect(spectator.component.day_options()).toEqual([]);
     });
 
-    it('should compute day options for multi-day events', () => {
-        filters.set({ ...filters(), duration: 48 * 60 });
+    it('should offer each day of a multi-day event', () => {
+        filters.set({ ...filters(), duration: 36 * 60 });
         spectator.component.ngOnInit();
-        const options = spectator.component.day_options();
-        expect(options.length).toBeGreaterThan(1);
-        expect(options[0].id).toBe(0);
-        expect(options[0].value).toBe(startOfDay(base_date).valueOf());
+        expect(spectator.component.day_options()).toEqual([
+            { id: 0, value: base_date },
+            { id: 1, value: addDays(base_date, 1).valueOf() },
+        ]);
     });
 
     it('should compute the start of the selected offset day', () => {

@@ -1,6 +1,13 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { setCurrentUser, SettingsService } from '@placeos/common';
-import { authority, queryApplications, setAPI_Key, setup } from '@placeos/ts-client';
+import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
+import {
+    authority,
+    PlaceApplication,
+    type PlaceAuthority,
+    queryApplications,
+    setAPI_Key,
+    setup,
+} from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from './app.component';
@@ -17,6 +24,20 @@ const settings_mock = {
     initialised: new BehaviorSubject<boolean>(false),
     get: vi.fn(),
 };
+
+/** Resolve `queryApplications` with the given applications. */
+function respondWith(apps: Partial<PlaceApplication>[]) {
+    vi.mocked(queryApplications).mockResolvedValue({
+        total: apps.length,
+        next: () => null,
+        data: apps.map((_) => new PlaceApplication(_)),
+    });
+}
+
+/** Return the given values from the settings mock, by key. */
+function useSettings(values: Record<string, unknown>) {
+    settings_mock.get.mockImplementation((key: string) => values[key]);
+}
 
 function makeApp(overrides: Partial<LauncherApplication> = {}): LauncherApplication {
     return {
@@ -50,23 +71,20 @@ describe('AppComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settings_mock.initialised = new BehaviorSubject<boolean>(false);
-        settings_mock.get.mockImplementation((key: string) => {
-            if (key === 'composer') return {};
-            if (key === 'mock') return false;
-            if (key === 'app.application_restrictions') return [];
-            return undefined;
-        });
-        vi.mocked(authority).mockReturnValue({ id: 'auth-1' } as any);
-        vi.mocked(queryApplications).mockResolvedValue({ data: [] } as any);
+        useSettings({ composer: {}, mock: false, 'app.application_restrictions': [] });
+        vi.mocked(authority).mockReturnValue({ id: 'auth-1' } as PlaceAuthority);
+        respondWith([]);
         vi.mocked(setup).mockResolvedValue(undefined);
         vi.mocked(setAPI_Key).mockReturnValue(undefined);
-        setCurrentUser({ id: 'user-1', groups: [] } as any);
+        setCurrentUser(new StaffUser({ id: 'user-1', groups: [] }));
         window.history.replaceState({}, '', '/');
         spectator = create_component();
     });
 
     afterEach(() => {
         window.history.replaceState({}, '', '/');
+        // `setupPlace` stores the mock mode choice in local storage.
+        localStorage.removeItem('mock');
     });
 
     it('shows the loading spinner before applications resolve', () => {
@@ -80,23 +98,22 @@ describe('AppComponent', () => {
     });
 
     it('renders a launcher tile per resolved application, sorted by name', async () => {
-        vi.mocked(queryApplications).mockResolvedValue({
-            data: [
-                {
-                    id: 'workplace',
-                    name: 'Workplace',
-                    redirect_uri: 'https://example.com/workplace/',
-                },
-                {
-                    id: 'concierge',
-                    name: 'Concierge',
-                    redirect_uri: 'https://example.com/concierge/',
-                },
-            ],
-        } as any);
+        respondWith([
+            {
+                id: 'workplace',
+                name: 'Workplace',
+                redirect_uri: 'https://example.com/workplace/',
+            },
+            {
+                id: 'concierge',
+                name: 'Concierge',
+                redirect_uri: 'https://example.com/concierge/',
+            },
+        ]);
 
         await runInit();
 
+        expect(queryApplications).toHaveBeenCalledWith({ authority_id: 'auth-1' });
         expect(spectator.component.loading()).toBe(false);
         const tiles = spectator.queryAll('.app-grid a');
         expect(tiles.length).toBe(2);
@@ -105,15 +122,13 @@ describe('AppComponent', () => {
     });
 
     it('links each tile to its app root, without the oauth-resp.html page', async () => {
-        vi.mocked(queryApplications).mockResolvedValue({
-            data: [
-                {
-                    id: 'workplace',
-                    name: 'Workplace',
-                    redirect_uri: 'https://example.com/workplace/oauth-resp.html',
-                },
-            ],
-        } as any);
+        respondWith([
+            {
+                id: 'workplace',
+                name: 'Workplace',
+                redirect_uri: 'https://example.com/workplace/oauth-resp.html',
+            },
+        ]);
 
         await runInit();
 
@@ -123,20 +138,18 @@ describe('AppComponent', () => {
 
     it('hides the tile that points back to the current page', async () => {
         window.history.replaceState({}, '', '/app-loader/?x=1');
-        vi.mocked(queryApplications).mockResolvedValue({
-            data: [
-                {
-                    id: 'self',
-                    name: 'App Loader',
-                    redirect_uri: `${location.origin}/app-loader/oauth-resp.html`,
-                },
-                {
-                    id: 'workplace',
-                    name: 'Workplace',
-                    redirect_uri: 'https://example.com/workplace/',
-                },
-            ],
-        } as any);
+        respondWith([
+            {
+                id: 'self',
+                name: 'App Loader',
+                redirect_uri: `${location.origin}/app-loader/oauth-resp.html`,
+            },
+            {
+                id: 'workplace',
+                name: 'Workplace',
+                redirect_uri: 'https://example.com/workplace/',
+            },
+        ]);
 
         await runInit();
 
@@ -145,28 +158,23 @@ describe('AppComponent', () => {
     });
 
     it('hides applications restricted to groups the user is not in', async () => {
-        settings_mock.get.mockImplementation((key: string) => {
-            if (key === 'composer') return {};
-            if (key === 'mock') return false;
-            if (key === 'app.application_restrictions')
-                return [{ id: 'admin', groups: ['admins'] }];
-            return undefined;
+        useSettings({
+            composer: {},
+            'app.application_restrictions': [{ id: 'admin', groups: ['admins'] }],
         });
-        setCurrentUser({ id: 'u', groups: ['staff'] } as any);
-        vi.mocked(queryApplications).mockResolvedValue({
-            data: [
-                {
-                    id: 'admin',
-                    name: 'Admin',
-                    redirect_uri: 'https://example.com/admin/',
-                },
-                {
-                    id: 'workplace',
-                    name: 'Workplace',
-                    redirect_uri: 'https://example.com/workplace/',
-                },
-            ],
-        } as any);
+        setCurrentUser(new StaffUser({ id: 'u', groups: ['staff'] }));
+        respondWith([
+            {
+                id: 'admin',
+                name: 'Admin',
+                redirect_uri: 'https://example.com/admin/',
+            },
+            {
+                id: 'workplace',
+                name: 'Workplace',
+                redirect_uri: 'https://example.com/workplace/',
+            },
+        ]);
 
         await runInit();
 
@@ -175,18 +183,15 @@ describe('AppComponent', () => {
     });
 
     it('shows an empty-state message when no applications are configured', async () => {
-        vi.mocked(queryApplications).mockResolvedValue({ data: [] } as any);
-
         await runInit();
 
-        expect(spectator.component.applications().length).toBe(0);
         expect(spectator.query('section')).toHaveText(
             'No applications configured for this domain.',
         );
     });
 
     it('shows the empty-state message when there is no active authority', async () => {
-        vi.mocked(authority).mockReturnValue(null);
+        vi.mocked(authority).mockReturnValue(undefined);
 
         await runInit();
 
@@ -196,9 +201,15 @@ describe('AppComponent', () => {
         );
     });
 
-    it('surfaces an error message when setup fails', async () => {
+    it.each([
+        ['setup', () => vi.mocked(setup).mockRejectedValue(new Error('boom'))],
+        [
+            'the application query',
+            () => vi.mocked(queryApplications).mockRejectedValue(new Error('boom')),
+        ],
+    ])('surfaces an error message when %s fails', async (_, fail) => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
-        vi.mocked(setup).mockRejectedValue(new Error('boom'));
+        fail();
 
         await runInit();
 
@@ -220,6 +231,39 @@ describe('AppComponent', () => {
         expect(vi.mocked(setAPI_Key).mock.invocationCallOrder[0]).toBeLessThan(
             vi.mocked(setup).mock.invocationCallOrder[0],
         );
+    });
+
+    it('sets up PlaceOS with the composer settings of the app', async () => {
+        useSettings({
+            composer: {
+                use_domain: true,
+                domain: 'placeos.example.com',
+                port: '8443',
+                protocol: 'https:',
+            },
+            mock: false,
+        });
+
+        await runInit();
+
+        expect(setup).toHaveBeenCalledWith(
+            expect.objectContaining({
+                host: 'placeos.example.com:8443',
+                auth_uri: 'https://placeos.example.com:8443/auth/oauth/authorize',
+                mock: false,
+            }),
+        );
+    });
+
+    it('sets up PlaceOS in mock mode when the mock setting is on', async () => {
+        useSettings({ composer: {}, mock: true });
+
+        await runInit();
+        // The mock data module loads lazily, so setup runs a few ticks later.
+        await vi.waitFor(() => expect(spectator.component.loading()).toBe(false));
+
+        expect(spectator.component.error()).toBe('');
+        expect(setup).toHaveBeenCalledWith(expect.objectContaining({ mock: true }));
     });
 
     it('does not register an api key when none is provided', async () => {

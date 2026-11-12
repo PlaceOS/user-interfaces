@@ -71,25 +71,6 @@ describe('AuthorisedUserGuard', () => {
         spectator = createService();
     });
 
-    it('should treat a stored api key as cached credentials', async () => {
-        vi.useFakeTimers();
-        settings_mock.get.mockImplementation((key) =>
-            key === 'app.offline_boot' ? true : [],
-        );
-        // ts-client reports an api-key session as the token `x-api-key`; fixed
-        // devices authenticate this way, so offline boot depends on it.
-        vi.mocked(ts_client.token).mockReturnValue('x-api-key');
-        wait_until_initialised.mockImplementation(
-            () => new Promise(() => undefined),
-        );
-
-        const result = spectator.service.canActivate();
-        await vi.advanceTimersByTimeAsync(21_000);
-
-        await expect(result).resolves.toBe(true);
-        vi.useRealTimers();
-    });
-
     it('should allow access on cached credentials when the backend is unreachable', async () => {
         vi.useFakeTimers();
         settings_mock.get.mockImplementation((key) =>
@@ -99,12 +80,15 @@ describe('AuthorisedUserGuard', () => {
         wait_until_initialised.mockImplementation(
             () => new Promise(() => undefined),
         );
-        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+        // ts-client reports an api-key session as the token `x-api-key`; fixed
+        // devices authenticate this way, so offline boot depends on it.
+        vi.mocked(ts_client.token).mockReturnValue('x-api-key');
 
         const result = spectator.service.canActivate();
         await vi.advanceTimersByTimeAsync(21_000);
 
         await expect(result).resolves.toBe(true);
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
         vi.useRealTimers();
     });
 
@@ -177,40 +161,33 @@ describe('AuthorisedUserGuard', () => {
         vi.useRealTimers();
     });
 
-    it('should stop waiting during a slow startup', async () => {
-        vi.useFakeTimers();
-        wait_until_initialised.mockImplementation(
-            () => new Promise(() => undefined),
-        );
-        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+    it('should allow only users in the app access group, through each guard hook', async () => {
+        const router = spectator.inject(Router);
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
 
-        const result = spectator.service.canActivate();
-        await vi.advanceTimersByTimeAsync(21_000);
+        access_mock.group = 'Admin';
+        await expect(spectator.service.canLoad()).resolves.toBe(false);
+        expect(router.navigate).toHaveBeenCalledWith(['/unauthorised']);
 
-        await expect(result).resolves.toBe(true);
-        vi.useRealTimers();
+        setCurrentUser({ groups: ['Admin'] } as any);
+        await expect(spectator.service.canActivateChild()).resolves.toBe(true);
     });
 
-    it('should check if logged in user can activate a route', async () => {
-        // Setup mocks
-        setCurrentUser({ groups: [] } as any);
+    it('should use the access groups from settings when the app sets none', async () => {
+        settings_mock.get.mockImplementation((key) =>
+            key === 'app.allow_access_groups' ? ['staff', 'admins'] : undefined,
+        );
+        setCurrentUser({ groups: ['visitors'] } as any);
+        await expect(spectator.service.canActivate()).resolves.toBe(false);
+        expect(localStorage.getItem('PLACEOS.access_allowed.workplace')).toBe(
+            '0',
+        );
 
-        // With no required groups, user should be allowed
-        let can_activate = await spectator.service.canActivate();
-        expect(can_activate).toBeTruthy();
-
-        // With required 'Admin' group, user without it should be denied
-        access_mock.group = 'Admin';
-        can_activate = await spectator.service.canActivate();
-        expect(can_activate).toBeFalsy();
-
-        // User with 'Admin' group should be allowed
-        setCurrentUser({ groups: ['Admin'] } as any);
-        can_activate = await spectator.service.canActivate();
-        expect(can_activate).toBeTruthy();
-
-        // Reset
-        access_mock.group = '';
+        setCurrentUser({ groups: ['admins'] } as any);
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
+        expect(localStorage.getItem('PLACEOS.access_allowed.workplace')).toBe(
+            '1',
+        );
     });
 
     it('waits for user groups and app settings to load', async () => {
@@ -239,25 +216,6 @@ describe('AuthorisedUserGuard', () => {
         await expect(guard_result).resolves.toBe(true);
     });
 
-    it('should check if logged in user can load a route', async () => {
-        // Setup mocks
-        setCurrentUser({ groups: [] } as any);
-
-        // With no required groups, user should be allowed
-        let can_load = await spectator.service.canLoad();
-        expect(can_load).toBeTruthy();
-
-        // With required 'Admin' group, user without it should be denied
-        access_mock.group = 'Admin';
-        can_load = await spectator.service.canLoad();
-        expect(can_load).toBeFalsy();
-
-        // User with 'Admin' group should be allowed
-        setCurrentUser({ groups: ['Admin'] } as any);
-        can_load = await spectator.service.canLoad();
-        expect(can_load).toBeTruthy();
-    });
-
     it('should require read access to the app subsystem when enabled', async () => {
         vi.mocked(ts_client.authority).mockReturnValue({
             config: { use_group_subsystem_access: true },
@@ -270,7 +228,7 @@ describe('AuthorisedUserGuard', () => {
             } as any,
         ]);
 
-        await expect(spectator.service.canActivate()).resolves.toBeTruthy();
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
         expect(ts_client.currentGroups).not.toHaveBeenCalled();
     });
 
@@ -290,7 +248,7 @@ describe('AuthorisedUserGuard', () => {
             } as any,
         ]);
 
-        await expect(spectator.service.canActivate()).resolves.toBeTruthy();
+        await expect(spectator.service.canActivate()).resolves.toBe(true);
     });
 
     it('should block users without read access to the app subsystem', async () => {
@@ -305,7 +263,7 @@ describe('AuthorisedUserGuard', () => {
             } as any,
         ]);
 
-        await expect(spectator.service.canActivate()).resolves.toBeFalsy();
+        await expect(spectator.service.canActivate()).resolves.toBe(false);
         expect(ts_client.currentGroups).not.toHaveBeenCalled();
     });
 });

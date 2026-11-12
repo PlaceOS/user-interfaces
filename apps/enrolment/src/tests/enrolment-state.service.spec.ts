@@ -63,6 +63,8 @@ describe('EnrolmentStateService', () => {
                     id: 'guest@example.com',
                     email: 'guest@example.com',
                     name: 'Guest User',
+                    // Not a form field, so saving must keep it from the record
+                    status: 'approved',
                 };
             }
             return event_stub;
@@ -186,6 +188,7 @@ describe('EnrolmentStateService', () => {
             expect(spectator.service.error()).toBe('guest');
             expect(spectator.service.view()).toBe('error');
             expect(spectator.service.loading()).toBe('');
+            expect(getCalls(EVENTS_ENDPOINT)).toHaveLength(0);
         });
 
         it('should show the meeting error if event details fail to load', async () => {
@@ -210,6 +213,16 @@ describe('EnrolmentStateService', () => {
     });
 
     describe('event validation', () => {
+        it('should accept a meeting that has started but not finished', async () => {
+            event_stub.event_start = getUnixTime(Date.now()) - 5 * 60;
+            event_stub.event_end = getUnixTime(Date.now()) + 25 * 60;
+            spectator.service.handleUserToken(validToken());
+            await settle();
+
+            expect(spectator.service.event()?.id).toBe('event-1');
+            expect(spectator.service.error()).toBe('');
+        });
+
         it('should error with "link" for an event that has already finished', async () => {
             event_stub.event_start = getUnixTime(Date.now()) - 3600;
             event_stub.event_end = getUnixTime(Date.now()) - 60;
@@ -258,7 +271,7 @@ describe('EnrolmentStateService', () => {
             expect(spectator.service.form().touched()).toBe(true);
         });
 
-        it('should patch the guest with the edited details when valid', async () => {
+        it('should patch the guest record with the edited details when valid', async () => {
             acceptValidDetails();
             await spectator.service.updateGuest();
 
@@ -267,6 +280,8 @@ describe('EnrolmentStateService', () => {
             expect(url).toBe(`${GUEST_ENDPOINT}/guest%40example.com`);
             expect(body).toEqual(
                 expect.objectContaining({
+                    id: 'guest@example.com',
+                    status: 'approved',
                     name: 'New Name',
                     organisation: 'ACME',
                 }),

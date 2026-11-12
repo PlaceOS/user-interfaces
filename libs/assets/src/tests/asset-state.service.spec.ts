@@ -165,22 +165,74 @@ describe('AssetStateService', () => {
         expect(spectator.service.category()).toEqual([]);
     });
 
+    // Group results are cached per zone in assets.fn, so each test below
+    // uses a zone of its own
     it('should show loading while availability is pending', async () => {
-        let resolve: (value: unknown) => void;
+        type TypesResponse = Awaited<
+            ReturnType<typeof ts_client.queryAssetTypes>
+        >;
+        let resolve_types: (value: TypesResponse) => void = () => undefined;
         vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            new Promise((r) => (resolve = r)) as any,
+            new Promise<TypesResponse>((r) => (resolve_types = r)),
         );
-        const request = (spectator.service as any)._loadAvailableGroups(
-            { date: new Date(2026, 5, 22, 9).valueOf(), zone: 'zone-1' },
-            'bld-1',
+        spectator.service.setOptions({ zone: 'zone-pending' });
+        spectator.service.filtered_assets();
+
+        await vi.waitFor(() => {
+            TestBed.tick();
+            expect(spectator.service.loading()).toContain('[Availability]');
+        });
+        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_id: 'zone-pending' }),
         );
-        await Promise.resolve();
 
-        expect(spectator.service.loading()).toContain('[Availability]');
+        resolve_types({ data: [], total: 0, next: () => null });
 
-        resolve({ data: [], total: 0, next: () => null });
-        await request;
+        await vi.waitFor(() =>
+            expect(spectator.service.loading()).not.toContain('[Availability]'),
+        );
+    });
+
+    it('should clear loading when the availability request fails', async () => {
+        const log = vi.spyOn(console, 'error').mockImplementation(() => {});
+        vi.mocked(ts_client.queryAssetTypes).mockRejectedValue(
+            new Error('offline'),
+        );
+        spectator.service.setOptions({ zone: 'zone-error' });
+        spectator.service.filtered_assets();
+
+        await vi.waitFor(() => {
+            TestBed.tick();
+            expect(log).toHaveBeenCalled();
+        });
 
         expect(spectator.service.loading()).not.toContain('[Availability]');
+        expect(spectator.service.available_groups()).toEqual([]);
+        log.mockRestore();
+    });
+
+    it('should read the disabled rooms from the building asset settings', async () => {
+        vi.mocked(ts_client.showMetadata).mockImplementation((_, name) =>
+            Promise.resolve(
+                new ts_client.PlaceMetadata({
+                    name,
+                    details:
+                        name === 'assets-settings'
+                            ? { disabled_rooms: ['room-1'] }
+                            : [],
+                }),
+            ),
+        );
+        spectator.service.setOptions({ zone: 'zone-settings' });
+
+        expect(spectator.service.disabled_rooms()).toEqual([]);
+        await vi.waitFor(() => {
+            TestBed.tick();
+            expect(spectator.service.disabled_rooms()).toEqual(['room-1']);
+        });
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'bld-1',
+            'assets-settings',
+        );
     });
 });

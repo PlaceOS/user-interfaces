@@ -28,6 +28,7 @@ function createSnackbarSpy() {
 describe('CheckoutComponent', () => {
     let spectator: SpectatorRouting<CheckoutComponent>;
     let snackbar: ReturnType<typeof createSnackbarSpy>;
+    const event = signal<unknown>({ id: 'booking-1' });
     const createComponent = createRoutingFactory({
         component: CheckoutComponent,
         detectChanges: false,
@@ -36,7 +37,7 @@ describe('CheckoutComponent', () => {
             {
                 provide: CheckinStateService,
                 useValue: {
-                    event: signal<unknown>({ id: 'booking-1' }),
+                    event,
                     checkinGuest: vi.fn(async () => null),
                 },
             },
@@ -50,7 +51,7 @@ describe('CheckoutComponent', () => {
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         spectator = createComponent();
-        (spectator.inject(CheckinStateService) as any).event.set({
+        event.set({
             id: 'booking-1',
         });
     });
@@ -59,7 +60,7 @@ describe('CheckoutComponent', () => {
 
     describe('ngOnInit', () => {
         it('redirects to checkout when there is no event', async () => {
-            (spectator.inject(CheckinStateService) as any).event.set(null);
+            event.set(null);
             await spectator.component.ngOnInit();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/checkout',

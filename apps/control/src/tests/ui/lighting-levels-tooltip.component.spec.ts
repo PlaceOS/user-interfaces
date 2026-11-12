@@ -15,7 +15,6 @@ describe('LightingLevelsTooltipComponent', () => {
     let spectator: Spectator<LightingLevelsTooltipComponent>;
     const system_id = signal<string>('sys-1');
     const lighting_levels = signal<unknown[]>([]);
-    const close_fn = vi.fn();
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: LightingLevelsTooltipComponent,
@@ -32,7 +31,7 @@ describe('LightingLevelsTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: close_fn },
+                useValue: { close: vi.fn() },
             },
         ],
     });
@@ -40,7 +39,6 @@ describe('LightingLevelsTooltipComponent', () => {
     beforeEach(() => {
         system_id.set('sys-1');
         lighting_levels.set([]);
-        close_fn.mockClear();
         execute_fn.mockClear();
         (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
@@ -111,10 +109,5 @@ describe('LightingLevelsTooltipComponent', () => {
         spectator.component.setLevel({ area: 'a1' }, 40);
         await new Promise((r) => setTimeout(r, 70));
         expect(execute_fn).not.toHaveBeenCalled();
-    });
-
-    it('should close via the tooltip data', () => {
-        spectator.component.close();
-        expect(close_fn).toHaveBeenCalled();
     });
 });

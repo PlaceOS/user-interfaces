@@ -58,7 +58,6 @@ describe('PublicEventsListComponent', () => {
             system_id: 'sys-1',
         });
         const article = fixture.nativeElement.querySelector('article');
-        expect(article).toBeTruthy();
         expect(article.textContent).toContain('Rooftop Mixer');
         expect(article.textContent).toContain('Level 10 Terrace');
         expect(article.textContent).toContain('Great evening event');

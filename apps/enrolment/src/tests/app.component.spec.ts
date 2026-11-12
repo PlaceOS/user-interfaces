@@ -74,7 +74,9 @@ describe('AppComponent', () => {
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         vi.unstubAllGlobals();
+        localStorage.removeItem('mock');
     });
 
     it('should apply the enrolment domain config before signing in', async () => {
@@ -114,6 +116,43 @@ describe('AppComponent', () => {
             expect(ts_client.setup).not.toHaveBeenCalled();
         },
     );
+
+    it('should give up on the authority request after 10 seconds', async () => {
+        vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+        fetch_mock.mockImplementation(
+            (_: string, init: RequestInit) =>
+                new Promise((_, reject) =>
+                    init.signal?.addEventListener('abort', () =>
+                        reject(new Error('aborted')),
+                    ),
+                ),
+        );
+        spectator.detectChanges();
+
+        await vi.advanceTimersByTimeAsync(9_999);
+        expect(spectator.component.initialisation_error()).toBe('');
+
+        await vi.advanceTimersByTimeAsync(1);
+        await start();
+
+        expect(text()).toContain('Enrolment could not connect');
+        expect(ts_client.setup).not.toHaveBeenCalled();
+    });
+
+    it('should start the mock backend instead of asking the server in mock mode', async () => {
+        localStorage.setItem('mock', 'true');
+
+        await start();
+
+        expect(fetch_mock).not.toHaveBeenCalled();
+        // The mock backend registers its endpoints with ts-client
+        expect(ts_client.registerMockEndpoint).toHaveBeenCalled();
+        expect(ts_client.setup).toHaveBeenCalledWith(
+            expect.objectContaining({ mock: true }),
+        );
+        expect(set_overrides).toHaveBeenCalledWith([{}]);
+        expect(initialisationComplete()()).toBe(true);
+    });
 
     it('should show an authentication error when sign in fails', async () => {
         (ts_client.setup as any).mockRejectedValue(new Error('denied'));

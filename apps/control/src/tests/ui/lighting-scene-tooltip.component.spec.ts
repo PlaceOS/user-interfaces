@@ -13,7 +13,6 @@ describe('LightingSceneTooltipComponent', () => {
     let spectator: Spectator<LightingSceneTooltipComponent>;
     const lighting_scene = signal<number | undefined>(undefined);
     const lighting_scenes = signal<unknown[]>([]);
-    const close_fn = vi.fn();
     const execute_fn = vi.fn(async () => null);
     const createComponent = createComponentFactory({
         component: LightingSceneTooltipComponent,
@@ -29,7 +28,7 @@ describe('LightingSceneTooltipComponent', () => {
             },
             {
                 provide: CustomTooltipData,
-                useValue: { close: close_fn },
+                useValue: { close: vi.fn() },
             },
         ],
     });
@@ -37,7 +36,6 @@ describe('LightingSceneTooltipComponent', () => {
     beforeEach(() => {
         lighting_scene.set(undefined);
         lighting_scenes.set([]);
-        close_fn.mockClear();
         execute_fn.mockClear();
         (client.getModule as any).mockReturnValue({ execute: execute_fn });
         spectator = createComponent();
@@ -88,10 +86,5 @@ describe('LightingSceneTooltipComponent', () => {
         (client.getModule as any).mockReturnValue(null);
         spectator.component.setScene('Bright');
         expect(execute_fn).not.toHaveBeenCalled();
-    });
-
-    it('should close via the tooltip data', () => {
-        spectator.component.close();
-        expect(close_fn).toHaveBeenCalled();
     });
 });

@@ -91,34 +91,6 @@ describe('ExploreLockersService', () => {
         expect(filtered[0].id).toBe('b1');
     });
 
-    it('should set map styles and features for the active level banks', () => {
-        const state = spectator.inject(ExploreStateService);
-        (spectator.service as any).locker_banks = () => [
-            {
-                id: 'b1',
-                map_id: 'm1',
-                level_id: 'lvl-1',
-                zones: ['lvl-1'],
-            },
-        ];
-        (spectator.service as any).lockers = () => [
-            { id: 'l1', bank_id: 'b1' },
-        ];
-        // Re-trigger the styling effect by changing the tracked level signal
-        (state.level as any).set({ id: 'lvl-1' });
-        TestBed.tick();
-        expect(state.setStyles).toHaveBeenCalledWith('lockers', {
-            '#m1': { fill: DEFAULT_COLOURS['free'] },
-        });
-        const feature_call = vi
-            .mocked(state.setFeatures)
-            .mock.calls.find((_) => _[0] === 'lockers');
-        expect(feature_call).toBeTruthy();
-        const features = feature_call[1];
-        expect(features.length).toBe(1);
-        expect(features[0].location).toBe('m1');
-    });
-
     it('should colour a bank by the share of its lockers in use', () => {
         const state = spectator.inject(ExploreStateService);
         const org = spectator.inject(OrganisationService);
@@ -166,9 +138,15 @@ describe('ExploreLockersService', () => {
         TestBed.tick();
         expect(bankStyle()).toEqual({ fill: DEFAULT_COLOURS.pending });
         const [, features] = vi.mocked(state.setFeatures).mock.calls.at(-1);
-        expect(features[0].data).toEqual(
-            expect.objectContaining({ in_use_count: 4, locker_count: 10 }),
-        );
+        expect(features).toEqual([
+            expect.objectContaining({
+                location: 'm1',
+                data: expect.objectContaining({
+                    in_use_count: 4,
+                    locker_count: 10,
+                }),
+            }),
+        ]);
 
         inUse(9);
         TestBed.tick();

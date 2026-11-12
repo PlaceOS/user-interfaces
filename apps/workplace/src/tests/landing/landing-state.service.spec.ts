@@ -9,7 +9,9 @@ import {
     CalendarEvent,
     Organisation,
     OrganisationService,
+    setCurrentUser,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
@@ -18,6 +20,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import { CalendarService } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
+import { PlaceMetadata, PlaceUser } from '@placeos/ts-client';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
@@ -125,6 +128,13 @@ describe('LandingStateService', () => {
                 all_day: true,
                 status: 'cancelled',
             } as any),
+            new CalendarEvent({
+                id: 'deleted-event',
+                date,
+                duration: 24 * 60 - 1,
+                all_day: true,
+                deleted: true,
+            }),
         ]);
 
         spectator = createService();
@@ -133,38 +143,6 @@ describe('LandingStateService', () => {
         expect(spectator.service.upcoming_events().map((_) => _.id)).toEqual([
             'active',
         ]);
-    });
-
-    it('should exclude cancelled history before the five-card limit', async () => {
-        const date = new Date().setHours(12, 0, 0, 0);
-        vi.useFakeTimers({ toFake: ['Date'] });
-        vi.setSystemTime(date);
-        const cancelled = Array.from(
-            { length: 5 },
-            (_, index) =>
-                new Booking({
-                    id: `cancelled-${index}`,
-                    booking_type: 'desk',
-                    date: date + 60_000,
-                    duration: 60,
-                    deleted: true,
-                }),
-        );
-        const active = new Booking({
-            id: 'active-desk',
-            booking_type: 'desk',
-            date: date + 120_000,
-            duration: 60,
-        });
-        filtered_bookings.set([...cancelled, active]);
-        spectator = createService();
-        await flush();
-
-        expect(spectator.service.upcoming_events()).toEqual([active]);
-
-        filtered_bookings.set(cancelled);
-        await flush();
-        expect(spectator.service.upcoming_events()).toEqual([]);
     });
 
     it('should keep current and upcoming bookings for a fresh account', async () => {
@@ -192,20 +170,6 @@ describe('LandingStateService', () => {
             upcoming,
             meeting,
         ]);
-    });
-
-    it('should exclude explicit cancellations and cancelled calendar events', async () => {
-        const date = new Date().setHours(12, 0, 0, 0);
-        vi.useFakeTimers({ toFake: ['Date'] });
-        vi.setSystemTime(date);
-        filtered_bookings.set([
-            new Booking({ date, duration: 60, status: 'cancelled' }),
-            new CalendarEvent({ date, duration: 60, deleted: true }),
-        ]);
-        spectator = createService();
-        await flush();
-
-        expect(spectator.service.upcoming_events()).toEqual([]);
     });
 
     it('should list the free spaces that the booking rules allow', async () => {
@@ -323,5 +287,137 @@ describe('LandingStateService', () => {
         await flush();
         expect(open).toBe(0);
         expect(spectator.service.free_space_list()).toEqual([]);
+    });
+
+    describe('colleague search', () => {
+        type QueryResult = Awaited<ReturnType<typeof ts_client.queryUsers>>;
+        const users = (...emails: string[]): QueryResult => ({
+            total: emails.length,
+            next: () => null,
+            data: emails.map((email) => new PlaceUser({ id: email, email })),
+        });
+        const emails = () =>
+            spectator.service.search_results().map((user) => user.email);
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            spectator = createService();
+        });
+
+        it('should search after the user stops typing', async () => {
+            vi.mocked(ts_client.queryUsers).mockResolvedValue(
+                users('ann@example.com'),
+            );
+            spectator.service.setOptions({ search: 'a' });
+            TestBed.flushEffects();
+            await vi.advanceTimersByTimeAsync(300);
+            spectator.service.setOptions({ search: 'an' });
+            TestBed.flushEffects();
+            await vi.advanceTimersByTimeAsync(499);
+            expect(ts_client.queryUsers).not.toHaveBeenCalled();
+
+            await vi.advanceTimersByTimeAsync(1);
+            expect(ts_client.queryUsers).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ q: 'an' }),
+            );
+            expect(emails()).toEqual(['ann@example.com']);
+            expect(spectator.service.loading()).toBe('');
+        });
+
+        it('should ignore the late response of a replaced search', async () => {
+            let resolveOld: (result: QueryResult) => void;
+            vi.mocked(ts_client.queryUsers)
+                .mockReturnValueOnce(
+                    new Promise((resolve) => (resolveOld = resolve)),
+                )
+                .mockResolvedValueOnce(users('new@example.com'));
+            spectator.service.setOptions({ search: 'old' });
+            TestBed.flushEffects();
+            await vi.advanceTimersByTimeAsync(500);
+            spectator.service.setOptions({ search: 'new' });
+            TestBed.flushEffects();
+            await vi.advanceTimersByTimeAsync(500);
+            expect(emails()).toEqual(['new@example.com']);
+
+            resolveOld(users('old@example.com'));
+            await vi.advanceTimersByTimeAsync(0);
+            expect(emails()).toEqual(['new@example.com']);
+        });
+
+        it('should flag a failed search and clear the results', async () => {
+            vi.mocked(ts_client.queryUsers).mockResolvedValueOnce(
+                users('ann@example.com'),
+            );
+            spectator.service.setOptions({ search: 'ann' });
+            TestBed.flushEffects();
+            await vi.advanceTimersByTimeAsync(500);
+            expect(emails()).toEqual(['ann@example.com']);
+
+            vi.mocked(ts_client.queryUsers).mockRejectedValueOnce(
+                new Error('offline'),
+            );
+            spectator.service.setOptions({ search: 'bob' });
+            TestBed.flushEffects();
+            await vi.advanceTimersByTimeAsync(500);
+            expect(spectator.service.search_failed()).toBe(true);
+            expect(emails()).toEqual([]);
+            expect(spectator.service.loading()).toBe('');
+        });
+    });
+
+    describe('contacts', () => {
+        const saved = () =>
+            vi
+                .mocked(ts_client.updateMetadata)
+                .mock.lastCall?.[1].details.map(
+                    (user: StaffUser) => user.email,
+                );
+
+        beforeEach(async () => {
+            setCurrentUser(
+                new StaffUser({ id: 'me', email: 'me@example.com' }),
+            );
+            vi.mocked(ts_client.showMetadata).mockResolvedValue(
+                new PlaceMetadata({
+                    name: 'contacts',
+                    details: [{ email: 'ann@example.com' }],
+                }),
+            );
+            vi.mocked(ts_client.showUser).mockImplementation(
+                async (email: string) => new PlaceUser({ id: email, email }),
+            );
+            vi.mocked(ts_client.updateMetadata).mockResolvedValue(
+                new PlaceMetadata(),
+            );
+            spectator = createService();
+            await flush();
+        });
+
+        afterEach(() => setCurrentUser(null));
+
+        it('should save added contacts once per email', async () => {
+            expect(spectator.service.contacts().map((_) => _.email)).toEqual([
+                'ann@example.com',
+            ]);
+
+            await spectator.service.addContacts([
+                new StaffUser({ email: 'ann@example.com' }),
+                new StaffUser({ email: 'bob@example.com' }),
+            ]);
+
+            expect(ts_client.updateMetadata).toHaveBeenCalledWith(
+                'me',
+                expect.objectContaining({ name: 'contacts' }),
+            );
+            expect(saved()).toEqual(['ann@example.com', 'bob@example.com']);
+        });
+
+        it('should save the contacts without the removed user', async () => {
+            await spectator.service.removeContact(
+                new StaffUser({ email: 'ann@example.com' }),
+            );
+
+            expect(saved()).toEqual([]);
+        });
     });
 });

@@ -15,7 +15,7 @@ vi.mock('@placeos/ts-client', { spy: true });
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
-describe('ExploreStateService', () => {
+describe('ExploreZonesService', () => {
     let spectator: SpectatorService<ExploreZonesService>;
     const createService = createServiceFactory({
         service: ExploreZonesService,

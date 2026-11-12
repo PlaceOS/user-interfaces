@@ -11,6 +11,7 @@ import {
     invert,
     multiply,
     parseTransform,
+    scaling,
     translation,
 } from '../lib/matrix';
 import { checkPathData, pathPoints } from '../lib/path-data';
@@ -33,6 +34,14 @@ describe('matrix', () => {
             e: 5,
             f: 6,
         });
+        const skewed = parseTransform('skewX(45) skewY(45)');
+        expect(skewed.c).toBeCloseTo(1);
+        expect(skewed.b).toBeCloseTo(1);
+        expect(parseTransform('scale(3)')).toEqual(scaling(3, 3));
+        expect(parseTransform('rotate(90)').b).toBeCloseTo(1);
+        expect(parseTransform('matrix(1 2 3) translate(4 5)')).toEqual(
+            translation(4, 5),
+        );
         expect(parseTransform('bogus(1) translate(1)')).toEqual({
             a: 1,
             b: 0,
@@ -81,10 +90,18 @@ describe('path data', () => {
     it('checks the grammar of path data', () => {
         expect(checkPathData('M0 0 L10 10 Z').ok).toBe(true);
         expect(checkPathData('M0,0 c1,1 2,2 3,3 h5 v5 z').ok).toBe(true);
-        expect(checkPathData('L10 10').ok).toBe(false);
-        expect(checkPathData('M0 0 L10').ok).toBe(false);
-        expect(checkPathData('M0 0 X10 10').ok).toBe(false);
-        expect(checkPathData('').ok).toBe(false);
+        const error = (d: string) => checkPathData(d).error;
+        expect(error('L10 10')).toBe('path must start with M');
+        expect(error('10 M0 0')).toBe('number before the first command');
+        expect(error('M0 0 L10')).toBe(
+            'command L has a partial argument group',
+        );
+        expect(error('M0 0 L10 Z')).toBe(
+            'command L has a partial argument group',
+        );
+        expect(error('M0 0 Z 5')).toBe('Z takes no arguments');
+        expect(error('M0 0 X10 10')).toBe('unexpected characters "X"');
+        expect(error(' ')).toBe('empty path data');
     });
 
     it('collects absolute end and control points', () => {
@@ -95,6 +112,24 @@ describe('path data', () => {
             [0, 15],
         ]);
         expect(pathPoints('M0 0 A5 5 0 0 1 10 10')).toEqual([
+            [0, 0],
+            [10, 10],
+        ]);
+        expect(pathPoints('M0 0 Q10 0 10 10 T20 20')).toEqual([
+            [0, 0],
+            [10, 0],
+            [10, 10],
+            [20, 20],
+        ]);
+    });
+
+    it('treats pairs after a moveto as linetos and stops at truncated data', () => {
+        expect(pathPoints('m10 10 20 0 0 5')).toEqual([
+            [10, 10],
+            [30, 10],
+            [30, 15],
+        ]);
+        expect(pathPoints('M0 0 L10 10 C1 2 3')).toEqual([
             [0, 0],
             [10, 10],
         ]);

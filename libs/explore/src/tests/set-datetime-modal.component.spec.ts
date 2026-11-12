@@ -115,15 +115,12 @@ describe('SetDatetimeModalComponent', () => {
         expect(spectator.component.form.controls.duration.disabled).toBe(true);
     });
 
-    it('should expose the form value as the dialog close payload', () => {
-        setup();
-        const button = spectator.query('footer button') as HTMLButtonElement;
-        expect(button).toBeTruthy();
-        // The save button closes the dialog with the current form value.
-        expect(spectator.component.form.value).toMatchObject({
-            date: base_date.valueOf(),
-            duration: 60,
-            all_day: false,
-        });
+    it('should move a date before the bookable hours to their start', () => {
+        const date = new Date(base_date);
+        date.setDate(date.getDate() + 1);
+        date.setHours(6, 0, 0, 0);
+        setup({ date: date.valueOf(), bookable_hours: { start: 8, end: 18 } });
+        date.setHours(8);
+        expect(spectator.component.form.value.date).toBe(date.valueOf());
     });
 });

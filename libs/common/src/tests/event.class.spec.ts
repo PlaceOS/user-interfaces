@@ -1,9 +1,12 @@
 import { addDays, getUnixTime, startOfDay } from 'date-fns';
 
+import type { LinkedBooking } from '../lib/types';
+import { CateringOrder } from '../lib/types/catering.class';
 import {
     CalendarEvent,
     eventStatus,
     parseRecurrence,
+    readAttendeeFlags,
     setDefaultCreator,
 } from '../lib/types/event.class';
 import { EMPTY_USER, User } from '../lib/types/user.class';
@@ -94,6 +97,24 @@ describe('parseRecurrence', () => {
             days_of_week: [1, 3],
         });
         expect(parsed.days_of_week).toEqual(['monday', 'wednesday']);
+    });
+});
+
+describe('readAttendeeFlags', () => {
+    it('should only read the flags that the data has', () => {
+        expect(readAttendeeFlags({ email: 'a@b.com' })).toEqual({});
+        expect(
+            readAttendeeFlags({
+                international: 1,
+                visitor_internal_or_external: 'unknown',
+            }),
+        ).toEqual({
+            international: true,
+            visitor_internal_or_external: 'internal',
+        });
+        expect(
+            readAttendeeFlags({ visitor_internal_or_external: 'external' }),
+        ).toEqual({ visitor_internal_or_external: 'external' });
     });
 });
 
@@ -320,6 +341,66 @@ describe('CalendarEvent', () => {
             ] as any,
         });
         expect(internal.type).toBe('internal');
+    });
+
+    describe('requests delivered during the event', () => {
+        // Wednesday 10th of January 2024, 10:00 to 11:00
+        const event_start = getUnixTime(new Date(2024, 0, 10, 10, 0));
+        const request = (
+            id: string,
+            state: Partial<LinkedBooking>,
+            deliver_day_offset = 0,
+        ) =>
+            ({
+                id: `booking-${id}`,
+                booking_type: 'asset-request',
+                ...state,
+                extension_data: {
+                    request_id: id,
+                    request: { id, deliver_day_offset },
+                },
+            }) as LinkedBooking;
+
+        it('should list asset requests with their linked booking state', () => {
+            const event = new CalendarEvent({
+                event_start,
+                event_end: event_start + HOUR,
+                linked_bookings: [
+                    request('req-1', { approved: 'true' }),
+                    request('req-2', { rejected: 'true' }),
+                    request('req-3', {}),
+                    request('req-next-day', { approved: 'true' }, 1),
+                ],
+            });
+
+            expect(
+                event.valid_assets.map(({ id, state }) => [id, state]),
+            ).toEqual([
+                ['req-1', 'approved'],
+                ['req-2', 'rejected'],
+                ['req-3', 'pending'],
+            ]);
+        });
+
+        it('should list catering delivered before the event ends', () => {
+            const event = new CalendarEvent({
+                event_start,
+                event_end: event_start + HOUR,
+                extension_data: {
+                    catering: [
+                        new CateringOrder({ id: 'order-1' }),
+                        new CateringOrder({
+                            id: 'order-2',
+                            deliver_day_offset: 1,
+                        }),
+                    ],
+                },
+            });
+
+            expect(event.valid_catering.map(({ id }) => id)).toEqual([
+                'order-1',
+            ]);
+        });
     });
 
     describe('toJSON', () => {

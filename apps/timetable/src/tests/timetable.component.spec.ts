@@ -189,6 +189,37 @@ describe('AppTimetableComponent', () => {
             );
         });
 
+        it('should keep the current-time line in the upper part of the grid while idle', async () => {
+            await init();
+            const grid = spectator.query<HTMLElement>('.overflow-auto');
+            const line = spectator.query('[now]');
+            /** Place the grid top at 100px and the line at `top` */
+            const layout = (top: number) => {
+                vi.spyOn(grid, 'getBoundingClientRect').mockReturnValue(
+                    new DOMRect(0, 100, 0, 0),
+                );
+                vi.spyOn(line, 'getBoundingClientRect').mockReturnValue(
+                    new DOMRect(0, top, 0, 0),
+                );
+            };
+            Object.defineProperty(grid, 'clientHeight', { value: 600 });
+
+            // Line half way down the grid
+            layout(400);
+            vi.advanceTimersByTime(500);
+            expect(scroll).not.toHaveBeenCalled();
+
+            // Line near the top. Checked again after 5 minutes idle
+            layout(160);
+            vi.advanceTimersByTime(5 * 60 * 1000 - 1);
+            expect(scroll).not.toHaveBeenCalled();
+            vi.advanceTimersByTime(1);
+            expect(scroll).toHaveBeenCalledWith({
+                top: 60 - 600 / 3,
+                behavior: 'smooth',
+            });
+        });
+
         it('should record when the connection drops and clear it on reconnect', async () => {
             const component = await init();
             vi.mocked(isOnline).mockReturnValue(false);
@@ -199,10 +230,14 @@ describe('AppTimetableComponent', () => {
 
             vi.advanceTimersByTime(2000);
             expect(component.offline_since()).toBe(offline_at);
+            spectator.detectChanges();
+            expect('[offline]').toContainText('Offline since 10:00 AM');
 
             vi.mocked(isOnline).mockReturnValue(true);
             vi.advanceTimersByTime(2000);
             expect(component.offline_since()).toBe(0);
+            spectator.detectChanges();
+            expect('[offline]').not.toExist();
         });
 
         it('should change page after the interval and wait after user input', async () => {
@@ -246,7 +281,13 @@ describe('AppTimetableComponent', () => {
             spectator.detectChanges();
             expect(document.body.classList).toContain('eink');
 
-            vi.advanceTimersByTime(2000);
+            // E-ink panels cannot animate a smooth scroll
+            vi.advanceTimersByTime(500);
+            expect(scroll).toHaveBeenCalledWith(
+                expect.objectContaining({ behavior: 'instant' }),
+            );
+
+            vi.advanceTimersByTime(1500);
             expect(component.date()).toBe(new Date(2026, 0, 1, 10).valueOf());
         });
     });
@@ -281,6 +322,40 @@ describe('AppTimetableComponent', () => {
                 '12:00',
                 '13:00',
             ]);
+        });
+
+        it('should show the current-time line only inside the displayed hours', async () => {
+            settings = { 'app.block_start': 8, 'app.block_end': 14 };
+            const component = await init();
+            const lineAt = (hour: number) => {
+                component.date.set(new Date(2026, 0, 1, hour).valueOf());
+                spectator.detectChanges();
+                return spectator.query<HTMLElement>('[now]')?.style.top ?? null;
+            };
+
+            expect(lineAt(11)).toBe('50%');
+            expect(lineAt(7)).toBeNull();
+            expect(lineAt(15)).toBeNull();
+        });
+
+        it('should show page dots that change the page', async () => {
+            settings = { 'app.page_interval': 20 };
+            const component = await init({ sys_ids: 'a,b' });
+            spectator.detectChanges();
+            // Paging waits for the grid width
+            expect('[pages]').not.toExist();
+
+            component.grid_width.set(400);
+            spectator.detectChanges();
+            const dots = spectator.queryAll('[pages] button');
+            expect(dots).toHaveLength(2);
+            expect(dots[0]).toHaveClass('bg-base-content');
+
+            spectator.click(dots[1]);
+            expect(component.current_page()).toBe(1);
+            expect('[missing] .font-mono').toHaveExactTrimmedText('b');
+            expect(dots[1]).toHaveClass('bg-base-content');
+            expect(dots[0]).not.toHaveClass('bg-base-content');
         });
 
         it('should show a placeholder for unknown spaces and for no spaces', async () => {
@@ -328,23 +403,60 @@ describe('AppTimetableComponent', () => {
 
         component.page_interval.set(0);
         expect(component.visible_columns().length).toBe(6);
+
+        // The page wraps when columns are removed
+        component.page_interval.set(20);
+        component.spaces.set([{ id: 'a' } as Space]);
+        expect(component.page_count()).toBe(1);
+        expect(component.current_page()).toBe(0);
+        expect(component.visible_columns().map(({ id }) => id)).toEqual([
+            'a',
+            'unknown',
+        ]);
     });
 
-    it('should cover the grid at night and shift the UI unless e-ink', () => {
+    it('should cover the grid outside the displayed hours in night mode', () => {
         spectator = createComponent();
         const { component } = spectator;
         component.offset.set(8);
         component.length.set(10);
+        const nightAt = (hour: number) => {
+            component.date.set(new Date(2026, 0, 1, hour).valueOf());
+            return component.night();
+        };
+
+        expect(nightAt(20)).toBe(false);
         component.night_mode.set(true);
+        expect([7, 8, 17, 18].map(nightAt)).toEqual([true, false, false, true]);
+    });
+
+    it('should move the UI and night clock over time unless e-ink', () => {
+        spectator = createComponent();
+        const { component } = spectator;
+        /** Matches `SHIFT_INTERVAL` */
+        const step = 10 * 60 * 1000;
+        component.date.set(step);
+        expect(component.pixel_shift()).toBeNull();
+
         component.burn_in_protection.set(true);
+        expect(component.pixel_shift()).toBe('translate(2px, 0px)');
+        expect(component.night_position()).toEqual({ left: 57, top: 73 });
+        component.date.set(2 * step);
+        expect(component.pixel_shift()).toBe('translate(2px, 2px)');
+        expect(component.night_position()).toEqual({ left: 33, top: 65 });
+        // The pattern repeats after nine steps
+        component.date.set(10 * step);
+        expect(component.pixel_shift()).toBe('translate(2px, 0px)');
 
-        component.date.set(new Date(2026, 0, 1, 20).valueOf());
-        expect(component.night()).toBe(true);
-        component.date.set(new Date(2026, 0, 1, 10).valueOf());
-        expect(component.night()).toBe(false);
+        // The night clock stays on screen
+        for (let i = 0; i < 61; i++) {
+            component.date.set(i * step);
+            const { left, top } = component.night_position();
+            expect([left, top].every((_) => _ >= 20 && _ <= 80)).toBe(true);
+        }
 
-        expect(component.pixel_shift()).toMatch(/^translate\(/);
         component.eink.set(true);
         expect(component.pixel_shift()).toBeNull();
+        expect(component.night_position()).toEqual({ left: 50, top: 50 });
     });
 });

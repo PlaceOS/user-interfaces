@@ -12,7 +12,10 @@ describe('TakePhotoComponent', () => {
         detectChanges: false,
     });
 
-    afterEach(() => vi.unstubAllGlobals());
+    afterEach(() => {
+        vi.unstubAllGlobals();
+        vi.restoreAllMocks();
+    });
 
     it('should stop the camera when the visitor leaves before it opens', async () => {
         const track = { stop: vi.fn() };
@@ -75,5 +78,60 @@ describe('TakePhotoComponent', () => {
         expect(track.stop).toHaveBeenCalled();
         expect(spectator.query('button.take-photo')).toBeDisabled();
         vi.useRealTimers();
+    });
+
+    describe('with the camera opening', () => {
+        let get_user_media: ReturnType<typeof vi.fn>;
+
+        beforeEach(() => {
+            // The camera never opens, so no frame is ready
+            get_user_media = vi.fn(() => new Promise(() => undefined));
+            vi.stubGlobal('navigator', {
+                mediaDevices: { getUserMedia: get_user_media },
+            });
+            spectator = createComponent();
+            spectator.detectChanges();
+        });
+
+        it('does not take a photo before the camera shows a frame', () => {
+            spectator.component.takePhoto();
+
+            expect(spectator.component.has_photo()).toBe(false);
+        });
+
+        it('sends the accepted photo as a JPEG', () => {
+            const to_data_url = vi
+                .spyOn(HTMLCanvasElement.prototype, 'toDataURL')
+                .mockReturnValue('data:image/jpeg;base64,photo');
+            const captured: (string | null)[] = [];
+            spectator.output('captured').subscribe((v) => captured.push(v));
+
+            spectator.component.acceptPhoto();
+
+            expect(to_data_url).toHaveBeenCalledWith('image/jpeg', 0.75);
+            expect(captured).toEqual(['data:image/jpeg;base64,photo']);
+        });
+
+        it('sends no photo and restarts the camera when the photo fails', () => {
+            vi.spyOn(console, 'error').mockImplementation(() => undefined);
+            vi.spyOn(
+                HTMLCanvasElement.prototype,
+                'toDataURL',
+            ).mockImplementation(() => {
+                throw new Error('Tainted canvas');
+            });
+            vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
+                {
+                    clearRect: vi.fn(),
+                } as unknown as CanvasRenderingContext2D,
+            );
+            const captured: (string | null)[] = [];
+            spectator.output('captured').subscribe((v) => captured.push(v));
+
+            spectator.component.acceptPhoto();
+
+            expect(captured).toEqual([null]);
+            expect(get_user_media).toHaveBeenCalledTimes(2);
+        });
     });
 });

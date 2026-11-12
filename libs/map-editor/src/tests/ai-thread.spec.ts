@@ -769,6 +769,72 @@ describe('MapAiThread', () => {
         });
     });
 
+    it('fails an accepted job when the watch times out or a poll is refused', async () => {
+        const accepted = job({ id: 'job-w', state: 'queued', version: 1 });
+        const running = { ...accepted, state: 'running' as const, version: 2 };
+        let clock = 0;
+        const slow = new MapAiThread(
+            new FakeSession(MapDocument.load(OFFICE)),
+            'zone-1',
+            {
+                transport: new FakeTransport({
+                    edit: accepted,
+                    polls: [running],
+                }),
+                sleep: no_sleep,
+                // Each read of the clock moves it 20 minutes, past the 30 minute watch limit in a few polls.
+                now: () => (clock += 20 * 60 * 1000),
+            },
+        );
+        await slow.load();
+        await slow.submit('recolour');
+        expect(slow.phase()).toMatchObject({
+            kind: 'error',
+            error: {
+                kind: 'timeout',
+                retryable: true,
+                message: DEFAULT_AI_STRINGS.states.timeout,
+                job: { id: 'job-w' },
+            },
+        });
+        expect(slow.state().parent_job_id).toBe('job-w');
+
+        const refused_transport = new FakeTransport({
+            edit: accepted,
+            polls: [httpError(403, 'not your job')],
+        });
+        const refused = new MapAiThread(
+            new FakeSession(MapDocument.load(OFFICE)),
+            'zone-1',
+            { transport: refused_transport, sleep: no_sleep },
+        );
+        await refused.load();
+        await refused.submit('recolour');
+        expect(refused_transport.job_polls).toHaveLength(1);
+        expect(refused.phase()).toMatchObject({
+            kind: 'error',
+            error: { kind: 'forbidden', retryable: false },
+        });
+    });
+
+    it('finishes a job that is already final when accepted without polling', async () => {
+        const transport = new FakeTransport({
+            edit: job({ state: 'failed', error_kind: 'moderation' }),
+        });
+        const thread = new MapAiThread(
+            new FakeSession(MapDocument.load(OFFICE)),
+            'zone-1',
+            { transport, sleep: no_sleep },
+        );
+        await thread.load();
+        await thread.submit('recolour');
+        expect(transport.job_polls).toHaveLength(0);
+        expect(thread.phase()).toMatchObject({
+            kind: 'error',
+            error: { kind: 'refused', retryable: false },
+        });
+    });
+
     it('hides the panel on a 404, explains a disabled feature and blocks on an empty quota', async () => {
         const missing = new MapAiThread(
             new FakeSession(MapDocument.load(OFFICE)),

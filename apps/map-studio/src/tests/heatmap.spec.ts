@@ -72,18 +72,22 @@ describe('scoreToColor', () => {
 });
 
 describe('computeHeatmap', () => {
-    it('produces nothing when there is nothing bookable', () => {
+    it('produces nothing when there is nothing bookable or no canvas', () => {
         expect(computeHeatmap([], {}, 1000, 800)).toEqual([]);
+        expect(computeHeatmap([object('a', 0, 0)], {}, 0, 0)).toEqual([]);
         expect(
             computeHeatmap([object('a', 10, 10, 'decorative')], {}, 1000, 800),
         ).toEqual([]);
     });
 
-    it('covers cells around each object, not the whole canvas', () => {
+    it('covers the 5x5 cells around a lone object, not the whole canvas', () => {
         const cells = computeHeatmap([object('a', 500, 400)], {}, 1000, 800);
-        expect(cells.length).toBeGreaterThan(0);
-        // 20 cells across at most, so a lone object cannot fill the grid
-        expect(cells.length).toBeLessThan(20 * 16);
+        // 50 unit cells; the centre (520, 420) is in column 10, row 8
+        expect(cells).toHaveLength(25);
+        expect(Math.min(...cells.map((c) => c.x))).toBe(8 * 50);
+        expect(Math.max(...cells.map((c) => c.x))).toBe(12 * 50);
+        expect(Math.min(...cells.map((c) => c.y))).toBe(6 * 50);
+        expect(Math.max(...cells.map((c) => c.y))).toBe(10 * 50);
     });
 
     it('runs hotter where objects are occupied', () => {

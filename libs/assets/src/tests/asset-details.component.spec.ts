@@ -40,6 +40,7 @@ describe('AssetDetailsComponent', () => {
             selector: 'p',
             text: 'HD projector',
         });
+        expect('[details] .text-center').not.toExist();
     });
 
     it('should show a no-description message when the item has none', () => {
@@ -52,18 +53,6 @@ describe('AssetDetailsComponent', () => {
         spectator.detectChanges();
 
         expect('[details] .text-center').toExist();
-    });
-
-    it('should not show the no-description message when a description exists', () => {
-        spectator.setInput('item', {
-            id: '1',
-            name: 'Projector',
-            description: 'HD projector',
-            assets: [{}],
-        } as AssetGroup);
-        spectator.detectChanges();
-
-        expect('[details] .text-center').not.toExist();
     });
 
     it('should default the item quantity to 1', () => {

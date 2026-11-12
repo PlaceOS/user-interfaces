@@ -267,13 +267,6 @@ describe('TeamScheduleService', () => {
     });
 
     describe('filter mutations', () => {
-        it('should merge partial filter updates', () => {
-            service.setFilters({ search: 'abc' });
-            service.setFilters({ department: 'Sales' });
-            expect(service.filters().search).toBe('abc');
-            expect(service.filters().department).toBe('Sales');
-        });
-
         it('should reset filters back to defaults', () => {
             service.setFilters({ search: 'abc', view: 'team', day_index: 2 });
             service.resetFilters();
@@ -642,6 +635,18 @@ describe('TeamScheduleService', () => {
             expect(team?.is_my_team).toBe(true);
             expect(plain?.is_favorite).toBe(false);
             expect(plain?.is_my_team).toBe(false);
+        });
+
+        it('should flag colleagues that do not load and clear the flag on a reload', async () => {
+            vi.mocked(showMetadata).mockRejectedValueOnce(new Error('offline'));
+            await service.refresh();
+            expect(service.failed()).toBe(true);
+            expect(service.total_members()).toBe(0);
+
+            setupColleagues([{ email: 'a@example.com', name: 'A' }]);
+            await service.refresh();
+            expect(service.failed()).toBe(false);
+            expect(service.total_members()).toBe(1);
         });
 
         it('should clear the loading flag after a refresh', async () => {
