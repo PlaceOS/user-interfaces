@@ -48,7 +48,7 @@ describe('RemoteSetupService', () => {
         target = {
             app: 'control',
             default_path: '/concierge/#/remote-setup',
-            current: () => ({ system_id: 'sys-1' }),
+            system_id: () => 'sys-1',
             apply: vi.fn(() => Promise.resolve(true)),
         };
         markInitialisationComplete();
@@ -65,8 +65,7 @@ describe('RemoteSetupService', () => {
         vi.restoreAllMocks();
     });
 
-    it('should show only when the driver is connected', async () => {
-        vi.spyOn(Math, 'random').mockReturnValue(0);
+    it('should show only when the driver is connected', () => {
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'sys-rs',
             'RemoteSetup',
@@ -79,33 +78,6 @@ describe('RemoteSetupService', () => {
         expect(service.setup_url()).toBe(
             `https://placeos.test/concierge/#/remote-setup?device=${deviceId()}`,
         );
-        await vi.waitFor(() =>
-            expect(driver.execute).toHaveBeenCalledWith('register', [
-                deviceId(),
-                'control',
-                { system_id: 'sys-1' },
-            ]),
-        );
-    });
-
-    it('should spread register calls with a random wait', () => {
-        vi.useFakeTimers();
-        vi.spyOn(Math, 'random').mockReturnValue(0.5);
-        const registers = () =>
-            driver.execute.mock.calls.filter(([name]) => name === 'register')
-                .length;
-
-        driver.emit('connected', true);
-        vi.advanceTimersByTime(150_000 - 1);
-        expect(registers()).toBe(0);
-        vi.advanceTimersByTime(1);
-        expect(registers()).toBe(1);
-        vi.advanceTimersByTime(15 * 60 * 1000);
-        expect(registers()).toBe(2);
-
-        driver.emit('connected', false);
-        vi.advanceTimersByTime(15 * 60 * 1000);
-        expect(registers()).toBe(2);
     });
 
     it('should use the remote_setup_url setting for the QR code', () => {
@@ -116,10 +88,35 @@ describe('RemoteSetupService', () => {
         );
     });
 
-    it('should apply a command once and complete it', async () => {
+    it('should register after a random wait only while a setup screen shows', () => {
+        vi.useFakeTimers();
+        vi.spyOn(Math, 'random').mockReturnValue(0.5);
+        const registers = () =>
+            driver.execute.mock.calls.filter(([name]) => name === 'register');
+
+        driver.emit('connected', true);
+        TestBed.tick();
+        vi.advanceTimersByTime(60 * 60 * 1000);
+        expect(registers()).toHaveLength(0);
+
+        const close = service.showSetupScreen();
+        TestBed.tick();
+        vi.advanceTimersByTime(5_000 - 1);
+        expect(registers()).toHaveLength(0);
+        vi.advanceTimersByTime(1);
+        expect(registers()).toEqual([['register', [deviceId(), 'control']]]);
+        vi.advanceTimersByTime(15 * 60 * 1000);
+        expect(registers()).toHaveLength(2);
+
+        close();
+        TestBed.tick();
+        vi.advanceTimersByTime(60 * 60 * 1000);
+        expect(registers()).toHaveLength(2);
+    });
+
+    it('should apply a configure command once and complete it', async () => {
         const command = {
             id: 'cmd-1',
-            action: 'configure',
             config: { system_id: 'sys-2' },
             issued_at: 1,
         };
@@ -135,16 +132,14 @@ describe('RemoteSetupService', () => {
 
         expect(target.apply).toHaveBeenCalledTimes(1);
         expect(target.apply).toHaveBeenCalledWith({ system_id: 'sys-2' });
-
-        driver.emit(command_binding, { id: 'cmd-2', action: 'clear' });
-        await vi.waitFor(() =>
-            expect(target.apply).toHaveBeenLastCalledWith(null),
-        );
     });
 
     it('should not complete a command that does not go through', async () => {
         vi.mocked(target.apply).mockResolvedValue(false);
-        driver.emit(command_binding, { id: 'cmd-4', action: 'clear' });
+        driver.emit(command_binding, {
+            id: 'cmd-4',
+            config: { system_id: 'sys-2' },
+        });
         await vi.waitFor(() => expect(target.apply).toHaveBeenCalled());
         await Promise.resolve();
 
@@ -156,12 +151,43 @@ describe('RemoteSetupService', () => {
 
     it('should ignore values that are not commands', async () => {
         driver.emit(command_binding, null);
-        driver.emit(command_binding, { action: 'clear' });
-        driver.emit(command_binding, {
-            id: 'cmd-3',
-            action: 'configure',
-            config: {},
-        });
+        driver.emit(command_binding, { config: { system_id: 'sys-2' } });
+        driver.emit(command_binding, { id: 'cmd-3', config: {} });
+        await Promise.resolve();
+
+        expect(target.apply).not.toHaveBeenCalled();
+    });
+
+    it('should clear the device when its ID is in the clear list', async () => {
+        driver.emit('clear_list', ['DEV-OTHER']);
+        await Promise.resolve();
+        expect(target.apply).not.toHaveBeenCalled();
+
+        driver.emit('clear_list', ['DEV-OTHER', deviceId()]);
+        await vi.waitFor(() => expect(target.apply).toHaveBeenCalledWith(null));
+    });
+
+    it('should clear once for an entry with its app and system', async () => {
+        const entry = { id: 'clr-1', app: 'control', system_id: 'sys-1' };
+        driver.emit('clear_systems', [
+            { ...entry, id: 'clr-0', app: 'signage' },
+            { ...entry, id: 'clr-0', system_id: 'sys-2' },
+        ]);
+        await Promise.resolve();
+        expect(target.apply).not.toHaveBeenCalled();
+
+        driver.emit('clear_systems', [entry]);
+        await vi.waitFor(() => expect(target.apply).toHaveBeenCalledWith(null));
+
+        // A person sets the device up with the same system again
+        driver.emit('clear_systems', [entry]);
+        await Promise.resolve();
+        expect(target.apply).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not clear again while the setup screen shows', async () => {
+        service.showSetupScreen();
+        driver.emit('clear_list', [deviceId()]);
         await Promise.resolve();
 
         expect(target.apply).not.toHaveBeenCalled();
@@ -176,7 +202,7 @@ describe('RemoteSetupService on a device it does not set up', () => {
         service.start({
             app: 'signage',
             default_path: '/signage-manager/#/remote-setup',
-            current: () => null,
+            system_id: () => null,
             apply: () => Promise.resolve(),
         });
         TestBed.tick();

@@ -35,7 +35,7 @@ export interface RemoteSetupConfig {
 export interface RemoteSetupDevice {
     id: string;
     app: RemoteSetupApp;
-    /** Configuration on the device. `null` when it is not set up */
+    /** Configuration from the last completed command. `null` after `register` */
     config: RemoteSetupConfig | null;
     /** Unix epoch in milliseconds of the last `register` or `complete` call */
     last_seen: number;
@@ -43,38 +43,46 @@ export interface RemoteSetupDevice {
     last_command?: string;
 }
 
-/** Command in the `device_<id>` binding of the RemoteSetup driver */
-export type RemoteSetupCommand =
-    | {
-          id: string;
-          action: 'configure';
-          config: RemoteSetupConfig;
-          issued_at: number;
-      }
-    | { id: string; action: 'clear'; issued_at: number };
+/** Entry in the `clear_systems` binding of the RemoteSetup driver */
+export interface RemoteSetupSystemClear {
+    id: string;
+    /** Devices of this application clear */
+    app: RemoteSetupApp;
+    /** Devices that show this system clear */
+    system_id: string;
+    issued_at: number;
+}
+
+/** Configure command in the `device_<id>` binding of the RemoteSetup driver */
+export interface RemoteSetupCommand {
+    id: string;
+    config: RemoteSetupConfig;
+    issued_at: number;
+}
 
 /** System with the RemoteSetup driver in mock mode */
 export const REMOTE_SETUP_MOCK_SYSTEM = 'sys-remote-setup';
 /** Default module name of the RemoteSetup driver */
 export const REMOTE_SETUP_MODULE = 'RemoteSetup';
+/** Driver binding with the IDs of the devices to clear */
+export const REMOTE_SETUP_CLEAR_LIST = 'clear_list';
+/** Driver binding with the systems whose devices must clear */
+export const REMOTE_SETUP_CLEAR_SYSTEMS = 'clear_systems';
 /** Time between `register` calls that keep `last_seen` current */
 const HEARTBEAT_MS = 15 * 60 * 1000;
 /**
- * Most time that a set up device waits to register after the driver
- * connects. Many devices can connect at the same time, for example after a
- * power cut or a driver restart. A random wait spreads their calls: 2,000
- * devices make about 7 calls per second, then about 2 per second for the
- * heartbeat.
+ * Most time that a device on its setup screen waits to register after the
+ * driver connects. The random wait spreads the calls of devices that start
+ * at the same time. The wait is short, because the setup flow cannot send
+ * a command to the device before it registers.
  */
-const REGISTER_SPREAD_MS = 5 * 60 * 1000;
-/**
- * Most time that a device on its setup screen waits to register. The wait
- * is short, because the setup flow cannot send a command to the device
- * before it registers.
- */
-const SETUP_REGISTER_SPREAD_MS = 10 * 1000;
+const REGISTER_SPREAD_MS = 10 * 1000;
 /** Local storage key of the last command that this device applied */
 const LAST_COMMAND_KEY = 'PLACEOS.remote_setup.last_command';
+/** Local storage key of the system clears that this device applied */
+const CLEARED_SYSTEMS_KEY = 'PLACEOS.remote_setup.cleared_systems';
+/** Most system clear IDs that a device remembers */
+const MAX_CLEARED_SYSTEMS = 20;
 
 /**
  * Module binding of the RemoteSetup driver. The system comes from the
@@ -104,13 +112,34 @@ export function isRemoteSetupCommand(
     if (!value || typeof value !== 'object') return false;
     const command = value as Partial<RemoteSetupCommand>;
     if (typeof command.id !== 'string' || !command.id) return false;
-    if (command.action === 'clear') return true;
-    if (command.action !== 'configure') return false;
-    const config = (command as { config?: Partial<RemoteSetupConfig> }).config;
-    return typeof config?.system_id === 'string' && !!config.system_id;
+    const system_id = command.config?.system_id;
+    return typeof system_id === 'string' && !!system_id;
 }
 
-/** How an application reads and applies its remote setup configuration */
+/** IDs in the `clear_list` binding. Values that are not lists give none */
+export function remoteSetupClearList(value: unknown): string[] {
+    return Array.isArray(value)
+        ? value.filter((id): id is string => typeof id === 'string')
+        : [];
+}
+
+/** Entries in the `clear_systems` binding. Values that are not valid give none */
+export function remoteSetupClearSystems(
+    value: unknown,
+): RemoteSetupSystemClear[] {
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+        (entry): entry is RemoteSetupSystemClear =>
+            !!entry &&
+            typeof entry === 'object' &&
+            typeof entry.id === 'string' &&
+            typeof entry.app === 'string' &&
+            typeof entry.system_id === 'string' &&
+            !!entry.system_id,
+    );
+}
+
+/** How an application applies its remote setup configuration */
 export interface RemoteSetupTarget {
     app: RemoteSetupApp;
     /**
@@ -118,8 +147,8 @@ export interface RemoteSetupTarget {
      * `remote_setup_url` setting is not set.
      */
     default_path: string;
-    /** Configuration that is on this device now */
-    current(): RemoteSetupConfig | null;
+    /** System that the device shows now. `null` when it is not set up */
+    system_id(): string | null;
     /**
      * Apply a configuration. `null` clears the configuration. Resolves
      * `false` when the change does not go through.
@@ -131,22 +160,28 @@ export interface RemoteSetupTarget {
  * Device side of remote setup.
  *
  * Call `start` once at application startup. After initialisation the service
- * binds to the RemoteSetup driver. It registers the device after a random
- * wait, and applies the commands that the driver puts in the `device_<id>`
- * binding.
+ * binds to the RemoteSetup driver. It applies the configure command in the
+ * `device_<id>` binding. It clears the device when its ID is in the
+ * `clear_list` binding, or when its app and system are in the
+ * `clear_systems` binding.
  *
- * `available` is true when the driver is set up and connected. The bootstrap
- * screen then shows a QR code of `setup_url`.
+ * The device registers only while a setup screen shows, that is, when the
+ * device is not set up. `<remote-setup-qr />` tells the service when it
+ * shows. `available` is true when the driver is set up and connected. The
+ * setup screen then shows a QR code of `setup_url`.
  */
 @Injectable({ providedIn: 'root' })
 export class RemoteSetupService extends AsyncHandler {
     private readonly _target = signal<RemoteSetupTarget | null>(null);
     private readonly _connected = signal(false);
+    /** Number of setup screens that show now */
+    private readonly _setup_screens = signal(0);
     private readonly _url_setting = settingSignal<string>(
         'remote_setup_url',
         '',
     );
     private _module: PlaceModuleBinding | null = null;
+    private _clearing = false;
 
     /** ID that the setup flow uses to find this device */
     public readonly device_id = deviceId();
@@ -172,6 +207,12 @@ export class RemoteSetupService extends AsyncHandler {
             if (!target || !initialisationComplete()()) return;
             untracked(() => this._connect());
         });
+        effect(() => {
+            const register = this.available() && this._setup_screens() > 0;
+            untracked(() =>
+                register ? this._startRegister() : this._stopRegister(),
+            );
+        });
     }
 
     /** Listen for remote setup commands for this application */
@@ -179,15 +220,18 @@ export class RemoteSetupService extends AsyncHandler {
         this._target.set(target);
     }
 
-    /** Send the configuration on this device to the driver */
-    private _register() {
-        const target = this._target();
-        if (!this._module || !target || !this._connected()) return;
-        this._module
-            .execute('register', [this.device_id, target.app, target.current()])
-            .catch((error) =>
-                log('RemoteSetup', 'Failed to register', error, 'warn'),
-            );
+    /**
+     * Tell the service that a setup screen shows. The device registers while
+     * a setup screen shows. Call the returned function when it closes.
+     */
+    public showSetupScreen() {
+        this._setup_screens.update((count) => count + 1);
+        let closed = false;
+        return () => {
+            if (closed) return;
+            closed = true;
+            this._setup_screens.update((count) => count - 1);
+        };
     }
 
     private async _connect() {
@@ -206,18 +250,29 @@ export class RemoteSetupService extends AsyncHandler {
         this._module = mod;
         this.subscription(
             'connected',
-            mod.variable<boolean>('connected').bindThenSubscribe((value) => {
-                const was_connected = this._connected();
-                this._connected.set(value === true);
-                if (value === true && !was_connected) this._startHeartbeat();
-                if (value !== true) this._stopHeartbeat();
-            }),
+            mod
+                .variable<boolean>('connected')
+                .bindThenSubscribe((value) =>
+                    this._connected.set(value === true),
+                ),
         );
         this.subscription(
             'command',
             mod
                 .variable<unknown>(remoteSetupCommandBinding(this.device_id))
                 .bindThenSubscribe((value) => this._applyCommand(value)),
+        );
+        this.subscription(
+            'clear',
+            mod
+                .variable<unknown>(REMOTE_SETUP_CLEAR_LIST)
+                .bindThenSubscribe((value) => this._applyClearList(value)),
+        );
+        this.subscription(
+            'clear_systems',
+            mod
+                .variable<unknown>(REMOTE_SETUP_CLEAR_SYSTEMS)
+                .bindThenSubscribe((value) => this._applyClearSystems(value)),
         );
     }
 
@@ -226,10 +281,7 @@ export class RemoteSetupService extends AsyncHandler {
      * wait also sets when the heartbeat occurs, so the heartbeats of devices
      * that start at the same time stay spread.
      */
-    private _startHeartbeat() {
-        const spread = this._target()?.current()
-            ? REGISTER_SPREAD_MS
-            : SETUP_REGISTER_SPREAD_MS;
+    private _startRegister() {
         this.timeout(
             'register',
             () => {
@@ -240,18 +292,29 @@ export class RemoteSetupService extends AsyncHandler {
                     HEARTBEAT_MS,
                 );
             },
-            Math.random() * spread,
+            Math.random() * REGISTER_SPREAD_MS,
         );
     }
 
-    private _stopHeartbeat() {
+    private _stopRegister() {
         this.clearTimeout('register');
         this.clearInterval('heartbeat');
     }
 
+    /** Add this device to the devices that wait for setup */
+    private _register() {
+        const target = this._target();
+        if (!this._module || !target) return;
+        this._module
+            .execute('register', [this.device_id, target.app])
+            .catch((error) =>
+                log('RemoteSetup', 'Failed to register', error, 'warn'),
+            );
+    }
+
     /**
-     * Apply a command from the driver once, then tell the driver it is
-     * complete. The command ID is saved first, so a reload during the
+     * Apply a configure command from the driver once, then tell the driver
+     * it is complete. The command ID is saved first, so a reload during the
      * change does not apply the command again. A failed command is not
      * completed. A failed `complete` call is not sent again. The driver
      * removes stale commands in both cases.
@@ -261,22 +324,92 @@ export class RemoteSetupService extends AsyncHandler {
         if (!target || !this._module || !isRemoteSetupCommand(value)) return;
         if (localStorage.getItem(LAST_COMMAND_KEY) === value.id) return;
         localStorage.setItem(LAST_COMMAND_KEY, value.id);
-        log('RemoteSetup', `Applying ${value.action} command`, value);
-        let applied = false;
-        try {
-            const result = await target.apply(
-                value.action === 'configure' ? value.config : null,
-            );
-            applied = result !== false;
-        } catch (error) {
-            log('RemoteSetup', 'Failed to apply command', error, 'warn');
-        }
+        log('RemoteSetup', 'Applying configure command', value);
+        if (!(await this._apply(target, value.config))) return;
         // The driver records a completed command as the device configuration
-        if (!applied) return;
         await this._module
             .execute('complete', [this.device_id, value.id])
             .catch((error) =>
                 log('RemoteSetup', 'Failed to complete command', error, 'warn'),
             );
+    }
+
+    /**
+     * Clear the device when its ID is in the clear list. The driver removes
+     * the ID when the device registers from its setup screen. Thus a device
+     * that shows its setup screen is already clear.
+     */
+    private async _applyClearList(value: unknown) {
+        if (!remoteSetupClearList(value).includes(this.device_id)) return;
+        await this._clear();
+    }
+
+    /**
+     * Clear the device when an entry in the clear systems list has its app
+     * and system. The device applies each entry one time only, so it does
+     * not clear again when a person sets it up with the same system. The
+     * driver removes the entries after a time limit.
+     */
+    private async _applyClearSystems(value: unknown) {
+        const target = this._target();
+        const system_id = target?.system_id();
+        if (!target || !system_id) return;
+        const cleared = readClearedSystems();
+        const entry = remoteSetupClearSystems(value).find(
+            (item) =>
+                item.app === target.app &&
+                item.system_id === system_id &&
+                !cleared.includes(item.id),
+        );
+        if (!entry) return;
+        saveClearedSystems([...cleared, entry.id]);
+        await this._clear();
+    }
+
+    /** Clear the configuration on this device, when it is set up */
+    private async _clear() {
+        const target = this._target();
+        if (!target || this._clearing || this._setup_screens() > 0) return;
+        log('RemoteSetup', 'Clearing the device configuration');
+        this._clearing = true;
+        await this._apply(target, null);
+        this._clearing = false;
+    }
+
+    /** Apply a change. Resolves `true` when the change went through */
+    private async _apply(
+        target: RemoteSetupTarget,
+        config: RemoteSetupConfig | null,
+    ) {
+        try {
+            return (await target.apply(config)) !== false;
+        } catch (error) {
+            log('RemoteSetup', 'Failed to apply change', error, 'warn');
+            return false;
+        }
+    }
+}
+
+/** IDs of the system clears that this device applied */
+function readClearedSystems(): string[] {
+    try {
+        const ids = JSON.parse(
+            localStorage.getItem(CLEARED_SYSTEMS_KEY) || '[]',
+        );
+        return remoteSetupClearList(ids);
+    } catch {
+        return [];
+    }
+}
+
+/** Save the IDs of the system clears that this device applied */
+function saveClearedSystems(ids: string[]) {
+    try {
+        localStorage.setItem(
+            CLEARED_SYSTEMS_KEY,
+            JSON.stringify(ids.slice(-MAX_CLEARED_SYSTEMS)),
+        );
+    } catch {
+        // Ignore quota and privacy-mode failures.
     }
 }

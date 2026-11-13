@@ -152,7 +152,6 @@ describe('RemoteSetupFlowComponent', () => {
 
         listeners['device_DEV-1']({
             id: 'cmd-1',
-            action: 'configure',
             config: { system_id: 'sys-9' },
         });
         spectator.detectChanges();
@@ -174,9 +173,43 @@ describe('RemoteSetupFlowComponent', () => {
 
     it('should clear the device after the user confirms', async () => {
         open({ device: 'DEV-2' });
+        listeners['clear_list'](['DEV-1']);
         spectator.click('button[clear]');
         await vi.waitFor(() =>
             expect(execute).toHaveBeenCalledWith('clear', ['DEV-2']),
+        );
+        spectator.detectChanges();
+        expect('[done]').not.toExist();
+
+        listeners['clear_list'](['DEV-1', 'DEV-2']);
+        spectator.detectChanges();
+        expect('[pending]').toExist();
+
+        listeners['clear_list'](['DEV-1']);
+        spectator.detectChanges();
+        expect('[pending]').not.toExist();
+        expect('[done]').toExist();
+    });
+
+    it('should clear the devices of an app that show a system', async () => {
+        open();
+        spectator.component.clear_app.set('control');
+        spectator.component.clear_system_id.set('sys-1');
+        spectator.detectChanges();
+        spectator.click('form[clear-system] button[type="submit"]');
+        await vi.waitFor(() =>
+            expect(execute).toHaveBeenCalledWith('clear_system', [
+                'control',
+                'sys-1',
+            ]),
+        );
+    });
+
+    it('should clear a device that the driver does not know', async () => {
+        open({ device: 'DEV-SET-UP' });
+        spectator.click('button[clear]');
+        await vi.waitFor(() =>
+            expect(execute).toHaveBeenCalledWith('clear', ['DEV-SET-UP']),
         );
     });
 });

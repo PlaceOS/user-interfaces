@@ -36,13 +36,11 @@ import {
     VirtualKeyboardComponent,
 } from '@placeos/components';
 
-import {
-    hasBootstrappedDisplay,
-    STORE_DISPLAY_KEY,
-    STORE_TEMPLATE_KEY,
-} from './bootstrap-state';
+import { hasBootstrappedDisplay, STORE_DISPLAY_KEY } from './bootstrap-state';
 
-const STORE_BUILDING_KEY = 'PlaceOS.SIGNAGE.building';
+const STORE_PREFIX = 'PlaceOS.SIGNAGE';
+const STORE_BUILDING_KEY = `${STORE_PREFIX}.building`;
+const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
 
 @Component({
     selector: '[bootstrap]',

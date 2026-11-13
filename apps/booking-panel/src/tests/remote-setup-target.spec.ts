@@ -15,14 +15,10 @@ describe('bookingRemoteSetup', () => {
         navigate.mockClear();
     });
 
-    it('should read the system and the events view from storage', () => {
-        expect(target.current()).toBeNull();
+    it('should read the system from storage', () => {
+        expect(target.system_id()).toBeNull();
         localStorage.setItem(BOOKING_STORE_KEY, 'sys-1');
-        localStorage.setItem(EVENT_KEY, 'true');
-        expect(target.current()).toEqual({
-            system_id: 'sys-1',
-            event_view: true,
-        });
+        expect(target.system_id()).toBe('sys-1');
     });
 
     it('should open the events view through the bootstrap route', async () => {

@@ -35,8 +35,11 @@ import {
     initialisationComplete,
     isRemoteSetupCommand,
     notifyError,
+    notifySuccess,
     OrganisationService,
+    REMOTE_SETUP_CLEAR_LIST,
     RemoteSetupApp,
+    remoteSetupClearList,
     remoteSetupCommandBinding,
     RemoteSetupConfig,
     RemoteSetupDevice,
@@ -63,7 +66,9 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
  * The QR code opens this flow with `?device=<id>`. Without the parameter, the
  * flow lists the devices that the RemoteSetup driver knows. For the selected
  * device, the user picks a system and sends it to the device, or clears the
- * configuration on the device.
+ * configuration on the device. A device that is set up does not register,
+ * so the flow can also clear a device ID that the driver does not know.
+ * The device list can also clear all devices of an app that show a system.
  *
  * ```html
  * <remote-setup-flow [apps]="['booking-panel', 'control']" />
@@ -190,6 +195,94 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                 </li>
                             }
                         </ul>
+                        <form
+                            clear-system
+                            class="border-base-300 flex flex-col gap-2 border-t p-4"
+                            (ngSubmit)="clearSystem()"
+                        >
+                            <h2 class="font-medium">
+                                {{
+                                    'COMMON.REMOTE_SETUP_CLEAR_SYSTEM'
+                                        | translate
+                                }}
+                            </h2>
+                            <p class="pb-2 text-sm opacity-70">
+                                {{
+                                    'COMMON.REMOTE_SETUP_CLEAR_SYSTEM_INFO'
+                                        | translate
+                                }}
+                            </p>
+                            @if (apps().length > 1) {
+                                <mat-form-field appearance="outline">
+                                    <mat-label>
+                                        {{
+                                            'COMMON.REMOTE_SETUP_APP'
+                                                | translate
+                                        }}
+                                    </mat-label>
+                                    <mat-select
+                                        name="clear_app"
+                                        [(ngModel)]="clear_app"
+                                    >
+                                        @for (app of apps(); track app) {
+                                            <mat-option [value]="app">
+                                                {{ appName(app) | translate }}
+                                            </mat-option>
+                                        }
+                                    </mat-select>
+                                </mat-form-field>
+                            }
+                            <mat-form-field appearance="outline">
+                                <mat-label>
+                                    {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}
+                                </mat-label>
+                                <input
+                                    matInput
+                                    name="clear_system"
+                                    autocomplete="off"
+                                    [(ngModel)]="clear_system_id"
+                                    [matAutocomplete]="clear_auto"
+                                    [placeholder]="
+                                        'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER'
+                                            | translate
+                                    "
+                                />
+                            </mat-form-field>
+                            <mat-autocomplete #clear_auto="matAutocomplete">
+                                @for (option of systems(); track option.id) {
+                                    <mat-option [value]="option.id">
+                                        <div
+                                            class="flex w-full items-center gap-4 leading-tight"
+                                        >
+                                            <div
+                                                class="min-w-0 flex-1 truncate"
+                                            >
+                                                {{
+                                                    option.display_name ||
+                                                        option.name
+                                                }}
+                                            </div>
+                                            <div
+                                                class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
+                                            >
+                                                {{ option.id }}
+                                            </div>
+                                        </div>
+                                    </mat-option>
+                                }
+                            </mat-autocomplete>
+                            <button
+                                btn
+                                matRipple
+                                type="submit"
+                                class="inverse"
+                                [disabled]="
+                                    sending() || !clear_system_id().trim()
+                                "
+                            >
+                                {{ 'COMMON.REMOTE_SETUP_CLEAR' | translate }}
+                            </button>
+                        </form>
                     }
                     @case ('missing') {
                         <p missing class="p-4">
@@ -198,6 +291,20 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                     | translate: { id: device_id() }
                             }}
                         </p>
+                        <div class="flex flex-col gap-2 px-4 pb-4">
+                            <ng-container [ngTemplateOutlet]="status" />
+                            <button
+                                btn
+                                matRipple
+                                clear
+                                type="button"
+                                class="inverse"
+                                [disabled]="sending() || pending()"
+                                (click)="clear()"
+                            >
+                                {{ 'COMMON.REMOTE_SETUP_CLEAR' | translate }}
+                            </button>
+                        </div>
                     }
                     @case ('other-app') {
                         <p other-app class="p-4">
@@ -324,36 +431,7 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                     }}
                                 </mat-checkbox>
                             }
-                            @if (pending()) {
-                                <div
-                                    pending
-                                    role="status"
-                                    class="bg-base-200 flex items-center gap-2 rounded-sm p-3 text-sm"
-                                >
-                                    <mat-spinner
-                                        [diameter]="20"
-                                        aria-hidden="true"
-                                    />
-                                    {{
-                                        'COMMON.REMOTE_SETUP_PENDING'
-                                            | translate
-                                    }}
-                                </div>
-                            } @else if (done()) {
-                                <div
-                                    done
-                                    role="status"
-                                    class="bg-success/10 flex items-center gap-2 rounded-sm p-3 text-sm"
-                                >
-                                    <icon
-                                        class="text-success"
-                                        aria-hidden="true"
-                                    >
-                                        check_circle
-                                    </icon>
-                                    {{ 'COMMON.REMOTE_SETUP_DONE' | translate }}
-                                </div>
-                            }
+                            <ng-container [ngTemplateOutlet]="status" />
                             <div
                                 class="flex flex-col-reverse gap-2 sm:flex-row"
                             >
@@ -363,7 +441,7 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                     clear
                                     type="button"
                                     class="inverse flex-1"
-                                    [disabled]="sending() || !item.config"
+                                    [disabled]="sending() || pending()"
                                     (click)="clear()"
                                 >
                                     {{
@@ -390,6 +468,29 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                 }
             </div>
         </div>
+        <ng-template #status>
+            @if (pending()) {
+                <div
+                    pending
+                    role="status"
+                    class="bg-base-200 flex items-center gap-2 rounded-sm p-3 text-sm"
+                >
+                    <mat-spinner [diameter]="20" aria-hidden="true" />
+                    {{ 'COMMON.REMOTE_SETUP_PENDING' | translate }}
+                </div>
+            } @else if (done()) {
+                <div
+                    done
+                    role="status"
+                    class="bg-success/10 flex items-center gap-2 rounded-sm p-3 text-sm"
+                >
+                    <icon class="text-success" aria-hidden="true">
+                        check_circle
+                    </icon>
+                    {{ 'COMMON.REMOTE_SETUP_DONE' | translate }}
+                </div>
+            }
+        </ng-template>
     `,
     styles: [
         `
@@ -429,6 +530,7 @@ export class RemoteSetupFlowComponent {
     private readonly _connected = signal<boolean | null>(null);
     private readonly _devices = signal<Record<string, RemoteSetupDevice>>({});
     private readonly _command = signal<unknown>(null);
+    private readonly _clear_list = signal<string[]>([]);
 
     /** Device ID in the `device` query parameter, as typed */
     private readonly _requested_id = computed(
@@ -499,27 +601,53 @@ export class RemoteSetupFlowComponent {
 
     /** Whether a command is being sent to the driver */
     public readonly sending = signal(false);
-    /** ID of the last command sent to the selected device */
+    /** ID of the last configure command sent to the selected device */
     private readonly _sent_id = linkedSignal({
         source: this.device_id,
         computation: () => '',
     });
-    /** Whether the device has a command that it has not applied */
-    public readonly pending = computed(() =>
-        isRemoteSetupCommand(this._command()),
+    /** Whether this page sent a clear to the selected device */
+    private readonly _clear_sent = linkedSignal({
+        source: this.device_id,
+        computation: () => false,
+    });
+    /** Whether the driver listed the clear that this page sent */
+    private readonly _clear_listed = linkedSignal({
+        source: this.device_id,
+        computation: () => false,
+    });
+    /** Whether the selected device is in the clear list of the driver */
+    public readonly clearing = computed(() =>
+        this._clear_list().includes(this.device_id()),
     );
-    /** Whether the device completed the last command sent from this page */
-    public readonly done = computed(
-        () =>
-            !!this._sent_id() &&
-            this.device()?.last_command === this._sent_id(),
+    /** Whether the device has a change that it has not applied */
+    public readonly pending = computed(
+        () => isRemoteSetupCommand(this._command()) || this.clearing(),
+    );
+    /** Whether the device applied the last change sent from this page */
+    public readonly done = computed(() =>
+        this._sent_id()
+            ? this.device()?.last_command === this._sent_id()
+            : this._clear_listed() && !this.clearing(),
     );
 
-    private readonly _debounced_search = debounced(this.system_id, 300);
+    /** Application of the devices to clear by system */
+    public readonly clear_app = linkedSignal(() => this.apps()[0]);
+    /** System whose devices to clear */
+    public readonly clear_system_id = signal('');
+
+    /** Text of the system search. The device list searches for a clear */
+    private readonly _search = computed(() =>
+        this.state() === 'list' ? this.clear_system_id() : this.system_id(),
+    );
+    private readonly _debounced_search = debounced(this._search, 300);
     private readonly _systems = resource({
         params: () => ({
             q: this._org.initialised() ? this._debounced_search.value() : '',
-            signage: this.device()?.app === 'signage',
+            signage:
+                (this.device()?.app ??
+                    (this.state() === 'list' ? this.clear_app() : '')) ===
+                'signage',
         }),
         loader: async ({ params }) => {
             if (params.q.length < 2) return [] as PlaceSystem[];
@@ -552,6 +680,14 @@ export class RemoteSetupFlowComponent {
     public readonly templates = computed(() => this._templates.value() ?? []);
 
     constructor() {
+        // A clear is done when its device ID leaves the clear list. Wait
+        // until the ID is in the list, so the list from before the clear
+        // does not count.
+        effect(() => {
+            if (this._clear_sent() && this.clearing()) {
+                untracked(() => this._clear_listed.set(true));
+            }
+        });
         effect((on_cleanup) => {
             if (!initialisationComplete()()) return;
             const mod = untracked(() => remoteSetupModule());
@@ -562,6 +698,11 @@ export class RemoteSetupFlowComponent {
                 .bindThenSubscribe((value) =>
                     this._connected.set(value === undefined ? null : !!value),
                 );
+            const unbind_clear_list = mod
+                .variable<unknown>(REMOTE_SETUP_CLEAR_LIST)
+                .bindThenSubscribe((value) =>
+                    this._clear_list.set(remoteSetupClearList(value)),
+                );
             const unbind_devices = mod
                 .variable<Record<string, RemoteSetupDevice> | null>('devices')
                 .bindThenSubscribe((value) =>
@@ -571,6 +712,7 @@ export class RemoteSetupFlowComponent {
                 );
             on_cleanup(() => {
                 unbind_connected();
+                unbind_clear_list();
                 unbind_devices();
             });
         });
@@ -616,15 +758,20 @@ export class RemoteSetupFlowComponent {
         await this._send('configure', [device.id, config]);
     }
 
-    /** Remove the configuration from the device, after the user confirms */
+    /**
+     * Remove the configuration from the device, after the user confirms.
+     * The driver keeps the device ID in its clear list until the device
+     * registers from its setup screen.
+     */
     public async clear() {
-        const device = this.device();
-        if (!device) return;
+        const state = this.state();
+        if (state !== 'device' && state !== 'missing') return;
+        const device_id = this.device_id();
         const result = await openConfirmModal(
             {
                 title: i18n('COMMON.REMOTE_SETUP_CLEAR'),
                 content: i18n('COMMON.REMOTE_SETUP_CLEAR_CONFIRM', {
-                    id: device.id,
+                    id: device_id,
                 }),
                 icon: { type: 'icon', content: 'restart_alt' },
                 destructive: true,
@@ -633,7 +780,49 @@ export class RemoteSetupFlowComponent {
         );
         if (result.reason !== 'done') return;
         result.close();
-        await this._send('clear', [device.id]);
+        this._sent_id.set('');
+        this._clear_listed.set(false);
+        await this._send('clear', [device_id]);
+    }
+
+    /**
+     * Clear all devices of an application that show a system, after the
+     * user confirms. Only devices that are on before the driver time limit
+     * clear.
+     */
+    public async clearSystem() {
+        const app = this.clear_app();
+        const system_id = this.clear_system_id().trim();
+        const mod = this._module();
+        if (!mod || !app || !system_id) return;
+        const result = await openConfirmModal(
+            {
+                title: i18n('COMMON.REMOTE_SETUP_CLEAR_SYSTEM'),
+                content: i18n('COMMON.REMOTE_SETUP_CLEAR_SYSTEM_CONFIRM', {
+                    app: i18n(this.appName(app)),
+                    id: system_id,
+                }),
+                icon: { type: 'icon', content: 'restart_alt' },
+                destructive: true,
+            },
+            this._dialog,
+        );
+        if (result.reason !== 'done') return;
+        result.close();
+        this.sending.set(true);
+        try {
+            await mod.execute('clear_system', [app, system_id]);
+            this.clear_system_id.set('');
+            notifySuccess(i18n('COMMON.REMOTE_SETUP_CLEAR_SYSTEM_SENT'));
+        } catch (error) {
+            notifyError(
+                i18n('COMMON.REMOTE_SETUP_SEND_ERROR', {
+                    error: `${error?.message || error}`,
+                }),
+            );
+        } finally {
+            this.sending.set(false);
+        }
     }
 
     private async _send(method: 'configure' | 'clear', args: unknown[]) {
@@ -642,7 +831,11 @@ export class RemoteSetupFlowComponent {
         this.sending.set(true);
         try {
             const id = await mod.execute<unknown>(method, args);
-            this._sent_id.set(typeof id === 'string' ? id : '');
+            if (method === 'configure') {
+                this._sent_id.set(typeof id === 'string' ? id : '');
+            } else {
+                this._clear_sent.set(true);
+            }
         } catch (error) {
             notifyError(
                 i18n('COMMON.REMOTE_SETUP_SEND_ERROR', {

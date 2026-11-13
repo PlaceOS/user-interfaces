@@ -11,10 +11,7 @@ export function controlRemoteSetup(router: Router): RemoteSetupTarget {
     return {
         app: 'control',
         default_path: '/concierge/#/remote-setup',
-        current: () => {
-            const system_id = localStorage.getItem(CONTROL_STORE_KEY);
-            return system_id ? { system_id } : null;
-        },
+        system_id: () => localStorage.getItem(CONTROL_STORE_KEY),
         apply: (config) =>
             router.navigate(['/bootstrap'], {
                 queryParams: config

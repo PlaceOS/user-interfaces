@@ -15,14 +15,7 @@ export function bookingRemoteSetup(router: Router): RemoteSetupTarget {
     return {
         app: 'booking-panel',
         default_path: '/concierge/#/remote-setup',
-        current: () => {
-            const system_id = localStorage.getItem(BOOKING_STORE_KEY);
-            if (!system_id) return null;
-            return {
-                system_id,
-                event_view: localStorage.getItem(EVENT_KEY) === 'true',
-            };
-        },
+        system_id: () => localStorage.getItem(BOOKING_STORE_KEY),
         apply: (config) => {
             // The view is part of the configuration, so a saved events
             // flag must not stay after a change that turns it off.

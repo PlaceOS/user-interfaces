@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 
 import { RemoteSetupService } from '@placeos/common';
 import { generateQRCode } from '@placeos/common/qr-code';
@@ -8,6 +8,8 @@ import { TranslatePipe } from './translate.pipe';
 /**
  * Card with a QR code that opens the remote setup flow for this device.
  * Shows nothing until the RemoteSetup driver is set up and connected.
+ * Use it only on a setup screen: while it is on the page, the device
+ * registers with the driver as a device that waits for setup.
  * Put it next to the setup form in a container that is a row in landscape
  * and a column in portrait. The card is narrow in landscape and as wide as
  * the setup form in portrait.
@@ -66,4 +68,9 @@ export class RemoteSetupQrComponent {
             ? generateQRCode(this._setup.setup_url(), '#fff', '#000')
             : '',
     );
+
+    constructor() {
+        // The device registers with the driver only while this screen shows
+        inject(DestroyRef).onDestroy(this._setup.showSetupScreen());
+    }
 }

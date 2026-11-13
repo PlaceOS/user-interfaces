@@ -53,19 +53,23 @@ If the app data is cleared, the device makes a new ID.
 
 The driver is not part of this repository. The apps expect this interface.
 
+Only devices that are not set up register with the driver. A device registers while it shows its setup screen. A device that is set up does not call the driver. It only reads the bindings.
+
 ### Bindings
 
-| Binding       | Type                                | Description                                                                       |
-| ------------- | ----------------------------------- | --------------------------------------------------------------------------------- |
-| `connected`   | boolean                             | Whether the driver is ready. The QR code shows only when the value is `true`.     |
-| `devices`     | `Record<string, RemoteSetupDevice>` | Devices that registered, by device ID. 1,000 devices maximum.                     |
-| `device_<id>` | `RemoteSetupCommand \| null`        | Command that the device with this ID must apply. `null` when there is no command. |
+| Binding         | Type                                | Description                                                                      |
+| --------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
+| `connected`     | boolean                             | Whether the driver is ready. The QR code shows only when the value is `true`.    |
+| `devices`       | `Record<string, RemoteSetupDevice>` | Devices that registered, by device ID. 1,000 devices maximum.                    |
+| `device_<id>`   | `RemoteSetupCommand \| null`        | Configure command for the device with this ID. `null` when there is no command.  |
+| `clear_list`    | `string[]`                          | IDs of the devices to clear. An ID stays in the list until the device registers. |
+| `clear_systems` | `RemoteSetupSystemClear[]`          | Apps and systems whose devices must clear. An entry stays for 15 minutes.        |
 
 ```ts
 interface RemoteSetupDevice {
     id: string;
     app: 'booking-panel' | 'control' | 'signage';
-    /** Configuration on the device. `null` when it is not set up */
+    /** Configuration from the last completed command. `null` after `register` */
     config: RemoteSetupConfig | null;
     /** Unix epoch in milliseconds of the last `register` or `complete` call */
     last_seen: number;
@@ -82,48 +86,58 @@ interface RemoteSetupConfig {
     event_view?: boolean;
 }
 
-type RemoteSetupCommand = { id: string; action: 'configure'; config: RemoteSetupConfig; issued_at: number } | { id: string; action: 'clear'; issued_at: number };
+interface RemoteSetupSystemClear {
+    id: string;
+    /** Devices of this app clear */
+    app: 'booking-panel' | 'control' | 'signage';
+    /** Devices that show this system clear */
+    system_id: string;
+    issued_at: number;
+}
+
+interface RemoteSetupCommand {
+    id: string;
+    config: RemoteSetupConfig;
+    issued_at: number;
+}
 ```
 
 The type definitions are in `libs/common/src/lib/remote-setup.ts`.
 
 ### Methods
 
-| Method                             | Returns    | Called by  | Description                                                                                                                                                                                        |
-| ---------------------------------- | ---------- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `register(device_id, app, config)` | –          | Device     | Add or update the device in `devices`, and set `last_seen`. The device calls this method after a random wait when the driver connects, and then every 15 minutes. See [Call load](#call-load).     |
-| `configure(device_id, config)`     | command ID | Setup flow | Set a `configure` command in `device_<device_id>`. Fail if the device is not in `devices`.                                                                                                         |
-| `clear(device_id)`                 | command ID | Setup flow | Set a `clear` command in `device_<device_id>`. Fail if the device is not in `devices`.                                                                                                             |
-| `complete(device_id, command_id)`  | –          | Device     | If `command_id` is the command in `device_<device_id>`: set the device `config` from the command (`null` for `clear`), set `last_command` and `last_seen`, and set `device_<device_id>` to `null`. |
+| Method                            | Returns    | Called by  | Description                                                                                                                                                                                                                                                             |
+| --------------------------------- | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `register(device_id, app)`        | –          | Device     | Add or update the device in `devices`. Set its `config` to `null` and set `last_seen`. Remove `device_id` from `clear_list`. The device calls this method while it shows its setup screen: after a random wait, and then every 15 minutes. See [Call load](#call-load). |
+| `configure(device_id, config)`    | command ID | Setup flow | Set a configure command in `device_<device_id>`. Fail if the device is not in `devices`.                                                                                                                                                                                |
+| `clear(device_id)`                | –          | Setup flow | Add `device_id` to `clear_list`. The device does not have to be in `devices`, because a device that is set up does not register.                                                                                                                                        |
+| `clear_system(app, system_id)`    | –          | Setup flow | Add an entry with a new, unique ID to `clear_systems`.                                                                                                                                                                                                                  |
+| `complete(device_id, command_id)` | –          | Device     | If `command_id` is the command in `device_<device_id>`: set the device `config` from the command, set `last_command` and `last_seen`, and set `device_<device_id>` to `null`.                                                                                           |
 
 ### Driver requirements
 
-- Make a new, unique command ID for each `configure` and `clear` call. A device applies a command ID one time only.
+- Make a new, unique command ID for each `configure` call. A device applies a command ID one time only.
 - Keep 1,000 devices maximum in `devices`. When there are more, remove the devices with the oldest `last_seen` first.
+- Keep 1,000 IDs maximum in `clear_list`. When there are more, remove the oldest IDs first.
+- Remove an entry from `clear_systems` 15 minutes after `clear_system` adds it. Keep 1,000 entries maximum.
 - Remove stale devices. A stale device is a device that did not call `register` or `complete` in a time limit, for example 7 days.
 - Remove stale commands. A stale command is a command that the device did not complete in a time limit, for example 15 minutes.
-- Only let users who can set up devices call `configure` and `clear`. Any device that can sign in can call `register` and `complete`.
+- Remove stale IDs from `clear_list`, for example after 7 days.
+- Only let users who can set up devices call `configure`, `clear` and `clear_system`. Any device that can sign in can call `register` and `complete`.
 
 The apps do not remove stale data and do not retry a failed `complete` call. They use the driver limits above for these cases.
 
 ### Call load
 
-Many devices can connect to the driver at the same time, for example after a power cut, an app update or a driver restart. To prevent a peak of calls, each device waits a random time before its first `register` call:
+Only devices on their setup screen call `register`. Thus a restart of many devices that are set up, for example after a power cut, an app update or a driver restart, does not cause calls to the driver.
 
-| Device state              | Maximum wait |
-| ------------------------- | ------------ |
-| Set up (shows a system)   | 5 minutes    |
-| Not set up (setup screen) | 10 seconds   |
-
-The heartbeat starts after the first call, so the heartbeats of the devices also stay spread. For 2,000 devices that start at the same time, the driver gets approximately 7 `register` calls each second for 5 minutes. After that, it gets approximately 2 calls each second.
-
-A device on its setup screen waits less, because the setup flow cannot send a command to a device before it registers. The setup flow shows the device when it registers.
+A device on its setup screen waits a random time of 10 seconds maximum before its first `register` call. This spreads the calls of many devices that start at the same time. The heartbeat starts after the first call, so the heartbeats also stay spread. The wait is short, because the setup flow cannot send a configure command to a device before it registers. The setup flow shows the device when it registers.
 
 The bindings do not cause calls to the driver. PlaceOS sends binding values from its status store.
 
 If there are more devices than the device limit, `devices` keeps the devices that registered last. A device on its setup screen registers in 10 seconds, so it is in `devices` when a person sets it up.
 
-## How a device applies a command
+## How a device applies a change
 
 The device sends the change to its bootstrap route, the same as a setup link:
 
@@ -133,8 +147,16 @@ The device sends the change to its bootstrap route, the same as a setup link:
 | Control       | `#/bootstrap?system_id=<id>`                                          | `#/bootstrap?clear=true` |
 | Signage       | `#/bootstrap?display=<id>` (adds `&template=<id>` for a template)     | `#/bootstrap?clear=true` |
 
-A system ID from MDM managed config has priority. A device with an MDM system ID does not show the QR code and does not apply remote setup commands.
+A device applies a configure command from `device_<id>`, then calls `complete`.
+
+A device that is set up clears its configuration when its ID is in `clear_list`. It then shows its setup screen and registers. The `register` call removes the ID from `clear_list`. A device that shows its setup screen does not clear again. The setup flow shows that the clear is done when the ID goes out of `clear_list`.
+
+A device that is set up also clears its configuration when an entry in `clear_systems` has its app and the system that it shows. The device keeps the IDs of the last 20 entries that it applied, and it does not apply an entry again. Thus a person can set up the device with the same system again while the entry is in the list. The driver does not know which devices show a system, so it removes the entry after 15 minutes. A device that is off during these 15 minutes does not clear. A device that a person sets up with the system during these 15 minutes also clears.
+
+The setup flow can also clear a device ID that is not in `devices`, for example a device that a person set up on the device. Type the device ID in the setup flow, then select **Clear setup**. To clear by system, use **Clear by system** below the device list.
+
+A system ID from MDM managed config has priority. A device with an MDM system ID does not show the QR code and does not apply remote setup changes.
 
 ## Mock mode
 
-In mock mode, the system `sys-remote-setup` has a mock RemoteSetup driver. It has three devices: `DEV-MOCK0001` (Booking Panel), `DEV-MOCK0002` (Control) and `DEV-MOCK0003` (Signage). These devices complete their commands after 1.5 seconds. Apps on other origins do not share the mock.
+In mock mode, the system `sys-remote-setup` has a mock RemoteSetup driver. It has three devices: `DEV-MOCK0001` (Booking Panel), `DEV-MOCK0002` (Control) and `DEV-MOCK0003` (Signage). These devices apply configure commands and clears after 1.5 seconds. Apps on other origins do not share the mock.
