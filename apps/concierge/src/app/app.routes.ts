@@ -188,5 +188,14 @@ export const routes: Routes = [
         canActivate: [AuthorisedUserGuard],
         canLoad: [AuthorisedUserGuard],
     },
+    {
+        path: 'remote-setup',
+        title: 'Remote Setup',
+        loadComponent: () =>
+            import('./remote-setup/remote-setup.component').then(
+                (m) => m.RemoteSetupComponent,
+            ),
+        canActivate: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '-' },
 ];

@@ -16,5 +16,6 @@
 - [Application settings](docs/settings/README.md): Read before changing runtime settings or a settings schema.
 - [Mobile builds](docs/mobile-builds.md): Read before changing or running a Capacitor workflow.
 - [Release workflow](docs/release-workflow.md): Read before creating a pull request or changing release and deployment configuration.
+- [Remote setup](docs/remote-setup.md): Read before changing the remote setup flow, the device bootstrap screens, or the RemoteSetup driver interface.
 - [Signage plugin thumbnails](docs/signage-plugin-thumbnails.md): Read before changing the signage plugin thumbnail protocol.
 - [Teams and Microsoft 365 app](docs/teams-app.md): Read before changing the Teams app package or the Teams host sign-in.

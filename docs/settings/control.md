@@ -51,6 +51,14 @@ The `banner` object:
 | `type` | `"info"`, `"warn"` or `"error"` | Colour style for the banner. Defaults to `"info"`. |
 | `content` | string | Message text to show. |
 
+## Remote Setup
+
+When the domain has a RemoteSetup driver, the setup screen shows a QR code. The QR code opens the remote setup flow in Concierge. See [Remote setup](../remote-setup.md).
+
+| Setting | Type | Default | Description |
+| --- | --- | --- | --- |
+| `remote_setup_url` | string | – | Address of the remote setup flow. The device adds `?device=<id>` to the address. When not set, the app uses `https://<PlaceOS domain>/concierge/#/remote-setup`. |
+
 ## Voice Assistant
 
 The System's `voice_control` binding turns on the voice assistant. To give a command, say "Hey Room" and then the command, or tap the microphone button. A green ring shows on the button when the panel hears speech. If you say "Hey Room" and stop, the panel plays a short tone and waits for the command. While you give a command, the words show next to the button. Speech recognition and speech synthesis run on the device:

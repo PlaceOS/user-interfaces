@@ -217,6 +217,12 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 icon: 'link',
             },
             {
+                id: 'remote-setup',
+                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_SETUP',
+                route: ['/remote-setup'],
+                icon: 'qr_code_scanner',
+            },
+            {
                 id: 'email-templates',
                 name: 'APP.CONCIERGE.MENU_MANAGE_EMAILS',
                 route: ['/email-templates'],

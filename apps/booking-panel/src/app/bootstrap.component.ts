@@ -2,9 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
 import { SystemBootstrapComponent } from '@placeos/components';
-
-/** Local storage flag that opens the events view instead of the panel */
-const EVENT_KEY = 'PLACEOS.Bookings.event';
+import { BOOKING_STORE_KEY, EVENT_KEY } from './remote-setup-target';
 
 /**
  * Setup screen that binds the booking panel to a system.
@@ -14,7 +12,7 @@ const EVENT_KEY = 'PLACEOS.Bookings.event';
     selector: '[app-bootstrap]',
     template: `
         <system-bootstrap
-            store_key="PLACEOS.BOOKINGS.system"
+            [store_key]="store_key"
             heading="APP.BOOKING_PANEL.BOOTSTRAP_TITLE"
             [system_route]="systemRoute"
             (configured)="saveEventFlag()"
@@ -24,6 +22,8 @@ const EVENT_KEY = 'PLACEOS.Bookings.event';
 })
 export class BootstrapComponent {
     private _route = inject(ActivatedRoute);
+
+    public readonly store_key = BOOKING_STORE_KEY;
 
     /** Open the events view or the booking panel for the system */
     public readonly systemRoute = (system_id: string) => [

@@ -123,6 +123,13 @@ const APP_ROUTES: Routes = [
                     },
                 ],
             },
+            {
+                path: 'remote-setup',
+                loadComponent: () =>
+                    import('./remote-setup/remote-setup.component').then(
+                        (m) => m.RemoteSetupComponent,
+                    ),
+            },
             // Old addresses of the pages now under Manage
             { path: 'report', redirectTo: 'manage/report' },
             { path: 'branding', redirectTo: 'manage/branding' },

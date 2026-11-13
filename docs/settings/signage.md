@@ -20,6 +20,14 @@ These settings control the name that the app gives to the PlaceOS API and uses i
 | `default_animation_time` | number | `1000` | Duration in milliseconds of the media player's transition animation between playlist items. If the value is `0` or not set, the player uses `3000`. |
 | `templates_enabled` | boolean | `true` | Make template selection available during signage bootstrap. |
 
+## Remote Setup
+
+When the domain has a RemoteSetup driver, the setup screen shows a QR code. The QR code opens the remote setup flow in Signage Manager. See [Remote setup](../remote-setup.md).
+
+| Setting | Type | Default | Description |
+| --- | --- | --- | --- |
+| `remote_setup_url` | string | – | Address of the remote setup flow. The device adds `?device=<id>` to the address. When not set, the app uses `https://<PlaceOS domain>/signage-manager/#/remote-setup`. |
+
 ## Example
 
 Example `signage_app` metadata details for the active building zone:

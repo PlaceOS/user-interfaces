@@ -2,7 +2,8 @@ import { Injectable, signal, untracked } from '@angular/core';
 import { getModule } from '@placeos/ts-client';
 
 import { AsyncHandler } from './async-handler.class';
-import { log, randomInt, randomString } from './general';
+import { deviceId } from './device-id';
+import { log, randomInt } from './general';
 import { scrubSecrets } from './sentry';
 
 export interface ClientEvent {
@@ -42,10 +43,6 @@ function scrubbedCopy(event: ClientEvent): ClientEvent | null {
     }
 }
 
-let DEVICE_ID =
-    globalThis.localStorage?.getItem('PLACEOS.DEVICE_ID') ||
-    `DEV-${randomString(8)}`;
-
 @Injectable({
     providedIn: 'root',
 })
@@ -62,7 +59,6 @@ export class RemoteLoggingService extends AsyncHandler {
 
     constructor() {
         super();
-        globalThis.localStorage?.setItem('PLACEOS.DEVICE_ID', DEVICE_ID);
         this._patchConsoleMethods();
         log('Logger', 'Remote logging initialised...');
     }
@@ -96,7 +92,7 @@ export class RemoteLoggingService extends AsyncHandler {
             typeof blob[0] === 'string' ? blob[0].replace(/\%c/g, '') : blob[0];
         const event = {
             id: `${event_type}-${randomInt(99999_99999)}`,
-            device_id: DEVICE_ID,
+            device_id: deviceId(),
             type: event_type,
             subtype: type,
             timestamp: Date.now(),

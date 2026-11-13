@@ -1,6 +1,6 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { PlaceOS_Service, setMocks } from '@placeos/common';
+import { Router, RouterOutlet } from '@angular/router';
+import { PlaceOS_Service, RemoteSetupService, setMocks } from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -8,6 +8,8 @@ import {
 import { ChatComponent } from '@placeos/components/chat';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
+
+import { bookingRemoteSetup } from './remote-setup-target';
 
 @Component({
     selector: 'app-root',
@@ -49,6 +51,8 @@ export class AppComponent implements OnInit {
         import('../environments/settings.schema.json');
 
     private _placeos = inject(PlaceOS_Service);
+    private _remote_setup = inject(RemoteSetupService);
+    private _router = inject(Router);
 
     public get has_chat(): boolean {
         return this._placeos.has_chat;
@@ -57,5 +61,6 @@ export class AppComponent implements OnInit {
     public ngOnInit(): void {
         setMocks(mocksInit);
         this._placeos.init({ allow_mdm_restart: true });
+        this._remote_setup.start(bookingRemoteSetup(this._router));
     }
 }

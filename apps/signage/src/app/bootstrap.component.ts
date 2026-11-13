@@ -31,6 +31,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import {
     LoadErrorComponent,
+    RemoteSetupQrComponent,
     TranslatePipe,
     VirtualKeyboardComponent,
 } from '@placeos/components';
@@ -44,10 +45,12 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
 @Component({
     selector: '[bootstrap]',
     template: `
-        <div class="bg-base-200 absolute inset-0">
+        <div
+            class="bg-base-200 absolute inset-0 flex flex-col items-center gap-3 overflow-y-auto p-2 landscape:flex-row landscape:flex-wrap landscape:items-start landscape:justify-center"
+        >
             <div
                 form
-                class="bg-base-100 absolute top-2 left-1/2 flex w-120 max-w-[calc(100vw-2rem)] -translate-x-1/2 transform flex-col items-center overflow-hidden rounded-sm shadow-sm"
+                class="bg-base-100 flex w-120 max-w-[calc(100vw-2rem)] flex-col items-center overflow-hidden rounded-sm shadow-sm"
             >
                 <header
                     class="bg-secondary text-secondary-content mb-2 w-full px-4 py-3 text-lg font-medium"
@@ -144,6 +147,9 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
                     </main>
                 }
             </div>
+            @if (!loading() && !displays_failed()) {
+                <remote-setup-qr />
+            }
             <div class="absolute right-0 bottom-0 z-10 p-2 text-right">
                 <div class="text-xs opacity-40">
                     {{ 'COMMON.CONTROLS_VERSION' | translate }}:
@@ -176,6 +182,7 @@ const STORE_TEMPLATE_KEY = `${STORE_PREFIX}.template`;
         MatSelectModule,
         FormsModule,
         LoadErrorComponent,
+        RemoteSetupQrComponent,
     ],
 })
 export class BootstrapComponent extends AsyncHandler implements OnInit {
