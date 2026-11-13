@@ -51,19 +51,13 @@ export class RemoteSetupModule {
         device_id: string,
         app: RemoteSetupApp,
     ) {
-        const devices = Object.values({
-            ...this.devices,
-            [device_id]: {
-                ...this.devices[device_id],
-                id: device_id,
-                app,
-                config: null,
-                last_seen: Date.now(),
-            },
-        })
-            .sort((a, b) => b.last_seen - a.last_seen)
-            .slice(0, MAX_DEVICES);
-        this.devices = Object.fromEntries(devices.map((d) => [d.id, d]));
+        this.devices = withDevice(this.devices, {
+            ...this.devices[device_id],
+            id: device_id,
+            app,
+            config: null,
+            last_seen: Date.now(),
+        });
         if (this.clear_list.includes(device_id)) {
             this.clear_list = this.clear_list.filter((id) => id !== device_id);
         }
@@ -74,8 +68,8 @@ export class RemoteSetupModule {
         device_id: string,
         config: RemoteSetupConfig,
     ) {
-        const device = this.devices[device_id];
-        if (!device) throw { message: 'Device not found' };
+        // A device that is set up does not register, so the device does not
+        // have to be in `devices`.
         const command: RemoteSetupCommand = {
             id: randomString(12),
             config,
@@ -136,24 +130,36 @@ export class RemoteSetupModule {
         this: MockModule & RemoteSetupModule,
         device_id: string,
         command_id: string,
+        app?: RemoteSetupApp,
     ) {
         const name = remoteSetupCommandBinding(device_id);
         const command = this[name] as RemoteSetupCommand | null;
         if (command?.id !== command_id) return;
         const device = this.devices[device_id];
-        if (device) {
-            this.devices = {
-                ...this.devices,
-                [device_id]: {
-                    ...device,
-                    config: command.config,
-                    last_seen: Date.now(),
-                    last_command: command.id,
-                },
-            };
+        const device_app = device?.app ?? app;
+        if (device_app) {
+            this.devices = withDevice(this.devices, {
+                ...device,
+                id: device_id,
+                app: device_app,
+                config: command.config,
+                last_seen: Date.now(),
+                last_command: command.id,
+            });
         }
         setBinding(this, name, null);
     }
+}
+
+/** Add or replace a device. Keeps the devices that were seen last */
+function withDevice(
+    devices: Record<string, RemoteSetupDevice>,
+    device: RemoteSetupDevice,
+) {
+    const list = Object.values({ ...devices, [device.id]: device })
+        .sort((a, b) => b.last_seen - a.last_seen)
+        .slice(0, MAX_DEVICES);
+    return Object.fromEntries(list.map((d) => [d.id, d]));
 }
 
 /** Whether a device is a seeded mock device that applies changes itself */

@@ -132,7 +132,7 @@
         "REMOTE_SETUP_NO_DEVICES": "Aucun appareil trouvé.",
         "REMOTE_SETUP_NOT_SET_UP": "Non configuré",
         "REMOTE_SETUP_UNAVAILABLE": "La configuration à distance n'est pas disponible. Vérifiez que la configuration du domaine contient un système de configuration à distance et que son driver est connecté.",
-        "REMOTE_SETUP_DEVICE_MISSING": "L'appareil {{ id }} est introuvable. Vérifiez que l'appareil affiche le code QR de configuration. Vous pouvez quand même effacer la configuration d'un appareil déjà configuré.",
+        "REMOTE_SETUP_DEVICE_MISSING": "L'appareil {{ id }} est introuvable. Vérifiez que l'appareil affiche le code QR de configuration. Vous pouvez quand même modifier ou effacer la configuration d'un appareil déjà configuré.",
         "REMOTE_SETUP_OTHER_APP": "Cet appareil exécute {{ app }}. Utilisez le parcours de configuration de cette application.",
         "REMOTE_SETUP_CURRENT": "Système actuel",
         "REMOTE_SETUP_EVENT_VIEW": "Afficher la vue des événements",

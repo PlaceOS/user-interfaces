@@ -173,7 +173,7 @@ export interface RemoteSetupTarget {
  *
  * Call `start` once at application startup. After initialisation the service
  * binds to the RemoteSetup driver. It applies the configure command in the
- * `device_<id>` binding. It clears the device when its ID is in the
+ * `device_<id>` binding, also when the device is set up. It clears the device when its ID is in the
  * `clear_list` binding, or when its app and system are in the
  * `clear_systems` binding.
  *
@@ -338,9 +338,10 @@ export class RemoteSetupService extends AsyncHandler {
         localStorage.setItem(LAST_COMMAND_KEY, value.id);
         log('RemoteSetup', 'Applying configure command', value);
         if (!(await this._apply(target, value.config))) return;
-        // The driver records a completed command as the device configuration
+        // The driver records a completed command as the device configuration.
+        // The app lets the driver add a device that did not register.
         await this._module
-            .execute('complete', [this.device_id, value.id])
+            .execute('complete', [this.device_id, value.id, target.app])
             .catch((error) =>
                 log('RemoteSetup', 'Failed to complete command', error, 'warn'),
             );

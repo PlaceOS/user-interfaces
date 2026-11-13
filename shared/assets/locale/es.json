@@ -132,7 +132,7 @@
         "REMOTE_SETUP_NO_DEVICES": "No se encontraron dispositivos.",
         "REMOTE_SETUP_NOT_SET_UP": "Sin configurar",
         "REMOTE_SETUP_UNAVAILABLE": "La configuración remota no está disponible. Asegúrese de que la configuración del dominio tenga un sistema de configuración remota y de que su driver esté conectado.",
-        "REMOTE_SETUP_DEVICE_MISSING": "No se encontró el dispositivo {{ id }}. Asegúrese de que el dispositivo muestre el código QR de configuración. Aún puede borrar la configuración de un dispositivo ya configurado.",
+        "REMOTE_SETUP_DEVICE_MISSING": "No se encontró el dispositivo {{ id }}. Asegúrese de que el dispositivo muestre el código QR de configuración. Aún puede cambiar o borrar la configuración de un dispositivo ya configurado.",
         "REMOTE_SETUP_OTHER_APP": "Este dispositivo ejecuta {{ app }}. Use el flujo de configuración de esa aplicación.",
         "REMOTE_SETUP_CURRENT": "Sistema actual",
         "REMOTE_SETUP_EVENT_VIEW": "Mostrar la vista de eventos",

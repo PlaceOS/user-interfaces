@@ -205,6 +205,35 @@ describe('RemoteSetupFlowComponent', () => {
         );
     });
 
+    it('should set up a device that the driver does not know', async () => {
+        open({ device: 'dev-00000000abcd' });
+        expect('[missing]').toExist();
+        spectator.component.missing_app.set('control');
+        spectator.component.system_id.set('sys-9');
+        spectator.detectChanges();
+        spectator.click('button[apply]');
+        await vi.waitFor(() =>
+            expect(execute).toHaveBeenCalledWith('configure', [
+                'DEV-00000000ABCD',
+                { system_id: 'sys-9' },
+            ]),
+        );
+
+        listeners['devices']({
+            ...DEVICES,
+            'DEV-00000000ABCD': {
+                id: 'DEV-00000000ABCD',
+                app: 'control',
+                config: { system_id: 'sys-9' },
+                last_seen: 4,
+                last_command: 'cmd-1',
+            },
+        });
+        spectator.detectChanges();
+        expect('[missing]').not.toExist();
+        expect('[done]').toExist();
+    });
+
     it('should clear a device that the driver does not know', async () => {
         open({ device: 'DEV-SET-UP' });
         spectator.click('button[clear]');

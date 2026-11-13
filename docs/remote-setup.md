@@ -6,7 +6,7 @@ Remote setup lets a person set up a fixed device from a phone. It works for the 
 2. The person scans the QR code. The setup flow opens in Concierge (Booking Panel and Control) or Signage Manager (Signage).
 3. The person selects a system and sends it to the device. The device applies the system and opens it.
 
-The setup flow can also clear the configuration on a device. The device then goes back to its setup screen.
+The setup flow can also change the configuration on a device that is set up, or clear it. A device that is cleared goes back to its setup screen.
 
 ## Enable remote setup
 
@@ -53,14 +53,14 @@ If the app data is cleared, the device makes a new ID.
 
 The driver is not part of this repository. The apps expect this interface.
 
-Only devices that are not set up register with the driver. A device registers while it shows its setup screen. A device that is set up does not call the driver. It only reads the bindings.
+Only devices that are not set up register with the driver. A device registers while it shows its setup screen. A device that is set up reads the bindings. It calls the driver only to complete a configure command.
 
 ### Bindings
 
 | Binding         | Type                                | Description                                                                      |
 | --------------- | ----------------------------------- | -------------------------------------------------------------------------------- |
 | `connected`     | boolean                             | Whether the driver is ready. The QR code shows only when the value is `true`.    |
-| `devices`       | `Record<string, RemoteSetupDevice>` | Devices that registered, by device ID. 1,000 devices maximum.                    |
+| `devices`       | `Record<string, RemoteSetupDevice>` | Devices that registered or completed a command, by device ID. 1,000 maximum.     |
 | `device_<id>`   | `RemoteSetupCommand \| null`        | Configure command for the device with this ID. `null` when there is no command.  |
 | `clear_list`    | `string[]`                          | IDs of the devices to clear. An ID stays in the list until the device registers. |
 | `clear_systems` | `RemoteSetupSystemClear[]`          | Apps and systems whose devices must clear. An entry stays for 15 minutes.        |
@@ -106,13 +106,13 @@ The type definitions are in `libs/common/src/lib/remote-setup.ts`.
 
 ### Methods
 
-| Method                            | Returns    | Called by  | Description                                                                                                                                                                                                                                                             |
-| --------------------------------- | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `register(device_id, app)`        | –          | Device     | Add or update the device in `devices`. Set its `config` to `null` and set `last_seen`. Remove `device_id` from `clear_list`. The device calls this method while it shows its setup screen: after a random wait, and then every 15 minutes. See [Call load](#call-load). |
-| `configure(device_id, config)`    | command ID | Setup flow | Set a configure command in `device_<device_id>`. Fail if the device is not in `devices`.                                                                                                                                                                                |
-| `clear(device_id)`                | –          | Setup flow | Add `device_id` to `clear_list`. The device does not have to be in `devices`, because a device that is set up does not register.                                                                                                                                        |
-| `clear_system(app, system_id)`    | –          | Setup flow | Add an entry with a new, unique ID to `clear_systems`.                                                                                                                                                                                                                  |
-| `complete(device_id, command_id)` | –          | Device     | If `command_id` is the command in `device_<device_id>`: set the device `config` from the command, set `last_command` and `last_seen`, and set `device_<device_id>` to `null`.                                                                                           |
+| Method                                 | Returns    | Called by  | Description                                                                                                                                                                                                                                                             |
+| -------------------------------------- | ---------- | ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `register(device_id, app)`             | –          | Device     | Add or update the device in `devices`. Set its `config` to `null` and set `last_seen`. Remove `device_id` from `clear_list`. The device calls this method while it shows its setup screen: after a random wait, and then every 15 minutes. See [Call load](#call-load). |
+| `configure(device_id, config)`         | command ID | Setup flow | Set a configure command in `device_<device_id>`. The device does not have to be in `devices`, because a device that is set up does not register.                                                                                                                        |
+| `clear(device_id)`                     | –          | Setup flow | Add `device_id` to `clear_list`. The device does not have to be in `devices`, because a device that is set up does not register.                                                                                                                                        |
+| `clear_system(app, system_id)`         | –          | Setup flow | Add an entry with a new, unique ID to `clear_systems`.                                                                                                                                                                                                                  |
+| `complete(device_id, command_id, app)` | –          | Device     | If `command_id` is the command in `device_<device_id>`: set the device `config` from the command, set `last_command` and `last_seen`, and set `device_<device_id>` to `null`. If the device is not in `devices`, add it with `app`.                                     |
 
 ### Driver requirements
 
@@ -131,7 +131,7 @@ The apps do not remove stale data and do not retry a failed `complete` call. The
 
 Only devices on their setup screen call `register`. Thus a restart of many devices that are set up, for example after a power cut, an app update or a driver restart, does not cause calls to the driver.
 
-A device on its setup screen waits a random time of 10 seconds maximum before its first `register` call. This spreads the calls of many devices that start at the same time. The heartbeat starts after the first call, so the heartbeats also stay spread. The wait is short, because the setup flow cannot send a configure command to a device before it registers. The setup flow shows the device when it registers.
+A device on its setup screen waits a random time of 10 seconds maximum before its first `register` call. This spreads the calls of many devices that start at the same time. The heartbeat starts after the first call, so the heartbeats also stay spread. The wait is short, because the setup flow shows the device and its app only after it registers.
 
 The bindings do not cause calls to the driver. PlaceOS sends binding values from its status store.
 
@@ -147,7 +147,7 @@ The device sends the change to its bootstrap route, the same as a setup link:
 | Control       | `#/bootstrap?system_id=<id>`                                          | `#/bootstrap?clear=true` |
 | Signage       | `#/bootstrap?display=<id>` (adds `&template=<id>` for a template)     | `#/bootstrap?clear=true` |
 
-A device applies a configure command from `device_<id>`, then calls `complete`.
+A device applies a configure command from `device_<id>`, then calls `complete`. A device that is set up also applies the command. Thus the setup flow can change the system on a device.
 
 A device that is set up clears its configuration when its ID is in `clear_list`. It then shows its setup screen and registers. The `register` call removes the ID from `clear_list`. A device that shows its setup screen does not clear again. The setup flow shows that the clear is done when the ID goes out of `clear_list`.
 
@@ -159,7 +159,7 @@ A device that is set up also clears its configuration when an entry in `clear_sy
 
 The driver does not know which devices show a system, so it removes the entry after 15 minutes. A device that is off during these 15 minutes does not clear.
 
-The setup flow can also clear a device ID that is not in `devices`, for example a device that a person set up on the device. Type the device ID in the setup flow, then select **Clear setup**. To clear by system, use **Clear by system** below the device list.
+The setup flow can also change or clear the setup of a device ID that is not in `devices`, for example a device that a person set up on the device. Type the device ID in the setup flow. When the flow sets up more than one app, select the app of the device. Then select **Apply setup** or **Clear setup**. A device ID in the `DEV-` format is sent in uppercase. The device shows in `devices` when it completes the command. To clear by system, use **Clear by system** below the device list.
 
 A system ID from MDM managed config has priority. A device with an MDM system ID does not show the QR code and does not apply remote setup changes.
 

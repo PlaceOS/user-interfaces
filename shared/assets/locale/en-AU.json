@@ -1083,7 +1083,7 @@
         "REMOTE_SETUP_NO_DEVICES": "No devices found.",
         "REMOTE_SETUP_NOT_SET_UP": "Not set up",
         "REMOTE_SETUP_UNAVAILABLE": "Remote setup is not available. Make sure that the domain config has a remote setup system and that its driver is connected.",
-        "REMOTE_SETUP_DEVICE_MISSING": "Device {{ id }} was not found. Make sure that the device shows the setup QR code. You can still clear the setup of a device that is set up.",
+        "REMOTE_SETUP_DEVICE_MISSING": "Device {{ id }} was not found. Make sure that the device shows the setup QR code. You can still change or clear the setup of a device that is set up.",
         "REMOTE_SETUP_OTHER_APP": "This device runs {{ app }}. Use the setup flow for that app.",
         "REMOTE_SETUP_CURRENT": "Current system",
         "REMOTE_SETUP_EVENT_VIEW": "Show the events view",

@@ -50,6 +50,8 @@ import { openConfirmModal } from './confirm-modal.component';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
 
+/** Format of new device IDs. See `libs/common/src/lib/device-id.ts` */
+const DEVICE_ID_FORMAT = /^DEV-[0-9A-F]{12}$/i;
 /** Most devices that the device list shows */
 const MAX_DEVICES_SHOWN = 50;
 
@@ -67,7 +69,8 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
  * flow lists the devices that the RemoteSetup driver knows. For the selected
  * device, the user picks a system and sends it to the device, or clears the
  * configuration on the device. A device that is set up does not register,
- * so the flow can also clear a device ID that the driver does not know.
+ * so the flow can also set up or clear a device ID that the driver does not
+ * know. The device then shows in the list when it applies a setup.
  * The device list can also clear all devices of an app that show a system.
  *
  * ```html
@@ -291,20 +294,27 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                     | translate: { id: device_id() }
                             }}
                         </p>
-                        <div class="flex flex-col gap-2 px-4 pb-4">
-                            <ng-container [ngTemplateOutlet]="status" />
-                            <button
-                                btn
-                                matRipple
-                                clear
-                                type="button"
-                                class="inverse"
-                                [disabled]="sending() || pending()"
-                                (click)="clear()"
+                        @if (apps().length > 1) {
+                            <mat-form-field
+                                appearance="outline"
+                                class="-mb-4 w-full px-4"
                             >
-                                {{ 'COMMON.REMOTE_SETUP_CLEAR' | translate }}
-                            </button>
-                        </div>
+                                <mat-label>
+                                    {{ 'COMMON.REMOTE_SETUP_APP' | translate }}
+                                </mat-label>
+                                <mat-select
+                                    name="missing_app"
+                                    [(ngModel)]="missing_app"
+                                >
+                                    @for (app of apps(); track app) {
+                                        <mat-option [value]="app">
+                                            {{ appName(app) | translate }}
+                                        </mat-option>
+                                    }
+                                </mat-select>
+                            </mat-form-field>
+                        }
+                        <ng-container [ngTemplateOutlet]="setup_form" />
                     }
                     @case ('other-app') {
                         <p other-app class="p-4">
@@ -347,127 +357,101 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                 }
                             </div>
                         </section>
-                        <form
-                            class="flex flex-col gap-2 p-4"
-                            (ngSubmit)="apply()"
-                        >
-                            <mat-form-field appearance="outline">
-                                <mat-label>
-                                    {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}
-                                </mat-label>
-                                <input
-                                    matInput
-                                    name="system"
-                                    autocomplete="off"
-                                    [(ngModel)]="system_id"
-                                    [matAutocomplete]="auto"
-                                    [placeholder]="
-                                        'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER'
-                                            | translate
-                                    "
-                                />
-                            </mat-form-field>
-                            <mat-autocomplete #auto="matAutocomplete">
-                                @for (option of systems(); track option.id) {
-                                    <mat-option [value]="option.id">
-                                        <div
-                                            class="flex w-full items-center gap-4 leading-tight"
-                                        >
-                                            <div
-                                                class="min-w-0 flex-1 truncate"
-                                            >
-                                                {{
-                                                    option.display_name ||
-                                                        option.name
-                                                }}
-                                            </div>
-                                            <div
-                                                class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
-                                            >
-                                                {{ option.id }}
-                                            </div>
-                                        </div>
-                                    </mat-option>
-                                }
-                            </mat-autocomplete>
-                            @if (item.app === 'signage') {
-                                <mat-form-field appearance="outline">
-                                    <mat-label>
-                                        {{
-                                            'APP.SIGNAGE.BOOTSTRAP_TEMPLATE'
-                                                | translate
-                                        }}
-                                    </mat-label>
-                                    <mat-select
-                                        name="template"
-                                        [(ngModel)]="template_id"
-                                    >
-                                        <mat-option value="">
-                                            {{
-                                                'APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE'
-                                                    | translate
-                                            }}
-                                        </mat-option>
-                                        @for (
-                                            option of templates();
-                                            track option.id
-                                        ) {
-                                            <mat-option [value]="option.id">
-                                                {{ option.name }}
-                                            </mat-option>
-                                        }
-                                    </mat-select>
-                                </mat-form-field>
-                            }
-                            @if (item.app === 'booking-panel') {
-                                <mat-checkbox
-                                    name="event_view"
-                                    class="pb-2"
-                                    [(ngModel)]="event_view"
-                                >
-                                    {{
-                                        'COMMON.REMOTE_SETUP_EVENT_VIEW'
-                                            | translate
-                                    }}
-                                </mat-checkbox>
-                            }
-                            <ng-container [ngTemplateOutlet]="status" />
-                            <div
-                                class="flex flex-col-reverse gap-2 sm:flex-row"
-                            >
-                                <button
-                                    btn
-                                    matRipple
-                                    clear
-                                    type="button"
-                                    class="inverse flex-1"
-                                    [disabled]="sending() || pending()"
-                                    (click)="clear()"
-                                >
-                                    {{
-                                        'COMMON.REMOTE_SETUP_CLEAR' | translate
-                                    }}
-                                </button>
-                                <button
-                                    btn
-                                    matRipple
-                                    apply
-                                    type="submit"
-                                    class="flex-1"
-                                    [disabled]="
-                                        sending() || !system_id().trim()
-                                    "
-                                >
-                                    {{
-                                        'COMMON.REMOTE_SETUP_APPLY' | translate
-                                    }}
-                                </button>
-                            </div>
-                        </form>
+                        <ng-container [ngTemplateOutlet]="setup_form" />
                     }
                 }
             </div>
         </div>
+        <ng-template #setup_form>
+            <form class="flex flex-col gap-2 p-4" (ngSubmit)="apply()">
+                <mat-form-field appearance="outline">
+                    <mat-label>
+                        {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}
+                    </mat-label>
+                    <input
+                        matInput
+                        name="system"
+                        autocomplete="off"
+                        [(ngModel)]="system_id"
+                        [matAutocomplete]="auto"
+                        [placeholder]="
+                            'COMMON.BOOTSTRAP_INPUT_PLACEHOLDER' | translate
+                        "
+                    />
+                </mat-form-field>
+                <mat-autocomplete #auto="matAutocomplete">
+                    @for (option of systems(); track option.id) {
+                        <mat-option [value]="option.id">
+                            <div
+                                class="flex w-full items-center gap-4 leading-tight"
+                            >
+                                <div class="min-w-0 flex-1 truncate">
+                                    {{ option.display_name || option.name }}
+                                </div>
+                                <div
+                                    class="bg-base-200 rounded-sm px-2 py-1 font-mono text-[0.625rem]"
+                                >
+                                    {{ option.id }}
+                                </div>
+                            </div>
+                        </mat-option>
+                    }
+                </mat-autocomplete>
+                @if (setup_app() === 'signage') {
+                    <mat-form-field appearance="outline">
+                        <mat-label>
+                            {{ 'APP.SIGNAGE.BOOTSTRAP_TEMPLATE' | translate }}
+                        </mat-label>
+                        <mat-select name="template" [(ngModel)]="template_id">
+                            <mat-option value="">
+                                {{
+                                    'APP.SIGNAGE.BOOTSTRAP_TEMPLATE_NONE'
+                                        | translate
+                                }}
+                            </mat-option>
+                            @for (option of templates(); track option.id) {
+                                <mat-option [value]="option.id">
+                                    {{ option.name }}
+                                </mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                }
+                @if (setup_app() === 'booking-panel') {
+                    <mat-checkbox
+                        name="event_view"
+                        class="pb-2"
+                        [(ngModel)]="event_view"
+                    >
+                        {{ 'COMMON.REMOTE_SETUP_EVENT_VIEW' | translate }}
+                    </mat-checkbox>
+                }
+                <ng-container [ngTemplateOutlet]="status" />
+                <div class="flex flex-col-reverse gap-2 sm:flex-row">
+                    <button
+                        btn
+                        matRipple
+                        clear
+                        type="button"
+                        class="inverse flex-1"
+                        [disabled]="sending() || pending()"
+                        (click)="clear()"
+                    >
+                        {{ 'COMMON.REMOTE_SETUP_CLEAR' | translate }}
+                    </button>
+                    <button
+                        btn
+                        matRipple
+                        apply
+                        type="submit"
+                        class="flex-1"
+                        [disabled]="sending() || !system_id().trim()"
+                    >
+                        {{ 'COMMON.REMOTE_SETUP_APPLY' | translate }}
+                    </button>
+                </div>
+            </form>
+        </ng-template>
         <ng-template #status>
             @if (pending()) {
                 <div
@@ -538,17 +522,20 @@ export class RemoteSetupFlowComponent {
     );
     /**
      * ID of the selected device. A known device ID that matches the
-     * `device` query parameter, ignoring case, replaces the typed ID.
+     * `device` query parameter, ignoring case, replaces the typed ID. An
+     * unknown ID in the `DEV-` format is made uppercase, because the device
+     * listens for its ID in that case.
      */
     public readonly device_id = computed(() => {
         const id = this._requested_id();
         const devices = this._devices();
         if (!id || devices[id]) return id;
         const lower = id.toLowerCase();
-        return (
-            Object.keys(devices).find((key) => key.toLowerCase() === lower) ||
-            id
+        const known = Object.keys(devices).find(
+            (key) => key.toLowerCase() === lower,
         );
+        if (known) return known;
+        return DEVICE_ID_FORMAT.test(id) ? id.toUpperCase() : id;
     });
     /** Device ID typed in the device list */
     public readonly device_input = signal('');
@@ -579,6 +566,18 @@ export class RemoteSetupFlowComponent {
         if (!this.device_id()) return 'list';
         if (this.device()) return 'device';
         return this.raw_device() ? 'other-app' : 'missing';
+    });
+
+    /** App of a device that the driver does not know. The user selects it */
+    public readonly missing_app = linkedSignal({
+        source: () => ({ id: this.device_id(), apps: this.apps() }),
+        computation: ({ apps }) => apps[0],
+    });
+    /** App of the device that the setup form sets up. `null` without a form */
+    public readonly setup_app = computed(() => {
+        const state = this.state();
+        if (state === 'device') return this.device()?.app ?? null;
+        return state === 'missing' ? this.missing_app() : null;
     });
 
     /** System to send to the device. Starts as the system on the device */
@@ -645,7 +644,7 @@ export class RemoteSetupFlowComponent {
         params: () => ({
             q: this._org.initialised() ? this._debounced_search.value() : '',
             signage:
-                (this.device()?.app ??
+                (this.setup_app() ??
                     (this.state() === 'list' ? this.clear_app() : '')) ===
                 'signage',
         }),
@@ -667,7 +666,7 @@ export class RemoteSetupFlowComponent {
     );
 
     private readonly _templates = resource({
-        params: () => this.device()?.app === 'signage',
+        params: () => this.setup_app() === 'signage',
         loader: async ({ params: enabled }) => {
             if (!enabled) return [] as SignageTemplate[];
             const { data } = await querySignageTemplates({ limit: 500 }).catch(
@@ -743,19 +742,22 @@ export class RemoteSetupFlowComponent {
         });
     }
 
-    /** Send the configuration in the form to the device */
+    /**
+     * Send the configuration in the form to the device. A device that is set
+     * up also applies it, so this also changes the setup of a device.
+     */
     public async apply() {
-        const device = this.device();
+        const app = this.setup_app();
         const system_id = this.system_id().trim();
-        if (!device || !system_id) return;
+        if (!app || !system_id) return;
         const config: RemoteSetupConfig = { system_id };
-        if (device.app === 'signage' && this.template_id()) {
+        if (app === 'signage' && this.template_id()) {
             config.template_id = this.template_id();
         }
-        if (device.app === 'booking-panel') {
+        if (app === 'booking-panel') {
             config.event_view = this.event_view();
         }
-        await this._send('configure', [device.id, config]);
+        await this._send('configure', [this.device_id(), config]);
     }
 
     /**

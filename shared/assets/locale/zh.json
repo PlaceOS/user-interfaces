@@ -132,7 +132,7 @@
         "REMOTE_SETUP_NO_DEVICES": "未找到设备。",
         "REMOTE_SETUP_NOT_SET_UP": "未设置",
         "REMOTE_SETUP_UNAVAILABLE": "远程设置不可用。请确保域配置中有远程设置系统，并且其驱动程序已连接。",
-        "REMOTE_SETUP_DEVICE_MISSING": "未找到设备 {{ id }}。请确保设备正在显示设置二维码。您仍可以清除已设置设备的设置。",
+        "REMOTE_SETUP_DEVICE_MISSING": "未找到设备 {{ id }}。请确保设备正在显示设置二维码。您仍可以更改或清除已设置设备的设置。",
         "REMOTE_SETUP_OTHER_APP": "此设备运行 {{ app }}。请使用该应用的设置流程。",
         "REMOTE_SETUP_CURRENT": "当前系统",
         "REMOTE_SETUP_EVENT_VIEW": "显示活动视图",

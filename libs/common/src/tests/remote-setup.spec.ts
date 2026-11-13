@@ -127,6 +127,7 @@ describe('RemoteSetupService', () => {
             expect(driver.execute).toHaveBeenCalledWith('complete', [
                 deviceId(),
                 'cmd-1',
+                'control',
             ]),
         );
 

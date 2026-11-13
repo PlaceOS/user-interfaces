@@ -132,7 +132,7 @@
         "REMOTE_SETUP_NO_DEVICES": "デバイスが見つかりません。",
         "REMOTE_SETUP_NOT_SET_UP": "未設定",
         "REMOTE_SETUP_UNAVAILABLE": "リモート設定は利用できません。ドメイン設定にリモート設定システムがあり、そのドライバーが接続されていることを確認してください。",
-        "REMOTE_SETUP_DEVICE_MISSING": "デバイス {{ id }} が見つかりません。デバイスに設定用の QR コードが表示されていることを確認してください。設定済みのデバイスの設定は、この画面から消去できます。",
+        "REMOTE_SETUP_DEVICE_MISSING": "デバイス {{ id }} が見つかりません。デバイスに設定用の QR コードが表示されていることを確認してください。設定済みのデバイスの設定は、この画面から変更または消去できます。",
         "REMOTE_SETUP_OTHER_APP": "このデバイスは {{ app }} を実行しています。そのアプリの設定フローを使用してください。",
         "REMOTE_SETUP_CURRENT": "現在のシステム",
         "REMOTE_SETUP_EVENT_VIEW": "イベントビューを表示",
