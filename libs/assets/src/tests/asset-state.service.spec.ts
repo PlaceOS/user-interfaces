@@ -295,4 +295,41 @@ describe('AssetStateService', () => {
             'assets-settings',
         );
     });
+
+    it('should apply visitor type zone rules without an event', async () => {
+        vi.mocked(ts_client.showMetadata).mockImplementation((_, name) =>
+            Promise.resolve(
+                new ts_client.PlaceMetadata({
+                    name,
+                    details:
+                        name === 'assets_config'
+                            ? [{ name: '*', rules: [['visitor_type', 'x']] }]
+                            : {},
+                }),
+            ),
+        );
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'c1', name: 'Audio' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([
+                { id: 't1', name: 'Speaker', description: '', category_id: 'c1' },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            response([{ id: 'a1', asset_type_id: 't1' }]),
+        );
+        spectator.service.setOptions({ zone: 'zone-rules' });
+        spectator.service.available_groups();
+
+        await vi.waitFor(() => {
+            TestBed.tick();
+            expect(spectator.service.rules()).toHaveLength(1);
+            expect(spectator.service.available_groups()).toHaveLength(1);
+            expect(spectator.service.category_list()).toHaveLength(1);
+        });
+
+        // The options set no visitor type, so the rule hides the group
+        expect(spectator.service.filtered_assets()).toEqual([]);
+    });
 });

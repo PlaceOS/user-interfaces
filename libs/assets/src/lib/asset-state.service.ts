@@ -10,8 +10,10 @@ import {
 } from '@angular/core';
 import {
     AssetGroup,
+    CalendarEvent,
     OrganisationService,
     SettingsService,
+    Space,
 } from '@placeos/common';
 import { showMetadata } from '@placeos/ts-client';
 import { addMinutes, endOfMinute, getUnixTime, startOfMinute } from 'date-fns';
@@ -24,6 +26,8 @@ export interface AssetOptions {
     date: number;
     duration?: number;
     ignore?: string[];
+    /** Spaces of the booking. Zone rules match on their zones */
+    resources?: Space[];
 }
 
 function assetOptionsMatch(a: AssetOptions, b: AssetOptions) {
@@ -106,6 +110,9 @@ export class AssetStateService {
         const visible_categories = this.visible_category_ids();
         const assets = this._available_groups();
         const rules = this._rules();
+        // Asset rules check an event, so build one from the options
+        const { date, duration, resources } = this._options();
+        const event = new CalendarEvent({ date, duration, resources });
         return assets.filter(
             (_) =>
                 _.assets?.length &&
@@ -113,7 +120,7 @@ export class AssetStateService {
                 (!category.length || category.includes(_.category_id)) &&
                 (_.name.toLowerCase().includes(search) ||
                     _.description.toLowerCase().includes(search)) &&
-                assetAvailable(_, rules, this._options() as any),
+                assetAvailable(_, rules, event),
         );
     });
     public readonly settings = computed(() => {
