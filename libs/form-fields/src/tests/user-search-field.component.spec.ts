@@ -7,7 +7,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { EMPTY_USER, User } from '@placeos/common';
-import { showUser } from '@placeos/ts-client';
+import { get, showUser } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 
@@ -163,15 +163,6 @@ describe('UserSearchFieldComponent', () => {
         ]);
     });
 
-    it('should show the selected user after selecting a user', () => {
-        const user = new User(generateMockUser());
-
-        spectator.component.setValue(user);
-        spectator.detectChanges();
-
-        expect(spectator.component.selected_user()).toEqual(user);
-    });
-
     it('should update the selected user when user details include a photo', async () => {
         const user = new User({
             id: 'user-1',
@@ -255,5 +246,38 @@ describe('UserSearchFieldComponent', () => {
         await new Promise((r) => setTimeout(r, 10));
 
         expect(select_spy).toHaveBeenCalled();
+    });
+
+    describe('default directory search', () => {
+        beforeEach(() => {
+            vi.mocked(get).mockImplementation(((url: string) =>
+                Promise.resolve(
+                    url.includes('/guests')
+                        ? [
+                              {
+                                  id: 'g1',
+                                  name: 'Guest Ann',
+                                  email: 'ann@guest.com',
+                              },
+                          ]
+                        : [
+                              {
+                                  id: 's1',
+                                  name: 'Staff Zoe',
+                                  email: 'zoe@place.tech',
+                              },
+                          ],
+                )) as any);
+        });
+
+        it.each([
+            [{}, ['Staff Zoe']],
+            [{ guests: true }, ['Guest Ann', 'Staff Zoe']],
+            [{ guests_only: true }, ['Guest Ann']],
+        ])('should search staff and guests for %o', async (props, names) => {
+            const spec = createComponent({ props });
+            const results = await search(spec, 'abc');
+            expect(results.map((_) => _.name)).toEqual(names);
+        });
     });
 });

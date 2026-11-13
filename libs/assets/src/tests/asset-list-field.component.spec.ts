@@ -17,12 +17,13 @@ describe('AssetListFieldComponent', () => {
     let spectator: Spectator<AssetListFieldComponent>;
     let settings_mock: any;
     let dialog_result: any[] | undefined;
+    let exact_time = false;
     const disabled_rooms = signal<string[]>([]);
     const open_dialog = vi.fn(() => ({
         afterClosed: () => of(dialog_result),
         componentInstance: {
             offset: () => 0,
-            exact_time: () => false,
+            exact_time: () => exact_time,
             offset_day: () => 0,
         },
     }));
@@ -45,6 +46,7 @@ describe('AssetListFieldComponent', () => {
     beforeEach(() => {
         settings_mock = createSettingsServiceMock();
         dialog_result = undefined;
+        exact_time = false;
         disabled_rooms.set([]);
         open_dialog.mockClear();
         spectator = createComponent();
@@ -198,23 +200,45 @@ describe('AssetListFieldComponent', () => {
         expect(open_dialog).not.toHaveBeenCalled();
     });
 
-    it('should add a favourite when the asset is not saved', () => {
-        settings_mock.get.mockReturnValue([]);
+    it('should toggle the asset in the saved favourites', () => {
+        settings_mock.get.mockReturnValue(['b']);
         spectator.component.toggleFavourite({ id: 'a' } as any);
 
         expect(settings_mock.saveUserSetting).toHaveBeenCalledWith(
             'favourite_assets',
-            ['a'],
+            ['b', 'a'],
         );
     });
 
-    it('should remove a favourite when the asset is already saved', () => {
-        settings_mock.get.mockReturnValue(['a', 'b']);
-        spectator.component.toggleFavourite({ id: 'a' } as any);
+    it('should flag requests that clash or end after the booking', () => {
+        const items = [{ id: 'a', name: 'Projector', quantity: 1 }];
+        spectator.setInput('options', {
+            date: new Date(2030, 0, 1, 9).valueOf(),
+            duration: 60,
+        });
+        spectator.setInput('rejected_ids', ['rejected']);
+        spectator.component.writeValue([
+            { id: 'ok', items },
+            { id: 'late', items, deliver_offset: 90 },
+            { id: 'rejected', items },
+            { id: 'conflict', items, conflict: true },
+        ] as any);
+        spectator.detectChanges();
 
-        expect(settings_mock.saveUserSetting).toHaveBeenCalledWith(
-            'favourite_assets',
-            ['b'],
+        const flagged = spectator
+            .queryAll('[request]')
+            .map((card) => !!card.querySelector('.bg-error'));
+        expect(flagged).toEqual([false, true, true, true]);
+        const [, late, rejected, conflict] =
+            spectator.component.asset_requests();
+        expect(spectator.component.err_tooltip(late)).toBe(
+            'FORM.ASSETS_TIME_ERROR',
+        );
+        expect(spectator.component.err_tooltip(rejected)).toBe(
+            'FORM.ASSETS_CLASH_ERROR',
+        );
+        expect(spectator.component.err_tooltip(conflict)).toBe(
+            'FORM.ASSETS_CLASH_ERROR',
         );
     });
 
@@ -313,6 +337,21 @@ describe('AssetListFieldComponent', () => {
         spectator.component.editRequest();
 
         expect(spectator.component.asset_requests()).toEqual([other]);
+    });
+
+    it('should deliver at the booking start when exact time is set', () => {
+        exact_time = true;
+        spectator.setInput('options', {
+            date: new Date(2030, 0, 1, 9, 30).valueOf(),
+            duration: 60,
+        });
+        dialog_result = [
+            { id: 'a', name: 'Projector', quantity: 1, assets: [{ id: 'x1' }] },
+        ];
+
+        spectator.component.editRequest();
+
+        expect(spectator.component.asset_requests()[0].deliver_time).toBe(9.5);
     });
 
     it('should keep the existing requests when the modal is cancelled', () => {

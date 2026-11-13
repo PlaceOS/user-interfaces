@@ -188,6 +188,10 @@ describe('PanelViewComponent', () => {
 
     it('should show the connection badge after 10 seconds offline', () => {
         features = ['connection_badge'];
+        offline_since.set(clock() - 9 * 1000);
+        spectator.detectChanges();
+        expect('[connection-badge]').not.toExist();
+
         offline_since.set(clock() - 11 * 1000);
         spectator.detectChanges();
         expect('[connection-badge]').toExist();
@@ -235,16 +239,43 @@ describe('PanelViewComponent', () => {
             expect('[night-overlay]').not.toExist();
         });
 
-        it('should wake on tap without starting a booking', () => {
-            features = ['night_mode'];
-            clock.set(night);
-            spectator.detectChanges();
-            const action = vi.spyOn(spectator.component, 'action');
-            spectator.click('[night-overlay]');
-            clock.set(night + 5000);
-            spectator.detectChanges();
-            expect('[night-overlay]').not.toExist();
-            expect(action).not.toHaveBeenCalled();
+        describe('waking', () => {
+            /** Moves the system time and the panel clock to `night + offset` */
+            const at = (offset: number) => {
+                vi.setSystemTime(night + offset);
+                clock.set(night + offset);
+                spectator.detectChanges();
+            };
+
+            beforeEach(() => {
+                vi.useFakeTimers({ toFake: ['Date'] });
+                features = ['night_mode'];
+                at(0);
+            });
+
+            afterEach(() => vi.useRealTimers());
+
+            it('should wake on tap for 2 minutes without starting a booking', () => {
+                const action = vi.spyOn(spectator.component, 'action');
+                spectator.click('[night-overlay]');
+                at(2 * 60 * 1000 - 1);
+                expect('[night-overlay]').not.toExist();
+                expect(action).not.toHaveBeenCalled();
+
+                at(2 * 60 * 1000);
+                expect('[night-overlay]').toExist();
+            });
+
+            it('should stay awake while people keep tapping', () => {
+                spectator.click('[night-overlay]');
+                at(90 * 1000);
+                spectator.dispatchFakeEvent(spectator.element, 'pointerdown');
+                at(210 * 1000 - 1);
+                expect('[night-overlay]').not.toExist();
+
+                at(210 * 1000);
+                expect('[night-overlay]').toExist();
+            });
         });
     });
 

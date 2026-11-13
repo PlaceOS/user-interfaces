@@ -295,6 +295,39 @@ describe('CheckinStateService', () => {
         );
     });
 
+    it('declines the induction without changing the booking', async () => {
+        const booking = new Booking({ id: 'event-1234', asset_id: 'a@b.com' });
+        spectator.service.setBooking(booking);
+
+        await spectator.service.declineInduction();
+
+        expect(post).toHaveBeenCalledWith(
+            expect.stringMatching(
+                /event-1234\/update_induction\?induction=declined/,
+            ),
+            {},
+        );
+        expect(spectator.service.event()).toBe(booking);
+    });
+
+    it('checks out the guest without a success message', async () => {
+        const snackbar = createSnackbarSpy();
+        setNotifyOutlet(snackbar as never, true);
+        spectator.service.setBooking(
+            new Booking({ id: 'event-1234', asset_id: 'a@b.com' }),
+        );
+        vi.mocked(post).mockResolvedValueOnce({ id: 'event-1234' } as never);
+
+        await spectator.service.checkinGuest(false);
+
+        expect(post).toHaveBeenCalledWith(
+            expect.stringMatching(/event-1234\/check_in\?state=false/),
+            '',
+        );
+        expect(snackbar.open).not.toHaveBeenCalled();
+        setNotifyOutlet(null, true);
+    });
+
     it('checks in the guest, shows success and clears the registration mark', async () => {
         const snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);

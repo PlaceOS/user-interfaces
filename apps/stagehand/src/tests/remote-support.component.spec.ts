@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { settingSignal } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import type { Mock } from 'vitest';
 
@@ -29,6 +30,9 @@ describe('RemoteSupportComponent', () => {
     let space_list: any;
     let dialog_open: Mock;
     let navigate: Mock;
+    let dashboards: Record<string, any>;
+    /** Query params the route opens with */
+    const query_params: Record<string, string> = {};
 
     const createComponent = createComponentFactory({
         component: RemoteSupportComponent,
@@ -45,7 +49,7 @@ describe('RemoteSupportComponent', () => {
             MockProvider(MatDialog, {}),
             MockProvider(Router, {}),
             MockProvider(ActivatedRoute, {
-                snapshot: { queryParams: {} },
+                snapshot: { queryParams: query_params },
             } as any),
         ],
     });
@@ -57,24 +61,56 @@ describe('RemoteSupportComponent', () => {
         space_list = signal<unknown[]>([]);
         dialog_open = vi.fn();
         navigate = vi.fn();
+        for (const key in query_params) delete query_params[key];
+        dashboards = {
+            region_id,
+            building_id,
+            dashboard_alerts,
+            setDashboard: vi.fn(),
+            listenForDashboardAlerts: vi.fn(),
+            applyLocationParams: vi.fn(),
+            location_query_params: signal({ region: 'all' }),
+        };
         spectator = createComponent({
             providers: [
-                {
-                    provide: DashboardsService,
-                    useValue: {
-                        region_id,
-                        building_id,
-                        dashboard_alerts,
-                        setDashboard: vi.fn(),
-                        listenForDashboardAlerts: vi.fn(),
-                        applyLocationParams: vi.fn(),
-                        location_query_params: signal({ region: 'all' }),
-                    },
-                },
+                { provide: DashboardsService, useValue: dashboards },
                 { provide: SupportService, useValue: { space_list } },
                 { provide: MatDialog, useValue: { open: dialog_open } },
                 { provide: Router, useValue: { navigate } },
             ],
+        });
+    });
+
+    afterEach(() => {
+        vi.clearAllTimers();
+        vi.useRealTimers();
+    });
+
+    describe('camera snapshot refresh', () => {
+        const timestamp = () => spectator.component.snapshot_timestamp();
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            settingSignal('snapshot_interval', 10_000).set(10_000);
+        });
+
+        it('should refresh every interval, with up to a second of jitter, while hovered', () => {
+            spectator.component.setHovering(true);
+            TestBed.tick();
+            const first = timestamp();
+            vi.advanceTimersByTime(9_999);
+            expect(timestamp()).toBe(first);
+            vi.advanceTimersByTime(1_001);
+            expect(timestamp()).not.toBe(first);
+        });
+
+        it('should refresh three times less often while not hovered', () => {
+            TestBed.tick();
+            const first = timestamp();
+            vi.advanceTimersByTime(29_999);
+            expect(timestamp()).toBe(first);
+            vi.advanceTimersByTime(1_001);
+            expect(timestamp()).not.toBe(first);
         });
     });
 
@@ -143,6 +179,23 @@ describe('RemoteSupportComponent', () => {
         // a building picked narrows the region to it
         building_id.set('bld-2');
         expect(ids()).toEqual(['b']);
+    });
+
+    it('should open with the filters and location in the URL, listening for disconnected devices', () => {
+        Object.assign(query_params, {
+            search: 'board',
+            state: 'issues',
+            region: 'rgn-1',
+        });
+        spectator.component.ngOnInit();
+        expect(spectator.component.search_term()).toBe('board');
+        expect(spectator.component.state()).toBe('issues');
+        expect(dashboards.applyLocationParams).toHaveBeenCalledWith(
+            query_params,
+        );
+        // no dashboard, so the alerts are the disconnected devices
+        expect(dashboards.setDashboard).toHaveBeenCalledWith('');
+        expect(dashboards.listenForDashboardAlerts).toHaveBeenCalledWith(true);
     });
 
     it('should keep the search, state and location in the URL', () => {

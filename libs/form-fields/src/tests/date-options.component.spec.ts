@@ -58,6 +58,23 @@ describe('DateOptionsComponent', () => {
         expect(spectator.query('.display')).toHaveText('Apr 20 - 26, 2026');
     });
 
+    it.each([
+        ['month', new Date(2026, 3, 29), 'Apr 27 - May 3, 2026'],
+        ['year', new Date(2026, 11, 31), 'Dec 28, 2026 - Jan 3, 2027'],
+    ])(
+        'should show both dates of a week that ends in the next %s',
+        (_, date, label) => {
+            spectator.setInput({
+                date: date.valueOf(),
+                display_mode: 'week',
+                week_start: 1,
+            });
+            spectator.detectChanges();
+
+            expect(spectator.query('.display')).toHaveText(label);
+        },
+    );
+
     it('should step the date by the step size and write the day to the URL', () => {
         const router = spectator.inject(Router);
         const emitted = vi.fn();

@@ -50,6 +50,8 @@ class StateServiceStub {
 interface Place {
     id: string;
     parent_id?: string;
+    name?: string;
+    display_name?: string;
 }
 
 class OrgServiceStub {
@@ -223,6 +225,15 @@ describe('CateringTopbarComponent', () => {
             });
         });
 
+        it('should apply the search typed in the search input', () => {
+            spectator.typeInElement('coffee', 'input');
+            expect(orders.filters).toEqual({ search: 'coffee' });
+            expect(navigate).toHaveBeenLastCalledWith(
+                [],
+                expect.objectContaining({ queryParams: { search: 'coffee' } }),
+            );
+        });
+
         it('should save search and caterer to the URL and remove empty values', () => {
             spectator.component.setSearch('tea');
             spectator.component.setSearch('');
@@ -260,6 +271,30 @@ describe('CateringTopbarComponent', () => {
             expect(org.levelsForRegion).toHaveBeenCalledWith({
                 id: 'region-1',
             });
+        });
+
+        it('should show the building of each region level and filter by the level picked', () => {
+            org.buildings = [{ id: 'bld-2', display_name: 'Tower Two' }];
+            org.levelsForRegion.mockReturnValue([
+                { id: 'lvl-a', name: 'Level A', parent_id: 'bld-2' },
+            ]);
+            settingSignal('use_region', false).set(true);
+            spectator.detectChanges();
+            spectator.click('.mat-mdc-select-trigger');
+
+            const option = document.querySelector<HTMLElement>('mat-option');
+            expect(option).toHaveText('Level A');
+            expect(option).toHaveText('Tower Two');
+            spectator.click(option);
+
+            expect(orders.filters).toEqual({ zones: ['lvl-a'] });
+            expect(state.zone).toBe('lvl-a');
+            expect(navigate).toHaveBeenLastCalledWith(
+                [],
+                expect.objectContaining({
+                    queryParams: { zone_ids: 'lvl-a' },
+                }),
+            );
         });
     });
 

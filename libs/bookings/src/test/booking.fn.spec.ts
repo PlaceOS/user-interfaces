@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import {
     Booking,
     CalendarEvent,
@@ -7,8 +8,10 @@ import {
     Space,
     StaffUser,
     User,
+    SettingsService,
     VERSION,
 } from '@placeos/common';
+import { fromZonedTime } from 'date-fns-tz';
 import { newBookingFromCalendarEvent } from '../lib/booking.utilities';
 import {
     approveBooking,
@@ -21,6 +24,7 @@ import {
     parentBookingId,
     queryAllBookings,
     queryBookings,
+    queryBookingsOrThrow,
     queryResourceAvailability,
     rejectBooking,
     rejectOverlappingRecurringBookings,
@@ -70,6 +74,15 @@ describe('[Booking API]', () => {
                 `/api/staff/v1/bookings?period_start=1&period_end=2&type=desk`,
             );
             spy.mockReset();
+        });
+
+        it('should return no bookings when the request fails, unlike queryBookingsOrThrow', async () => {
+            const error = new Error('offline');
+            vi.spyOn(ts_client, 'get').mockRejectedValue(error);
+            const q = { period_start: 1, period_end: 2, type: 'desk' as const };
+
+            await expect(queryBookings(q)).resolves.toEqual([]);
+            await expect(queryBookingsOrThrow(q)).rejects.toBe(error);
         });
     });
 
@@ -1038,6 +1051,22 @@ describe('[Booking API]', () => {
             );
             spy.mockReset();
         });
+
+        it('should throw the error message from the response body', async () => {
+            const failWith = (body: object) =>
+                vi
+                    .spyOn(ts_client, 'post')
+                    .mockRejectedValueOnce({ json: async () => body });
+
+            failWith({ error: 'Too early', message: 'ignored' });
+            await expect(checkinBooking('1', true)).rejects.toBe('Too early');
+            failWith({ message: 'Not found' });
+            await expect(checkinBooking('1', true)).rejects.toBe('Not found');
+            failWith({ code: 500 });
+            await expect(checkinBooking('1', true)).rejects.toEqual({
+                code: 500,
+            });
+        });
     });
 
     describe('setBookingCheckedIn', () => {
@@ -1091,6 +1120,32 @@ describe('[Booking API]', () => {
                 '',
             );
             spy.mockReset();
+        });
+    });
+
+    // Last in the file: it registers a real settings service for `setting()`.
+    describe('isInWaitlistWeek with building timezones', () => {
+        // UTC+14, so the building time is not the local time of the test
+        const timezone = 'Pacific/Kiritimati';
+        const at = (day: number, hours: number, minutes = 0) =>
+            fromZonedTime(new Date(2026, 6, day, hours, minutes), timezone);
+
+        afterEach(() => vi.restoreAllMocks());
+
+        it('should apply the cutoff in the building timezone when enabled', () => {
+            const settings = TestBed.inject(SettingsService);
+            vi.spyOn(settings, 'get').mockImplementation(
+                (key: string) =>
+                    (key === 'app.parking.use_building_timezone') as never,
+            );
+            const next_monday = at(3 + 31, 8).valueOf();
+            const now = vi.spyOn(Date, 'now');
+
+            // Friday 31 July 17:59 and 18:00 in the building
+            now.mockReturnValue(at(31, 17, 59).valueOf());
+            expect(isInWaitlistWeek(next_monday, timezone)).toBe(false);
+            now.mockReturnValue(at(31, 18).valueOf());
+            expect(isInWaitlistWeek(next_monday, timezone)).toBe(true);
         });
     });
 });

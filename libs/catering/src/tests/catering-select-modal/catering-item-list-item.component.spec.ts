@@ -106,20 +106,21 @@ describe('CateringItemListItemComponent', () => {
         expect(spectator.component.options()).toBe('Milk, Sugar');
     });
 
-    it('should render dietary tag badges', () => {
+    it('should only show badges for the dietary tags of the item', () => {
         spectator.setInput({
             item: new CateringItem({
                 id: '1',
-                tags: ['Vegan', 'Gluten Free', 'Contains Nuts'],
+                tags: ['Vegan', 'Contains Nuts'],
             }),
         });
         spectator.detectChanges();
-        const text = spectator.query(
-            'button[name="select-catering-item"]',
-        )?.textContent;
-        expect(text).toContain('VG');
-        expect(text).toContain('GF');
-        expect(text).toContain('N');
+        const badges = spectator
+            .queryAll('button[name="select-catering-item"] div')
+            .filter((el) => !el.children.length)
+            .map((el) => el.textContent?.trim());
+        expect(badges).toEqual(expect.arrayContaining(['VG', 'N']));
+        expect(badges).not.toContain('GF');
+        expect(badges).not.toContain('D');
     });
 
     it('should highlight the favourite button when marked as favourite', () => {

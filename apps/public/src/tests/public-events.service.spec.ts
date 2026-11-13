@@ -203,6 +203,22 @@ describe('PublicEventsService', () => {
             expect(localStorage.getItem(GUEST_KEY)).toBeNull();
         });
 
+        it('should clear the previous error when a retry succeeds', async () => {
+            vi.mocked(publicEventGuestToken).mockRejectedValueOnce(
+                new Error('Denied'),
+            );
+            const service = TestBed.inject(PublicEventsService);
+
+            await expect(
+                service.requestGuestAccess('system-1', guest),
+            ).rejects.toThrow('Denied');
+            expect(service.error()).toBe('Denied');
+
+            await service.requestGuestAccess('system-1', guest);
+            expect(service.error()).toBe('');
+            expect(service.guest()).toEqual(guest);
+        });
+
         it('should send the recaptcha token when a recaptcha key is set', async () => {
             const execute = vi.fn().mockResolvedValue('captcha-token');
             vi.stubGlobal('grecaptcha', {
@@ -353,6 +369,22 @@ describe('PublicEventsService', () => {
                 event_id: 'event-1',
                 ...guest,
             });
+            expect(service.loading()).toBe('');
+        });
+
+        it('should not register when the guest access refresh fails', async () => {
+            sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            vi.mocked(token).mockReturnValue('');
+            vi.mocked(publicEventGuestToken).mockRejectedValue(
+                new Error('Denied'),
+            );
+            const service = TestBed.inject(PublicEventsService);
+
+            await expect(
+                service.register('system-1', 'event-1'),
+            ).rejects.toThrow('Denied');
+            expect(registerPublicEvent).not.toHaveBeenCalled();
+            expect(service.error()).toBe('Denied');
             expect(service.loading()).toBe('');
         });
 

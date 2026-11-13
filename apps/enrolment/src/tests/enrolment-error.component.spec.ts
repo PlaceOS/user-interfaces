@@ -23,10 +23,6 @@ describe('EnrolmentErrorComponent', () => {
         return spectator.element.textContent?.replace(/\s+/g, ' ').trim() ?? '';
     }
 
-    it('should always show the failure heading', () => {
-        expect(renderWith('')).toContain('Unable to continue');
-    });
-
     // Every error name the state service sets has its own explanation
     it.each([
         ['guest', 'Your details could not be retrieved'],
@@ -40,7 +36,7 @@ describe('EnrolmentErrorComponent', () => {
         expect(renderWith(error_name)).toContain(message);
     });
 
-    it('should show no explanation for an unknown error', () => {
+    it('should show only the heading for an unknown error', () => {
         const text = renderWith('something-else');
         expect(text).toBe('Unable to continue');
     });

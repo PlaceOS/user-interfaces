@@ -112,6 +112,55 @@ describe('ControlStateService', () => {
         expect(spectator.service.system().volume).toBe(60);
     });
 
+    it('should keep the master volume when setting the volume of one output', () => {
+        vi.useFakeTimers();
+        connect([
+            { id: 'out-1', volume: 10 },
+            { id: 'out-2', volume: 20 },
+        ]);
+        bindings['volume'](30);
+        spectator.service.setVolume(70, 'out-2');
+        vi.advanceTimersByTime(100);
+        expect(execute).toHaveBeenCalledWith('volume', [70, 'out-2']);
+        expect(spectator.service.system().volume).toBe(30);
+        const volumes = spectator.service.output_list().map((_) => _.volume);
+        expect(volumes).toEqual([10, 70]);
+    });
+
+    it('should only list available inputs that are not hidden', () => {
+        connect(
+            [],
+            [{ id: 'in-1' }, { id: 'in-2', hidden: true }, { id: 'in-3' }],
+        );
+        bindings['available_inputs'](['in-2', 'in-3']);
+        expect(spectator.service.available_inputs().map((_) => _.id)).toEqual([
+            'in-3',
+        ]);
+    });
+
+    it('should present the selected input to all outputs when no input is given', () => {
+        connect();
+        bindings['selected_input']('in-1');
+        spectator.service.routeToAll();
+        expect(execute).toHaveBeenCalledWith('route_all', ['in-1']);
+    });
+
+    it('should open help with an item for each help entry', async () => {
+        status['help'] = { wifi: { title: 'Wi-Fi', content: '# Join' } };
+        connect();
+        TestBed.tick();
+        await spectator.service.viewHelp('wifi');
+        expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+            expect.anything(),
+            {
+                data: {
+                    items: [{ id: 'wifi', title: 'Wi-Fi', content: '# Join' }],
+                    active_id: 'wifi',
+                },
+            },
+        );
+    });
+
     it('should mute the first output when no source is given', () => {
         connect([{ id: 'out-1', mute: false }, { id: 'out-2' }]);
         spectator.service.setMute(true);

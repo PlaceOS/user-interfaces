@@ -464,6 +464,26 @@ describe('proposal', () => {
         expect(decisionFor(reticked)).toBe('partial');
     });
 
+    it('points a style rule row at the elements its selector matches', async () => {
+        const doc = officeDoc();
+        const rule = (selector: string): MapOp => ({
+            op: 'set_style_rule',
+            why: '-',
+            selector,
+            declarations: [{ name: 'fill', value: '#eee' }],
+        });
+        const proposal = await buildProposal(
+            job({ state: 'done', ops: [rule('.cls-12'), rule('.cls-12[')] }),
+            new FakeSession(doc),
+            DEFAULT_AI_STRINGS,
+        );
+        expect(proposal.rows[0].anchors).toEqual([
+            anchor(doc, 'area-2.01-status'),
+            anchor(doc, 'area-2.02-status'),
+        ]);
+        expect(proposal.rows[1].anchors).toEqual([]);
+    });
+
     it('ticks parents with a child and unticks children with a parent', async () => {
         const doc = officeDoc();
         const session = new FakeSession(doc);
@@ -754,6 +774,7 @@ describe('proposal', () => {
     it('reports questions and empty answers without touching the map', async () => {
         const doc = officeDoc();
         const session = new FakeSession(doc);
+        const before = doc.serialise();
         const asked = await buildProposal(
             job({
                 state: 'done',
@@ -774,7 +795,7 @@ describe('proposal', () => {
         );
         expect(empty.verdict).toBe('empty');
         expect(empty.rows).toEqual([]);
-        expect(anchor(doc, 'rooms')).toBeTruthy();
+        expect(doc.serialise()).toBe(before);
     });
 });
 

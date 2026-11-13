@@ -7,7 +7,7 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
 import { RecorderGridViewComponent } from '../app/recorder-view.component';
-import { SidebarComponent } from '../app/ui/sidebar.component';
+import { StagehandPageComponent } from '../app/ui/stagehand-page.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -22,7 +22,7 @@ describe('RecorderGridViewComponent', () => {
         component: RecorderGridViewComponent,
         shallow: true,
         detectChanges: false,
-        declarations: [MockComponent(SidebarComponent)],
+        declarations: [MockComponent(StagehandPageComponent)],
         providers: [
             MockProvider(OrganisationService, {
                 organisation: { id: 'org-1' } as any,
@@ -83,23 +83,32 @@ describe('RecorderGridViewComponent', () => {
         expect(spectator.component.images()).toEqual([]);
     });
 
-    it('should cache-bust the next image url on each refresh cycle', async () => {
+    it('should cache-bust one image a second, in turn, wrapping to the first', async () => {
         spectator = createComponent();
         await spectator.component.ngOnInit();
         await flush();
+        const urls = () =>
+            (spectator.component.images() as any[]).map((i) => i.url);
+        const raw = (spectator.component.images() as any[]).map(
+            (i) => i.raw_url,
+        );
 
-        // `refresh()` already ran one `refresh_image` pass, advancing the index
-        // to 1 and rewriting image 0's url with a `&t=` cache-buster.
-        expect(spectator.component.refresh_index).toBe(1);
-        const first = (spectator.component.images() as any[])[0];
-        expect(first.url).toMatch(/&t=\d+$/);
-        expect(first.url.startsWith(first.raw_url + '&t=')).toBe(true);
+        // the first image is refreshed at once
+        const [first_a, first_b] = urls();
+        expect(first_a).toMatch(new RegExp(`^${raw[0]}&t=\\d+$`));
+        expect(first_b).toBe(raw[1]);
 
-        // Second pass targets image index 1 and wraps the counter back around.
-        spectator.component.refresh_image();
-        const second = (spectator.component.images() as any[])[1];
-        expect(spectator.component.refresh_index).toBe(2);
-        expect(second.url).toMatch(/&t=\d+$/);
+        vi.advanceTimersByTime(1000);
+        const [second_a, second_b] = urls();
+        expect(second_a).toBe(first_a);
+        expect(second_b).toMatch(new RegExp(`^${raw[1]}&t=\\d+$`));
+
+        // past the last image, back to the first
+        vi.advanceTimersByTime(1000);
+        const [third_a, third_b] = urls();
+        expect(third_a).not.toBe(first_a);
+        expect(third_a).toMatch(new RegExp(`^${raw[0]}&t=\\d+$`));
+        expect(third_b).toBe(second_b);
     });
 
     // a new id would rebuild the image's element on each refresh

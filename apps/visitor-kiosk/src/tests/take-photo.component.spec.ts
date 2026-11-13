@@ -80,6 +80,46 @@ describe('TakePhotoComponent', () => {
         vi.useRealTimers();
     });
 
+    it('captures a square from the center of the frame and stops the camera', async () => {
+        const track = { stop: vi.fn() };
+        const stream = { getTracks: () => [track] };
+        vi.stubGlobal('navigator', {
+            mediaDevices: { getUserMedia: vi.fn(async () => stream) },
+        });
+        const draw_image = vi.fn();
+        vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
+            drawImage: draw_image,
+        } as unknown as CanvasRenderingContext2D);
+        spectator = createComponent();
+        spectator.detectChanges();
+        const video = spectator.query<HTMLVideoElement>('video');
+        // The camera shows a 1280 x 720 frame
+        Object.defineProperties(video, {
+            readyState: { value: HTMLMediaElement.HAVE_ENOUGH_DATA },
+            videoWidth: { value: 1280 },
+            videoHeight: { value: 720 },
+        });
+        await vi.waitFor(() =>
+            expect(spectator.component.loading()).toBe(false),
+        );
+
+        spectator.component.takePhoto();
+
+        expect(draw_image).toHaveBeenCalledWith(
+            video,
+            440,
+            160,
+            400,
+            400,
+            0,
+            0,
+            400,
+            400,
+        );
+        expect(spectator.component.has_photo()).toBe(true);
+        expect(track.stop).toHaveBeenCalled();
+    });
+
     describe('with the camera opening', () => {
         let get_user_media: ReturnType<typeof vi.fn>;
 

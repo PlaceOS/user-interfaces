@@ -8,7 +8,10 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { MockComponent, MockModule, MockProvider } from 'ng-mocks';
 
 import { ExploreSearchComponent } from '../lib/explore-search.component';
-import { ExploreSearchService } from '../lib/explore-search.service';
+import {
+    ExploreSearchService,
+    SearchResult,
+} from '../lib/explore-search.service';
 
 describe('ExploreSearchComponent', () => {
     let spectator: Spectator<ExploreSearchComponent>;
@@ -69,5 +72,23 @@ describe('ExploreSearchComponent', () => {
         });
         spectator.click('icon');
         expect(spectator.component.show()).toBeFalsy();
+    });
+
+    it.each([
+        [{ id: 'room-1', type: 'space', name: 'Room 1' }, { space: 'room-1' }],
+        [
+            { id: 'desk-1', type: 'feature', name: 'Desk 1', zone: 'lvl-1' },
+            { locate: 'desk-1', name: 'Desk 1', zone: 'lvl-1' },
+        ],
+    ])('should route a selected %o with the query %o', (item, queryParams) => {
+        spectator.component.select({
+            description: '',
+            ...item,
+        } as SearchResult);
+        expect(spectator.inject(Router).navigate).toHaveBeenLastCalledWith([], {
+            relativeTo: spectator.inject(ActivatedRoute),
+            queryParams,
+        });
+        expect(spectator.component.search_str()).toBe(item.name);
     });
 });

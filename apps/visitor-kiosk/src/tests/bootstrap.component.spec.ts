@@ -11,6 +11,7 @@ import {
     Region,
     SettingsService,
 } from '@placeos/common';
+import { VirtualKeyboardComponent } from '@placeos/components';
 import { MockProvider } from 'ng-mocks';
 import { BootstrapComponent } from '../app/bootstrap.component';
 
@@ -52,6 +53,8 @@ describe('BootstrapComponent', () => {
         spectator = createComponent();
     });
 
+    afterEach(() => window.history.replaceState({}, '', '/'));
+
     it('should clear the saved kiosk location when the URL asks', () => {
         localStorage.setItem('KIOSK.building', '1');
         localStorage.setItem('KIOSK.level', '1');
@@ -72,6 +75,32 @@ describe('BootstrapComponent', () => {
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/welcome',
         ]);
+    });
+
+    it.each([
+        ['the page query', '/?level=lvl-9#/bootstrap'],
+        ['the hash route query', '/#/bootstrap?level=lvl-9'],
+    ])('should save the level from %s of the kiosk URL', async (_, url) => {
+        // With hash routing, the router does not see the page query
+        window.history.replaceState({}, '', url);
+
+        await spectator.component.ngOnInit();
+
+        expect(localStorage.getItem('KIOSK.level')).toBe('lvl-9');
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/welcome',
+        ]);
+    });
+
+    it('should turn on the on-screen keyboard when the URL asks', async () => {
+        VirtualKeyboardComponent.enabled = false;
+        spectator.setRouteQueryParam('osk', 'true');
+
+        await spectator.component.ngOnInit();
+
+        expect(localStorage.getItem('OSK.enabled')).toBe('true');
+        expect(VirtualKeyboardComponent.enabled).toBe(true);
+        VirtualKeyboardComponent.enabled = false;
     });
 
     it('should navigate to checkin preferences when action is preferences', () => {

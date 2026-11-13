@@ -4,6 +4,7 @@ import {
     closestPointOnSegment,
     computeSnap,
     getHandlePos,
+    objectBounds,
     pointInPolygon,
     pointInRotatedRect,
     rotatePoint,
@@ -123,6 +124,40 @@ describe('boundsOf', () => {
                 { x: 20, y: 15 },
             ]),
         ).toEqual({ x: 10, y: 5, width: 20, height: 20 });
+    });
+});
+
+describe('objectBounds', () => {
+    it('boxes a circle around its centre, with the drawn radius when none is set', () => {
+        expect(objectBounds({ type: 'circle', x: 50, y: 40, r: 5 })).toEqual({
+            x: 45,
+            y: 35,
+            width: 10,
+            height: 10,
+        });
+        expect(objectBounds({ type: 'circle', x: 50, y: 40 })).toEqual({
+            x: 38,
+            y: 28,
+            width: 24,
+            height: 24,
+        });
+    });
+
+    it('prefers the points of a shape over its stored box', () => {
+        expect(
+            objectBounds({
+                type: 'polygon',
+                x: 0,
+                y: 0,
+                width: 999,
+                height: 999,
+                points: [
+                    { x: 10, y: 10 },
+                    { x: 30, y: 20 },
+                    { x: 20, y: 40 },
+                ],
+            }),
+        ).toEqual({ x: 10, y: 10, width: 20, height: 30 });
     });
 });
 

@@ -213,13 +213,15 @@ describe('PublicGuestDetailsComponent', () => {
         });
     });
 
-    it('renders the service error banner', async () => {
-        service.default_system_id.set('sys-1');
+    it('shows the service error even when no source is resolved', async () => {
+        // An authority load failure leaves no source, and the visitor must still see why
+        service.init.mockImplementation(async () => {
+            service.error.set('Unable to load PlaceOS authority.');
+        });
         const fixture = await init();
-        service.error.set('Guest access failed');
-        fixture.detectChanges();
+        expect(fixture.nativeElement.querySelector('form')).toBeNull();
         expect(fixture.nativeElement.textContent).toContain(
-            'Guest access failed',
+            'Unable to load PlaceOS authority.',
         );
     });
 });

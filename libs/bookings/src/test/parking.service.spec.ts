@@ -156,6 +156,47 @@ describe('ParkingService', () => {
         expect(spectator.service.assigned_space()).toBeUndefined();
     });
 
+    it('should deny parking to a user that the building parking users deny', async () => {
+        vi.mocked(ts_client.queryAssets).mockImplementation((async (q: {
+            type_id?: string;
+        }) => ({
+            data:
+                q?.type_id === 'type-parking-users'
+                    ? [
+                          {
+                              id: 'pu-1',
+                              identifier: 'Me',
+                              other_data: {
+                                  email: 'ME@example.com',
+                                  deny: 'true',
+                              },
+                          },
+                          {
+                              id: 'pu-2',
+                              identifier: 'Allowed',
+                              other_data: {
+                                  email: 'allowed@example.com',
+                                  deny: 'false',
+                              },
+                          },
+                      ]
+                    : [],
+        })) as any);
+        const org = spectator.inject(OrganisationService) as any;
+        // A new building object loads the parking users again
+        org.active_building.set({ id: 'bld-1' });
+        TestBed.tick();
+        await new Promise((resolve) => setTimeout(resolve, 50));
+
+        setCurrentUser(new StaffUser({ email: 'me@example.com' }));
+        expect(spectator.service.user_details()?.id).toBe('pu-1');
+        expect(spectator.service.deny_parking_access()).toBe(true);
+
+        setCurrentUser(new StaffUser({ email: 'allowed@example.com' }));
+        expect(spectator.service.user_details()?.id).toBe('pu-2');
+        expect(spectator.service.deny_parking_access()).toBe(false);
+    });
+
     it('should scan desks for the home location only while the restriction is enabled', async () => {
         setCurrentUser(new StaffUser({ id: 'me', email: 'me@example.com' }));
         const settings = spectator.inject(SettingsService);

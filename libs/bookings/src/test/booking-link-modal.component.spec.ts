@@ -26,20 +26,19 @@ describe('BookingLinkModalComponent', () => {
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should render a calendar link for each provider', () => {
-        expect(spectator.queryAll('a[btn]').length).toBe(3);
-    });
+    it('should link each calendar button to a link for the event', () => {
+        const hrefs = spectator
+            .queryAll('a[btn]')
+            .map((_) => _.getAttribute('href'));
+        const { outlook_link, google_link, ical_link } = spectator.component;
 
-    it('should generate outlook, google and ical links from the event', () => {
-        expect(spectator.component.outlook_link).toContain('outlook');
-        expect(spectator.component.outlook_link).toContain('calendar');
-        expect(spectator.component.google_link).toContain(
-            'calendar.google.com',
-        );
-        expect(spectator.component.ical_link).toContain('data:text/calendar');
-    });
-
-    it('should provide a close button', () => {
-        expect(spectator.query('button[mat-dialog-close]')).toExist();
+        expect(hrefs).toEqual([outlook_link, google_link, ical_link]);
+        expect(google_link).toContain('calendar.google.com');
+        expect(ical_link).toMatch(/^data:text\/calendar/);
+        for (const link of [outlook_link, google_link, ical_link]) {
+            expect(decodeURIComponent(link.replace(/\+/g, ' '))).toContain(
+                'Team Sync',
+            );
+        }
     });
 });

@@ -112,6 +112,34 @@ describe('MediaPlayerComponent', () => {
         expect(spectator.component.state()).toBe('PLAYING');
     });
 
+    it('should resume an item with the time it had left when paused', () => {
+        vi.useFakeTimers();
+        vi.setSystemTime(100_000);
+        load_playlist([
+            create_item('media-1', { duration: 15_000 }),
+            create_item('media-2'),
+        ]);
+        spectator.component.index.set(0);
+        spectator.component.state.set('PAUSED');
+        spectator.component.togglePause();
+        const next_item_spy = vi.spyOn(spectator.component, 'nextItem');
+
+        vi.setSystemTime(110_000);
+        spectator.component.togglePause();
+        // A long pause, as when the embedding shell pauses playback
+        vi.setSystemTime(170_000);
+        spectator.component.togglePause();
+        vi.setSystemTime(174_000);
+        spectator.component['_updateItem']();
+
+        expect(next_item_spy).not.toHaveBeenCalled();
+
+        vi.setSystemTime(175_001);
+        spectator.component['_updateItem']();
+
+        expect(next_item_spy).toHaveBeenCalledTimes(1);
+    });
+
     it('should render debug controls above media outputs', () => {
         spectator.setInput('controls', true);
         spectator.detectChanges();
@@ -2472,14 +2500,6 @@ describe('MediaPlayerComponent', () => {
         expect(
             spectator.component['_video_element'](1).nativeElement.muted,
         ).toBe(true);
-    });
-
-    it('should check media validity without formatting dates', () => {
-        const format_spy = vi.spyOn(Intl, 'DateTimeFormat');
-        const expired = create_item('expired', { valid_until: 1 });
-
-        expect(spectator.component.isValidMedia(expired)).toBe(false);
-        expect(format_spy).not.toHaveBeenCalled();
     });
 
     it('should sandbox webpage frames', () => {

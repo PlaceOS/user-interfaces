@@ -81,6 +81,43 @@ describe('EventCardComponent', () => {
         },
     );
 
+    it('should show the start and end days of a multi-day event', () => {
+        spectator.setInput({
+            event: new CalendarEvent({
+                date: new Date(2028, 5, 15, 10).valueOf(),
+                duration: 2 * 24 * 60,
+            }),
+        });
+
+        expect(spectator.component.period()).toBe(
+            'Jun 15, 10:00 AM - Jun 17, 10:00 AM',
+        );
+    });
+
+    it.each([
+        { query_event: 'event-1', opened: true },
+        { query_event: 'event-2', opened: false },
+    ])(
+        'should open the details from the event query param only for its own event ($query_event)',
+        async ({ query_event, opened }) => {
+            vi.useFakeTimers();
+            try {
+                spectator.setInput({
+                    event: new CalendarEvent({ id: 'event-1' }),
+                });
+                spectator.setRouteQueryParam('event', query_event);
+                vi.runAllTimers();
+
+                expect(
+                    vi.mocked(spectator.inject(MatDialog).open).mock.calls
+                        .length,
+                ).toBe(opened ? 1 : 0);
+            } finally {
+                vi.useRealTimers();
+            }
+        },
+    );
+
     it.each([
         { room: 'accepted', date_offset: 60, pill: 'success' },
         { room: 'tentative', date_offset: 60, pill: 'warning' },

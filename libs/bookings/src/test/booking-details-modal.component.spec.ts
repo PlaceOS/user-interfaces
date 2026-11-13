@@ -89,8 +89,6 @@ describe('BookingDetailsModalComponent', () => {
         expect('image-carousel').toExist();
     });
 
-    it('should show title', () => expect('[title]').toExist());
-
     const hasMenuTrigger = () =>
         spectator
             .queryAll('[actions] button')
@@ -320,6 +318,54 @@ describe('BookingDetailsModalComponent', () => {
         expect(spectator.component.allow_series_delete()).toBe(false);
     });
 
+    it('should read series delete settings from the plural type, then the type, then bookings', () => {
+        const get = spectator.inject(SettingsService).get as Mock;
+        const allowed = (
+            settings: Record<string, boolean>,
+            assigned = false,
+        ) => {
+            get.mockImplementation((key: string) => settings[key]);
+            spectator.component.booking.set(
+                new Booking({
+                    booking_type: 'desk',
+                    type: 'desk',
+                    extension_data: { is_assigned: assigned },
+                }),
+            );
+            return spectator.component.allow_series_delete();
+        };
+        try {
+            expect(
+                allowed({
+                    'app.desks.allow_series_delete': true,
+                    'app.desk.allow_series_delete': false,
+                    'app.bookings.allow_series_delete': false,
+                }),
+            ).toBe(true);
+            expect(
+                allowed({
+                    'app.desk.allow_series_delete': false,
+                    'app.bookings.allow_series_delete': true,
+                }),
+            ).toBe(false);
+            expect(allowed({ 'app.bookings.allow_series_delete': false })).toBe(
+                false,
+            );
+            // Assigned bookings use their own setting
+            expect(
+                allowed(
+                    {
+                        'app.desks.allow_series_delete': false,
+                        'app.bookings.allow_assigned_series_delete': true,
+                    },
+                    true,
+                ),
+            ).toBe(true);
+        } finally {
+            get.mockImplementation(() => undefined);
+        }
+    });
+
     it('should format visitor name nicely in booking details', () => {
         spectator.component.booking.set(
             new Booking({
@@ -363,6 +409,20 @@ describe('BookingDetailsModalComponent', () => {
 
         expect(refresh_fn).toHaveBeenCalled();
         expect(spectator.component.booking().checked_in).toBe(true);
+    });
+
+    it('should keep the booking and report the error when check-in fails', async () => {
+        vi.mocked(ts_client.post).mockRejectedValue({
+            json: async () => ({ error: 'Desk is not available' }),
+        });
+
+        await expect(spectator.component.toggleCheckedIn()).rejects.toBe(
+            'Desk is not available',
+        );
+
+        expect(spectator.component.booking().checked_in).toBe(false);
+        expect(spectator.component.checking_in()).toBe(false);
+        expect(refresh_fn).not.toHaveBeenCalled();
     });
 
     it('should confirm before checking out', async () => {

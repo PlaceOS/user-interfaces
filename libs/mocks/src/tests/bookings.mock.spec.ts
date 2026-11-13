@@ -1,7 +1,8 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { MockHttpRequest, registerMockEndpoint } from '@placeos/ts-client';
 
 import { registerMockBookings } from '../lib/api/bookings.mock';
 import { ACTIVE_USER } from '../lib/api/users.data';
+import { endpoint } from './endpoints';
 
 vi.mock('@placeos/ts-client');
 
@@ -11,21 +12,9 @@ const START = Date.UTC(2099, 0, 1) / 1000;
 const HOUR = 60 * 60;
 
 describe('registerMockBookings', () => {
-    /** Callback registered for the given method + path */
-    function handler(method: string, path: string) {
-        const match = vi
-            .mocked(registerMockEndpoint)
-            .mock.calls.map(([options]) => options)
-            .find((o) => o.method === method && o.path === path);
-        if (!match) throw new Error(`No handler for ${method} ${path}`);
-        return (req: Record<string, unknown>) =>
-            match.callback({
-                url: path,
-                route_params: {},
-                query_params: {},
-                ...req,
-            } as never);
-    }
+    /** Handler for `method` and `path` of the booking mocks */
+    const handler = (method: MockHttpRequest['method'], path: string) =>
+        endpoint(method, path);
 
     /** Add a booking through the create endpoint */
     const create = (fields: Record<string, unknown>) =>
@@ -156,9 +145,54 @@ describe('registerMockBookings', () => {
         vi.useRealTimers();
     });
 
+    it('should set the induction of a booking, tentative by default', () => {
+        const { id } = create({});
+        const induction = (query_params: Record<string, string>) =>
+            handler(
+                'POST',
+                `${API}/:id/update_induction`,
+            )({
+                route_params: { id },
+                query_params,
+            });
+
+        expect(induction({ induction: 'accepted' })).toMatchObject({
+            induction: 'accepted',
+        });
+        expect(induction({})).toMatchObject({ induction: 'tentative' });
+    });
+
+    it('should change and delete the whole booking from an instance route', () => {
+        // Mock bookings do not expand recurrences
+        const { id } = create({ zones: ['zone-instance'], title: 'Old' });
+        const instance = (method: MockHttpRequest['method'], body = {}) =>
+            handler(
+                method,
+                `${API}/:id/instance/:start`,
+            )({
+                route_params: { id, start: `${START}` },
+                body,
+            });
+
+        expect(instance('PATCH', { title: 'New' })).toMatchObject({
+            id,
+            title: 'New',
+            zones: ['zone-instance'],
+        });
+        instance('DELETE');
+        expect(list({ zones: 'zone-instance' })).toEqual([]);
+        expect(
+            handler('GET', `${API}/:id`)({ route_params: { id } }),
+        ).toMatchObject({ deleted: true });
+    });
+
     describe('guests', () => {
         const email = 'guest+1@place.tech';
-        const guest = (method: string, path: string, id: string) =>
+        const guest = (
+            method: MockHttpRequest['method'],
+            path: string,
+            id: string,
+        ) =>
             handler(
                 method,
                 `${API}/:id/guests/:email${path}`,

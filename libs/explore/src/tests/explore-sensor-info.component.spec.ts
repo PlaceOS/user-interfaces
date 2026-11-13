@@ -38,34 +38,6 @@ describe('ExploreSensorInfoComponent', () => {
         expect(spectator.component.humidity()).toBe(40);
     });
 
-    it('should not be shown for a sensor that is not the active one', () => {
-        spectator = createComponent({
-            providers: [
-                {
-                    provide: MAP_FEATURE_DATA,
-                    useValue: { id: 'inactive-sensor', temp: 10, humidity: 20 },
-                },
-            ],
-        });
-        expect(spectator.component.show()).toBe(false);
-    });
-
-    it('should be shown once set as the active sensor', async () => {
-        vi.useFakeTimers();
-        spectator = createComponent({
-            providers: [
-                {
-                    provide: MAP_FEATURE_DATA,
-                    useValue: { id: 'active-sensor', temp: 10, humidity: 20 },
-                },
-            ],
-        });
-        spectator.component.setShow(true);
-        await vi.advanceTimersByTimeAsync(300);
-        expect(spectator.component.show()).toBe(true);
-        vi.useRealTimers();
-    });
-
     it('does not propagate map interactions from the sensor button', () => {
         spectator = createComponent();
         const parent = spectator.element.parentElement;

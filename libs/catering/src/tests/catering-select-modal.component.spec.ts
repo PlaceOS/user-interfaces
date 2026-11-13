@@ -23,7 +23,7 @@ describe('CateringSelectModalComponent', () => {
             MockProvider(SettingsService, settings),
             MockProvider(MAT_DIALOG_DATA, { details: {} }),
             MockProvider(OrganisationService, {}),
-            MockProvider(CateringOrderStateService, {}),
+            MockProvider(CateringOrderStateService, { setFilters: vi.fn() }),
         ],
         declarations: [
             MockComponent(CateringItemDetailsComponent),
@@ -59,6 +59,20 @@ describe('CateringSelectModalComponent', () => {
         expect(spectator.component.offset()).toBe(expected);
     });
 
+    it('should filter the menu by the caterer of the edited order', () => {
+        spectator = createComponent({
+            providers: [
+                {
+                    provide: MAT_DIALOG_DATA,
+                    useValue: { details: { duration: 60 }, caterer: 'Deli' },
+                },
+            ],
+        });
+        expect(
+            spectator.inject(CateringOrderStateService).setFilters,
+        ).toHaveBeenLastCalledWith({ caterer: 'Deli' });
+    });
+
     describe('selection', () => {
         beforeEach(() => (spectator = createComponent()));
 
@@ -84,6 +98,25 @@ describe('CateringSelectModalComponent', () => {
             );
             spectator.component.setSelected(variant, true);
             expect(spectator.component.selected()).toHaveLength(2);
+        });
+
+        it('should keep the same item from two caterers apart', () => {
+            spectator.component.setSelected(
+                new CateringItem({ id: '1', caterer: 'Cafe' }),
+                true,
+            );
+            spectator.component.setSelected(
+                new CateringItem({ id: '1', caterer: 'Deli' }),
+                true,
+            );
+            expect(
+                spectator.component
+                    .selected()
+                    .map((item) => [item.caterer, item.quantity]),
+            ).toEqual([
+                ['Cafe', 1],
+                ['Deli', 1],
+            ]);
         });
 
         it('should reset the menu item and show the ordered item after adding it', () => {

@@ -48,6 +48,8 @@ describe('CheckoutComponent', () => {
     });
 
     beforeEach(() => {
+        // The state mock is shared, so clear calls from earlier tests
+        vi.clearAllMocks();
         snackbar = createSnackbarSpy();
         setNotifyOutlet(snackbar as any, true);
         spectator = createComponent();
@@ -104,7 +106,8 @@ describe('CheckoutComponent', () => {
             await spectator.component.ngOnInit();
             spectator.detectChanges();
             await spectator.fixture.whenStable();
-            spectator.click('button[btn]');
+            // The first button is cancel
+            spectator.click('button[btn]:not(.inverse)');
             expect(
                 spectator.inject(CheckinStateService).checkinGuest,
             ).toHaveBeenCalledWith(false);

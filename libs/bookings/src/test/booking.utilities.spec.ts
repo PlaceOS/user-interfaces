@@ -193,7 +193,7 @@ describe('Booking Utilities', () => {
     });
 
     describe('generateBookingForm', () => {
-        it('should get current status from a list of bookings', () => {
+        it('should expose a form field for every model key', () => {
             const { model, form } = TestBed.runInInjectionContext(() =>
                 generateBookingForm(new Booking(), injector),
             );
@@ -349,15 +349,81 @@ describe('Booking Utilities', () => {
             lock.set(false);
         });
 
-        it('should keep the date field disabled state stable (no oscillation)', () => {
-            const { form } = TestBed.runInInjectionContext(() =>
+        it('should lock the date of a started or past saved booking only', () => {
+            const past = Date.now() - 2 * 60 * 60 * 1000;
+            const future = Date.now() + 2 * 60 * 60 * 1000;
+            const dateDisabled = (data: Partial<Booking>) => {
+                const { form } = TestBed.runInInjectionContext(() =>
+                    generateBookingForm(
+                        new Booking({ booking_type: 'desk', ...data }),
+                        injector,
+                    ),
+                );
+                return form.date().disabled();
+            };
+
+            expect(dateDisabled({ date: past })).toBe(false);
+            expect(dateDisabled({ id: 'bkn-1', date: future })).toBe(false);
+            expect(dateDisabled({ id: 'bkn-1', date: past })).toBe(true);
+            // `started` is the first 15 minutes after the start time
+            expect(
+                dateDisabled({
+                    date: Date.now() - 5 * 60 * 1000,
+                    duration: 60,
+                }),
+            ).toBe(true);
+        });
+
+        it('should copy the first selected resource onto the booking asset fields', () => {
+            const { model } = TestBed.runInInjectionContext(() =>
                 generateBookingForm(
                     new Booking({ booking_type: 'desk' }),
                     injector,
                 ),
             );
+            const desk = {
+                id: 'desk-1',
+                name: 'Desk 1',
+                display_name: 'Window Desk',
+                map_id: 'map-desk-1',
+                zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            };
 
-            expect(typeof form.date().disabled()).toBe('boolean');
+            model.update((m) => ({ ...m, resources: [desk] }));
+            TestBed.tick();
+
+            expect(model()).toEqual(
+                expect.objectContaining({
+                    asset_id: 'desk-1',
+                    asset_name: 'Desk 1',
+                    name: 'Window Desk',
+                    map_id: 'map-desk-1',
+                    description: 'Desk 1',
+                    zones: ['bld-1', 'lvl-1'],
+                    booking_asset: desk,
+                }),
+            );
+
+            model.update((m) => ({ ...m, resources: [] }));
+            TestBed.tick();
+            expect(model().asset_id).toBe('');
+        });
+
+        it('should keep the visitor email when the resources are reset', () => {
+            const { model } = TestBed.runInInjectionContext(() =>
+                generateBookingForm(
+                    new Booking({
+                        booking_type: 'visitor',
+                        asset_id: 'visitor@example.com',
+                    }),
+                    injector,
+                ),
+            );
+
+            model.update((m) => ({ ...m, resources: [] }));
+            TestBed.tick();
+
+            expect(model().asset_id).toBe('visitor@example.com');
         });
     });
 

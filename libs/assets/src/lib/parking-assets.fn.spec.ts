@@ -215,49 +215,36 @@ describe('[Parking Assets]', () => {
         });
     });
 
-    it('should ignore legacy user categories when resolving parking user types', async () => {
+    it('should resolve parking user and fleet types in the parking category', async () => {
         const { parking_assets } = await load_modules();
         vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'cat-1', name: '_PARKING_' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             response([
-                { id: 'cat-new', name: '_PARKING_' },
-                { id: 'cat-old', name: '_PARKING_USERS_' },
+                { id: 'type-users', name: '_PARKING_USERS_' },
+                { id: 'type-fleet', name: '_PARKING_FLEET_VEHICLES_' },
             ]),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockImplementation(
-            ({ category_id }) =>
-                response(
-                    category_id === 'cat-old'
-                        ? [
-                              {
-                                  id: 'type-2',
-                                  name: '_PARKING_USERS_',
-                                  category_id: 'cat-old',
-                                  brand: 'PlaceOS',
-                              },
-                          ]
-                        : [],
-                ),
+
+        expect(await parking_assets.resolveParkingUserTypeId()).toBe(
+            'type-users',
         );
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({
-            id: 'type-new',
-            name: '_PARKING_USERS_',
-            category_id: 'cat-new',
-            brand: 'PlaceOS',
-        } as any);
-
-        const type_id = await parking_assets.resolveParkingUserTypeId();
-
-        expect(type_id).toBe('type-new');
-        expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
+        expect(await parking_assets.resolveParkingFleetTypeId()).toBe(
+            'type-fleet',
+        );
         expect(ts_client.queryAssetTypes).toHaveBeenCalledWith({
-            category_id: 'cat-new',
+            category_id: 'cat-1',
             limit: 500,
         });
-        expect(ts_client.addAssetType).toHaveBeenCalledWith({
-            name: '_PARKING_USERS_',
-            brand: 'PlaceOS',
-            category_id: 'cat-new',
-        });
+    });
+
+    it('should not query parking spaces in a zone without a zone id', async () => {
+        const { parking_assets } = await load_modules();
+
+        expect(await parking_assets.queryParkingSpacesInZone('')).toEqual([]);
+        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+        expect(ts_client.queryAssets).not.toHaveBeenCalled();
     });
 
     it('should map fleet vehicles to assets and back', async () => {

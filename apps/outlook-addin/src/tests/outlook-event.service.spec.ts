@@ -173,4 +173,13 @@ describe('OutlookEventService', () => {
         expect(item_id).toMatch(/^memory-/);
         expect(spectator.service.event()?.item_id).toBe(item_id);
     });
+
+    it('does not save an event that already has an item ID', async () => {
+        adapter.item_id = 'item-1';
+        const save = vi.spyOn(adapter, 'save');
+
+        await expect(spectator.service.ensureSaved()).resolves.toBe('item-1');
+
+        expect(save).not.toBeCalled();
+    });
 });

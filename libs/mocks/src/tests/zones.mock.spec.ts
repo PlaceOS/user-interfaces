@@ -142,6 +142,84 @@ describe('registerMockZones', () => {
         });
     });
 
+    describe('level metadata', () => {
+        const children = (id: string, name?: string) =>
+            endpoint<{ zone: HashMap; metadata: HashMap }[]>(
+                'GET',
+                `${API}/metadata/:id/children`,
+            )({
+                route_params: { id },
+                query_params: name ? { name } : {},
+            });
+
+        it('should list desks, or lockers, for each level of a building', () => {
+            const building = MOCK_BUILDINGS[0];
+            const levels = MOCK_LEVELS.filter(
+                (level) => level.parent_id === building.id,
+            );
+
+            const desks = children(building.id);
+            expect(desks.map(({ zone }) => zone)).toEqual(levels);
+            expect(desks[0].metadata.desks.details).toHaveLength(30);
+
+            const lockers = structuredClone(
+                children(building.id, 'lockers')[0].metadata,
+            );
+            expect(lockers).toHaveProperty('lockers');
+            // Locker banks are made once, so assignments stay the same
+            expect(children(building.id, 'lockers')[0].metadata).toEqual(
+                lockers,
+            );
+        });
+
+        it('should raise a 404 for a zone that is not a building', () => {
+            expect(() => children(MOCK_LEVELS[0].id)).toThrow(
+                expect.objectContaining({ status: 404 }),
+            );
+        });
+    });
+
+    describe('settings', () => {
+        const SETTINGS = `${API}/settings`;
+        const create = (body: HashMap) =>
+            endpoint<HashMap>('POST', SETTINGS)({ body });
+        const show = (id: string) =>
+            endpoint<HashMap>(
+                'GET',
+                `${SETTINGS}/:id`,
+            )({ route_params: { id } });
+
+        it('should list the settings of a parent, and merge changes', () => {
+            const mine = create({ parent_id: 'zone-settings', value: 'a: 1' });
+            create({ parent_id: 'zone-other', value: 'b: 2' });
+
+            expect(
+                endpoint<HashMap[]>(
+                    'GET',
+                    SETTINGS,
+                )({
+                    query_params: { parent_id: 'zone-settings' },
+                }),
+            ).toEqual([mine]);
+
+            endpoint(
+                'PATCH',
+                `${SETTINGS}/:id`,
+            )({
+                route_params: { id: mine.id },
+                body: { value: 'a: 2' },
+            });
+            expect(show(mine.id)).toEqual({
+                id: mine.id,
+                parent_id: 'zone-settings',
+                value: 'a: 2',
+            });
+            expect(() => show('sets-unknown')).toThrow(
+                expect.objectContaining({ status: 404 }),
+            );
+        });
+    });
+
     describe('fixture integrity', () => {
         const all_zones = [
             ...MOCK_ORGS,

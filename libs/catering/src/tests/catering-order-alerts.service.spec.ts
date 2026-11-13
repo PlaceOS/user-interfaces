@@ -43,6 +43,7 @@ describe('CateringOrderAlertsService', () => {
         notify_open.mockClear();
         setNotifyOutlet({ open: notify_open } as any, true);
         spectator = createService();
+        vi.mocked(spectator.inject(PushNotificationService).notify).mockClear();
     });
 
     afterEach(() => {
@@ -60,14 +61,34 @@ describe('CateringOrderAlertsService', () => {
         setHidden(true);
 
         order_changes.next(changes);
+        order_changes.next(changes);
 
         expect(notify_open).toHaveBeenCalled();
-        expect(document.title).toBe('(1) Catering');
+        expect(document.title).toBe('(2) Catering');
         expect(
             spectator.inject(PushNotificationService).notify,
         ).toHaveBeenCalled();
 
         setHidden(false);
+        expect(document.title).toBe('Catering');
+    });
+
+    it('should only show a message while the tab is visible', async () => {
+        await spectator.service.setEnabled(true);
+
+        order_changes.next({
+            added: [new CateringOrder()],
+            cancelled: [new CateringOrder()],
+        });
+
+        expect(notify_open).toHaveBeenCalledWith(
+            'CATERING.ALERT_NEW CATERING.ALERT_CANCELLED',
+            'OK',
+            expect.anything(),
+        );
+        expect(
+            spectator.inject(PushNotificationService).notify,
+        ).not.toHaveBeenCalled();
         expect(document.title).toBe('Catering');
     });
 

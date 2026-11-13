@@ -85,9 +85,7 @@ describe('MeetingFlowOptionsComponent', () => {
                         ? { id: 'level-1', display_name: 'Level 1' }
                         : null,
                 ),
-                buildings: [
-                    { id: 'bld-1', display_name: 'HQ' },
-                ] as any,
+                buildings: [{ id: 'bld-1', display_name: 'HQ' }] as any,
                 get building() {
                     return { timezone: 'Australia/Sydney' };
                 },
@@ -273,9 +271,7 @@ describe('MeetingFlowOptionsComponent', () => {
         ).not.toExist();
         (spectator.component.can_notify_new_attendees_only as any).set(true);
         spectator.detectChanges();
-        expect(
-            spectator.query('[name="notify-new-attendees-only"]'),
-        ).toExist();
+        expect(spectator.query('[name="notify-new-attendees-only"]')).toExist();
     });
 
     it('should hide the attendees field when the setting hides it', () => {
@@ -310,7 +306,7 @@ describe('MeetingFlowOptionsComponent', () => {
 
     it('should surface an error and reset loading when posting fails', async () => {
         post_form.mockRejectedValue('boom');
-        await expect(spectator.component.confirmBooking()).rejects.toBeDefined();
+        await expect(spectator.component.confirmBooking()).rejects.toBe('boom');
         expect(snackbar.open).toHaveBeenCalledWith(
             'boom',
             'OK',

@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { addMinutes } from 'date-fns';
+import { addMinutes, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
@@ -323,6 +323,25 @@ describe('CateringListFieldComponent', () => {
         expect(order.deliver_time).toBe(9.5);
         expect(order.deliver_offset).toBe(15);
         expect(order.deliver_day_offset).toBe(1);
+    });
+
+    it('should order for the whole day of an all day booking', () => {
+        const date = new Date('2026-04-01T09:30:00').valueOf();
+        spectator.setInput('options', {
+            date,
+            duration: 60,
+            all_day: true,
+            resources: [room],
+        });
+
+        spectator.component.addOrder();
+
+        const [, config] = open_dialog.mock.calls[0] as [
+            unknown,
+            { data: { details: { date: number; duration: number } } },
+        ];
+        expect(config.data.details.date).toBe(startOfDay(date).valueOf());
+        expect(config.data.details.duration).toBe(24 * 60);
     });
 
     it('should remove an item, and the order with its last item', () => {

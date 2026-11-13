@@ -237,6 +237,35 @@ describe('AlertsComponent', () => {
         vi.useRealTimers();
     });
 
+    it('should open on the disconnected devices when the route has no dashboard', async () => {
+        vi.useFakeTimers();
+        spectator = build();
+        spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(300);
+
+        expect(dashboards_service.setDashboard).toHaveBeenCalledTimes(1);
+        expect(dashboards_service.setDashboard).toHaveBeenCalledWith('');
+        expect(
+            dashboards_service.listenForDashboardAlerts,
+        ).toHaveBeenCalledWith(true);
+        vi.clearAllTimers();
+        vi.useRealTimers();
+    });
+
+    it('should stop showing the loading state when no alert arrives in 15 seconds', async () => {
+        vi.useFakeTimers();
+        spectator = build();
+        spectator.component.ngOnInit();
+        await vi.advanceTimersByTimeAsync(300);
+        await vi.advanceTimersByTimeAsync(14_999);
+        expect(spectator.component.show_alert_list_loading()).toBe(true);
+
+        await vi.advanceTimersByTimeAsync(1);
+        expect(spectator.component.show_alert_list_loading()).toBe(false);
+        vi.clearAllTimers();
+        vi.useRealTimers();
+    });
+
     it('should navigate to the selected dashboard route, keeping the filters', () => {
         vi.useFakeTimers();
         spectator = build();

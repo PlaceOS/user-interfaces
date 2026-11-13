@@ -6,7 +6,13 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import { authority, clientId, setAPI_Key, setup } from '@placeos/ts-client';
+import {
+    authority,
+    clientId,
+    registerMockEndpoint,
+    setAPI_Key,
+    setup,
+} from '@placeos/ts-client';
 import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
@@ -55,6 +61,10 @@ describe('AppComponent', () => {
             { provide: SettingsService, useValue: settings_mock },
         ],
     });
+
+    // Mock mode lazy loads `@placeos/mocks`. A cold load is slow on a busy
+    // machine, so load it once here, outside the test timeout.
+    beforeAll(() => import('@placeos/mocks'), 30_000);
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -149,6 +159,15 @@ describe('AppComponent', () => {
         );
     });
 
+    it('should set up PlaceOS when there are no composer settings', async () => {
+        settings_get.mockReturnValue(undefined);
+        await spectator.component.ngOnInit();
+        expect(setup).toHaveBeenCalledWith(
+            expect.objectContaining({ mock: false }),
+        );
+        expect(initialisationComplete()()).toBe(true);
+    });
+
     describe('mock mode resolution', () => {
         it('should enable mock mode when the mock setting is truthy', async () => {
             settings_get.mockImplementation((key: string) => {
@@ -162,11 +181,25 @@ describe('AppComponent', () => {
             );
         });
 
+        // The mocks register their endpoints through ts-client, so the first
+        // registration marks when the lazy loaded mocks start.
+        it('should register the mocks before it sets up PlaceOS in mock mode', async () => {
+            settings_get.mockImplementation((key: string) =>
+                key === 'composer' ? {} : key === 'mock',
+            );
+            await spectator.component.ngOnInit();
+            const [first_mock] =
+                vi.mocked(registerMockEndpoint).mock.invocationCallOrder;
+            const [first_setup] = vi.mocked(setup).mock.invocationCallOrder;
+            expect(first_mock).toBeLessThan(first_setup);
+        });
+
         it('should leave mock mode disabled when the setting is falsy and not on the demo domain', async () => {
             await spectator.component.ngOnInit();
             expect(setup).toHaveBeenCalledWith(
                 expect.objectContaining({ mock: false }),
             );
+            expect(registerMockEndpoint).not.toHaveBeenCalled();
         });
     });
 

@@ -99,6 +99,42 @@ describe('registerMockEvents', () => {
         expect(created.attendees).toEqual([attendee]);
     });
 
+    it('should mark attendees that are spaces as resources', () => {
+        const room = { id: 'sys-room', email: 'room@place.tech', zones: [] };
+        const person = { email: 'person@place.tech' };
+        const created = endpoint<HashMap>(
+            'POST',
+            API,
+        )({
+            body: { host: 'unknown@place.tech', attendees: [room, person] },
+        });
+        added.push(created.id);
+
+        expect(created.attendees).toEqual([
+            { ...room, resource: true },
+            { email: 'person@place.tech' },
+        ]);
+    });
+
+    it('should decline an event for the active user only', () => {
+        const other = { email: 'other@place.tech' };
+        const item = addEvent({
+            id: 'mock-test-decline',
+            attendees: [{ email: ACTIVE_USER.email }, other],
+        });
+        endpoint(
+            'POST',
+            `${API}/:id/decline`,
+        )({
+            route_params: { id: item.id },
+        });
+
+        expect(findEvent(item.id).attendees).toEqual([
+            { email: ACTIVE_USER.email, response_status: 'declined' },
+            { email: 'other@place.tech' },
+        ]);
+    });
+
     it('should list only the events of the requested level', () => {
         // Level IDs start with the building ID, so a text match on the
         // query would also match every event in the building

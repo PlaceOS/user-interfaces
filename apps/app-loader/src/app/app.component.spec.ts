@@ -5,6 +5,7 @@ import {
     PlaceApplication,
     type PlaceAuthority,
     queryApplications,
+    registerMockEndpoint,
     setAPI_Key,
     setup,
 } from '@placeos/ts-client';
@@ -204,6 +205,26 @@ describe('AppComponent', () => {
         expect(names).toEqual(['Admin', 'Workplace']);
     });
 
+    it('shows an error and skips the query when the signed-in user never loads', async () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        setCurrentUser(EMPTY_USER);
+        settings_mock.initialised.next(true);
+        vi.useFakeTimers();
+        try {
+            const init = spectator.component.ngOnInit();
+            await vi.advanceTimersByTimeAsync(30_000);
+            await init;
+        } finally {
+            vi.useRealTimers();
+        }
+
+        expect(queryApplications).not.toHaveBeenCalled();
+        expect(spectator.component.loading()).toBe(false);
+        expect(spectator.component.error()).toBe(
+            'Unable to load applications right now.',
+        );
+    });
+
     it('shows an empty-state message when no applications are configured', async () => {
         await runInit();
 
@@ -277,8 +298,12 @@ describe('AppComponent', () => {
         );
     });
 
-    it('sets up PlaceOS in mock mode when the mock setting is on', async () => {
-        useSettings({ composer: {}, mock: true });
+    it.each([
+        ['the mock setting is on', { composer: {}, mock: true }, '/'],
+        ['the page URL asks for it', { composer: {}, mock: false }, '/?mock=true'],
+    ])('sets up PlaceOS in mock mode when %s', async (_, values, url) => {
+        useSettings(values);
+        window.history.replaceState({}, '', url);
 
         await runInit();
         // The mock data module loads lazily, so setup runs a few ticks later.
@@ -286,6 +311,10 @@ describe('AppComponent', () => {
 
         expect(spectator.component.error()).toBe('');
         expect(setup).toHaveBeenCalledWith(expect.objectContaining({ mock: true }));
+        // `setupPlace` also reads the URL, so check the mock endpoints exist first.
+        expect(vi.mocked(registerMockEndpoint).mock.invocationCallOrder[0]).toBeLessThan(
+            vi.mocked(setup).mock.invocationCallOrder[0],
+        );
     });
 
     it('does not register an api key when none is provided', async () => {

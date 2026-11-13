@@ -51,6 +51,7 @@ describe('EventDetailsModalComponent', () => {
             }),
             MockProvider(OrganisationService, {
                 levelWithID: vi.fn(),
+                locationWithID: vi.fn(() => ({ label: 'Building A, Level 2' })),
                 buildings: [],
                 building: { timezone: 'UTC' } as any,
             }),
@@ -188,6 +189,62 @@ describe('EventDetailsModalComponent', () => {
         expect(spectator.component.room_status()).toBe('pending');
         expect(spectator.component.checking_in()).toBe(false);
     });
+
+    it('should check in the room for the event start and show it as busy', async () => {
+        const execute = vi.fn().mockResolvedValue(undefined);
+        vi.mocked(ts_client.getModule).mockReturnValueOnce({
+            execute,
+        } as any);
+        const date = new Date(2028, 5, 15, 10).valueOf();
+        spectator.component.event.set(new CalendarEvent({ date }));
+        spectator.component.space.set(new Space({ id: 'sys-1' } as any));
+
+        await spectator.component.checkin();
+
+        expect(ts_client.getModule).toHaveBeenCalledWith('sys-1', 'Bookings');
+        expect(execute).toHaveBeenCalledWith('checkin', [date / 1000]);
+        expect(spectator.component.room_status()).toBe('busy');
+        expect(spectator.component.checking_in()).toBe(false);
+    });
+
+    it('should not check in when the event has no room', async () => {
+        spectator.component.space.set(new Space());
+
+        await spectator.component.checkin();
+
+        expect(ts_client.getModule).not.toHaveBeenCalled();
+        expect(spectator.component.room_status()).toBe('');
+    });
+
+    it.each([
+        { system_id: '', label: 'CALENDAR_EVENT.ROOM_REQUIRED' },
+        { system_id: 'other@test.com', label: 'CALENDAR_EVENT.ROOM_REQUIRED' },
+        {
+            system_id: 'room@test.com',
+            label: 'Building A, Level 2 / Boardroom',
+        },
+        { system_id: 'sys-1', label: 'Building A, Level 2 / Boardroom' },
+    ])(
+        'should label a catering order for room "$system_id" as "$label"',
+        ({ system_id, label }) => {
+            spectator.component.event.set(
+                new CalendarEvent({
+                    resources: [
+                        new Space({
+                            id: 'sys-1',
+                            email: 'room@test.com',
+                            display_name: 'Boardroom',
+                            zones: ['bld-1', 'lvl-2'],
+                        } as any),
+                    ],
+                }),
+            );
+
+            expect(
+                spectator.component.cateringRoomLabel({ system_id } as any),
+            ).toBe(label);
+        },
+    );
 
     it('should show attendees', () => {
         expect('attendee-list').not.toExist();

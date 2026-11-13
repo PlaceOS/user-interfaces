@@ -1,11 +1,54 @@
-import { ElementRef, signal } from '@angular/core';
+import { ElementRef, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Subscription } from 'rxjs';
 
-import { MAP_FEATURE_DATA, ViewerFeature } from '@placeos/common';
+import {
+    MAP_FEATURE_DATA,
+    Point,
+    ViewAction,
+    ViewerFeature,
+    ViewerStyles,
+} from '@placeos/common';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { DynamicMapComponent } from '../lib/dynamic-map.component';
 import { MapViewer } from '../lib/map-viewer.class';
+
+/** Viewer stand-in that keeps the view state. Other methods do nothing. */
+function fakeViewer(overrides: Record<string, unknown> = {}) {
+    const viewer = {
+        zoom: 1,
+        center: { x: 0.5, y: 0.5 } as Point,
+        setZoom(zoom: number) {
+            this.zoom = zoom;
+        },
+        setCenter(point: Point) {
+            this.center = point;
+        },
+        setStyles: vi.fn(),
+        setOverlays: vi.fn(),
+        setActions: vi.fn(),
+        ...overrides,
+    };
+    return new Proxy(viewer, {
+        get: (target, key) => (key in target ? target[key] : () => null),
+    }) as typeof viewer & MapViewer;
+}
+
+/**
+ * Make a map that uses `viewer`. Each entry of `inputs` replaces the input
+ * of that name, so the test can change it.
+ */
+function createMap(
+    viewer: MapViewer,
+    inputs: Record<string, WritableSignal<unknown>>,
+) {
+    const component = TestBed.runInInjectionContext(() =>
+        Object.assign(new DynamicMapComponent(), inputs),
+    );
+    component['_map_viewer'] = viewer;
+    TestBed.flushEffects();
+    return component;
+}
 
 describe('DynamicMapComponent', () => {
     beforeEach(() => {
@@ -167,6 +210,160 @@ describe('DynamicMapComponent', () => {
         (component as any)._loadMap('https://cdn.example/map.png');
         expect(component.error()).toBe(true);
         expect(component.loading()).toBe(false);
+        component.ngOnDestroy();
+    });
+
+    it('should give styles to the viewer as CSS that overrides inline styles', () => {
+        const viewer = fakeViewer();
+        const styles = signal<ViewerStyles>({
+            '#desk-1': { fill: 'red', strokeWidth: 2 },
+            '#zones': { display: 'none !important' },
+        });
+        const component = createMap(viewer, { styles });
+
+        expect(viewer.setStyles).toHaveBeenLastCalledWith({
+            '#desk-1': 'fill: red !important; stroke-width: 2 !important',
+            '#zones': 'display: none !important',
+        });
+        component.ngOnDestroy();
+    });
+
+    it('should listen for the pointer events of each action', () => {
+        const viewer = fakeViewer();
+        const callback = vi.fn();
+        const actions = signal<ViewAction[]>([
+            {
+                id: 'desk-1',
+                action: ['mousedown', 'touchstart', 'enter'],
+                priority: 2,
+                callback,
+            },
+            { id: 'desk-2', action: '*', callback },
+            { id: 'desk-3', action: 'dblclick', callback },
+            // No element or no events, so nothing to listen for
+            { id: '', action: 'click', callback },
+            { id: 'desk-4', action: [], callback },
+        ]);
+        const component = createMap(viewer, { actions });
+
+        const map_actions = viewer.setActions.mock.lastCall[0];
+        expect(map_actions).toEqual([
+            {
+                ref: 'desk-1',
+                events: ['pointerdown', 'pointerenter'],
+                priority: 2,
+                callback: expect.any(Function),
+            },
+            {
+                ref: 'desk-2',
+                events: [
+                    'click',
+                    'pointerdown',
+                    'pointerup',
+                    'pointerenter',
+                    'pointerleave',
+                ],
+                priority: undefined,
+                callback: expect.any(Function),
+            },
+            {
+                ref: 'desk-3',
+                events: ['dblclick'],
+                priority: undefined,
+                callback: expect.any(Function),
+            },
+        ]);
+
+        map_actions[0].callback({ x: 0.25, y: 0.75 });
+        expect(callback).toHaveBeenCalledWith(
+            expect.objectContaining({
+                detail: { point: { x: 0.25, y: 0.75 } },
+            }),
+            { x: 0.25, y: 0.75 },
+        );
+        component.ngOnDestroy();
+    });
+
+    it('should size hover and full size features to their element', () => {
+        const component = TestBed.runInInjectionContext(
+            () => new DynamicMapComponent(),
+        );
+        const viewer = fakeViewer();
+        component['_map_viewer'] = viewer;
+        const element = () => new ElementRef(document.createElement('div'));
+
+        component['_applyOverlays'](
+            [
+                { location: 'desk-1', hover: true },
+                { location: 'desk-2', full_size: true, z_index: 5 },
+                { location: 'desk-3' },
+                // No location, or no rendered element, so not shown
+                { location: '' },
+                { location: 'desk-5' },
+            ],
+            [],
+            [element(), element(), element(), element()],
+        );
+
+        const overlays = viewer.setOverlays.mock.lastCall[0];
+        expect(
+            overlays.map(({ ref, type, scale_with_zoom, z_index }) => ({
+                ref,
+                type,
+                scale_with_zoom,
+                z_index,
+            })),
+        ).toEqual([
+            {
+                ref: 'desk-1',
+                type: 'box',
+                scale_with_zoom: false,
+                z_index: undefined,
+            },
+            { ref: 'desk-2', type: 'box', scale_with_zoom: false, z_index: 5 },
+            {
+                ref: 'desk-3',
+                type: 'point',
+                scale_with_zoom: true,
+                z_index: undefined,
+            },
+        ]);
+        component.ngOnDestroy();
+    });
+
+    it('should reset the view for a new map and ignore a map that loads late', async () => {
+        const loads: Array<() => void> = [];
+        const bounds = { x: 0.1, y: 0.2, w: 0.05, h: 0.05 };
+        const viewer = fakeViewer({
+            map: { element_bounds: new Map([['desk-1', bounds]]) },
+            setMap: vi.fn(
+                () => new Promise<void>((resolve) => loads.push(resolve)),
+            ),
+        });
+        const src = signal('level-1.svg');
+        const component = createMap(viewer, { src });
+        const map_info = vi.fn();
+        component.mapInfo.subscribe(map_info);
+        expect(viewer.setMap).toHaveBeenLastCalledWith('level-1.svg');
+        expect(component.loading()).toBe(true);
+
+        component.zoom.set(3);
+        component.center.set({ x: 0.2, y: 0.3 });
+        TestBed.flushEffects();
+        src.set('level-2.svg');
+        TestBed.flushEffects();
+        expect(component.zoom()).toBe(1);
+        expect(component.center()).toEqual({ x: 0.5, y: 0.5 });
+
+        // The first map finishes after the source changed
+        loads[0]();
+        await new Promise((resolve) => setTimeout(resolve));
+        expect(component.loading()).toBe(true);
+        expect(map_info).not.toHaveBeenCalled();
+
+        loads[1]();
+        await vi.waitFor(() => expect(component.loading()).toBe(false));
+        expect(map_info).toHaveBeenCalledExactlyOnceWith({ 'desk-1': bounds });
         component.ngOnDestroy();
     });
 });

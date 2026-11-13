@@ -5,7 +5,11 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { EventDetailsModalComponent, SpacesService } from '@placeos/events';
+import {
+    EventDetailsModalComponent,
+    SetupBreakdownModalComponent,
+    SpacesService,
+} from '@placeos/events';
 import {
     endOfDay,
     endOfMonth,
@@ -15,6 +19,7 @@ import {
     startOfMonth,
     startOfWeek,
 } from 'date-fns';
+import { EventBookModalComponent } from '../../app/day-view/event-book-modal.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
 import * as ts_client from '@placeos/ts-client';
@@ -295,6 +300,73 @@ describe('EventsStateService', () => {
             vi.fn(),
         );
         expect(dialog.open).not.toHaveBeenCalled();
+    });
+
+    it('should open setup and breakdown changes and apply the saved event', async () => {
+        const dialog = spectator.inject(MatDialog);
+        const action = new Subject<string>();
+        const event = new CalendarEvent({ id: 'booking' });
+        const saved = new CalendarEvent({ id: 'booking', setup_time: 15 });
+        vi.mocked(dialog.open)
+            .mockReturnValueOnce({
+                componentInstance: { hide_edit: signal(false), action },
+            } as any)
+            .mockReturnValueOnce({ afterClosed: () => of(saved) } as any);
+        const replace = vi.spyOn(spectator.service, 'replace');
+        spectator.service.viewEvent(event, vi.fn());
+
+        action.next('edit');
+        expect(dialog.open).toHaveBeenCalledTimes(1);
+
+        action.next('setup-breakdown');
+        await Promise.resolve();
+        expect(dialog.open).toHaveBeenLastCalledWith(
+            SetupBreakdownModalComponent,
+            { data: event },
+        );
+        expect(replace).toHaveBeenCalledWith(saved);
+    });
+
+    describe('newBooking', () => {
+        let modal_event: Subject<{ reason: string; metadata?: unknown }>;
+        let closed: Subject<unknown>;
+
+        beforeEach(() => {
+            modal_event = new Subject();
+            closed = new Subject();
+            vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+                componentInstance: { event: modal_event },
+                afterClosed: () => closed,
+            } as any);
+        });
+
+        it('should add the booking that the modal saves', async () => {
+            const event = new CalendarEvent({ id: 'booking' });
+            const saved = new CalendarEvent({ id: 'booking', title: 'Saved' });
+            const replace = vi.spyOn(spectator.service, 'replace');
+            const done = spectator.service.newBooking(event);
+
+            modal_event.next({ reason: 'action' });
+            modal_event.next({ reason: 'done', metadata: saved });
+            await done;
+
+            expect(spectator.inject(MatDialog).open).toHaveBeenCalledWith(
+                EventBookModalComponent,
+                { data: { event } },
+            );
+            expect(replace).toHaveBeenCalledTimes(1);
+            expect(replace).toHaveBeenCalledWith(saved);
+        });
+
+        it('should change nothing when the modal closes without saving', async () => {
+            const replace = vi.spyOn(spectator.service, 'replace');
+            const done = spectator.service.newBooking();
+
+            closed.next(undefined);
+            await done;
+
+            expect(replace).not.toHaveBeenCalled();
+        });
     });
 
     it('should load building events when no levels are selected', async () => {

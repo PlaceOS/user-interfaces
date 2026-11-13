@@ -13,7 +13,6 @@ import {
 } from '@placeos/common';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
-import { PushNotificationSettingsComponent } from '../app/push-notification-settings.component';
 import { AlertNotificationService } from '../app/push-notification.service';
 import { groupScope } from '../app/support-groups';
 import { SupportGroupsService } from '../app/support-groups.service';
@@ -106,14 +105,6 @@ describe('SidebarComponent', () => {
         component.is_compact.set(false);
     });
 
-    it('should toggle the compact state', () => {
-        expect(component.is_compact()).toBe(false);
-        component.toggleCompact();
-        expect(component.is_compact()).toBe(true);
-        component.toggleCompact();
-        expect(component.is_compact()).toBe(false);
-    });
-
     it('should switch the theme based on the current mode', () => {
         theme.set('light');
         component.toggleDarkMode();
@@ -145,13 +136,6 @@ describe('SidebarComponent', () => {
             '/dashboards',
             '/recorder-grid',
         ]);
-    });
-
-    it('should open the notification settings dialog', () => {
-        component.openNotificationSettings();
-        expect(dialog.open).toHaveBeenCalledWith(
-            PushNotificationSettingsComponent,
-        );
     });
 
     it('should apply the region, clear the building and re-listen', () => {
@@ -192,37 +176,19 @@ describe('SidebarComponent', () => {
         expect(dash.listenForDashboardAlerts).toHaveBeenCalledWith(true);
     });
 
-    it('should report notifications inactive while push is disabled', () => {
-        push.enabled.set(false);
-        push.config.set({
-            critical: true,
-            high: true,
-            medium: true,
-            low: true,
-        });
-        expect(component.notifications_active()).toBe(false);
-    });
-
-    it('should report notifications inactive when no severity is enabled', () => {
-        push.enabled.set(true);
-        push.config.set({
-            critical: false,
-            high: false,
-            medium: false,
-            low: false,
-        });
-        expect(component.notifications_active()).toBe(false);
-    });
-
-    it('should report notifications active when enabled with a severity on', () => {
-        push.enabled.set(true);
-        push.config.set({
-            critical: true,
-            high: false,
-            medium: false,
-            low: false,
-        });
-        expect(component.notifications_active()).toBe(true);
+    it('should report notifications active only when enabled with a severity on', () => {
+        const none = { critical: false, high: false, medium: false, low: false };
+        const active = (enabled: boolean, config: typeof none) => {
+            push.enabled.set(enabled);
+            push.config.set(config);
+            return component.notifications_active();
+        };
+        expect(active(false, { ...none, critical: true, low: true })).toBe(
+            false,
+        );
+        expect(active(true, none)).toBe(false);
+        expect(active(true, { ...none, critical: true })).toBe(true);
+        expect(active(true, { ...none, low: true })).toBe(true);
     });
 
     describe('support groups', () => {

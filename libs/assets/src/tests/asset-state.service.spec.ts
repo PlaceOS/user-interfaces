@@ -156,6 +156,66 @@ describe('AssetStateService', () => {
         expect(names()).toEqual(['Projector', 'Speaker']);
     });
 
+    it('should hide groups that fail the asset rules of the zone', async () => {
+        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+            response([{ id: 'c1', name: 'Audio' }]),
+        );
+        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+            response([
+                {
+                    id: 't1',
+                    name: 'Speaker',
+                    description: '',
+                    category_id: 'c1',
+                },
+                { id: 't2', name: 'Mic', description: '', category_id: 'c1' },
+            ]),
+        );
+        vi.mocked(ts_client.queryAssets).mockReturnValue(
+            response([
+                { id: 'a1', asset_type_id: 't1' },
+                { id: 'a2', asset_type_id: 't2' },
+            ]),
+        );
+        vi.mocked(ts_client.showMetadata).mockImplementation((_, name) =>
+            Promise.resolve(
+                new ts_client.PlaceMetadata({
+                    name,
+                    details:
+                        name === 'assets_config'
+                            ? [
+                                  {
+                                      id: 'r1',
+                                      name: 'Speaker',
+                                      rules: [['min_length', '2 hours']],
+                                  },
+                              ]
+                            : {},
+                }),
+            ),
+        );
+        const names = () =>
+            spectator.service.filtered_assets().map((_) => _.name);
+        // Rules are cached per zone in asset.utilities, so use a zone of its own
+        spectator.service.setOptions({ zone: 'zone-rules', duration: 60 });
+
+        names();
+        await vi.waitFor(() => {
+            TestBed.tick();
+            expect(spectator.service.rules()).toHaveLength(1);
+            expect(spectator.service.category_list()).toHaveLength(1);
+            expect(spectator.service.available_groups()).toHaveLength(2);
+        });
+
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'zone-rules',
+            'assets_config',
+        );
+        expect(names()).toEqual(['Mic']);
+        spectator.service.setOptions({ duration: 120 });
+        expect(names()).toEqual(['Mic', 'Speaker']);
+    });
+
     it('should drop selected categories that are not visible', async () => {
         spectator.service.toggleCategory('gone');
         expect(spectator.service.category()).toEqual(['gone']);

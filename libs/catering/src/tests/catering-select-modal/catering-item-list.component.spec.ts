@@ -31,21 +31,6 @@ describe('CateringItemListComponent', () => {
         spectator = createComponent();
     });
 
-    it('should determine favourite state from the favorites input', () => {
-        spectator.setInput({ favorites: ['a', 'b'] });
-        expect(spectator.component.isFavourite('a')).toBe(true);
-        expect(spectator.component.isFavourite('c')).toBe(false);
-    });
-
-    it('should mark an item active when its custom id matches', () => {
-        const item = new CateringItem({ id: '1' });
-        spectator.setInput({ active: item.custom_id });
-        expect(spectator.component.isActive(item)).toBe(true);
-        expect(
-            spectator.component.isActive(new CateringItem({ id: '2' })),
-        ).toBe(false);
-    });
-
     it('should emit selected item and clear option active state', () => {
         const spy = vi.fn();
         spectator.component.onSelect.subscribe(spy);

@@ -15,7 +15,8 @@ import {
 import { SpacesService } from '@placeos/events';
 import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, endOfDay } from 'date-fns';
-import { MockProvider } from 'ng-mocks';
+import { MockComponent, MockProvider } from 'ng-mocks';
+import { DeskFlowSelectMapComponent } from '../../app/book/desk-flow-new/desk-flow-select-map.component';
 import { DeskFlowSelectComponent } from '../../app/book/desk-flow-new/desk-flow-select.component';
 
 describe('DeskFlowSelectComponent', () => {
@@ -23,11 +24,28 @@ describe('DeskFlowSelectComponent', () => {
     let form: BookingForm;
     let model: WritableSignal<BookingFormValue>;
     let active_building: WritableSignal<any>;
+    let options: WritableSignal<Record<string, unknown>>;
+    let resources: WritableSignal<any[]>;
+    let available_resources: WritableSignal<any[]>;
+    // The providers hold these mocks for the whole file
+    const settings_get = vi.fn();
+    const levels_for_building = vi.fn();
 
     const createComponent = createComponentFactory({
         component: DeskFlowSelectComponent,
         detectChanges: false,
         shallow: true,
+        overrideComponents: [
+            [
+                DeskFlowSelectComponent,
+                {
+                    remove: { imports: [DeskFlowSelectMapComponent] },
+                    add: {
+                        imports: [MockComponent(DeskFlowSelectMapComponent)],
+                    },
+                },
+            ],
+        ],
         providers: [
             {
                 provide: BookingFormService,
@@ -46,13 +64,16 @@ describe('DeskFlowSelectComponent', () => {
                         resources: [],
                         asset_id: '',
                     }));
+                    options = signal({ type: 'desk' });
+                    resources = signal([]);
+                    available_resources = signal([]);
                     return {
                         form,
                         model,
-                        options: signal({ type: 'desk' }),
+                        options,
                         loading: signal(''),
-                        resources: signal([]),
-                        available_resources: signal([]),
+                        resources,
+                        available_resources,
                         load_failed: signal(false),
                         setOptions: vi.fn(),
                     };
@@ -67,18 +88,18 @@ describe('DeskFlowSelectComponent', () => {
                 buildings: [{ id: 'bld-1' }, { id: 'bld-2' }],
                 active_region: signal(null),
                 region_list: signal([]),
-                levelsForBuilding: vi.fn(() => []),
+                levelsForBuilding: levels_for_building,
                 levelsForRegion: vi.fn(() => []),
                 building: { id: 'bld-1', timezone: '' },
             } as any),
-            MockProvider(SettingsService, {
-                get: vi.fn(() => false),
-            } as any),
+            MockProvider(SettingsService, { get: settings_get } as any),
             MockProvider(SpacesService, {}),
         ],
     });
 
     beforeEach(() => {
+        settings_get.mockReset().mockReturnValue(false);
+        levels_for_building.mockReset().mockReturnValue([]);
         spectator = createComponent();
     });
 
@@ -154,5 +175,102 @@ describe('DeskFlowSelectComponent', () => {
         expect(date_fields.every((field) => field.to_date() === end_date)).toBe(
             true,
         );
+    });
+
+    describe('desk selection', () => {
+        const desk_1 = { id: 'desk-1', name: 'Desk 1' } as any;
+        const desk_2 = { id: 'desk-2', name: 'Desk 2' } as any;
+
+        it('should replace the selected desk and close the filters', () => {
+            spectator.component.filters_open.set(true);
+
+            spectator.component.toggleDesk(desk_1);
+            spectator.component.toggleDesk(desk_2);
+
+            expect(model().resources).toEqual([desk_2]);
+            expect(model().asset_id).toBe('desk-2');
+            expect(spectator.component.selected()).toEqual(['desk-2']);
+            expect(spectator.component.filters_open()).toBe(false);
+        });
+
+        it('should add and remove desks when multiple desks are allowed', () => {
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) => key === 'app.desks.allow_multiple',
+            );
+
+            spectator.component.toggleDesk(desk_1);
+            spectator.component.toggleDesk(desk_2);
+            expect(model().resources).toEqual([desk_1, desk_2]);
+            expect(model().asset_id).toBe('desk-1');
+
+            spectator.component.toggleDesk(desk_1);
+            expect(model().resources).toEqual([desk_2]);
+            expect(model().asset_id).toBe('desk-2');
+            expect(spectator.component.selected()).toEqual(['desk-2']);
+        });
+
+        it('should select the booked desk of an edited booking once it loads', () => {
+            model.update((m) => ({
+                ...m,
+                id: 'booking-1',
+                asset_id: 'desk-2',
+            }));
+
+            spectator.component.ngOnInit();
+            expect(spectator.component.selected()).toEqual(['desk-2']);
+
+            available_resources.set([desk_1, desk_2]);
+            TestBed.flushEffects();
+
+            expect(model().resources).toEqual([desk_2]);
+            expect(spectator.component.selected()).toEqual(['desk-2']);
+        });
+    });
+
+    describe('map view', () => {
+        const level = (id: string, display_name: string, tags: string[] = []) =>
+            ({ id, display_name, parent_id: 'bld-1', tags }) as any;
+
+        beforeEach(() => {
+            vi.mocked(
+                spectator.inject(OrganisationService).levelsForBuilding,
+            ).mockReturnValue([
+                level('lvl-b', 'Level B'),
+                level('lvl-a', 'Level A'),
+                level('lvl-car', 'Car park', ['parking']),
+                level('lvl-empty', 'Empty'),
+            ]);
+            resources.set([
+                { id: 'd1', zone: { id: 'lvl-b' } },
+                { id: 'd2', zone: { id: 'lvl-a' } },
+                { id: 'd3', zone: { id: 'lvl-car' } },
+                { id: 'd4', zone: { id: 'lvl-empty' }, bookable: false },
+            ] as any);
+        });
+
+        it('should show the first level that has bookable desks', () => {
+            spectator.component.setMapView();
+
+            expect(spectator.component.view()).toBe('map');
+            expect(
+                spectator.inject(BookingFormService).setOptions,
+            ).toHaveBeenCalledExactlyOnceWith({
+                zones: ['lvl-a'],
+                zone_id: 'lvl-a',
+            });
+        });
+
+        it('should keep the level that the user selected in the list filters', () => {
+            options.set({ type: 'desk', zones: ['lvl-b'] });
+
+            spectator.component.setMapView();
+
+            expect(
+                spectator.inject(BookingFormService).setOptions,
+            ).toHaveBeenCalledExactlyOnceWith({
+                zones: ['lvl-b'],
+                zone_id: 'lvl-b',
+            });
+        });
     });
 });

@@ -154,16 +154,23 @@ describe('CheckinDetailsComponent', () => {
         expect(spectator.component.loading()).toBe(false);
     });
 
-    it('offers a photo after check-in when label printing uses its default setting', async () => {
-        settingSignal('allow_user_photo', false).set(true);
+    it.each([
+        [undefined, 'photo'],
+        [false, 'results'],
+    ])(
+        'opens %s after check-in when photos are allowed and label printing is %s',
+        async (allow_printing_label, page) => {
+            settingSignal('allow_user_photo', false).set(true);
+            settingSignal('allow_printing_label').set(allow_printing_label);
 
-        await spectator.component.updateGuest();
+            await spectator.component.updateGuest();
 
-        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
-            '/checkin',
-            'photo',
-        ]);
-    });
+            expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+                '/checkin',
+                page,
+            ]);
+        },
+    );
 
     it('stays on the form when check-in fails', async () => {
         const service = spectator.inject(CheckinStateService);

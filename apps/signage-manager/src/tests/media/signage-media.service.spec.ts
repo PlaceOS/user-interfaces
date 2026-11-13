@@ -223,6 +223,78 @@ describe('SignageMediaService', () => {
         );
     });
 
+    describe('media from a stored upload', () => {
+        function createUploadService(fetch_upload: () => Promise<Blob>) {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageMediaServiceTestAccess;
+            test_service['_fetchUpload'] = vi.fn(fetch_upload);
+            (test_service['_generateThumbnail'] as any).mockResolvedValue(
+                'data:image/jpeg;base64,dGh1bWI=',
+            );
+            return service;
+        }
+
+        it('points the media at the upload and uploads only a thumbnail', async () => {
+            const service = createUploadService(
+                async () => new Blob(['png'], { type: 'image/png' }),
+            );
+
+            await service.addMediaFromUpload('upload-9', { name: 'Poster' });
+
+            expect(uploads.uploadFileToCompletion).toHaveBeenCalledOnce();
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    name: 'Poster',
+                    media_id: 'upload-9',
+                    media_uri: expect.stringContaining('upload-9'),
+                    media_type: 'image',
+                    orientation: 'landscape',
+                    thumbnail_id: 'thumbnail-upload-1',
+                }),
+                {},
+            );
+        });
+
+        it('still creates the media when the upload cannot be read back', async () => {
+            const service = createUploadService(async () => {
+                throw new Error('Forbidden');
+            });
+
+            await service.addMediaFromUpload('upload-9');
+
+            expect(notify_open).toHaveBeenCalledWith(
+                'Could not generate a thumbnail from the selected image.',
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['warn'] }),
+            );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.objectContaining({ media_id: 'upload-9' }),
+                {},
+            );
+            expect(addSignageMedia).toHaveBeenCalledWith(
+                expect.not.objectContaining({
+                    thumbnail_id: expect.anything(),
+                }),
+                {},
+            );
+        });
+
+        it('rejects without creating media when the user cannot create it', async () => {
+            const service = createUploadService(
+                async () => new Blob(['png'], { type: 'image/png' }),
+            );
+            vi.mocked(
+                TestBed.inject(SignageContextService).requirePermission,
+            ).mockReturnValue(false);
+
+            await expect(
+                service.addMediaFromUpload('upload-9'),
+            ).rejects.toThrow('Permission denied');
+            expect(addSignageMedia).not.toHaveBeenCalled();
+        });
+    });
+
     it('adds tags to media without replacing existing tags', async () => {
         dialog.open.mockReturnValue({
             afterClosed: () => ({

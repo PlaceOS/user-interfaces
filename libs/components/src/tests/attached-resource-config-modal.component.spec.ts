@@ -5,14 +5,18 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 import { showMetadata } from '@placeos/ts-client';
 
+import { DialogEvent } from '@placeos/common';
 import {
     AttachedResourceConfigModalComponent,
+    AttachedResourceConfigModalData,
     zoneRulesetLoader,
 } from '../lib/attached-resource-config-modal.component';
 
 describe('zoneRulesetLoader', () => {
     const metadata = (details: unknown) =>
-        Promise.resolve({ details } as Awaited<ReturnType<typeof showMetadata>>);
+        Promise.resolve({ details } as Awaited<
+            ReturnType<typeof showMetadata>
+        >);
 
     beforeEach(() => {
         vi.mocked(showMetadata).mockReset();
@@ -48,6 +52,77 @@ describe('zoneRulesetLoader', () => {
 });
 
 describe('AttachedResourceConfigModalComponent', () => {
+    const createModal = (data: Partial<AttachedResourceConfigModalData>) => {
+        TestBed.configureTestingModule({
+            imports: [AttachedResourceConfigModalComponent],
+            providers: [{ provide: MAT_DIALOG_DATA, useValue: data }],
+        });
+        return TestBed.createComponent(AttachedResourceConfigModalComponent)
+            .componentInstance;
+    };
+
+    afterEach(() => vi.useRealTimers());
+
+    it('should edit rule values as text and save them as JSON values', () => {
+        const modal = createModal({
+            config: [
+                {
+                    id: 'zone-1',
+                    name: 'Level 1',
+                    rules: [
+                        ['after_hour', 9],
+                        ['groups', ['staff', 'admin']],
+                        ['visitor_type', 'contractor'],
+                    ],
+                },
+            ],
+        });
+        const events: DialogEvent[] = [];
+        modal.event.subscribe((event) => events.push(event));
+
+        expect(modal.rulesets[0].rules.map((rule) => rule[1])).toEqual([
+            '9',
+            '["staff","admin"]',
+            '"contractor"',
+        ]);
+
+        // Text that is not JSON is saved as typed
+        modal.rulesets[0].rules[2][1] = 'Front desk';
+        modal.saveChanges();
+
+        expect(events).toEqual([
+            {
+                reason: 'done',
+                metadata: [
+                    {
+                        id: 'zone-1',
+                        name: 'Level 1',
+                        rules: [
+                            ['after_hour', 9],
+                            ['groups', ['staff', 'admin']],
+                            ['visitor_type', 'Front desk'],
+                        ],
+                    },
+                ],
+            },
+        ]);
+    });
+
+    it('should save only the last notes toggle a second after the changes', () => {
+        vi.useFakeTimers();
+        const saveNotes = vi.fn();
+        const modal = createModal({ config: [], saveNotes });
+
+        modal.saveNotesSetting(true);
+        vi.advanceTimersByTime(500);
+        modal.saveNotesSetting(false);
+        vi.advanceTimersByTime(999);
+        expect(saveNotes).not.toHaveBeenCalled();
+
+        vi.advanceTimersByTime(1);
+        expect(saveNotes).toHaveBeenCalledExactlyOnceWith(false);
+    });
+
     it('should save a pending notes toggle when the modal closes', () => {
         const saveNotes = vi.fn();
         TestBed.configureTestingModule({
@@ -69,13 +144,7 @@ describe('AttachedResourceConfigModalComponent', () => {
     });
 
     it('should emit one save while a save runs, and again after it fails', () => {
-        TestBed.configureTestingModule({
-            imports: [AttachedResourceConfigModalComponent],
-            providers: [{ provide: MAT_DIALOG_DATA, useValue: { config: [] } }],
-        });
-        const modal = TestBed.createComponent(
-            AttachedResourceConfigModalComponent,
-        ).componentInstance;
+        const modal = createModal({ config: [] });
         const events = vi.fn();
         modal.event.subscribe(events);
 

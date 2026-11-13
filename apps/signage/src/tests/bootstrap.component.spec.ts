@@ -106,6 +106,25 @@ describe('BootstrapComponent', () => {
         ]);
     });
 
+    it('should list displays by display name, or by name without one', async () => {
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                { id: 'c', name: 'Zeta', display_name: 'Charlie' },
+                { id: 'b', name: 'Bravo' },
+                { id: 'a', name: 'Yankee', display_name: 'Alpha' },
+            ],
+        } as any);
+        build_component();
+
+        await vi.waitFor(() => {
+            expect(spectator.component.displays().map((_) => _.id)).toEqual([
+                'a',
+                'b',
+                'c',
+            ]);
+        });
+    });
+
     it('should hide and not load templates when templates are disabled', async () => {
         build_component();
 

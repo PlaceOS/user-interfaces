@@ -28,6 +28,7 @@ import {
     setupFormTimeSync,
     timePeriodsIntersect,
     toggleListItem,
+    unique,
     withTimeout,
 } from '../lib/general';
 import * as notifications from '../lib/notifications';
@@ -39,6 +40,19 @@ describe('General Methods', () => {
             expect(toggleListItem(list, 'c')).toEqual(['a', 'b', 'c']);
             expect(toggleListItem(list, 'a')).toEqual(['b']);
             expect(list).toEqual(['a', 'b']);
+        });
+    });
+
+    describe('unique', () => {
+        it('should keep the first item for each value or key', () => {
+            expect(unique([1, 2, 1, 3, 2])).toEqual([1, 2, 3]);
+            const items = [
+                { id: 'a', name: 'First' },
+                { id: 'b', name: 'Other' },
+                { id: 'a', name: 'Second' },
+            ];
+            expect(unique(items, 'id')).toEqual([items[0], items[1]]);
+            expect(unique()).toEqual([]);
         });
     });
 

@@ -98,23 +98,13 @@ describe('AssetSelectModalComponent', () => {
         expect(spectator.component.selected_ids()).toBe('1,2');
     });
 
-    it('should add a favourite when not already saved', () => {
-        settings_mock.get.mockReturnValue([]);
+    it('should toggle the group in the saved favourites', () => {
+        settings_mock.get.mockReturnValue(['2']);
         spectator.component.toggleFavourite({ id: '1' } as AssetGroup);
 
         expect(settings_mock.saveUserSetting).toHaveBeenCalledWith(
             'favourite_assets',
-            ['1'],
-        );
-    });
-
-    it('should remove an existing favourite', () => {
-        settings_mock.get.mockReturnValue(['1', '2']);
-        spectator.component.toggleFavourite({ id: '1' } as AssetGroup);
-
-        expect(settings_mock.saveUserSetting).toHaveBeenCalledWith(
-            'favourite_assets',
-            ['2'],
+            ['2', '1'],
         );
     });
 

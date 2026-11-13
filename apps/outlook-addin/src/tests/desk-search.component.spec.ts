@@ -124,6 +124,46 @@ describe('DeskSearchComponent', () => {
         ]);
     });
 
+    it('lists only desks that have all the selected features', () => {
+        available.set([
+            {
+                ...desk('desk-1', { id: 'lvl-1' }),
+                features: ['Monitor', 'Dock'],
+            },
+            { ...desk('desk-2', { id: 'lvl-1' }), features: ['Monitor'] },
+            { ...desk('desk-3', { id: 'lvl-1' }), features: ['Dock'] },
+        ]);
+        const ids = () => spectator.component.desks().map((_) => _.id);
+
+        spectator.component.toggleFeature('Monitor');
+        spectator.component.toggleFeature('Dock');
+        expect(ids()).toEqual(['desk-1']);
+
+        spectator.component.toggleFeature('Dock');
+        expect(ids()).toEqual(['desk-1', 'desk-2']);
+    });
+
+    it('shows when a desk is available for the event', async () => {
+        expect(spectator.component.period()).toBe('all day');
+
+        adapter.update({
+            start: MIDNIGHT + 9 * HOUR,
+            end: MIDNIGHT + 10 * HOUR,
+            all_day: false,
+        });
+        await spectator.inject(OutlookEventService).refresh();
+
+        // Format the expected times in the locale of the test runtime.
+        const time = new Intl.DateTimeFormat(undefined, {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false,
+        });
+        expect(spectator.component.period()).toBe(
+            `${time.format(MIDNIGHT + 9 * HOUR)}–${time.format(MIDNIGHT + 10 * HOUR)}`,
+        );
+    });
+
     it('drops the map selection when the desk is no longer available', () => {
         spectator.component.selected_desk.set(available()[0]);
         expect(spectator.component.map_selection()?.id).toBe('desk-1');

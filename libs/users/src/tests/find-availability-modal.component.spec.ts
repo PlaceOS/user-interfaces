@@ -12,7 +12,10 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { FindAvailabilityModalComponent } from '../lib/find-availability-modal/find-availability-modal.component';
+import {
+    FindAvailabilityData,
+    FindAvailabilityModalComponent,
+} from '../lib/find-availability-modal/find-availability-modal.component';
 import { UserAvailabilityComponent } from '../lib/find-availability-modal/user-availability.component';
 
 const mockGet = vi.mocked(
@@ -20,10 +23,11 @@ const mockGet = vi.mocked(
 );
 
 const HOST = new User({ email: 'host@place.tech', name: 'Host' });
+const NINE_AM = new Date('2030-06-01T09:00:00').valueOf();
 
-describe('FindAvailabilityModalComponent', () => {
-    let spectator: Spectator<FindAvailabilityModalComponent>;
-    const createComponent = createComponentFactory({
+/** Create the modal factory with the given dialog data */
+const modalFactory = (data: Partial<FindAvailabilityData>) =>
+    createComponentFactory({
         component: FindAvailabilityModalComponent,
         declarations: [
             MockComponent(IconComponent),
@@ -34,18 +38,47 @@ describe('FindAvailabilityModalComponent', () => {
         ],
         providers: [
             MockProvider(MatDialogRef),
-            {
-                provide: MAT_DIALOG_DATA,
-                useValue: {
-                    host: HOST,
-                    users: [new User({ email: 'a@place.tech', name: 'Alice' })],
-                    date: new Date('2030-06-01T09:00:00').valueOf(),
-                    duration: 60,
-                },
-            },
+            { provide: MAT_DIALOG_DATA, useValue: data },
         ],
         imports: [FormsModule],
     });
+
+describe('FindAvailabilityModalComponent dialog data', () => {
+    const caller_users = [new User({ email: 'a@place.tech' })];
+    const createComponent = modalFactory({ host: HOST, users: caller_users });
+
+    beforeEach(() => mockGet.mockResolvedValue([]));
+    afterEach(() => vi.useRealTimers());
+
+    it('should default to now and one hour without a date or duration', () => {
+        vi.useFakeTimers({ now: NINE_AM, toFake: ['Date'] });
+        const spectator = createComponent();
+        expect(spectator.component.date()).toBe(NINE_AM);
+        expect(spectator.component.duration()).toBe(60);
+    });
+
+    it('should not change the caller user list when adding users', () => {
+        const spectator = createComponent();
+        spectator.component.addUser(new User({ email: 'b@place.tech' }));
+        expect(caller_users).toHaveLength(1);
+    });
+});
+
+describe('FindAvailabilityModalComponent', () => {
+    let spectator: Spectator<FindAvailabilityModalComponent>;
+    const createComponent = modalFactory({
+        host: HOST,
+        users: [new User({ email: 'a@place.tech', name: 'Alice' })],
+        date: NINE_AM,
+        duration: 90,
+    });
+
+    /** Fire a touch event with one touch point on the window */
+    const touch = (type: string, clientX = 0) => {
+        const event = new Event(type);
+        Object.defineProperty(event, 'touches', { value: [{ clientX }] });
+        return event as TouchEvent;
+    };
 
     beforeEach(() => {
         mockGet.mockResolvedValue([]);
@@ -54,9 +87,11 @@ describe('FindAvailabilityModalComponent', () => {
     afterEach(() => vi.useRealTimers());
 
     it('should seed users, date and duration from the dialog data', () => {
-        expect(spectator.component.users().length).toBe(1);
-        expect(spectator.component.users()[0].email).toBe('a@place.tech');
-        expect(spectator.component.duration()).toBe(60);
+        expect(spectator.component.users().map((u) => u.email)).toEqual([
+            'a@place.tech',
+        ]);
+        expect(spectator.component.date()).toBe(NINE_AM);
+        expect(spectator.component.duration()).toBe(90);
         expect(spectator.component.host).toBe(HOST);
     });
 
@@ -76,8 +111,12 @@ describe('FindAvailabilityModalComponent', () => {
 
     it('should add a new user and clear the search selection', () => {
         const bob = new User({ email: 'b@place.tech', name: 'Bob' });
+        spectator.component.user.set(bob);
         spectator.component.addUser(bob);
-        expect(spectator.component.users().length).toBe(2);
+        expect(spectator.component.users().map((u) => u.email)).toEqual([
+            'a@place.tech',
+            'b@place.tech',
+        ]);
         expect(spectator.component.user()).toBeUndefined();
     });
 
@@ -109,9 +148,7 @@ describe('FindAvailabilityModalComponent', () => {
     it('should flag a date on the current day as today', () => {
         spectator.component.onDateChange(Date.now());
         expect(spectator.component.today()).toBe(true);
-        spectator.component.onDateChange(
-            new Date('2030-06-01T09:00:00').valueOf(),
-        );
+        spectator.component.onDateChange(NINE_AM);
         expect(spectator.component.today()).toBe(false);
     });
 
@@ -150,15 +187,34 @@ describe('FindAvailabilityModalComponent', () => {
         );
     });
 
+    it('should show no busy periods when the free/busy request fails', async () => {
+        mockGet.mockRejectedValue(new Error('nope'));
+        spectator = createComponent();
+        await vi.waitFor(() => expect(mockGet).toHaveBeenCalled());
+        await spectator.fixture.whenStable();
+        expect(spectator.component.availability()).toEqual({});
+    });
+
+    it('should scroll the timeline to just before the selected time', () => {
+        vi.useFakeTimers({ toFake: ['setTimeout'] });
+        spectator = createComponent();
+        const container = spectator.query<HTMLElement>('[scroll]')!;
+        container.scrollTo = ((x: number) => {
+            container.scrollLeft = x;
+        }) as typeof container.scrollTo;
+        vi.advanceTimersByTime(300);
+        // 9:00 at 80px per hour, less 48px so the selection is not at the edge
+        expect(spectator.component.offset_x()).toBe(9 * 80 - 48);
+    });
+
     it('should move the selection by dragging, in 5 minute steps and not into the past', () => {
         vi.useFakeTimers({
             now: new Date('2030-06-01T08:30:00'),
             toFake: ['Date'],
         });
-        const nine = new Date('2030-06-01T09:00:00').valueOf();
-        const minutes = (n: number) => nine + n * 60 * 1000;
+        const minutes = (n: number) => NINE_AM + n * 60 * 1000;
         expect(spectator.component.selection_left()).toBe(45);
-        expect(spectator.component.selection_width()).toBe(5);
+        expect(spectator.component.selection_width()).toBe(7.5);
         spectator.component.startMovePeriod(
             new MouseEvent('mousedown', { clientX: 500 }),
         );
@@ -176,13 +232,28 @@ describe('FindAvailabilityModalComponent', () => {
         expect(spectator.component.move_time()).toBe(false);
     });
 
+    it('should move the selection with touch events', () => {
+        vi.useFakeTimers({
+            now: new Date('2030-06-01T08:30:00'),
+            toFake: ['Date'],
+        });
+        spectator.component.startMovePeriod(touch('touchstart', 500));
+        expect(spectator.component.move_time()).toBe(true);
+        window.dispatchEvent(touch('touchmove', 580));
+        expect(spectator.component.date()).toBe(NINE_AM + 60 * 60 * 1000);
+        window.dispatchEvent(touch('touchend'));
+        expect(spectator.component.move_time()).toBe(false);
+        window.dispatchEvent(touch('touchmove', 660));
+        expect(spectator.component.date()).toBe(NINE_AM + 60 * 60 * 1000);
+    });
+
     it('should resize the duration by dragging, down to 30 minutes', () => {
         // The 24 hour timeline is 1920px wide, so 80px is one hour
         spectator.component.startMoveDuration(
             new MouseEvent('mousedown', { clientX: 500 }),
         );
         window.dispatchEvent(new MouseEvent('mousemove', { clientX: 580 }));
-        expect(spectator.component.duration()).toBe(120);
+        expect(spectator.component.duration()).toBe(150);
         window.dispatchEvent(new MouseEvent('mousemove', { clientX: 0 }));
         expect(spectator.component.duration()).toBe(30);
         window.dispatchEvent(new MouseEvent('mouseup'));

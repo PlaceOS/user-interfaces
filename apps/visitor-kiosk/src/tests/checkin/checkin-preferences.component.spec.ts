@@ -5,7 +5,14 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { CateringItem, OrganisationService } from '@placeos/common';
-import { get, patch, setToken } from '@placeos/ts-client';
+import {
+    get,
+    patch,
+    queryAssetCategories,
+    queryAssets,
+    queryAssetTypes,
+    setToken,
+} from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
 import { CheckinPreferencesComponent } from '../../app/checkin/checkin-preferences.component';
@@ -20,8 +27,27 @@ function visitorJwt() {
     return `header.${btoa(JSON.stringify(payload))}.signature`;
 }
 
+/** Catering menu of a building, stored as assets of a hidden category */
+function mockMenu(items: { id: string; tags: string[] }[]) {
+    vi.mocked(queryAssetCategories).mockResolvedValue({
+        data: [{ id: 'cat-1', name: '_CATERING_', hidden: true }],
+    } as never);
+    vi.mocked(queryAssetTypes).mockResolvedValue({
+        data: [{ id: 'type-1', name: 'CATERING:Cafe', category_id: 'cat-1' }],
+    } as never);
+    vi.mocked(queryAssets).mockResolvedValue({
+        data: items.map(({ id, tags }) => ({
+            id,
+            name: id,
+            asset_type_id: 'type-1',
+            other_data: { tags },
+        })),
+    } as never);
+}
+
 describe('CheckinPreferencesComponent', () => {
     let spectator: SpectatorRouting<CheckinPreferencesComponent>;
+    const active_building = signal<{ id: string } | null>(null);
     const createComponent = createRoutingFactory({
         component: CheckinPreferencesComponent,
         detectChanges: false,
@@ -35,8 +61,8 @@ describe('CheckinPreferencesComponent', () => {
                 },
             },
             MockProvider(OrganisationService, {
-                active_building: signal(null),
-            }),
+                active_building,
+            } as never),
         ],
     });
 
@@ -61,6 +87,7 @@ describe('CheckinPreferencesComponent', () => {
             vi.mocked(get).mockResolvedValue(null);
             vi.mocked(patch).mockResolvedValue(null);
             vi.mocked(setToken).mockImplementation(() => undefined);
+            active_building.set(null);
         });
 
         it('saves the chosen beverage for the visit', async () => {
@@ -104,6 +131,58 @@ describe('CheckinPreferencesComponent', () => {
                 ).toHaveBeenCalledWith('v@b.com', 'event-1'),
             );
             expect(setToken).toHaveBeenCalledWith(jwt);
+        });
+
+        it('offers only the drinks on the menu of the kiosk building', async () => {
+            mockMenu([
+                { id: 'tea', tags: ['Drink'] },
+                { id: 'cake', tags: ['Food'] },
+                { id: 'juice', tags: ['beverage'] },
+            ]);
+            active_building.set({ id: 'bld-1' });
+            spectator = createComponent();
+            spectator.detectChanges();
+
+            await vi.waitFor(() =>
+                expect(spectator.component.menu().map((_) => _.id)).toEqual([
+                    'juice',
+                    'tea',
+                ]),
+            );
+            expect(queryAssets).toHaveBeenCalledWith(
+                expect.objectContaining({ zone_id: 'bld-1' }),
+            );
+            expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+        });
+
+        it('returns to the welcome page when the menu has no drinks', async () => {
+            mockMenu([{ id: 'cake', tags: ['Food'] }]);
+            active_building.set({ id: 'bld-1' });
+            spectator = createComponent();
+            spectator.detectChanges();
+
+            await vi.waitFor(() =>
+                expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+                    '/welcome',
+                ]),
+            );
+            // The menu loaded, but had nothing to drink
+            expect(queryAssets).toHaveBeenCalled();
+            expect(spectator.component.menu()).toEqual([]);
+        });
+
+        it('selects the beverage the visitor saved before', async () => {
+            vi.mocked(get).mockResolvedValue({
+                id: 'coffee',
+                name: 'Coffee',
+            } as never);
+            spectator = createComponent();
+            spectator.detectChanges();
+
+            await vi.waitFor(() =>
+                expect(spectator.component.has_beverage()).toBe(true),
+            );
+            expect(spectator.component.beverage().id).toBe('coffee');
         });
 
         it('shows the error page when the visitor in the link is not found', async () => {

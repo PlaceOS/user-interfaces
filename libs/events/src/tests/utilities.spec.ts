@@ -125,6 +125,58 @@ describe('utilities', () => {
 
             expect(model().catering).toBe(synced_catering);
         });
+
+        it.each([
+            { _pattern: 'weekly', days: [3] },
+            { _pattern: 'custom_display', days: [1] },
+            { _pattern: 'none', days: [1] },
+        ])(
+            'should set the recurrence weekday from a new date only for $_pattern patterns that follow the date',
+            ({ _pattern, days }) => {
+                // 2028-06-12 is a Monday, 2028-06-14 is a Wednesday
+                const monday = new Date(2028, 5, 12, 9).valueOf();
+                const wednesday = new Date(2028, 5, 14, 9).valueOf();
+                const { model } = TestBed.runInInjectionContext(() =>
+                    generateEventForm(
+                        new CalendarEvent({ date: monday, duration: 30 }),
+                        undefined,
+                        injector,
+                    ),
+                );
+                model.update((m) => ({
+                    ...m,
+                    recurrence: {
+                        pattern: 'weekly',
+                        _pattern,
+                        days_of_week: [1],
+                    },
+                }));
+                TestBed.flushEffects();
+
+                model.update((m) => ({ ...m, date: wednesday }));
+                TestBed.flushEffects();
+
+                expect(model().recurrence.days_of_week).toEqual(days);
+            },
+        );
+
+        it('should not create a recurrence when the date of a one-off event changes', () => {
+            const { model } = TestBed.runInInjectionContext(() =>
+                generateEventForm(
+                    new CalendarEvent({ date: Date.now(), duration: 30 }),
+                    undefined,
+                    injector,
+                ),
+            );
+
+            model.update((m) => ({
+                ...m,
+                date: m.date + 24 * 60 * 60 * 1000,
+            }));
+            TestBed.flushEffects();
+
+            expect(model().recurrence?.days_of_week).toBeUndefined();
+        });
     });
 
     describe('generateSystemsFormFields', () => {

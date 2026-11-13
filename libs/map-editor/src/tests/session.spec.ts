@@ -366,6 +366,29 @@ describe('MapEditorSession', () => {
         expect(await store.get(key)).toBeNull();
     });
 
+    it('writes one draft once changes stop for the delay', async () => {
+        vi.useFakeTimers();
+        try {
+            const store = new MemoryDraftStore();
+            const s = session(OFFICE, {
+                draft_store: store,
+                draft_delay_ms: 1000,
+            });
+            const key = await s.draftKey();
+            const puts = vi.spyOn(store, 'put');
+            s.apply([recolour(s.doc, 'plant-1', 'red')], 'Recolour');
+            await vi.advanceTimersByTimeAsync(600);
+            s.apply([recolour(s.doc, 'plant-1', 'blue')], 'Recolour');
+            await vi.advanceTimersByTimeAsync(999);
+            expect(puts).not.toHaveBeenCalled();
+            await vi.advanceTimersByTimeAsync(1);
+            expect(puts).toHaveBeenCalledTimes(1);
+            expect((await store.get(key))?.markup).toBe(s.doc.serialise());
+        } finally {
+            vi.useRealTimers();
+        }
+    });
+
     it('drops a pending draft write when the draft is cleared or the session disposed', async () => {
         vi.useFakeTimers();
         try {

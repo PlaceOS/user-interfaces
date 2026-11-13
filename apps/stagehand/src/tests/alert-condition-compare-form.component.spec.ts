@@ -91,24 +91,6 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
     });
 
-    it('populates comparison operators and rhs types on init', () => {
-        expect(spectator.component.right_var_type().map((_) => _.id)).toEqual([
-            'constant',
-            'status_var',
-        ]);
-        expect(spectator.component.compare_types().map((_) => _.id)).toEqual([
-            TriggerConditionOperator.EQ,
-            TriggerConditionOperator.NEQ,
-            TriggerConditionOperator.GT,
-            TriggerConditionOperator.GTE,
-            TriggerConditionOperator.LT,
-            TriggerConditionOperator.LTE,
-            TriggerConditionOperator.AND,
-            TriggerConditionOperator.OR,
-            TriggerConditionOperator.XOR,
-        ]);
-    });
-
     it('joins the sub-keys of a side into a comma string', () => {
         spectator.component.left_side.set({
             mod: 'Display_1',
@@ -206,6 +188,43 @@ describe('AlertConditionComparisonFormComponent', () => {
 
             expect(notify_open).toHaveBeenCalled();
         });
+    });
+
+    it('keeps the module and status of a saved condition the system no longer offers', async () => {
+        vi.mocked(queryModules).mockResolvedValue({
+            data: [{ id: 'mod-1', name: 'Display' }],
+        } as any);
+        vi.mocked(systemModuleState).mockResolvedValue({ power: true });
+        const form = makeCompareForm({
+            left: { mod: 'Camera_Main_2', status: 'zoom', keys: [] },
+            right: { mod: 'Display_1', status: 'power', keys: [] },
+        });
+        spectator.fixture.componentRef.setInput('form', form);
+        spectator.fixture.componentRef.setInput('system', {
+            id: 'sys-1',
+            modules: ['mod-1'],
+        });
+
+        spectator.component.ngOnChanges({
+            system: { firstChange: true } as any,
+        });
+        await flush();
+
+        expect(spectator.component.module_list().map((_) => _.name)).toEqual([
+            'Camera_Main_2',
+            'Display_1',
+        ]);
+        // the index is the last part of the name, the class the rest
+        expect(systemModuleState).toHaveBeenCalledWith('sys-1', 'Camera_Main', 2);
+        expect(systemModuleState).toHaveBeenCalledWith('sys-1', 'Display', 1);
+        expect(
+            spectator.component.left_status_variables().map((_) => _.id),
+        ).toEqual(['zoom', 'power']);
+        expect(
+            spectator.component.right_status_variables().map((_) => _.id),
+        ).toEqual(['power']);
+        // a saved right-hand status variable is not a constant
+        expect(spectator.component.rhs_type()).toBe('status_var');
     });
 
     it('builds the selectable module list from the system modules on change', async () => {

@@ -59,6 +59,40 @@ describe('ExploreLockersService', () => {
             data: [],
         } as any);
         spectator = createService();
+        // Provider mocks are shared, so reset implementations set by a test
+        vi.mocked(spectator.inject(SettingsService).get).mockReset();
+    });
+
+    it('should load the region lockers into their banks and drop lockers without a bank', async () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) => key === 'app.use_region',
+        );
+        vi.mocked(ts_client.queryAssets).mockImplementation(
+            async ({ type_id }: any) =>
+                ({
+                    data:
+                        type_id === 'type-banks'
+                            ? [{ id: 'b1', zone_id: 'lvl-1' }]
+                            : [
+                                  { id: 'l1', parent_id: 'b1' },
+                                  { id: 'l2', parent_id: 'gone' },
+                              ],
+                }) as any,
+        );
+
+        await vi.waitFor(() => {
+            TestBed.tick();
+            expect(spectator.service.lockers().map((_) => _.id)).toEqual([
+                'l1',
+            ]);
+        });
+        expect(
+            spectator.service.locker_banks()[0].lockers.map((_) => _.id),
+        ).toEqual(['l1']);
+        const zones = vi
+            .mocked(ts_client.queryAssets)
+            .mock.calls.map(([query]) => (query as any).zone_id);
+        expect(new Set(zones)).toEqual(new Set(['region-1']));
     });
 
     it('should filter lockers by the active level', () => {

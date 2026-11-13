@@ -6,6 +6,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
 import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { NEVER, Observable, of } from 'rxjs';
 
 import {
     MatAutocompleteModule,
@@ -20,6 +21,12 @@ import {
     UserListFieldComponent,
 } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
+
+// The staff and guest searches run for real; only the ts-client `get` that
+// they call is stubbed.
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
 
 describe('internal email domains', () => {
     it('should default to the user domain and its root domain', () => {
@@ -281,25 +288,6 @@ describe('UserListFieldComponent', () => {
         ]);
     });
 
-    it('should only remove the selected user when users have no IDs', () => {
-        const users = [
-            {
-                name: 'Visitor One',
-                email: 'visitor.one@example.com',
-            },
-            {
-                name: 'Visitor Two',
-                email: 'visitor.two@example.com',
-            },
-        ] as User[];
-        spectator.component.writeValue(users);
-        spectator.detectChanges();
-
-        spectator.click('[user] [remove]');
-
-        expect(spectator.component.active_list()).toEqual([users[1]]);
-    });
-
     it('should only remove one entry when list entries share an identity', () => {
         // Visitor lists built from booking data can carry blank or repeated
         // ids/emails; removal must stay positional. (PPT-2634)
@@ -339,6 +327,148 @@ describe('UserListFieldComponent', () => {
         spectator.setInput({ hide_actions: false });
         spectator.detectChanges();
         expect('[actions] button').toHaveLength(3);
+    });
+
+    describe('user search', () => {
+        /** Search for a term and wait for the debounced search to finish */
+        const searchFor = async (q: string) => {
+            spectator.component.updateSearch(q);
+            spectator.detectChanges();
+            await new Promise((r) => setTimeout(r, 350)); // debounce window
+            spectator.detectChanges();
+            await spectator.fixture.whenStable();
+            return spectator.component.user_list();
+        };
+
+        beforeEach(() => {
+            vi.mocked(ts_client.get).mockClear();
+            vi.mocked(ts_client.get).mockImplementation(((url: string) =>
+                Promise.resolve(
+                    url.includes('/guests')
+                        ? [
+                              {
+                                  id: 'g1',
+                                  name: 'Amy Smith',
+                                  email: 'amy@example.com',
+                              },
+                              {
+                                  id: 'g2',
+                                  name: 'Bob Smithers',
+                                  email: 'bob@guest.com',
+                              },
+                          ]
+                        : [
+                              {
+                                  id: 's1',
+                                  name: 'Zed Smith',
+                                  email: 'zed@place.tech',
+                              },
+                              {
+                                  id: 's2',
+                                  name: 'Amy Smith',
+                                  email: 'amy@example.com',
+                              },
+                          ],
+                )) as any);
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) =>
+                    key === 'visitor-invitees'
+                        ? [
+                              'cat@visitor.com|Cat Smith|Acme|1',
+                              'dan@visitor.com|Dan Jones|Acme|0',
+                              42,
+                          ]
+                        : undefined,
+            );
+        });
+
+        it('should merge staff, guests and saved visitors once the search is long enough', async () => {
+            spectator.setInput({ guests: true });
+            expect(await searchFor('sm')).toEqual([]);
+            expect(ts_client.get).not.toHaveBeenCalled();
+
+            const list = await searchFor('smi');
+            // A staff match wins over a guest with the same email
+            expect(list.map((_) => [_.id, _.email])).toEqual([
+                ['s2', 'amy@example.com'],
+                ['g2', 'bob@guest.com'],
+                [undefined, 'cat@visitor.com'],
+                ['s1', 'zed@place.tech'],
+            ]);
+            expect(list[2]).toMatchObject({
+                name: 'Cat Smith',
+                company: 'Acme',
+                international: true,
+            });
+        });
+
+        it('should leave out staff when only guests are wanted', async () => {
+            spectator.setInput({ guests: true, guests_only: true });
+            const list = await searchFor('smi');
+            expect(list.map((_) => _.email)).toEqual([
+                'amy@example.com',
+                'bob@guest.com',
+                'cat@visitor.com',
+            ]);
+        });
+    });
+
+    describe('CSV import preview', () => {
+        const users = (count: number) =>
+            Array.from(
+                { length: count },
+                (_, i) =>
+                    new User({
+                        name: i ? `User ${i}` : '<img src=x onerror=alert(1)>',
+                        email: `user${i}@example.com`,
+                    }),
+            );
+        /** Make the confirm modal emit `event`, or close with `closed` */
+        const modal = (
+            event: Observable<unknown>,
+            closed: Observable<unknown>,
+        ) => {
+            const dialog = spectator.inject(MatDialog);
+            vi.mocked(dialog.open).mockReturnValue({
+                componentInstance: { event },
+                afterClosed: () => closed,
+                close: vi.fn(),
+            } as any);
+            // The modal content sent with the latest `open`
+            return () =>
+                (
+                    vi.mocked(dialog.open).mock.lastCall[1].data as {
+                        content: string;
+                    }
+                ).content;
+        };
+
+        it('should list the first users with escaped text and note the rest', async () => {
+            const content = modal(of({ reason: 'done' }), NEVER);
+            const confirmed = await spectator.component.confirmCsvImport(
+                users(7),
+                'File.csv',
+                true,
+            );
+            expect(confirmed).toBe(true);
+            expect(content().match(/<li>/g)).toHaveLength(5);
+            expect(content()).toContain('&lt;img src=x onerror=alert(1)&gt;');
+            expect(content()).not.toContain('<img');
+            expect(content()).toContain('FORM.USER_CSV_PREVIEW_MORE');
+            expect(content()).toContain('FORM.USER_CSV_ROW_LIMIT');
+        });
+
+        it('should not confirm when the preview closes without done', async () => {
+            const content = modal(NEVER, of(undefined));
+            const confirmed = await spectator.component.confirmCsvImport(
+                users(2),
+                'File.csv',
+                false,
+            );
+            expect(confirmed).toBe(false);
+            expect(content()).not.toContain('FORM.USER_CSV_PREVIEW_MORE');
+            expect(content()).not.toContain('FORM.USER_CSV_ROW_LIMIT');
+        });
     });
 
     describe('attendee flags', () => {

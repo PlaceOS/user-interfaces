@@ -237,11 +237,6 @@ describe('application cache handling', () => {
         expect(reload).not.toHaveBeenCalled();
     });
 
-    it('should have no new version by default', () => {
-        expect(app.hasNewVersion()).toBe(false);
-        expect(app.serviceWorkerUpdate()()).toBeNull();
-    });
-
     it('should do nothing when the service worker is disabled', () => {
         app.setupCache({ ...cache, isEnabled: false });
         vi.advanceTimersByTime(10_000);
@@ -281,6 +276,7 @@ describe('application cache handling', () => {
             version: { hash: 'next-version' },
         });
         expect(app.hasNewVersion()).toBe(false);
+        expect(app.serviceWorkerUpdate()()).toBeNull();
         expect(
             hasLogged(
                 console_debug,

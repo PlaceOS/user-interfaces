@@ -83,6 +83,23 @@ describe('UploadListFieldComponent', () => {
         expect(spectator.query('[empty]')).toExist();
     });
 
+    it('should update an upload in place and keep the files in pick order', () => {
+        const { component } = spectator;
+        component.updateUpload(
+            attachment({ id: 'b', created_at: 2, progress: 10, url: '' }),
+        );
+        component.updateUpload(
+            attachment({ id: 'a', created_at: 1, progress: 10, url: '' }),
+        );
+        component.updateUpload(
+            attachment({ id: 'b', created_at: 2, progress: 100, url: 'x' }),
+        );
+        expect(component.list().map((_) => [_.id, _.progress])).toEqual([
+            ['a', 10],
+            ['b', 100],
+        ]);
+    });
+
     it('should ignore progress updates for a removed upload', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);

@@ -259,6 +259,23 @@ describe('SupportGroupsService', () => {
         expect(service.group_id()).toBe('g2');
     });
 
+    it('works in the first group when the saved one is a group the user left', async () => {
+        localStorage.setItem(STORAGE_KEY, 'gone');
+        create();
+        await settle();
+        expect(service.group_id()).toBe('g1');
+        expect(localStorage.getItem(STORAGE_KEY)).toBe('g1');
+    });
+
+    it('opens on "All groups" for admins when the saved group is gone', async () => {
+        signIn({ sys_admin: true });
+        localStorage.setItem(STORAGE_KEY, 'gone');
+        create();
+        await settle();
+        expect(service.group_id()).toBe('');
+        expect(localStorage.getItem(STORAGE_KEY)).toBeNull();
+    });
+
     it('loads what the group can see, and the zones above it', async () => {
         create();
         await settle();

@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import {
+    Booking,
     Building,
     Desk,
     MapsPeopleService,
@@ -223,6 +224,18 @@ describe('ExploreSearchService', () => {
                 'Alpha Room',
             ]);
         });
+
+        it('should list items near in-progress bookings first when no level is shown', async () => {
+            await search('alpha');
+            (spectator.inject(ExploreStateService).level as any).set(null);
+            // Only level zones count, so the building zone is ignored
+            spectator.service.setInProgressBookings([
+                new Booking({ zones: ['bld-1', 'lvl-2'] }),
+            ]);
+            expect(
+                spectator.service.search_results().map((_) => _.name),
+            ).toEqual(['Alpha Room', 'Alpha Lab', 'Alpha Desk', 'Aaron Alpha']);
+        });
     });
 
     it('should list emergency contacts from LocationServices by type', async () => {
@@ -283,5 +296,85 @@ describe('ExploreSearchService', () => {
         expect(asset_category_requests()).toBe(loaded);
         expect(ts_client.querySystems).toHaveBeenCalled();
         vi.useRealTimers();
+    });
+
+    describe('emergency contacts', () => {
+        const ASSET_API = {
+            '/asset_categories': [
+                { id: 'cat-1', name: '_EMERGENCY_CONTACTS_' },
+            ],
+            '/asset_types': [
+                {
+                    id: 'type-1',
+                    name: '_EMERGENCY_CONTACTS_',
+                    category_id: 'cat-1',
+                },
+            ],
+            '/assets': [
+                {
+                    id: 'asset-1',
+                    asset_type_id: 'type-1',
+                    identifier: 'Jo Warden',
+                    zones: ['lvl-1'],
+                    other_data: {
+                        email: 'jo@place.tech',
+                        roles: ['first_aid', 'fire_warden'],
+                    },
+                },
+            ],
+        };
+
+        /** Mock the contact sources, then list the contact results */
+        async function contacts(
+            asset_api: Record<string, unknown[]>,
+            legacy: Record<string, unknown>,
+        ) {
+            vi.mocked(ts_client.get).mockImplementation(
+                async (url: string) =>
+                    (Object.entries(asset_api).find(([path]) =>
+                        url.includes(path),
+                    )?.[1] ?? []) as any,
+            );
+            vi.mocked(ts_client.showMetadata).mockImplementation(
+                async (_, name) =>
+                    ({
+                        details: name === 'emergency_contacts' ? legacy : {},
+                    }) as any,
+            );
+            vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+            let list = [];
+            await vi.waitFor(() => {
+                TestBed.tick();
+                list = spectator.service
+                    .search_results()
+                    .filter((_) => _.is_role)
+                    .map(({ name, type, zone }) => ({ name, type, zone }));
+                expect(list.length).toBeGreaterThan(0);
+            });
+            return list;
+        }
+
+        const LEGACY = {
+            contacts: [
+                {
+                    name: 'Sam Legacy',
+                    email: 'sam@place.tech',
+                    roles: ['first_aid'],
+                },
+            ],
+        };
+
+        it('should list asset contacts once for each role over the legacy contacts', async () => {
+            expect(await contacts(ASSET_API, LEGACY)).toEqual([
+                { name: 'Jo Warden', type: 'first_aid', zone: 'lvl-1' },
+                { name: 'Jo Warden', type: 'fire_warden', zone: 'lvl-1' },
+            ]);
+        });
+
+        it('should fall back to the legacy contacts without asset contacts', async () => {
+            expect(await contacts({}, LEGACY)).toEqual([
+                { name: 'Sam Legacy', type: 'first_aid', zone: undefined },
+            ]);
+        });
     });
 });

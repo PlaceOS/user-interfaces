@@ -360,7 +360,11 @@ describe('EditorStateService', () => {
 
     it('never gives a new object an svg id that another object still has', async () => {
         const room = (svg_id: string) =>
-            editor.createObject({ object_type: 'room', svg_id, layer: 'rooms' });
+            editor.createObject({
+                object_type: 'room',
+                svg_id,
+                layer: 'rooms',
+            });
         await room('room-002');
         await room('room-003');
         await editor.deleteObject(
@@ -511,9 +515,9 @@ describe('EditorStateService', () => {
         expect(editor.dirty()).toBe(false);
     });
 
-    it('hands the active layer on when the current one is deleted', () => {
+    it('hands the active layer on when the current one is deleted', async () => {
         editor.setActiveLayer('zones');
-        editor.deleteLayer('zones');
+        await editor.deleteLayer('zones');
         expect(editor.active_layer_id()).not.toBe('zones');
         expect(editor.layers().some((l) => l.id === 'zones')).toBe(false);
     });
@@ -593,10 +597,121 @@ describe('EditorStateService', () => {
         expect(editor.dirty()).toBe(false);
     });
 
-    it('keeps zoom between 80% and 1000%', () => {
+    it('keeps zoom between 80% and 1000% and the grid between 5 and 100', () => {
         editor.setZoom(0.5);
         expect(editor.zoom()).toBe(0.8);
         editor.setZoom(40);
         expect(editor.zoom()).toBe(10);
+
+        editor.setGridSize(2);
+        expect(editor.grid_size()).toBe(5);
+        editor.setGridSize(500);
+        expect(editor.grid_size()).toBe(100);
+        // A cleared or invalid field falls back to the default
+        editor.setGridSize(Number.NaN);
+        expect(editor.grid_size()).toBe(20);
+    });
+
+    it('keeps at most 50 undo steps', () => {
+        const id = editor.objects()[0].id;
+        for (let x = 1; x <= 51; x++) {
+            editor.pushHistory();
+            editor.patchLocal(id, {
+                geometry: { type: 'rect', x, y: 0, width: 50, height: 50 },
+            });
+        }
+
+        let undone = 0;
+        while (editor.can_undo() && undone < 100) {
+            editor.undo();
+            undone++;
+        }
+        expect(undone).toBe(50);
+        // The oldest step (x = 0) fell off the stack
+        expect(editor.objects()[0].geometry.x).toBe(1);
+    });
+
+    it('applies a bulk edit to every object as one undo step', async () => {
+        const [room] = editor.objects();
+        const desk = await editor.createObject({
+            object_type: 'desk',
+            layer: 'desks',
+            locked: false,
+        });
+
+        await editor.bulkUpdate([room.id, desk.id], { locked: true });
+        expect(editor.objects().map((o) => o.locked)).toEqual([true, true]);
+        const stored = await store.listObjects(floorplan_id);
+        expect(stored.every((o) => o.locked)).toBe(true);
+
+        editor.undo();
+        expect(editor.objects().map((o) => o.locked)).toEqual([false, false]);
+    });
+
+    it('creates a shape of the type its layer holds', async () => {
+        editor.setActiveLayer('desks');
+        const desk = await editor.createOnActiveLayer({
+            type: 'rect',
+            x: 0,
+            y: 0,
+            width: 30,
+            height: 20,
+        });
+        expect(desk).toMatchObject({
+            object_type: 'desk',
+            layer: 'desks',
+            label: 'Desk 1',
+            svg_id: 'desk-001',
+            metadata: { furnitureType: 'desk-single' },
+        });
+
+        editor.setActiveLayer('walls');
+        const wall = await editor.createOnActiveLayer({
+            type: 'rect',
+            x: 0,
+            y: 0,
+            width: 100,
+            height: 4,
+        });
+        expect(wall).toMatchObject({
+            object_type: 'decorative',
+            layer: 'walls',
+        });
+        expect(wall.metadata).toBeFalsy();
+    });
+
+    it('centres placed furniture on the click and ignores an unknown asset', async () => {
+        editor.startPlacing('furniture', 'desk-single');
+        await editor.placeAt(100, 100);
+        const furniture = editor.objects().at(-1);
+        expect(furniture).toMatchObject({
+            object_type: 'decorative',
+            layer: 'background',
+            svg_id: 'furniture-001',
+            geometry: { x: 85, y: 90, width: 30, height: 20 },
+        });
+
+        editor.startPlacing('furniture', 'no-such-asset');
+        await editor.placeAt(100, 100);
+        expect(editor.objects()).toHaveLength(2);
+    });
+
+    it('resets the availability preview of bookable objects only', async () => {
+        const desk = await editor.createObject({
+            object_type: 'desk',
+            layer: 'desks',
+        });
+        await editor.createObject({ object_type: 'zone', layer: 'zones' });
+        const [room] = editor.objects();
+
+        editor.cycleAvailability(room);
+        editor.cycleAvailability(room);
+        expect(editor.availability_states()[room.id]).toBe('checked-in');
+
+        editor.resetAvailability();
+        expect(editor.availability_states()).toEqual({
+            [room.id]: 'free',
+            [desk.id]: 'available',
+        });
     });
 });

@@ -42,6 +42,8 @@ describe('ParkingSearchComponent', () => {
     const model = signal<Partial<BookingFormValue>>({});
     const features = signal(['parking', 'parking-requests']);
     const user_details = signal<{ plate_number?: string } | null>(null);
+    const assigned_rule = signal<'allow' | 'deny' | 'other_only'>('allow');
+    const assigned_space = signal<{ name: string } | null>(null);
     const require_plate_number = settingSignal(
         'parking.require_plate_number',
         false,
@@ -56,7 +58,7 @@ describe('ParkingSearchComponent', () => {
                 options: signal({}),
                 available_resources: signal([]),
                 loading: signal(''),
-                assignedResourceBooking: () => 'allow',
+                assignedResourceBooking: () => assigned_rule(),
             }),
             mockProvider(SettingsService, {
                 get: (key: string) =>
@@ -66,7 +68,7 @@ describe('ParkingSearchComponent', () => {
                 user_details,
                 deny_parking_access: signal(false),
                 is_home_location: signal(false),
-                assigned_space: signal(null),
+                assigned_space,
                 levels: signal([]),
             }),
             mockProvider(OrganisationService, {
@@ -80,6 +82,8 @@ describe('ParkingSearchComponent', () => {
         model.set({});
         features.set(['parking', 'parking-requests']);
         user_details.set(null);
+        assigned_rule.set('allow');
+        assigned_space.set(null);
         require_plate_number.set(false);
         spectator = createComponent();
         const outlook = spectator.inject(OutlookEventService);
@@ -132,6 +136,14 @@ describe('ParkingSearchComponent', () => {
 
         require_plate_number.set(true);
         expect(spectator.component.plate_valid()).toBe(false);
+    });
+
+    it('blocks parking for a user with an assigned space only when the site rules say so', () => {
+        assigned_space.set({ name: 'P07' });
+        expect(spectator.component.assigned_space()).toBeNull();
+
+        assigned_rule.set('other_only');
+        expect(spectator.component.assigned_space()?.name).toBe('P07');
     });
 
     it('requests parking at the building with the trimmed plate number', async () => {

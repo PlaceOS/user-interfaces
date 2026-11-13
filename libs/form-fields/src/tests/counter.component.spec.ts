@@ -77,6 +77,16 @@ describe('CounterComponent', () => {
         expect(spectator.component.value()).toBe(1);
     });
 
+    it('should round a typed value to the nearest step', () => {
+        const on_change = vi.fn();
+        spectator.component.registerOnChange(on_change);
+        spectator.setInput({ step: 5 });
+        spectator.component.setValue(12);
+        expect(on_change).toHaveBeenLastCalledWith(10);
+        spectator.component.setValue(13);
+        expect(on_change).toHaveBeenLastCalledWith(15);
+    });
+
     it('should not send NaN for text that is not a number', () => {
         const on_change = vi.fn();
         spectator.component.registerOnChange(on_change);

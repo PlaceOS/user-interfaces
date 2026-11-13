@@ -115,6 +115,37 @@ describe('[Locker Assets]', () => {
         });
     });
 
+    describe('queryLocker*InZone', () => {
+        it('should not query lockers or banks without a zone id', async () => {
+            const { locker } = await load_modules();
+
+            expect(await locker.queryLockerBankAssetsInZone('')).toEqual([]);
+            expect(await locker.queryLockerAssetsInZone('')).toEqual([]);
+            expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+            expect(ts_client.queryAssets).not.toHaveBeenCalled();
+        });
+
+        it('should query lockers by every zone they are in', async () => {
+            const { locker } = await load_modules();
+            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
+                response([{ id: 'cat-1', name: '_LOCKERS_' }]),
+            );
+            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
+                response([{ id: 'type-2', name: '_LOCKERS_' }]),
+            );
+            vi.mocked(ts_client.queryAssets).mockReturnValue(
+                response([{ id: 'l1' }]),
+            );
+
+            const list = await locker.queryLockerAssetsInZone('bld-1');
+
+            expect(list.map((a) => a.id)).toEqual(['l1']);
+            expect(ts_client.queryAssets).toHaveBeenCalledWith(
+                expect.objectContaining({ zones: 'bld-1', type_id: 'type-2' }),
+            );
+        });
+    });
+
     describe('saveLockerBankAsset', () => {
         it('should save the asset stamped with the bank type id', async () => {
             const { locker } = await load_modules();

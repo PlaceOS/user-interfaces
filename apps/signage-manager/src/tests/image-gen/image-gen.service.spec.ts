@@ -10,6 +10,7 @@ import {
     ImageGenBrandKit,
     ImageGenCapabilities,
     ImageGenJob,
+    ImageGenModelCapabilities,
 } from '../../app/image-gen/image-gen.types';
 
 function runningJob(id = 'job-1'): ImageGenJob {
@@ -300,6 +301,73 @@ describe('ImageGenService', () => {
             logo_upload_id: 'upload:logo.png',
             logo_dark_upload_id: 'old-dark',
         });
+    });
+
+    it('makes one logo slot from the other on request', async () => {
+        const service = kitService({ logo_upload_id: 'light' });
+        vi.spyOn(service, 'loadImage').mockResolvedValue('blob:light');
+
+        await service.deriveBrandLogo('on_dark');
+
+        expect(service.loadImage).toHaveBeenCalledWith(
+            expect.stringContaining('light'),
+        );
+        expect(writtenKits()[0]).toEqual({
+            logo_upload_id: 'light',
+            logo_dark_upload_id: 'flipped:on_dark',
+            logo_derived: 'on_dark',
+        });
+    });
+
+    it('cannot make a logo slot before the other slot has a logo', async () => {
+        const service = kitService({});
+
+        await expect(service.deriveBrandLogo('on_light')).rejects.toThrow(
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'),
+        );
+        expect(updateMetadata).not.toHaveBeenCalled();
+    });
+
+    it('picks the configured provider and model, or the first of each', () => {
+        const service = TestBed.inject(ImageGenService);
+        const model = (id: string, generate: boolean, edit: boolean) =>
+            ({ id, generate, edit }) as ImageGenModelCapabilities;
+        const capabilities = {
+            enabled: true,
+            providers: [
+                {
+                    id: 'first',
+                    default_model: 'removed',
+                    models: [model('fast', true, false)],
+                },
+                {
+                    id: 'chosen',
+                    default_model: 'editor',
+                    models: [
+                        model('other', true, true),
+                        model('editor', false, true),
+                    ],
+                },
+            ],
+            default_provider_id: 'chosen',
+        } as ImageGenCapabilities;
+
+        service.capabilities.set(capabilities);
+        expect(service.default_model()?.id).toBe('editor');
+        expect(service.can_generate()).toBe(false);
+        expect(service.can_edit()).toBe(true);
+
+        service.capabilities.set({
+            ...capabilities,
+            default_provider_id: 'removed',
+        });
+        expect(service.default_provider()?.id).toBe('first');
+        expect(service.default_model()?.id).toBe('fast');
+        expect(service.can_generate()).toBe(true);
+
+        service.capabilities.set({ ...capabilities, enabled: false });
+        expect(service.default_provider()).toBeNull();
+        expect(service.can_generate()).toBe(false);
     });
 
     it('stops calling a slot made once a file is uploaded into it', async () => {

@@ -103,6 +103,9 @@ describe('ParkingComponent', () => {
             });
             expect('footer').toContainText('Free Spaces: 2');
             expect('footer').toContainText('Total Capacity: 3 spaces');
+            expect(spectator.query<HTMLElement>('.bg-success')).toHaveStyle({
+                width: `${(2 / 3) * 100}%`,
+            });
         });
 
         it('should update the free space count when availability changes', () => {
@@ -110,6 +113,9 @@ describe('ParkingComponent', () => {
             spectator.detectChanges();
             expect(spectator.component.counts().free).toBe(1);
             expect('footer').toContainText('Free Spaces: 1');
+            expect(spectator.query<HTMLElement>('.bg-success')).toHaveStyle({
+                width: `${(1 / 3) * 100}%`,
+            });
         });
 
         it('should show 0 percent free when the level has no spaces', () => {
@@ -142,7 +148,14 @@ describe('ParkingComponent', () => {
 
         it('should reset the map to the stored level and close dialogs', () => {
             localStorage.setItem('KIOSK.level', 'lvl-9');
+            const input = document.createElement('input');
+            // Inside the fixture, so teardown removes it
+            spectator.element.appendChild(input);
+            input.focus();
+            expect(document.activeElement).toBe(input);
             spectator.component.resetKiosk(false);
+            // Removing focus closes the on-screen keyboard
+            expect(document.activeElement).not.toBe(input);
             expect(state_mock.setPositions).toHaveBeenCalledWith(1, {
                 x: 0.5,
                 y: 0.5,
@@ -215,14 +228,17 @@ describe('ParkingComponent', () => {
             expect(state_mock.setOptions).not.toHaveBeenCalled();
         });
 
-        it('should make the map public when the URL has public=true', async () => {
-            history.replaceState(null, '', '/?public=true');
-            spectator = createComponent();
-            await spectator.fixture.whenStable();
-            expect(state_mock.setOptions).toHaveBeenCalledWith({
-                is_public: true,
-            });
-        });
+        it.each(['/?public=true', '/#/parking?public=true'])(
+            'should make the map public for %s',
+            async (url) => {
+                history.replaceState(null, '', url);
+                spectator = createComponent();
+                await spectator.fixture.whenStable();
+                expect(state_mock.setOptions).toHaveBeenCalledWith({
+                    is_public: true,
+                });
+            },
+        );
     });
 
     describe('level query param', () => {

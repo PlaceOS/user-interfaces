@@ -19,29 +19,11 @@ describe('ExploreBookQrComponent', () => {
         ],
     });
 
-    it('should expose the selected space', () => {
-        spectator = createComponent();
-        expect(spectator.component.space()?.name).toBe('Test Space');
-    });
-
-    it('should render a QR code image for the space', () => {
+    it('should render a QR code for the explore page of the space email', () => {
         spectator = createComponent();
         spectator.detectChanges();
-        const img = spectator.query('main img') as HTMLImageElement;
-        expect(img).toBeTruthy();
-        expect(img.getAttribute('src')).toBe(spectator.component.qr_code());
-        expect(spectator.component.qr_code()).toContain('data:image/svg+xml');
-    });
-
-    it('should render a close button', () => {
-        spectator = createComponent();
-        spectator.detectChanges();
-        expect(spectator.query('button[mat-dialog-close]')).toBeTruthy();
-    });
-
-    it('should link the QR code to the explore page for the space email', () => {
-        spectator = createComponent();
-        expect(spectator.component.qr_code()).toBe(
+        expect(spectator.query('main img')).toHaveAttribute(
+            'src',
             generateQRCode(
                 `${location.origin}workplace/#/explore?space=space-1`,
             ),

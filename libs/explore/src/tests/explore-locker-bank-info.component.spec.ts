@@ -30,34 +30,33 @@ describe('ExploreLockerBankInfoComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        open.mockClear();
+    beforeEach(() => open.mockClear());
+    afterEach(() => vi.useRealTimers());
+
+    it('should open the bank modal with the feature data on click', () => {
         spectator = createComponent();
-    });
-
-    it('should expose the bank and in-use count', () => {
-        expect(spectator.component.bank()).toEqual(bank);
-        expect(spectator.component.in_use_count()).toBe(2);
-    });
-
-    it('should default the tooltip position to top left', () => {
-        expect(spectator.component.y_pos()).toBe('top');
-        expect(spectator.component.x_pos()).toBe('left');
-    });
-
-    it('should open the bank modal with the feature data', () => {
-        spectator.component.openBankModal();
-        expect(open).toHaveBeenCalledWith(
-            ExploreLockerBankModalComponent,
-            expect.objectContaining({ data: expect.objectContaining(details) }),
-        );
-    });
-
-    it('should open the bank modal when the button is clicked', () => {
         spectator.click('button');
-        expect(open).toHaveBeenCalledWith(
-            ExploreLockerBankModalComponent,
-            expect.anything(),
-        );
+        expect(open).toHaveBeenCalledWith(ExploreLockerBankModalComponent, {
+            data: details,
+        });
+    });
+
+    it('should place the tooltip away from the map edge nearest the bank', () => {
+        vi.useFakeTimers();
+        spectator = createComponent();
+        // Map features sit two elements inside a positioned overlay
+        const overlay = document.createElement('div');
+        overlay.style.top = '60%';
+        overlay.style.left = '20%';
+        const inner = document.createElement('div');
+        overlay.appendChild(inner);
+        inner.appendChild(spectator.element);
+        document.body.appendChild(overlay);
+
+        vi.advanceTimersByTime(200);
+
+        expect(spectator.component.y_pos()).toBe('bottom');
+        expect(spectator.component.x_pos()).toBe('left');
+        overlay.remove();
     });
 });

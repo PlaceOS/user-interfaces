@@ -81,6 +81,27 @@ describe('PanelViewTimelineComponent', () => {
         },
     );
 
+    it('should book the slot in progress from now', () => {
+        const now = addMinutes(NOW, 5).valueOf();
+        vi.setSystemTime(now);
+        // 1h06m after the 08:00 start is in the 09:00 to 09:15 slot
+        tap(at(66));
+        expect(newBooking).toHaveBeenCalledWith(now, true, false);
+    });
+
+    it('should move the timeline forward when it runs out', () => {
+        const first = () => spectator.component.blocks()[0].time;
+        expect(first()).toBe(new Date(2026, 6, 4, 8, 0).valueOf());
+        // The 12 hour timeline from 08:00 ends at 20:00
+        vi.setSystemTime(new Date(2026, 6, 4, 19, 59));
+        vi.advanceTimersByTime(1000);
+        expect(first()).toBe(new Date(2026, 6, 4, 8, 0).valueOf());
+
+        vi.setSystemTime(new Date(2026, 6, 4, 20, 0));
+        vi.advanceTimersByTime(1000);
+        expect(first()).toBe(new Date(2026, 6, 4, 19, 0).valueOf());
+    });
+
     it('should not book a slot that is already booked', () => {
         bookings.set([
             new CalendarEvent({

@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { LockerGridComponent } from 'libs/bookings/src/lib/locker-grid.component';
+import { Locker, LockerBank } from 'libs/bookings/src/lib/locker.class';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ExploreLockerBankModalComponent } from '../lib/explore-locker-bank-modal.component';
@@ -22,25 +22,14 @@ describe('ExploreLockerBankModalComponent', () => {
         expect(spectator.query('header h2')).toHaveText('Level 1 Lockers');
     });
 
-    it('should map provided lockers to a busy status record', () => {
+    it('should pass the bank and busy locker statuses to the locker grid', () => {
         spectator = createComponent();
-        expect(spectator.component.bank()).toEqual(bank);
-        expect(spectator.component.lockers()).toEqual({
+        spectator.detectChanges();
+        const grid = ngMocks.findInstance(LockerGridComponent);
+        expect(grid.bank()).toEqual(bank);
+        expect(grid.bank_status()).toEqual({
             'locker-a': 'busy',
             'locker-b': 'busy',
         });
-    });
-
-    it('should render the locker grid for the bank', () => {
-        spectator = createComponent();
-        spectator.detectChanges();
-        expect(spectator.query('locker-grid')).toBeTruthy();
-        expect(ngMocks.findInstance(LockerGridComponent)).toBeTruthy();
-    });
-
-    it('should render a close button', () => {
-        spectator = createComponent();
-        spectator.detectChanges();
-        expect(spectator.query('button[mat-dialog-close]')).toBeTruthy();
     });
 });

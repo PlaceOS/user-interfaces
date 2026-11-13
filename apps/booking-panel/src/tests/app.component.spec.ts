@@ -16,6 +16,7 @@ describe('AppComponent', () => {
     let spectator: SpectatorRouting<AppComponent>;
     // The real `has_chat` reads a settings signal
     const chat_enabled = signal(false);
+    const init = vi.fn().mockResolvedValue(undefined);
     const createComponent = createRoutingFactory({
         component: AppComponent,
         declarations: [
@@ -30,7 +31,7 @@ describe('AppComponent', () => {
                     get has_chat() {
                         return chat_enabled();
                     },
-                    init: vi.fn().mockResolvedValue(undefined),
+                    init,
                 },
             },
         ],
@@ -38,6 +39,7 @@ describe('AppComponent', () => {
 
     beforeEach(() => {
         chat_enabled.set(false);
+        init.mockClear();
         spectator = createComponent();
     });
 
@@ -54,9 +56,9 @@ describe('AppComponent', () => {
         expect('global-chat').toExist();
     });
 
-    it('should initialise PlaceOS on init', () => {
-        const placeos = spectator.inject(PlaceOS_Service);
-        spectator.component.ngOnInit();
-        expect(placeos.init).toHaveBeenCalledWith({ allow_mdm_restart: true });
+    it('should initialise PlaceOS once on start', () => {
+        expect(init).toHaveBeenCalledExactlyOnceWith({
+            allow_mdm_restart: true,
+        });
     });
 });

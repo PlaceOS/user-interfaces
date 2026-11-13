@@ -1,12 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import {
-    addMinutes,
-    format,
-    parse,
-    startOfDay,
-    startOfMinute,
-    subMinutes,
-} from 'date-fns';
+import { addMinutes, format, startOfDay } from 'date-fns';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -149,16 +142,14 @@ describe('TimeFieldComponent', () => {
         expect(option).toBeTruthy();
     });
 
-    it('should allow preventing past times from being selected', () => {
-        spectator.setInput({ no_past_times: true });
-        spectator.detectChanges();
-        const date = startOfMinute(subMinutes(new Date(), 6));
-        const first_option = parse(
-            `${spectator.component.time_options()[0].id}`,
-            'HH:mm',
-            new Date(),
-        );
-        expect(date <= first_option).toBeTruthy();
+    it('should only offer times from now on when past times are not allowed', () => {
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(new Date(2026, 0, 1, 10, 7));
+        spectator = createComponent({ props: { no_past_times: true } });
+        vi.useRealTimers();
+        const ids = spectator.component._time_options().map((_) => _.id);
+        expect(ids[0]).toBe('10:15');
+        expect(ids.at(-1)).toBe('23:45');
     });
 
     it('should allow limiting selectable times by time of day', () => {

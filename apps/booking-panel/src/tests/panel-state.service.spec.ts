@@ -19,6 +19,7 @@ import { Subject } from 'rxjs';
 
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
+import { EmbeddedControlModalComponent } from '../app/overlays/embedded-control-modal.component';
 import { PanelSettings, PanelStateService } from '../app/panel-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -190,6 +191,28 @@ describe('PanelStateService', () => {
             },
         );
 
+        it('makes no booking when the user closes the modal', async () => {
+            const pending = service.newBooking(NOW);
+            await vi.waitFor(() => expect(open).toHaveBeenCalledOnce());
+            dialog_events.next({ reason: 'close' });
+            await pending;
+            expect(execute).not.toHaveBeenCalled();
+            expect(event_form.postForm).not.toHaveBeenCalled();
+            expect(close).toHaveBeenCalledOnce();
+        });
+
+        it('shows an error, closes the modal and rejects when saving fails', async () => {
+            event_form.postForm.mockRejectedValue('Server error');
+            await expect(submitBooking(NOW, false, true)).rejects.toBe(
+                'Server error',
+            );
+            expect(messages()).toContain(
+                'Error creating meeting. Server error',
+            );
+            expect(event_form.clearForm).toHaveBeenCalledOnce();
+            expect(close).toHaveBeenCalledOnce();
+        });
+
         it('confirms an API booking only when the room accepts it', async () => {
             event_form.postForm.mockResolvedValue({ resources: [] });
             await service.makeBooking({ date: NOW, duration: 30 }, true);
@@ -343,6 +366,16 @@ describe('PanelStateService', () => {
             expect(messages()).toContain('Error starting meeting. Timeout');
         });
 
+        it('checks in the next meeting when no meeting is current', async () => {
+            const next = event({ date: minutes(5) });
+            service._next.set(next);
+            setSettings({ status: 'pending' });
+            await service.startMeeting();
+            expect(execute).toHaveBeenCalledWith('start_meeting', [
+                getUnixTime(next.date),
+            ]);
+        });
+
         it('does nothing when the meeting is not pending', async () => {
             service._current.set(event({ date: minutes(-2) }));
             setSettings({ status: 'busy' });
@@ -476,7 +509,58 @@ describe('PanelStateService', () => {
         });
     });
 
+    describe('room services', () => {
+        it.each([
+            ['viewControl', 'control_ui'],
+            ['viewCatering', 'catering_ui'],
+        ] as const)('%s opens the %s page in a modal', (method, setting) => {
+            service[method]();
+            expect(open).not.toHaveBeenCalled();
+
+            setSettings({ [setting]: 'https://example.com/ui' });
+            service[method]();
+            expect(open).toHaveBeenCalledWith(
+                EmbeddedControlModalComponent,
+                expect.objectContaining({
+                    data: expect.objectContaining({
+                        control_url: 'https://example.com/ui',
+                    }),
+                }),
+            );
+        });
+
+        it('calls a waiter when the user confirms', async () => {
+            const pending = service.confirmWaiter();
+            dialog_events.next({ reason: 'done' });
+            await pending;
+            await vi.waitFor(() =>
+                expect(messages()).toContain('A waiter is on the way.'),
+            );
+            expect(execute).toHaveBeenCalledWith('waiter_call', [NOW]);
+        });
+
+        it('does not call a waiter when the user cancels', async () => {
+            const pending = service.confirmWaiter();
+            after_closed.complete();
+            await pending;
+            expect(execute).not.toHaveBeenCalled();
+        });
+
+        it('shows an error when the waiter call fails', async () => {
+            execute.mockRejectedValue('Timeout');
+            await service.callWaiter();
+            expect(messages()).toContain('Error calling waiter. Timeout');
+            expect(messages()).not.toContain('A waiter is on the way.');
+        });
+    });
+
     describe('current and next bookings', () => {
+        it('shows the room as busy during a booking without a driver status', () => {
+            expect(service.status()).toBe('free');
+            service._current.set(event({ date: minutes(-5) }));
+            expect(service.status()).toBe('busy');
+        });
+
         it('drops the current booking when the clock passes its end', () => {
             service._current.set(event({ date: minutes(-10), duration: 30 }));
             expect(service.current()?.id).toBe('event-1');
@@ -572,6 +656,22 @@ describe('PanelStateService', () => {
             expect(ts_client.showSystem).toHaveBeenCalledTimes(2);
             expect(service.space()?.id).toBe(room.id);
             expect(navigate).not.toHaveBeenCalled();
+        });
+
+        it('ignores a load that finishes after the system changes', async () => {
+            let finish: (system: ts_client.PlaceSystem) => void = () =>
+                undefined;
+            vi.mocked(ts_client.showSystem)
+                .mockReturnValueOnce(
+                    new Promise((resolve) => (finish = resolve)),
+                )
+                .mockReturnValue(new Promise(() => undefined));
+            await vi.advanceTimersByTimeAsync(1000);
+            service.system = 'other-room';
+            TestBed.tick();
+            finish(new ts_client.PlaceSystem({ id: room.id }));
+            await vi.advanceTimersByTimeAsync(0);
+            expect(service.space()).toBeNull();
         });
 
         it('clears the room and cancels the load when the system is unset', async () => {

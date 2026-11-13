@@ -242,6 +242,36 @@ describe('MeetingFormDetailsComponent', () => {
         expect(spectator.component.model().organiser).toBe(me);
     });
 
+    it('should ignore a permission result for a host that is no longer selected', async () => {
+        setting_signals['events.can_book_for_anyone'].set(true);
+        let denyFirstHost: (value: unknown) => void = () => undefined;
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockImplementation((url) =>
+            url.includes('first%40place.tech')
+                ? new Promise((resolve) => (denyFirstHost = resolve))
+                : Promise.resolve({ has_access: true, role: 'write' }),
+        );
+        spectator.component.model.update((m) => ({
+            ...m,
+            organiser: { email: 'first@place.tech' } as any,
+        }));
+        await flush();
+        spectator.component.model.update((m) => ({
+            ...m,
+            organiser: { email: 'second@place.tech' } as any,
+        }));
+        await flush();
+
+        denyFirstHost({ has_access: false, role: 'read', can_edit: false });
+        await flush();
+
+        expect(spectator.component.permission_error()).toBe('');
+        expect(spectator.component.model().organiser.email).toBe(
+            'second@place.tech',
+        );
+    });
+
     it('should only allow recurrence for events up to a day long', () => {
         setting_signals['events.allow_recurrence'].set(true);
         spectator.component.model.update((m) => ({ ...m, duration: 60 }));

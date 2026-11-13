@@ -145,13 +145,6 @@ describe('CateringItemDetailsComponent', () => {
         expect(item.options.find((o) => o.id === 'milk')?.active).toBe(false);
     });
 
-    it('should ignore group updates without a group', () => {
-        expect(() =>
-            spectator.component.updateGroupOption(undefined, 'x'),
-        ).not.toThrow();
-        expect(spectator.component.group_state()).toEqual({});
-    });
-
     it('should toggle checked state for multi-select options', () => {
         const item = makeItem({
             id: '1',

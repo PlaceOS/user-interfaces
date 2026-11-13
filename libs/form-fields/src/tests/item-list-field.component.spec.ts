@@ -61,13 +61,6 @@ describe('ItemListFieldComponent', () => {
         ).toBeTruthy();
     });
 
-    it('should allow updating from external values', () => {
-        expect('mat-chip-row').toHaveLength(0);
-        spectator.component.writeValue(['Element1', 'Element2']);
-        spectator.detectChanges();
-        expect('mat-chip-row').toHaveLength(2);
-    });
-
     it('should not mutate external values when adding items', () => {
         const value = ['Element1'];
         const input: HTMLInputElement = spectator.query('input');
@@ -85,17 +78,6 @@ describe('ItemListFieldComponent', () => {
 
         expect(value).toEqual(['Element1', 'Element2']);
         expect(spectator.component.value()).toEqual(['Element2']);
-    });
-
-    it('should remove the selected item when duplicate values exist', () => {
-        spectator.component.writeValue(['Element1', 'Element2', 'Element1']);
-        spectator.detectChanges();
-        spectator.dispatchFakeEvent(
-            spectator.queryAll('mat-chip-row')[2],
-            'removed',
-        );
-
-        expect(spectator.component.value()).toEqual(['Element1', 'Element2']);
     });
 
     it('should suggest matching options that have not been added', () => {

@@ -18,11 +18,14 @@ import {
     queryGroups,
     queryGroupUsers,
     queryGroupZones,
+    removeGroup,
     showGroup,
     showGroupFeatures,
     updateGroup,
     updateGroupUser,
 } from '@placeos/ts-client';
+
+import { NEVER, of } from 'rxjs';
 
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -364,6 +367,94 @@ describe('SignageGroupAdminService', () => {
                 '/api/staff/v1/groups?q=staff%20team',
             );
             expect(groups).toEqual([{ id: 'ad-1', name: 'Staff' }]);
+        });
+
+        /** Make the next confirm modal close, or confirm when `confirm` */
+        function nextConfirm(confirm: boolean) {
+            const dialog = TestBed.inject(MatDialog);
+            vi.mocked(dialog.open).mockReturnValue({
+                componentInstance: {
+                    event: confirm ? of({ reason: 'done' }) : NEVER,
+                    loading: signal(''),
+                },
+                afterClosed: () => (confirm ? NEVER : of(undefined)),
+                close: vi.fn(),
+            } as never);
+            return dialog;
+        }
+
+        it('asks before users take the Manage permission from themselves', async () => {
+            const service = createService();
+            withManage(true);
+            setCurrentUser(new StaffUser({ id: 'me' }));
+            vi.mocked(updateGroupUser).mockResolvedValue({} as never);
+            const own = new PlaceGroupUser({
+                user_id: 'me',
+                group_id: 'group-1',
+                permissions: 1 | MANAGE,
+            });
+
+            const dialog = nextConfirm(false);
+            await service.updateManagedGroupUser(own, 1);
+
+            expect(dialog.open).toHaveBeenCalledOnce();
+            expect(updateGroupUser).not.toHaveBeenCalled();
+
+            nextConfirm(true);
+            await service.updateManagedGroupUser(own, 1);
+
+            expect(updateGroupUser).toHaveBeenCalledExactlyOnceWith(
+                'me',
+                'group-1',
+                { permissions: 1 },
+            );
+        });
+
+        it('changes the Manage permission of other users without asking', async () => {
+            const service = createService();
+            withManage(true);
+            setCurrentUser(new StaffUser({ id: 'me' }));
+            vi.mocked(updateGroupUser).mockResolvedValue({} as never);
+
+            await service.updateManagedGroupUser(
+                new PlaceGroupUser({
+                    user_id: 'other',
+                    group_id: 'group-1',
+                    permissions: 1 | MANAGE,
+                }),
+                1,
+            );
+
+            expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
+            expect(updateGroupUser).toHaveBeenCalledWith('other', 'group-1', {
+                permissions: 1,
+            });
+        });
+
+        it('clears the selected group after removing it', async () => {
+            const service = createService();
+            withManage(true);
+            const context = TestBed.inject(SignageContextService);
+            context.selected_group_id.set('group-1');
+            vi.mocked(removeGroup).mockResolvedValue(undefined as never);
+            nextConfirm(true);
+
+            await service.removeSignageGroup(
+                new PlaceGroup({ id: 'group-1', name: 'Lobby' }),
+            );
+
+            expect(removeGroup).toHaveBeenCalledWith('group-1');
+            expect(context.selected_group_id()).toBe('');
+        });
+
+        it('does not offer to remove a group the user cannot manage', async () => {
+            const service = createService();
+            withManage(false);
+
+            await service.removeSignageGroup(new PlaceGroup({ id: 'group-1' }));
+
+            expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
+            expect(removeGroup).not.toHaveBeenCalled();
         });
     });
 
