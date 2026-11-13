@@ -24,8 +24,6 @@ import { MockProvider } from 'ng-mocks';
 import { EMPTY, Observable, of } from 'rxjs';
 
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
-import { EMPTY_USER, StaffUser } from 'libs/common/src/lib/types/user.class';
-import { setCurrentUser } from 'libs/common/src/lib/user-state';
 
 // Workspace fns are bundled and cannot be mocked, so stub the API layer below them.
 vi.mock('@placeos/ts-client', { spy: true });
