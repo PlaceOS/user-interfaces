@@ -1,4 +1,0 @@
-import{Jr as et}from"./main.js";function r(e){return`${e.id}:${e.instance||``}`}function E(e,t){let o=new Set(t);return e.filter(i=>o.has(r(i)))}function s(e,t){return{dialog:t,confirm:{title:et(`APP.CONCIERGE.BULK_REJECT_TITLE`),content:et(`APP.CONCIERGE.BULK_REJECT_MSG`,{count:e}),icon:`event_busy`}}}export{r as n,s as r,E as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="abd91f48-b8aa-5ecb-a09c-8fcd15e753d2")}catch(e){}}();
-//# debugId=abd91f48-b8aa-5ecb-a09c-8fcd15e753d2
-//# sourceMappingURL=chunk-BPqBiQvO.js.map

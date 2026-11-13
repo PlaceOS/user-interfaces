@@ -1,0 +1,4 @@
+var r={international:[`app.visitors.allow_international`,`app.events.allow_international`],visitor_internal_or_external:[`app.visitors.allow_visitor_internal_or_external`,`app.events.allow_attendee_internal_or_external`]};function i(e,a,n){return r[n].some(t=>!!e.get(t))?!0:(a||[]).some(t=>n===`international`?!!t.extension_data?.international:t.extension_data?.visitor_internal_or_external===`external`)}export{i as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="c90d019a-2642-5a44-ad10-77a1af3577e4")}catch(e){}}();
+//# debugId=c90d019a-2642-5a44-ad10-77a1af3577e4
+//# sourceMappingURL=chunk-B6i0rYCz2.js.map

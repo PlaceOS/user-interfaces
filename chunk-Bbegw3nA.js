@@ -1,0 +1,4 @@
+import{Li as y}from"./chunk-BsVkwbXV.js";import{ti as et}from"./main.js";import{a as Me}from"./chunk-DZN2HDzr.js";import{d as ee}from"./chunk-47-nWK6g.js";var s=async a=>{if(!a?.hasUnsavedChanges())return!0;let o=await Me({title:et(`APP.CONCIERGE.UNSAVED_CHANGES_TITLE`),content:et(`APP.CONCIERGE.UNSAVED_CHANGES_MSG`),icon:{content:`warning`},confirm_text:et(`APP.CONCIERGE.UNSAVED_CHANGES_DISCARD`)},y(ee));return o.close(),o.reason===`done`};export{s as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="0816025c-5b39-56e5-8850-11f1d8b8f5cc")}catch(e){}}();
+//# debugId=0816025c-5b39-56e5-8850-11f1d8b8f5cc
+//# sourceMappingURL=chunk-Bbegw3nA.js.map
