@@ -30,7 +30,7 @@ export interface RemoteSetupConfig {
 
 /**
  * Device details in the `devices` binding of the RemoteSetup driver. The
- * driver keeps 4,000 devices maximum and removes stale devices.
+ * driver keeps 1,000 devices maximum and removes stale devices.
  */
 export interface RemoteSetupDevice {
     id: string;
@@ -59,6 +59,20 @@ export const REMOTE_SETUP_MOCK_SYSTEM = 'sys-remote-setup';
 export const REMOTE_SETUP_MODULE = 'RemoteSetup';
 /** Time between `register` calls that keep `last_seen` current */
 const HEARTBEAT_MS = 15 * 60 * 1000;
+/**
+ * Most time that a set up device waits to register after the driver
+ * connects. Many devices can connect at the same time, for example after a
+ * power cut or a driver restart. A random wait spreads their calls: 2,000
+ * devices make about 7 calls per second, then about 2 per second for the
+ * heartbeat.
+ */
+const REGISTER_SPREAD_MS = 5 * 60 * 1000;
+/**
+ * Most time that a device on its setup screen waits to register. The wait
+ * is short, because the setup flow cannot send a command to the device
+ * before it registers.
+ */
+const SETUP_REGISTER_SPREAD_MS = 10 * 1000;
 /** Local storage key of the last command that this device applied */
 const LAST_COMMAND_KEY = 'PLACEOS.remote_setup.last_command';
 
@@ -117,8 +131,9 @@ export interface RemoteSetupTarget {
  * Device side of remote setup.
  *
  * Call `start` once at application startup. After initialisation the service
- * binds to the RemoteSetup driver. It registers the device, and applies the
- * commands that the driver puts in the `device_<id>` binding.
+ * binds to the RemoteSetup driver. It registers the device after a random
+ * wait, and applies the commands that the driver puts in the `device_<id>`
+ * binding.
  *
  * `available` is true when the driver is set up and connected. The bootstrap
  * screen then shows a QR code of `setup_url`.
@@ -165,7 +180,7 @@ export class RemoteSetupService extends AsyncHandler {
     }
 
     /** Send the configuration on this device to the driver */
-    public register() {
+    private _register() {
         const target = this._target();
         if (!this._module || !target || !this._connected()) return;
         this._module
@@ -194,7 +209,8 @@ export class RemoteSetupService extends AsyncHandler {
             mod.variable<boolean>('connected').bindThenSubscribe((value) => {
                 const was_connected = this._connected();
                 this._connected.set(value === true);
-                if (value === true && !was_connected) this.register();
+                if (value === true && !was_connected) this._startHeartbeat();
+                if (value !== true) this._stopHeartbeat();
             }),
         );
         this.subscription(
@@ -203,7 +219,34 @@ export class RemoteSetupService extends AsyncHandler {
                 .variable<unknown>(remoteSetupCommandBinding(this.device_id))
                 .bindThenSubscribe((value) => this._applyCommand(value)),
         );
-        this.interval('heartbeat', () => this.register(), HEARTBEAT_MS);
+    }
+
+    /**
+     * Register after a random wait, then again at each heartbeat. The random
+     * wait also sets when the heartbeat occurs, so the heartbeats of devices
+     * that start at the same time stay spread.
+     */
+    private _startHeartbeat() {
+        const spread = this._target()?.current()
+            ? REGISTER_SPREAD_MS
+            : SETUP_REGISTER_SPREAD_MS;
+        this.timeout(
+            'register',
+            () => {
+                this._register();
+                this.interval(
+                    'heartbeat',
+                    () => this._register(),
+                    HEARTBEAT_MS,
+                );
+            },
+            Math.random() * spread,
+        );
+    }
+
+    private _stopHeartbeat() {
+        this.clearTimeout('register');
+        this.clearInterval('heartbeat');
     }
 
     /**

@@ -13,7 +13,7 @@ import { registerSystem } from '@placeos/ts-client';
 /** Time before the mock device applies a command */
 const APPLY_DELAY_MS = 1500;
 /** Most devices that the driver keeps. See `docs/remote-setup.md` */
-const MAX_DEVICES = 4000;
+const MAX_DEVICES = 1000;
 
 /** Binding access of a mock module. Methods run with the module as `this` */
 interface MockModule {

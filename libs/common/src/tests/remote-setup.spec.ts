@@ -59,12 +59,14 @@ describe('RemoteSetupService', () => {
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         localStorage.clear();
         settingSignal('remote_setup_url').set(undefined);
         vi.restoreAllMocks();
     });
 
-    it('should show only when the driver is connected', () => {
+    it('should show only when the driver is connected', async () => {
+        vi.spyOn(Math, 'random').mockReturnValue(0);
         expect(ts_client.getModule).toHaveBeenCalledWith(
             'sys-rs',
             'RemoteSetup',
@@ -77,11 +79,33 @@ describe('RemoteSetupService', () => {
         expect(service.setup_url()).toBe(
             `https://placeos.test/concierge/#/remote-setup?device=${deviceId()}`,
         );
-        expect(driver.execute).toHaveBeenCalledWith('register', [
-            deviceId(),
-            'control',
-            { system_id: 'sys-1' },
-        ]);
+        await vi.waitFor(() =>
+            expect(driver.execute).toHaveBeenCalledWith('register', [
+                deviceId(),
+                'control',
+                { system_id: 'sys-1' },
+            ]),
+        );
+    });
+
+    it('should spread register calls with a random wait', () => {
+        vi.useFakeTimers();
+        vi.spyOn(Math, 'random').mockReturnValue(0.5);
+        const registers = () =>
+            driver.execute.mock.calls.filter(([name]) => name === 'register')
+                .length;
+
+        driver.emit('connected', true);
+        vi.advanceTimersByTime(150_000 - 1);
+        expect(registers()).toBe(0);
+        vi.advanceTimersByTime(1);
+        expect(registers()).toBe(1);
+        vi.advanceTimersByTime(15 * 60 * 1000);
+        expect(registers()).toBe(2);
+
+        driver.emit('connected', false);
+        vi.advanceTimersByTime(15 * 60 * 1000);
+        expect(registers()).toBe(2);
     });
 
     it('should use the remote_setup_url setting for the QR code', () => {
