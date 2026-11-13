@@ -99,4 +99,15 @@ describe('RemoteLoggingService', () => {
 
         expect(execute).not.toHaveBeenCalled();
     });
+
+    it('should not record its own log lines', () => {
+        const service = new RemoteLoggingService();
+
+        console.debug('%c[APP]%c[Logger] %cRemote logging initialised...');
+        console.debug('[APP] Other line');
+
+        expect(service.history().map((_) => _.data[0])).toEqual([
+            '[APP] Other line',
+        ]);
+    });
 });

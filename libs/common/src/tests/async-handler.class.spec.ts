@@ -74,6 +74,17 @@ describe('AsyncHandler', () => {
         expect(on_interval).toHaveBeenCalledTimes(1);
     });
 
+    it('should clear a timeout that its callback set again on destroy', () => {
+        const retry = vi.fn();
+        handler.timeout('retry', () => handler.timeout('retry', retry), 100);
+        vi.advanceTimersByTime(100);
+
+        handler.ngOnDestroy();
+        vi.advanceTimersByTime(500);
+
+        expect(retry).not.toHaveBeenCalled();
+    });
+
     it('should unsubscribe the old subscription when a name is reused', () => {
         const old_unsub = vi.fn();
         const new_sub = new Subscription();

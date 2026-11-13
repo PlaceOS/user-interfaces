@@ -86,8 +86,10 @@ export class RemoteLoggingService extends AsyncHandler {
     }
 
     private _handleEvent(type: string, data: any, event_type: any = 'console') {
-        if (data.includes('"Logger"') || this._disable_handling) return;
+        if (this._disable_handling) return;
         const blob = [...data[0]];
+        // Skip this service's own lines, e.g. log('Logger', ...)
+        if (typeof blob[0] === 'string' && blob[0].includes('[Logger]')) return;
         blob[0] =
             typeof blob[0] === 'string' ? blob[0].replace(/\%c/g, '') : blob[0];
         const event = {

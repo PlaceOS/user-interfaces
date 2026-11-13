@@ -1,4 +1,4 @@
-import { addDays, getUnixTime, startOfDay } from 'date-fns';
+import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 import type { LinkedBooking } from '../lib/types';
 import { CateringOrder } from '../lib/types/catering.class';
@@ -271,6 +271,16 @@ describe('CalendarEvent', () => {
             startOfDay(new Date(2030, 0, 10, 10, 0)).valueOf(),
         );
         expect(event.duration).toBe(24 * 60 - 1);
+    });
+
+    it('should end whole day all day events on their last day', () => {
+        const start = new Date(2030, 0, 10);
+        const event = new CalendarEvent({
+            event_start: getUnixTime(start),
+            duration: 2 * 24 * 60,
+            all_day: true,
+        });
+        expect(event.date_end).toBe(endOfDay(addDays(start, 1)).valueOf());
     });
 
     it('should map recurrence day names to indexes', () => {

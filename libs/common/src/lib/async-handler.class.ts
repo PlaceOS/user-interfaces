@@ -56,8 +56,9 @@ export class AsyncHandler implements OnDestroy {
         if (name && fn && fn instanceof Function) {
             this.clearTimeout(name);
             this._timers[name] = <any>setTimeout(() => {
-                fn();
+                // Delete first, as fn may set a new timer with the same name
                 delete this._timers[name];
+                fn();
             }, delay);
         } else {
             throw new Error(
