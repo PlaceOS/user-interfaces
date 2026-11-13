@@ -185,6 +185,16 @@ describe('CheckinPreferencesComponent', () => {
             expect(spectator.component.beverage().id).toBe('coffee');
         });
 
+        it('uses the building from the token in the link', async () => {
+            spectator = createComponent({
+                queryParams: { token: visitorJwt() },
+            });
+            spectator.detectChanges();
+
+            await spectator.fixture.whenStable();
+            expect(spectator.component.bld_id()).toBe('bld-1');
+        });
+
         it('shows the error page when the visitor in the link is not found', async () => {
             spectator = createComponent({
                 queryParams: { token: visitorJwt() },

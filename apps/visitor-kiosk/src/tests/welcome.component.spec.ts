@@ -59,6 +59,12 @@ describe('WelcomeComponent', () => {
         expect(actions()).toEqual(['/checkin', '/checkout', '/register']);
     });
 
+    it('shows the explore action for the level saved on the kiosk', () => {
+        localStorage.setItem('KIOSK.level', 'lvl-1');
+        spectator = createComponent();
+        expect(actions()).toContain('/explore/lvl-1');
+    });
+
     it('saves the on-screen keyboard choice from the URL', () => {
         spectator = createComponent({ queryParams: { osk: 'true' } });
         expect(localStorage.getItem('OSK.enabled')).toBe('true');
