@@ -431,13 +431,13 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
                 i18n(`EXPLORE.LOCATE_USER_FOUND_NO_PIN`, { type: loc.type }),
             );
         }
-        this._state.setLevel(this._org.levelWithID([locations[0]?.level])?.id);
+        this._state.setLevel(this._org.levelWithID([loc.level])?.id);
         const pos: any = loc.position;
         const { coordinates_from } = loc;
         const feature: any = {
             track_id: `locate-${user.id}`,
             location:
-                locations[0].type === 'wireless'
+                loc.type === 'wireless'
                     ? {
                           x: coordinates_from?.includes('right')
                               ? 1 - pos.x
