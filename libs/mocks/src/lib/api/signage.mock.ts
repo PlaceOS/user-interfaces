@@ -1067,7 +1067,7 @@ export function registerMockSignage() {
         callback: (request) => {
             const group = {
                 ...request.body,
-                id: `signage-group-${Date.now()}`,
+                id: mockId('signage-group-'),
                 subsystems: request.body?.subsystems || ['signage'],
                 created_at: new Date().toISOString(),
                 updated_at: new Date().toISOString(),
@@ -1894,6 +1894,7 @@ function registerMockSignageImageGen() {
 
         if (`${request.prompt}`.includes('trigger-moderation')) {
             setTimeout(() => {
+                if (job.state === 'cancelled') return;
                 job.state = 'failed';
                 job.error_kind = 'moderation';
                 job.error_message =
@@ -1907,6 +1908,7 @@ function registerMockSignageImageGen() {
         for (let index = 0; index < count; index++) {
             setTimeout(
                 () => {
+                    if (job.state === 'cancelled') return;
                     const media_id =
                         SAMPLE_IMAGES[index % SAMPLE_IMAGES.length] ||
                         'upload-1';
