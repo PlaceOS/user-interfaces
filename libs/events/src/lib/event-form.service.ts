@@ -1423,8 +1423,15 @@ export class EventFormService extends AsyncHandler {
             event.system?.email ||
             event.resources[0]?.email;
         if (old_system !== system_id) {
+            // A room attendee can carry the system ID or only the room email
+            const old_room = [
+                old_system,
+                event.old_system?.email?.toLowerCase(),
+            ];
             (event as any).attendees = event.attendees.filter(
-                (_) => _.email !== old_system || _.id !== old_system,
+                (_) =>
+                    !old_room.includes(_.id) &&
+                    !old_room.includes(_.email.toLowerCase()),
             );
         }
         return this.book_internal
@@ -1484,11 +1491,17 @@ export class EventFormService extends AsyncHandler {
     private _updateVisitorList(attendees: User[]) {
         const visitors = attendees.filter((user) => user.is_external);
         if (!visitors?.length) return;
-        const old_visitors = this._settings.get('visitor-invitees') || [];
+        const old_visitors: unknown[] =
+            this._settings.get('visitor-invitees') || [];
+        const emails = visitors.map((_) => _.email.toLowerCase());
         this._settings.saveUserSetting(
             'visitor-invitees',
             unique([
-                ...old_visitors.filter((_) => !_.includes(_.email)),
+                ...old_visitors.filter(
+                    (_) =>
+                        typeof _ === 'string' &&
+                        !emails.includes(_.split('|')[0].toLowerCase()),
+                ),
                 ...visitors.map(
                     (_) => `${_.email}|${_.name}|${_.organisation}`,
                 ),

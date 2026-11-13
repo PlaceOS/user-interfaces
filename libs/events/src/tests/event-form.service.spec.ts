@@ -2555,4 +2555,69 @@ describe('EventFormService', () => {
         );
         expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
     });
+
+    it('should remove the old room from the attendees when the room changes', async () => {
+        vi.mocked<(url: string, data: object) => Promise<unknown>>(
+            ts_client.post,
+        ).mockImplementation(async (_, data) => ({ ...data, id: 'event-1' }));
+        const event = new CalendarEvent({
+            date: new Date(2028, 5, 18, 9).valueOf(),
+            duration: 60,
+            old_system: new ts_client.PlaceSystem({
+                id: 'sys-old',
+                email: 'old-room@dev.place.tech',
+            }),
+            resources: [
+                new Space({
+                    id: 'sys-new',
+                    email: 'new-room@dev.place.tech',
+                    zones: ['bld-1'],
+                }),
+            ],
+            attendees: [
+                new User({ email: 'old-room@dev.place.tech' }),
+                new User({ email: 'staff@dev.place.tech' }),
+            ],
+        });
+
+        const saved = await (
+            service as unknown as {
+                _performBooking: (
+                    event: CalendarEvent,
+                    query: Record<string, string>,
+                ) => Promise<CalendarEvent>;
+            }
+        )._performBooking(event, {});
+
+        expect(saved.attendees.map((_) => _.email)).toEqual([
+            'staff@dev.place.tech',
+        ]);
+    });
+
+    it('should replace the saved visitor entry when a visitor changes name', () => {
+        const settings = TestBed.inject(SettingsService);
+        vi.mocked(settings.get).mockImplementation((key: string) =>
+            key === 'visitor-invitees'
+                ? ['na@example.com|Na|Org', 'anna@example.com|Old|Org']
+                : undefined,
+        );
+        settings.saveUserSetting = vi.fn();
+
+        (
+            service as unknown as {
+                _updateVisitorList: (attendees: User[]) => void;
+            }
+        )._updateVisitorList([
+            new User({
+                email: 'anna@example.com',
+                name: 'New',
+                organisation: 'Org',
+            }),
+        ]);
+
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'visitor-invitees',
+            ['na@example.com|Na|Org', 'anna@example.com|New|Org'],
+        );
+    });
 });
