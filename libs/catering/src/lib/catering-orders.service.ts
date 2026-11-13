@@ -149,31 +149,30 @@ export class CateringOrdersService extends AsyncHandler {
 
     public readonly order_filters = this._filters.asReadonly();
 
-    public readonly caterers = computed(() => {
+    /** Caterers of the provider groups the user is in. Null when the user can see all caterers */
+    private readonly _user_caterers = computed(() => {
         const provider_groups: Record<string, string[]> =
             this._settings.get('app.catering_provider_groups') || {};
-        let provider_list = Object.keys(provider_groups);
+        const provider_list = Object.keys(provider_groups);
         const is_admin =
             currentUser()?.groups?.includes('placeos_admin') ||
             currentUser()?.groups?.includes('placeos_support');
-        if (!provider_list.length || is_admin)
-            return unique(this._orders().map((i) => i.caterer));
-        provider_list = provider_list.filter((caterer) =>
-            provider_groups[caterer].find((group) =>
-                currentUser()?.groups?.includes(group),
+        if (!provider_list.length || is_admin) return null;
+        return unique(
+            provider_list.filter((caterer) =>
+                provider_groups[caterer].find((group) =>
+                    currentUser()?.groups?.includes(group),
+                ),
             ),
         );
-        if (
-            provider_list.length <= 1 &&
-            this._filters()?.caterer !== provider_list[0]
-        ) {
-            this._filters.set({
-                ...this._filters(),
-                caterer: provider_list[0],
-            });
-        }
-        return unique(provider_list);
     });
+
+    /** Caterers the user can filter orders on */
+    public readonly caterers = computed(
+        () =>
+            this._user_caterers() ??
+            unique(this._orders().map((i) => i.caterer)),
+    );
     /** Order filters */
     public get filters() {
         return this._filters();
@@ -221,6 +220,14 @@ export class CateringOrdersService extends AsyncHandler {
             this._poll();
             if (!building?.id) return;
             untracked(() => this._loadOrders(query, building.id));
+        });
+        // Lock the caterer filter when the user has one caterer or none
+        effect(() => {
+            const caterers = this._user_caterers();
+            const filters = this._filters();
+            if (!caterers || caterers.length > 1) return;
+            if (filters.caterer === caterers[0]) return;
+            this._filters.set({ ...filters, caterer: caterers[0] });
         });
     }
 
