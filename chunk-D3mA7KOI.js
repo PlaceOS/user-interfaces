@@ -1,4 +1,0 @@
-import{Yt as gf}from"./chunk-fQyRf0n1.js";function u(e){return gf(e)?.href??null}function o(e){return!!gf(e)}function l(e){return o(e)?e:`about:blank`}function p(e){return`/api/engine/v2/uploads/${encodeURIComponent(e)}/url`}function i(e,n){return`${(e&&gf(e,document.baseURI)?e:`/signage`).replace(/\/$/,``)}/#/${n}?debug=true`}export{u as a,p as i,l as n,o as r,i as t};
-;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="e305aa4e-27c0-5cff-bfe6-7e8e7bd54e11")}catch(e){}}();
-//# debugId=e305aa4e-27c0-5cff-bfe6-7e8e7bd54e11
-//# sourceMappingURL=chunk-D3mA7KOI.js.map
