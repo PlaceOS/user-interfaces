@@ -70,6 +70,10 @@ async function openDirectory(
         'app.schedule.event_sources': ['api'],
         'app.users.min_search_length': 3,
         'app.users.show_avatars': false,
+        // Control: guest exclusion (staff.fn.ts searchStaff) adds `unmapped`
+        // to the people fields when on, and it defaults to on. Held off so the
+        // lookup is the plain directory search the fixture answers.
+        'app.staff_search_exclude_guests': false,
         ...overrides,
     };
     await useSettings(page, settings);
