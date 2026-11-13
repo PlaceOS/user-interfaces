@@ -395,4 +395,34 @@ describe('ExploreMapViewComponent', () => {
         expect(located().location).toEqual({ x: 0.25, y: 0.75 });
         vi.useRealTimers();
     });
+
+    it('should take the level and coordinates from the location it pins', async () => {
+        const state = spectator.inject(ExploreStateService);
+        const org = spectator.inject(OrganisationService);
+        vi.mocked(org.levelWithID).mockImplementation(([id]) =>
+            id ? new BuildingLevel({ id }) : undefined,
+        );
+        const execute = vi.fn(async () => [
+            { type: 'desk', position: 'desk-9', level: 'lvl-1' },
+            {
+                type: 'wireless',
+                position: { x: 0.2, y: 0.25 },
+                coordinates_from: 'bottom-right',
+                level: 'lvl-2',
+            },
+        ]);
+        vi.mocked(org.module).mockReturnValue({ execute } as any);
+        setNotifyOutlet(fake_snackbar as any, true);
+        vi.useFakeTimers();
+
+        // desk-9 is not on the map, so the wireless location is pinned
+        spectator.setRouteQueryParam('user', 'jim@jim.com');
+        await vi.advanceTimersByTimeAsync(1000);
+
+        expect(state.setLevel).toHaveBeenLastCalledWith('lvl-2');
+        expect(state.setFeatures).toHaveBeenLastCalledWith('_located', [
+            expect.objectContaining({ location: { x: 0.8, y: 0.75 } }),
+        ]);
+        vi.useRealTimers();
+    });
 });
