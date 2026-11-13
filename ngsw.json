@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794566952128,
+  "timestamp": 1794567236846,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -184,7 +184,7 @@
         "./user-report.component-DnQGx_aK.js",
         "./visitor-kiosk-settings-form-modal.component-BssjjOya.js",
         "./visitors-report.component-B0VoJUM_.js",
-        "./visitors.routes-DqJxiTaK.js",
+        "./visitors.routes-DvgsN0SW.js",
         "./workplace-settings-form-modal.component-DaduAQDh.js",
         "./zh-CenHhTig.js",
         "./zone-manager.routes-DTDFv_cE.js"
@@ -538,7 +538,7 @@
     "./keyboard-shortcuts-modal.component-BsO0lk98.js": "0b5fa20d8f9baa453dcea3900461f2c1645b8fef",
     "./lockers-report.component-f6U31U-_.js": "290bbb89afc0e4f785e7af129891fe66f8b5df80",
     "./lockers.routes-CII4z62B.js": "c74e96387233e6468c7b747213805666daca4c62",
-    "./main.js": "d02ba7bcca5956e576bdf086308576d0e2b6eaa6",
+    "./main.js": "47afddbb4e86644dfdf2da9f0fbf9c3a1f1d11a4",
     "./manifest.webmanifest": "8fb029e2b745a70817e4200920c410daf0425443",
     "./map-editor-page.component-B13w8NtC.js": "d0338b37f834069863f4a6a66802ec881d9c1282",
     "./map-manager.routes-NCTICU9M.js": "42e6c1c1d36da434116bd375971387fd487246ac",
@@ -568,7 +568,7 @@
     "./user-report.component-DnQGx_aK.js": "2cc7fc5f609bb40e4b54e7bcaeb882056f9c816e",
     "./visitor-kiosk-settings-form-modal.component-BssjjOya.js": "f39a7fc7dad471567f8c879521802d9dd8dd622a",
     "./visitors-report.component-B0VoJUM_.js": "1fe53c8f3570ef0d3fff2d0e7ec101f4ed51d850",
-    "./visitors.routes-DqJxiTaK.js": "cabb1dbfe3b5150e42c85981104a672365c6e65c",
+    "./visitors.routes-DvgsN0SW.js": "643e2865c5125bd5bfe5f8882c4d0969ad39299c",
     "./workplace-settings-form-modal.component-DaduAQDh.js": "3aa95ab64d066d5e1b792a70a06c15461aff418c",
     "./zh-CenHhTig.js": "55aa38d3d73c00096c34a8d8f83a648e696e944a",
     "./zone-manager.routes-DTDFv_cE.js": "a925e59048b7ab2e1606a458604d197c3844d950"
