@@ -16,6 +16,9 @@ import { ControlStatusBarComponent } from '../app/status-bar.component';
 
 describe('ControlStatusBarComponent', () => {
     let spectator: Spectator<ControlStatusBarComponent>;
+    const system = signal({});
+    const capture_list = signal([]);
+    const has_master_audio = signal<boolean | undefined>(true);
     const createComponent = createComponentFactory({
         component: ControlStatusBarComponent,
         declarations: [
@@ -26,9 +29,9 @@ describe('ControlStatusBarComponent', () => {
         ],
         providers: [
             MockProvider(ControlStateService, {
-                system: signal({}),
-                capture_list: signal([]),
-                has_master_audio: signal(true),
+                system,
+                capture_list,
+                has_master_audio,
                 setVolume: vi.fn(),
                 setMute: vi.fn(),
             }),
@@ -36,7 +39,13 @@ describe('ControlStatusBarComponent', () => {
         imports: [MockModule(MatSliderModule), MockModule(FormsModule)],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        system.set({});
+        capture_list.set([]);
+        has_master_audio.set(true);
+        vi.clearAllMocks();
+        spectator = createComponent();
+    });
 
     it('should show recording details', async () => {
         expect('[recording]').not.toExist();
@@ -75,6 +84,25 @@ describe('ControlStatusBarComponent', () => {
         (service as any).system.set({ volume: 45 });
         spectator.detectChanges();
         expect('[volume-level]').toHaveText('45%');
+    });
+
+    it('should hide the master volume only when the room has no master audio', () => {
+        const service = spectator.inject(ControlStateService);
+        (service as any).has_master_audio.set(undefined);
+        spectator.detectChanges();
+        expect('[volume-level]').toExist();
+        (service as any).has_master_audio.set(false);
+        spectator.detectChanges();
+        expect('[volume-level]').not.toExist();
+    });
+
+    it('should toggle the mute state when the mute button is pressed', () => {
+        const service = spectator.inject(ControlStateService);
+        spectator.click('button[mute]');
+        expect(service.setMute).toHaveBeenLastCalledWith(true);
+        (service as any).system.set({ mute: true });
+        spectator.click('button[mute]');
+        expect(service.setMute).toHaveBeenLastCalledWith(false);
     });
 
     it('should unmute when the volume changes while muted', () => {

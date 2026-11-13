@@ -71,6 +71,12 @@ describe('LandingStateService', () => {
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: [],
         } as any);
+        // Contacts load users with `showUser`. The real call asks ts-client
+        // for a token, which schedules a re-authorise timer that can fire
+        // after this file's window is gone.
+        vi.mocked(ts_client.showUser).mockImplementation(
+            async (email: string) => new PlaceUser({ id: email, email }),
+        );
         vi.mocked(ts_client.getModule).mockReturnValue({
             variable: vi.fn(() => ({
                 bindThenSubscribe: vi.fn(() => vi.fn()),
@@ -382,9 +388,6 @@ describe('LandingStateService', () => {
                     name: 'contacts',
                     details: [{ email: 'ann@example.com' }],
                 }),
-            );
-            vi.mocked(ts_client.showUser).mockImplementation(
-                async (email: string) => new PlaceUser({ id: email, email }),
             );
             vi.mocked(ts_client.updateMetadata).mockResolvedValue(
                 new PlaceMetadata(),

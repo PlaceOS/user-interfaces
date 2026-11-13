@@ -20,6 +20,8 @@ import { SpacesService } from 'libs/events/src/lib/spaces.service';
 
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
 import { InteractiveMapComponent } from 'libs/components/src/lib/interactive-map.component';
+import { MapPinComponent } from 'libs/components/src/lib/map-pin.component';
+import { MapRadiusComponent } from 'libs/components/src/lib/map-radius.component';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { ExploreDesksService } from '../lib/explore-desks.service';
@@ -123,7 +125,9 @@ describe('ExploreMapViewComponent', () => {
             spectator.component.hide_devices.set(true);
             spectator.component.hide_sensors.set(true);
             locked_groups.set([]);
-            spectator.inject(ExploreStateService).setFeatures.mockReset();
+            const state = spectator.inject(ExploreStateService);
+            state.setFeatures.mockReset();
+            (state.options as any).set({ is_public: true });
         }
     });
 
@@ -147,6 +151,15 @@ describe('ExploreMapViewComponent', () => {
         });
         expect(state.setOptions).toHaveBeenNthCalledWith(3, {
             disable: ['sensors'],
+        });
+
+        (state.options as any).set({
+            is_public: true,
+            disable: ['zones', 'devices'],
+        });
+        spectator.component.toggleFeature('zones', true);
+        expect(state.setOptions).toHaveBeenLastCalledWith({
+            disable: ['devices'],
         });
     });
 
@@ -242,6 +255,59 @@ describe('ExploreMapViewComponent', () => {
         await vi.advanceTimersByTimeAsync(1000);
         expect(fake_snackbar.open).toHaveBeenCalled();
         vi.useRealTimers();
+    });
+
+    /** Locate a user with the given LocationServices results */
+    const locateUser = async (locations: Record<string, unknown>[]) => {
+        const org = spectator.inject(OrganisationService);
+        vi.mocked(org.module).mockReturnValue({
+            execute: vi.fn(async () => locations),
+        } as any);
+        setNotifyOutlet(fake_snackbar as any, true);
+        vi.useFakeTimers();
+        spectator.setRouteQueryParam('user', 'jim@jim.com');
+        await vi.advanceTimersByTimeAsync(1000);
+        const state = spectator.inject(ExploreStateService);
+        const [, [feature]] = vi
+            .mocked(state.setFeatures)
+            .mock.calls.filter(([group]) => group === '_located')
+            .at(-1);
+        return feature;
+    };
+
+    it('should flip wireless coordinates measured from the bottom right', async () => {
+        const feature = await locateUser([
+            {
+                type: 'wireless',
+                position: { x: 0.2, y: 0.25 },
+                coordinates_from: 'bottom-right',
+                variance: 3,
+                level: 'lvl-1',
+            },
+        ]);
+        expect(feature).toEqual(
+            expect.objectContaining({
+                location: { x: 0.8, y: 0.75 },
+                content: MapRadiusComponent,
+                data: expect.objectContaining({ radius: 3 }),
+            }),
+        );
+    });
+
+    it('should pin the location type with the highest priority that is on the map', async () => {
+        const org = spectator.inject(OrganisationService);
+        vi.mocked(org.binding).mockReturnValueOnce({
+            priority: ['desk', 'wireless'],
+        } as any);
+        spectator.component.map_info.set({ 'desk-1': {} });
+        const feature = await locateUser([
+            { type: 'wireless', position: { x: 0.2, y: 0.2 }, level: 'lvl-1' },
+            // Not on this map, so it is skipped
+            { type: 'desk', position: 'desk-9', level: 'lvl-1' },
+            { type: 'desk', position: 'desk-1', level: 'lvl-1' },
+        ]);
+        expect(feature.location).toBe('desk-1');
+        expect(feature.content).toBe(MapPinComponent);
     });
 
     it('should notify when the user to locate is not found', async () => {

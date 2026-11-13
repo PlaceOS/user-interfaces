@@ -8,8 +8,10 @@ import {
 } from '@placeos/common';
 import {
     PlaceSystem,
+    PlaceZone,
     removeSystem,
     show,
+    showZone,
     SignagePlaylist,
     update,
 } from '@placeos/ts-client';
@@ -158,6 +160,63 @@ describe('SignageDisplayService', () => {
         );
         expect(update).not.toHaveBeenCalled();
         expect(changed).not.toHaveBeenCalled();
+    });
+
+    describe('adding a display to a zone', () => {
+        const zone = new PlaceZone({ id: 'zone-1', parent_id: 'building-1' });
+
+        it('adds the zone and its ancestors and keeps the other zones', async () => {
+            const service = createService();
+            const display = new PlaceSystem({
+                id: 'display-1',
+                version: 5,
+                zones: ['org-1', 'other-zone'],
+            });
+            vi.mocked(show).mockResolvedValue(display);
+            vi.mocked(showZone).mockImplementation(
+                async (id: string) =>
+                    new PlaceZone({
+                        id,
+                        parent_id: id === 'building-1' ? 'org-1' : '',
+                    }),
+            );
+            vi.mocked(update).mockResolvedValue(display);
+            closeNextDialogWith(display.id);
+
+            await service.addDisplayToZone(zone);
+
+            expect(update).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'display-1',
+                    form_data: {
+                        zones: ['org-1', 'other-zone', 'building-1', 'zone-1'],
+                        version: 5,
+                    },
+                }),
+            );
+            expect(notify_open).toHaveBeenLastCalledWith(
+                'Display added to zone',
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['success'] }),
+            );
+        });
+
+        it('saves nothing for a display that is already in the zone', async () => {
+            const service = createService();
+            vi.mocked(show).mockResolvedValue(
+                new PlaceSystem({ id: 'display-1', zones: ['zone-1'] }),
+            );
+            closeNextDialogWith('display-1');
+
+            await service.addDisplayToZone(zone);
+
+            expect(update).not.toHaveBeenCalled();
+            expect(notify_open).toHaveBeenCalledExactlyOnceWith(
+                'Display already assigned to this zone.',
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+        });
     });
 
     /** The next confirm modal returns "done" */

@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent } from '@placeos/common';
+import { TranslatePipe } from '@placeos/components';
+import { addMinutes } from 'date-fns';
+import { ngMocks } from 'ng-mocks';
 
 import { PanelViewStatusComponent } from '../../app/new-panel/panel-view-status.component';
 import { PanelStateService } from '../../app/panel-state.service';
@@ -11,6 +14,7 @@ describe('PanelViewStatusComponent', () => {
     const current = signal<CalendarEvent | null>(null);
     const clock = signal(Date.now());
     const next = signal<CalendarEvent | null>(null);
+    const bookings = signal<CalendarEvent[]>([]);
     const panel_settings = signal<Record<string, unknown>>({});
     let features: string[] = [];
     const show_timeline = signal(false);
@@ -31,7 +35,7 @@ describe('PanelViewStatusComponent', () => {
                     status,
                     current,
                     next,
-                    bookings: signal([]),
+                    bookings,
                     settings: panel_settings,
                     setting,
                     hasFeature: (name: string) => features.includes(name),
@@ -46,6 +50,7 @@ describe('PanelViewStatusComponent', () => {
         timeline_position.set('floating-left');
         current.set(null);
         next.set(null);
+        bookings.set([]);
         clock.set(Date.now());
         panel_settings.set({});
         features = [];
@@ -181,5 +186,72 @@ describe('PanelViewStatusComponent', () => {
         panel_settings.set({ presence: true });
         spectator = createComponent();
         expect('[presence]').not.toExist();
+    });
+
+    describe('with translation keys rendered', () => {
+        const NOW = new Date('2026-07-04T09:00:00.000Z').valueOf();
+        const booking = (start: number, duration: number) =>
+            new CalendarEvent({
+                date: addMinutes(NOW, start).valueOf(),
+                duration,
+            });
+
+        beforeAll(() =>
+            ngMocks.defaultMock(TranslatePipe, () => ({
+                transform: (key: string) => key,
+            })),
+        );
+        afterAll(() => ngMocks.defaultMock(TranslatePipe, undefined));
+
+        beforeEach(() => {
+            clock.set(NOW);
+            spectator = createComponent();
+        });
+
+        it.each<[string, string, CalendarEvent | null, CalendarEvent | null]>([
+            ['FREE_IN_HOURS_AND_MINUTES', 'busy', booking(0, 90), null],
+            ['FREE_IN_MINUTES', 'busy', booking(0, 20), null],
+            ['FREE_FOR_MINUTES', 'free', null, booking(20, 30)],
+            // The driver shows busy before the next booking starts
+            ['EARLY_CHECKIN', 'busy', null, booking(20, 30)],
+            ['NO_CURRENT', 'free', null, null],
+        ])(
+            'should describe the room with %s',
+            (key, state, now_booking, next_booking) => {
+                status.set(state);
+                current.set(now_booking);
+                next.set(next_booking);
+                bookings.set([now_booking, next_booking].filter(Boolean));
+                spectator.detectChanges();
+                const text = spectator.element.textContent;
+                const keys = [
+                    'FREE_IN_HOURS_AND_MINUTES',
+                    'FREE_IN_MINUTES',
+                    'FREE_IN_LESS_THAN_MINUTE',
+                    'EARLY_CHECKIN',
+                    'FREE_FOR_HOURS_AND_MINUTES',
+                    'FREE_FOR_MINUTES',
+                    'FREE_FOR_LESS_THAN_MINUTE',
+                    'NO_CURRENT',
+                ];
+                expect(keys.filter((k) => text.includes(k))).toEqual([key]);
+            },
+        );
+
+        it.each<[string, Record<string, unknown>, string | null]>([
+            ['pending', { show_qr_code: true }, 'CHECKIN_INPUT'],
+            ['pending', {}, 'CHECKIN_INPUT_NOSCAN'],
+            ['free', { show_qr_code: true }, 'BOOKING_INPUT'],
+            ['busy', { enable_end_meeting_button: true }, 'END_INPUT'],
+            ['busy', {}, null],
+        ])('should prompt a %s room with %o to %s', (state, settings, key) => {
+            status.set(state);
+            panel_settings.set(settings);
+            spectator.detectChanges();
+            const label = spectator.query('[action-prompt] span');
+            expect(label?.textContent.trim() ?? null).toBe(
+                key && `APP.BOOKING_PANEL.${key}`,
+            );
+        });
     });
 });

@@ -125,6 +125,18 @@ describe('BootstrapComponent', () => {
         }
     });
 
+    it('should replace a saved parking setup with the level param', async () => {
+        localStorage.setItem('KIOSK.level', 'lvl-old');
+        localStorage.setItem('KIOSK.parking', 'true');
+        await setup();
+        spectator.setRouteQueryParam('clear', 'true');
+        spectator.setRouteQueryParam('level', 'lvl-q');
+        spectator.detectChanges();
+        expect(localStorage.getItem('KIOSK.level')).toBe('lvl-q');
+        expect(localStorage.getItem('KIOSK.parking')).toBeNull();
+        expect(router.navigate).toHaveBeenLastCalledWith(['/explore']);
+    });
+
     it('should save the on-screen keyboard state from the osk param', async () => {
         await setup();
         spectator.setRouteQueryParam('osk', 'true');

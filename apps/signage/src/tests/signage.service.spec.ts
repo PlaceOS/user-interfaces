@@ -1062,6 +1062,56 @@ describe('SignageService', () => {
         expect(spectator.service.display()?.id).toBe('display-1');
     });
 
+    it('should not send the validators of one display when fetching another', async () => {
+        (ts_client.responseHeaders as any).mockReturnValue({
+            etag: '"display-1-v1"',
+            'last-modified': 'Thu, 03 Sep 2026 01:02:03 GMT',
+        });
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        spectator.service.setDisplay('display-2');
+        await flush();
+
+        // A 304 for display 2 would otherwise keep display 1 on screen
+        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+            'display-2',
+            {},
+            { headers: {}, cache: 'no-store' },
+        );
+    });
+
+    it('should play a display saved by an earlier build while offline', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details',
+            JSON.stringify(create_display()),
+        );
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+
+        spectator.service.setDisplay('display-1');
+        await flush();
+
+        expect(spectator.service.display()?.id).toBe('display-1');
+    });
+
+    it('should not play a display saved by an earlier build for another display', async () => {
+        localStorage.setItem(
+            'PlaceOS.SIGNAGE.display_details',
+            JSON.stringify(create_display()),
+        );
+        (ts_client.showSignage as any).mockImplementation(() =>
+            Promise.reject(new Error('backend unavailable')),
+        );
+
+        spectator.service.setDisplay('display-2');
+        await flush();
+
+        expect(spectator.service.display()?.id).not.toBe('display-1');
+        expect(spectator.service.playlist()).toEqual([]);
+    });
+
     it('should not reload the display when the payload is unchanged', async () => {
         const display = create_display();
         (ts_client.showSignage as any).mockImplementation(() =>

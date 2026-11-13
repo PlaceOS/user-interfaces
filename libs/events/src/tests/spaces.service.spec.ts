@@ -83,6 +83,21 @@ describe('SpacesService', () => {
         expect(spectator.service.find('room-3')).toBeUndefined();
     });
 
+    it('should list each feature of the mapped spaces once and leave out blank ones', async () => {
+        vi.mocked(ts_client.querySystems).mockResolvedValue({
+            data: [
+                { ...systems[0], features: ['tv', ' ', 'whiteboard'] },
+                { ...systems[1], features: ['tv', ''] },
+                // Spaces without a map ID are not listed
+                { ...systems[2], features: ['phone'] },
+            ],
+        } as never);
+
+        await loadService();
+
+        expect(spectator.service.features()).toEqual(['tv', 'whiteboard']);
+    });
+
     it('should filter to the active building by default', async () => {
         await loadService();
         expect(spectator.service.filter().map((_) => _.id)).toEqual(['room-1']);

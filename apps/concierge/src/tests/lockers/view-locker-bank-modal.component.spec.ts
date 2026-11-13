@@ -1,5 +1,8 @@
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { LockerGridComponent } from '@placeos/bookings';
+import { IconComponent, TranslatePipe } from '@placeos/components';
+import { MockComponent, MockPipe, ngMocks } from 'ng-mocks';
 
 import { ViewLockerBankModalComponent } from '../../app/lockers/view-locker-bank-modal.component';
 
@@ -9,14 +12,30 @@ describe('ViewLockerBankModalComponent', () => {
 
     const createComponent = createComponentFactory({
         component: ViewLockerBankModalComponent,
-        shallow: true,
+        overrideComponents: [
+            [
+                ViewLockerBankModalComponent,
+                {
+                    set: {
+                        imports: [
+                            MockComponent(LockerGridComponent),
+                            MockComponent(IconComponent),
+                            MockPipe(TranslatePipe),
+                        ],
+                    },
+                },
+            ],
+        ],
         providers: [{ provide: MAT_DIALOG_DATA, useValue: { bank } }],
     });
 
     beforeEach(() => (spectator = createComponent()));
 
-    it('should seed the bank signal from the injected dialog data', () => {
-        expect(spectator.component.bank()).toBe(bank);
-        expect(spectator.component.bank().name).toBe('North Wing');
+    it('should show the bank as a read-only locker grid', () => {
+        expect(spectator.query('h2')).toHaveText('North Wing');
+        expect(ngMocks.input('locker-grid', 'bank')).toBe(bank);
+        expect(ngMocks.input('locker-grid', 'default_status')).toBe(
+            'not-bookable',
+        );
     });
 });

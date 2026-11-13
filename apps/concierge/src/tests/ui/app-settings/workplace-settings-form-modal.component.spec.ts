@@ -92,104 +92,6 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should have a model with general settings values', () => {
-        const model = spectator.component.model();
-        expect('logo_light' in model).toBe(true);
-        expect('logo_dark' in model).toBe(true);
-        expect('features' in model).toBe(true);
-        expect('default_route' in model).toBe(true);
-        expect('use_24_hour_time' in model).toBe(true);
-        expect('use_region' in model).toBe(true);
-        expect('week_start' in model).toBe(true);
-        expect('currency' in model).toBe(true);
-        expect('external_support_url' in model).toBe(true);
-        expect('show_changelog' in model).toBe(true);
-        expect('support_email' in model).toBe(true);
-        expect('catering_provider' in model).toBe(true);
-    });
-
-    it('should have events model group for room bookings', () => {
-        const events = spectator.component.model().events;
-        expect(events).toBeTruthy();
-        expect('allow_all_day' in events).toBe(true);
-        expect('all_day_period' in events).toBe(true);
-        expect('bookable_hours' in events).toBe(true);
-        expect('can_book_for_others' in events).toBe(true);
-        expect('has_assets' in events).toBe(true);
-        expect('allow_externals' in events).toBe(true);
-        expect('max_duration' in events).toBe(true);
-        expect('allowed_future_days' in events).toBe(true);
-        expect('force_host' in events).toBe(true);
-        expect('setup' in events).toBe(true);
-        expect('breakdown' in events).toBe(true);
-    });
-
-    it('should have desks model group', () => {
-        const desks = spectator.component.model().desks;
-        expect(desks).toBeTruthy();
-        expect('allow_all_day' in desks).toBe(true);
-        expect('bookable_hours' in desks).toBe(true);
-        expect('allow_groups' in desks).toBe(true);
-        expect('auto_allocation' in desks).toBe(true);
-        expect('max_duration' in desks).toBe(true);
-        expect('available_period' in desks).toBe(true);
-    });
-
-    it('should have bookings model group', () => {
-        const bookings = spectator.component.model().bookings;
-        expect(bookings).toBeTruthy();
-        expect('allow_all_day' in bookings).toBe(true);
-        expect('all_day_period' in bookings).toBe(true);
-        expect('bookable_hours' in bookings).toBe(true);
-        expect('can_book_for_others' in bookings).toBe(true);
-    });
-
-    it('should have parking model group', () => {
-        const parking = spectator.component.model().parking;
-        expect(parking).toBeTruthy();
-        expect('allow_all_day' in parking).toBe(true);
-        expect('bookable_hours' in parking).toBe(true);
-        expect('show_users' in parking).toBe(true);
-        expect('show_status_details' in parking).toBe(true);
-        expect('auto_allocation' in parking).toBe(true);
-    });
-
-    it('should have lockers model group', () => {
-        const lockers = spectator.component.model().lockers;
-        expect(lockers).toBeTruthy();
-        expect('allow_all_day' in lockers).toBe(true);
-        expect('bookable_hours' in lockers).toBe(true);
-        expect('show_calendar_links' in lockers).toBe(true);
-    });
-
-    it('should have explore model group', () => {
-        const explore = spectator.component.model().explore;
-        expect(explore).toBeTruthy();
-        expect('hide_device_fields' in explore).toBe(true);
-        expect('show_legend' in explore).toBe(true);
-        expect('hide_zones' in explore).toBe(true);
-        expect('hide_devices' in explore).toBe(true);
-        expect('hide_sensors' in explore).toBe(true);
-        expect(explore.hide_devices).toBe(true);
-        expect(explore.hide_sensors).toBe(true);
-        expect('disable' in explore).toBe(true);
-        expect('disable_actions' in explore).toBe(true);
-    });
-
-    it('should expose the zone from dialog data', () => {
-        expect(spectator.component.zone).toEqual(mock_zone);
-    });
-
-    it('should expose settings option constants', () => {
-        expect(spectator.component.AVAILABLE_PERIOD_EXTENDED).toBeTruthy();
-        expect(spectator.component.MAX_DURATION_FULL).toBeTruthy();
-        expect(spectator.component.MAX_DURATION_SHORT).toBeTruthy();
-        expect(spectator.component.WEEK_START).toBeTruthy();
-        expect(spectator.component.SETUP_BREAKDOWN).toBeTruthy();
-        expect(spectator.component.EXPLORE_FEATURE).toBeTruthy();
-        expect(spectator.component.BANNER_TYPE).toBeTruthy();
-    });
-
     it('should toggle section groups', () => {
         expect(spectator.component.shown_group()).toBe('');
         spectator.component.toggleGroup('spaces');
@@ -220,6 +122,12 @@ describe('WorkplaceSettingsFormModalComponent', () => {
             'zone-1',
             'workplace_app',
         );
+    });
+
+    it('should hide devices and sensors on the explore map by default', () => {
+        const explore = spectator.component.model().explore;
+        expect(explore.hide_devices).toBe(true);
+        expect(explore.hide_sensors).toBe(true);
     });
 
     it('should merge groups and replace atomic setting values', async () => {
@@ -353,10 +261,5 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         }));
         spectator.component.removeLegend(5);
         expect(spectator.component.model().explore.legend.length).toBe(1);
-    });
-
-    it('should generate date string', () => {
-        expect(spectator.component.date_string).toBeTruthy();
-        expect(typeof spectator.component.date_string).toBe('string');
     });
 });

@@ -7,6 +7,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 
+import { ExploreIconComponent } from '../lib/explore-icon.component';
 import { ExploreStateService } from '../lib/explore-state.service';
 import { ExploreZonesService } from '../lib/explore-zones.service';
 
@@ -47,6 +48,10 @@ describe('ExploreZonesService', () => {
         vi.clearAllMocks();
         vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
         spectator = createService();
+        // Provider mocks are shared, so reset implementations set by a test
+        vi.mocked(spectator.inject(ExploreStateService).has).mockReturnValue(
+            false,
+        );
     });
 
     it('clears stale zone state when binding to another level', () => {
@@ -217,5 +222,54 @@ describe('ExploreZonesService', () => {
         expect(state.setLabels).toHaveBeenLastCalledWith('zones', [
             expect.objectContaining({ location: { x: 0.4, y: 0.4 } }),
         ]);
+    });
+
+    it('should draw, pin or colour each zone by how the map shows it', async () => {
+        const org = spectator.inject(OrganisationService);
+        const state = spectator.inject(ExploreStateService);
+        const points: [number, number][] = [
+            [0.1, 0.1],
+            [0.3, 0.3],
+        ];
+        (org as any).levels = [{ id: 'lvl-1' }];
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {
+                areas: [
+                    {
+                        id: 'drawn',
+                        properties: { draw_polygon: true },
+                        geometry: { coordinates: points },
+                    },
+                    { id: 'styled', geometry: { coordinates: points } },
+                    { id: 'plain', geometry: { coordinates: points } },
+                ],
+            },
+        } as any);
+        // Another map group already styles this zone, so it gets a pin
+        vi.mocked(state.has).mockImplementation((_, id) => id === 'styled');
+        await spectator.service.init();
+        const [, [canvas]] = vi
+            .mocked(state.setFeatures)
+            .mock.calls.find(([group]) => group === 'zones-canvas');
+
+        spectator.service.parseData([
+            { area_id: 'drawn', count: 90 },
+            { area_id: 'styled', count: 10 },
+            // A person at the location makes the zone busy at any count
+            { area_id: 'plain', count: 0, at_location: 1 },
+        ]);
+
+        expect((canvas.data as any).polygons()).toEqual([
+            { name: 'drawn', points, color: '#e53935' },
+        ]);
+        expect(state.setFeatures).toHaveBeenCalledWith('zones', [
+            expect.objectContaining({
+                location: 'styled',
+                content: ExploreIconComponent,
+            }),
+        ]);
+        expect(state.setStyles).toHaveBeenLastCalledWith('zones-styles', {
+            '#plain': { fill: '#e53935', opacity: 0.6 },
+        });
     });
 });

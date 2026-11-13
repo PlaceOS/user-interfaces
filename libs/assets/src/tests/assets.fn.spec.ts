@@ -151,6 +151,120 @@ describe('validateAssetRequestsForResource', () => {
         expect(selected.conflict).toBe(false);
     });
 
+    describe('with saved asset bookings for the event', () => {
+        const event = { id: 'event-1', ical_uid: 'event-1@example.com' };
+        const two_units = {
+            total: 2,
+            next: null,
+            data: [
+                { id: 'unit-1', asset_type_id: 'group-1' },
+                { id: 'unit-2', asset_type_id: 'group-1' },
+            ],
+        };
+        /** `request` as the booking form holds it, bound to the event time */
+        const event_request = (items = request.items) =>
+            new AssetRequest({ id: request.id, items, event: { date } });
+        /** Saved asset booking of `request` that holds unit-1 */
+        const saved_booking = (extra: Record<string, unknown> = {}) => ({
+            id: 'held',
+            booking_type: 'asset-request',
+            date,
+            duration: period.duration,
+            asset_ids: ['unit-1'],
+            extension_data: {
+                parent_id: event.id,
+                request_id: request.id,
+                request: { id: request.id, items: request.items },
+            },
+            ...extra,
+        });
+
+        beforeEach(() => {
+            vi.spyOn(ts_client, 'del').mockResolvedValue(undefined as never);
+            // Group results are cached per zone, so use a zone of its own
+            vi.spyOn(ts_client, 'queryAssets').mockResolvedValue(
+                two_units as never,
+            );
+        });
+
+        it('should keep the booking of an unchanged request', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                saved_booking(),
+            ] as never);
+
+            const create = await validateAssetRequestsForResource(
+                event,
+                { ...period, zones: ['zone-3'] },
+                [event_request()],
+            );
+            await create();
+
+            expect(ts_client.del).not.toHaveBeenCalled();
+            expect(ts_client.post).not.toHaveBeenCalled();
+        });
+
+        it('should replace the booking of a changed request', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                saved_booking(),
+            ] as never);
+            const changed = event_request([
+                { ...request.items[0], quantity: 2 },
+            ]);
+
+            let removed: () => void = () => undefined;
+            vi.mocked(ts_client.del).mockReturnValue(
+                new Promise<void>((resolve) => (removed = resolve)) as never,
+            );
+
+            const create = await validateAssetRequestsForResource(
+                event,
+                { ...period, zones: ['zone-3'] },
+                [changed],
+            );
+            const saving = create();
+            await vi.waitFor(() =>
+                expect(ts_client.del).toHaveBeenCalledWith(
+                    expect.stringContaining('/held?'),
+                    expect.anything(),
+                ),
+            );
+            // The old booking frees its asset before the new one is made
+            expect(ts_client.post).not.toHaveBeenCalled();
+            removed();
+            await saving;
+
+            const body = (ts_client.post as any).mock.calls[0][1];
+            expect(body.asset_ids).toEqual(['unit-1', 'unit-2']);
+        });
+
+        it('should replace an approved booking when the state is reset', async () => {
+            vi.spyOn(ts_client, 'get').mockResolvedValue([
+                saved_booking({ approved: true }),
+            ] as never);
+            // A request that holds the saved unit and is linked to its
+            // booking, so the approval would carry over without the reset
+            const unchanged = event_request([
+                { ...request.items[0], item_ids: ['unit-1'] },
+            ]);
+            unchanged._changed = false;
+
+            const create = await validateAssetRequestsForResource(
+                event,
+                { ...period, zones: ['zone-3'], reset_state: true },
+                [unchanged],
+            );
+            await create();
+
+            expect(ts_client.del).toHaveBeenCalledWith(
+                expect.stringContaining('/held?'),
+                expect.anything(),
+            );
+            const body = (ts_client.post as any).mock.calls[0][1];
+            expect(body.approved).toBe(false);
+            expect(body.extension_data.request_id).toBe(request.id);
+        });
+    });
+
     it('should flag a conflict when no asset is free', async () => {
         vi.spyOn(ts_client, 'get').mockResolvedValue([
             { id: 'other', status: 'approved', asset_ids: ['unit-1'] },

@@ -83,6 +83,17 @@ describe('returnToWelcomeWhenIdle', () => {
         expect(router.navigate).not.toHaveBeenCalled();
     });
 
+    it('should stop the timers and listeners when its context is destroyed', () => {
+        navigateTo('/checkin/scan');
+        TestBed.resetTestingModule();
+
+        document.dispatchEvent(new Event('pointerdown'));
+        vi.advanceTimersByTime(600_000);
+
+        expect(vi.getTimerCount()).toBe(0);
+        expect(router.navigate).not.toHaveBeenCalled();
+    });
+
     it('should not reset when the timeout is 0', () => {
         settingSignal<number>('inactivity_timeout_secs', 120).set(0);
         navigateTo('/checkin/details');

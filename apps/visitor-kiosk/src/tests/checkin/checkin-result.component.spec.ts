@@ -65,6 +65,33 @@ describe('CheckinResultsComponent', () => {
         );
     });
 
+    it('sends a visitor who can use the lift to the visitor lift', () => {
+        settings['app.checked_in_template'] = '{{ can_use_lift }}';
+        event.update(
+            (booking) =>
+                new Booking({
+                    ...booking,
+                    extension_data: { can_use_lift: true },
+                }),
+        );
+
+        expect(spectator.component.result_template()).toBe(
+            'Please use the visitor access lift over there',
+        );
+    });
+
+    it('fills label size values that the setting leaves out', async () => {
+        settings['app.visitor_label_size'] = { width: 50 };
+
+        await spectator.component.ngOnInit();
+
+        expect(spectator.component.label_size()).toEqual({
+            width: 50,
+            height: 15,
+            scale: 4,
+        });
+    });
+
     it('returns to check-in when no visitor is loaded', async () => {
         event.set(null);
 

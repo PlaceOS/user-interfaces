@@ -31,13 +31,17 @@ describe('ActionIconComponent', () => {
         expect('.state icon').not.toExist();
     });
 
-    it('should allow toggling of loading state', () => {
-        expect('mat-spinner').not.toExist();
-        spectator.setInput({ loading: true });
+    it('should show a spinner in place of the state and block presses while loading', () => {
+        spectator.setInput({ state: 'success', loading: true });
         spectator.detectChanges();
         expect('mat-spinner').toExist();
+        expect('.state icon').not.toExist();
+        expect('button').toBeDisabled();
+
         spectator.setInput({ loading: false });
         spectator.detectChanges();
         expect('mat-spinner').not.toExist();
+        expect('.state icon').toExist();
+        expect('button').not.toBeDisabled();
     });
 });

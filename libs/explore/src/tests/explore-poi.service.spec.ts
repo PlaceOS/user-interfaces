@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { OrganisationService } from '@placeos/common';
@@ -26,7 +27,10 @@ describe('ExplorePointOfInterestService', () => {
                 organisation: { id: 'org-1' } as any,
                 building: { id: 'bld-1' } as any,
                 active_building: signal({ id: 'bld-1' }) as any,
-                levelsForBuilding: vi.fn(() => [{ id: 'lvl-1' }]) as any,
+                levelsForBuilding: vi.fn(() => [
+                    { id: 'lvl-1' },
+                    { id: 'lvl-2' },
+                ]) as any,
             }),
             MockProvider(MatDialog, { open: vi.fn() }),
         ],
@@ -125,5 +129,47 @@ describe('ExplorePointOfInterestService', () => {
             ExplorePointOfInterestModalComponent,
             { data: item },
         );
+    });
+
+    it('should show the loaded points of interest of the active level only', async () => {
+        const state = spectator.inject(ExploreStateService);
+        const poi = (location: string) => ({ location, image: 'http://img' });
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: {
+                'lvl-1': [poi('poi-1')],
+                'lvl-2': [poi('poi-2')],
+                // Levels outside the building are left out
+                'lvl-9': [poi('poi-9')],
+            },
+        } as any);
+
+        await vi.waitFor(() => {
+            TestBed.tick();
+            const [, features] = vi.mocked(state.setFeatures).mock.calls.at(-1);
+            expect(features.map((_) => _.location)).toEqual(['poi-1']);
+        });
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'org-1',
+            'points-of-interest',
+        );
+    });
+
+    it('should not open the modal when the press is held down', () => {
+        vi.useFakeTimers();
+        const dialog = spectator.inject(MatDialog);
+        const state = spectator.inject(ExploreStateService);
+        (spectator.service as any)._updateMapDetails([
+            { location: 'poi-1', image: 'http://img' },
+        ]);
+        const [, actions] = vi.mocked(state.setActions).mock.calls[0];
+        const fire = (name: string) =>
+            actions.find((_) => _.action === name).callback(new Event(name));
+
+        fire('mousedown');
+        vi.advanceTimersByTime(300);
+        fire('mouseup');
+
+        expect(dialog.open).not.toHaveBeenCalled();
+        vi.useRealTimers();
     });
 });

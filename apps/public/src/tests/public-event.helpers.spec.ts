@@ -1,7 +1,9 @@
 import { convertToParamMap } from '@angular/router';
 import {
+    eventDescription,
     eventDescriptionText,
     eventId,
+    eventLocation,
     eventTime,
     eventTitle,
     isSystemEvent,
@@ -14,6 +16,7 @@ describe('public event helpers', () => {
         [{ id: 'setup', is_system_event: true }, true],
         [{ id: 'setup', body: 'main_event_id=booking' }, true],
         [{ id: 'setup', description: 'main_event_id=booking' }, true],
+        [{ id: 'setup', details: 'main_event_id=booking' }, true],
         [{ id: 'booking', body: 'Public event' }, false],
     ])('should identify system events (%o)', (event, expected) => {
         expect(isSystemEvent(event)).toBe(expected);
@@ -53,9 +56,28 @@ describe('public event helpers', () => {
         expect(eventId({})).toBe('');
     });
 
-    it('should fall back to a placeholder title', () => {
+    it('should use the first title field that is set, then a placeholder', () => {
+        expect(eventTitle({ title: 'Title', name: 'Name' })).toBe('Title');
         expect(eventTitle({ name: 'Name', summary: 'Summary' })).toBe('Name');
+        expect(
+            eventTitle({ summary: 'Summary', display_name: 'Display' }),
+        ).toBe('Summary');
+        expect(eventTitle({ display_name: 'Display' })).toBe('Display');
         expect(eventTitle({})).toBe('Untitled event');
+    });
+
+    it('should use the first location and description fields that are set', () => {
+        expect(eventLocation({ location: 'A', location_name: 'B' })).toBe('A');
+        expect(eventLocation({ location_name: 'B', space_name: 'C' })).toBe(
+            'B',
+        );
+        expect(eventLocation({ space_name: 'C' })).toBe('C');
+        expect(eventLocation({})).toBe('');
+
+        expect(eventDescription({ description: 'A', body: 'B' })).toBe('A');
+        expect(eventDescription({ body: 'B', details: 'C' })).toBe('B');
+        expect(eventDescription({ details: 'C' })).toBe('C');
+        expect(eventDescriptionText({})).toBe('');
     });
 
     describe('eventTime', () => {

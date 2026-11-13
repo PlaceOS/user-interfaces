@@ -69,6 +69,21 @@ describe('DateCalendarComponent', () => {
         );
     });
 
+    it('should start the weeks on the set day and move by month', () => {
+        spectator.setInput({ offset_weekday: 1 });
+        const first_day = () =>
+            new Date(spectator.component.displayed_dates()[0].id);
+
+        // 1 June 2026 is a Monday
+        spectator.component.writeValue(new Date(2026, 5, 10).valueOf());
+        expect(first_day()).toEqual(new Date(2026, 5, 1));
+        spectator.component.changeMonth(1);
+        expect(first_day()).toEqual(new Date(2026, 5, 29));
+        // Back to the month of today, which starts on a Wednesday
+        spectator.component.setMonthToCurrent();
+        expect(first_day()).toEqual(new Date(2026, 2, 30));
+    });
+
     it('should disable every day when the control is disabled', () => {
         spectator.component.setDisabledState(true);
         spectator.detectChanges();

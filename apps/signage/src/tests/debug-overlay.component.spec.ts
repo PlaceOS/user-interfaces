@@ -161,6 +161,50 @@ describe('DebugOverlayComponent', () => {
         expect(spectator.element.style.transform).toBe('translate(-60%, -40%)');
     });
 
+    it.each([
+        ['cannot be parsed', '{not json'],
+        [
+            'has the wrong shape',
+            JSON.stringify({ minimized: 'yes', position: { x: 0.6 } }),
+        ],
+    ])('should ignore a stored layout that %s', (_, stored) => {
+        spectator.fixture.destroy();
+        localStorage.setItem('SIGNAGE.debug-overlay.test-overlay', stored);
+
+        build_component();
+
+        expect(spectator.component.position()).toEqual({ x: 0.25, y: 0.75 });
+        expect(spectator.component.minimized()).toBe(false);
+    });
+
+    it('should stay hidden when a drag of its hidden control ends', async () => {
+        build_component(true);
+        spectator.component.setMinimized(true);
+        await spectator.fixture.whenStable();
+        vi.spyOn(
+            spectator.element.parentElement!,
+            'getBoundingClientRect',
+        ).mockReturnValue(DOMRect.fromRect({ width: 1000, height: 800 }));
+        vi.spyOn(spectator.element, 'getBoundingClientRect').mockReturnValue(
+            DOMRect.fromRect({ width: 100, height: 100 }),
+        );
+        const show_control = spectator.query(
+            'button[aria-label="Show test overlay"]',
+        ) as HTMLButtonElement;
+
+        spectator.component.startDrag(pointerEvent(show_control, 100, 100));
+        spectator.component.moveDrag(pointerEvent(show_control, 200, 200));
+        spectator.component.finishDrag(pointerEvent(show_control, 200, 200));
+        // The browser clicks the control when the pointer is released
+        show_control.click();
+
+        expect(spectator.component.minimized()).toBe(true);
+
+        show_control.click();
+
+        expect(spectator.component.minimized()).toBe(false);
+    });
+
     it('should store a dragged position within the parent bounds', async () => {
         spectator.setInput('editing', true);
         await spectator.fixture.whenStable();

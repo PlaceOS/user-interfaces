@@ -6,10 +6,13 @@ import {
     Spectator,
 } from '@ngneat/spectator/vitest';
 import {
+    BuildingLevel,
     HashMap,
     OrganisationService,
     setCurrentUser,
     setNotifyOutlet,
+    settingSignal,
+    SettingsService,
     Space,
     StaffUser,
 } from '@placeos/common';
@@ -49,6 +52,7 @@ describe('RoomSearchComponent', () => {
     };
     const available = signal<Space[]>([]);
     const options = signal<Partial<EventFormOptions>>({});
+    const favourites = settingSignal<string[]>('favourite_spaces', [], true);
 
     const createComponent = createComponentFactory({
         component: RoomSearchComponent,
@@ -75,6 +79,7 @@ describe('RoomSearchComponent', () => {
         vi.clearAllMocks();
         setNotifyOutlet(snackbar as unknown as MatSnackBar, true);
         options.set({});
+        favourites.set([]);
         available.set([
             room('large', 10, { features: ['VC'] }),
             room('small', 4),
@@ -162,6 +167,36 @@ describe('RoomSearchComponent', () => {
         );
         expect(results()).toContain('small');
         expect(spectator.component.busy()).toBe('');
+    });
+
+    it('returns a removed room to the results', async () => {
+        await spectator.component.removeRoom('on-event@place.tech');
+
+        expect(adapter.details.room_emails).toEqual([]);
+        expect(results()).toContain('on-event');
+        expect(spectator.component.event_rooms()).toEqual([]);
+    });
+
+    it('saves a favourite room and lists only favourites when asked', () => {
+        const save = vi
+            .spyOn(spectator.inject(SettingsService), 'saveUserSetting')
+            .mockImplementation(() => undefined);
+
+        spectator.component.toggleFavourite(available()[1]);
+        spectator.component.show_favourites.set(true);
+
+        expect(save).toHaveBeenCalledWith('favourite_spaces', ['small']);
+        expect(results()).toEqual(['small']);
+    });
+
+    it('shows the floor and capacity of a room', () => {
+        const level = new BuildingLevel({ id: 'lvl-1', name: 'Level 1' });
+        expect(
+            spectator.component.roomDetails(room('booth', 1, { level })),
+        ).toBe('Level 1 · 1 person');
+        expect(spectator.component.roomDetails(available()[0])).toBe(
+            '10 people',
+        );
     });
 
     it('shows the Exchange response of a room on the saved event', async () => {

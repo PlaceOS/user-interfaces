@@ -38,29 +38,23 @@ describe('SettingsService', () => {
         });
     }
 
-    it('should initialise settings from DEFAULT_SETTINGS', async () => {
+    it('should read app settings from the first override that has them', async () => {
         const service = spectator.service;
         await whenInitialised(service);
-        // Test getting default settings that exist in the actual DEFAULT_SETTINGS
-        expect(service.get('debug')).toBe(true);
-        expect(service.get('composer.domain')).toBe('');
-        expect(service.get('app.title')).toBe('PlaceOS');
-    });
+        const title = service.signal<string>('title');
 
-    it('should get nested settings', async () => {
-        const service = spectator.service;
-        await whenInitialised(service);
-        // Test getting nested settings from actual DEFAULT_SETTINGS
-        expect(service.get('composer')).toStrictEqual({
-            domain: '',
-            route: '/placeos',
-            protocol: '',
-            port: '',
-            use_domain: false,
-            local_login: false,
-        });
-        expect(service.get('composer.route')).toBe('/placeos');
-        expect(service.get('composer.local_login')).toBe(false);
+        service.setOverrides([
+            { title: 'Level' },
+            { title: 'Org', description: 'Org description' },
+        ]);
+
+        expect(service.get('app.title')).toBe('Level');
+        expect(service.get('app.description')).toBe('Org description');
+        // Settings that no override has come from the defaults
+        expect(service.get('app.short_name')).toBe('PlaceOS');
+        expect(title()).toBe('Level');
+        service.setOverrides([]);
+        expect(title()).toBe('PlaceOS');
     });
 
     describe('title', () => {
@@ -142,6 +136,44 @@ describe('SettingsService renamed user settings', () => {
         );
         // A value under the new key wins over the old key
         expect(service.get('favourite_parking')).toEqual(['bay-2']);
+    });
+});
+
+describe('SettingsService user settings', () => {
+    const createService = createServiceFactory(SettingsService);
+
+    afterEach(() => vi.useRealTimers());
+
+    it('should save changes in one request, merged with the stored settings', async () => {
+        vi.mocked(ts_client.showMetadata).mockResolvedValue({
+            details: { theme: 'dark', font_size: 16 },
+        } as any);
+        vi.mocked(ts_client.updateMetadata)
+            .mockClear()
+            .mockResolvedValue({} as any);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+        await vi.waitFor(() => expect(service.get('font_size')).toBe(16));
+        vi.useFakeTimers();
+
+        service.saveUserSetting('use_24_hour_time', true);
+        await vi.advanceTimersByTimeAsync(1000);
+        service.saveUserSetting('font_size', 18);
+
+        // Unsaved changes are read before the stored settings
+        expect(service.get('font_size')).toBe(18);
+        // Each change restarts the 2.4 second wait
+        await vi.advanceTimersByTimeAsync(2399);
+        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(1);
+        expect(ts_client.updateMetadata).toHaveBeenCalledTimes(1);
+        expect(ts_client.updateMetadata).toHaveBeenCalledWith('test-user', {
+            name: 'settings',
+            description: '',
+            details: { theme: 'dark', font_size: 18, use_24_hour_time: true },
+        });
     });
 });
 

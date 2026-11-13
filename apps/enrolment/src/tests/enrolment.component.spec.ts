@@ -147,12 +147,20 @@ describe('EnrolmentComponent', () => {
             expect(text()).toContain(`See you at ${time}`);
         });
 
-        it('should render the error panel for any other view', () => {
-            state.setView('error');
-            spectator.detectChanges();
+        it.each(['error', 'not-a-view'])(
+            'should render the error panel for the "%s" route view',
+            (view) => {
+                // Start elsewhere so only the route can select the error panel
+                state.setView('event');
+                params.next(param_map({ view }));
+                spectator.detectChanges();
 
-            expect(spectator.query('enrolment-error')).toExist();
-        });
+                expect(spectator.query('enrolment-error')).toExist();
+                expect(
+                    spectator.query('enrolment-event-details'),
+                ).not.toExist();
+            },
+        );
     });
 
     describe('routing', () => {
@@ -191,6 +199,12 @@ describe('EnrolmentComponent', () => {
             expect(spectator.query('img')?.getAttribute('src')).toBe(
                 'assets/logo-dark.svg',
             );
+        });
+
+        it('should leave the logo empty when none is configured', () => {
+            settingSignal('logo_dark').set(undefined);
+
+            expect(spectator.component.logo()).toBe('');
         });
 
         it('should use the light logo for the dark theme', () => {

@@ -21,6 +21,14 @@ describe('application loader utilities', () => {
             expect(apps.map((_) => _.name)).toEqual(['alpha.example.com', 'Zeta']);
         });
 
+        it('keeps a relative redirect URI and names it after the current host', () => {
+            const [app] = buildLauncherApplications([{ id: 'local', redirect_uri: '/local/' }]);
+
+            expect(app.redirect_uri).toBe('/local/');
+            expect(app.name).toBe(location.hostname);
+            expect(app.icon_urls[0]).toBe(`${location.origin}/local/assets/favicon.svg`);
+        });
+
         it('falls back to the redirect URI for a missing id', () => {
             const [app] = buildLauncherApplications([
                 { name: 'Workplace', redirect_uri: 'https://example.com/workplace/' },

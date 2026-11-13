@@ -130,6 +130,19 @@ describe('BookingRulesFormComponent', () => {
         expect(new Date(period[1]).getHours()).toBe(23);
     });
 
+    it('should make a period that ends before it starts a single day', () => {
+        spectator.component.setIsPeriod(
+            new Date(2026, 5, 12, 9).valueOf(),
+            new Date(2026, 5, 10, 15).valueOf(),
+        );
+        expect(
+            spectator.component.form.getRawValue().conditions.is_period,
+        ).toEqual([
+            new Date(2026, 5, 12).valueOf(),
+            new Date(2026, 5, 12, 23, 59, 59, 999).valueOf(),
+        ]);
+    });
+
     it('should emit the ruleset each time the save input toggles', () => {
         const on_change = vi.fn();
         spectator.component.rulesetChange.subscribe(on_change);

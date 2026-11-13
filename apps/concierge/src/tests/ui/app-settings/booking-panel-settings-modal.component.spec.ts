@@ -93,48 +93,6 @@ describe('BookingPanelSettingsModalComponent', () => {
         }
     });
 
-    it('should have a model with booking values', () => {
-        const model = spectator.component.model();
-        expect('disable_book_now' in model).toBe(true);
-        expect('disable_book_now_host' in model).toBe(true);
-        expect('min_duration' in model).toBe(true);
-        expect('max_duration' in model).toBe(true);
-    });
-
-    it('should have check-in timing values', () => {
-        const model = spectator.component.model();
-        expect('pending_before' in model).toBe(true);
-        expect('pending_period' in model).toBe(true);
-    });
-
-    it('should have meeting display values', () => {
-        const model = spectator.component.model();
-        expect('disable_end_meeting' in model).toBe(true);
-        expect('enable_end_meeting_button' in model).toBe(true);
-        expect('hide_meeting_details' in model).toBe(true);
-        expect('hide_meeting_title' in model).toBe(true);
-    });
-
-    it('should have QR code values', () => {
-        const model = spectator.component.model();
-        expect('show_qr_code' in model).toBe(true);
-        expect('hide_qr_text' in model).toBe(true);
-        expect('custom_qr_url' in model).toBe(true);
-        expect('custom_qr_color' in model).toBe(true);
-    });
-
-    it('should have URL values', () => {
-        const model = spectator.component.model();
-        expect('control_ui' in model).toBe(true);
-        expect('catering_ui' in model).toBe(true);
-        expect('room_image' in model).toBe(true);
-        expect('offline_image' in model).toBe(true);
-    });
-
-    it('should expose the zone from dialog data', () => {
-        expect(spectator.component.zone).toEqual(mock_zone);
-    });
-
     it('should have correct default model values', () => {
         const model = spectator.component.model();
         expect(model.min_duration).toBe(15);

@@ -5,14 +5,16 @@ import {
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DefaultUrlSerializer, UrlTree } from '@angular/router';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, VersionEvent } from '@angular/service-worker';
 import {
+    clearCacheCheck,
     HotkeysService,
     initialisationComplete,
     initialisationFailure,
     LocaleService,
     OrganisationService,
     PlaceOS_Service,
+    serviceWorkerUpdate,
     setCurrentUser,
     SettingsService,
     StaffUser,
@@ -334,6 +336,35 @@ describe('AppComponent', () => {
 
             fire('KeyM');
             expect(localStorage.getItem('mock')).toBe('false');
+        });
+    });
+
+    describe('service worker', () => {
+        afterEach(() => {
+            // Stops the update check timers and resets the shared cache state
+            clearCacheCheck();
+        });
+
+        it('should show an update that is ready before settings finish loading', () => {
+            const version_updates = new Subject<VersionEvent>();
+            Object.defineProperties(spectator.inject(SwUpdate), {
+                isEnabled: { value: true },
+                versionUpdates: { value: version_updates },
+                unrecoverable: { value: new Subject() },
+            });
+            // Not awaited: the default `initialised` Subject holds `ngOnInit`
+            // at the settings wait.
+            spectator.component.ngOnInit();
+
+            version_updates.next({
+                type: 'VERSION_READY',
+                currentVersion: { hash: 'v1' },
+                latestVersion: { hash: 'v2' },
+            });
+
+            expect(serviceWorkerUpdate()()).toEqual(
+                expect.objectContaining({ action: 'Refresh' }),
+            );
         });
     });
 

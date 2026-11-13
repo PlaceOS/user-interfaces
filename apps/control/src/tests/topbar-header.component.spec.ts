@@ -33,6 +33,9 @@ describe('TopbarHeaderComponent', () => {
     const hide_join_button = signal(false);
     const join_status = signal<[boolean, boolean]>([false, false]);
     const speaker_track = signal<boolean | null>(null);
+    const lighting_scenes = signal<unknown[]>([]);
+    const lighting_levels = signal<unknown[] | undefined>(undefined);
+    const help_items = signal<unknown[] | null>(null);
     const createComponent = createComponentFactory({
         component: TopbarHeaderComponent,
         declarations: [
@@ -52,13 +55,13 @@ describe('TopbarHeaderComponent', () => {
                 camera_list,
                 lights: signal([]),
                 blinds: signal([]),
-                lighting_scenes: signal([]),
-                lighting_levels: signal([]),
+                lighting_scenes,
+                lighting_levels,
                 joined,
                 join_modes,
                 join_status,
                 hide_join_button,
-                help_items: signal({}),
+                help_items,
                 room_accessories: signal([]),
                 powerOff: vi.fn(),
                 changeRoom: vi.fn(),
@@ -86,6 +89,9 @@ describe('TopbarHeaderComponent', () => {
         hide_join_button.set(false);
         join_status.set([false, false]);
         speaker_track.set(null);
+        lighting_scenes.set([]);
+        lighting_levels.set(undefined);
+        help_items.set(null);
         vi.clearAllMocks();
         vi.useFakeTimers();
     });
@@ -148,12 +154,20 @@ describe('TopbarHeaderComponent', () => {
         ).not.toHaveBeenCalled();
     });
 
-    it('should hide the lighting scenes action when the room has no scenes', () => {
+    it('should show the lighting and help actions when the room has them', () => {
         spectator = createComponent();
-        const action = spectator.component
-            .action_list()
-            .find((_) => _.id === 'lighting_scenes');
-        expect(action.show).toBe(false);
+        const shown = (id: string) =>
+            spectator.component.action_list().find((_) => _.id === id).show;
+        expect(shown('lighting_scenes')).toBe(false);
+        expect(shown('lighting_levels')).toBe(false);
+        expect(shown('help')).toBe(false);
+
+        lighting_scenes.set([{ id: 1, name: 'Bright' }]);
+        lighting_levels.set([]);
+        help_items.set([{ id: 'wifi' }]);
+        expect(shown('lighting_scenes')).toBe(true);
+        expect(shown('lighting_levels')).toBe(true);
+        expect(shown('help')).toBe(true);
     });
 
     it('should open a popup action in a fullscreen dialog', () => {

@@ -1,26 +1,19 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { HashMap } from '@placeos/common';
+import { MockHttpRequest, registerMockEndpoint } from '@placeos/ts-client';
 
+import { MOCK_ASSETS } from '../lib/api/assets.data';
 import { registerMockAssets } from '../lib/api/assets.mock';
+import { MOCK_LEVELS } from '../lib/api/zone.data';
+import { endpoint } from './endpoints';
 
 vi.mock('@placeos/ts-client');
 
 const BASE = '/api/engine/v2';
 
 describe('registerMockAssets', () => {
-    /** Callback registered for the given method + path */
-    function handler(method: string, path: string) {
-        const match = vi
-            .mocked(registerMockEndpoint)
-            .mock.calls.map(([options]) => options)
-            .find((o) => o.method === method && o.path === path);
-        if (!match) throw new Error(`No handler for ${method} ${path}`);
-        return (req: Record<string, unknown>) =>
-            match.callback({
-                route_params: {},
-                query_params: {},
-                ...req,
-            } as never) as any;
-    }
+    /** Handler for `method` and `path` of the asset mocks */
+    const handler = (method: MockHttpRequest['method'], path: string) =>
+        endpoint<HashMap>(method, path);
 
     beforeEach(() => {
         vi.mocked(registerMockEndpoint).mockClear();
@@ -81,9 +74,10 @@ describe('registerMockAssets', () => {
 
     describe('assets', () => {
         const list = (query_params: Record<string, string>) =>
-            (handler('GET', `${BASE}/assets`)({ query_params }) as any[]).map(
-                (a) => a.name,
-            );
+            endpoint<HashMap[]>(
+                'GET',
+                `${BASE}/assets`,
+            )({ query_params }).map((a) => a.name);
 
         it('should add and change assets in bulk from a JSON string body', () => {
             // ts-client sends the bulk list as a JSON string
@@ -143,6 +137,35 @@ describe('registerMockAssets', () => {
                 'In one',
                 'By zone_id',
             ]);
+        });
+
+        it('should make the parking spaces of a level once', () => {
+            const level = MOCK_LEVELS.find((zone) => zone.type === 'parking');
+            const parking = (query_params: HashMap<string>) =>
+                endpoint<HashMap[]>(
+                    'GET',
+                    `${BASE}/assets`,
+                )({
+                    query_params: {
+                        type_id: '_parking_type_',
+                        ...query_params,
+                    },
+                });
+
+            // Listing the building makes the spaces of its parking levels
+            parking({ zones: level.parent_id });
+            const count = MOCK_ASSETS.length;
+            const spaces = parking({ zone_id: level.id, limit: '500' });
+
+            expect(spaces.length).toBeGreaterThan(0);
+            // The second listing must not add the spaces again
+            expect(MOCK_ASSETS).toHaveLength(count);
+            expect(new Set(spaces.map((space) => space.id)).size).toBe(
+                spaces.length,
+            );
+            expect(spaces[0].zones).toEqual(
+                expect.arrayContaining([level.parent_id, level.id]),
+            );
         });
     });
 });

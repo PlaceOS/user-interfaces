@@ -123,42 +123,19 @@ describe('asset.utilities', () => {
     });
 
     describe('getAssetRulesForZone', () => {
-        it('should resolve an empty list without a zone id', async () => {
-            expect(await getAssetRulesForZone('')).toEqual([]);
-            expect(ts_client.showMetadata).not.toHaveBeenCalled();
-        });
-
-        it('should return the metadata details and cache the request', async () => {
+        // zoneRulesetLoader caching and fallbacks are covered in libs/components
+        it('should load the rules from the assets_config metadata', async () => {
             vi.mocked(ts_client.showMetadata).mockResolvedValue({
                 details: [{ name: '*', rules: [] }],
             } as any);
 
-            const rules = await getAssetRulesForZone('zone-cache');
-            expect(rules).toEqual([{ name: '*', rules: [] }]);
+            expect(await getAssetRulesForZone('zone-1')).toEqual([
+                { name: '*', rules: [] },
+            ]);
             expect(ts_client.showMetadata).toHaveBeenCalledWith(
-                'zone-cache',
+                'zone-1',
                 'assets_config',
             );
-
-            await getAssetRulesForZone('zone-cache');
-            expect(ts_client.showMetadata).toHaveBeenCalledTimes(1);
-
-            await getAssetRulesForZone('zone-cache', true);
-            expect(ts_client.showMetadata).toHaveBeenCalledTimes(2);
-        });
-
-        it('should resolve an empty list when details are not an array', async () => {
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details: { name: '*' },
-            } as any);
-            expect(await getAssetRulesForZone('zone-nonarray')).toEqual([]);
-        });
-
-        it('should resolve an empty list when the request errors', async () => {
-            vi.mocked(ts_client.showMetadata).mockRejectedValue(
-                new Error('nope'),
-            );
-            expect(await getAssetRulesForZone('zone-error')).toEqual([]);
         });
     });
 
@@ -175,9 +152,9 @@ describe('asset.utilities', () => {
         }
 
         it('should be available when there are no rules', () => {
-            expect(assetAvailable({ name: 'Chairs' } as any, [], make_event())).toBe(
-                true,
-            );
+            expect(
+                assetAvailable({ name: 'Chairs' } as any, [], make_event()),
+            ).toBe(true);
         });
 
         it('should ignore rules that do not match the item', () => {
@@ -194,24 +171,32 @@ describe('asset.utilities', () => {
             const rules = [
                 { name: '*', rules: [['visitor_type', 'guest']] },
             ] as any;
-            const event = make_event({ ext: (key: string) => (key === 'visitor_type' ? 'other' : undefined) });
-            expect(assetAvailable({ name: 'Chairs' } as any, rules, event)).toBe(
-                false,
-            );
+            const event = make_event({
+                ext: (key: string) =>
+                    key === 'visitor_type' ? 'other' : undefined,
+            });
+            expect(
+                assetAvailable({ name: 'Chairs' } as any, rules, event),
+            ).toBe(false);
         });
 
         it('should be available when a matching rule is satisfied', () => {
             const rules = [
                 { name: '*', rules: [['visitor_type', 'guest']] },
             ] as any;
-            const event = make_event({ ext: (key: string) => (key === 'visitor_type' ? 'guest' : undefined) });
-            expect(assetAvailable({ name: 'Chairs' } as any, rules, event)).toBe(
-                true,
-            );
+            const event = make_event({
+                ext: (key: string) =>
+                    key === 'visitor_type' ? 'guest' : undefined,
+            });
+            expect(
+                assetAvailable({ name: 'Chairs' } as any, rules, event),
+            ).toBe(true);
         });
 
         it('should honour is_before timing rules', () => {
-            const rules = [{ name: 'Chairs', rules: [['is_before', 2]] }] as any;
+            const rules = [
+                { name: 'Chairs', rules: [['is_before', 2]] },
+            ] as any;
 
             const future = make_event({
                 date: addHours(new Date(), 5).valueOf(),
@@ -286,6 +271,50 @@ describe('asset.utilities', () => {
             );
         });
 
+        it('should apply rules named after a zone of the space or a resource', () => {
+            const rules: AttachedResourceRuleset[] = [
+                {
+                    id: 'r1',
+                    name: 'zone-1',
+                    rules: [['max_length', '30 minutes']],
+                },
+            ];
+            const chairs = { name: 'Chairs' } as AssetGroup;
+
+            expect(assetAvailable(chairs, rules, make_event())).toBe(true);
+            expect(
+                assetAvailable(
+                    chairs,
+                    rules,
+                    make_event({ space: { zones: ['zone-1'] } }),
+                ),
+            ).toBe(false);
+            expect(
+                assetAvailable(
+                    chairs,
+                    rules,
+                    make_event({ resources: [{ zones: ['zone-1'] }] }),
+                ),
+            ).toBe(false);
+        });
+
+        it('should honour after_hour and before_hour rules', () => {
+            const chairs = { name: 'Chairs' } as AssetGroup;
+            const at = (hour: number) =>
+                make_event({ date: new Date(2030, 0, 1, hour).valueOf() });
+            const after: AttachedResourceRuleset[] = [
+                { id: 'r1', name: '*', rules: [['after_hour', 12]] },
+            ];
+            const before: AttachedResourceRuleset[] = [
+                { id: 'r2', name: '*', rules: [['before_hour', 12]] },
+            ];
+
+            expect(assetAvailable(chairs, after, at(14))).toBe(true);
+            expect(assetAvailable(chairs, after, at(10))).toBe(false);
+            expect(assetAvailable(chairs, before, at(10))).toBe(true);
+            expect(assetAvailable(chairs, before, at(14))).toBe(false);
+        });
+
         it('should not throw for a category without a name', () => {
             const rules = [
                 { name: 'Furniture', rules: [['visitor_type', 'guest']] },
@@ -306,7 +335,10 @@ describe('asset.utilities', () => {
             const event = make_event({ ext: () => 'other' });
             expect(
                 assetAvailable(
-                    { name: 'Chairs', category: { name: 'Office Furniture' } } as any,
+                    {
+                        name: 'Chairs',
+                        category: { name: 'Office Furniture' },
+                    } as any,
                     rules,
                     event,
                 ),

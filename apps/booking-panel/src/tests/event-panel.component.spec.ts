@@ -6,6 +6,7 @@ import {
 import { MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { generateQRCode } from '@placeos/common/qr-code';
 import { EventPanelComponent } from '../app/event-panel.component';
 import { PanelStateService } from '../app/panel-state.service';
 
@@ -155,12 +156,18 @@ describe('EventPanelComponent', () => {
         expect(spectator.component.show_qr()).toBe(false);
     });
 
-    it('should encode the custom QR url instead of the check-in page', () => {
-        const default_code = spectator.component.qr_code();
-        settings.set({ custom_qr_url: 'https://example.com/checkin' });
-        const custom_code = spectator.component.qr_code();
-        expect(custom_code).toContain('data:image/svg+xml');
-        expect(custom_code).not.toBe(default_code);
+    it.each([
+        [
+            undefined,
+            `${location.origin}${location.pathname}#/checkin/sys-1?user=true`,
+        ],
+        ['https://example.com/checkin', 'https://example.com/checkin'],
+    ])('should encode the check-in URL (custom_qr_url %s)', (custom, url) => {
+        spectator.inject(PanelStateService).system = 'sys-1';
+        settings.set({ custom_qr_url: custom });
+        expect(spectator.component.qr_code()).toBe(
+            generateQRCode(url, '#0000', '#000'),
+        );
     });
 
     it('should bind the active system from the route parameter on init', async () => {

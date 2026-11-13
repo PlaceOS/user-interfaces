@@ -11,6 +11,7 @@ import {
     PlaceZone,
     removeZone,
     showZone,
+    SignagePlaylist,
     updateZone,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
@@ -204,5 +205,56 @@ describe('SignageZoneService', () => {
         );
         expect(untagged_removed).toBe(false);
         expect(removeZone).not.toHaveBeenCalled();
+    });
+    describe('adding a zone to a playlist', () => {
+        const playlist = new SignagePlaylist({ id: 'playlist-1' });
+
+        /** The zone picker closes with `zone_id` */
+        function pickZone(zone_id: string) {
+            dialog.open.mockReturnValue({
+                afterClosed: () => ({
+                    subscribe: (handler: (result: string) => void) => {
+                        Promise.resolve().then(() => handler(zone_id));
+                        return { unsubscribe: vi.fn() };
+                    },
+                }),
+            });
+        }
+
+        it('loads a picked zone that the zone list does not hold', async () => {
+            const service = createService();
+            const zone = new PlaceZone({
+                id: 'zone-far',
+                version: 3,
+                playlists: ['playlist-0'],
+            });
+            vi.mocked(showZone).mockResolvedValue(zone);
+            vi.mocked(updateZone).mockResolvedValue(zone);
+            pickZone('zone-far');
+
+            await service.addZoneToPlaylist(playlist);
+
+            expect(showZone).toHaveBeenCalledWith('zone-far');
+            expect(updateZone).toHaveBeenCalledWith(
+                'zone-far',
+                { playlists: ['playlist-0', 'playlist-1'], version: 3 },
+                'patch',
+            );
+        });
+
+        it('shows an error when the picked zone cannot be loaded', async () => {
+            const service = createService();
+            vi.mocked(showZone).mockRejectedValue(new Error('Not found'));
+            pickZone('zone-gone');
+
+            await service.addZoneToPlaylist(playlist);
+
+            expect(updateZone).not.toHaveBeenCalled();
+            expect(notify_open).toHaveBeenCalledExactlyOnceWith(
+                'Could not update the assignment. Please try again.',
+                expect.anything(),
+                expect.objectContaining({ panelClass: ['error'] }),
+            );
+        });
     });
 });

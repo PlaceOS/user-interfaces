@@ -120,6 +120,64 @@ describe('MapEditorAiPanelComponent', () => {
         );
     });
 
+    it('ticks a section of four rows as a whole and collapses its list', async () => {
+        const ids = ['table-01.001', 'table-01.002', 'table-01.003', 'plant-1'];
+        const sequence = jobSequence({
+            ops: ids.map((id) => recolour(doc, id, '#d1fae5')),
+        });
+        const fixture = await mount(
+            new FakeTransport({
+                edit: sequence.accepted,
+                polls: sequence.polls,
+            }),
+        );
+        await fixture.componentInstance.thread()!.submit('Recolour');
+        await settle(fixture);
+        const section = () =>
+            fixture.nativeElement.querySelector(
+                '[row-group][data-category="changed"]',
+            ) as HTMLElement;
+        const group_box = () =>
+            section().querySelector(
+                '.section-head input[type="checkbox"]',
+            ) as HTMLInputElement;
+        const fills = () => ids.map((id) => doc.byId(id)?.getAttribute('fill'));
+        const original = MapDocument.load(OFFICE);
+        const before = ids.map((id) => original.byId(id)?.getAttribute('fill'));
+        expect(group_box().checked).toBe(true);
+        expect(fills()).toEqual(ids.map(() => '#d1fae5'));
+
+        group_box().click();
+        await settle(fixture);
+        expect(group_box().checked).toBe(false);
+        expect(group_box().indeterminate).toBe(false);
+        expect(fills()).toEqual(before);
+
+        (
+            section().querySelector(
+                '[row][data-index="0"] input[type="checkbox"]',
+            ) as HTMLInputElement
+        ).click();
+        await settle(fixture);
+        expect(group_box().indeterminate).toBe(true);
+        expect(fills()).toEqual(['#d1fae5', ...before.slice(1)]);
+
+        group_box().click();
+        await settle(fixture);
+        expect(group_box().checked).toBe(true);
+        expect(group_box().indeterminate).toBe(false);
+        expect(fills()).toEqual(ids.map(() => '#d1fae5'));
+
+        const collapse = section().querySelector(
+            '.section-head button.link',
+        ) as HTMLButtonElement;
+        expect(collapse.getAttribute('aria-expanded')).toBe('true');
+        collapse.click();
+        await settle(fixture, 1);
+        expect(collapse.getAttribute('aria-expanded')).toBe('false');
+        expect(section().querySelector('[rows]')).toBeNull();
+    });
+
     it('keeps every map marker while a changed selection is checked', async () => {
         const sequence = jobSequence({
             ops: [

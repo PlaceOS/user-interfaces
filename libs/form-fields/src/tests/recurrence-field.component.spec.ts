@@ -11,8 +11,9 @@ import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { addDays, addMonths, addWeeks, endOfDay, getUnixTime } from 'date-fns';
 import { MockModule, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
-import { BookingRecurrence, NO_RECURR } from '@placeos/common';
+import { BookingRecurrence, NO_RECURR, Recurrence } from '@placeos/common';
 import { RecurrenceFieldComponent } from '../lib/recurrence-field.component';
 
 // ---------------------------------------------------------------------------
@@ -747,6 +748,58 @@ describe('RecurrenceFieldComponent – date change regression', () => {
             expect(spectator.component.formatted_value()).toBe(
                 'Every 1 year on 31 Mar',
             );
+        });
+    });
+
+    describe('custom recurrence modal', () => {
+        /** Open the modal, close it with `result` and wait for the field to apply it */
+        const closeModalWith = (result?: Recurrence) => {
+            const dialog = spectator.inject(MatDialog);
+            vi.mocked(dialog.open).mockReturnValue({
+                afterClosed: () => of(result),
+            } as any);
+            vi.useFakeTimers();
+            spectator.component.openCustomRecurrenceModal();
+            vi.advanceTimersByTime(10);
+            vi.useRealTimers();
+            return vi.mocked(dialog.open).mock.lastCall[1].data;
+        };
+
+        it('should keep the previous pattern when the modal is cancelled', () => {
+            setDate(dateOnWeekday(3));
+            spectator.component.setSimple('weekly');
+            const value = spectator.component.value();
+            // Picking the custom option opens the modal
+            spectator.component.setSimple('custom');
+
+            closeModalWith(undefined);
+
+            expect(spectator.component.recurr_type()).toBe('weekly');
+            expect(spectator.component.value()).toBe(value);
+        });
+
+        it('should apply and show the custom value from the modal', () => {
+            const date = dateOnWeekday(3);
+            setDate(date);
+            const on_change = vi.fn();
+            spectator.component.registerOnChange(on_change);
+            const custom: Recurrence = {
+                _custom: true,
+                type: 'weekly',
+                interval: 2,
+                weekdays: new Set([1, 3]),
+                end_type: 'never',
+            };
+
+            const data = closeModalWith(custom);
+
+            expect(data).toMatchObject({ value: NO_RECURR, date });
+            expect(spectator.component.recurr_type()).toBe('custom_display');
+            expect(spectator.component.value()).toMatchObject({
+                _custom: true,
+                interval: 2,
+            });
+            expect(on_change).toHaveBeenCalledTimes(1);
         });
     });
 });

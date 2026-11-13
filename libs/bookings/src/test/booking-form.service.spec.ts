@@ -589,7 +589,33 @@ describe('BookingFormService', () => {
         expect(spectator.service.model().title).toBe('Test');
     });
 
-    it.todo('should list asset features');
+    it('should list each feature of the loaded resources once in order', () => {
+        (spectator.service as any)._resources_resource.set([
+            { id: 'desk-1', features: ['wifi', 'monitor'] },
+            { id: 'desk-2', features: ['monitor', 'adjustable'] },
+            { id: 'desk-3' },
+        ]);
+
+        expect(spectator.service.features()).toEqual([
+            'adjustable',
+            'monitor',
+            'wifi',
+        ]);
+    });
+
+    it('should add and remove a feature filter without duplicates', () => {
+        spectator.service.setFeature('wifi', true);
+        spectator.service.setFeature('wifi', true);
+        spectator.service.setFeature('monitor', true);
+        expect(spectator.service.options().features).toEqual([
+            'wifi',
+            'monitor',
+        ]);
+
+        spectator.service.setFeature('wifi', false);
+        spectator.service.setFeature('', true);
+        expect(spectator.service.options().features).toEqual(['monitor']);
+    });
 
     it('should list availability for an immediately updated booking window', async () => {
         settings_overrides.set([{}, {}]);
@@ -729,9 +755,114 @@ describe('BookingFormService', () => {
         expect(available.map((_: any) => _.id)).toEqual(['desk-3']);
     });
 
-    it.todo('should allow filtering of available assets');
+    it('should list only bookable resources that match the features, levels, groups and favourites', async () => {
+        setCurrentUser(
+            new StaffUser({
+                id: 'current-user',
+                email: 'current.user@example.com',
+                groups: ['eng'],
+            }),
+        );
+        const desk = (id: string, extra: Record<string, unknown> = {}) => ({
+            id,
+            name: id,
+            bookable: true,
+            features: ['wifi', 'monitor'],
+            zone: { id: 'lvl-1', parent_id: 'bld-1' },
+            ...extra,
+        });
+        const desks = [
+            desk('match', { groups: ['eng'] }),
+            desk('open'),
+            desk('booked'),
+            desk('missing-feature', { features: ['wifi'] }),
+            desk('other-level', {
+                zone: { id: 'lvl-2', parent_id: 'bld-1' },
+            }),
+            desk('not-bookable', { bookable: false }),
+            desk('other-group', { groups: ['sales'] }),
+        ];
+        booked_result = ['booked'];
+        const raw = { date: Date.now() + 60 * 60 * 1000, duration: 60 };
+        const available = (options: Record<string, unknown>) =>
+            (spectator.service as any)
+                ._computeAvailableResources(
+                    {
+                        type: 'desk',
+                        features: ['monitor', 'wifi'],
+                        zones: ['lvl-1'],
+                        ...options,
+                    },
+                    desks,
+                    {},
+                    raw,
+                )
+                .then((list: { id: string }[]) => list.map((_) => _.id));
 
-    it.todo('should allow confirming booking details');
+        await expect(available({})).resolves.toEqual(['match', 'open']);
+
+        const favourites = settingSignal('favourite_desks', [], true);
+        favourites.set(['open']);
+        try {
+            await expect(available({ show_fav: true })).resolves.toEqual([
+                'open',
+            ]);
+        } finally {
+            favourites.set([]);
+        }
+    });
+
+    describe('confirmPost', () => {
+        const confirmDialog = (reason?: string) => {
+            const close = vi.fn();
+            vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
+                componentInstance: {
+                    event: reason ? of({ reason }) : new Subject(),
+                    loading: { set: vi.fn() },
+                },
+                afterClosed: () => of(undefined),
+                close,
+            } as any);
+            return close;
+        };
+
+        it('should not post the booking when the user cancels', async () => {
+            confirmDialog();
+            const post = vi.spyOn(spectator.service, 'postForm');
+
+            await expect(spectator.service.confirmPost()).rejects.toBe(
+                'User cancelled',
+            );
+            expect(post).not.toHaveBeenCalled();
+        });
+
+        it('should post the group flow for a group and close the modal', async () => {
+            const close = confirmDialog('done');
+            const post = vi.spyOn(spectator.service, 'postForm');
+            const post_group = vi
+                .spyOn(spectator.service, 'postFormForGroup')
+                .mockResolvedValue(undefined);
+            spectator.service.setOptions({ type: 'desk', group: true });
+
+            await spectator.service.confirmPost();
+
+            expect(post_group).toHaveBeenCalledTimes(1);
+            expect(post).not.toHaveBeenCalled();
+            expect(close).toHaveBeenCalled();
+        });
+
+        it('should close the modal and rethrow when the post fails', async () => {
+            const close = confirmDialog('done');
+            vi.spyOn(spectator.service, 'postForm').mockRejectedValue(
+                'Desk is taken',
+            );
+
+            await expect(spectator.service.confirmPost()).rejects.toBe(
+                'Desk is taken',
+            );
+            expect(close).toHaveBeenCalled();
+        });
+    });
 
     it.each([
         ['checked-out', { checked_out_at: 1 }],
@@ -792,29 +923,6 @@ describe('BookingFormService', () => {
             ),
         ).rejects.toBeTruthy();
     });
-
-    // it('should allow posting booking details', fakeAsync(async () => {
-    //     (booking_mod as any).queryBookings = vi.fn(() =>
-    //         of([{ asset_id: 'desk-1' }])
-    //     );
-    //     spectator.service.newForm();
-    //     tick(1000);
-    //     spectator.service.form.patchValue({
-    //         date: Date.now(),
-    //         asset_id: 'desk-1',
-    //         user_email: 'jim@example.com',
-    //     });
-    //     tick(1000);
-    //     await expect(spectator.service.postForm()).rejects.toBe(
-    //         'desk-1 is not available at the selected time'
-    //     );
-
-    //     (booking_mod as any).saveBooking = vi.fn(() => of({}));
-    //     (booking_mod as any).queryBookings = vi.fn(() => of([]));
-    //     spectator.service.form.patchValue({ asset_id: 'desk-2' });
-    //     await spectator.service.postForm();
-    //     expect(spectator.service.view).toBe('success');
-    // }));
 
     it('should clear form on navigation away from form', () => {
         const spy = vi.spyOn(spectator.service, 'clearForm');

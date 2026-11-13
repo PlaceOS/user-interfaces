@@ -10,7 +10,6 @@ import { MockPipe, MockProvider } from 'ng-mocks';
 
 import {
     AuthenticatedImageDirective,
-    ChangelogService,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
@@ -21,14 +20,11 @@ import { ControlTabbedViewComponent } from '../../app/tabbed-view/tabbed-view.co
 import { TopbarHeaderComponent } from '../../app/topbar-header.component';
 import { ControlConnectingComponent } from '../../app/ui/connecting.component';
 import { NextMeetingComponent } from '../../app/ui/next-meeting.component';
+import { SplashComponent } from '../../app/ui/splash.component';
 import { VoiceAssistantComponent } from '../../app/ui/voice-assistant.component';
 
 describe('ControlTabbedViewComponent', () => {
     let spectator: SpectatorRouting<ControlTabbedViewComponent>;
-    const changelog = {
-        available: signal(true).asReadonly(),
-        view: vi.fn(),
-    };
     const createComponent = createRoutingFactory({
         component: ControlTabbedViewComponent,
         params: { system: 'space-0' },
@@ -39,13 +35,13 @@ describe('ControlTabbedViewComponent', () => {
             mockComponent(VoiceAssistantComponent),
             mockComponent(ControlConnectingComponent),
             mockComponent(NextMeetingComponent),
+            mockComponent(SplashComponent),
             mockComponent(IconComponent),
             mockDirective(AuthenticatedImageDirective),
             MockPipe(TranslatePipe, (v) => v),
         ],
         imports: [MatProgressSpinnerModule],
         providers: [
-            MockProvider(ChangelogService, changelog),
             MockProvider(SettingsService, { get: vi.fn(), theme: 'light' }),
             MockProvider(OrganisationService, {
                 active_building: signal({} as any),
@@ -54,7 +50,6 @@ describe('ControlTabbedViewComponent', () => {
                 system: signal({}),
                 join_status: signal([false, false]),
                 system_id: signal('space-0'),
-                powerOn: vi.fn(),
                 setID: vi.fn(),
                 selectMeeting: vi.fn(),
             }),
@@ -77,23 +72,15 @@ describe('ControlTabbedViewComponent', () => {
         service.system.set({ connected: true, name: 'Room A' });
         spectator.detectChanges();
         expect('control-connecting').not.toExist();
-        expect('[name="splash"]').toExist();
+        expect('control-splash').toExist();
         expect('topbar-header').not.toExist();
-    });
-
-    it('should power on the system when the splash is touched', () => {
-        const service: any = spectator.inject(ControlStateService);
-        service.system.set({ connected: true });
-        spectator.detectChanges();
-        spectator.click('[name="splash"]');
-        expect(service.powerOn).toHaveBeenCalled();
     });
 
     it('should show the control panel when the system is active', () => {
         const service: any = spectator.inject(ControlStateService);
         service.system.set({ connected: true, active: true });
         spectator.detectChanges();
-        expect('[name="splash"]').not.toExist();
+        expect('control-splash').not.toExist();
         expect('topbar-header').toExist();
         expect('[tab-outlet]').toExist();
         expect('control-status-bar').toExist();
@@ -113,23 +100,6 @@ describe('ControlTabbedViewComponent', () => {
         service.join_status.set([true, true]);
         spectator.detectChanges();
         expect('[lockout]').not.toExist();
-    });
-
-    it('should open the deployed changelog', () => {
-        const service: any = spectator.inject(ControlStateService);
-        service.system.set({ connected: true });
-        spectator.detectChanges();
-        spectator.click('[name="splash"] button');
-        expect(changelog.view).toHaveBeenCalled();
-    });
-
-    it('should not power on when the changelog button is tapped', () => {
-        const service: any = spectator.inject(ControlStateService);
-        service.system.set({ connected: true });
-        spectator.detectChanges();
-        service.powerOn.mockClear();
-        spectator.click('[name="splash"] button');
-        expect(service.powerOn).not.toHaveBeenCalled();
     });
 
     it('should open the meeting list once and clear the join parameter', () => {

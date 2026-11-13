@@ -20,6 +20,8 @@ describe('AppTimetableComponent', () => {
     let settings: Record<string, unknown> = {};
     let space_list: Space[] = [];
     const time_format = signal<'h:mm a' | 'HH:mm'>('h:mm a');
+    /** Value of `SpacesService.initialised` */
+    const spaces_ready = signal(true);
     const createComponent = createRoutingFactory({
         component: AppTimetableComponent,
         detectChanges: false,
@@ -34,7 +36,7 @@ describe('AppTimetableComponent', () => {
                 waitUntilInitialised: vi.fn().mockResolvedValue(undefined),
             }),
             MockProvider(SpacesService, {
-                initialised: signal(true),
+                initialised: spaces_ready,
                 find: (id: string) => space_list.find((_) => _.id === id),
                 filter: (predicate: (_: Space) => boolean) =>
                     space_list.filter(predicate),
@@ -59,11 +61,13 @@ describe('AppTimetableComponent', () => {
         settings = {};
         space_list = [];
         time_format.set('h:mm a');
+        spaces_ready.set(true);
         vi.mocked(isOnline).mockReturnValue(true);
     });
 
     afterEach(() => {
         vi.useRealTimers();
+        vi.unstubAllGlobals();
         document.body.classList.remove('eink');
     });
 
@@ -92,6 +96,38 @@ describe('AppTimetableComponent', () => {
                 'unknown',
             ]);
             expect(component.missing_ids()).toEqual(['unknown']);
+        });
+
+        it('should wait for spaces to load before reading the query', async () => {
+            spaces_ready.set(false);
+            space_list = [new Space({ id: 'a' })];
+            let done = false;
+            const loaded = init({ sys_ids: 'a' }).then(() => (done = true));
+            await new Promise((resolve) => setTimeout(resolve));
+
+            expect(done).toBe(false);
+            expect(spectator.component.columns()).toEqual([]);
+
+            spaces_ready.set(true);
+            TestBed.tick();
+            await loaded;
+            expect(spectator.component.columns().map(({ id }) => id)).toEqual([
+                'a',
+            ]);
+        });
+
+        it('should show the new spaces from the first page when the query changes', async () => {
+            settings = { 'app.page_interval': 20 };
+            space_list = ['a', 'b', 'c'].map((id) => new Space({ id }));
+            const component = await init({ sys_ids: 'a,b' });
+            // Room for one column
+            component.grid_width.set(400);
+            component.goToPage(1);
+
+            spectator.setRouteQueryParam('sys_ids', 'c,a');
+
+            expect(component.columns().map(({ id }) => id)).toEqual(['c', 'a']);
+            expect(component.current_page()).toBe(0);
         });
 
         it.each([
@@ -327,13 +363,16 @@ describe('AppTimetableComponent', () => {
         it('should show the current-time line only inside the displayed hours', async () => {
             settings = { 'app.block_start': 8, 'app.block_end': 14 };
             const component = await init();
-            const lineAt = (hour: number) => {
-                component.date.set(new Date(2026, 0, 1, hour).valueOf());
+            const lineAt = (hour: number, minute = 0) => {
+                component.date.set(
+                    new Date(2026, 0, 1, hour, minute).valueOf(),
+                );
                 spectator.detectChanges();
                 return spectator.query<HTMLElement>('[now]')?.style.top ?? null;
             };
 
             expect(lineAt(11)).toBe('50%');
+            expect(lineAt(9, 30)).toBe('25%');
             expect(lineAt(7)).toBeNull();
             expect(lineAt(15)).toBeNull();
         });
@@ -373,15 +412,6 @@ describe('AppTimetableComponent', () => {
         });
     });
 
-    it('should position the current-time marker within the configured period', () => {
-        spectator = createComponent();
-        spectator.component.date.set(new Date(2026, 0, 1, 10).valueOf());
-        spectator.component.offset.set(9);
-        spectator.component.length.set(8);
-
-        expect(spectator.component.current_offset()).toBe(12.5);
-    });
-
     it('should split columns into pages that fit the grid', () => {
         spectator = createComponent();
         const { component } = spectator;
@@ -413,6 +443,39 @@ describe('AppTimetableComponent', () => {
             'a',
             'unknown',
         ]);
+
+        // A grid narrower than one column still shows one column
+        component.grid_width.set(200);
+        expect(component.page_size()).toBe(1);
+    });
+
+    it('should page by the measured grid width and stop measuring on destroy', async () => {
+        let resize: () => void = () => undefined;
+        const observe = vi.fn();
+        const disconnect = vi.fn();
+        vi.stubGlobal(
+            'ResizeObserver',
+            class {
+                constructor(callback: () => void) {
+                    resize = callback;
+                }
+                observe = observe;
+                disconnect = disconnect;
+            },
+        );
+        settings = { 'app.page_interval': 20 };
+        const component = await init({ sys_ids: 'a,b' });
+        spectator.detectChanges();
+        const grid = spectator.query<HTMLElement>('.overflow-auto');
+        expect(observe).toHaveBeenCalledWith(grid);
+
+        Object.defineProperty(grid, 'clientWidth', { value: 400 });
+        resize();
+        expect(component.grid_width()).toBe(400);
+        expect(component.page_count()).toBe(2);
+
+        spectator.fixture.destroy();
+        expect(disconnect).toHaveBeenCalled();
     });
 
     it('should cover the grid outside the displayed hours in night mode', () => {

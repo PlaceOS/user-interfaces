@@ -92,7 +92,7 @@ describe('MapAiThread', () => {
         transport.options.capabilities = { enabled: true };
         await thread.submit('No changes needed');
         await flush();
-        expect(thread.capabilities()?.quota).toBeDefined();
+        expect(thread.capabilities()?.quota).toEqual(capabilities().quota);
         expect(thread.can_send()).toBe(true);
     });
 
@@ -723,6 +723,32 @@ describe('MapAiThread', () => {
                 DEFAULT_AI_STRINGS,
             ),
         ).toMatchObject({ kind: 'invalid', retryable: true });
+    });
+
+    it('ends as cancelled without a preview when the server cancels the job', async () => {
+        const { doc, thread, sequence } = setup([], { state: 'cancelled' });
+        sequence.polls[1].ops = [recolour(doc, 'area-1.01-status', '#d1fae5')];
+        await thread.load();
+        await thread.submit('recolour');
+        expect(thread.phase().kind).toBe('cancelled');
+        expect(thread.announcement()).toBe(DEFAULT_AI_STRINGS.states.cancelled);
+        expect(thread.proposal()).toBeNull();
+        expect(fill(doc, 'area-1.01-status')).toBeNull();
+        expect(thread.can_send()).toBe(true);
+    });
+
+    it('fails as a retryable invalid answer when the ops cannot be read', async () => {
+        const { thread } = setup([null as unknown as MapOp]);
+        await thread.load();
+        await thread.submit('recolour');
+        expect(thread.phase()).toMatchObject({
+            kind: 'error',
+            error: {
+                kind: 'invalid',
+                message: DEFAULT_AI_STRINGS.states.invalid,
+                retryable: true,
+            },
+        });
     });
 
     it('maps submit failures by status', async () => {

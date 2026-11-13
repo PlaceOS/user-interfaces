@@ -81,8 +81,9 @@ describe('roomWindow', () => {
         });
     });
 
-    it('rejects an end time before the start time', () => {
+    it('rejects an event that does not end after it starts', () => {
         expect(roomWindow(event({ end: START - HOUR })).window).toBeNull();
+        expect(roomWindow(event({ end: START })).window).toBeNull();
     });
 });
 

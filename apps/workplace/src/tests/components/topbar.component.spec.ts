@@ -50,7 +50,11 @@ describe('TopbarComponent', () => {
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        // The settings mock is shared by every test in the file
+        vi.resetAllMocks();
+        spectator = createComponent();
+    });
 
     it('should render global search', () => {
         expect('global-search').toExist();
@@ -60,7 +64,6 @@ describe('TopbarComponent', () => {
         );
         spectator.detectChanges();
         expect('global-search').not.toExist();
-        settings.value.mockReset();
     });
 
     it('should render page title', () => {
@@ -72,11 +75,6 @@ describe('TopbarComponent', () => {
         expect('[name="nav-logo"] span').toContainText('An interesting title');
     });
 
-    it('should render user avatar and details', () =>
-        expect('[avatar]').toExist());
-
-    it('should render user controls trigger', () => {
-        expect('[name="user-controls"]').toExist();
-        expect(spectator.component.user_controls).toBeTruthy();
-    });
+    it('should show the user avatar in the user controls', () =>
+        expect('user-controls-sidebar a-user-avatar').toExist());
 });

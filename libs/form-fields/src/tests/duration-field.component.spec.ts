@@ -97,6 +97,20 @@ describe('DurationFieldComponent', () => {
         );
     });
 
+    it('should name options in hours and minutes, or whole days from 24 hours', () => {
+        // The current duration is always an option, so use one on the step
+        spectator.component.writeValue(90);
+        spectator.setInput({
+            min: 45,
+            max: 90,
+            step: 45,
+            custom_options: [24 * 60, 48 * 60],
+        });
+        expect(
+            spectator.component.duration_options().map((_) => _.name),
+        ).toEqual(['45 minutes', '1 hour 30 minutes', '1 day', '2 days']);
+    });
+
     it('should include custom durations outside min and max bounds', () => {
         spectator.setInput({
             min: 30,

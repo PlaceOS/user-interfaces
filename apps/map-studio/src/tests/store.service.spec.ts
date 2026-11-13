@@ -7,6 +7,12 @@ import { StoreService } from '../app/data/store.service';
 import { analyzeSvg } from '../app/data/svg-import';
 import { MapDbService } from './map-db';
 
+/** Default PlaceOS zone list: two levels under any parent */
+const levels = async (..._args: unknown[]) => [
+    { id: 'level-1', name: 'Level 1', display_name: 'Level 1' },
+    { id: 'level-2', name: 'Level 2', display_name: 'Level 2' },
+];
+
 describe('StoreService', () => {
     let store: StoreService;
     const placeos = {
@@ -30,14 +36,15 @@ describe('StoreService', () => {
                 ? { id, name: 'Sydney HQ', display_name: 'Sydney HQ' }
                 : { id, name: id, display_name: id, parent_id: 'building-1' },
         ),
-        getZones: vi.fn(async () => [
-            { id: 'level-1', name: 'Level 1', display_name: 'Level 1' },
-            { id: 'level-2', name: 'Level 2', display_name: 'Level 2' },
-        ]),
+        getZones: vi.fn(levels),
+        getActiveOrganisation: vi.fn(async () => null as unknown),
     };
+
+    afterEach(() => vi.restoreAllMocks());
 
     beforeEach(() => {
         vi.clearAllMocks();
+        placeos.getZones.mockImplementation(levels);
         TestBed.configureTestingModule({
             providers: [
                 provideZonelessChangeDetection(),
@@ -365,6 +372,82 @@ describe('StoreService', () => {
         await expect(store.floorplanForLevel('level-2')).resolves.toMatchObject(
             { id: floorplan.id },
         );
+    });
+
+    it('brings back a deleted level when it is opened on purpose', async () => {
+        const zone = (id: string) => ({ id, name: id, display_name: id });
+        const buildings = [
+            {
+                zone: zone('building-1'),
+                levels: [zone('level-1'), zone('level-2')],
+            },
+        ];
+        await store.syncPlaceOSZones(buildings);
+        const [project] = await store.listProjects();
+        await store.deleteFloorplan(project.floorplans![1].id);
+        await store.syncPlaceOSZones(buildings);
+        expect((await store.listProjects())[0].floorplans).toHaveLength(1);
+
+        const floorplan = await store.floorplanForLevel('level-2');
+
+        expect(floorplan.level_zone_id).toBe('level-2');
+        expect((await store.listProjects())[0].floorplans).toHaveLength(2);
+    });
+
+    it('syncs each building once, whether it sits under the organisation or a region', async () => {
+        placeos.getActiveOrganisation.mockResolvedValueOnce({ id: 'org-1' });
+        const zone = (id: string) => ({ id, name: id, display_name: id });
+        placeos.getZones.mockImplementation(
+            async (tags?: unknown, parent?: unknown) => {
+                if (tags === 'region') return [zone('region-1')];
+                if (tags === 'building')
+                    return parent === 'org-1'
+                        ? [zone('building-1')]
+                        : [zone('building-1'), zone('building-2')];
+                return [zone(`${parent}-level`)];
+            },
+        );
+
+        await store.syncFromPlaceOS();
+
+        expect(store.placeos_sync()).toBe('done');
+        const level_queries = placeos.getZones.mock.calls
+            .filter(([tags]) => tags === 'level')
+            .map(([, parent]) => parent);
+        expect(level_queries.sort()).toEqual(['building-1', 'building-2']);
+        const projects = await store.listProjects();
+        expect(projects.map((p) => p.building_zone_id).sort()).toEqual([
+            'building-1',
+            'building-2',
+        ]);
+        expect(
+            projects
+                .flatMap((p) => p.floorplans ?? [])
+                .map((f) => f.level_zone_id)
+                .sort(),
+        ).toEqual(['building-1-level', 'building-2-level']);
+    });
+
+    it('reports a sync error when one level query fails', async () => {
+        vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        placeos.getActiveOrganisation.mockResolvedValueOnce({ id: 'org-1' });
+        placeos.getZones.mockImplementation(
+            async (tags?: unknown, parent?: unknown) => {
+                if (tags === 'region') return [];
+                if (tags === 'building')
+                    return [
+                        { id: 'building-1', name: 'A', display_name: 'A' },
+                        { id: 'building-2', name: 'B', display_name: 'B' },
+                    ];
+                if (parent === 'building-2') throw new Error('offline');
+                return [];
+            },
+        );
+
+        await store.syncFromPlaceOS();
+
+        expect(store.placeos_sync()).toBe('error');
+        expect(await store.listProjects()).toHaveLength(0);
     });
 
     it('keeps a save in this browser when PlaceOS refuses its copy', async () => {

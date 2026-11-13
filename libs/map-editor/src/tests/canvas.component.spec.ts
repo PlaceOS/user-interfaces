@@ -201,6 +201,88 @@ describe('MapEditorComponent', () => {
         expect(editor.annotation_tool()).toBe('select');
     });
 
+    it('ignores a mark under five screen pixels, judged at the current zoom', async () => {
+        const canvas = fixture.debugElement.query(
+            By.directive(MapEditorCanvasComponent),
+        ).componentInstance as MapEditorCanvasComponent;
+        const editor = fixture.debugElement.query(
+            By.directive(MapEditorComponent),
+        ).componentInstance as MapEditorComponent;
+        const event = (x: number, y: number) =>
+            ({
+                button: 0,
+                pointerId: 1,
+                clientX: x,
+                clientY: y,
+                preventDefault() {},
+            }) as PointerEvent;
+        const draw = (from: [number, number], to: [number, number]) => {
+            canvas.onPointerDown(event(...from));
+            canvas.onPointerMove(event(...to));
+            canvas.onPointerUp(event(...to));
+        };
+        canvas.view.set({ scale: 1, tx: 0, ty: 0 });
+        editor.annotation_tool.set('box');
+        await settle(fixture);
+        draw([100, 100], [140, 104]);
+        editor.annotation_tool.set('arrow');
+        await settle(fixture);
+        draw([100, 100], [103, 103]);
+        editor.annotation_tool.set('path');
+        await settle(fixture);
+        draw([100, 100], [102, 102]);
+        expect(host.session.annotations()).toEqual([]);
+
+        // 6 screen pixels, 3 map units.
+        canvas.view.set({ scale: 2, tx: 0, ty: 0 });
+        editor.annotation_tool.set('arrow');
+        await settle(fixture);
+        draw([100, 100], [106, 100]);
+        expect(host.session.annotations()).toMatchObject([{ kind: 'arrow' }]);
+    });
+
+    it('picks a mark colour from the menu and closes the menu outside it or on Escape', async () => {
+        const editor = fixture.debugElement.query(
+            By.directive(MapEditorComponent),
+        ).componentInstance as MapEditorComponent;
+        const root = fixture.nativeElement as HTMLElement;
+        const toggle = root.querySelector(
+            '.colour button[aria-haspopup="menu"]',
+        ) as HTMLButtonElement;
+        const menu = () => root.querySelector('[role="menu"]');
+        const open = async () => {
+            toggle.click();
+            await settle(fixture);
+            expect(toggle.getAttribute('aria-expanded')).toBe('true');
+        };
+
+        await open();
+        const blue = Array.from(
+            root.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]'),
+        ).find((item) => item.textContent?.trim() === 'Blue');
+        expect(blue?.getAttribute('aria-checked')).toBe('false');
+        blue?.click();
+        await settle(fixture);
+        expect(editor.annotation_colour()).toBe('blue');
+        expect(menu()).toBeNull();
+
+        await open();
+        menu()?.dispatchEvent(new Event('pointerdown', { bubbles: true }));
+        await settle(fixture);
+        expect(menu()).not.toBeNull();
+        document.body.dispatchEvent(
+            new Event('pointerdown', { bubbles: true }),
+        );
+        await settle(fixture);
+        expect(menu()).toBeNull();
+
+        await open();
+        document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+        await settle(fixture);
+        expect(menu()).toBeNull();
+        expect(editor.annotation_colour()).toBe('blue');
+    });
+
     it('mounts the document root inside a shadow root with the overlay last', () => {
         const shadow = viewport.shadowRoot as ShadowRoot;
         expect(shadow).toBeTruthy();
@@ -403,6 +485,11 @@ describe('MapEditorComponent', () => {
         await settle(fixture);
         expect(doc.byId('plant-1')).toBeNull();
         expect(shadow.querySelector('.map-wrapper > svg')).toBe(doc.root);
+        key(viewport, { key: 'z', ctrlKey: true });
+        expect(doc.byId('plant-1')).not.toBeNull();
+        key(viewport, { key: 'y', ctrlKey: true });
+        expect(doc.byId('plant-1')).toBeNull();
+        expect(host.session.can_redo()).toBe(false);
     });
 
     it('drags the element under the pointer as one move and pans or clears on empty space', async () => {

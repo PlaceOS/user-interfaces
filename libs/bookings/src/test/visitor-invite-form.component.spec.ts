@@ -12,8 +12,10 @@ import {
 import {
     Booking,
     OrganisationService,
+    setCurrentUser,
     settingSignal,
     SettingsService,
+    StaffUser,
     User,
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
@@ -262,6 +264,61 @@ describe('VisitorInviteFormComponent', () => {
 
         expect(service.postForm).not.toHaveBeenCalled();
         expect(done).not.toHaveBeenCalled();
+    });
+
+    it('should book a single visitor for the current user and save them as a recent visitor', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'visitor-invitees'
+                ? [
+                      'dana@example.com|Old Name||0||',
+                      'erin@example.com|Erin||0||',
+                  ]
+                : undefined,
+        );
+        setCurrentUser(new StaffUser({ id: 'me', email: 'me@example.com' }));
+        settingSignal('visitors.can_book_for_others').set(false);
+        const done = vi.fn();
+        spectator.component.done.subscribe(done);
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            user: new User({ id: 'other', email: 'other@example.com' }),
+            user_email: 'other@example.com',
+            asset_id: 'dana@example.com',
+            asset_name: 'Dana',
+            company: 'Acme',
+            phone: '0400',
+            title: '',
+            description: '',
+        }));
+
+        await spectator.component.sendInvite();
+
+        expect(service.postForm).toHaveBeenCalledTimes(1);
+        const value = service.model();
+        // Without `can_book_for_others` a new invite is hosted by the user
+        expect(value.user.email).toBe('me@example.com');
+        expect(value.title).toBe('Visit');
+        expect(value.description).toBe('Visit');
+        expect(value.attendees).toEqual([
+            expect.objectContaining({
+                email: 'dana@example.com',
+                name: 'Dana',
+                organisation: 'Acme',
+                phone: '0400',
+            }),
+        ]);
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'visitor-invitees',
+            [
+                'erin@example.com|Erin||0||',
+                'dana@example.com|Dana|Acme|0|0400|internal',
+            ],
+        );
+        expect(done).toHaveBeenCalledWith(1);
+        settingSignal('visitors.can_book_for_others').set(undefined);
     });
 
     it('should load saved visitor suggestions and default reason on init', async () => {

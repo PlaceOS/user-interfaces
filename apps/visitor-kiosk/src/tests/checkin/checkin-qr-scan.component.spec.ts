@@ -50,19 +50,20 @@ vi.mock('qr/dom.js', () => ({
     rearCamera: qr_mocks.rear_camera,
 }));
 
-describe('CheckinQRScanComponent', () => {
-    let spectator: SpectatorRouting<CheckinQRScanComponent>;
-    const event = signal<unknown>({});
-    const state = {
-        event,
-        guest: signal({}),
-        loadGuestAndEvent: vi.fn(async () => null),
-        setError: vi.fn(),
-        metadata: '',
-    };
-    const createComponent = createRoutingFactory({
+const event = signal<unknown>({});
+const state = {
+    event,
+    guest: signal({}),
+    loadGuestAndEvent: vi.fn(async () => null),
+    setError: vi.fn(),
+    metadata: '',
+};
+
+/** Factory options for the scan page in the given flow */
+function scanPage(flow: 'checkin' | 'checkout') {
+    return {
         component: CheckinQRScanComponent,
-        data: { flow: 'checkin' },
+        data: { flow },
         declarations: [MockComponent(IconComponent)],
         providers: [
             MockProvider(CheckinStateService, state as any),
@@ -74,16 +75,26 @@ describe('CheckinQRScanComponent', () => {
             FormsModule,
             MatProgressSpinnerModule,
         ],
-    });
+    };
+}
+
+/** Reset the shared mocks so the camera opens with no QR code in view */
+function resetMocks() {
+    vi.clearAllMocks();
+    qr_mocks.decoder_count = 0;
+    qr_mocks.frame_callback = undefined;
+    qr_mocks.rear_camera.mockResolvedValue(qr_mocks.camera);
+    qr_mocks.camera.readFrame.mockResolvedValue(undefined);
+    qr_mocks.center_decoder.drawImage.mockResolvedValue(undefined);
+    event.set({});
+}
+
+describe('CheckinQRScanComponent', () => {
+    let spectator: SpectatorRouting<CheckinQRScanComponent>;
+    const createComponent = createRoutingFactory(scanPage('checkin'));
 
     beforeEach(async () => {
-        vi.clearAllMocks();
-        qr_mocks.decoder_count = 0;
-        qr_mocks.frame_callback = undefined;
-        qr_mocks.rear_camera.mockResolvedValue(qr_mocks.camera);
-        qr_mocks.camera.readFrame.mockResolvedValue(undefined);
-        qr_mocks.center_decoder.drawImage.mockResolvedValue(undefined);
-        event.set({});
+        resetMocks();
         spectator = createComponent();
         // Setting signals are shared, so reset them for each test
         spectator.component.induction_enabled.set(false);
@@ -348,31 +359,37 @@ describe('CheckinQRScanComponent', () => {
         ]);
     });
 
-    it('sends a checked-in visitor to checkout confirmation', async () => {
-        Object.assign(spectator.component, { flow: 'checkout' });
-        event.set({ checked_in_at: Date.now() });
+    it('checks one QR code at a time', async () => {
+        let finish: (value: null) => void = () => undefined;
+        state.loadGuestAndEvent.mockReturnValueOnce(
+            new Promise((resolve) => (finish = resolve)),
+        );
 
-        await spectator.component.checkEmail('visitor@example.com');
+        const first = spectator.component.checkQRCode('visitor@example.com');
+        await spectator.component.checkQRCode('other@example.com');
+        finish(null);
+        await first;
 
-        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
-            '/checkout',
-            'confirm',
-        ]);
+        expect(state.loadGuestAndEvent).toHaveBeenCalledTimes(1);
+        expect(state.loadGuestAndEvent).toHaveBeenCalledWith(
+            'visitor@example.com',
+            undefined,
+        );
     });
 
-    it('keeps a visitor who has not checked in out of checkout', async () => {
-        Object.assign(spectator.component, { flow: 'checkout' });
-        event.set({});
-
-        await spectator.component.checkEmail('visitor@example.com');
-
-        expect(state.setError).toHaveBeenCalledWith(
-            'APP.VISITOR_KIOSK.NOT_CHECKED_IN',
+    it('does not navigate when the visitor leaves during the lookup', async () => {
+        let finish: (value: null) => void = () => undefined;
+        state.loadGuestAndEvent.mockReturnValueOnce(
+            new Promise((resolve) => (finish = resolve)),
         );
-        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
-            '/checkout',
-            'error',
-        ]);
+        const router = spectator.inject(Router);
+
+        const lookup = spectator.component.checkEmail('visitor@example.com');
+        spectator.fixture.destroy();
+        finish(null);
+        await lookup;
+
+        expect(router.navigate).not.toHaveBeenCalled();
     });
 
     it('shows an error and skips the lookup for an invalid email', async () => {
@@ -391,5 +408,58 @@ describe('CheckinQRScanComponent', () => {
             'aria-invalid',
             'false',
         );
+    });
+});
+
+describe('CheckinQRScanComponent in the checkout flow', () => {
+    let spectator: SpectatorRouting<CheckinQRScanComponent>;
+    const createComponent = createRoutingFactory(scanPage('checkout'));
+
+    beforeEach(() => {
+        resetMocks();
+        spectator = createComponent();
+    });
+
+    it('sends a checked-in visitor to checkout confirmation', async () => {
+        event.set({ checked_in_at: Date.now() });
+
+        await spectator.component.checkEmail('visitor@example.com');
+
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkout',
+            'confirm',
+        ]);
+    });
+
+    it('keeps a visitor who has not checked in out of checkout', async () => {
+        await spectator.component.checkEmail('visitor@example.com');
+
+        expect(state.setError).toHaveBeenCalledWith(
+            'APP.VISITOR_KIOSK.NOT_CHECKED_IN',
+        );
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/checkout',
+            'error',
+        ]);
+    });
+});
+
+describe('CheckinQRScanComponent without a camera', () => {
+    const createComponent = createRoutingFactory(scanPage('checkin'));
+
+    it('marks the camera as off and releases the decoders', async () => {
+        resetMocks();
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        qr_mocks.rear_camera.mockRejectedValue(new Error('Permission denied'));
+        const spectator = createComponent();
+
+        await vi.waitFor(() =>
+            expect(spectator.component.camera_error()).toBe(true),
+        );
+
+        expect(qr_mocks.full_decoder.clear).toHaveBeenCalled();
+        expect(qr_mocks.center_decoder.clear).toHaveBeenCalled();
+        expect(frameLoop).not.toHaveBeenCalled();
+        vi.mocked(console.error).mockRestore();
     });
 });

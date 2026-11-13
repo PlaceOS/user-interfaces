@@ -1,4 +1,3 @@
-import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { ControlStateService } from '../../app/control-state.service';
 
@@ -13,25 +12,28 @@ describe('PowerTooltipComponent', () => {
         providers: [
             MockProvider(ControlStateService, {
                 powerOff: vi.fn(),
-                joined: signal([]),
-            } as any),
+            }),
             MockProvider(CustomTooltipData, { close: vi.fn() }),
         ],
     });
 
-    beforeEach(() => (spectator = createComponent()));
+    beforeEach(() => {
+        vi.clearAllMocks();
+        spectator = createComponent();
+    });
 
-    it('should allow shutting down', () => {
-        expect('button:not(.inverse)').toExist();
+    it('should power off with unlink set when confirmed', () => {
         spectator.click('button:not(.inverse)');
         expect(
             spectator.inject(ControlStateService).powerOff,
-        ).toHaveBeenCalled();
+        ).toHaveBeenCalledWith(true);
     });
 
-    it('should allow cancelling', () => {
-        expect('button.inverse').toExist();
+    it('should close without powering off when cancelled', () => {
         spectator.click('button.inverse');
         expect(spectator.inject(CustomTooltipData).close).toHaveBeenCalled();
+        expect(
+            spectator.inject(ControlStateService).powerOff,
+        ).not.toHaveBeenCalled();
     });
 });

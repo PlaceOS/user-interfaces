@@ -933,6 +933,97 @@ describe('ScheduleStateService', () => {
         });
     });
 
+    describe('auto release', () => {
+        const now = new Date(2026, 5, 22, 9).valueOf();
+
+        /** User with `location` and an auto release of desks 10 minutes after the start */
+        function setup(location: string) {
+            vi.setSystemTime(now);
+            setCurrentUser({
+                id: 'me',
+                email: 'me@example.com',
+                location,
+            } as any);
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) => {
+                    if (key === 'app.features') return ['desks'];
+                    if (key === 'app.auto_release') {
+                        return {
+                            time_after: 10,
+                            time_before: 5,
+                            resources: ['desk'],
+                        };
+                    }
+                    return undefined;
+                },
+            );
+            vi.mocked<(url: string) => Promise<unknown>>(
+                ts_client.get,
+            ).mockResolvedValue([
+                {
+                    id: 'desk-booking-1',
+                    booking_type: 'desk',
+                    asset_id: 'desk-1',
+                    booking_start: now / 1000,
+                    booking_end: now / 1000 + 3600,
+                },
+            ]);
+        }
+        const check = () => (spectator.service as any)._checkCancel();
+
+        it('should check in the desk of an away user who keeps the booking', async () => {
+            setup('wfh');
+            confirmRemoval();
+
+            await check();
+
+            expect(spectator.inject(MatDialog).open).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).toHaveBeenCalledExactlyOnceWith(
+                expect.stringMatching(
+                    /\/bookings\/desk-booking-1\/check_in\?state=true/,
+                ),
+                '',
+            );
+        });
+
+        it('should not ask about a booking again after the user dismisses the prompt', async () => {
+            setup('wfh');
+            confirmRemoval('close');
+
+            await check();
+            await check();
+
+            expect(spectator.inject(MatDialog).open).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).not.toHaveBeenCalled();
+        });
+
+        it('should not check the bookings of a user who works in the office', async () => {
+            setup('wfo');
+
+            await check();
+
+            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        });
+    });
+
+    it.each([
+        ['app.schedule.use_driver', 'driver'],
+        ['app.schedule.use_websocket', 'ws'],
+    ])(
+        'should read the event source from the legacy %s setting',
+        (setting, source) => {
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) => key === setting,
+            );
+            const org = spectator.inject(OrganisationService) as any;
+            org.active_building.set({ id: `bld-${source}` });
+            TestBed.tick();
+
+            expect(spectator.service.event_sources()).toEqual([source]);
+        },
+    );
+
     describe('event sources', () => {
         let open_bindings = 0;
         let configured_sources: string[] = ['api'];

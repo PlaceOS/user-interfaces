@@ -1,11 +1,11 @@
 import { inject, Injector, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { MockProvider, ngMocks } from 'ng-mocks';
-import { timer } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
 import { generateEventForm } from 'libs/events/src/lib/event-form';
@@ -52,36 +52,59 @@ describe('ExploreBookingModalComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        spectator = createComponent();
-        // Bypass the 500ms _min_loading timer so the form renders
+    /** Create the modal and skip the 500ms minimum loading time */
+    const open = (overrides?: Parameters<typeof createComponent>[0]) => {
+        spectator = createComponent(overrides);
         (spectator.component as any)._min_loading.set(false);
         spectator.detectChanges();
-    });
+        return spectator;
+    };
+    const settings = (app_name: string) =>
+        MockProvider(SettingsService, { get: vi.fn(), app_name });
 
-    it('should allow changing the title and duration', () => {
-        spectator.detectChanges();
-        expect('input#title').toExist();
-        expect('a-duration-field').toExist();
-    });
+    beforeEach(() => vi.clearAllMocks());
 
     it('should display selected space', () => {
-        spectator.detectChanges();
+        open();
         expect('[name="space"]').toContainText('Test Space');
     });
 
-    it('should allow booking space', async () => {
-        spectator.component.model.update((m) => ({
-            ...m,
-            host: 'host@place.tech',
-            creator: 'creator@place.tech',
-        }));
+    it('should show the success page after booking in the workplace app', async () => {
+        open();
         spectator.typeInElement('Freedom Booking', 'input[name="title"]');
-        const spy = vi.spyOn(spectator.component, 'save');
         spectator.click('footer button');
-        expect(spy).toHaveBeenCalled();
-        await timer(310).toPromise();
-        await spectator.fixture.whenStable();
+        await vi.waitFor(() =>
+            expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled(),
+        );
+        expect(spectator.inject(EventFormService).postForm).toHaveBeenCalled();
+        expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
+            '/book',
+            'meeting',
+            'success',
+        ]);
+    });
+
+    it('should stay on the page after booking in other apps', async () => {
+        open({ providers: [settings('Concierge')] });
+        await spectator.component.save();
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+        expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
+    });
+
+    it('should keep the modal open when the booking fails', async () => {
+        open();
+        const form = spectator.inject(EventFormService);
+        vi.mocked(form.postForm).mockRejectedValueOnce('Conflict');
+        await expect(spectator.component.save()).rejects.toBe('Conflict');
+        expect(spectator.inject(MatDialogRef).close).not.toHaveBeenCalled();
+    });
+
+    it('should close without a new form when no space is given', () => {
+        vi.spyOn(console, 'error').mockImplementation(() => undefined);
+        open({ providers: [MockProvider(MAT_DIALOG_DATA, {})] });
+        expect(
+            spectator.inject(EventFormService).newForm,
+        ).not.toHaveBeenCalled();
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
 });

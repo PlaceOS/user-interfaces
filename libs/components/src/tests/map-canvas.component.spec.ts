@@ -33,7 +33,8 @@ describe('MapCanvasComponent', () => {
         const shape = spectator.query('polygon');
         expect(shape.getAttribute('points')).toBe('0,0 1,0 0.5,1');
         expect(shape.getAttribute('fill')).toBe('#ff000080');
-        expect(shape.getAttribute('stroke')).toBeTruthy();
+        // Halfway between the zone colour and grey
+        expect(shape.getAttribute('stroke')).toBe('#c44444');
     });
 
     it('should not draw polygons without points', () => {

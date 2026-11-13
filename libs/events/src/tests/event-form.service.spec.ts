@@ -8,14 +8,16 @@ import {
     CalendarEvent,
     currentUser,
     EMPTY_USER,
+    ExternalCateringService,
     i18n,
     OrganisationService,
     setCurrentUser,
+    SETTING_KEYS,
     SettingsService,
     Space,
     User,
 } from '@placeos/common';
-import { Subject } from 'rxjs';
+import { of, Subject, throwError } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 
@@ -77,6 +79,7 @@ describe('EventFormService', () => {
                     provide: SettingsService,
                     useValue: {
                         get: vi.fn(() => undefined),
+                        value: vi.fn(() => undefined),
                         overrides: signal([]),
                     },
                 },
@@ -582,8 +585,163 @@ describe('EventFormService', () => {
         });
     });
 
-    it('should not make metadata requests before event data is consumed', () => {
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+    describe('space, rule and availability loads', () => {
+        /** Make the organisation and settings ready for the loads */
+        const makeRequestsReady = (zone_id: string) => {
+            const org = TestBed.inject(OrganisationService) as unknown as {
+                regions: unknown[];
+                active_building: ReturnType<typeof signal<{ id?: string }>>;
+                building_list: ReturnType<typeof signal<{ id: string }[]>>;
+            };
+            org.regions = [];
+            org.active_building.set({ id: zone_id });
+            org.building_list.set([{ id: zone_id }]);
+            const settings = TestBed.inject(SettingsService) as unknown as {
+                overrides: ReturnType<typeof signal<object[]>>;
+            };
+            settings.overrides.set([{}, {}]);
+        };
+
+        it('should not load booking rules until a form opens', async () => {
+            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
+                of({ data: [] }) as unknown as ReturnType<
+                    typeof ts_client.querySystems
+                >,
+            );
+            makeRequestsReady('bld-1');
+            TestBed.tick();
+            // Wait longer than the 300ms zone debounce
+            await new Promise((resolve) => setTimeout(resolve, 350));
+            TestBed.tick();
+            expect(ts_client.showMetadata).not.toHaveBeenCalled();
+
+            service.newForm();
+
+            await vi.waitFor(() => {
+                TestBed.tick();
+                expect(ts_client.showMetadata).toHaveBeenCalledWith(
+                    'bld-1',
+                    'room_booking_rules',
+                );
+            });
+        });
+
+        it('should list only bookable rooms with an email and no external booking link', async () => {
+            const zone = 'bld-space-list';
+            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
+                of({
+                    data: [
+                        { id: 'room-1', bookable: true, email: 'r1@test.com' },
+                        { id: 'room-2', bookable: false, email: 'r2@test.com' },
+                        { id: 'room-3', bookable: true, email: '' },
+                        {
+                            id: 'room-4',
+                            bookable: true,
+                            email: 'r4@test.com',
+                            room_booking_url: 'https://rooms.example.com',
+                        },
+                    ],
+                }) as unknown as ReturnType<typeof ts_client.querySystems>,
+            );
+            makeRequestsReady(zone);
+            service.newForm();
+
+            await vi.waitFor(() => {
+                TestBed.tick();
+                expect(service.loaded_space_zone()).toBe(zone);
+            });
+            expect(service.spaces().map(({ id }) => id)).toEqual(['room-1']);
+            expect(service.loaded_space_lists()[zone]).toEqual(
+                service.spaces(),
+            );
+            expect(service.spaces_load_failed()).toBe(false);
+        });
+
+        it('should flag a failed room list load', async () => {
+            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
+                throwError(() => new Error('offline')) as unknown as ReturnType<
+                    typeof ts_client.querySystems
+                >,
+            );
+            makeRequestsReady('bld-space-list-error');
+            service.newForm();
+
+            await vi.waitFor(() => {
+                TestBed.tick();
+                expect(service.spaces_load_failed()).toBe(true);
+            });
+            expect(service.spaces()).toEqual([]);
+        });
+    });
+
+    describe('room list', () => {
+        const room = (data: Partial<Space>) =>
+            new Space({ zones: ['bld-1'], ...data } as Space);
+
+        it('should keep rooms of the active building that match the favourite and feature filters, smallest first', () => {
+            Object.assign(service, {
+                spaces: signal([
+                    room({ id: 'b', name: 'B', capacity: 4, features: ['tv'] }),
+                    room({ id: 'a', name: 'A', capacity: 4, features: ['tv'] }),
+                    room({
+                        id: 'small',
+                        name: 'Z',
+                        capacity: 2,
+                        features: ['tv'],
+                    }),
+                    room({ id: 'no-tv', name: 'C', capacity: 2 }),
+                    room({
+                        id: 'not-fav',
+                        name: 'D',
+                        capacity: 2,
+                        features: ['tv'],
+                    }),
+                    room({
+                        id: 'other-bld',
+                        name: 'E',
+                        capacity: 2,
+                        features: ['tv'],
+                        zones: ['bld-2'],
+                    } as Partial<Space>),
+                ]),
+            });
+            vi.mocked(TestBed.inject(SettingsService).get).mockImplementation(
+                (key: string) =>
+                    key === SETTING_KEYS.FAVORITE_ROOMS
+                        ? ['a', 'b', 'small', 'no-tv', 'other-bld']
+                        : undefined,
+            );
+
+            service.setFilters({ show_fav: true, features: ['tv'] });
+
+            expect(service.filtered_spaces().map(({ id }) => id)).toEqual([
+                'small',
+                'a',
+                'b',
+            ]);
+        });
+
+        it('should list selected rooms that the filters show but that are not available', () => {
+            const shown_free = room({ id: 'free' });
+            const shown_busy = room({ id: 'busy' });
+            const hidden = room({
+                id: 'hidden',
+                zones: ['bld-2'],
+            } as Partial<Space>);
+            Object.assign(service, {
+                spaces: signal([shown_free, shown_busy, hidden]),
+                available_spaces: signal([shown_free]),
+            });
+
+            service.model.update((m) => ({
+                ...m,
+                resources: [shown_free, shown_busy, hidden],
+            }));
+
+            expect(service.unavailable_resources().map(({ id }) => id)).toEqual(
+                ['busy'],
+            );
+        });
     });
 
     it('should refresh last_success when saved event has same start time', () => {
@@ -1389,7 +1547,10 @@ describe('EventFormService', () => {
         );
     });
 
-    function prepareRoomAssetBooking(item_ids?: string[]) {
+    function prepareRoomAssetBooking(
+        item_ids?: string[],
+        existing?: CalendarEvent,
+    ) {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
         const space = new Space({
             id: 'space-1',
@@ -1436,7 +1597,7 @@ describe('EventFormService', () => {
             }),
         );
 
-        service.newForm();
+        service.newForm(existing);
         service.model.update((model) => ({
             ...model,
             host: 'host@test.com',
@@ -1489,6 +1650,159 @@ describe('EventFormService', () => {
             expect.stringContaining('/events/event-1?'),
             expect.objectContaining({ response_type: 'void' }),
         );
+    });
+
+    it('should keep an edited room booking when its asset request fails', async () => {
+        const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
+        prepareRoomAssetBooking(
+            ['asset-1'],
+            new CalendarEvent({
+                id: 'event-1',
+                date,
+                duration: 60,
+                resources: [new Space({ id: 'space-1', zones: ['bld-1'] })],
+            }),
+        );
+        vi.mocked(ts_client.post).mockClear();
+        vi.mocked(ts_client.post).mockRejectedValue({ status: 400 });
+        vi.mocked(ts_client.del).mockClear();
+
+        await expect(service.postForm(true)).rejects.toBe(
+            i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR'),
+        );
+        expect(ts_client.post).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings?'),
+            expect.objectContaining({ asset_id: 'asset-1' }),
+        );
+        expect(ts_client.del).not.toHaveBeenCalled();
+    });
+
+    it('should not save a meeting with external guests and no room', async () => {
+        const perform_booking = vi.spyOn(service as any, '_performBooking');
+        service.newForm();
+        service.model.update((m) => ({
+            ...m,
+            host: 'host@test.com',
+            title: 'Guest meeting',
+            attendees: [new User({ email: 'guest@external.com' })],
+            resources: [],
+        }));
+
+        await expect(service.postForm(true)).rejects.toBe(
+            i18n('CALENDAR_EVENT.SPACE_EXTERNALS_ERROR'),
+        );
+        expect(perform_booking).not.toHaveBeenCalled();
+        expect(service.loading()).toBe('');
+    });
+
+    describe('external catering', () => {
+        const order = { id: 'order-1', items: [{ id: 'item-1', quantity: 1 }] };
+        let place_orders: ReturnType<typeof vi.spyOn>;
+
+        /** Post a form with one catering order for a new or an existing event */
+        const postCateredForm = async (event_id: string) => {
+            const date = new Date(2028, 5, 16, 16).valueOf();
+            const room = new Space({ id: 'space-1', email: 'room@test.com' });
+            // A new booking checks room availability and rules first
+            vi.spyOn(
+                (service as any)._space_pipe,
+                'transform',
+            ).mockResolvedValue(room);
+            vi.spyOn(
+                service as any,
+                '_checkResourcesAvailable',
+            ).mockResolvedValue(true);
+            vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(
+                true,
+            );
+            vi.spyOn(service as any, '_performBooking').mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    host: 'host@test.com',
+                    date,
+                    duration: 60,
+                    resources: [room],
+                }),
+            );
+            vi.mocked<(url: string) => Promise<unknown>>(
+                ts_client.get,
+            ).mockResolvedValue([]);
+            vi.mocked(ts_client.post).mockClear();
+            vi.mocked<(url: string, data: object) => Promise<unknown>>(
+                ts_client.post,
+            ).mockImplementation(async (_, data) => ({ ...data, id: 'b-1' }));
+            sessionStorage.setItem(
+                'PLACEOS.event',
+                JSON.stringify(
+                    event_id
+                        ? {
+                              id: event_id,
+                              date,
+                              duration: 60,
+                              resources: [room],
+                          }
+                        : {},
+                ),
+            );
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify({
+                    host: 'host@test.com',
+                    title: 'Catered meeting',
+                    date,
+                    duration: 60,
+                    attendees: [],
+                    catering: [order],
+                    resources: [room],
+                }),
+            );
+            service.loadForm();
+            await service.postForm(true);
+        };
+
+        beforeEach(() => {
+            vi.mocked(TestBed.inject(SettingsService).get).mockImplementation(
+                (key: string) =>
+                    key === 'app.catering.backend' ? 'external' : undefined,
+            );
+            place_orders = vi
+                .spyOn(TestBed.inject(ExternalCateringService), 'placeOrders')
+                .mockImplementation(
+                    async (_, orders) =>
+                        orders.map((item) => ({
+                            order: item,
+                            reference: { order_id: 'external-1' },
+                        })) as any,
+                );
+        });
+
+        it('should place the orders of a new booking and link them to the external orders', async () => {
+            await postCateredForm('');
+
+            expect(place_orders).toHaveBeenCalledTimes(1);
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/bookings?'),
+                expect.objectContaining({
+                    booking_type: 'catering-order',
+                    extension_data: expect.objectContaining({
+                        parent_id: 'event-1',
+                        details: expect.objectContaining({
+                            external_reference: { order_id: 'external-1' },
+                        }),
+                    }),
+                }),
+            );
+        });
+
+        it('should not place the orders again when an existing booking is edited', async () => {
+            await postCateredForm('event-1');
+
+            expect(place_orders).not.toHaveBeenCalled();
+            expect(ts_client.post).not.toHaveBeenCalledWith(
+                expect.anything(),
+                expect.objectContaining({ booking_type: 'catering-order' }),
+            );
+        });
     });
 
     it('should post the selected time after reloading a new meeting form', async () => {
@@ -2032,7 +2346,7 @@ describe('EventFormService', () => {
                 60,
                 currentUser().email,
             ),
-        ).rejects.toBeTruthy();
+        ).rejects.toBe(i18n('CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN'));
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-1',
             'room_booking_rules',
@@ -2113,7 +2427,7 @@ describe('EventFormService', () => {
                 date + 60 * 60 * 1000,
                 'Australia/Sydney',
             ),
-        ).rejects.toBeTruthy();
+        ).rejects.toBe(i18n('FORM.BOOKABLE_HOURS_ERROR'));
         expect(org.loadBuildingData).toHaveBeenCalledTimes(2);
     });
 
@@ -2164,7 +2478,7 @@ describe('EventFormService', () => {
                 60,
                 currentUser().email,
             ),
-        ).rejects.toBeTruthy();
+        ).rejects.toBe(i18n('CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN'));
         expect(ts_client.showMetadata).toHaveBeenCalledWith(
             'bld-1',
             'room_booking_rules',
@@ -2223,7 +2537,7 @@ describe('EventFormService', () => {
                     ) => Promise<boolean>;
                 }
             )._checkRecurringClashes(event),
-        ).rejects.toBeTruthy();
+        ).rejects.toBe(i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED'));
         expect(ts_client.post).toHaveBeenCalledWith(
             expect.stringContaining('clashing-assets'),
             expect.objectContaining({

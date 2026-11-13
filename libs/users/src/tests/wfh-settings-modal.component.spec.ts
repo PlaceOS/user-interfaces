@@ -106,12 +106,47 @@ describe('WFHSettingsModalComponent', () => {
         expect(spectator.component.weekdays_enabled()).toEqual({ 1: true });
     });
 
+    it('should show a work block row when a weekday is checked', async () => {
+        spectator = createWithPreferences([]);
+        expect('a-time-field').not.toExist();
+        // Days start on Sunday, so index 3 is Wednesday
+        spectator.click(spectator.queryAll('mat-checkbox input')[3]);
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+        expect(spectator.component.weekdays_enabled()).toEqual({ 3: true });
+        // A start and an end time field for the default block
+        expect(spectator.queryAll('a-time-field')).toHaveLength(2);
+    });
+
     it('should start an empty day with one default block', () => {
         spectator = createWithPreferences([]);
         spectator.component.initialiseDay(3);
         expect(spectator.component.settings()[3].blocks).toEqual([
             { start_time: 9, end_time: 17, location: 'wfo' },
         ]);
+    });
+
+    it('should keep the blocks of a day that is enabled again', () => {
+        spectator = createWithPreferences([monday()]);
+        spectator.component.setWeekdayEnabled(1, false);
+        spectator.component.setWeekdayEnabled(1, true);
+        spectator.component.initialiseDay(1);
+        expect(spectator.component.settings()[1].blocks).toEqual(
+            monday().blocks,
+        );
+    });
+
+    it('should set a half hour start time and push the end time after it', () => {
+        vi.useFakeTimers();
+        spectator = createWithPreferences([monday()]);
+        const block = spectator.component.settings()[1].blocks[0];
+        spectator.component.setStartTime(
+            block,
+            1,
+            spectator.component.timeFrom(12.5),
+        );
+        vi.advanceTimersByTime(50);
+        expect(block).toMatchObject({ start_time: 12.5, end_time: 13.5 });
     });
 
     it('should add a block after the index and remove blocks down to the last one', () => {
@@ -194,16 +229,17 @@ describe('WFHSettingsModalComponent', () => {
         expect(close_fn).toHaveBeenCalledWith(body.work_preferences);
     });
 
-    it('should restore modal controls when loading the user fails', async () => {
+    it('should stay open and restore modal controls when saving fails', async () => {
         spectator = createComponent();
         vi.mocked(ts_client.showUser).mockRejectedValue(
             new Error('Unable to load user'),
         );
 
-        await expect(spectator.component.saveChanges(false)).rejects.toThrow(
+        await expect(spectator.component.saveChanges()).rejects.toThrow(
             'Unable to load user',
         );
 
+        expect(close_fn).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
         expect(spectator.inject(MatDialogRef).disableClose).toBe(false);
     });

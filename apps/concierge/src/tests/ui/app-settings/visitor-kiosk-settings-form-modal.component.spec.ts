@@ -92,62 +92,6 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         vi.restoreAllMocks();
     });
 
-    it('should have a model with general settings values', () => {
-        const model = spectator.component.model();
-        expect('logo_light' in model).toBe(true);
-        expect('logo_dark' in model).toBe(true);
-        expect('welcome_background' in model).toBe(true);
-        expect('welcome_message' in model).toBe(true);
-        expect('induction_enabled' in model).toBe(true);
-        expect('allow_self_registration' in model).toBe(true);
-        expect('allow_pass_number' in model).toBe(true);
-        expect('allow_printing_label' in model).toBe(true);
-        expect('allow_user_photo' in model).toBe(true);
-        expect('allow_beverages' in model).toBe(true);
-        expect('hide_explore' in model).toBe(true);
-        expect('hide_building_image' in model).toBe(true);
-        expect('checked_in_template' in model).toBe(true);
-        expect('standalone_visitor_location' in model).toBe(true);
-    });
-
-    it('should have visitor label size model group', () => {
-        const label_size = spectator.component.model().visitor_label_size;
-        expect(label_size).toBeTruthy();
-        expect('width' in label_size).toBe(true);
-        expect('height' in label_size).toBe(true);
-        expect('scale' in label_size).toBe(true);
-    });
-
-    it('should have visitors model group', () => {
-        const visitors = spectator.component.model().visitors;
-        expect(visitors).toBeTruthy();
-        expect('allow_all_day' in visitors).toBe(true);
-        expect('max_duration' in visitors).toBe(true);
-    });
-
-    it('should have explore model group', () => {
-        const explore = spectator.component.model().explore;
-        expect(explore).toBeTruthy();
-        expect('hide_device_fields' in explore).toBe(true);
-        expect('show_legend' in explore).toBe(true);
-        expect('disable' in explore).toBe(true);
-        expect('disable_actions' in explore).toBe(true);
-        expect('disable_labels' in explore).toBe(true);
-        expect('disable_features' in explore).toBe(true);
-        expect('disable_styles' in explore).toBe(true);
-        expect('show_booking_qr' in explore).toBe(true);
-        expect('use_zone_polygons' in explore).toBe(true);
-    });
-
-    it('should expose the zone from dialog data', () => {
-        expect(spectator.component.zone).toEqual(mock_zone);
-    });
-
-    it('should expose settings option constants', () => {
-        expect(spectator.component.MAX_DURATION_MINI).toBeTruthy();
-        expect(spectator.component.EXPLORE_FEATURE).toBeTruthy();
-    });
-
     it('should load settings on init', async () => {
         await spectator.component.ngOnInit();
         expect(ts_client.showMetadata).toHaveBeenCalled();

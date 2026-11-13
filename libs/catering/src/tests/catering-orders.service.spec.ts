@@ -13,9 +13,12 @@ import {
     CalendarEvent,
     CateringItem,
     CateringOrder,
+    EMPTY_USER,
     OrganisationService,
+    setCurrentUser,
     SettingsService,
     Space,
+    StaffUser,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { EMPTY, Observable, of } from 'rxjs';
@@ -49,6 +52,8 @@ describe('CateringOrdersService', () => {
         active_building = signal({});
         vi.mocked(ts_client.get).mockReset();
         spectator = createService();
+        // The settings mock is shared by all tests
+        vi.mocked(spectator.inject(SettingsService).get).mockReset();
     });
 
     /** Set a building so the service loads orders, then wait for the load */
@@ -419,5 +424,109 @@ describe('CateringOrdersService', () => {
         expect(ids(spectator.service.matching())).toEqual(['early', 'late']);
         spectator.service.filters = { caterer: '<empty>' };
         expect(ids(spectator.service.matching())).toEqual(['no-caterer']);
+    });
+
+    describe('with catering bookings', () => {
+        beforeEach(() =>
+            vi
+                .mocked(spectator.inject(SettingsService).get)
+                .mockImplementation(
+                    (key: string) => key === 'app.catering.use_bookings',
+                ),
+        );
+
+        /** Booking data from the API for one order in the event */
+        const apiBooking = (id: string, order_id: string) => ({
+            id,
+            extension_data: {
+                details: {
+                    id: order_id,
+                    status: 'accepted',
+                    items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+                },
+            },
+            linked_event: apiEvent('e1', []),
+        });
+
+        it('should load orders from catering bookings for the day', async () => {
+            spectator.service.filters = { date: DAY, zones: ['zone-1'] };
+            vi.mocked(ts_client.get).mockResolvedValue([
+                apiBooking('b1', 'o1'),
+            ] as any);
+
+            await loadOrders();
+
+            const [url] = vi.mocked(ts_client.get).mock.calls[0];
+            expect(url).toContain('type=catering-order');
+            expect(url).toContain('zones=zone-1');
+            expect(ids(spectator.service.orders())).toEqual(['o1']);
+        });
+
+        it('should save the new status into the booking of the order', async () => {
+            spectator.service.filters = { date: DAY, zones: ['zone-1'] };
+            vi.mocked(ts_client.get).mockResolvedValue([
+                apiBooking('b1', 'o1'),
+            ] as any);
+            vi.mocked(ts_client.patch)
+                .mockReset()
+                .mockResolvedValue({} as any);
+            await loadOrders();
+
+            await spectator.service.updateStatus(
+                spectator.service.orders()[0],
+                'ready',
+            );
+
+            // One save to the booking. The event has no room for metadata.
+            expect(ts_client.patch).toHaveBeenCalledTimes(1);
+            const [url, body] = vi.mocked(ts_client.patch).mock.calls[0];
+            expect(url).toMatch(/\/b1$/);
+            expect(
+                (body as { extension_data: { details: CateringOrder } })
+                    .extension_data.details,
+            ).toEqual(expect.objectContaining({ id: 'o1', status: 'ready' }));
+        });
+    });
+
+    describe('caterers', () => {
+        const groups = {
+            Cafe: ['cafe-staff'],
+            Deli: ['deli-staff'],
+            Bar: ['bar-staff'],
+        };
+        /** Set the provider groups setting and the groups of the user */
+        const setup = (user_groups: string[]) => {
+            vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+                (key: string) =>
+                    key === 'app.catering_provider_groups' ? groups : undefined,
+            );
+            setCurrentUser(new StaffUser({ groups: user_groups }));
+            setOrders([
+                new CateringOrder({ id: '1', caterer: 'Cafe' }),
+                new CateringOrder({ id: '2', caterer: 'Bar' }),
+            ]);
+        };
+
+        afterEach(() => setCurrentUser(EMPTY_USER));
+
+        it('should list the caterers of the orders when no groups are set', () => {
+            setOrders([
+                new CateringOrder({ id: '1', caterer: 'Cafe' }),
+                new CateringOrder({ id: '2', caterer: 'Bar' }),
+                new CateringOrder({ id: '3', caterer: 'Cafe' }),
+            ]);
+            expect(spectator.service.caterers()).toEqual(['Cafe', 'Bar']);
+        });
+
+        it('should only list the caterers of the groups the user is in', () => {
+            setup(['cafe-staff', 'deli-staff']);
+            expect(spectator.service.caterers()).toEqual(['Cafe', 'Deli']);
+            expect(spectator.service.filters.caterer).toBe('');
+        });
+
+        it('should list the caterers of the orders for admins', () => {
+            setup(['placeos_admin']);
+            expect(spectator.service.caterers()).toEqual(['Cafe', 'Bar']);
+        });
     });
 });

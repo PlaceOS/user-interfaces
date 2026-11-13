@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
@@ -17,6 +18,9 @@ describe('PushNotificationSettingsComponent', () => {
         declarations: [MockComponent(IconComponent)],
         detectChanges: false,
     });
+
+    const toggles = () =>
+        spectator.debugElement.queryAll(By.css('mat-slide-toggle'));
 
     beforeEach(() => {
         push = {
@@ -67,20 +71,21 @@ describe('PushNotificationSettingsComponent', () => {
         expect(push.requestPermission).toHaveBeenCalledTimes(1);
     });
 
-    it('should render a toggle for every severity when enabled', () => {
+    it('should show a toggle per severity, switched on for the enabled ones', () => {
+        push.config.set({ critical: true, high: false, medium: true, low: false });
         spectator.detectChanges();
-        const toggles = spectator.queryAll('mat-slide-toggle');
-        expect(toggles.length).toBe(4);
+        expect(toggles().map((t) => t.componentInstance.checked)).toEqual([
+            true,
+            false,
+            true,
+            false,
+        ]);
     });
 
-    it('should update the severity when a toggle is switched', () => {
+    it('should save the severity a toggle is switched for', () => {
         spectator.detectChanges();
-        spectator.component.toggleSeverity('high', true);
+        // critical, high, medium, low
+        toggles()[1].triggerEventHandler('change', { checked: true });
         expect(push.setSeverityEnabled).toHaveBeenCalledWith('high', true);
-    });
-
-    it('should request permission when asked', async () => {
-        await spectator.component.requestPermission();
-        expect(push.requestPermission).toHaveBeenCalledTimes(1);
     });
 });

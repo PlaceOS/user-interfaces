@@ -1,7 +1,9 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
+import { of } from 'rxjs';
 
 import { UploadsService } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { RichTextInputComponent } from '../lib/rich-text-input.component';
 
@@ -44,7 +46,7 @@ describe('RichTextInputComponent', () => {
         declarations: [MockComponent(IconComponent)],
         providers: [
             MockProvider(UploadsService, {
-                uploadFile: vi.fn(() => Promise.resolve('upload-1')),
+                uploadFileToCompletion: vi.fn(() => Promise.resolve('up 1')),
             }),
         ],
     });
@@ -168,5 +170,81 @@ describe('RichTextInputComponent', () => {
         spectator.setInput('readonly', true);
         spectator.detectChanges();
         expect(spectator.query('button[icon]')).toBeNull();
+    });
+
+    describe('embedded uploads', () => {
+        const upload_url = `${location.origin}/api/engine/v2/uploads/up%201/url`;
+        // Fake notification outlet so notifyError() is observable
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+
+        beforeEach(() => {
+            notify_open.mockClear();
+            setNotifyOutlet({ open: notify_open } as any, true);
+        });
+
+        afterEach(() => setNotifyOutlet(null, true));
+
+        /** Open the file picker of the editor and pick `file` */
+        const pickFile = async (file: File, images_only: boolean) => {
+            let picker: HTMLInputElement;
+            const click = vi
+                .spyOn(HTMLElement.prototype, 'click')
+                .mockImplementation(function (this: HTMLInputElement) {
+                    picker = this;
+                });
+            if (images_only) spectator.component.insertImage();
+            else spectator.component.insertAttachment();
+            click.mockRestore();
+            Object.defineProperty(picker, 'files', { value: [file] });
+            picker.dispatchEvent(new Event('change'));
+            await wait(0);
+            return picker;
+        };
+
+        it('should insert an uploaded image with its name escaped', async () => {
+            const on_change = vi.fn();
+            await initialiseEditor();
+            spectator.component.registerOnChange(on_change);
+            const file = new File([], 'x" onerror="alert(1).png', {
+                type: 'image/png',
+            });
+
+            const picker = await pickFile(file, true);
+
+            expect(picker.getAttribute('accept')).toBe('image/*');
+            expect(mockEditor.insertHTML).toHaveBeenCalledWith(
+                `<img src="${upload_url}" alt="x&quot; onerror=&quot;alert(1).png" />`,
+            );
+            expect(on_change).toHaveBeenCalledWith('<p>content</p>');
+        });
+
+        it('should insert an uploaded file that is not an image as a link', async () => {
+            await initialiseEditor();
+            const file = new File([], '<b>report</b>.pdf', {
+                type: 'application/pdf',
+            });
+
+            const picker = await pickFile(file, false);
+
+            expect(picker.hasAttribute('accept')).toBe(false);
+            expect(mockEditor.insertHTML).toHaveBeenCalledWith(
+                `<a href="${upload_url}" target="_blank" rel="noopener noreferrer">&lt;b&gt;report&lt;/b&gt;.pdf</a>`,
+            );
+        });
+
+        it('should report a failed upload and insert nothing', async () => {
+            await initialiseEditor();
+            vi.mocked(
+                spectator.inject(UploadsService).uploadFileToCompletion,
+            ).mockRejectedValueOnce(new Error('Status 500'));
+
+            await pickFile(new File([], 'a.png', { type: 'image/png' }), true);
+
+            expect(mockEditor.insertHTML).not.toHaveBeenCalled();
+            expect(notify_open).toHaveBeenCalledTimes(1);
+        });
     });
 });

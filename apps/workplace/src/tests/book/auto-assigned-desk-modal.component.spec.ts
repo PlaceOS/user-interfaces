@@ -3,7 +3,12 @@ import { MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import {
+    OrganisationService,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
@@ -194,5 +199,75 @@ describe('AutoAssignedDeskModalComponent', () => {
         spectator.fixture.destroy();
 
         expect(model()).toBe(booked_form);
+    });
+
+    describe('desk choice', () => {
+        const desk = (id: string, level: string, fields = {}) => ({
+            id,
+            name: id,
+            map_id: `map-${id}`,
+            zone: { id: level, parent_id: 'building-1' },
+            tags: [],
+            ...fields,
+        });
+        const tagged = desk('tagged', 'level-1', { tags: ['eng'] });
+        const homebase = desk('homebase', 'level-2', { homebase: 'eng' });
+        const both = desk('both', 'level-3', {
+            tags: ['eng'],
+            homebase: 'eng',
+        });
+        const other = desk('other', 'level-1');
+
+        async function assign(available: object[], groups: string[] = []) {
+            setCurrentUser(new StaffUser({ id: 'me', groups }));
+            vi.mocked(
+                spectator.inject(BookingFormService).listAvailableResources,
+            ).mockResolvedValueOnce(available as any);
+            await spectator.component.ngOnInit();
+            return spectator.component.assigned_desk();
+        }
+
+        it.each([
+            ['tag and homebase', [tagged, homebase, both, other], both],
+            ['homebase', [tagged, homebase, other], homebase],
+            ['tag', [other, tagged], tagged],
+        ])(
+            'should prefer a desk that matches the user groups by %s',
+            async (_, available, expected) => {
+                expect(await assign(available, ['eng'])).toEqual(expected);
+            },
+        );
+
+        it('should pick a desk on the level with the most free desks', async () => {
+            const level_2 = desk('level-2-a', 'level-2');
+            const available = [
+                desk('level-1-a', 'level-1'),
+                level_2,
+                desk('level-2-b', 'level-2'),
+            ];
+
+            expect(await assign(available)).toEqual(level_2);
+        });
+
+        it('should close the modal when no desk is free', async () => {
+            expect(await assign([])).toBeNull();
+
+            expect(spectator.component.show()).toBe(false);
+            expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith(
+                false,
+            );
+        });
+    });
+
+    it('should keep the modal open when the booking fails', async () => {
+        const state = spectator.inject(BookingFormService);
+        vi.mocked(state.postForm).mockRejectedValueOnce('Desk is taken');
+        await spectator.component.ngOnInit();
+
+        await spectator.component.confirm();
+
+        expect(spectator.component.loading()).toBe('');
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
+        expect(spectator.inject(MatDialogRef).close).not.toHaveBeenCalled();
     });
 });

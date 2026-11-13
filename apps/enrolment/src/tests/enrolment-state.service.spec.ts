@@ -134,6 +134,37 @@ describe('EnrolmentStateService', () => {
             expect(spectator.service.loading()).toBe('');
         });
 
+        it('should show the meeting loading message until the event arrives', async () => {
+            let resolveEvent: (value: unknown) => void = () => undefined;
+            (ts_client.get as any).mockImplementation(async (url: string) =>
+                url.startsWith(GUEST_ENDPOINT)
+                    ? { id: 'guest@example.com', email: 'guest@example.com' }
+                    : new Promise((resolve) => (resolveEvent = resolve)),
+            );
+            spectator.service.handleUserToken(validToken());
+            await settle();
+
+            expect(spectator.service.loading()).toBe(
+                'Loading your meeting details...',
+            );
+
+            resolveEvent(event_stub);
+            await settle();
+            expect(spectator.service.loading()).toBe('');
+            expect(spectator.service.event()?.id).toBe('event-1');
+        });
+
+        it('should not load the event once an error is shown', async () => {
+            // e.g. the page timed out before the token arrived
+            spectator.service.setError('guest');
+            spectator.service.handleUserToken(validToken());
+            await settle();
+
+            expect(getCalls(GUEST_ENDPOINT)).toHaveLength(1);
+            expect(getCalls(EVENTS_ENDPOINT)).toHaveLength(0);
+            expect(spectator.service.error()).toBe('guest');
+        });
+
         it('should populate the form model from the loaded guest', async () => {
             spectator.service.handleUserToken(validToken());
             await settle();

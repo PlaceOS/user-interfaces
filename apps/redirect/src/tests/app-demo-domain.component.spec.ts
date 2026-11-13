@@ -31,6 +31,10 @@ describe('AppComponent (demo domain)', () => {
         ],
     });
 
+    // Mock mode lazy loads `@placeos/mocks`. A cold load is slow on a busy
+    // machine, so load it once here, outside the test timeout.
+    beforeAll(() => import('@placeos/mocks'), 30_000);
+
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();

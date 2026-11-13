@@ -89,7 +89,6 @@ interface PanelInternals {
     _model?: Promise<unknown>;
     _context: unknown;
     _setupVoiceRecognition(): Promise<void>;
-    _containsPerson(predictions: Float32Array, shape: number[]): boolean;
 }
 
 describe('PanelViewComponent', () => {
@@ -520,10 +519,14 @@ describe('PanelViewComponent', () => {
 
         /** Let the 500ms frame interval process one webcam frame */
         const frame = () => vi.advanceTimersByTimeAsync(500);
-        /** Model output with one prediction: 4 box values then the person score */
-        const output = (score: number) => ({
-            toTypedArray: () => new Float32Array([0, 0, 0, 0, score]),
-            type: { layout: { dimensions: [1, 84, 1] } },
+        /** Model output with one prediction per score: all box values, then all person scores */
+        const output = (...scores: number[]) => ({
+            toTypedArray: () =>
+                new Float32Array([
+                    ...scores.flatMap(() => [320, 320, 64, 64]),
+                    ...scores,
+                ]),
+            type: { layout: { dimensions: [1, 84, scores.length] } },
             delete: vi.fn(),
         });
 
@@ -612,17 +615,14 @@ describe('PanelViewComponent', () => {
             expect(model.run).toHaveBeenCalledTimes(2);
         });
 
-        it('should detect a person only above the 0.2 confidence threshold', () => {
-            const predictions = new Float32Array(15);
-            predictions[13] = 0.21;
-            expect(internals()._containsPerson(predictions, [1, 84, 3])).toBe(
-                true,
-            );
+        it('should detect a person when any prediction scores above 0.2', async () => {
+            model.run.mockResolvedValueOnce([output(0, 0.19, 0)]);
+            await frame();
+            expect(spectator.component.person_in_view()).toBe(false);
 
-            predictions[13] = 0.19;
-            expect(internals()._containsPerson(predictions, [1, 84, 3])).toBe(
-                false,
-            );
+            model.run.mockResolvedValueOnce([output(0, 0, 0.21)]);
+            await frame();
+            expect(spectator.component.person_in_view()).toBe(true);
         });
 
         it('should greet a visitor once while they stay in view', async () => {
@@ -650,6 +650,18 @@ describe('PanelViewComponent', () => {
             expect(chat.close).not.toHaveBeenCalled();
             await vi.advanceTimersByTimeAsync(1);
             expect(chat.close).toHaveBeenCalledTimes(1);
+        });
+
+        it('should greet the same visitor again after the service restarts', async () => {
+            person_score = 0.9;
+            await frame();
+
+            spectator.component.endService();
+            await frame();
+            spectator.component.setup.set(true);
+            await frame();
+
+            expect(spoken()).toEqual([GREETING, GREETING]);
         });
 
         it('should keep the chat and greet again when the visitor returns in time', async () => {
@@ -714,6 +726,55 @@ describe('PanelViewComponent', () => {
         expect(cancel_frame).toHaveBeenCalledWith(42);
         expect(source.disconnect).toHaveBeenCalledTimes(1);
         expect(audio_close).toHaveBeenCalledTimes(1);
+    });
+
+    it('should sample the microphone every second frame and draw it once set up', async () => {
+        const source = { connect: vi.fn(), disconnect: vi.fn() };
+        const analyser = {
+            frequencyBinCount: 4,
+            getByteTimeDomainData: vi.fn(),
+        };
+        class FakeAudioContext {
+            public state = 'running';
+            public close = vi.fn(async () => undefined);
+            public createAnalyser = () => analyser;
+            public createMediaStreamSource = () => source;
+        }
+        const frames: FrameRequestCallback[] = [];
+        vi.stubGlobal('AudioContext', FakeAudioContext);
+        vi.stubGlobal(
+            'requestAnimationFrame',
+            vi.fn((callback: FrameRequestCallback) => frames.push(callback)),
+        );
+        vi.stubGlobal('cancelAnimationFrame', vi.fn());
+        const stroke = vi.fn();
+        HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
+            drawImage: vi.fn(),
+            clearRect: vi.fn(),
+            beginPath: vi.fn(),
+            moveTo: vi.fn(),
+            lineTo: vi.fn(),
+            stroke,
+        })) as unknown as typeof HTMLCanvasElement.prototype.getContext;
+        const stream = { getTracks: () => [] } as unknown as MediaStream;
+        Object.defineProperty(navigator, 'mediaDevices', {
+            value: { getUserMedia: vi.fn(async () => stream) },
+            configurable: true,
+        });
+        /** Run every queued animation frame. Angular also queues some. */
+        const next_frame = () => frames.splice(0).forEach((run) => run(0));
+
+        spectator.detectChanges();
+        await vi.waitFor(() => expect(source.connect).toHaveBeenCalled());
+        for (let i = 0; i < 4; i++) next_frame();
+        expect(analyser.getByteTimeDomainData).toHaveBeenCalledTimes(2);
+        expect(stroke).not.toHaveBeenCalled();
+
+        spectator.component.setup.set(true);
+        next_frame();
+        next_frame();
+        expect(analyser.getByteTimeDomainData).toHaveBeenCalledTimes(3);
+        expect(stroke).toHaveBeenCalledTimes(1);
     });
 
     it('should release camera and microphone streams on destroy, even late ones', async () => {

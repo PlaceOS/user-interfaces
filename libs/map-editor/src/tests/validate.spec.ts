@@ -915,6 +915,46 @@ describe('validateProposal', () => {
         expect(painted.codes).toEqual(['denied_markup']);
     });
 
+    it('locks replacement markup that is empty, oversized, aimed at the root or more than one element', async () => {
+        const replace = (markup: string) =>
+            single({
+                op: 'replace_element',
+                why: '',
+                target: { id: 'plant-2' },
+                markup,
+            });
+        const circle = '<circle cx="930" cy="400" r="10"/>';
+        const cases = [
+            await replace('  '),
+            await replace(
+                `<g>${circle.repeat(Math.ceil((16 * 1024) / circle.length))}</g>`,
+            ),
+            await replace(`${circle}${circle}`),
+        ];
+        expect(cases.map(({ codes }) => codes)).toEqual([
+            ['bad_markup'],
+            ['bad_markup'],
+            ['bad_markup'],
+        ]);
+        expect(cases.every(({ row }) => row.locked)).toBe(true);
+        expect(cases[1].row.issues[0].message).toBe('markup is over 16 KB');
+        expect(cases[2].row.issues[0].message).toMatch(/exactly one element/);
+
+        const doc = office();
+        const root = await single(
+            {
+                op: 'replace_element',
+                why: '',
+                target: { a: doc.anchorOf(doc.root) },
+                markup: circle,
+            },
+            {},
+            doc,
+        );
+        expect(root.codes).toEqual(['root']);
+        expect(root.row.locked).toBe(true);
+    });
+
     it('warns when replacement markup wraps a bound id in a group that paints itself', async () => {
         const bound = await single({
             op: 'replace_element',

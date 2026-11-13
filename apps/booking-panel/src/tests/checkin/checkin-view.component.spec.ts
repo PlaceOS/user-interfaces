@@ -11,6 +11,9 @@ import { CheckinTimetableComponent } from '../../app/checkin/checkin-timetable.c
 import { CheckinViewComponent } from '../../app/checkin/checkin-view.component';
 import { PanelStateService } from '../../app/panel-state.service';
 
+/** Action button on the "Now" card */
+const NOW_BUTTON = 'button[aria-describedby="checkin-now"]';
+
 describe('CheckinViewComponent', () => {
     let spectator: SpectatorRouting<CheckinViewComponent>;
 
@@ -95,28 +98,20 @@ describe('CheckinViewComponent', () => {
             k === 'room_image' ? 'https://img/room.png' : undefined,
         );
         spectator.detectChanges();
-        const bg = spectator.query('div.bg-cover');
-        expect(bg).toBeTruthy();
-        expect((bg as HTMLElement).style.backgroundImage).toContain(
-            'https://img/room.png',
-        );
+        expect('div[style*="https://img/room.png"]').toExist();
     });
 
     it('should check in the current meeting when the checkin button is used', () => {
         status.set('pending');
-        // hide the book buttons so only the checkin button remains
-        setting.mockReturnValue(true);
         spectator.detectChanges();
-        spectator.click('button.w-24');
+        spectator.click(NOW_BUTTON);
         expect(start_meeting).toHaveBeenCalledTimes(1);
     });
 
     it('should start a new booking when the book button is used', () => {
         status.set('free');
-        setting.mockReturnValue(undefined); // book allowed
         spectator.detectChanges();
-        // first book button is on the "now" card
-        spectator.click('button.w-24');
+        spectator.click(NOW_BUTTON);
         expect(new_booking).toHaveBeenCalledTimes(1);
         const args = new_booking.mock.calls[0];
         expect(args[1]).toBe(true); // has_user
@@ -135,7 +130,7 @@ describe('CheckinViewComponent', () => {
         spectator.detectChanges();
         const free_start = next_event.date + 30 * 60 * 1000;
         expect(spectator.component.start()).toBe(free_start);
-        spectator.click('button.w-24');
+        spectator.click('[book-next]');
         expect(new_booking).toHaveBeenCalledWith(free_start, true, true, true);
     });
 
@@ -143,8 +138,7 @@ describe('CheckinViewComponent', () => {
         status.set('free');
         setting.mockImplementation((k) => k === 'disable_qr_booking');
         spectator.detectChanges();
-        expect(spectator.component.can_book()).toBe(false);
-        expect('button.w-24').not.toExist();
+        expect('button').not.toExist();
     });
 
     it('should ignore new booking requests when booking is disabled', () => {
@@ -179,10 +173,9 @@ describe('CheckinViewComponent', () => {
 
     it('should offer one book button while the room is free', () => {
         status.set('free');
-        setting.mockReturnValue(undefined);
         spectator.detectChanges();
-        expect('button.w-24').toHaveLength(1);
-        expect('[book-next]').not.toExist();
+        expect('button').toHaveLength(1);
+        expect(NOW_BUTTON).toExist();
     });
 
     describe('with translation keys rendered', () => {

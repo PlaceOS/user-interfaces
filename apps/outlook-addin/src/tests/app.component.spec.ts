@@ -1,4 +1,5 @@
 import { SwUpdate } from '@angular/service-worker';
+import * as msal from '@azure/msal-browser';
 import {
     createComponentFactory,
     mockProvider,
@@ -9,7 +10,9 @@ import {
     LocaleService,
     OrganisationService,
     PlaceOS_Service,
+    setCurrentUser,
     SettingsService,
+    StaffUser,
 } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 
@@ -17,12 +20,26 @@ import { AppComponent } from '../app/app.component';
 
 // Mock ts-client so that no token is stored.
 vi.mock('@placeos/ts-client', { spy: true });
+// Mock MSAL so that no request leaves the test.
+vi.mock('@azure/msal-browser', { spy: true });
+
+const CLIENT_ID = 'b2d59a3c-5fcf-4307-9e9c-0fd385902ff0';
+
+/** Stub the MSAL client so that a silent request gets `get_token()`. */
+function stubMsal(get_token: () => Promise<string>) {
+    const app = {
+        acquireTokenSilent: async () => ({ accessToken: await get_token() }),
+    };
+    vi.mocked(msal.createNestablePublicClientApplication).mockResolvedValue(
+        app as unknown as msal.IPublicClientApplication,
+    );
+}
 
 /** Message or close event that the Office dialog sends to the task pane */
 type DialogEvent = { message?: string; origin?: string; error?: number };
 
 /** Stub the Office dialog API. `opens` is false when the dialog is blocked. */
-function stubDialog(opens = true) {
+function stubDialog(opens = true, naa_supported = true) {
     const handlers: Record<string, (event: DialogEvent) => void> = {};
     const dialog = {
         close: vi.fn(),
@@ -42,7 +59,11 @@ function stubDialog(opens = true) {
             DialogMessageReceived: 'dialogMessageReceived',
             DialogEventReceived: 'dialogEventReceived',
         },
-        context: { ui: { displayDialogAsync } },
+        context: {
+            ui: { displayDialogAsync },
+            requirements: { isSetSupported: () => naa_supported },
+        },
+        auth: { getAuthContext: async () => ({ tenantId: 'tenant-1' }) },
     });
     return {
         dialog,
@@ -52,7 +73,7 @@ function stubDialog(opens = true) {
     };
 }
 
-describe('AppComponent sign-in dialog', () => {
+describe('AppComponent sign in', () => {
     let spectator: Spectator<AppComponent>;
 
     const createComponent = createComponentFactory({
@@ -69,6 +90,11 @@ describe('AppComponent sign-in dialog', () => {
 
     /** Open the PlaceOS sign-in dialog from the task pane */
     const signIn = () => spectator.component['_signInWithDialog']();
+    /** Sign in from the task pane in Outlook, with an Entra client ID */
+    const signInWithOutlook = () => {
+        spectator.component['_naa_client_id'] = CLIENT_ID;
+        return spectator.component['_signInWithOutlook']();
+    };
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -81,6 +107,68 @@ describe('AppComponent sign-in dialog', () => {
     afterEach(() => {
         vi.useRealTimers();
         vi.unstubAllGlobals();
+    });
+
+    it('signs in with the Outlook account and does not open the dialog', async () => {
+        const office = stubDialog();
+        stubMsal(async () => 'entra-token');
+        vi.mocked(ts_client.exchangeEntraToken).mockResolvedValue();
+
+        await expect(signInWithOutlook()).resolves.toBe(true);
+
+        expect(ts_client.exchangeEntraToken).toHaveBeenCalledWith(
+            'entra-token',
+        );
+        expect(office.displayDialogAsync).not.toBeCalled();
+    });
+
+    it.each([
+        ['Outlook does not support NAA', () => stubDialog(true, false)],
+        [
+            'NAA fails',
+            () => {
+                stubMsal(() => Promise.reject(new Error('Network error')));
+                return stubDialog();
+            },
+        ],
+        [
+            'PlaceOS rejects the Entra token',
+            () => {
+                stubMsal(async () => 'entra-token');
+                vi.mocked(ts_client.exchangeEntraToken).mockRejectedValue(
+                    new Error('Unknown tenant'),
+                );
+                return stubDialog();
+            },
+        ],
+    ])('uses the sign-in dialog when %s', async (_, setup) => {
+        const office = setup();
+        const result = signInWithOutlook();
+
+        await vi.waitFor(() =>
+            expect(office.displayDialogAsync).toHaveBeenCalled(),
+        );
+        office.send({ message: 'place-token' });
+
+        await expect(result).resolves.toBe(true);
+        expect(ts_client.setToken).toHaveBeenCalledWith('place-token');
+    });
+
+    it('signs out when the current user cannot load', () => {
+        vi.mocked(ts_client.invalidateToken).mockImplementation(
+            () => undefined,
+        );
+        setCurrentUser(new StaffUser({ is_logged_in: true }));
+        spectator.component['onInitError']();
+        expect(ts_client.invalidateToken).not.toBeCalled();
+
+        setCurrentUser(new StaffUser());
+        spectator.component['onInitError']();
+
+        expect(ts_client.invalidateToken).toHaveBeenCalledOnce();
+        expect(initialisationFailure()()).toContain(
+            'could not load the current user',
+        );
     });
 
     it('takes the PlaceOS token only from the add-in origin', async () => {
