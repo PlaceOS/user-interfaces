@@ -87,6 +87,9 @@ describe('CheckinPreferencesComponent', () => {
             vi.mocked(get).mockResolvedValue(null);
             vi.mocked(patch).mockResolvedValue(null);
             vi.mocked(setToken).mockImplementation(() => undefined);
+            // The link's building loads a menu, and the catering types stay
+            // cached for this file. Give every test the same category and type.
+            mockMenu([{ id: 'tea', tags: ['Drink'] }]);
             active_building.set(null);
         });
 
