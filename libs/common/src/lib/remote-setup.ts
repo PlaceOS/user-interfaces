@@ -79,10 +79,22 @@ const HEARTBEAT_MS = 15 * 60 * 1000;
 const REGISTER_SPREAD_MS = 10 * 1000;
 /** Local storage key of the last command that this device applied */
 const LAST_COMMAND_KEY = 'PLACEOS.remote_setup.last_command';
-/** Local storage key of the system clears that this device applied */
-const CLEARED_SYSTEMS_KEY = 'PLACEOS.remote_setup.cleared_systems';
-/** Most system clear IDs that a device remembers */
-const MAX_CLEARED_SYSTEMS = 20;
+/** Local storage key of the system clear state of this device */
+const CLEAR_STATE_KEY = 'PLACEOS.remote_setup.clear_systems';
+/** Most handled system clear IDs that a device remembers */
+const MAX_HANDLED_CLEARS = 20;
+/** Most entry IDs that the driver keeps in `clear_systems` */
+const MAX_SYSTEM_CLEARS = 1000;
+
+/** What a device remembers from its last check of `clear_systems` */
+interface ClearSystemsState {
+    /** System that the device showed at the last check */
+    system_id: string | null;
+    /** IDs of the entries for this app at the last check */
+    seen: string[];
+    /** IDs of the entries that this device must not apply */
+    handled: string[];
+}
 
 /**
  * Module binding of the RemoteSetup driver. The system comes from the
@@ -346,24 +358,40 @@ export class RemoteSetupService extends AsyncHandler {
 
     /**
      * Clear the device when an entry in the clear systems list has its app
-     * and system. The device applies each entry one time only, so it does
-     * not clear again when a person sets it up with the same system. The
-     * driver removes the entries after a time limit.
+     * and system. An entry applies only when it arrives after the device got
+     * its system: when the system changes, the entries that the device saw
+     * before the change are handled without a clear. The device also
+     * applies each entry one time only. The driver removes the entries after
+     * a time limit.
      */
     private async _applyClearSystems(value: unknown) {
         const target = this._target();
-        const system_id = target?.system_id();
-        if (!target || !system_id) return;
-        const cleared = readClearedSystems();
-        const entry = remoteSetupClearSystems(value).find(
-            (item) =>
-                item.app === target.app &&
-                item.system_id === system_id &&
-                !cleared.includes(item.id),
+        if (!target) return;
+        const system_id = target.system_id() || null;
+        const entries = remoteSetupClearSystems(value).filter(
+            (item) => item.app === target.app,
         );
-        if (!entry) return;
-        saveClearedSystems([...cleared, entry.id]);
-        await this._clear();
+        const matching = entries.filter(
+            (item) => !!system_id && item.system_id === system_id,
+        );
+        const last = readClearState();
+        const handled = last?.handled ?? [];
+        if (!last || last.system_id !== system_id) {
+            // Without a record, the device cannot know when the entries
+            // arrived, so it handles them all.
+            const before = last ? last.seen : entries.map((item) => item.id);
+            for (const item of matching) {
+                if (before.includes(item.id)) handled.push(item.id);
+            }
+        }
+        const entry = matching.find((item) => !handled.includes(item.id));
+        if (entry) handled.push(entry.id);
+        saveClearState({
+            system_id,
+            seen: entries.map((item) => item.id).slice(-MAX_SYSTEM_CLEARS),
+            handled: handled.slice(-MAX_HANDLED_CLEARS),
+        });
+        if (entry) await this._clear();
     }
 
     /** Clear the configuration on this device, when it is set up */
@@ -390,25 +418,28 @@ export class RemoteSetupService extends AsyncHandler {
     }
 }
 
-/** IDs of the system clears that this device applied */
-function readClearedSystems(): string[] {
+/** System clear state from the last check. `null` when there is none */
+function readClearState(): ClearSystemsState | null {
     try {
-        const ids = JSON.parse(
-            localStorage.getItem(CLEARED_SYSTEMS_KEY) || '[]',
+        const state = JSON.parse(
+            localStorage.getItem(CLEAR_STATE_KEY) || 'null',
         );
-        return remoteSetupClearList(ids);
+        if (!state || typeof state !== 'object') return null;
+        return {
+            system_id:
+                typeof state.system_id === 'string' ? state.system_id : null,
+            seen: remoteSetupClearList(state.seen),
+            handled: remoteSetupClearList(state.handled),
+        };
     } catch {
-        return [];
+        return null;
     }
 }
 
-/** Save the IDs of the system clears that this device applied */
-function saveClearedSystems(ids: string[]) {
+/** Save the system clear state of this check */
+function saveClearState(state: ClearSystemsState) {
     try {
-        localStorage.setItem(
-            CLEARED_SYSTEMS_KEY,
-            JSON.stringify(ids.slice(-MAX_CLEARED_SYSTEMS)),
-        );
+        localStorage.setItem(CLEAR_STATE_KEY, JSON.stringify(state));
     } catch {
         // Ignore quota and privacy-mode failures.
     }

@@ -48,7 +48,7 @@ describe('RemoteSetupService', () => {
         target = {
             app: 'control',
             default_path: '/concierge/#/remote-setup',
-            system_id: () => 'sys-1',
+            system_id: vi.fn(() => 'sys-1'),
             apply: vi.fn(() => Promise.resolve(true)),
         };
         markInitialisationComplete();
@@ -183,6 +183,33 @@ describe('RemoteSetupService', () => {
         driver.emit('clear_systems', [entry]);
         await Promise.resolve();
         expect(target.apply).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not clear for an entry from before it got its system', async () => {
+        const entry = { id: 'clr-1', app: 'control', system_id: 'sys-1' };
+        vi.mocked(target.system_id).mockReturnValue(null);
+        driver.emit('clear_systems', [entry]);
+
+        // A person sets the device up with the system of the entry
+        vi.mocked(target.system_id).mockReturnValue('sys-1');
+        driver.emit('clear_systems', [
+            entry,
+            { ...entry, id: 'clr-2', app: 'signage' },
+        ]);
+        await Promise.resolve();
+        expect(target.apply).not.toHaveBeenCalled();
+
+        driver.emit('clear_systems', [entry, { ...entry, id: 'clr-3' }]);
+        await vi.waitFor(() => expect(target.apply).toHaveBeenCalledWith(null));
+    });
+
+    it('should not clear for entries in the list at its first check', async () => {
+        driver.emit('clear_systems', [
+            { id: 'clr-1', app: 'control', system_id: 'sys-1' },
+        ]);
+        await Promise.resolve();
+
+        expect(target.apply).not.toHaveBeenCalled();
     });
 
     it('should not clear again while the setup screen shows', async () => {

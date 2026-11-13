@@ -151,7 +151,13 @@ A device applies a configure command from `device_<id>`, then calls `complete`.
 
 A device that is set up clears its configuration when its ID is in `clear_list`. It then shows its setup screen and registers. The `register` call removes the ID from `clear_list`. A device that shows its setup screen does not clear again. The setup flow shows that the clear is done when the ID goes out of `clear_list`.
 
-A device that is set up also clears its configuration when an entry in `clear_systems` has its app and the system that it shows. The device keeps the IDs of the last 20 entries that it applied, and it does not apply an entry again. Thus a person can set up the device with the same system again while the entry is in the list. The driver does not know which devices show a system, so it removes the entry after 15 minutes. A device that is off during these 15 minutes does not clear. A device that a person sets up with the system during these 15 minutes also clears.
+A device that is set up also clears its configuration when an entry in `clear_systems` has its app and the system that it shows. An entry applies only when it arrives after the device got its system:
+
+- The device keeps the IDs of the entries for its app from its last check, and the system that it showed then. When the system changed, the device does not apply the entries that it saw before the change. Thus a device that a person sets up with the system while the entry is in the list does not clear.
+- The device applies an entry one time only. Thus a person can set up the device with the same system again while the entry is in the list.
+- At its first check, the device has no record. It does not apply the entries that are in the list then.
+
+The driver does not know which devices show a system, so it removes the entry after 15 minutes. A device that is off during these 15 minutes does not clear.
 
 The setup flow can also clear a device ID that is not in `devices`, for example a device that a person set up on the device. Type the device ID in the setup flow, then select **Clear setup**. To clear by system, use **Clear by system** below the device list.
 
