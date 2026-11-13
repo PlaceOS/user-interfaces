@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["remote-setup-flow.component.ts"],
+  "sourcesContent": ["\n            button[btn] {\n                min-height: 3rem;\n            }\n        "],
+  "mappings": "AACY,MAAA,CAAA,KACI,WAAA,IACJ",
+  "names": []
+}
