@@ -24,6 +24,8 @@ import { MockProvider } from 'ng-mocks';
 import { EMPTY, Observable, of } from 'rxjs';
 
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+import { EMPTY_USER, StaffUser } from 'libs/common/src/lib/types/user.class';
+import { setCurrentUser } from 'libs/common/src/lib/user-state';
 
 // Workspace fns are bundled and cannot be mocked, so stub the API layer below them.
 vi.mock('@placeos/ts-client', { spy: true });
@@ -226,6 +228,24 @@ describe('CateringOrdersService', () => {
         expect(spectator.service.filtered()).toEqual([order]);
         spectator.service.filters = { search: 'tea' };
         expect(spectator.service.filtered()).toEqual([]);
+    });
+
+    it('should set the caterer filter to the only caterer of the user', () => {
+        vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
+            (key: string) =>
+                key === 'app.catering_provider_groups'
+                    ? { Cafe: ['cafe-staff'], Deli: ['deli-staff'] }
+                    : undefined,
+        );
+        setCurrentUser(new StaffUser({ groups: ['cafe-staff'] }));
+        try {
+            expect(spectator.service.caterers()).toEqual(['Cafe']);
+            TestBed.tick();
+            expect(spectator.service.filters.caterer).toBe('Cafe');
+        } finally {
+            vi.mocked(spectator.inject(SettingsService).get).mockReset();
+            setCurrentUser(EMPTY_USER);
+        }
     });
 
     describe('changeStatus', () => {
