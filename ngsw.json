@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794565610987,
+  "timestamp": 1794565850109,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -538,7 +538,7 @@
     "./keyboard-shortcuts-modal.component-BsO0lk98.js": "0b5fa20d8f9baa453dcea3900461f2c1645b8fef",
     "./lockers-report.component-f6U31U-_.js": "290bbb89afc0e4f785e7af129891fe66f8b5df80",
     "./lockers.routes-B3JxWeYk.js": "af9585cf7f0b2425aa74fb055e0f769df341b466",
-    "./main.js": "7e339909dfe33bf6cfc49cccd7c130004abe958c",
+    "./main.js": "4298b9de405869551fcbcbd02a77588fc9696c87",
     "./manifest.webmanifest": "8fb029e2b745a70817e4200920c410daf0425443",
     "./map-editor-page.component-B13w8NtC.js": "d0338b37f834069863f4a6a66802ec881d9c1282",
     "./map-manager.routes-NCTICU9M.js": "42e6c1c1d36da434116bd375971387fd487246ac",
