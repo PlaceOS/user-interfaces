@@ -150,7 +150,12 @@ export class CheckinPreferencesComponent implements OnInit {
     public beverage = signal<CateringItem>(null);
     public has_beverage = computed(() => !!this.existing_beverage());
     public readonly event = this._checkin.event;
-    public readonly bld_id = signal('');
+    /** Building zone from the link token */
+    private readonly _link_bld_id = signal('');
+    /** Building of the menu. The building in the link has priority */
+    public readonly bld_id = computed(
+        () => this._link_bld_id() || this._org.active_building()?.id || '',
+    );
     public readonly menu = signal<CateringItem[]>([]);
     /** Keep the form locked until all of its data has loaded */
     public readonly loading = computed(
@@ -160,10 +165,6 @@ export class CheckinPreferencesComponent implements OnInit {
         'standalone_visitor_location',
         '',
     );
-    private readonly _update_bld_id = effect(() => {
-        this.bld_id.set(this._org.active_building()?.id || '');
-    });
-
     private readonly _load_menu = effect(async (onCleanup) => {
         const bld = this.bld_id();
         // Ignore the result after a newer load starts or the page closes
@@ -241,7 +242,7 @@ export class CheckinPreferencesComponent implements OnInit {
         if (!user) return;
         const email = user.e;
         const [event_id, , bld_zone] = user.r || [];
-        this.bld_id.set(bld_zone);
+        this._link_bld_id.set(bld_zone || '');
 
         await this._checkin.loadGuestAndEvent(email, event_id).catch((err) => {
             this.handleError(

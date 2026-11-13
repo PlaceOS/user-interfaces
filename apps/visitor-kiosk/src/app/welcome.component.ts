@@ -231,9 +231,11 @@ export class WelcomeComponent
     public readonly now = minuteClock();
     /** Level to initially load on explore */
     public readonly level = signal('');
-    private readonly _level_sync = effect(() =>
-        this.level.set(this._settings.listen('KIOSK.level')()),
-    );
+    // Keep the level from local storage until a new level is posted
+    private readonly _level_sync = effect(() => {
+        const level = this._settings.listen<string>('KIOSK.level')();
+        if (level) this.level.set(level);
+    });
 
     public readonly hide_explore = settingSignal('hide_explore');
     public readonly background = settingSignal('welcome_background');
