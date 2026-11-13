@@ -530,11 +530,12 @@ const env_sources: any[] = [
     },
 ];
 
+/** Make a room module. Each room gets its own IO maps, so routes stay in the room */
 export const createSystemModule = (space: HashMap, overrides: HashMap = {}) =>
     new RoomModule({
         ...space,
-        input_list,
-        output_list,
+        input_list: { ...input_list },
+        output_list: { ...output_list },
         env_sources,
         ...overrides,
     });
