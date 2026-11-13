@@ -458,21 +458,13 @@ export class PanelViewComponent
                 }
                 return;
             }
-            if (old_state !== this.person_in_view() && this._recognition) {
-                if (this.person_in_view()) {
-                    this._recognition.start();
-                    this.listening.set(true);
-                } else {
-                    this._recognition.stop();
-                    this.listening.set(false);
-                    this._last_text = '';
-                    this._spoken = false;
-                    this.timeout(
-                        'clean_chat',
-                        () => this._closeChat(),
-                        15 * 1000,
-                    );
-                }
+            // The visitor left. Speech recognition is optional.
+            if (old_state) {
+                this._recognition?.stop();
+                this.listening.set(false);
+                this._last_text = '';
+                this._spoken = false;
+                this.timeout('clean_chat', () => this._closeChat(), 15 * 1000);
             }
         } catch (error) {
             // The 500ms frame interval limits the retry rate

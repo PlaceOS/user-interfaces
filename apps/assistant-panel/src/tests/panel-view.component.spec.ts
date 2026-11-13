@@ -677,6 +677,20 @@ describe('PanelViewComponent', () => {
             expect(chat.close).not.toHaveBeenCalled();
             expect(spoken()).toEqual([GREETING, GREETING]);
         });
+
+        it('should close the chat and greet the next visitor without speech recognition', async () => {
+            internals()._recognition = undefined;
+            person_score = 0.9;
+            await frame();
+            person_score = 0;
+            await frame();
+            await vi.advanceTimersByTimeAsync(15_000);
+            expect(chat.close).toHaveBeenCalledTimes(1);
+
+            person_score = 0.9;
+            await frame();
+            expect(spoken()).toEqual([GREETING, GREETING]);
+        });
     });
 
     it('should start listening only when idle with a person in view', () => {
