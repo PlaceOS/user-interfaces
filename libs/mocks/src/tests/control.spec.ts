@@ -2,8 +2,8 @@ import { createSystemModule } from '../lib/realtime/control';
 
 describe('mock room control module', () => {
     /**
-     * Room with its own inputs and outputs. The default lists are shared by
-     * every mock room, so each test gives the room new lists.
+     * Room with its own inputs and outputs, so tests do not change each
+     * other's routes.
      */
     const room = () =>
         createSystemModule(

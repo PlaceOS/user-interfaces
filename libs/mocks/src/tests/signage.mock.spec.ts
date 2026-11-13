@@ -109,7 +109,7 @@ describe('registerMockSignage', () => {
         const GROUPS = '/api/engine/v2/groups';
         /** Clock time of the last group made, far from the fixture groups */
         let clock = Date.UTC(2099, 0, 1);
-        /** Make a group. IDs come from the clock, so give each its own time */
+        /** Make a group at its own clock time */
         const createGroup = (body: HashMap) => {
             vi.setSystemTime(++clock);
             return handler('POST', GROUPS)({ body }).id as string;
