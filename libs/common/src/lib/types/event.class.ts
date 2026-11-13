@@ -449,7 +449,10 @@ export class CalendarEvent {
             } else if (this.duration % (24 * 60) === 0) {
                 this.date = startOfDayInTimezone(this.date, this.timezone);
                 this.duration = Math.max(1, this.duration - 1);
-                this.date_end = endOfDayInTimezone(this.date, this.timezone);
+                this.date_end = endOfDayInTimezone(
+                    addMinutes(this.date, this.duration),
+                    this.timezone,
+                );
             }
         }
         const matches = this.body.match(/\[ID\|([^\]]+)\]/);
