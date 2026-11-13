@@ -383,4 +383,29 @@ describe('VisitorInviteFormComponent', () => {
         expect(done).toHaveBeenCalledWith(2);
         spectator.component.multiple.set(false);
     });
+
+    it('should only replace the recent visitor with the exact same email', async () => {
+        const service = spectator.inject(BookingFormService);
+        const settings = spectator.inject(SettingsService);
+        (settings.get as Mock).mockImplementation((key: string) =>
+            key === 'visitor-invitees'
+                ? ['anna@example.com|Anna||0||', 'na@example.com|Old||0||']
+                : undefined,
+        );
+        await spectator.component.ngOnInit();
+        service.model.update((m) => ({
+            ...m,
+            user: new User({ id: 'me', email: 'me@example.com' }),
+            user_email: 'me@example.com',
+            asset_id: 'na@example.com',
+            asset_name: 'Na',
+        }));
+
+        await spectator.component.sendInvite();
+
+        expect(settings.saveUserSetting).toHaveBeenCalledWith(
+            'visitor-invitees',
+            ['anna@example.com|Anna||0||', 'na@example.com|Na||0||internal'],
+        );
+    });
 });

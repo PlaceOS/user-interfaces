@@ -789,7 +789,9 @@ export class VisitorInviteFormComponent
             ]);
         } else {
             this._settings.saveUserSetting('visitor-invitees', [
-                ...old_visitors.filter((_) => !_.includes(asset_id)),
+                ...old_visitors.filter(
+                    (_) => `${_}`.split('|')[0] !== asset_id,
+                ),
                 recentVisitorEntry({
                     email: asset_id,
                     name: asset_name,
