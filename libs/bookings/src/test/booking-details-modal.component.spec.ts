@@ -266,6 +266,30 @@ describe('BookingDetailsModalComponent', () => {
         }
     });
 
+    it('should offer cancel but not edit for a rejected booking', () => {
+        const allow_editing = settingSignal('visitors.allow_editing', false);
+        const previous_value = allow_editing();
+        allow_editing.set(true);
+        try {
+            for (const booking_type of ['desk', 'visitor']) {
+                spectator.component.booking.set(
+                    new Booking({
+                        id: `rejected-${booking_type}`,
+                        booking_type,
+                        asset_id: 'desk-1',
+                        date: Date.now() + 60 * 60 * 1000,
+                        duration: 60,
+                        rejected: true,
+                    } as any),
+                );
+                expect(spectator.component.can_edit()).toBe(false);
+                expect(spectator.component.can_cancel()).toBe(true);
+            }
+        } finally {
+            allow_editing.set(previous_value);
+        }
+    });
+
     it('should hide all actions for a cancelled booking', () => {
         const booking = new Booking({
             id: 'booking-2',

@@ -40,6 +40,11 @@ import {
 import { setBookingCheckedIn } from './bookings.fn';
 import { DeskSettingsModalComponent } from './desk-settings-modal.component';
 
+/**
+ * Whether the current user can edit the booking.
+ * Rejected bookings are not editable: the booking owner cannot reset the
+ * approval state, so an edit would save but leave the booking rejected.
+ */
 export function canEditBooking(booking: Booking) {
     const is_visitor = booking.booking_type === 'visitor';
     const visitor_edit_allowed =
@@ -50,6 +55,7 @@ export function canEditBooking(booking: Booking) {
         is_parking && !!booking.asset_id && !features.includes('parking');
     return (
         booking.status !== 'cancelled' &&
+        booking.status !== 'declined' &&
         !booking.is_done &&
         !booking.checked_in &&
         (!is_visitor || visitor_edit_allowed) &&
