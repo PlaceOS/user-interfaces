@@ -193,7 +193,8 @@ const LANDING_HIDDEN = hiddenAssets('e2e-settings-landing');
             await expect(
                 menu.getByRole('button', { name: language.name, exact: true }),
             ).toBeVisible();
-        await expect(menu.getByRole('button')).toHaveCount(2);
+        // Only the language choices; the menu's `back` header is also a button.
+        await expect(menu.locator('button:not([back])')).toHaveCount(2);
         await expect(menu.getByText('Español', { exact: true })).toHaveCount(0);
     });
 

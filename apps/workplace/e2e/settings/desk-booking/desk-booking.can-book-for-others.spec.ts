@@ -27,7 +27,7 @@ for (const enabled of [false, true]) {
                     details.locator('a-user-search-field input'),
                 ).toHaveValue('');
                 await details
-                    .getByRole('button', { name: 'person Single', exact: true })
+                    .getByRole('button', { name: 'Single', exact: true })
                     .click();
                 await expect(
                     details.locator('a-user-search-field'),

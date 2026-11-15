@@ -7,6 +7,7 @@
 // when the browser is in the same zone the secondary line is suppressed.
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
+import { ignoreClosed } from '../../../../../e2e/support/teardown';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { type Audit, BASE, ORIGINS, prepareSettings, type Settings, test } from '../support/settings-harness';
 
@@ -38,7 +39,9 @@ async function visitor(page: Page, audit: Audit, overrides: Settings) {
                     ORIGINS.has(url.origin) &&
                     url.pathname === '/api/engine/v2/zones' &&
                     url.searchParams.get('tags') === 'building',
-                async (route: Route) => {
+                // A request still in flight when the test's context closes
+                // fails with a closed-target error; the teardown causes it.
+                ignoreClosed(async (route: Route) => {
                     if (route.request().method() !== 'GET') return route.fallback();
                     const response = await route.fetch();
                     const body = await response.json();
@@ -51,7 +54,7 @@ async function visitor(page: Page, audit: Audit, overrides: Settings) {
                     audit.fixtures['timezone buildings'] =
                         (audit.fixtures['timezone buildings'] ?? 0) + 1;
                     await route.fulfill({ response, json });
-                },
+                }),
             );
         },
     });
