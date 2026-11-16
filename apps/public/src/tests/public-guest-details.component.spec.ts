@@ -103,21 +103,38 @@ describe('PublicGuestDetailsComponent', () => {
     }
 
     it.each([
-        ['', 'guest@example.com', true],
-        ['   ', 'guest@example.com', true],
-        ['Guest User', '', true],
-        ['Guest User', 'not-an-email', true],
-        ['Guest User', 'guest@example.com', false],
+        ['', 'guest@example.com', 'name'],
+        ['   ', 'guest@example.com', 'name'],
+        ['', '', 'name'],
+        ['Guest User', '', 'email'],
+        ['Guest User', 'not-an-email', 'email'],
     ])(
-        'sets the continue button disabled for name %j and email %j to %s',
-        async (name, email, disabled) => {
+        'marks the first invalid field for name %j and email %j on submit',
+        async (name, email, field) => {
             service.default_system_id.set('sys-1');
             const fixture = await init();
             type(fixture, 'name', name);
             type(fixture, 'email', email);
-            expect(
-                fixture.nativeElement.querySelector('form button').disabled,
-            ).toBe(disabled);
+            const root: HTMLElement = fixture.nativeElement;
+            const input = root.querySelector<HTMLInputElement>(
+                `input[name="${field}"]`,
+            )!;
+            // Read the state at focus time: the error must render first
+            let error_on_focus = '';
+            input.addEventListener('focus', () => {
+                const id = input.getAttribute('aria-describedby');
+                error_on_focus =
+                    input.getAttribute('aria-invalid') === 'true' && id
+                        ? root.querySelector(`#${id}`)?.textContent?.trim() ||
+                          ''
+                        : '';
+            });
+            root.querySelector<HTMLButtonElement>('form button')!.click();
+            fixture.detectChanges();
+            await fixture.whenStable();
+            expect(document.activeElement).toBe(input);
+            expect(error_on_focus).toBeTruthy();
+            expect(service.requestGuestAccess).not.toHaveBeenCalled();
         },
     );
 

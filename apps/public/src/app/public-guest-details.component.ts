@@ -2,10 +2,14 @@ import {
     ChangeDetectionStrategy,
     Component,
     DestroyRef,
+    ElementRef,
+    Injector,
     OnInit,
+    afterNextRender,
     computed,
     inject,
     signal,
+    viewChild,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,7 +38,8 @@ const EMAIL_PATTERN =
         >
             @if (service.error()) {
                 <div
-                    class="bg-error-light text-error border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium shadow-sm"
+                    role="alert"
+                    class="bg-error-light border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium text-[color-mix(in_srgb,var(--error)_60%,black)] shadow-sm"
                 >
                     {{ service.error() }}
                 </div>
@@ -59,28 +64,48 @@ const EMAIL_PATTERN =
                         (submit)="$event.preventDefault(); submit()"
                     >
                         <label class="block space-y-1 text-sm font-medium">
-                            <div>Full name</div>
+                            <span class="block">Full name</span>
                             <input
                                 #name_input
-                                class="border-base-300 bg-base-200 focus:border-primary w-full rounded border px-3 py-2 font-normal outline-none"
+                                class="border-base-300 bg-base-200 focus:border-primary w-full rounded border px-3 py-2 font-normal"
                                 name="name"
                                 autocomplete="name"
+                                required
+                                [attr.aria-invalid]="name_error()"
+                                [attr.aria-describedby]="
+                                    name_error() ? 'guest-name-error' : null
+                                "
                                 [value]="guest_name()"
                                 (input)="guest_name.set(name_input.value)"
                             />
                         </label>
+                        @if (name_error()) {
+                            <p id="guest-name-error" class="-mt-2 text-sm text-[color-mix(in_srgb,var(--error)_60%,black)]">
+                                Enter your full name.
+                            </p>
+                        }
                         <label class="block space-y-1 text-sm font-medium">
-                            <div>Email</div>
+                            <span class="block">Email</span>
                             <input
                                 #email_input
-                                class="border-base-300 bg-base-200 focus:border-primary w-full rounded border px-3 py-2 font-normal outline-none"
+                                class="border-base-300 bg-base-200 focus:border-primary w-full rounded border px-3 py-2 font-normal"
                                 name="email"
                                 type="email"
                                 autocomplete="email"
+                                required
+                                [attr.aria-invalid]="email_error()"
+                                [attr.aria-describedby]="
+                                    email_error() ? 'guest-email-error' : null
+                                "
                                 [value]="guest_email()"
                                 (input)="guest_email.set(email_input.value)"
                             />
                         </label>
+                        @if (email_error()) {
+                            <p id="guest-email-error" class="-mt-2 text-sm text-[color-mix(in_srgb,var(--error)_60%,black)]">
+                                Enter a valid email address.
+                            </p>
+                        }
                         <label
                             class="flex items-start gap-3 text-sm font-medium"
                         >
@@ -102,7 +127,7 @@ const EMAIL_PATTERN =
                         </label>
                         <button
                             class="bg-primary text-primary-content hover:bg-primary-focus disabled:bg-base-300 disabled:text-base-content min-h-12 w-full rounded px-4 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-60"
-                            [disabled]="!guest_valid() || !!loading()"
+                            [disabled]="!!loading()"
                         >
                             @if (loading()) {
                                 {{ loading() }}
@@ -121,6 +146,7 @@ export class PublicGuestDetailsComponent implements OnInit {
     private readonly _route = inject(ActivatedRoute);
     private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
+    private readonly _injector = inject(Injector);
     public readonly loading = this.service.loading;
 
     public readonly guest_name = signal('');
@@ -131,11 +157,25 @@ export class PublicGuestDetailsComponent implements OnInit {
      * match `EMAIL_PATTERN`. The service ignores stored details with a blank
      * name, so a blank name would not be remembered.
      */
-    public readonly guest_valid = computed(
-        () =>
-            !!this.guest_name().trim() &&
-            EMAIL_PATTERN.test(this.guest_email()),
+    private readonly _name_valid = computed(() => !!this.guest_name().trim());
+    private readonly _email_valid = computed(() =>
+        EMAIL_PATTERN.test(this.guest_email()),
     );
+    public readonly guest_valid = computed(
+        () => this._name_valid() && this._email_valid(),
+    );
+    /** True after a submit attempt. Field errors show only after one. */
+    public readonly submitted = signal(false);
+    public readonly name_error = computed(
+        () => this.submitted() && !this._name_valid(),
+    );
+    public readonly email_error = computed(
+        () => this.submitted() && !this._email_valid(),
+    );
+    private readonly _name_input =
+        viewChild<ElementRef<HTMLInputElement>>('name_input');
+    private readonly _email_input =
+        viewChild<ElementRef<HTMLInputElement>>('email_input');
 
     public readonly source_id = signal('');
     public readonly target_event_id = signal('');
@@ -184,8 +224,22 @@ export class PublicGuestDetailsComponent implements OnInit {
         });
     }
 
+    /**
+     * Submits the form. When a field is not valid, shows the field errors
+     * and moves focus to the first field that is not valid.
+     */
     public submit() {
-        if (!this.guest_valid()) return;
+        if (!this.guest_valid()) {
+            this.submitted.set(true);
+            const input = this._name_valid()
+                ? this._email_input()
+                : this._name_input();
+            // Focus after render, so the field is read with its error
+            afterNextRender(() => input?.nativeElement.focus(), {
+                injector: this._injector,
+            });
+            return;
+        }
         // The service shows the error, and the visitor stays on this page
         this.continueAsGuest(
             { name: this.guest_name(), email: this.guest_email() },
