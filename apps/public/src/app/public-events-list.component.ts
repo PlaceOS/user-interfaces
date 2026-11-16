@@ -1,8 +1,11 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    afterNextRender,
     input,
     output,
+    viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -12,6 +15,7 @@ import {
     eventLocation,
     eventTime,
     eventTitle,
+    focusIfLost,
 } from './public-event.helpers';
 import { PublicEvent } from './public-events.service';
 
@@ -26,7 +30,13 @@ import { PublicEvent } from './public-events.service';
             <div
                 class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
             >
-                <h2 class="text-xl font-medium">Available public events</h2>
+                <h2
+                    #heading
+                    class="text-xl font-medium focus:outline-none"
+                    tabindex="-1"
+                >
+                    Available public events
+                </h2>
                 <button
                     class="border-base-300 bg-base-100 hover:bg-base-200 rounded border px-4 py-2 text-sm font-medium shadow-sm"
                     type="button"
@@ -37,7 +47,10 @@ import { PublicEvent } from './public-events.service';
             </div>
 
             @if (loading()) {
-                <div class="bg-base-200 rounded-lg p-4 text-sm opacity-70">
+                <div
+                    aria-hidden="true"
+                    class="bg-base-200 rounded-lg p-4 text-sm opacity-70"
+                >
                     {{ loading() }}
                 </div>
             } @else if (!events().length) {
@@ -79,6 +92,9 @@ import { PublicEvent } from './public-events.service';
                                 ]"
                             >
                                 View details
+                                <span class="sr-only">
+                                    for {{ eventTitle(event) }}
+                                </span>
                             </a>
                         </article>
                     }
@@ -92,6 +108,13 @@ export class PublicEventsListComponent {
     public readonly loading = input('');
     public readonly system_id = input('');
     public readonly refresh = output<void>();
+    private readonly _heading =
+        viewChild.required<ElementRef<HTMLElement>>('heading');
+
+    constructor() {
+        // The view changes without a page load, so the focused link is removed
+        afterNextRender(() => focusIfLost(this._heading().nativeElement));
+    }
 
     public readonly eventId = eventId;
     public readonly eventTitle = eventTitle;

@@ -80,6 +80,22 @@ describe('PublicEventDetailsComponent', () => {
         expect(fixture.nativeElement.querySelector('button')).toBeNull();
     });
 
+    it('moves focus to the confirmation when it replaces the focused button', async () => {
+        const fixture = create({ event: { id: 'e1', title: 'Rooftop Mixer' } });
+        await fixture.whenStable();
+        const button: HTMLButtonElement =
+            fixture.nativeElement.querySelector('button');
+        button.focus();
+        fixture.componentRef.setInput('registered', true);
+        fixture.detectChanges();
+        await fixture.whenStable();
+        const confirmation = fixture.nativeElement.querySelector(
+            '[role="status"] > [tabindex="-1"]',
+        );
+        expect(confirmation).not.toBeNull();
+        expect(document.activeElement).toBe(confirmation);
+    });
+
     it('emits the event when the register button is clicked', () => {
         const event = { id: 'e1', title: 'Rooftop Mixer' };
         const fixture = create({ event });

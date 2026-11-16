@@ -1,9 +1,12 @@
 import {
     ChangeDetectionStrategy,
     Component,
+    ElementRef,
+    afterRenderEffect,
     computed,
     input,
     output,
+    viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
@@ -11,6 +14,7 @@ import {
     eventLocation,
     eventTime,
     eventTitle,
+    focusIfLost,
 } from './public-event.helpers';
 import { PublicEvent } from './public-events.service';
 
@@ -36,7 +40,11 @@ import { PublicEvent } from './public-events.service';
                     >
                         Event details
                     </div>
-                    <h2 class="text-2xl font-medium">
+                    <h2
+                        #heading
+                        class="text-2xl font-medium focus:outline-none"
+                        tabindex="-1"
+                    >
                         {{ eventTitle(selected_event) }}
                     </h2>
                     <p class="text-sm font-medium">
@@ -54,13 +62,19 @@ import { PublicEvent } from './public-events.service';
                         [innerHTML]="description_html()"
                     ></div>
                 }
-                @if (registered()) {
-                    <div
-                        class="bg-success-light text-success rounded-lg p-4 text-sm font-medium"
-                    >
-                        Registration received for {{ guest_email() }}.
-                    </div>
-                } @else {
+                <!-- Mounted before registration, so the message is announced -->
+                <div role="status">
+                    @if (registered()) {
+                        <div
+                            #confirmation
+                            tabindex="-1"
+                            class="bg-success-light rounded-lg p-4 text-sm font-medium text-[color-mix(in_srgb,var(--success)_60%,black)] focus:outline-none"
+                        >
+                            Registration received for {{ guest_email() }}.
+                        </div>
+                    }
+                </div>
+                @if (!registered()) {
                     <button
                         class="bg-primary text-primary-content hover:bg-primary-focus disabled:bg-base-300 disabled:text-base-content min-h-12 w-full rounded px-4 py-2 font-medium disabled:cursor-not-allowed disabled:opacity-60"
                         type="button"
@@ -71,7 +85,10 @@ import { PublicEvent } from './public-events.service';
                     </button>
                 }
             } @else if (loading()) {
-                <div class="bg-base-200 rounded-lg p-4 text-sm opacity-70">
+                <div
+                    aria-hidden="true"
+                    class="bg-base-200 rounded-lg p-4 text-sm opacity-70"
+                >
                     {{ loading() }}
                 </div>
             } @else {
@@ -120,6 +137,21 @@ export class PublicEventDetailsComponent {
     public readonly system_id = input('');
     public readonly show_back = input(true);
     public readonly register_event = output<PublicEvent>();
+    private readonly _heading =
+        viewChild<ElementRef<HTMLElement>>('heading');
+    private readonly _confirmation =
+        viewChild<ElementRef<HTMLElement>>('confirmation');
+
+    constructor() {
+        // The event can render after load, and the register button is
+        // removed on success. Move focus to the content that replaced it.
+        afterRenderEffect(() =>
+            focusIfLost(this._heading()?.nativeElement),
+        );
+        afterRenderEffect(() =>
+            focusIfLost(this._confirmation()?.nativeElement),
+        );
+    }
 
     public readonly eventTitle = eventTitle;
     public readonly eventDescription = eventDescription;

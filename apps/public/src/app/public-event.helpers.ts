@@ -28,6 +28,17 @@ export function preservedQueryParams(query: Params): Params {
     return params;
 }
 
+/**
+ * Moves focus to `el` only when focus is on the page body. This happens when
+ * the focused control is removed, for example after a link changes the view.
+ * Focus that the visitor moved to a control stays there.
+ */
+export function focusIfLost(el: HTMLElement | undefined) {
+    if (el && el.ownerDocument.activeElement === el.ownerDocument.body) {
+        el.focus();
+    }
+}
+
 export function eventId(event: PublicEvent) {
     return `${
         event.id ||
