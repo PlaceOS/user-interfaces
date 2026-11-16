@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Fails unless `develop` or a `hotfix/*` branch on origin contains HEAD.
-# Release tags run this, so that they only release reviewed commits.
+# Release tags run this, so that they only release commits on those branches.
+# It does not check who pushed the commit or the tag.
 # Needs a checkout that fetched all branches (`fetch-depth: 0`).
 
 set -euo pipefail

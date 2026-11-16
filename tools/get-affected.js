@@ -42,6 +42,10 @@ function commands(target) {
         const released = releaseApps(ref.slice('refs/tags/'.length), apps);
         return target === 'build' ? released : [...released, ...libs];
     }
+    // `pull-request.yml` builds `custom/*-prod` branches for production.
+    if (ref.startsWith('refs/heads/custom/') && ref.endsWith('-prod')) {
+        return target === 'build' ? apps : [...apps, ...libs];
+    }
     const raw_result = execFileSync(
         'bunx',
         [

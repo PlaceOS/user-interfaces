@@ -99,6 +99,15 @@ test('releases all applications from a version tag', () => {
     assert.ok(apps.includes('concierge'));
 });
 
+test('builds all applications on a custom production branch', () => {
+    const result = runSelector({}, 'refs/heads/custom/acme-prod');
+
+    assert.equal(result.status, 0);
+    const apps = JSON.parse(result.stdout);
+    assert.ok(apps.includes('workplace'));
+    assert.ok(apps.includes('concierge'));
+});
+
 test('fails when a release tag names an unknown application', () => {
     const result = runSelector({}, 'refs/tags/workplce/v2611.1');
 

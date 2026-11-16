@@ -218,6 +218,8 @@ test('keeps app releases that are tagged on the same commit', { skip }, () => {
     const { root, bin, run } = fixture();
     run('git', ['tag', 'control/v2610.1']);
     run('git', ['tag', 'workplace/v2610.1']);
+    // App tags win over a release of all apps on the same commit.
+    run('git', ['tag', 'v2610.2']);
     const read = generateAppChangelogs({ root, bin, run }, [
         'workplace',
         'control',

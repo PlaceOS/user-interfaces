@@ -70,8 +70,10 @@ generate_changelog() {
             (split("\n") | map({ key: ., value: true }) | from_entries) as $ids
             | $releases[0]
             | map(
+                # The app tag wins over a `v<version>` tag on the same commit.
                 (($tags[0][.commit_id // ""] // [])
-                    | map(select(split("/") | length == 1 or .[0] == $app))
+                    | map(select(startswith($app + "/")))
+                        + map(select(contains("/") | not))
                     | first) as $own
                 | if $own then .version = $own else . end
             )
