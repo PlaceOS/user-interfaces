@@ -139,7 +139,7 @@ describe('PublicEventsComponent', () => {
         param_map$.next(convertToParamMap({ system_id: 'sys-route' }));
         query_map$.next(convertToParamMap({ system: 'sys-query' }));
         await init();
-        expect(service.loadEvents).toHaveBeenCalledWith('sys-query');
+        expect(service.loadEvents).toHaveBeenCalledWith('sys-query', false);
     });
 
     it('loads events and shows the list for an authenticated visitor', async () => {
@@ -148,7 +148,7 @@ describe('PublicEventsComponent', () => {
         service.default_system_id.set('sys-1');
         service.events.set([{ id: 'e1', title: 'Rooftop Mixer' }]);
         const fixture = await init();
-        expect(service.loadEvents).toHaveBeenCalledWith('sys-1');
+        expect(service.loadEvents).toHaveBeenCalledWith('sys-1', false);
         expect(fixture.nativeElement.querySelector('.list-stub')).toBeTruthy();
         expect(fixture.nativeElement.querySelector('.details-stub')).toBeNull();
 
@@ -156,7 +156,7 @@ describe('PublicEventsComponent', () => {
             By.directive(PublicEventsListComponent),
         ).componentInstance as PublicEventsListComponent;
         list.refresh.emit();
-        expect(service.loadEvents).toHaveBeenCalledTimes(2);
+        expect(service.loadEvents).toHaveBeenLastCalledWith('sys-1', true);
     });
 
     it('forgets the guest and asks for new details on "Not you?"', async () => {

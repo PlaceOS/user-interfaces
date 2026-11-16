@@ -58,6 +58,7 @@ describe('PublicEventsService', () => {
 
     describe('authority', () => {
         it('should load the authority once and add the recaptcha script once', async () => {
+            vi.mocked(token).mockReturnValue('');
             const fetch = stubAuthorityFetch({ recaptcha_key: 'site-key' });
             const service = TestBed.inject(PublicEventsService);
 
@@ -83,6 +84,22 @@ describe('PublicEventsService', () => {
 
             expect(service.authority()).toBeNull();
             expect(service.error()).toBe('Unable to load PlaceOS authority.');
+        });
+
+        it('should add the recaptcha script only when a guest token is needed', async () => {
+            stubAuthorityFetch({ recaptcha_key: 'site-key' });
+            const service = TestBed.inject(PublicEventsService);
+
+            await service.init();
+            expect(document.getElementById('placeos-recaptcha')).toBeNull();
+
+            vi.useFakeTimers();
+            const request = service
+                .requestGuestAccess('system-1', guest)
+                .catch(() => undefined);
+            expect(document.getElementById('placeos-recaptcha')).not.toBeNull();
+            await vi.runAllTimersAsync();
+            await request;
         });
 
         it('should not add the recaptcha script when no recaptcha key is set', async () => {
@@ -371,6 +388,33 @@ describe('PublicEventsService', () => {
             expect(listPublicEvents).toHaveBeenCalledWith('system-1', {
                 limit: 100,
             });
+        });
+
+        it('should load the events again for the next guest', async () => {
+            sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            const service = TestBed.inject(PublicEventsService);
+            await service.loadEvents('system-1');
+
+            service.forgetGuest();
+            service.guest.set(guest);
+            await service.loadEvents('system-1');
+
+            expect(listPublicEvents).toHaveBeenCalledTimes(2);
+        });
+
+        it('should keep the loaded events until a refresh or another source', async () => {
+            sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            const service = TestBed.inject(PublicEventsService);
+
+            await service.loadEvents('system-1');
+            service.error.set('Registration failed');
+            await service.loadEvents('system-1');
+            expect(listPublicEvents).toHaveBeenCalledTimes(1);
+            expect(service.error()).toBe('');
+
+            await service.loadEvents('system-1', true);
+            await service.loadEvents('system-2');
+            expect(listPublicEvents).toHaveBeenCalledTimes(3);
         });
 
         it('should show an error when there is no token and no guest', async () => {

@@ -75,7 +75,7 @@ import { PublicPageShellComponent } from './public-page-shell.component';
                         [loading]="service.loading()"
                         [system_id]="system_id()"
                         [failed]="!!service.error()"
-                        (refresh)="loadEvents()"
+                        (refresh)="loadEvents(true)"
                     />
                 }
             }
@@ -146,9 +146,9 @@ export class PublicEventsComponent implements OnInit {
         };
     }
 
-    public async loadEvents() {
+    public async loadEvents(refresh = false) {
         if (!this.system_id()) return;
-        await this.service.loadEvents(this.system_id());
+        await this.service.loadEvents(this.system_id(), refresh);
     }
 
     /** Forgets the current guest, then asks for new guest details. */
