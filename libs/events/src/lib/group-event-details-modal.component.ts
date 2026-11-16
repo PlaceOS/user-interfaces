@@ -1,3 +1,4 @@
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import {
@@ -54,6 +55,7 @@ import {
             >
                 @if (event().extension_data?.images?.length) {
                     <img
+                        alt=""
                         auth
                         [source]="event().extension_data?.images[0]"
                         class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
@@ -282,7 +284,7 @@ import {
                                     'CALENDAR_EVENT.GROUP_DATE_TIME' | translate
                                 }}
                             </div>
-                            <div class="text-sm opacity-30">
+                            <div class="text-sm opacity-70">
                                 {{ event().date | date: 'EEEE, d MMMM, yyyy' }}
                                 . {{ event().date | date: time_format() }} -
                                 {{
@@ -305,7 +307,7 @@ import {
                                 </div>
                             }
                             @if (is_onsite() && !has_space()) {
-                                <div class="opacity-30">
+                                <div class="opacity-70">
                                     {{
                                         'CALENDAR_EVENT.GROUP_UNCONFIRMED'
                                             | translate
@@ -313,7 +315,7 @@ import {
                                 </div>
                             }
                             @if (is_online()) {
-                                <div class="opacity-30">
+                                <div class="opacity-70">
                                     {{
                                         (is_onsite()
                                             ? 'CALENDAR_EVENT.GROUP_BOTH_LOCATIONS'
@@ -351,7 +353,7 @@ import {
                     <div class="pb-4 text-sm">
                         <span event-details [innerHTML]="body()"></span>
                         @if (!raw_description()) {
-                            <span class="opacity-30">
+                            <span class="opacity-70">
                                 {{
                                     'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
                                         | translate
@@ -367,6 +369,7 @@ import {
                                 <button
                                     matRipple
                                     class="bg-base-200 relative h-40 w-full"
+                                    [attr.aria-label]="'COMMON.MAP' | translate"
                                     (click)="viewLocation()"
                                 >
                                     @if (!showing_map()) {
@@ -384,14 +387,14 @@ import {
                                         </div>
                                     }
                                     @if (is_onsite() && !has_space()) {
-                                        <div class="opacity-30">
+                                        <div class="opacity-70">
                                             {{
                                                 'CALENDAR_EVENT.GROUP_UNCONFIRMED'
                                                     | translate
                                             }}
                                         </div>
                                     }
-                                    <div class="mt-0! text-sm opacity-30">
+                                    <div class="mt-0! text-sm opacity-70">
                                         @if (building() && level()) {
                                             <span>
                                                 {{
@@ -405,7 +408,7 @@ import {
                                             </span>
                                         }
                                         @if (!building() || !level()) {
-                                            <span class="opacity-30">
+                                            <span>
                                                 {{
                                                     'CALENDAR_EVENT.GROUP_NO_LOCATION'
                                                         | translate
@@ -415,7 +418,7 @@ import {
                                     </div>
                                     @if (is_online()) {
                                         <a
-                                            class="mt-4 opacity-30"
+                                            class="mt-4 opacity-70"
                                             [class.underline]="
                                                 event().meeting_url
                                             "
@@ -439,9 +442,14 @@ import {
             </div>
         </div>
         @if (show_attendees()) {
-            <div class="absolute inset-0 z-50">
+            <div
+                class="absolute inset-0 z-50"
+                cdkTrapFocus
+                [cdkTrapFocusAutoCapture]="true"
+            >
                 <button
                     class="bg-base-content absolute inset-0 opacity-60"
+                    [attr.aria-label]="'COMMON.CLOSE' | translate"
                     (click)="show_attendees.set(false)"
                 ></button>
                 <div
@@ -470,6 +478,7 @@ import {
         MatMenuModule,
         MatDialogModule,
         AuthenticatedImageDirective,
+        CdkTrapFocus,
     ],
 })
 export class GroupEventDetailsModalComponent implements OnInit {
