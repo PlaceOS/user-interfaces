@@ -10,6 +10,10 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { EventViewComponent } from '../../app/events/event-view.component';
 
+vi.mock('@placeos/ts-client', { spy: true });
+
+import * as ts_client from '@placeos/ts-client';
+
 describe('EventViewComponent', () => {
     let spectator: SpectatorRouting<EventViewComponent>;
     const createComponent = createRoutingFactory({
@@ -54,5 +58,36 @@ describe('EventViewComponent', () => {
         spectator.component.loading.set(true);
         spectator.detectChanges();
         expect('mat-spinner').toExist();
+    });
+
+    it('should not load a group event metadata from the metadata route', async () => {
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockImplementation(async (url) =>
+            url.includes('/metadata/')
+                ? { view_access: 'PUBLIC' }
+                : {
+                      id: 'event-1',
+                      title: 'Group event',
+                      attendees: [],
+                      extension_data: {
+                          shared_event: true,
+                          view_access: 'OPEN',
+                      },
+                  },
+        );
+
+        await spectator.component.ngOnInit();
+        spectator.setRouteParam('id', 'event-1');
+        await vi.waitFor(() =>
+            expect(spectator.component.event()).toBeTruthy(),
+        );
+
+        expect(spectator.component.event().extension_data.view_access).toBe(
+            'OPEN',
+        );
+        expect(ts_client.get).not.toHaveBeenCalledWith(
+            expect.stringContaining('/metadata/'),
+        );
     });
 });
