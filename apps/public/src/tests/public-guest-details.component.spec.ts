@@ -79,6 +79,14 @@ describe('PublicGuestDetailsComponent', () => {
         expect(router.navigate).not.toHaveBeenCalled();
     });
 
+    it('hides the not-configured message while the authority loads', async () => {
+        service.init.mockReturnValue(new Promise(() => undefined));
+        const fixture = await init();
+        expect(fixture.nativeElement.textContent).not.toContain(
+            'not configured yet',
+        );
+    });
+
     it('reads the default source after the authority loads', async () => {
         service.init.mockImplementation(async () => {
             await Promise.resolve();
