@@ -80,6 +80,9 @@ import { EventStateService } from './event-state.service';
                                 <div
                                     class="h-full text-left text-sm opacity-70"
                                 >
+                                    <span class="sr-only"
+                                        >{{ date | date: 'fullDate' }},
+                                    </span>
                                     {{ event.date | date: 'shortTime' }} &mdash;
                                     {{ event.title }}
                                 </div>

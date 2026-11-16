@@ -156,6 +156,11 @@ import { EventStateService } from './event-state.service';
                 [content]="view_attendees"
                 class="mx-auto"
                 [disabled]="!attendeeCount(item.attendees)"
+                [attr.aria-label]="
+                    attendeeCount(item.attendees) +
+                    ' ' +
+                    ('CALENDAR_EVENT.GROUP_INTERESTED' | translate)
+                "
             >
                 {{ attendeeCount(item.attendees) || 0 }}
             </button>
@@ -185,6 +190,10 @@ import { EventStateService } from './event-state.service';
                 [content]="view_attendees"
                 class="mx-auto"
                 [disabled]="!checkedInCount(item.attendees)"
+                [attr.aria-label]="
+                    'CALENDAR_EVENT.GROUP_ATTENDING'
+                        | translate: { count: checkedInCount(item.attendees) }
+                "
             >
                 {{ checkedInCount(item.attendees) }}
             </button>

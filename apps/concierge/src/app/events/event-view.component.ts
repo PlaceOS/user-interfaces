@@ -32,15 +32,16 @@ import {
                     <div
                         class="flex h-full w-full flex-col items-center justify-center space-y-4 opacity-70"
                     >
-                        <icon class="text-6xl"></icon>
+                        <icon class="text-6xl">event_busy</icon>
                         <p>Event not found.</p>
                     </div>
                 }
             } @else {
                 <div
+                    role="status"
                     class="flex h-full w-full flex-col items-center justify-center space-y-4"
                 >
-                    <mat-spinner diameter="32" />
+                    <mat-spinner diameter="32" aria-hidden="true" />
                     <p>Loading event details...</p>
                 </div>
             }

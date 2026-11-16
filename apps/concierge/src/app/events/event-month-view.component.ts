@@ -61,6 +61,9 @@ import { EventStateService } from './event-state.service';
                                 <div
                                     class="h-full truncate text-left text-sm opacity-70"
                                 >
+                                    <span class="sr-only"
+                                        >{{ day.id | date: 'fullDate' }},
+                                    </span>
                                     {{ $any(event).date | date: 'shortTime' }}
                                     &mdash;
                                     {{ $any(event).title }}
@@ -92,6 +95,9 @@ import { EventStateService } from './event-state.service';
                                 class="relative mx-1 h-7 w-[calc(100%-0.5rem)] overflow-hidden rounded-sm py-1 pr-2 pl-3 text-sm underline"
                                 [matMenuTriggerFor]="menu"
                             >
+                                <span class="sr-only"
+                                    >{{ day.id | date: 'fullDate' }},
+                                </span>
                                 {{
                                     'APP.CONCIERGE.EVENTS_MORE_COUNT'
                                         | translate
@@ -118,6 +124,9 @@ import { EventStateService } from './event-state.service';
                                 >
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1">
+                                            <span class="sr-only"
+                                                >{{ day.id | date: 'fullDate' }},
+                                            </span>
                                             {{ $any(event).title }}
                                         </div>
                                         <div
