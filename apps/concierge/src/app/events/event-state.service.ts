@@ -8,11 +8,12 @@ import {
     OrganisationService,
     SettingsService,
     i18n,
+    notifyError,
     notifySuccess,
 } from '@placeos/common';
 import {
     GroupEventDetailsModalComponent,
-    queryEvents,
+    queryEventsOrThrow,
     removeEvent,
 } from '@placeos/events';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
@@ -74,26 +75,39 @@ export class EventStateService extends AsyncHandler {
         // The events list sets the period range. Wait for it.
         if (!options.date) return;
         this.loading.set(i18n('APP.CONCIERGE.EVENTS_LOADING'));
-        let list = await queryEvents({
-            period_start: getUnixTime(startOfDay(options.date)),
-            period_end: getUnixTime(
-                endOfDay(options.end || options.date || Date.now()),
-            ),
-            calendars: this.calendar,
-        });
-        const zone_ids = options.zone_ids || [];
-        if (zone_ids.length) {
-            list = list.filter((event) =>
-                event.resources?.some((space) =>
-                    (space.zones || []).some((zone) => zone_ids.includes(zone)),
+        try {
+            let list = await queryEventsOrThrow({
+                period_start: getUnixTime(startOfDay(options.date)),
+                period_end: getUnixTime(
+                    endOfDay(options.end || options.date || Date.now()),
                 ),
+                calendars: this.calendar,
+            });
+            const zone_ids = options.zone_ids || [];
+            if (zone_ids.length) {
+                list = list.filter((event) =>
+                    event.resources?.some((space) =>
+                        (space.zones || []).some((zone) =>
+                            zone_ids.includes(zone),
+                        ),
+                    ),
+                );
+            }
+            list = list
+                .filter((_) => _.extension_data?.shared_event)
+                .sort((a, b) => a.date - b.date);
+            this.event_list.set(list);
+        } catch (e) {
+            // An empty list with an error, so a failed load does not look like no events
+            this.event_list.set([]);
+            notifyError(
+                i18n('APP.CONCIERGE.EVENTS_LIST_ERROR', {
+                    error: errorText(e),
+                }),
             );
+        } finally {
+            this.loading.set('');
         }
-        list = list
-            .filter((_) => _.extension_data?.shared_event)
-            .sort((a, b) => a.date - b.date);
-        this.event_list.set(list);
-        this.loading.set('');
     }
 
     public changed() {
