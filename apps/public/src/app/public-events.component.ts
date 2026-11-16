@@ -76,6 +76,7 @@ import { PublicPageShellComponent } from './public-page-shell.component';
                         [events]="events()"
                         [loading]="service.loading()"
                         [system_id]="system_id()"
+                        [failed]="!!service.error()"
                         (refresh)="loadEvents()"
                     />
                 }

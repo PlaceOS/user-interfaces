@@ -34,7 +34,7 @@ import { PublicEvent } from './public-events.service';
                 </a>
             }
             @if (event(); as selected_event) {
-                <div class="gap-2">
+                <div class="space-y-1">
                     <div
                         class="bg-base-200 inline-flex rounded px-2 py-1 text-sm font-medium"
                     >
@@ -81,7 +81,11 @@ import { PublicEvent } from './public-events.service';
                         [disabled]="!!loading()"
                         (click)="register_event.emit(selected_event)"
                     >
-                        Register for this event
+                        @if (loading()) {
+                            {{ loading() }}
+                        } @else {
+                            Register for this event
+                        }
                     </button>
                 }
             } @else if (loading()) {
@@ -137,17 +141,14 @@ export class PublicEventDetailsComponent {
     public readonly system_id = input('');
     public readonly show_back = input(true);
     public readonly register_event = output<PublicEvent>();
-    private readonly _heading =
-        viewChild<ElementRef<HTMLElement>>('heading');
+    private readonly _heading = viewChild<ElementRef<HTMLElement>>('heading');
     private readonly _confirmation =
         viewChild<ElementRef<HTMLElement>>('confirmation');
 
     constructor() {
         // The event can render after load, and the register button is
         // removed on success. Move focus to the content that replaced it.
-        afterRenderEffect(() =>
-            focusIfLost(this._heading()?.nativeElement),
-        );
+        afterRenderEffect(() => focusIfLost(this._heading()?.nativeElement));
         afterRenderEffect(() =>
             focusIfLost(this._confirmation()?.nativeElement),
         );

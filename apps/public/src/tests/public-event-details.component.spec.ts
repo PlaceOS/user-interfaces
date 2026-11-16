@@ -130,4 +130,15 @@ describe('PublicEventDetailsComponent', () => {
             'This event is not available.',
         );
     });
+
+    it('shows the loading text in the register button', () => {
+        const fixture = create({
+            event: { id: 'e1', title: 'Rooftop Mixer' },
+            loading: 'Registering for event...',
+        });
+        const button: HTMLButtonElement =
+            fixture.nativeElement.querySelector('button');
+        expect(button.textContent?.trim()).toBe('Registering for event...');
+        expect(button.disabled).toBe(true);
+    });
 });
