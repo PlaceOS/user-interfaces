@@ -69,6 +69,7 @@ describe('GroupEventDetailsModalComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settingSignal('group_events_calendar', '').set('calendar@place.tech');
+        settingSignal('public_url_path', '/public').set('/public');
         setCurrentUser({
             email: 'me@place.tech',
             name: 'Me',
@@ -134,6 +135,17 @@ describe('GroupEventDetailsModalComponent', () => {
             `${window.location.origin}/public/#/event/space-1/event-1`,
         );
     });
+
+    it.each(['@other.host', '.other.host'])(
+        'should keep the public link on this origin when the path setting is %s',
+        async (value) => {
+            settingSignal('public_url_path', '/public').set(value);
+            await spectator.component.ngOnInit();
+            expect(spectator.component.public_event_link()).toBe(
+                `${window.location.origin}/public/#/event/space-1/event-1`,
+            );
+        },
+    );
 
     it('should copy the public event link to the clipboard', async () => {
         await spectator.component.ngOnInit();
