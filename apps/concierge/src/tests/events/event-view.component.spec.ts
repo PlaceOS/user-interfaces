@@ -39,7 +39,7 @@ describe('EventViewComponent', () => {
         spectator.detectChanges();
         expect(spectator.query('group-event-details-modal')).toBeNull();
         expect(spectator.fixture.nativeElement.textContent).toContain(
-            'Event not found',
+            'event_busy',
         );
     });
 

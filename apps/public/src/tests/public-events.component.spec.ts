@@ -91,6 +91,19 @@ describe('PublicEventsComponent', () => {
         expect(service.loadEvents).not.toHaveBeenCalled();
     });
 
+    it('shows only the authority error when no system id is resolved', async () => {
+        service.init.mockImplementation(async () => {
+            service.error.set('Unable to load PlaceOS authority.');
+        });
+        const fixture = await init();
+        expect(fixture.nativeElement.textContent).toContain(
+            'Unable to load PlaceOS authority.',
+        );
+        expect(fixture.nativeElement.textContent).not.toContain(
+            'not configured yet',
+        );
+    });
+
     it('redirects unauthenticated visitors to guest details keeping the system id', async () => {
         service.authenticated.set(false);
         service.default_system_id.set('sys-1');

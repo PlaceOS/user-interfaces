@@ -33,8 +33,7 @@ const EMAIL_PATTERN =
     template: `
         <placeos-public-page-shell
             [logo]="service.logo_url()"
-            [configured]="!!source_id()"
-            description="Enter your details once to continue to the public events list."
+            [configured]="!ready() || !!source_id() || !!service.error()"
         >
             @if (service.error()) {
                 <div
@@ -80,7 +79,10 @@ const EMAIL_PATTERN =
                             />
                         </label>
                         @if (name_error()) {
-                            <p id="guest-name-error" class="-mt-2 text-sm text-[color-mix(in_srgb,var(--error)_60%,black)]">
+                            <p
+                                id="guest-name-error"
+                                class="-mt-2 text-sm text-[color-mix(in_srgb,var(--error)_60%,black)]"
+                            >
                                 Enter your full name.
                             </p>
                         }
@@ -102,7 +104,10 @@ const EMAIL_PATTERN =
                             />
                         </label>
                         @if (email_error()) {
-                            <p id="guest-email-error" class="-mt-2 text-sm text-[color-mix(in_srgb,var(--error)_60%,black)]">
+                            <p
+                                id="guest-email-error"
+                                class="-mt-2 text-sm text-[color-mix(in_srgb,var(--error)_60%,black)]"
+                            >
                                 Enter a valid email address.
                             </p>
                         }
@@ -177,6 +182,8 @@ export class PublicGuestDetailsComponent implements OnInit {
     private readonly _email_input =
         viewChild<ElementRef<HTMLInputElement>>('email_input');
 
+    /** True after the authority loads, so the not-configured message does not flash */
+    public readonly ready = signal(false);
     public readonly source_id = signal('');
     public readonly target_event_id = signal('');
     public readonly direct_event_link = signal(false);
@@ -199,6 +206,7 @@ export class PublicGuestDetailsComponent implements OnInit {
                     this._navigateToEvents();
                 }
             });
+        this.ready.set(true);
     }
 
     public async continueAsGuest(details: GuestDetails, remember = false) {

@@ -96,7 +96,10 @@ const EMPTY = [];
                                 id="event-manage-title"
                                 matInput
                                 [formField]="form.title"
-                                placeholder="e.g. Team Meeting"
+                                [placeholder]="
+                                    'CALENDAR_EVENT.TITLE_PLACEHOLDER'
+                                        | translate
+                                "
                             />
                             <mat-error>
                                 {{ 'FORM.TITLE_REQUIRED' | translate }}
@@ -121,7 +124,10 @@ const EMPTY = [];
                             appearance="outline"
                             class="no-subscript"
                         >
-                            <mat-chip-grid #chipList aria-label="Event Tags">
+                            <mat-chip-grid
+                                #chipList
+                                [attr.aria-label]="'COMMON.TAGS' | translate"
+                            >
                                 @for (tag of tag_list(); track tag) {
                                     <mat-chip-row
                                         [removable]="true"
@@ -142,7 +148,10 @@ const EMPTY = [];
                                 }
                                 <input
                                     id="event-manage-tags"
-                                    placeholder="Add new tags relevant to this event..."
+                                    [placeholder]="
+                                        'APP.CONCIERGE.EVENTS_TAGS_PLACEHOLDER'
+                                            | translate
+                                    "
                                     [matChipInputFor]="chipList"
                                     [matChipInputSeparatorKeyCodes]="separators"
                                     [matChipInputAddOnBlur]="true"
@@ -768,10 +777,12 @@ export class EventManageComponent
         this.form().markAsTouched();
         if (!this.form().valid()) {
             return notifyError(
-                `Some form fields are invalid. [${getInvalidSignalFields(
-                    this.form,
-                    this.model,
-                )}]`,
+                i18n('FORM.INVALID_FIELDS', {
+                    field_list: getInvalidSignalFields(
+                        this.form,
+                        this.model,
+                    ).join(', '),
+                }),
             );
         }
         this.loading.set(true);
@@ -803,7 +814,13 @@ export class EventManageComponent
         const date = this.model().date;
         const res = await this._form_state
             .postForm(false, [this._state.calendar], true, true)
-            .catch((e) => notifyError(e));
+            .catch((e) =>
+                notifyError(
+                    i18n('APP.CONCIERGE.EVENTS_SAVE_ERROR', {
+                        error: errorText(e),
+                    }),
+                ),
+            );
         this._state.changed();
         this.loading.set(false);
         if (res) {

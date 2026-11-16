@@ -1,13 +1,16 @@
 import { signal } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
 import { TestBed } from '@angular/core/testing';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import {
     Building,
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { endOfDay, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
@@ -139,5 +142,25 @@ describe('EventStateService', () => {
         TestBed.flushEffects();
         await wait(350);
         expect(eventQueryCount()).toBe(0);
+    });
+    it('should clear the loading state and show an error when events fail to load', async () => {
+        const open = vi.fn(() => ({
+            onAction: () => ({ subscribe: () => undefined }),
+            dismiss: () => undefined,
+        }));
+        setNotifyOutlet({ open } as any, true);
+        vi.mocked(ts_client.get).mockRejectedValueOnce(
+            new Error('Server down'),
+        );
+        spectator.service.setOptions({
+            date: startOfDay(Date.now()).valueOf(),
+            end: endOfDay(Date.now()).valueOf(),
+        });
+
+        TestBed.flushEffects();
+        await wait(350);
+        expect(spectator.service.loading()).toBe('');
+        expect(open).toHaveBeenCalled();
+        setNotifyOutlet(null, true);
     });
 });

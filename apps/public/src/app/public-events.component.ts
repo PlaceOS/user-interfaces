@@ -31,20 +31,19 @@ import { PublicPageShellComponent } from './public-page-shell.component';
     template: `
         <placeos-public-page-shell
             [logo]="service.logo_url()"
-            [configured]="!!system_id()"
+            [configured]="!ready() || !!system_id() || !!service.error()"
         >
             <!-- Stays mounted, so screen readers announce each change -->
             <p role="status" class="sr-only">{{ service.loading() }}</p>
+            @if (service.error()) {
+                <div
+                    role="alert"
+                    class="bg-error-light border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium text-[color-mix(in_srgb,var(--error)_60%,black)] shadow-sm"
+                >
+                    {{ service.error() }}
+                </div>
+            }
             @if (system_id()) {
-                @if (service.error()) {
-                    <div
-                        role="alert"
-                        class="bg-error-light border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium text-[color-mix(in_srgb,var(--error)_60%,black)] shadow-sm"
-                    >
-                        {{ service.error() }}
-                    </div>
-                }
-
                 @if (service.guest(); as guest) {
                     <div
                         class="mx-auto flex w-full max-w-xl items-center justify-center gap-2 text-sm"
@@ -77,6 +76,7 @@ import { PublicPageShellComponent } from './public-page-shell.component';
                         [events]="events()"
                         [loading]="service.loading()"
                         [system_id]="system_id()"
+                        [failed]="!!service.error()"
                         (refresh)="loadEvents()"
                     />
                 }
@@ -90,6 +90,8 @@ export class PublicEventsComponent implements OnInit {
     private readonly _router = inject(Router);
     private readonly _destroy_ref = inject(DestroyRef);
 
+    /** True after the authority loads, so the not-configured message does not flash */
+    public readonly ready = signal(false);
     public readonly system_id = signal('');
     public readonly selected_event_id = signal('');
     public readonly direct_event_link = signal(false);
@@ -125,6 +127,7 @@ export class PublicEventsComponent implements OnInit {
                 }
                 this.loadEvents();
             });
+        this.ready.set(true);
     }
 
     private _isDirectEventRoute() {

@@ -25,7 +25,7 @@ import { PublicEvent } from './public-events.service';
     changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <section
-            class="border-base-300 bg-base-100/95 w-full space-y-4 rounded-xl border p-5 shadow-md backdrop-blur"
+            class="border-base-300 bg-base-100/95 mx-auto w-full max-w-3xl space-y-4 rounded-xl border p-5 shadow-md backdrop-blur"
         >
             <div
                 class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between"
@@ -38,8 +38,9 @@ import { PublicEvent } from './public-events.service';
                     Available public events
                 </h2>
                 <button
-                    class="border-base-300 bg-base-100 hover:bg-base-200 rounded border px-4 py-2 text-sm font-medium shadow-sm"
+                    class="border-base-300 bg-base-100 hover:bg-base-200 rounded border px-4 py-2 text-sm font-medium shadow-sm disabled:cursor-not-allowed disabled:opacity-60"
                     type="button"
+                    [disabled]="!!loading()"
                     (click)="refresh.emit()"
                 >
                     Refresh
@@ -53,7 +54,7 @@ import { PublicEvent } from './public-events.service';
                 >
                     {{ loading() }}
                 </div>
-            } @else if (!events().length) {
+            } @else if (!events().length && !failed()) {
                 <div
                     class="bg-base-200 flex min-h-40 flex-col items-center justify-center rounded-lg p-4 text-center text-sm opacity-70"
                 >
@@ -107,6 +108,8 @@ export class PublicEventsListComponent {
     public readonly events = input<PublicEvent[]>([]);
     public readonly loading = input('');
     public readonly system_id = input('');
+    /** True when the last load failed, so the empty message does not show */
+    public readonly failed = input(false);
     public readonly refresh = output<void>();
     private readonly _heading =
         viewChild.required<ElementRef<HTMLElement>>('heading');

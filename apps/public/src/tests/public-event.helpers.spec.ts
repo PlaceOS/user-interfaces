@@ -109,6 +109,22 @@ describe('public event helpers', () => {
             expect(text).toContain(`, ${time(start_ms)} - ${time(end_ms)}`);
         });
 
+        it('should show the end date when the event ends on a later day', () => {
+            const next_day = new Date(2026, 4, 13, 11, 0).valueOf();
+            const date = new Intl.DateTimeFormat(undefined, {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+            }).format(next_day);
+            expect(eventTime({ start: start_ms, end: next_day })).toContain(
+                ` - ${date}, `,
+            );
+            expect(eventTime({ start: start_ms, end: end_ms })).not.toContain(
+                ` - ${date}`,
+            );
+        });
+
         it('should read ISO date strings and prefer the event_start field', () => {
             const iso = (ms: number) => new Date(ms).toISOString();
             expect(

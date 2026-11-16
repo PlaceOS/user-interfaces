@@ -1,10 +1,18 @@
+import { Clipboard } from '@angular/cdk/clipboard';
 import { CommonModule } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { RouterModule } from '@angular/router';
-import { CalendarEvent, SettingsService, User } from '@placeos/common';
+import {
+    CalendarEvent,
+    i18n,
+    notifyError,
+    notifyInfo,
+    SettingsService,
+    User,
+} from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     BuildingPipe,
@@ -14,7 +22,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SpacePipe } from '@placeos/events';
+import { publicEventLink, SpacePipe } from '@placeos/events';
 import { AttendeeListComponent } from 'libs/events/src/lib/attendee-list.component';
 import { EventStateService } from './event-state.service';
 
@@ -29,7 +37,7 @@ import { EventStateService } from './event-state.service';
         <simple-table
             class="block w-full min-w-6xl text-sm"
             [data]="event_list()"
-            empty_message="No group events for selected period"
+            [empty_message]="'APP.CONCIERGE.EVENTS_EMPTY' | translate"
             [columns]="[
                 { key: 'date', name: 'Event', content: event_template },
                 {
@@ -166,7 +174,7 @@ import { EventStateService } from './event-state.service';
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative h-112 w-[20rem] overflow-auto rounded-sm bg-white shadow-sm"
+                    class="bg-base-100 relative h-112 w-[20rem] overflow-auto rounded-sm shadow-sm"
                 >
                     <attendee-list
                         [list]="attendeeList(item.attendees)"
@@ -199,7 +207,7 @@ import { EventStateService } from './event-state.service';
             </button>
             <ng-template #view_attendees>
                 <div
-                    class="relative h-112 w-[20rem] overflow-auto rounded-sm bg-white shadow-sm"
+                    class="bg-base-100 relative h-112 w-[20rem] overflow-auto rounded-sm shadow-sm"
                 >
                     <attendee-list
                         [show_host]="false"
@@ -261,7 +269,6 @@ import { EventStateService } from './event-state.service';
                 matRipple
                 class="mx-auto"
                 [matMenuTriggerFor]="menu"
-                [disabled]="row.state === 'done'"
                 [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
             >
                 <icon>more_vert</icon>
@@ -283,23 +290,29 @@ import { EventStateService } from './event-state.service';
                         </div>
                     </div>
                 </button>
-                <a
-                    mat-menu-item
-                    [routerLink]="[
-                        '/entertainment',
-                        'events',
-                        'manage',
-                        row?.id,
-                    ]"
-                >
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-2xl">edit</icon>
-                        <div class="mr-2">
-                            {{ 'APP.CONCIERGE.EVENTS_EDIT' | translate }}
+                @if (row.state !== 'done') {
+                    <a
+                        mat-menu-item
+                        [routerLink]="[
+                            '/entertainment',
+                            'events',
+                            'manage',
+                            row?.id,
+                        ]"
+                    >
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">edit</icon>
+                            <div class="mr-2">
+                                {{ 'APP.CONCIERGE.EVENTS_EDIT' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </a>
-                <button mat-menu-item [disabled]="true">
+                    </a>
+                }
+                <button
+                    mat-menu-item
+                    [disabled]="row.view_access !== 'PUBLIC'"
+                    (click)="copyPublicLink(row)"
+                >
                     <div class="flex items-center space-x-2">
                         <icon class="text-2xl">content_copy</icon>
                         <div class="mr-2">
@@ -307,14 +320,16 @@ import { EventStateService } from './event-state.service';
                         </div>
                     </div>
                 </button>
-                <button mat-menu-item (click)="removeEvent(row)">
-                    <div class="flex items-center space-x-2">
-                        <icon class="text-error text-2xl">delete</icon>
-                        <div class="mr-2">
-                            {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
+                @if (row.state !== 'done') {
+                    <button mat-menu-item (click)="removeEvent(row)">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-error text-2xl">delete</icon>
+                            <div class="mr-2">
+                                {{ 'APP.CONCIERGE.EVENTS_REMOVE' | translate }}
+                            </div>
                         </div>
-                    </div>
-                </button>
+                    </button>
+                }
             </mat-menu>
         </ng-template>
     `,
@@ -339,6 +354,7 @@ import { EventStateService } from './event-state.service';
 export class EventListingComponent {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
+    private _clipboard = inject(Clipboard);
 
     public readonly loading = this._state.loading;
     public readonly event_list = this._state.event_list;
@@ -347,6 +363,21 @@ export class EventListingComponent {
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
     public readonly removeEvent = (event: any) =>
         this._state.removeEvent(event);
+
+    /** Copy the public app link of a public event to the clipboard */
+    public async copyPublicLink(event: CalendarEvent) {
+        const space = await new SpacePipe().transform(this._state.calendar);
+        const link = publicEventLink(
+            event,
+            space?.id,
+            this._settings.get('app.public_url_path'),
+        );
+        if (link && this._clipboard.copy(link)) {
+            notifyInfo(i18n('CALENDAR_EVENT.GROUP_COPY_URL_SUCCESS'));
+        } else {
+            notifyError(i18n('CALENDAR_EVENT.GROUP_COPY_URL_ERROR'));
+        }
+    }
 
     public room(item: CalendarEvent) {
         return item.resources.find((_) => _.email !== this._state.calendar);

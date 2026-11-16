@@ -128,7 +128,19 @@ describe('GroupEventDetailsModalComponent', () => {
         expect(spectator.component.raw_description()).toBe('About the event');
     });
 
+    const publish = () =>
+        spectator.component.event.set(
+            new CalendarEvent({
+                ...event,
+                extension_data: {
+                    ...event.extension_data,
+                    view_access: 'PUBLIC',
+                },
+            }),
+        );
+
     it('should generate a public link once the calendar space is known', async () => {
+        publish();
         expect(spectator.component.public_event_link()).toBe('');
         await spectator.component.ngOnInit();
         expect(spectator.component.public_event_link()).toBe(
@@ -139,6 +151,7 @@ describe('GroupEventDetailsModalComponent', () => {
     it.each(['@other.host', '.other.host'])(
         'should keep the public link on this origin when the path setting is %s',
         async (value) => {
+            publish();
             settingSignal('public_url_path', '/public').set(value);
             await spectator.component.ngOnInit();
             expect(spectator.component.public_event_link()).toBe(
@@ -147,7 +160,13 @@ describe('GroupEventDetailsModalComponent', () => {
         },
     );
 
+    it('should not generate a public link for events not published to the public', async () => {
+        await spectator.component.ngOnInit();
+        expect(spectator.component.public_event_link()).toBe('');
+    });
+
     it('should copy the public event link to the clipboard', async () => {
+        publish();
         await spectator.component.ngOnInit();
         spectator.component.copyPublicEventLink();
         expect(spectator.inject(Clipboard).copy).toHaveBeenCalledWith(

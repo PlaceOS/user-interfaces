@@ -22,6 +22,7 @@ import {
     CalendarEvent,
     currentUser,
     GuestUser,
+    i18n,
     notifyInfo,
     OrganisationService,
     settingSignal,
@@ -43,6 +44,26 @@ import {
     checkinEventGuest,
     removeEventGuest,
 } from './events.fn';
+
+/**
+ * Public app link to a group event. Empty when the event is not published
+ * to the public, or the calendar system or event ID is not known.
+ */
+export function publicEventLink(
+    event: CalendarEvent | undefined,
+    system_id: string | undefined,
+    url_path: string | undefined,
+) {
+    if (!system_id || !event?.id || event.view_access !== 'PUBLIC') return '';
+    // Use the setting only when it is a path. A value such as
+    // `@other.host` or `.other.host` would change the host of the link.
+    const setting = `${url_path || ''}`;
+    const path = (setting.startsWith('/') ? setting : '/public').replace(
+        /\/$/,
+        '',
+    );
+    return `${window.location.origin}${path}/#/event/${encodeURIComponent(system_id)}/${encodeURIComponent(event.id)}`;
+}
 
 @Component({
     selector: `group-event-details-modal`,
@@ -562,19 +583,13 @@ export class GroupEventDetailsModalComponent implements OnInit {
     public readonly is_interested = computed(() => !!this.guest_details());
     public readonly is_going = computed(() => this.guest_details()?.checked_in);
     public readonly system_id = computed(() => this.space().id);
-    public readonly public_event_link = computed(() => {
-        const system_id = this.calendar_space().id;
-        const event_id = this.event()?.id;
-        if (!system_id || !event_id) return '';
-        // Use the setting only when it is a path. A value such as
-        // `@other.host` or `.other.host` would change the host of the link.
-        const setting = `${this.public_url_path() || ''}`;
-        const path = (setting.startsWith('/') ? setting : '/public').replace(
-            /\/$/,
-            '',
-        );
-        return `${window.location.origin}${path}/#/event/${encodeURIComponent(system_id)}/${encodeURIComponent(event_id)}`;
-    });
+    public readonly public_event_link = computed(() =>
+        publicEventLink(
+            this.event(),
+            this.calendar_space().id,
+            this.public_url_path(),
+        ),
+    );
 
     public readonly group_event_calendar = settingSignal<string>(
         'group_events_calendar',
@@ -686,7 +701,7 @@ export class GroupEventDetailsModalComponent implements OnInit {
         const link = this.public_event_link();
         if (!link) return;
         if (this._clipboard.copy(link)) {
-            notifyInfo('Copied public event link to clipboard.');
+            notifyInfo(i18n('CALENDAR_EVENT.GROUP_COPY_URL_SUCCESS'));
         }
     }
 
