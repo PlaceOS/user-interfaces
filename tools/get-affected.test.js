@@ -29,20 +29,20 @@ chmodSync(fakeBunx, 0o755);
 
 after(() => rmSync(fixtureDirectory, { recursive: true }));
 
-function runSelector(environment = {}) {
-    return spawnSync(
-        process.execPath,
-        [selector, 'refs/heads/develop', 'build'],
-        {
-            cwd: repoRoot,
-            encoding: 'utf8',
-            env: {
-                ...process.env,
-                ...environment,
-                PATH: `${fixtureDirectory}${path.delimiter}${process.env.PATH}`,
-            },
+function runSelector(
+    environment = {},
+    ref = 'refs/heads/develop',
+    target = 'build',
+) {
+    return spawnSync(process.execPath, [selector, ref, target], {
+        cwd: repoRoot,
+        encoding: 'utf8',
+        env: {
+            ...process.env,
+            ...environment,
+            PATH: `${fixtureDirectory}${path.delimiter}${process.env.PATH}`,
         },
-    );
+    });
 }
 
 test('returns affected applications from Nx JSON output', () => {
@@ -75,4 +75,34 @@ test('fails when Nx cannot calculate affected projects', () => {
     assert.notEqual(result.status, 0);
     assert.equal(result.stdout, '');
     assert.match(result.stderr, /Nx failed/);
+});
+
+test('releases only the application that a release tag names', () => {
+    const build = runSelector({}, 'refs/tags/workplace/v2611.1');
+    const units = runSelector({}, 'refs/tags/workplace/v2611.1', 'test');
+
+    assert.equal(build.status, 0);
+    assert.deepEqual(JSON.parse(build.stdout), ['workplace']);
+    assert.equal(units.status, 0);
+    const tested = JSON.parse(units.stdout);
+    assert.equal(tested[0], 'workplace');
+    assert.ok(tested.includes('common'));
+    assert.ok(!tested.includes('concierge'));
+});
+
+test('releases all applications from a version tag', () => {
+    const result = runSelector({}, 'refs/tags/v2611.1');
+
+    assert.equal(result.status, 0);
+    const apps = JSON.parse(result.stdout);
+    assert.ok(apps.includes('workplace'));
+    assert.ok(apps.includes('concierge'));
+});
+
+test('fails when a release tag names an unknown application', () => {
+    const result = runSelector({}, 'refs/tags/workplce/v2611.1');
+
+    assert.notEqual(result.status, 0);
+    assert.equal(result.stdout, '');
+    assert.match(result.stderr, /unknown application "workplce"/);
 });

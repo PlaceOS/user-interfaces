@@ -8,11 +8,32 @@ Read `defaultBase` from `nx.json` and use it as the pull request base. Use anoth
 
 ## Releases and deployments
 
-Release branches and deployment workflows can affect production. Change or run them only when the user explicitly requests that work.
+Release tags and deployment workflows can affect production. Change or run them only when the user explicitly requests that work.
 
 The workflow files under `.github/workflows/` define the active branch triggers, build configurations, and deployment branches. Inspect those files before release work. Do not rely on a copied branch map in documentation.
 
 CI builds the applications that changed since the latest successful run of the same workflow on the branch. If CI cannot find that run, it uses the commit before the push, then `HEAD~1`. `.github/scripts/get-affected-base.sh` selects this base commit.
+
+Tags create production releases:
+
+- A `v<version>` tag, for example `v2611.1`, releases all applications.
+- An `<app>/v<version>` tag, for example `workplace/v2611.1`, releases only that
+  application. `<app>` is the folder name under `apps/`. CI tests the
+  application and all libraries. If `<app>` is not an application, CI fails, so
+  a misspelled name cannot release all applications.
+
+The tagged commit must be on `develop` or on a `hotfix/*` branch. Push the commit
+to that branch before you push the tag. Otherwise, CI fails and does not deploy.
+`tools/get-affected.js` selects the applications from the tag.
+`.github/scripts/check-release-source.sh` checks the branches.
+
+Mobile tags build Android and iOS artifacts. They do not deploy web applications:
+
+- A `mobile/v<version>` tag builds all mobile applications.
+- A `mobile/<app>/v<version>` tag builds one mobile application.
+
+Web release tags do not build mobile applications. See
+[Mobile builds](mobile-builds.md).
 
 CI writes the `build/<project>/<environment>` branches. Do not edit those branches directly.
 
@@ -20,6 +41,9 @@ The workflow generates application-specific changelogs once before the build job
 start. Each changelog includes commits that change the application, its transitive
 Nx dependencies, or files under `shared/`. Each commit stays in the release that
 contains it, also when the release tag is on a commit for a different application.
+An `<app>/v<version>` tag is a release only in the changelog of that application.
+In other application changelogs, its commits go to the next release of that
+application. The root `CHANGELOG.md` uses only `v<version>` tags.
 git-cliff reads the full history one time for all applications, because that read
 takes almost all of the generation time. Builds include `CHANGELOG.md` when
 generation and artifact transfer succeed. Changelog generation, upload, download,

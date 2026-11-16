@@ -84,50 +84,61 @@ function fixture() {
     return { root, bin, run };
 }
 
+// Runs the CI changelog script in a fixture with a fake Nx project graph.
+// Returns a function that reads the changelog of an application.
+function generateAppChangelogs({ root, bin, run }, apps) {
+    mkdirSync(path.join(root, 'tools'), { recursive: true });
+    copyFileSync(
+        path.join(repoRoot, 'tools/get-changelog-paths.js'),
+        path.join(root, 'tools/get-changelog-paths.js'),
+    );
+    const graph = {
+        graph: {
+            nodes: {
+                workplace: { data: { root: 'apps/workplace' } },
+                control: { data: { root: 'apps/control' } },
+                common: { data: { root: 'libs/common' } },
+            },
+            dependencies: {
+                workplace: [{ target: 'common' }],
+                control: [{ target: 'common' }],
+                common: [],
+            },
+        },
+    };
+    writeFileSync(
+        path.join(bin, 'bunx'),
+        `#!/usr/bin/env node\nprocess.stdout.write(${JSON.stringify(JSON.stringify(graph))});\n`,
+    );
+    chmodSync(path.join(bin, 'bunx'), 0o755);
+    run('env', [
+        `AFFECTED_APPS=${JSON.stringify(apps)}`,
+        `CHANGELOG_DIR=${path.join(root, 'changelogs')}`,
+        'MAX_PARALLEL=2',
+        'bash',
+        path.join(repoRoot, '.github/scripts/generate-changelogs.sh'),
+    ]);
+    return (app) =>
+        readFileSync(
+            path.join(root, 'changelogs', app, 'CHANGELOG.md'),
+            'utf8',
+        );
+}
+
 test(
     'generates app-specific changelogs when the GitHub API is unavailable',
     { skip },
     () => {
         const { root, bin, run } = fixture();
-        mkdirSync(path.join(root, 'tools'));
-        copyFileSync(
-            path.join(repoRoot, 'tools/get-changelog-paths.js'),
-            path.join(root, 'tools/get-changelog-paths.js'),
-        );
-        const graph = {
-            graph: {
-                nodes: {
-                    workplace: { data: { root: 'apps/workplace' } },
-                    control: { data: { root: 'apps/control' } },
-                    common: { data: { root: 'libs/common' } },
-                },
-                dependencies: {
-                    workplace: [{ target: 'common' }],
-                    control: [{ target: 'common' }],
-                    common: [],
-                },
-            },
-        };
-        writeFileSync(
-            path.join(bin, 'bunx'),
-            `#!/usr/bin/env node\nprocess.stdout.write(${JSON.stringify(JSON.stringify(graph))});\n`,
-        );
-        chmodSync(path.join(bin, 'bunx'), 0o755);
-        run('env', [
-            'AFFECTED_APPS=["workplace","control"]',
-            `CHANGELOG_DIR=${path.join(root, 'changelogs')}`,
-            'MAX_PARALLEL=2',
-            'bash',
-            path.join(repoRoot, '.github/scripts/generate-changelogs.sh'),
+        const read = generateAppChangelogs({ root, bin, run }, [
+            'workplace',
+            'control',
         ]);
         for (const [app, other] of [
             ['workplace', 'control'],
             ['control', 'workplace'],
         ]) {
-            const changelog = readFileSync(
-                path.join(root, 'changelogs', app, 'CHANGELOG.md'),
-                'utf8',
-            );
+            const changelog = read(app);
             assert.match(changelog, /## \[unreleased\]/);
             assert.match(changelog, /## \[2609\.1\]/);
             assert.match(changelog, /September shared fix/);
@@ -167,6 +178,58 @@ test(
         }
     },
 );
+
+test(
+    'adds an app release tag only to the changelog of that app',
+    { skip },
+    () => {
+        const { root, bin, run } = fixture();
+        run('git', ['tag', 'control/v2610.1']);
+        const after = path.join(root, 'apps/workplace/after.txt');
+        writeFileSync(after, 'after');
+        run('git', ['add', after]);
+        run('git', ['commit', '-qm', 'fix(workplace): after control release']);
+        const read = generateAppChangelogs({ root, bin, run }, [
+            'workplace',
+            'control',
+        ]);
+
+        const control = read('control').split('\n## ');
+        const release = control.find((part) => part.startsWith('[2610.1]'));
+        assert.ok(release?.includes('Current control fix'));
+        assert.ok(release.includes('Current shared fix'));
+
+        // Commits in the control release stay unreleased for workplace.
+        const workplace = read('workplace');
+        assert.ok(!workplace.includes('2610.1'));
+        const unreleased = workplace
+            .split('\n## ')
+            .find((part) => part.startsWith('[unreleased]'));
+        assert.ok(unreleased?.includes('Current workplace fix'));
+        assert.ok(unreleased.includes('Current shared fix'));
+        assert.ok(unreleased.includes('After control release'));
+
+        const root_changelog = run('git-cliff', ['--config', 'cliff.toml']);
+        assert.ok(!root_changelog.stdout.includes('2610.1'));
+    },
+);
+
+test('keeps app releases that are tagged on the same commit', { skip }, () => {
+    const { root, bin, run } = fixture();
+    run('git', ['tag', 'control/v2610.1']);
+    run('git', ['tag', 'workplace/v2610.1']);
+    const read = generateAppChangelogs({ root, bin, run }, [
+        'workplace',
+        'control',
+    ]);
+
+    for (const app of ['workplace', 'control']) {
+        const release = read(app)
+            .split('\n## ')
+            .find((part) => part.startsWith('[2610.1]'));
+        assert.ok(release?.includes(`Current ${app} fix`), app);
+    }
+});
 
 test(
     'generates the release changelog when the GitHub API is unavailable',
