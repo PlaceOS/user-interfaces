@@ -7,7 +7,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { IconComponent } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import {
     GroupEventDetailsModalComponent,
     showEvent,
@@ -33,7 +33,9 @@ import {
                         class="flex h-full w-full flex-col items-center justify-center space-y-4 opacity-70"
                     >
                         <icon class="text-6xl">event_busy</icon>
-                        <p>Event not found.</p>
+                        <p>
+                            {{ 'APP.CONCIERGE.EVENTS_NOT_FOUND' | translate }}
+                        </p>
                     </div>
                 }
             } @else {
@@ -42,7 +44,7 @@ import {
                     class="flex h-full w-full flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner diameter="32" aria-hidden="true" />
-                    <p>Loading event details...</p>
+                    <p>{{ 'COMMON.LOADING' | translate }}</p>
                 </div>
             }
         </div>
@@ -51,6 +53,7 @@ import {
     imports: [
         MatProgressSpinnerModule,
         IconComponent,
+        TranslatePipe,
         GroupEventDetailsModalComponent,
     ],
 })
