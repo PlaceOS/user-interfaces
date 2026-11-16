@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import {
     PlaceAuthority,
+    invalidateToken,
     listPublicEvents,
     publicEventGuestToken,
     registerPublicEvent,
@@ -11,6 +12,7 @@ import {
 import { PublicEventsService } from '../app/public-events.service';
 
 vi.mock('@placeos/ts-client', () => ({
+    invalidateToken: vi.fn(),
     listPublicEvents: vi.fn(),
     publicEventGuestToken: vi.fn(),
     registerPublicEvent: vi.fn(),
@@ -152,6 +154,49 @@ describe('PublicEventsService', () => {
 
             expect(service.guest()).toEqual(guest);
             expect(setStorage).toHaveBeenCalledWith('local');
+        });
+    });
+
+    describe('forgetGuest', () => {
+        it('should remove the guest details and token from both storages', () => {
+            localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            const service = TestBed.inject(PublicEventsService);
+            vi.mocked(setStorage).mockClear();
+
+            service.forgetGuest();
+
+            expect(vi.mocked(setStorage).mock.calls).toEqual([
+                ['local'],
+                ['session'],
+            ]);
+            expect(invalidateToken).toHaveBeenCalledTimes(2);
+            expect(localStorage.getItem(GUEST_KEY)).toBeNull();
+            expect(sessionStorage.getItem(GUEST_KEY)).toBeNull();
+            expect(service.guest()).toBeNull();
+            expect(service.authenticated()).toBe(false);
+        });
+
+        it('should not store the guest again when a pending request resolves', async () => {
+            localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            vi.mocked(token).mockReturnValue('');
+            let resolve_token: (value: string) => void = () => undefined;
+            vi.mocked(publicEventGuestToken).mockReturnValue(
+                new Promise((resolve) => (resolve_token = resolve)),
+            );
+            const service = TestBed.inject(PublicEventsService);
+            const loading = service.loadEvents('sys-1');
+            await Promise.resolve();
+
+            service.forgetGuest();
+            resolve_token('old-token');
+            await loading;
+
+            expect(setToken).not.toHaveBeenCalled();
+            expect(localStorage.getItem(GUEST_KEY)).toBeNull();
+            expect(service.guest()).toBeNull();
+            expect(service.error()).toBe('');
+            expect(listPublicEvents).not.toHaveBeenCalled();
         });
     });
 

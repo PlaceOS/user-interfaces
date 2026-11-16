@@ -2,6 +2,7 @@ import { Injectable, computed, signal } from '@angular/core';
 import {
     PlaceAuthority,
     PublicEventQueryOptions,
+    invalidateToken,
     listPublicEvents,
     publicEventGuestToken,
     registerPublicEvent,
@@ -57,9 +58,14 @@ export interface GuestDetails {
 
 const GUEST_STORAGE_KEY = 'PLACEOS.public.guest';
 
+/** Rejects a guest access request that `forgetGuest` made out of date */
+class GuestForgottenError extends Error {}
+
 @Injectable({ providedIn: 'root' })
 export class PublicEventsService {
     private _guest_remembered = !!this._rememberedGuestDetails();
+    /** Changed by `forgetGuest`, so pending requests do not store the old guest */
+    private _guest_version = 0;
 
     public readonly authority = signal<PlaceAuthority | null>(null);
     public readonly loading = signal('');
@@ -129,6 +135,7 @@ export class PublicEventsService {
         details: GuestDetails,
         remember = false,
     ) {
+        const version = this._guest_version;
         this.error.set('');
         this.loading.set('Checking guest access...');
         try {
@@ -138,6 +145,8 @@ export class PublicEventsService {
                 captcha,
             });
             if (!token) throw new Error('Guest access response was invalid.');
+            if (version !== this._guest_version)
+                throw new GuestForgottenError();
             setStorage(remember ? 'local' : 'session');
             setToken(token, Date.now() + 2 * 60 * 60 * 1000);
             this._storeGuestDetails(details, remember);
@@ -188,11 +197,29 @@ export class PublicEventsService {
         }
     }
 
+    /**
+     * Forgets the guest on this device. Removes the guest details and the
+     * guest token from local and session storage, so the next visitor
+     * must enter their own details.
+     */
+    public forgetGuest() {
+        for (const storage of ['local', 'session'] as const) {
+            setStorage(storage);
+            invalidateToken();
+        }
+        localStorage.removeItem(GUEST_STORAGE_KEY);
+        sessionStorage.removeItem(GUEST_STORAGE_KEY);
+        this._guest_remembered = false;
+        this._guest_version += 1;
+        this.guest.set(null);
+        this.events.set([]);
+    }
+
     private _addRecaptcha(key: string) {
         if (!key || document.getElementById('placeos-recaptcha')) return;
         const script = document.createElement('script');
         script.id = 'placeos-recaptcha';
-        script.src = `https://www.google.com/recaptcha/api.js?render=${key}`;
+        script.src = `https://www.google.com/recaptcha/api.js?render=${encodeURIComponent(key)}`;
         document.body.appendChild(script);
     }
 
@@ -228,7 +255,9 @@ export class PublicEventsService {
         });
     }
 
+    /** Error text to show. A forgotten guest shows no error. */
     private _message(err: unknown) {
+        if (err instanceof GuestForgottenError) return '';
         return err instanceof Error ? err.message : `${err}`;
     }
 

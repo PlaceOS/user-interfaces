@@ -557,7 +557,10 @@ export class GroupEventDetailsModalComponent implements OnInit {
         const system_id = this.calendar_space().id;
         const event_id = this.event()?.id;
         if (!system_id || !event_id) return '';
-        const path = `${this.public_url_path() || '/public'}`.replace(
+        // Use the setting only when it is a path. A value such as
+        // `@other.host` or `.other.host` would change the host of the link.
+        const setting = `${this.public_url_path() || ''}`;
+        const path = (setting.startsWith('/') ? setting : '/public').replace(
             /\/$/,
             '',
         );

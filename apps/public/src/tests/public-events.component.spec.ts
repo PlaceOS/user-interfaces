@@ -25,6 +25,7 @@ function makeService() {
         init: vi.fn().mockResolvedValue(undefined),
         loadEvents: vi.fn().mockResolvedValue(undefined),
         register: vi.fn().mockResolvedValue(undefined),
+        forgetGuest: vi.fn(),
     };
 }
 
@@ -143,6 +144,23 @@ describe('PublicEventsComponent', () => {
         ).componentInstance as PublicEventsListComponent;
         list.refresh.emit();
         expect(service.loadEvents).toHaveBeenCalledTimes(2);
+    });
+
+    it('forgets the guest and asks for new details on "Not you?"', async () => {
+        service.authenticated.set(true);
+        service.guest.set({ name: 'A', email: 'a@b.com' });
+        param_map$.next(convertToParamMap({ system_id: 'sys-1' }));
+        const fixture = await init();
+        const button = [
+            ...fixture.nativeElement.querySelectorAll('button'),
+        ].find((el: HTMLElement) => el.textContent?.includes('Not you?'));
+
+        button.click();
+
+        expect(service.forgetGuest).toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledWith(['/guest-details'], {
+            queryParams: { system_id: 'sys-1' },
+        });
     });
 
     it('shows the event details when an event id is present in the route', async () => {

@@ -42,6 +42,23 @@ import { PublicPageShellComponent } from './public-page-shell.component';
                     </div>
                 }
 
+                @if (service.guest(); as guest) {
+                    <div
+                        class="mx-auto flex w-full max-w-xl items-center justify-center gap-2 text-sm"
+                    >
+                        <span class="opacity-70">
+                            Continuing as {{ guest.email }}.
+                        </span>
+                        <button
+                            class="font-medium underline"
+                            type="button"
+                            (click)="changeGuest()"
+                        >
+                            Not you?
+                        </button>
+                    </div>
+                }
+
                 @if (selected_event_id()) {
                     <placeos-public-event-details
                         [event]="selected_event()"
@@ -128,6 +145,14 @@ export class PublicEventsComponent implements OnInit {
     public async loadEvents() {
         if (!this.system_id()) return;
         await this.service.loadEvents(this.system_id());
+    }
+
+    /** Forgets the current guest, then asks for new guest details. */
+    public changeGuest() {
+        this.service.forgetGuest();
+        this._router.navigate(['/guest-details'], {
+            queryParams: this._guestDetailsQueryParams(),
+        });
     }
 
     public async register(event: PublicEvent) {
