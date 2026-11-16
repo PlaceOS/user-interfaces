@@ -23,8 +23,14 @@ import { EventWeekViewComponent } from './event-week-view.component';
                 }
             </div>
             <div class="flex flex-2 items-center justify-center space-x-2">
-                <div class="pl-4 font-medium">
+                <div class="pl-4 font-medium" aria-live="polite">
                     {{ options().date | date: 'MMM yyyy' }}
+                    @if (period() === 'week') {
+                        <span class="sr-only"
+                            >, {{ options().date | date: 'd MMMM' }} &ndash;
+                            {{ options().end | date: 'd MMMM' }}</span
+                        >
+                    }
                 </div>
                 <button
                     icon
@@ -49,6 +55,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
                     matRipple
                     class="rounded-3xl"
                     [class.inverse]="period() !== 'week'"
+                    [attr.aria-pressed]="period() === 'week'"
                     (click)="setPeriod('week')"
                 >
                     {{ 'COMMON.WEEK' | translate }}
@@ -58,6 +65,7 @@ import { EventWeekViewComponent } from './event-week-view.component';
                     matRipple
                     class="rounded-3xl"
                     [class.inverse]="period() !== 'month'"
+                    [attr.aria-pressed]="period() === 'month'"
                     (click)="setPeriod('month')"
                 >
                     {{ 'COMMON.MONTH' | translate }}

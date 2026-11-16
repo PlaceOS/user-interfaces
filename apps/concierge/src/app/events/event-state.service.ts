@@ -151,6 +151,7 @@ export class EventStateService extends AsyncHandler {
 
     public viewEvent(event: CalendarEvent) {
         const ref = this._dialog.open(GroupEventDetailsModalComponent, {
+            ariaLabel: event.title,
             data: {
                 event,
                 concierge: true,

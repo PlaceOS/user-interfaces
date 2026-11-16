@@ -33,10 +33,13 @@ import { PublicPageShellComponent } from './public-page-shell.component';
             [logo]="service.logo_url()"
             [configured]="!!system_id()"
         >
+            <!-- Stays mounted, so screen readers announce each change -->
+            <p role="status" class="sr-only">{{ service.loading() }}</p>
             @if (system_id()) {
                 @if (service.error()) {
                     <div
-                        class="bg-error-light text-error border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium shadow-sm"
+                        role="alert"
+                        class="bg-error-light border-error/25 mx-auto w-full max-w-xl rounded-xl border p-4 text-sm font-medium text-[color-mix(in_srgb,var(--error)_60%,black)] shadow-sm"
                     >
                         {{ service.error() }}
                     </div>

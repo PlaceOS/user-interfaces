@@ -44,7 +44,10 @@ import { EventStateService } from './event-state.service';
 @Component({
     selector: 'app-event-list',
     template: `
-        <div class="absolute inset-0 flex flex-col">
+        <div
+            class="absolute inset-0 flex flex-col"
+            [attr.inert]="has_calendar ? null : ''"
+        >
             <div class="flex items-center justify-between p-8">
                 <h2 class="text-2xl font-medium">
                     {{ 'APP.CONCIERGE.EVENTS_HEADER' | translate }}
@@ -67,6 +70,7 @@ import { EventStateService } from './event-state.service';
                     matRipple
                     class="rounded-3xl"
                     [class.inverse]="view() !== 'list'"
+                    [attr.aria-pressed]="view() === 'list'"
                     (click)="setView('list')"
                 >
                     <div class="flex items-center space-x-2">
@@ -79,6 +83,7 @@ import { EventStateService } from './event-state.service';
                     matRipple
                     class="rounded-3xl"
                     [class.inverse]="view() !== 'calendar'"
+                    [attr.aria-pressed]="view() === 'calendar'"
                     (click)="setView('calendar')"
                 >
                     <div class="flex items-center space-x-2">
@@ -93,6 +98,7 @@ import { EventStateService } from './event-state.service';
                 </div>
                 <mat-form-field appearance="outline" class="no-subscript w-32">
                     <mat-select
+                        [aria-label]="'FORM.PERIOD' | translate"
                         [ngModel]="period()"
                         (ngModelChange)="setPeriodType($event)"
                     >
@@ -106,6 +112,7 @@ import { EventStateService } from './event-state.service';
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="no-subscript w-64">
                     <mat-select
+                        [aria-label]="'FORM.DATE' | translate"
                         [ngModel]="selected_range()"
                         (ngModelChange)="setPeriod($event)"
                     >
@@ -118,6 +125,9 @@ import { EventStateService } from './event-state.service';
                 </mat-form-field>
                 <mat-form-field appearance="outline" class="no-subscript w-56">
                     <mat-select
+                        [aria-label]="
+                            'APP.CONCIERGE.BUILDINGS_LEVELS' | translate
+                        "
                         [ngModel]="zones()"
                         (ngModelChange)="updateZones($event)"
                         [placeholder]="'COMMON.LEVEL_ALL' | translate"
@@ -158,7 +168,7 @@ import { EventStateService } from './event-state.service';
         @if (!has_calendar) {
             <div class="absolute inset-0 z-50 flex items-center justify-center">
                 <div class="bg-base-100 absolute inset-0 opacity-80"></div>
-                <p class="max-w-lg text-lg opacity-70">
+                <p role="alert" class="relative max-w-lg text-lg opacity-70">
                     {{ 'APP.CONCIERGE.EVENTS_CONFIG_ERROR' | translate }}
                 </p>
             </div>

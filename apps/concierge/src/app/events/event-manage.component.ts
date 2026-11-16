@@ -163,7 +163,10 @@ const EMPTY = [];
                                 appearance="outline"
                                 class="no-subscript"
                             >
-                                <mat-select [formField]="form.view_access">
+                                <mat-select
+                                    [aria-label]="'COMMON.VISIBILITY' | translate"
+                                    [formField]="form.view_access"
+                                >
                                     <mat-option value="PRIVATE">{{
                                         'APP.CONCIERGE.EVENTS_DRAFT' | translate
                                     }}</mat-option>
@@ -291,12 +294,15 @@ const EMPTY = [];
                         </h3>
                         <div class="flex items-center space-x-2 pb-2">
                             <button
+                                type="button"
                                 btn
                                 matRipple
                                 class="flex-1"
-                                [class.inverse]="false"
                                 [class.inverse]="
                                     model().attendance_type !== 'ONSITE'
+                                "
+                                [attr.aria-pressed]="
+                                    model().attendance_type === 'ONSITE'
                                 "
                                 (click)="
                                     model.update((m) => ({
@@ -314,11 +320,15 @@ const EMPTY = [];
                                 </div>
                             </button>
                             <button
+                                type="button"
                                 btn
                                 matRipple
                                 class="flex-1"
                                 [class.inverse]="
                                     model().attendance_type !== 'ONLINE'
+                                "
+                                [attr.aria-pressed]="
+                                    model().attendance_type === 'ONLINE'
                                 "
                                 (click)="
                                     model.update((m) => ({
@@ -336,11 +346,15 @@ const EMPTY = [];
                                 </div>
                             </button>
                             <button
+                                type="button"
                                 btn
                                 matRipple
                                 class="flex-1"
                                 [class.inverse]="
                                     model().attendance_type !== 'ANY'
+                                "
+                                [attr.aria-pressed]="
+                                    model().attendance_type === 'ANY'
                                 "
                                 (click)="
                                     model.update((m) => ({
@@ -514,9 +528,10 @@ const EMPTY = [];
             </div>
         } @else {
             <div
+                role="status"
                 class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-4"
             >
-                <mat-spinner diameter="48"></mat-spinner>
+                <mat-spinner diameter="48" aria-hidden="true"></mat-spinner>
                 <p>
                     {{
                         (fetching()
