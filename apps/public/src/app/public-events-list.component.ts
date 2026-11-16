@@ -1,15 +1,14 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     afterNextRender,
+    computed,
     input,
     output,
     viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import {
-    eventDescription,
     eventDescriptionText,
     eventId,
     eventLocation,
@@ -22,7 +21,6 @@ import { PublicEvent } from './public-events.service';
 @Component({
     selector: 'placeos-public-events-list',
     imports: [RouterLink],
-    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <section
             class="border-base-300 bg-base-100/95 mx-auto w-full max-w-3xl space-y-4 rounded-xl border p-5 shadow-md backdrop-blur"
@@ -62,39 +60,35 @@ import { PublicEvent } from './public-events.service';
                 </div>
             } @else {
                 <div class="space-y-2">
-                    @for (event of events(); track eventId(event)) {
+                    @for (card of cards(); track card.id) {
                         <article
                             class="border-base-300 bg-base-200/80 hover:bg-base-100 flex flex-col gap-3 rounded-lg border p-4 shadow-sm transition sm:flex-row sm:items-start sm:justify-between"
                         >
                             <div class="space-y-1">
                                 <h3 class="text-lg font-medium">
-                                    {{ eventTitle(event) }}
+                                    {{ card.title }}
                                 </h3>
                                 <p class="text-sm font-medium">
-                                    {{ eventTime(event) }}
+                                    {{ card.time }}
                                 </p>
-                                @if (eventLocation(event)) {
+                                @if (card.location) {
                                     <p class="text-sm opacity-70">
-                                        {{ eventLocation(event) }}
+                                        {{ card.location }}
                                     </p>
                                 }
-                                @if (eventDescription(event)) {
+                                @if (card.description) {
                                     <p class="line-clamp-2 text-sm opacity-70">
-                                        {{ eventDescriptionText(event) }}
+                                        {{ card.description }}
                                     </p>
                                 }
                             </div>
                             <a
                                 class="border-base-300 bg-base-100 hover:bg-base-200 self-start rounded border px-4 py-2 text-sm font-medium shadow-sm"
-                                [routerLink]="[
-                                    '/events',
-                                    system_id(),
-                                    eventId(event),
-                                ]"
+                                [routerLink]="['/events', system_id(), card.id]"
                             >
                                 View details
                                 <span class="sr-only">
-                                    for {{ eventTitle(event) }}
+                                    for {{ card.title }}
                                 </span>
                             </a>
                         </article>
@@ -119,10 +113,17 @@ export class PublicEventsListComponent {
         afterNextRender(() => focusIfLost(this._heading().nativeElement));
     }
 
-    public readonly eventId = eventId;
-    public readonly eventTitle = eventTitle;
-    public readonly eventDescription = eventDescription;
-    public readonly eventDescriptionText = eventDescriptionText;
-    public readonly eventLocation = eventLocation;
-    public readonly eventTime = eventTime;
+    /**
+     * Text of each event card. It is made once per events list, as the
+     * description text and the times are slow to make.
+     */
+    public readonly cards = computed(() =>
+        this.events().map((event) => ({
+            id: eventId(event),
+            title: eventTitle(event),
+            time: eventTime(event),
+            location: eventLocation(event),
+            description: eventDescriptionText(event),
+        })),
+    );
 }

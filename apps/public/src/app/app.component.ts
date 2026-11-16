@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 
@@ -11,7 +11,6 @@ import { SettingsDebugPanelLauncherComponent } from '@placeos/components/setting
         }
         <router-outlet />
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             :host {
