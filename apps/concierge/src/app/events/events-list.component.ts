@@ -26,6 +26,7 @@ import {
     addDays,
     addMonths,
     addWeeks,
+    type Day,
     endOfDay,
     format,
     startOfMonth,
@@ -40,6 +41,54 @@ import {
 import { EventCalendarComponent } from './event-calendar.component';
 import { EventListingComponent } from './event-listing.component';
 import { EventStateService } from './event-state.service';
+
+/** A week or a month that the events list can show */
+interface PeriodOption {
+    id: number;
+    start: number;
+    end: number;
+    display: string;
+}
+
+/** The weeks or months from 6 months ago to 6 months ahead */
+function periodOptions(
+    period_type: 'week' | 'month',
+    week_start: Day,
+): PeriodOption[] {
+    const periods: PeriodOption[] = [];
+    let date = subMonths(Date.now(), 6).valueOf();
+    const end_date = addMonths(Date.now(), 6).valueOf();
+    if (period_type === 'month') {
+        date = startOfMonth(date).valueOf();
+    } else if (period_type === 'week') {
+        date = startOfWeek(date, { weekStartsOn: week_start }).valueOf();
+    }
+    while (date < end_date) {
+        if (period_type === 'week') {
+            const end = endOfDay(addDays(date, 6)).valueOf();
+            periods.push({
+                id: date,
+                start: date,
+                end,
+                display: `${format(date, 'EEE, do MMM')} – ${format(
+                    end,
+                    'do MMM',
+                )}`,
+            });
+            date = addDays(date, 7).valueOf();
+        } else if (period_type === 'month') {
+            const end = addDays(addMonths(date, 1), -1).valueOf();
+            periods.push({
+                id: date,
+                start: date,
+                end,
+                display: `${format(date, 'MMMM yyyy')}`,
+            });
+            date = addMonths(date, 1).valueOf();
+        } else break;
+    }
+    return periods;
+}
 
 @Component({
     selector: 'app-event-list',
@@ -204,7 +253,9 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     public readonly period = computed(() => this._state.options().period);
 
     public readonly view = signal<'list' | 'calendar'>('list');
-    public readonly period_list = signal<any[]>([]);
+    public readonly period_list = computed(() =>
+        periodOptions(this.period(), this._settings.get('app.week_start') || 0),
+    );
     public readonly selected_range = signal<number>(undefined);
     /** Currently selected level ids (empty = all levels) */
     public readonly zones = signal<string[]>([]);
@@ -219,14 +270,6 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
-        // Regenerate periods whenever the period type (week/month) changes
-        effect(() => {
-            this.period();
-            untracked(() => {
-                this._generatePeriods();
-                this._initPeriod();
-            });
-        });
         // Keep selected zones valid as the active building/region changes
         effect(() => {
             const levels = this.levels();
@@ -263,8 +306,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
 
     public ngOnInit() {
         this.subscription('poll_events', this._state.startPolling());
-        this._generatePeriods();
-        this._initPeriod();
+        // The route sets the period. Without a range, show the current period.
         this.subscription(
             'route.query',
             this._route.queryParamMap.subscribe((q) => {
@@ -277,8 +319,6 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                         false,
                     );
                 }
-                this._generatePeriods();
-
                 if (q.has('zone_ids')) {
                     const zones = (q.get('zone_ids') || '')
                         .split(',')
@@ -287,26 +327,23 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
                 }
 
                 if (q.has('range')) {
-                    this.timeout('update', () => {
-                        const id = parseInt(q.get('range'), 10);
-                        const item = this.period_list().find(
-                            (_) => id >= _.start && id < _.end,
-                        ) ||
-                            this.period_list()[0] || {
-                                start: id,
-                                end:
-                                    this._state.period === 'week'
-                                        ? addWeeks(id, 1).valueOf()
-                                        : addMonths(id, 1).valueOf(),
-                            };
-                        const range_id = item.id || id;
-                        this.selected_range.set(range_id);
-                        this._state.setOptions({
-                            date: item.start,
-                            end: item.end,
-                        });
-                        if (range_id !== id) this.setPeriod(range_id);
-                    });
+                    const id = parseInt(q.get('range'), 10);
+                    const item = this.period_list().find(
+                        (_) => id >= _.start && id < _.end,
+                    ) ||
+                        this.period_list()[0] || {
+                            id,
+                            start: id,
+                            end:
+                                this._state.period === 'week'
+                                    ? addWeeks(id, 1).valueOf()
+                                    : addMonths(id, 1).valueOf(),
+                        };
+                    this.selected_range.set(item.id);
+                    this._state.setOptions({ date: item.start, end: item.end });
+                    if (item.id !== id) this.setPeriod(item.id);
+                } else {
+                    this._initPeriod();
                 }
             }),
         );
@@ -347,90 +384,40 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         });
     }
 
+    /** Change the period type. The range is cleared, so the current period shows. */
     public setPeriodType(type: 'week' | 'month', set_route = true) {
         this._state.setOptions({ period: type });
         if (set_route) {
             this._router.navigate([], {
                 relativeTo: this._route,
-                queryParams: { period: type },
+                queryParams: { period: type, range: null },
                 queryParamsHandling: 'merge',
             });
         }
     }
 
     public setPeriod(id: number) {
-        this.timeout('set_period', () => {
-            const item =
-                this.period_list().find((_) => id >= _.start && id < _.end) ||
-                this.period_list()[0];
-            if (!item) return;
-            this.selected_range.set(item.id);
-            const { start, end } = item;
-            this._state.setOptions({ date: start, end });
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: { range: id },
-                queryParamsHandling: 'merge',
-            });
+        const item =
+            this.period_list().find((_) => id >= _.start && id < _.end) ||
+            this.period_list()[0];
+        if (!item) return;
+        this.selected_range.set(item.id);
+        const { start, end } = item;
+        this._state.setOptions({ date: start, end });
+        this._router.navigate([], {
+            relativeTo: this._route,
+            queryParams: { range: id },
+            queryParamsHandling: 'merge',
         });
     }
 
-    private _generatePeriods() {
-        this.timeout('generate_periods', async () => {
-            const periods = [];
-            const period_type = this.period();
-            let date = subMonths(Date.now(), 6).valueOf();
-            const end_date = addMonths(Date.now(), 6).valueOf();
-            const week_offset = this._settings.get('app.week_start') || 0;
-            if (period_type === 'month') {
-                date = startOfMonth(date).valueOf();
-            } else if (period_type === 'week') {
-                date = startOfWeek(date, {
-                    weekStartsOn: week_offset,
-                }).valueOf();
-            }
-            while (date < end_date) {
-                if (period_type === 'week') {
-                    const end = endOfDay(addDays(date, 6)).valueOf();
-                    periods.push({
-                        id: date,
-                        start: date,
-                        end,
-                        display: `${format(date, 'EEE, do MMM')} – ${format(
-                            end,
-                            'do MMM',
-                        )}`,
-                    });
-                    date = addDays(date, 7).valueOf();
-                } else if (period_type === 'month') {
-                    const end = addDays(addMonths(date, 1), -1).valueOf();
-                    periods.push({
-                        id: date,
-                        start: date,
-                        end,
-                        display: `${format(date, 'MMMM yyyy')}`,
-                    });
-                    date = addMonths(date, 1).valueOf();
-                } else break;
-            }
-            this.period_list.set(periods);
-        });
-    }
-
+    /** Show the period that contains the current time */
     private _initPeriod() {
-        this.timeout(
-            'update',
-            () => {
-                if (this.period_list().length) {
-                    let index = this.period_list().findIndex(
-                        (_) => _.start <= Date.now() && _.end >= Date.now(),
-                    );
-                    if (index < 0) index = 0;
-                    this.setPeriod(this.period_list()[index].id);
-                    this.selected_range.set(this.period_list()[index].id);
-                }
-            },
-            350,
-        );
+        const list = this.period_list();
+        if (!list.length) return;
+        const now = Date.now();
+        const item =
+            list.find((_) => _.start <= now && _.end >= now) || list[0];
+        this.setPeriod(item.id);
     }
 }

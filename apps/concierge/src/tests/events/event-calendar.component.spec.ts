@@ -59,7 +59,7 @@ describe('EventCalendarComponent', () => {
         expect(navigate).toHaveBeenCalledWith(
             [],
             expect.objectContaining({
-                queryParams: { period: 'month' },
+                queryParams: { period: 'month', range: null },
                 queryParamsHandling: 'merge',
             }),
         );

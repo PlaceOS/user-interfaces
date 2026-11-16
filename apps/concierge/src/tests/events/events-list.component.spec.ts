@@ -6,6 +6,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { addDays, addWeeks, endOfDay, startOfWeek } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { Subscription } from 'rxjs';
 
@@ -96,7 +97,9 @@ describe('EventsListComponent', () => {
         expect(set_options).toHaveBeenCalledWith({ period: 'month' });
         expect(navigate).toHaveBeenCalledWith(
             [],
-            expect.objectContaining({ queryParams: { period: 'month' } }),
+            expect.objectContaining({
+                queryParams: { period: 'month', range: null },
+            }),
         );
     });
 
@@ -139,5 +142,24 @@ describe('EventsListComponent', () => {
 
     it('should default to the list view', () => {
         expect(spectator.component.view()).toBe('list');
+    });
+
+    it('should show the week of the route range at once', () => {
+        const week = startOfWeek(addWeeks(Date.now(), -4)).valueOf();
+        const route = spectator.activatedRouteStub;
+        route.setQueryParam('range', `${addDays(week, 2).valueOf()}`);
+        route.triggerNavigation();
+        const navigate = vi.spyOn(spectator.inject(Router), 'navigate');
+        spectator.component.ngOnInit();
+
+        expect(set_options).toHaveBeenLastCalledWith({
+            date: week,
+            end: endOfDay(addDays(week, 6)).valueOf(),
+        });
+        expect(spectator.component.selected_range()).toBe(week);
+        expect(navigate).toHaveBeenCalledWith(
+            [],
+            expect.objectContaining({ queryParams: { range: week } }),
+        );
     });
 });

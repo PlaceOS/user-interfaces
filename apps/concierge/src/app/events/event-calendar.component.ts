@@ -117,11 +117,12 @@ export class EventCalendarComponent {
             this.options().end > Date.now(),
     );
 
+    /** Change the period type. The range is cleared, so the current period shows. */
     public setPeriod(period: 'week' | 'month') {
         this._state.setOptions({ period });
         this._router.navigate([], {
             relativeTo: this._route,
-            queryParams: { period },
+            queryParams: { period, range: null },
             queryParamsHandling: 'merge',
         });
     }
