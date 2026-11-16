@@ -57,16 +57,17 @@ import { EventStateService } from './event-state.service';
                         class="border-base-200 pointer-events-none relative flex min-h-10 min-w-336 flex-1 border-x border-b"
                     ></div>
                 }
-                @for (date of days(); track date + '' + i; let i = $index) {
+                @for (
+                    column of day_columns();
+                    track column.date + '' + i;
+                    let i = $index
+                ) {
                     <div
                         date
                         class="border-base-200 pointer-events-none absolute top-16 left-0 h-240 w-[calc(100%/7)] flex-1 border-r"
                         [style.transform]="'translateX(' + i * 100 + '%)'"
                     >
-                        @for (
-                            event of event_day_map()[dateString(date)] || [];
-                            track event.id
-                        ) {
+                        @for (event of column.events; track event.id) {
                             <button
                                 matRipple
                                 class="border-base-200 bg-base-100 hover:border-info pointer-events-auto absolute inset-x-1 overflow-hidden rounded-sm border py-1 pr-2 pl-3 shadow-sm"
@@ -81,7 +82,7 @@ import { EventStateService } from './event-state.service';
                                     class="h-full text-left text-sm opacity-70"
                                 >
                                     <span class="sr-only"
-                                        >{{ date | date: 'fullDate' }},
+                                        >{{ column.date | date: 'fullDate' }},
                                     </span>
                                     {{ event.date | date: 'shortTime' }} &mdash;
                                     {{ event.title }}
@@ -103,7 +104,7 @@ import { EventStateService } from './event-state.service';
                                 </ng-template>
                             </button>
                         }
-                        @if (isCurrentDay(date)) {
+                        @if (isCurrentDay(column.date)) {
                             <div
                                 now
                                 class="border-base-content absolute inset-x-0 h-0 border-y-2"
@@ -143,6 +144,14 @@ export class EventWeekViewComponent {
         .fill(0)
         .map((_, idx) => (idx % 12 ? idx % 12 : 12));
     public readonly event_day_map = this._state.event_day_map;
+    /** Days of the week, each with its events */
+    public readonly day_columns = computed(() => {
+        const day_map = this.event_day_map();
+        return this.days().map((date) => ({
+            date,
+            events: day_map[this.dateString(date)] || [],
+        }));
+    });
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
 

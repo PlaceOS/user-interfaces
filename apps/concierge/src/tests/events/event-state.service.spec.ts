@@ -12,7 +12,7 @@ import {
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
-import { endOfDay, startOfDay } from 'date-fns';
+import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 import { EventStateService } from '../../app/events/event-state.service';
@@ -117,23 +117,58 @@ describe('EventStateService', () => {
         expect(eventQueryCount()).toBe(1);
     });
 
-    it('should re-request events when options change', async () => {
+    it('should re-request events only when the period range changes', async () => {
         const date = startOfDay(Date.now()).valueOf();
         const end = endOfDay(Date.now()).valueOf();
-        spectator.service.setOptions({ date, end, zone_ids: ['lvl-1'] });
+        spectator.service.setOptions({ date, end });
 
         TestBed.flushEffects();
         await wait(350);
         expect(eventQueryCount()).toBe(1);
 
-        spectator.service.setOptions({
-            date,
-            end,
-            zone_ids: ['lvl-1', 'lvl-2'],
-        });
+        spectator.service.setOptions({ period: 'month', zone_ids: ['lvl-1'] });
+        TestBed.flushEffects();
+        await wait(350);
+        expect(eventQueryCount()).toBe(1);
+
+        spectator.service.setOptions({ end: end + 1 });
         TestBed.flushEffects();
         await wait(350);
         expect(eventQueryCount()).toBe(2);
+    });
+
+    it('should filter the loaded events by the selected zones', async () => {
+        const date = startOfDay(Date.now()).valueOf();
+        const event = (id: string, zone: string) => ({
+            id,
+            event_start: getUnixTime(date),
+            event_end: getUnixTime(date) + 3600,
+            system: { id: `sys-${id}`, zones: [zone] },
+            attendees: [
+                {
+                    email: `${id}@example.com`,
+                    resource: true,
+                    zones: [zone],
+                },
+            ],
+            extension_data: { shared_event: true },
+        });
+        vi.mocked(ts_client.get).mockResolvedValue([
+            event('evt-1', 'lvl-1'),
+            event('evt-2', 'lvl-2'),
+        ] as any);
+        spectator.service.setOptions({ date, end: endOfDay(date).valueOf() });
+        TestBed.flushEffects();
+        await wait(350);
+        expect(spectator.service.event_list().map((_) => _.id)).toEqual([
+            'evt-1',
+            'evt-2',
+        ]);
+
+        spectator.service.setOptions({ zone_ids: ['lvl-2'] });
+        expect(spectator.service.event_list().map((_) => _.id)).toEqual([
+            'evt-2',
+        ]);
     });
 
     it('should not request events before the period is set', async () => {

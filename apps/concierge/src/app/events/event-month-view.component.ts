@@ -46,9 +46,8 @@ import { EventStateService } from './event-state.service';
                             {{ day.id | date: 'd' }}
                         </div>
                         @for (
-                            event of event_day_map()[dateString(day.id)] || []
-                                | slice: 0 : 3;
-                            track $any(event).id
+                            event of day.events | slice: 0 : 3;
+                            track event.id
                         ) {
                             <button
                                 matRipple
@@ -85,10 +84,7 @@ import { EventStateService } from './event-state.service';
                                 </ng-template>
                             </button>
                         }
-                        @if (
-                            (event_day_map()[dateString(day.id)] || []).length >
-                            3
-                        ) {
+                        @if (day.events.length > 3) {
                             <button
                                 matRipple
                                 matTooltip="More events"
@@ -101,22 +97,14 @@ import { EventStateService } from './event-state.service';
                                 {{
                                     'APP.CONCIERGE.EVENTS_MORE_COUNT'
                                         | translate
-                                            : {
-                                                  count:
-                                                      (
-                                                          event_day_map()[
-                                                              dateString(day.id)
-                                                          ] || []
-                                                      ).length - 3,
-                                              }
+                                            : { count: day.events.length - 3 }
                                 }}
                             </button>
                         }
                         <mat-menu #menu="matMenu">
                             @for (
-                                event of event_day_map()[dateString(day.id)] ||
-                                    [] | slice: 3;
-                                track $any(event).id
+                                event of day.events | slice: 3;
+                                track event.id
                             ) {
                                 <button
                                     mat-menu-item
@@ -125,7 +113,9 @@ import { EventStateService } from './event-state.service';
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-1">
                                             <span class="sr-only"
-                                                >{{ day.id | date: 'fullDate' }},
+                                                >{{
+                                                    day.id | date: 'fullDate'
+                                                }},
                                             </span>
                                             {{ $any(event).title }}
                                         </div>
@@ -179,20 +169,23 @@ export class EventMonthViewComponent {
         });
         return Array.from(Array(7).keys()).map((i) => addDays(start, i));
     });
+    public readonly event_day_map = this._state.event_day_map;
+    /** Days of the six week grid, each with its events */
     public readonly month_days = computed(() => {
         const start = startOfWeek(startOfMonth(this.month()), {
             weekStartsOn: this.offset_weekday,
         });
+        const day_map = this.event_day_map();
         return Array.from(Array(7 * 6).keys()).map((i) => {
             const date = addDays(start, i).valueOf();
             return {
                 id: date,
                 is_today: isSameDay(date, Date.now()),
                 is_month: isSameMonth(date, this.month()),
+                events: day_map[this.dateString(date)] || [],
             };
         });
     });
-    public readonly event_day_map = this._state.event_day_map;
 
     public readonly viewEvent = (event: any) => this._state.viewEvent(event);
 
