@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     DestroyRef,
     ElementRef,
@@ -29,7 +28,6 @@ const EMAIL_PATTERN =
 @Component({
     selector: 'placeos-public-guest-details',
     imports: [PublicPageShellComponent],
-    changeDetection: ChangeDetectionStrategy.Eager,
     template: `
         <placeos-public-page-shell
             [logo]="service.logo_url()"

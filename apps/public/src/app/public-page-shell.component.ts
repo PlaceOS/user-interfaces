@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 
 /**
  * Page layout of the public pages: the branded header, then the page content.
@@ -57,7 +57,6 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
             </section>
         </main>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             .bg-grad {

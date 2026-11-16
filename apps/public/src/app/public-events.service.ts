@@ -66,6 +66,8 @@ export class PublicEventsService {
     private _guest_remembered = !!this._rememberedGuestDetails();
     /** Changed by `forgetGuest`, so pending requests do not store the old guest */
     private _guest_version = 0;
+    /** Events source of the loaded `events`. Empty until a load succeeds. */
+    private _events_system_id = '';
 
     public readonly authority = signal<PlaceAuthority | null>(null);
     public readonly loading = signal('');
@@ -124,7 +126,8 @@ export class PublicEventsService {
             const resp = await fetch('/auth/authority');
             if (!resp.ok) throw new Error('Unable to load PlaceOS authority.');
             this.authority.set((await resp.json()) as PlaceAuthority);
-            this._addRecaptcha(this._recaptcha_key());
+            // Returning guests with a valid token do not need the check yet
+            if (!token(false)) this._addRecaptcha(this._recaptcha_key());
         } catch (err) {
             this.error.set(this._message(err));
         }
@@ -160,8 +163,14 @@ export class PublicEventsService {
         }
     }
 
-    public async loadEvents(system_id: string) {
+    /**
+     * Loads the events of `system_id`. The loaded list is kept, so moving
+     * between the list and an event does not load it again. Set `refresh`
+     * to load it again.
+     */
+    public async loadEvents(system_id: string, refresh = false) {
         this.error.set('');
+        if (!refresh && system_id === this._events_system_id) return;
         try {
             await this._ensureGuestAccess(system_id);
             this.loading.set('Loading public events...');
@@ -171,6 +180,7 @@ export class PublicEventsService {
             this.events.set(
                 (events || []).filter((event) => !isSystemEvent(event)),
             );
+            this._events_system_id = system_id;
         } catch (err) {
             this.error.set(this._message(err));
         } finally {
@@ -213,6 +223,7 @@ export class PublicEventsService {
         this._guest_version += 1;
         this.guest.set(null);
         this.events.set([]);
+        this._events_system_id = '';
     }
 
     private _addRecaptcha(key: string) {
@@ -226,6 +237,7 @@ export class PublicEventsService {
     private _runRecaptcha(action: string): Promise<string> {
         const key = this._recaptcha_key();
         if (!key) return Promise.resolve('');
+        this._addRecaptcha(key);
         return new Promise((resolve, reject) => {
             const attempt = (tries = 0) => {
                 if (window.grecaptcha) {

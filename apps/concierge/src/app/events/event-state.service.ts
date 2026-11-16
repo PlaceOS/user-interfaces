@@ -40,7 +40,29 @@ export class EventStateService extends AsyncHandler {
 
     public readonly options = signal<GroupEventOptions>({ period: 'week' });
     public readonly loading = signal<string>('');
-    public readonly event_list = signal<CalendarEvent[]>([]);
+    /** Group events of the loaded period, sorted by start time */
+    private readonly _events = signal<CalendarEvent[]>([]);
+    /**
+     * Period of the events request. Changes to the period type or the
+     * zones do not change it, so they do not make a new request.
+     */
+    private readonly _range = computed(
+        () => {
+            const { date, end } = this.options();
+            return { date, end };
+        },
+        { equal: (a, b) => a.date === b.date && a.end === b.end },
+    );
+    /** Loaded events in one of the selected zones. No zones selects all. */
+    public readonly event_list = computed(() => {
+        const zone_ids = this.options().zone_ids || [];
+        if (!zone_ids.length) return this._events();
+        return this._events().filter((event) =>
+            event.resources?.some((space) =>
+                (space.zones || []).some((zone) => zone_ids.includes(zone)),
+            ),
+        );
+    });
 
     /** Events grouped by `yyyy-MM-dd`, each with calendar `offset`/`length` */
     public readonly event_day_map = computed(() => {
@@ -63,43 +85,32 @@ export class EventStateService extends AsyncHandler {
         super();
         effect(() => {
             const bld = this._org.active_building();
-            const options = this.options();
+            const range = this._range();
             this._changed();
             this._poll();
             if (!bld) return;
-            this.timeout('load', () => this._load(options), 310);
+            this.timeout('load', () => this._load(range), 310);
         });
     }
 
-    private async _load(options: GroupEventOptions) {
+    private async _load(range: Pick<GroupEventOptions, 'date' | 'end'>) {
         // The events list sets the period range. Wait for it.
-        if (!options.date) return;
+        if (!range.date) return;
         this.loading.set(i18n('APP.CONCIERGE.EVENTS_LOADING'));
         try {
-            let list = await queryEventsOrThrow({
-                period_start: getUnixTime(startOfDay(options.date)),
-                period_end: getUnixTime(
-                    endOfDay(options.end || options.date || Date.now()),
-                ),
+            const list = await queryEventsOrThrow({
+                period_start: getUnixTime(startOfDay(range.date)),
+                period_end: getUnixTime(endOfDay(range.end || range.date)),
                 calendars: this.calendar,
             });
-            const zone_ids = options.zone_ids || [];
-            if (zone_ids.length) {
-                list = list.filter((event) =>
-                    event.resources?.some((space) =>
-                        (space.zones || []).some((zone) =>
-                            zone_ids.includes(zone),
-                        ),
-                    ),
-                );
-            }
-            list = list
-                .filter((_) => _.extension_data?.shared_event)
-                .sort((a, b) => a.date - b.date);
-            this.event_list.set(list);
+            this._events.set(
+                list
+                    .filter((_) => _.extension_data?.shared_event)
+                    .sort((a, b) => a.date - b.date),
+            );
         } catch (e) {
             // An empty list with an error, so a failed load does not look like no events
-            this.event_list.set([]);
+            this._events.set([]);
             notifyError(
                 i18n('APP.CONCIERGE.EVENTS_LIST_ERROR', {
                     error: errorText(e),

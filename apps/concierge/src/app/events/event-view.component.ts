@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     CalendarEvent,
+    EventExtensionData,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -79,17 +80,19 @@ export class EventViewComponent extends AsyncHandler implements OnInit {
         const calendar =
             this._settings.get<string>('app.group_events_calendar') || '';
         this.loading.set(true);
-        const space_pipe = new SpacePipe();
         const booking = await showEvent(id, { calendar }).catch(() => null);
         if (!booking) return this.loading.set(false);
-        const space = await space_pipe.transform(calendar);
-        const metadata = await showEventMetadata(
-            id,
-            space?.id || booking.system?.id,
-            {
-                ical_uid: booking.ical_uid,
-            },
-        ).catch(() => ({}));
+        // Group events already include their current metadata, and the
+        // metadata route can return an old record. Only other events need it.
+        let metadata: Partial<EventExtensionData> = {};
+        if (!booking.extension_data?.shared_event) {
+            const space = await new SpacePipe().transform(calendar);
+            metadata = await showEventMetadata(
+                id,
+                space?.id || booking.system?.id,
+                { ical_uid: booking.ical_uid },
+            ).catch(() => ({}));
+        }
         this.event.set(
             new CalendarEvent({
                 ...booking,

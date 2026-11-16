@@ -1,5 +1,4 @@
 import {
-    ChangeDetectionStrategy,
     Component,
     ElementRef,
     afterRenderEffect,
@@ -102,7 +101,6 @@ import { PublicEvent } from './public-events.service';
             }
         </section>
     `,
-    changeDetection: ChangeDetectionStrategy.Eager,
     styles: [
         `
             :host ::ng-deep .event-description p {

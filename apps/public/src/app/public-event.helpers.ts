@@ -88,6 +88,18 @@ export function eventLocation(event: PublicEvent) {
     return event.location || event.location_name || event.space_name || '';
 }
 
+/** Made once, as `Intl.DateTimeFormat` objects are slow to make */
+const DATE_FORMAT = new Intl.DateTimeFormat(undefined, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+});
+const TIME_FORMAT = new Intl.DateTimeFormat(undefined, {
+    hour: 'numeric',
+    minute: '2-digit',
+});
+
 export function eventTime(event: PublicEvent) {
     const start = toDate(
         event.event_start || event.date_start || event.start || event.starts_at,
@@ -96,28 +108,15 @@ export function eventTime(event: PublicEvent) {
         event.event_end || event.date_end || event.end || event.ends_at,
     );
     if (!start) return 'Time to be confirmed';
-    const date = new Intl.DateTimeFormat(undefined, DATE_FORMAT);
-    const time = new Intl.DateTimeFormat(undefined, TIME_FORMAT);
-    const start_text = `${date.format(start)}, ${time.format(start)}`;
+    const start_text = `${DATE_FORMAT.format(start)}, ${TIME_FORMAT.format(start)}`;
     if (!end) return start_text;
     // An event that ends on a later day shows the end date too
     const end_text =
         end.toDateString() === start.toDateString()
-            ? time.format(end)
-            : `${date.format(end)}, ${time.format(end)}`;
+            ? TIME_FORMAT.format(end)
+            : `${DATE_FORMAT.format(end)}, ${TIME_FORMAT.format(end)}`;
     return `${start_text} - ${end_text}`;
 }
-
-const DATE_FORMAT: Intl.DateTimeFormatOptions = {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-};
-const TIME_FORMAT: Intl.DateTimeFormatOptions = {
-    hour: 'numeric',
-    minute: '2-digit',
-};
 
 function toDate(value: unknown) {
     if (!value) return null;
