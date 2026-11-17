@@ -2288,9 +2288,7 @@
         "GROUP_NEW_HEADING": "Nuovo gruppo di segnaletica",
         "GROUP_SAVING": "Salvataggio gruppo di segnaletica...",
         "GROUP_SELECT_DETAILS": "Seleziona un gruppo per visualizzarne i dettagli.",
-        "HIDE_APPROVAL_CHANGES": "Nascondi modifiche di approvazione",
         "HOURS_BETWEEN_PLAYS": "Ore tra le riproduzioni",
-        "ITEM_ACTIONS": "Azioni elemento",
         "LOADING_PLAYLIST_ITEMS": "Caricamento elementi lista di riproduzione...",
         "LOADING_PLUGIN_DETAILS": "Caricamento dettagli componente aggiuntivo...",
         "LOADING_PLUGIN_PREVIEW": "Caricamento anteprima componente aggiuntivo...",
@@ -2460,7 +2458,6 @@
         "SHARE": "Condividi",
         "SHARE_PLAYLIST_TOOLTIP": "Condividi lista di riproduzione",
         "SHARE_SELECTED_PLAYLIST": "Condividi lista di riproduzione selezionata",
-        "SHOW_APPROVAL_CHANGES": "Mostra modifiche di approvazione",
         "SHOW_NEXT_DAY": "Mostra giorno successivo",
         "SHOW_PREVIOUS_DAY": "Mostra giorno precedente",
         "SHOW_TODAY": "Mostra oggi",
@@ -2594,6 +2591,8 @@
         "ZONE_SELECT_DETAILS": "Seleziona una zona per visualizzarne i dettagli.",
         "SVC_REMOVING": "Rimozione in corso...",
         "SCHEDULE_UNTIL_FROM_NOW": "termina tra {{ time }}",
-        "SCHEDULE_UNTIL_AGO": "terminato {{ time }} fa"
+        "SCHEDULE_UNTIL_AGO": "terminato {{ time }} fa",
+        "ACTIONS_FOR": "Azioni per {{ name }}",
+        "EDIT_NAMED": "Modifica {{ name }}"
     }
 }

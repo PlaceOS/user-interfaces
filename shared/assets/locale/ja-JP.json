@@ -2288,9 +2288,7 @@
         "GROUP_NEW_HEADING": "新しいサイネージグループ",
         "GROUP_SAVING": "サイネージグループを保存中...",
         "GROUP_SELECT_DETAILS": "詳細を表示するグループを選択してください。",
-        "HIDE_APPROVAL_CHANGES": "承認変更を非表示",
         "HOURS_BETWEEN_PLAYS": "再生間隔（時間）",
-        "ITEM_ACTIONS": "項目の操作",
         "LOADING_PLAYLIST_ITEMS": "プレイリスト項目を読み込み中...",
         "LOADING_PLUGIN_DETAILS": "プラグイン詳細を読み込み中...",
         "LOADING_PLUGIN_PREVIEW": "プラグインプレビューを読み込み中...",
@@ -2460,7 +2458,6 @@
         "SHARE": "共有",
         "SHARE_PLAYLIST_TOOLTIP": "プレイリストを共有",
         "SHARE_SELECTED_PLAYLIST": "選択したプレイリストを共有",
-        "SHOW_APPROVAL_CHANGES": "承認変更を表示",
         "SHOW_NEXT_DAY": "翌日を表示",
         "SHOW_PREVIOUS_DAY": "前日を表示",
         "SHOW_TODAY": "今日を表示",
@@ -2594,6 +2591,8 @@
         "ZONE_SELECT_DETAILS": "詳細を表示するゾーンを選択してください。",
         "SVC_REMOVING": "削除しています...",
         "SCHEDULE_UNTIL_FROM_NOW": "{{ time }}後まで",
-        "SCHEDULE_UNTIL_AGO": "{{ time }}前に終了"
+        "SCHEDULE_UNTIL_AGO": "{{ time }}前に終了",
+        "ACTIONS_FOR": "{{ name }} の操作",
+        "EDIT_NAMED": "{{ name }} を編集"
     }
 }

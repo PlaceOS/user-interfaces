@@ -2289,9 +2289,7 @@
         "GROUP_NEW_HEADING": "新建数字标牌组",
         "GROUP_SAVING": "正在保存数字标牌组...",
         "GROUP_SELECT_DETAILS": "选择组以查看其详情。",
-        "HIDE_APPROVAL_CHANGES": "隐藏审批变更",
         "HOURS_BETWEEN_PLAYS": "播放间隔小时数",
-        "ITEM_ACTIONS": "项目操作",
         "LOADING_PLAYLIST_ITEMS": "正在加载播放列表项目...",
         "LOADING_PLUGIN_DETAILS": "正在加载插件详情...",
         "LOADING_PLUGIN_PREVIEW": "正在加载插件预览...",
@@ -2461,7 +2459,6 @@
         "SHARE": "共享",
         "SHARE_PLAYLIST_TOOLTIP": "共享播放列表",
         "SHARE_SELECTED_PLAYLIST": "共享所选播放列表",
-        "SHOW_APPROVAL_CHANGES": "显示审批变更",
         "SHOW_NEXT_DAY": "显示下一天",
         "SHOW_PREVIOUS_DAY": "显示上一天",
         "SHOW_TODAY": "显示今天",
@@ -2595,6 +2592,8 @@
         "ZONE_SELECT_DETAILS": "选择区域以查看其详情。",
         "SVC_REMOVING": "正在删除...",
         "SCHEDULE_UNTIL_FROM_NOW": "{{ time }}后结束",
-        "SCHEDULE_UNTIL_AGO": "已于 {{ time }}前结束"
+        "SCHEDULE_UNTIL_AGO": "已于 {{ time }}前结束",
+        "ACTIONS_FOR": "{{ name }} 的操作",
+        "EDIT_NAMED": "编辑 {{ name }}"
     }
 }

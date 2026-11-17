@@ -327,6 +327,8 @@ interface BrandColour {
                     <input
                         #logo_input
                         type="file"
+                        tabindex="-1"
+                        aria-hidden="true"
                         class="sr-only"
                         accept="image/png,image/jpeg,image/webp,image/svg+xml"
                         [attr.aria-label]="

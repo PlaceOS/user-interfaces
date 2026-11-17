@@ -151,8 +151,13 @@ interface AdGroupRow {
                                                 | translate
                                         "
                                         [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.AD_GROUP_EDIT_PERMS'
+                                            'SIGNAGE_MANAGER.EDIT_NAMED'
                                                 | translate
+                                                    : {
+                                                          name:
+                                                              row.name ||
+                                                              row.id,
+                                                      }
                                         "
                                         (click)="editMapping(row)"
                                     >
@@ -169,8 +174,13 @@ interface AdGroupRow {
                                                 | translate
                                         "
                                         [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.AD_GROUP_REMOVE'
+                                            'COMMON.REMOVE_ITEM'
                                                 | translate
+                                                    : {
+                                                          item:
+                                                              row.name ||
+                                                              row.id,
+                                                      }
                                         "
                                         (click)="removeMapping(row.id)"
                                     >

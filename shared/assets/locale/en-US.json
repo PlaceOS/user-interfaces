@@ -2414,7 +2414,6 @@
         "BULK_UPLOAD_CLOSE": "Close",
         "BULK_UPLOAD_CLOSE_ARIA": "Close bulk upload",
         "BULK_UPLOAD_FAILED": "{{ count }} media files failed to upload.",
-        "BULK_UPLOAD_REMOVE_ARIA": "Remove file from upload list",
         "BULK_UPLOAD_RETRY": "Retry failed ({{ count }})",
         "BULK_UPLOAD_START": "Upload files ({{ count }})",
         "BULK_UPLOAD_STOPPING": "Stopping after the current file...",
@@ -2544,9 +2543,7 @@
         "GROUP_NEW_HEADING": "New signage group",
         "GROUP_SAVING": "Saving signage group...",
         "GROUP_SELECT_DETAILS": "Select a group to view its details.",
-        "HIDE_APPROVAL_CHANGES": "Hide approval changes",
         "HOURS_BETWEEN_PLAYS": "Hours between plays",
-        "ITEM_ACTIONS": "Item Actions",
         "LOADING_PLAYLIST_ITEMS": "Loading playlist items...",
         "LOADING_PLUGIN_DETAILS": "Loading plugin details...",
         "LOADING_PLUGIN_PREVIEW": "Loading plugin preview...",
@@ -2869,7 +2866,6 @@
         "SHARE_SELECTED_PLAYLIST": "Share selected playlist",
         "SHARE_SELECTED_TEMPLATE": "Share selected template",
         "SHARE_TEMPLATE_TOOLTIP": "Share template",
-        "SHOW_APPROVAL_CHANGES": "Show approval changes",
         "SHOW_NEXT_DAY": "Show next day",
         "SHOW_PREVIOUS_DAY": "Show previous day",
         "SHOW_TODAY": "Show today",
@@ -3076,7 +3072,6 @@
         "TEMPLATE_POSITION_LEFT": "Left Sidebar",
         "TEMPLATE_POSITION_RIGHT": "Right Sidebar",
         "TEMPLATE_POSITION_TOP": "Header",
-        "TEMPLATE_REMOVE_LAYOUT": "Remove layout item",
         "TEMPLATE_SAVED": "Template saved",
         "TEMPLATE_SAVE_ERROR": "Error saving template",
         "TEMPLATE_SAVING": "Saving Template...",
@@ -3131,6 +3126,8 @@
         "ZONE_SELECT_DETAILS": "Select a zone to view its details.",
         "BRAND_DISABLED": "Branding changes are turned off.",
         "SCHEDULE_UNTIL_FROM_NOW": "until {{ time }} from now",
-        "SCHEDULE_UNTIL_AGO": "until {{ time }} ago"
+        "SCHEDULE_UNTIL_AGO": "until {{ time }} ago",
+        "ACTIONS_FOR": "Actions for {{ name }}",
+        "EDIT_NAMED": "Edit {{ name }}"
     }
 }

@@ -144,8 +144,8 @@ function uploadErrorMessage(error: unknown) {
                                 [disabled]="uploading()"
                                 (click)="removeRow(row)"
                                 [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.BULK_UPLOAD_REMOVE_ARIA'
-                                        | translate
+                                    'COMMON.REMOVE_ITEM'
+                                        | translate: { item: row.name }
                                 "
                             >
                                 <icon>delete</icon>

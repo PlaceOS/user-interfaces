@@ -349,8 +349,9 @@ export class MediaTagChipsComponent {
                                     [matMenuTriggerFor]="menu"
                                     [matMenuTriggerData]="{ item: media_item }"
                                     [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.MEDIA_ACTIONS'
+                                        'SIGNAGE_MANAGER.ACTIONS_FOR'
                                             | translate
+                                                : { name: media_item.name }
                                     "
                                 >
                                     <icon>more_vert</icon>
@@ -458,8 +459,9 @@ export class MediaTagChipsComponent {
                                             item: media_item,
                                         }"
                                         [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.MEDIA_ACTIONS'
+                                            'SIGNAGE_MANAGER.ACTIONS_FOR'
                                                 | translate
+                                                    : { name: media_item.name }
                                         "
                                     >
                                         <icon>more_vert</icon>

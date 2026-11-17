@@ -127,12 +127,6 @@ export interface TemplateRequestApprovalModalResult {
                     class="border-base-300 bg-base-100 flex w-full items-center justify-between rounded-sm border p-2 text-left"
                     [class.bg-base-200]="show_preview()"
                     [attr.aria-pressed]="show_preview()"
-                    [attr.aria-label]="
-                        (show_preview()
-                            ? 'SIGNAGE_MANAGER.HIDE_APPROVAL_CHANGES'
-                            : 'SIGNAGE_MANAGER.SHOW_APPROVAL_CHANGES'
-                        ) | translate
-                    "
                     (click)="togglePreview()"
                 >
                     <div>

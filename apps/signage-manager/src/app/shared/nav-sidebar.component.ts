@@ -51,6 +51,7 @@ class NavScrollState {
                 logo
                 class="bg-base-100/80 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl shadow-xl"
                 [routerLink]="['/']"
+                [attr.aria-label]="'COMMON.HOME' | translate"
             >
                 @if (logo_src(); as logo) {
                     <img
@@ -147,7 +148,11 @@ class NavScrollState {
                         [matMenuTriggerFor]="language_menu"
                         [matTooltip]="active_locale_details()"
                         matTooltipPosition="right"
-                        [attr.aria-label]="'COMMON.LANGUAGE_SELECT' | translate"
+                        [attr.aria-label]="
+                            ('COMMON.LANGUAGE' | translate) +
+                            ': ' +
+                            (active_locale_label() | translate)
+                        "
                     >
                         <icon class="text-3xl">language</icon>
                         <div

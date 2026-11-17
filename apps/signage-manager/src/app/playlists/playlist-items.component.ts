@@ -208,8 +208,8 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                     [matMenuTriggerFor]="item_menu"
                                     (click)="$event.stopPropagation()"
                                     [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.ITEM_ACTIONS'
-                                            | translate
+                                        'SIGNAGE_MANAGER.ACTIONS_FOR'
+                                            | translate: { name: item.name }
                                     "
                                 >
                                     <icon>more_vert</icon>
@@ -454,8 +454,8 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                         "
                                         (click)="$event.stopPropagation()"
                                         [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.ITEM_ACTIONS'
-                                                | translate
+                                            'SIGNAGE_MANAGER.ACTIONS_FOR'
+                                                | translate: { name: item.name }
                                         "
                                     >
                                         <icon>more_vert</icon>

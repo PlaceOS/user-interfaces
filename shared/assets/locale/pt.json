@@ -2288,9 +2288,7 @@
         "GROUP_NEW_HEADING": "Novo grupo de sinalização",
         "GROUP_SAVING": "A guardar grupo de sinalização...",
         "GROUP_SELECT_DETAILS": "Selecione um grupo para ver os detalhes.",
-        "HIDE_APPROVAL_CHANGES": "Ocultar alterações de aprovação",
         "HOURS_BETWEEN_PLAYS": "Horas entre reproduções",
-        "ITEM_ACTIONS": "Ações do item",
         "LOADING_PLAYLIST_ITEMS": "A carregar itens da lista de reprodução...",
         "LOADING_PLUGIN_DETAILS": "A carregar detalhes da extensão...",
         "LOADING_PLUGIN_PREVIEW": "A carregar pré-visualização da extensão...",
@@ -2460,7 +2458,6 @@
         "SHARE": "Partilhar",
         "SHARE_PLAYLIST_TOOLTIP": "Partilhar lista de reprodução",
         "SHARE_SELECTED_PLAYLIST": "Partilhar lista de reprodução selecionada",
-        "SHOW_APPROVAL_CHANGES": "Mostrar alterações de aprovação",
         "SHOW_NEXT_DAY": "Mostrar dia seguinte",
         "SHOW_PREVIOUS_DAY": "Mostrar dia anterior",
         "SHOW_TODAY": "Mostrar hoje",
@@ -2594,6 +2591,8 @@
         "ZONE_SELECT_DETAILS": "Selecione uma zona para ver os detalhes.",
         "SVC_REMOVING": "A remover...",
         "SCHEDULE_UNTIL_FROM_NOW": "termina daqui a {{ time }}",
-        "SCHEDULE_UNTIL_AGO": "terminou há {{ time }}"
+        "SCHEDULE_UNTIL_AGO": "terminou há {{ time }}",
+        "ACTIONS_FOR": "Ações de {{ name }}",
+        "EDIT_NAMED": "Editar {{ name }}"
     }
 }

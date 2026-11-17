@@ -43,7 +43,7 @@ import { ImageGenReference } from './image-gen.types';
                         <button
                             icon
                             type="button"
-                            class="bg-base-100/80 absolute top-0 right-0 h-5 w-5 rounded-bl text-xs"
+                            class="bg-base-100/80 absolute top-0 right-0 h-6 w-6 rounded-bl text-xs"
                             [matTooltip]="
                                 'SIGNAGE_MANAGER.IMAGE_GEN_REFERENCE_REMOVE'
                                     | translate
@@ -81,6 +81,8 @@ import { ImageGenReference } from './image-gen.types';
         <input
             #picker
             type="file"
+            tabindex="-1"
+            aria-hidden="true"
             [attr.multiple]="max() > 1 ? '' : null"
             class="sr-only"
             accept="image/png,image/jpeg,image/webp"

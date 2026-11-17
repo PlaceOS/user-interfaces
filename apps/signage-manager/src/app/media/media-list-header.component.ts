@@ -406,6 +406,8 @@ import { SignageMediaService } from './signage-media.service';
                 <input
                     #upload_input
                     type="file"
+                    tabindex="-1"
+                    aria-hidden="true"
                     multiple
                     class="sr-only"
                     [attr.accept]="file_accept"

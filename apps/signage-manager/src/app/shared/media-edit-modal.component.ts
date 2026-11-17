@@ -346,6 +346,8 @@ function mediaSaveErrorMessage(error: unknown) {
                                 #thumbnail_input
                                 id="media-thumbnail"
                                 type="file"
+                                tabindex="-1"
+                                aria-hidden="true"
                                 class="sr-only"
                                 accept="image/*"
                                 [attr.aria-label]="

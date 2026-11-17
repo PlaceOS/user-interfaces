@@ -222,8 +222,14 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                         )
                                                     "
                                                     [attr.aria-label]="
-                                                        'COMMON.EDIT'
+                                                        'SIGNAGE_MANAGER.EDIT_NAMED'
                                                             | translate
+                                                                : {
+                                                                      name: card
+                                                                          .mapping
+                                                                          .template_details
+                                                                          .name,
+                                                                  }
                                                     "
                                                 >
                                                     <icon>edit</icon>
@@ -248,8 +254,14 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                             )
                                                         "
                                                         [attr.aria-label]="
-                                                            'COMMON.REMOVE'
+                                                            'COMMON.REMOVE_ITEM'
                                                                 | translate
+                                                                    : {
+                                                                          item: card
+                                                                              .mapping
+                                                                              .template_details
+                                                                              .name,
+                                                                      }
                                                         "
                                                     >
                                                         <icon>delete</icon>

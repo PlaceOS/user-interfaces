@@ -2288,9 +2288,7 @@
         "GROUP_NEW_HEADING": "Nouveau groupe d'affichage",
         "GROUP_SAVING": "Enregistrement du groupe d'affichage...",
         "GROUP_SELECT_DETAILS": "Sélectionnez un groupe pour afficher ses détails.",
-        "HIDE_APPROVAL_CHANGES": "Masquer les changements d'approbation",
         "HOURS_BETWEEN_PLAYS": "Heures entre les lectures",
-        "ITEM_ACTIONS": "Actions de l'élément",
         "LOADING_PLAYLIST_ITEMS": "Chargement des éléments de la liste de lecture...",
         "LOADING_PLUGIN_DETAILS": "Chargement des détails du module...",
         "LOADING_PLUGIN_PREVIEW": "Chargement de l'aperçu du module...",
@@ -2460,7 +2458,6 @@
         "SHARE": "Partager",
         "SHARE_PLAYLIST_TOOLTIP": "Partager la liste de lecture",
         "SHARE_SELECTED_PLAYLIST": "Partager la liste de lecture sélectionnée",
-        "SHOW_APPROVAL_CHANGES": "Afficher les changements d'approbation",
         "SHOW_NEXT_DAY": "Afficher le jour suivant",
         "SHOW_PREVIOUS_DAY": "Afficher le jour précédent",
         "SHOW_TODAY": "Afficher aujourd'hui",
@@ -2594,6 +2591,8 @@
         "ZONE_SELECT_DETAILS": "Sélectionnez une zone pour afficher ses détails.",
         "SVC_REMOVING": "Suppression...",
         "SCHEDULE_UNTIL_FROM_NOW": "se termine dans {{ time }}",
-        "SCHEDULE_UNTIL_AGO": "terminé il y a {{ time }}"
+        "SCHEDULE_UNTIL_AGO": "terminé il y a {{ time }}",
+        "ACTIONS_FOR": "Actions pour {{ name }}",
+        "EDIT_NAMED": "Modifier {{ name }}"
     }
 }

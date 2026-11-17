@@ -235,8 +235,15 @@ import {
                                                 removeLayout($event, $index)
                                             "
                                             [attr.aria-label]="
-                                                'SIGNAGE_MANAGER.TEMPLATE_REMOVE_LAYOUT'
+                                                'COMMON.REMOVE_ITEM'
                                                     | translate
+                                                        : {
+                                                              item:
+                                                                  (positionLabel(
+                                                                      layout.position
+                                                                  )
+                                                                  | translate),
+                                                          }
                                             "
                                         >
                                             <icon>delete</icon>

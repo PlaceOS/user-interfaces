@@ -135,7 +135,10 @@ const MEMBER_TEXT = {
                                 type="button"
                                 matRipple
                                 [matTooltip]="t.edit | translate"
-                                [attr.aria-label]="t.edit | translate"
+                                [attr.aria-label]="
+                                    'SIGNAGE_MANAGER.EDIT_NAMED'
+                                        | translate: { name: member.name }
+                                "
                                 (click)="edit.emit(member.row)"
                             >
                                 <icon>edit</icon>
@@ -147,7 +150,10 @@ const MEMBER_TEXT = {
                                 type="button"
                                 matRipple
                                 [matTooltip]="t.remove | translate"
-                                [attr.aria-label]="t.remove | translate"
+                                [attr.aria-label]="
+                                    'COMMON.REMOVE_ITEM'
+                                        | translate: { item: member.name }
+                                "
                                 (click)="remove.emit(member.row)"
                             >
                                 <icon>close</icon>
