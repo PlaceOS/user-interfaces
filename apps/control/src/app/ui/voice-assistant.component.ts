@@ -81,6 +81,8 @@ const PROGRESS_ICONS: Record<string, string> = {
                 ></button>
                 @if (status(); as status) {
                     <div
+                        animate.enter="motion-fade-in"
+                        animate.leave="motion-fade-out"
                         class="bg-base-100 text-base-content absolute top-1/2 right-full mr-2 flex w-max max-w-[30vw] -translate-y-1/2 items-center space-x-2 rounded-xl p-2 shadow-sm"
                         role="status"
                         aria-live="polite"

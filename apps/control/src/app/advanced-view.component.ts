@@ -18,6 +18,7 @@ const PAGE_SIZE = 6;
                     track output.id || output.name
                 ) {
                     <output-display
+                        animate.enter="motion-fade-in"
                         class="w-full min-w-[33%] sm:w-auto max-sm:landscape:w-1/2"
                         [item]="output"
                     ></output-display>

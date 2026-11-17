@@ -16,6 +16,7 @@ import { ControlStateService } from './control-state.service';
         @if (capture_mod()) {
             <div
                 recording
+                animate.enter="motion-fade-in"
                 class="divide-base-200 text-base-content flex items-center divide-x overflow-x-auto text-xs max-sm:w-full"
             >
                 <div hidden>
