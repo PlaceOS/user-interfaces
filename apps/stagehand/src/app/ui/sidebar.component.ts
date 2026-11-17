@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    afterNextRender,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,8 +14,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     OrganisationService,
-    SettingsService,
     settingSignal,
+    SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { firstValueFrom } from 'rxjs';
@@ -98,7 +104,7 @@ const COMPACT_SIGNAL = signal(
                         @if (!is_compact()) {
                             <div
                                 class="min-w-0 flex-1"
-                                animate.enter="stagehand-label-in"
+                                [animate.enter]="label_enter()"
                                 animate.leave="stagehand-fade-out"
                             >
                                 <div
@@ -112,7 +118,7 @@ const COMPACT_SIGNAL = signal(
                             </div>
                             <icon
                                 class="text-xl"
-                                animate.enter="stagehand-label-in"
+                                [animate.enter]="label_enter()"
                                 animate.leave="stagehand-fade-out"
                                 >unfold_more</icon
                             >
@@ -125,10 +131,7 @@ const COMPACT_SIGNAL = signal(
                 @let bld_list = building_list();
                 @if (r_list.length || bld_list.length) {
                     <!-- Fades in only, so the links move up at once on collapse -->
-                    <div
-                        class="space-y-2 p-2"
-                        animate.enter="stagehand-label-in"
-                    >
+                    <div class="space-y-2 p-2" [animate.enter]="label_enter()">
                         @if (r_list.length > 0) {
                             <label
                                 class="block px-1 text-xs font-medium tracking-wide uppercase"
@@ -209,7 +212,7 @@ const COMPACT_SIGNAL = signal(
                         @if (!is_compact()) {
                             <span
                                 class="truncate"
-                                animate.enter="stagehand-label-in"
+                                [animate.enter]="label_enter()"
                                 animate.leave="stagehand-fade-out"
                                 >{{ link.name }}</span
                             >
@@ -245,14 +248,14 @@ const COMPACT_SIGNAL = signal(
                         @if (!is_compact()) {
                             <span
                                 class="flex-1 truncate text-left text-sm"
-                                animate.enter="stagehand-label-in"
+                                [animate.enter]="label_enter()"
                                 animate.leave="stagehand-fade-out"
                                 >Dark Mode</span
                             >
                             <!-- aria-pressed gives the state -->
                             <span
                                 aria-hidden="true"
-                                animate.enter="stagehand-label-in"
+                                [animate.enter]="label_enter()"
                                 animate.leave="stagehand-fade-out"
                                 class="ml-auto rounded-full px-2 py-0.5 text-xs"
                                 [class.bg-success]="dark_mode()"
@@ -282,7 +285,7 @@ const COMPACT_SIGNAL = signal(
                     @if (!is_compact()) {
                         <span
                             class="flex-1 truncate text-left text-sm"
-                            animate.enter="stagehand-label-in"
+                            [animate.enter]="label_enter()"
                             animate.leave="stagehand-fade-out"
                             >Notifications</span
                         >
@@ -290,7 +293,7 @@ const COMPACT_SIGNAL = signal(
                     @if (notifications_active() && !is_compact()) {
                         <span
                             class="bg-success text-success-content ml-auto rounded-full px-2 py-0.5 text-xs"
-                            animate.enter="stagehand-label-in"
+                            [animate.enter]="label_enter()"
                             animate.leave="stagehand-fade-out"
                             >ON</span
                         >
@@ -315,7 +318,7 @@ const COMPACT_SIGNAL = signal(
                     @if (!is_compact()) {
                         <span
                             class="truncate text-sm"
-                            animate.enter="stagehand-label-in"
+                            [animate.enter]="label_enter()"
                             animate.leave="stagehand-fade-out"
                         >
                             Launch PlaceOS Backoffice
@@ -333,7 +336,7 @@ const COMPACT_SIGNAL = signal(
                     -->
                     <div
                         class="overflow-hidden"
-                        animate.enter="stagehand-label-in"
+                        [animate.enter]="label_enter()"
                         animate.leave="stagehand-fade-out"
                     >
                         <p class="stagehand-muted w-56 text-center text-xs">
@@ -379,6 +382,11 @@ export class SidebarComponent {
 
     public readonly push = inject(AlertNotificationService);
     public readonly is_compact = COMPACT_SIGNAL;
+    /**
+     * Enter animation of the labels. It is empty for the first render, so the
+     * labels fade in when the sidebar expands, but not when a page opens
+     */
+    public readonly label_enter = signal('');
     private readonly _allow_dark_mode = this._settings.signal(
         'allow_dark_mode',
         false,
@@ -466,6 +474,10 @@ export class SidebarComponent {
             ? buildings.filter((b) => scope.zones.has(b.id))
             : buildings;
     });
+
+    constructor() {
+        afterNextRender(() => this.label_enter.set('stagehand-label-in'));
+    }
 
     public regionById(id: string) {
         return this.region_list().find((r) => r.id === id) || null;
