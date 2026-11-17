@@ -40,10 +40,12 @@ import { ControlStateService } from '../control-state.service';
                 background-color: #1976d2;
             }
 
+            /* The fade in is here, as this rule overrides animate.enter classes */
             @media (prefers-reduced-motion: no-preference) {
                 :host {
-                    animation: crossfade 10s linear;
-                    animation-iteration-count: infinite;
+                    animation:
+                        motion-fade-in var(--motion-fast) var(--motion-ease),
+                        crossfade 10s linear infinite;
                 }
             }
         `,

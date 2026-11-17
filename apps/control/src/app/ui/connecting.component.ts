@@ -25,10 +25,13 @@ const SLOW_CONNECT_MS = 30 * 1000;
                 {{ 'APP.CONTROL.CONNECTING' | translate: { id: id() } }}
             </div>
             @if (slow()) {
-                <p class="mb-4 text-base opacity-60">
+                <p
+                    animate.enter="motion-fade-in"
+                    class="mb-4 text-base opacity-60"
+                >
                     {{ 'APP.CONTROL.CONNECTING_SLOW' | translate }}
                 </p>
-                <div class="flex space-x-2">
+                <div animate.enter="motion-fade-in" class="flex space-x-2">
                     <button btn matRipple class="w-40" (click)="retry()">
                         {{ 'APP.CONTROL.RETRY' | translate }}
                     </button>

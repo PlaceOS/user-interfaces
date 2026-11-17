@@ -22,9 +22,13 @@ import { VideoCallStateService } from './video-call-state.service';
                     <!-- Phones show the code above the keypad, as a phone dialler does.
                          The DOM order matches the visual order, so focus follows it. -->
                     @if (!mobile()) {
-                        <dialpad (pressed)="addDigit($event)"></dialpad>
+                        <dialpad
+                            animate.enter="motion-fade-in"
+                            (pressed)="addDigit($event)"
+                        ></dialpad>
                     }
                     <div
+                        animate.enter="motion-fade-in"
                         class="flex w-full max-w-xs flex-col sm:w-auto sm:max-w-none sm:pt-8"
                     >
                         <p class="px-2 pt-4">
@@ -88,6 +92,7 @@ import { VideoCallStateService } from './video-call-state.service';
                 </ng-container>
             } @else {
                 <div
+                    animate.enter="motion-fade-in"
                     class="flex flex-col items-center justify-center space-y-2 p-16"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>

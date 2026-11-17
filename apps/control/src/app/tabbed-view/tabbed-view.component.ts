@@ -24,6 +24,7 @@ import { TabOutletComponent } from './tab-outlet.component';
         @if (system()?.connected) {
             @if (system()?.active) {
                 <div
+                    animate.enter="motion-fade-in"
                     class="divide divide-base-200 bg-base-100 relative flex h-full w-full flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
                 >
                     <topbar-header></topbar-header>
@@ -47,6 +48,8 @@ import { TabOutletComponent } from './tab-outlet.component';
             @if (!join_status()[0] && join_status()[1]) {
                 <div
                     lockout
+                    animate.enter="motion-fade-in"
+                    animate.leave="motion-fade-out"
                     class="bg-base-100 absolute inset-0 flex flex-col items-center justify-center space-y-2 p-16"
                 >
                     <div class="absolute top-4 left-4 z-0">
@@ -63,7 +66,7 @@ import { TabOutletComponent } from './tab-outlet.component';
                 </div>
             }
         } @else {
-            <control-connecting />
+            <control-connecting animate.enter="motion-fade-in" />
         }
     `,
     styles: [

@@ -37,7 +37,7 @@ import {
     selector: '[video-call-page]',
     template: `
         @if (!loading()) {
-            <div class="h-full w-full p-2">
+            <div animate.enter="motion-fade-in" class="h-full w-full p-2">
                 <div class="flex flex-col sm:h-1/2 sm:flex-1 sm:flex-row">
                     <div
                         class="flex flex-1 flex-col items-center justify-center space-y-2 p-2"
@@ -218,6 +218,7 @@ import {
             </div>
         } @else {
             <div
+                animate.enter="motion-fade-in"
                 class="flex h-full w-full flex-col items-center justify-center space-y-2 p-24 text-black"
             >
                 <mat-spinner [diameter]="32"></mat-spinner>

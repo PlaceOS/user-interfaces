@@ -439,12 +439,14 @@ import { TVControlsComponent } from './tv-controls.component';
                     @if (call()) {
                         <div
                             video-call-page
+                            animate.enter="motion-fade-in"
                             [reserve_top]="!!tab()?.help && !mobile()"
                             [present_output]="tab()?.presentation_source"
                             [redirect]="false"
                         ></div>
                     } @else {
                         <div
+                            animate.enter="motion-fade-in"
                             class="flex flex-col items-center sm:flex-row sm:items-stretch sm:justify-center sm:space-x-8"
                         >
                             <!-- Phones show the dial view first, as calls are the main task.
