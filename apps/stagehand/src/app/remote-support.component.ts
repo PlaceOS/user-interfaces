@@ -30,7 +30,10 @@ import {
     SimpleTableComponent,
     ViewportVisibilityComponent,
 } from '@placeos/components';
-import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
+import {
+    CAMERA_SNAPSHOT_TITLE_ID,
+    CameraSnapshotModalComponent,
+} from './camera-snapshot-modal.component';
 import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
@@ -245,6 +248,8 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                             (click)="openCameraSnapshot(space)"
                             (mouseenter)="setHovering(true)"
                             (mouseleave)="setHovering(false)"
+                            (focus)="setHovering(true)"
+                            (blur)="setHovering(false)"
                             [attr.aria-label]="
                                 'View camera feed for ' +
                                 (space.display_name || space.name)
@@ -609,6 +614,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public openCameraSnapshot(space: Space) {
         this._dialog.open(CameraSnapshotModalComponent, {
+            ariaLabelledBy: CAMERA_SNAPSHOT_TITLE_ID,
             data: {
                 camera_snapshot_urls: space.camera_snapshot_urls,
                 camera_url: space.camera_url,

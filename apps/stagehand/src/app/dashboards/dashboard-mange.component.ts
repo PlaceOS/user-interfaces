@@ -1,3 +1,4 @@
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import {
     Component,
     inject,
@@ -26,14 +27,24 @@ import { DashboardsService } from './dashboards.service';
 @Component({
     selector: `stagehand-dashboard-manage`,
     template: `
-        <div class="bg-base-200 fixed inset-0 overflow-auto">
+        <!--
+            Covers the page. Focus stays in the editor and returns on close.
+            No aria-modal: the select panels render outside the editor
+        -->
+        <div
+            role="dialog"
+            aria-labelledby="dashboard-editor-title"
+            cdkTrapFocus
+            cdkTrapFocusAutoCapture
+            class="bg-base-200 fixed inset-0 overflow-auto"
+        >
             <div
                 class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x p-2"
             >
                 <header
                     class="bg-base-200 sticky top-0 z-10 mx-auto flex h-14 w-full max-w-156 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
-                    <h2 class="text-xl font-medium capitalize">
+                    <h2 id="dashboard-editor-title" class="text-xl font-medium capitalize">
                         {{
                             (model().id
                                 ? 'APP.STAGEHAND.DASHBOARD_EDIT'
@@ -54,7 +65,7 @@ import { DashboardsService } from './dashboards.service';
                         <icon>close</icon>
                     </a>
                 </header>
-                <main class="p-2">
+                <div class="p-2">
                     <form class="flex flex-col">
                         <label for="name"
                             >{{ 'FORM.NAME' | translate
@@ -64,6 +75,7 @@ import { DashboardsService } from './dashboards.service';
                             <input
                                 id="name"
                                 matInput
+                                cdkFocusInitial
                                 placeholder="Dashboard Name"
                                 [formField]="form.name"
                             />
@@ -84,7 +96,7 @@ import { DashboardsService } from './dashboards.service';
                             'COMMON.ENABLED' | translate
                         }}</settings-toggle>
                     </form>
-                </main>
+                </div>
                 <footer
                     class="bg-base-200 fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm p-2"
                 >
@@ -104,6 +116,7 @@ import { DashboardsService } from './dashboards.service';
     `,
     styles: [],
     imports: [
+        CdkTrapFocus,
         IconComponent,
         TranslatePipe,
         MatRippleModule,

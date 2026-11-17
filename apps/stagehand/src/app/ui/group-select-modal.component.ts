@@ -14,13 +14,18 @@ export interface GroupSelectModalData {
     show_all_groups?: boolean;
 }
 
+/** ID of the dialog title. Pass it as `ariaLabelledBy` to name the dialog. */
+export const GROUP_SELECT_TITLE_ID = 'group-select-title';
+
 @Component({
     selector: 'group-select-modal',
     template: `
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">Select support group</h2>
+            <h2 class="px-2 text-xl font-medium" [id]="title_id">
+                Select support group
+            </h2>
             <button
                 icon
                 type="button"
@@ -31,7 +36,8 @@ export interface GroupSelectModalData {
                 <icon>close</icon>
             </button>
         </header>
-        <main
+        <div
+            content
             class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
             @if (selected_hierarchy().length > 1) {
@@ -145,7 +151,7 @@ export interface GroupSelectModalData {
                     </div>
                 </div>
             }
-        </main>
+        </div>
     `,
     imports: [
         FormsModule,
@@ -157,6 +163,7 @@ export interface GroupSelectModalData {
     ],
 })
 export class GroupSelectModalComponent {
+    public readonly title_id = GROUP_SELECT_TITLE_ID;
     public readonly data = inject<GroupSelectModalData>(MAT_DIALOG_DATA);
     public readonly search = signal('');
     public readonly filtered_groups = computed(() => {
