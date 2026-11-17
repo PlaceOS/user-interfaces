@@ -35,9 +35,16 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [
         `
+            /* One of the crossfade colours, for the reduced motion setting */
             :host {
-                animation: crossfade 10s linear;
-                animation-iteration-count: infinite;
+                background-color: #1976d2;
+            }
+
+            @media (prefers-reduced-motion: no-preference) {
+                :host {
+                    animation: crossfade 10s linear;
+                    animation-iteration-count: infinite;
+                }
             }
         `,
     ],

@@ -17,6 +17,75 @@
     overflow: hidden;
 }
 
+/*
+ * Interface motion. Use these tokens for every interface animation, so that
+ * the reduced motion setting stops all of them. Animate only opacity and
+ * transform, as many room panels have slow GPUs.
+ */
+:root {
+    --motion-fast: 120ms;
+    --motion-base: 200ms;
+    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-fast: 0ms;
+        --motion-base: 0ms;
+    }
+}
+
+@keyframes motion-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-drop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+}
+
+/*
+ * Classes for `animate.enter` and `animate.leave`. The shared components
+ * (libs/components) use them too. Concierge has the same classes.
+ * - motion-fade-in: content that loaded or changed
+ * - motion-drop-in: content that opens below its control
+ * - motion-fade-out: content that closes
+ */
+.motion-fade-in {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
+.motion-drop-in {
+    animation: motion-drop-in var(--motion-base) var(--motion-ease);
+}
+
+/* A leaving element must not catch taps while it fades out */
+.motion-fade-out {
+    pointer-events: none;
+    animation: motion-fade-out var(--motion-fast) var(--motion-ease) forwards;
+}
+
+/*
+ * Page and tab changes (`withViewTransitions` in main.ts). The page
+ * cross-fades, so the top bar and status bar, which do not change, stay still.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease);
+}
+
 /* You can add global styles to this file, and also import other style files */
 
 html,
