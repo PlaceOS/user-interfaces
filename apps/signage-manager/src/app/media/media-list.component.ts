@@ -654,6 +654,8 @@ export class MediaTagChipsComponent {
 
         @if (selected_count() > 0) {
             <footer
+                animate.enter="motion-rise-in"
+                animate.leave="motion-rise-out"
                 class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
                 aria-live="polite"
             >

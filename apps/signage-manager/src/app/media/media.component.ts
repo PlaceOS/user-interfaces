@@ -28,6 +28,8 @@ import { SignageMediaService } from './signage-media.service';
                         />
                         @if (show_dropzone() && can_create()) {
                             <div
+                                animate.enter="motion-fade-in"
+                                animate.leave="motion-fade-out"
                                 class="absolute inset-0 z-20"
                                 (dragenter)="handleDragEnter($event)"
                                 (dragover)="handleDragOver($event)"

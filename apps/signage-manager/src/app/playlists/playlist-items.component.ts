@@ -97,7 +97,7 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                 <load-error class="flex-1" (retry)="reloadItems()" />
             } @else if (items().length > 0 && !is_distribution()) {
                 <div
-                    class="w-full flex-1 overflow-auto px-3 py-2"
+                    class="motion-sortable w-full flex-1 overflow-auto px-3 py-2"
                     cdkDropList
                     role="list"
                     (cdkDropListDropped)="onDrop($event)"
