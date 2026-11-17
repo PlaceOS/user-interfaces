@@ -3,6 +3,7 @@ import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
+import { setNotifyOutlet } from '@placeos/common';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 import { MockPipe, MockProvider, ngMocks } from 'ng-mocks';
 
@@ -195,10 +196,39 @@ describe('TabOutletComponent', () => {
     it('should route the selected input to all outputs on present-to-all', () => {
         const service: any = spectator.inject(ControlStateService);
         service.tabs.set([{ id: 'tab1', name: 'Tab 1', icon: 'tv' }]);
+        service.available_inputs.set([
+            { id: 'i1', name: 'Input 1' },
+            { id: 'i2', name: 'Input 2' },
+        ]);
+        service.system.set({ selected_input: 'i2' });
         service.output_list.set([{ id: 'o1' }, { id: 'o2' }]);
         spectator.detectChanges();
         spectator.component.presentToAll();
-        expect(service.routeToAll).toHaveBeenCalled();
+        expect(service.routeToAll).toHaveBeenCalledWith('i2');
+    });
+
+    it('should show an error on present-to-all when the tab has no active input', () => {
+        // Workspace modules cannot be mocked here, so spy on the snackbar that `notifyError` uses
+        const snackbar = {
+            open: vi.fn(() => ({
+                onAction: () => ({ subscribe: () => undefined }),
+                dismiss: () => undefined,
+            })),
+        };
+        setNotifyOutlet(snackbar as never, true);
+        const service: any = spectator.inject(ControlStateService);
+        service.tabs.set([{ id: 'tab1', name: 'Tab 1', icon: 'tv' }]);
+        service.available_inputs.set([
+            { id: 'i1', name: 'Input 1' },
+            { id: 'i2', name: 'Input 2' },
+        ]);
+        // Selected input is on another tab
+        service.system.set({ selected_input: 'other' });
+        spectator.detectChanges();
+        spectator.component.presentToAll();
+        expect(service.routeToAll).not.toHaveBeenCalled();
+        expect(snackbar.open).toHaveBeenCalled();
+        setNotifyOutlet(null, true);
     });
 
     it('should clear all outputs, enabled only when something is routed', () => {

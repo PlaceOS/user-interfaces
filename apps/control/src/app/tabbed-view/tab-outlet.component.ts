@@ -4,7 +4,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { AsyncHandler, log } from '@placeos/common';
+import { AsyncHandler, i18n, log, notifyError } from '@placeos/common';
 import {
     BindingDirective,
     IconComponent,
@@ -387,50 +387,61 @@ import { TVControlsComponent } from './tv-controls.component';
                     </div>
                 </div>
                 <div class="flex w-full items-center">
-                    <device-output-list
-                        class="min-w-0 flex-1"
-                    ></device-output-list>
+                    <!-- Actions for all displays. Shown first, at the height of a display card. -->
                     @if (outputs().length > 1) {
                         <div
                             output-actions
-                            class="flex flex-col space-y-2 px-4"
+                            role="group"
+                            aria-labelledby="present-options-title"
+                            class="bg-base-100 border-base-200 text-base-content m-2 flex h-40 w-36 shrink-0 flex-col gap-2 rounded-sm border p-2 shadow-sm"
                         >
+                            <div
+                                id="present-options-title"
+                                class="border-base-300 max-w-full self-start truncate rounded-full border px-2 py-1 text-xs"
+                            >
+                                {{ 'APP.CONTROL.PRESENT_OPTIONS' | translate }}
+                            </div>
                             @if (hide_present_all() !== true) {
                                 <button
                                     btn
                                     matRipple
                                     present-all
-                                    class="space-x-2"
+                                    class="w-full flex-1 justify-start! gap-2"
+                                    [attr.aria-label]="
+                                        'APP.CONTROL.PRESENT_ALL' | translate
+                                    "
                                     (click)="presentToAll()"
                                 >
                                     <icon aria-hidden="true" class="text-2xl"
                                         >output</icon
                                     >
-                                    <div class="pr-4">
-                                        {{
-                                            'APP.CONTROL.PRESENT_ALL'
-                                                | translate
-                                        }}
-                                    </div>
+                                    {{
+                                        'APP.CONTROL.PRESENT_ALL_SHORT'
+                                            | translate
+                                    }}
                                 </button>
                             }
                             <button
                                 btn
                                 matRipple
                                 clear-all
-                                class="inverse space-x-2"
+                                class="inverse w-full flex-1 justify-start! gap-2"
+                                [attr.aria-label]="
+                                    'APP.CONTROL.CLEAR_ALL' | translate
+                                "
                                 [disabled]="!has_routes()"
                                 (click)="clearAll()"
                             >
                                 <icon aria-hidden="true" class="text-2xl"
                                     >cancel_presentation</icon
                                 >
-                                <div class="pr-4">
-                                    {{ 'APP.CONTROL.CLEAR_ALL' | translate }}
-                                </div>
+                                {{ 'APP.CONTROL.CLEAR_SHORT' | translate }}
                             </button>
                         </div>
                     }
+                    <device-output-list
+                        class="min-w-0 flex-1"
+                    ></device-output-list>
                 </div>
             }
         </div>
@@ -677,10 +688,23 @@ export class TabOutletComponent extends AsyncHandler {
         });
     }
 
+    /**
+     * Show the active input on all displays.
+     * The active input is the selected input when it is on this tab, or else the only input of the tab.
+     * Shows an error when the tab has no active input.
+     */
     public presentToAll() {
-        const tab = this.tab();
-        if (!tab) return;
-        this._service.routeToAll();
+        if (!this.tab()) return;
+        const inputs = this.inputs();
+        const selected = this.system()?.selected_input;
+        const input =
+            inputs.find((_) => (_.id || _.name) === selected) ||
+            (inputs.length === 1 ? inputs[0] : undefined);
+        if (!input) {
+            notifyError(i18n('APP.CONTROL.PRESENT_ALL_NO_INPUT'));
+            return;
+        }
+        this._service.routeToAll(input.id);
     }
 
     public clearAll() {
