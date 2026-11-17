@@ -66,6 +66,12 @@
     }
 }
 
+@keyframes motion-slide-in-end {
+    from {
+        transform: translateX(100%);
+    }
+}
+
 @keyframes motion-pulse {
     from {
         opacity: 0.5;
@@ -79,6 +85,7 @@
  * - motion-fade-in: content that loaded or changed
  * - motion-rise-in / motion-rise-out: a floating bar or panel
  * - motion-drop-in: content that opens below its control
+ * - motion-slide-in-end: a side panel that opens from the end edge
  * - motion-fade-out: content that closes
  * - motion-pulse: a value that changed (PulseOnChangeDirective)
  */
@@ -92,6 +99,10 @@
 
 .motion-drop-in {
     animation: motion-drop-in var(--motion-base) var(--motion-ease);
+}
+
+.motion-slide-in-end {
+    animation: motion-slide-in-end var(--motion-base) var(--motion-ease);
 }
 
 .motion-pulse {

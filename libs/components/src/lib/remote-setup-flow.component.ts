@@ -106,18 +106,26 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                 </header>
                 @switch (state()) {
                     @case ('loading') {
-                        <div class="flex justify-center p-8">
+                        <div
+                            class="flex justify-center p-8"
+                            animate.enter="motion-fade-in"
+                        >
                             <mat-spinner [diameter]="32" aria-hidden="true" />
                         </div>
                     }
                     @case ('unavailable') {
-                        <p unavailable class="p-4">
+                        <p
+                            unavailable
+                            class="p-4"
+                            animate.enter="motion-fade-in"
+                        >
                             {{ 'COMMON.REMOTE_SETUP_UNAVAILABLE' | translate }}
                         </p>
                     }
                     @case ('list') {
                         <form
                             class="flex items-start gap-2 px-4 pt-4"
+                            animate.enter="motion-fade-in"
                             (ngSubmit)="selectDevice(device_input())"
                         >
                             <mat-form-field
@@ -148,10 +156,16 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                                 {{ 'COMMON.REMOTE_SETUP_OPEN' | translate }}
                             </button>
                         </form>
-                        <h2 class="px-4 pb-2 font-medium">
+                        <h2
+                            class="px-4 pb-2 font-medium"
+                            animate.enter="motion-fade-in"
+                        >
                             {{ 'COMMON.REMOTE_SETUP_DEVICES' | translate }}
                         </h2>
-                        <ul class="flex flex-col pb-2">
+                        <ul
+                            class="flex flex-col pb-2"
+                            animate.enter="motion-fade-in"
+                        >
                             @for (item of devices(); track item.id) {
                                 <li>
                                     <button
@@ -201,6 +215,7 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                         <form
                             clear-system
                             class="border-base-300 flex flex-col gap-2 border-t p-4"
+                            animate.enter="motion-fade-in"
                             (ngSubmit)="clearSystem()"
                         >
                             <h2 class="font-medium">
@@ -288,7 +303,7 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                         </form>
                     }
                     @case ('missing') {
-                        <p missing class="p-4">
+                        <p missing class="p-4" animate.enter="motion-fade-in">
                             {{
                                 'COMMON.REMOTE_SETUP_DEVICE_MISSING'
                                     | translate: { id: device_id() }
@@ -317,7 +332,7 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                         <ng-container [ngTemplateOutlet]="setup_form" />
                     }
                     @case ('other-app') {
-                        <p other-app class="p-4">
+                        <p other-app class="p-4" animate.enter="motion-fade-in">
                             {{
                                 'COMMON.REMOTE_SETUP_OTHER_APP'
                                     | translate
@@ -333,6 +348,7 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
                         @let item = device()!;
                         <section
                             class="border-base-300 flex flex-col gap-1 border-b p-4"
+                            animate.enter="motion-fade-in"
                         >
                             <div class="font-mono text-lg">{{ item.id }}</div>
                             <div class="text-sm opacity-70">
@@ -363,7 +379,11 @@ const APP_NAMES: Record<RemoteSetupApp, string> = {
             </div>
         </div>
         <ng-template #setup_form>
-            <form class="flex flex-col gap-2 p-4" (ngSubmit)="apply()">
+            <form
+                class="flex flex-col gap-2 p-4"
+                animate.enter="motion-fade-in"
+                (ngSubmit)="apply()"
+            >
                 <mat-form-field appearance="outline">
                     <mat-label>
                         {{ 'COMMON.BOOTSTRAP_LABEL' | translate }}

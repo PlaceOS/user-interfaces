@@ -36,6 +36,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <ng-container *ngSwitchCase="'list'">
                             <div
                                 class="divide-base-200 border-base-200 bg-base-100 divide-y overflow-hidden rounded-sm border"
+                                animate.enter="motion-fade-in"
                             >
                                 <a
                                     matRipple
@@ -95,6 +96,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                         <ng-container *ngSwitchDefault>
                             <div
                                 class="-mx-2 flex w-full flex-wrap items-center overflow-hidden"
+                                animate.enter="motion-fade-in"
                             >
                                 <a
                                     matRipple

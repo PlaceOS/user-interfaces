@@ -206,12 +206,17 @@ function periodOptions(
             </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
                 @if (view() === 'list') {
-                    <div class="min-h-full w-full overflow-x-auto">
+                    <div
+                        class="min-h-full w-full overflow-x-auto"
+                        animate.enter="motion-fade-in"
+                    >
                         <event-listing class="block"></event-listing>
                     </div>
                 }
                 @if (view() === 'calendar') {
-                    <event-calendar></event-calendar>
+                    <event-calendar
+                        animate.enter="motion-fade-in"
+                    ></event-calendar>
                 }
             </div>
         </div>

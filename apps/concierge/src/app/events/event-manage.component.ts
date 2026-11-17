@@ -232,7 +232,10 @@ const EMPTY = [];
                             </div>
                         </div>
                         @if (!model().all_day) {
-                            <div class="flex items-center space-x-2">
+                            <div
+                                class="flex items-center space-x-2"
+                                animate.enter="motion-drop-in"
+                            >
                                 <div class="w-1/3 flex-1">
                                     <label
                                         for="event-manage-start-time"
