@@ -46,8 +46,7 @@ describe('HelpModalComponent', () => {
 
     it('should render markdown content of the active item', () => {
         setup();
-        expect(spectator.component.content()).toContain('Beta Heading');
-        expect(spectator.component.content()).toContain('<h2');
+        expect(spectator.query('[content] h2')).toHaveText('Beta Heading');
     });
 
     it('should render one entry per item and update selection on click', () => {
@@ -58,7 +57,7 @@ describe('HelpModalComponent', () => {
         expect(spectator.component.active_item().id).toBe('a');
         spectator.detectChanges();
         expect(spectator.queryAll('li')[0]).toHaveClass('active');
-        expect(spectator.component.content()).toContain('Alpha Heading');
+        expect(spectator.query('[content] h1')).toHaveText('Alpha Heading');
     });
 
     it('should strip script handlers from help content', () => {

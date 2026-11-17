@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -10,8 +10,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-
-import { marked } from 'marked';
+import { MarkdownPipe } from './markdown.pipe';
 
 @Component({
     selector: 'help-modal',
@@ -76,7 +75,7 @@ import { marked } from 'marked';
             <div
                 content
                 class="bg-base-100 h-1/2 w-full flex-1 overflow-auto p-4 sm:h-full sm:w-1/2 sm:p-8"
-                [innerHTML]="content()"
+                [innerHTML]="active_item().content | markdown"
             ></div>
             <button
                 icon
@@ -107,6 +106,7 @@ import { marked } from 'marked';
         MatRippleModule,
         IconComponent,
         AuthenticatedImageDirective,
+        MarkdownPipe,
     ],
 })
 export class HelpModalComponent {
@@ -127,9 +127,4 @@ export class HelpModalComponent {
     );
 
     public readonly logo = themedLogo();
-
-    public readonly content = computed(() => {
-        const item = this.active_item();
-        return item?.content ? (marked(item.content) as string) : '';
-    });
 }
