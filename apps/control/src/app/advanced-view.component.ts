@@ -39,6 +39,7 @@ const PAGE_SIZE = 6;
                     <button
                         icon
                         matRipple
+                        class="transition-colors duration-(--motion-fast)"
                         [class.bg-primary]="page() === i"
                         [class.text-black]="page() !== i"
                         [class.bg-base-200]="page() !== i"

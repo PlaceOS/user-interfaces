@@ -81,7 +81,7 @@ enum TOOLTIP {
                         <button
                             icon
                             matRipple
-                            class="bg-base-200 text-base-content"
+                            class="bg-base-200 text-base-content transition-colors duration-(--motion-fast)"
                             [attr.type]="item.id"
                             [attr.aria-label]="item.name"
                             [class.bg-success!]="item.enabled"
