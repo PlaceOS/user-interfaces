@@ -10,6 +10,7 @@ import {
 } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
 import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
+import { DecimalPipe } from '@angular/common';
 
 @Component({
     selector: 'control-status-bar',
@@ -157,7 +158,7 @@ import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
                         (ngModelChange)="setVolume($event)"
                 /></mat-slider>
                 <span volume-level class="w-12 text-right tabular-nums">
-                    {{ system()?.volume || 0 }}%
+                    {{ system()?.volume || 0 | number:"1.0-0" }}%
                 </span>
             </div>
         }
@@ -190,6 +191,7 @@ import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
         IconComponent,
         MediaDurationPipe,
         TranslatePipe,
+        DecimalPipe
     ],
 })
 export class ControlStatusBarComponent {

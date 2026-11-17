@@ -79,9 +79,8 @@ enum TOOLTIP {
                         "
                     >
                         <button
-                            icon
+                            icon default
                             matRipple
-                            class="bg-base-200 text-base-content transition-colors duration-(--motion-fast)"
                             [attr.type]="item.id"
                             [attr.aria-label]="item.name"
                             [class.bg-success!]="item.enabled"
@@ -94,10 +93,10 @@ enum TOOLTIP {
             }
         </div>
         <button
-            icon
+            icon default
             matRipple
             [matMenuTriggerFor]="menu"
-            class="text-base-content mr-2 shrink-0 sm:hidden"
+            class="sm:hidden"
             [style.z-index]="locked() ? '99' : ''"
             [attr.aria-label]="'APP.CONTROL.ACTIONS' | translate"
         >
