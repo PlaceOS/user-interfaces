@@ -118,22 +118,47 @@ describe('GroupEventsStateService', () => {
         expect(spectator.service.tags()).toEqual(['music']);
     });
 
-    it('should include private events owned by the current user', async () => {
+    it('should include private events the current user created or hosts', async () => {
         vi.mocked(ts_client.get).mockResolvedValue([
             buildEvent({
-                id: 'mine',
+                id: 'created',
                 permission: 'private',
                 creator: 'me@example.com',
                 host: 'other@example.com',
-                mailbox: 'other@example.com',
-                extension_data: { shared_event: true, tags: [] },
+            }),
+            buildEvent({
+                id: 'hosted',
+                permission: 'private',
+                creator: 'other@example.com',
+                host: 'me@example.com',
             }),
         ] as any);
 
         TestBed.flushEffects();
         await wait(10);
 
-        expect(spectator.service.events().map((_) => _.id)).toEqual(['mine']);
+        expect(spectator.service.events().map((_) => _.id)).toEqual([
+            'created',
+            'hosted',
+        ]);
+    });
+
+    it('should hide private events when only the mailbox is the current user', async () => {
+        // Staff API returns the viewer's email as the mailbox (PPT-2247)
+        vi.mocked(ts_client.get).mockResolvedValue([
+            buildEvent({
+                id: 'draft',
+                permission: 'private',
+                creator: 'other@example.com',
+                host: 'other@example.com',
+                mailbox: 'me@example.com',
+            }),
+        ] as any);
+
+        TestBed.flushEffects();
+        await wait(10);
+
+        expect(spectator.service.events()).toEqual([]);
     });
 
     it('should filter events by selected tags and future end date', async () => {
