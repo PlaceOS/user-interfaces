@@ -1,0 +1,1 @@
+import{t as Ro}from"./main-E3SKBT4M.js";function n(){Ro(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
