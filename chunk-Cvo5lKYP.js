@@ -1,0 +1,1 @@
+import{t as Ro}from"./main-RZ5HHYZK.js";function n(){Ro(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
