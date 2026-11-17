@@ -46,6 +46,12 @@ body {
     }
 }
 
+@keyframes motion-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
 @keyframes motion-rise-in {
     from {
         opacity: 0;
@@ -64,8 +70,9 @@ body {
  * Classes for `animate.enter` and `animate.leave`.
  * - motion-fade-in: content that loaded or changed, such as a spinner that
  *   changes to a form
+ * - motion-fade-out: a page that closes, such as before a reload
  * - motion-rise-in / motion-rise-out: a floating panel, such as the idle
- *   warning
+ *   warning, or content that a page shows when it opens
  */
 .motion-fade-in {
     animation: motion-fade-in var(--motion-fast) var(--motion-ease);
@@ -76,6 +83,11 @@ body {
 }
 
 /* A leaving element must not catch taps while it moves out */
+.motion-fade-out {
+    pointer-events: none;
+    animation: motion-fade-out var(--motion-base) var(--motion-ease) forwards;
+}
+
 .motion-rise-out {
     pointer-events: none;
     animation: motion-rise-out var(--motion-fast) var(--motion-ease) forwards;

@@ -165,6 +165,7 @@ function shouldDecode(
                 @if (scanner_ready() && !checking_code()) {
                     <div
                         aria-hidden="true"
+                        animate.enter="motion-fade-in"
                         class="qr-guide pointer-events-none absolute top-1/2 left-1/2 z-20 aspect-square h-2/3 -translate-x-1/2 -translate-y-1/2 rounded-xl"
                     >
                         <span
@@ -182,6 +183,7 @@ function shouldDecode(
                     </div>
                     <div
                         announce
+                        animate.enter="motion-fade-in"
                         class="bg-base-100/90 text-base-content absolute right-2 bottom-2 z-20 inline-flex items-center gap-2 rounded px-2 py-1 text-sm shadow"
                     >
                         <span class="status-dot" aria-hidden="true"></span>
@@ -225,6 +227,15 @@ function shouldDecode(
                 width: 0.5rem;
                 height: 0.5rem;
                 display: inline-block;
+                /* Slow pulse that shows the camera is live */
+                animation: status-pulse calc(var(--motion-base) * 10)
+                    ease-in-out infinite;
+            }
+
+            @keyframes status-pulse {
+                50% {
+                    opacity: 0.3;
+                }
             }
 
             .qr-guide {
