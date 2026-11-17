@@ -72,15 +72,18 @@ export interface TemplateRequestApprovalModalResult {
                         <div class="font-medium">{{ data.template.name }}</div>
                     </div>
                     <div>
-                        <label for="template-approval-approver">{{
-                            'SIGNAGE_MANAGER.APPROVER' | translate
-                        }}</label>
+                        <label
+                            id="template-approval-approver-label"
+                            for="template-approval-approver"
+                            >{{ 'SIGNAGE_MANAGER.APPROVER' | translate }}</label
+                        >
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
                         >
                             <mat-select
                                 id="template-approval-approver"
+                                aria-labelledby="template-approval-approver-label"
                                 name="template-approval-approver"
                                 [(ngModel)]="selected_approver_id"
                             >

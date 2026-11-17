@@ -56,7 +56,7 @@ export interface MediaAddModalData {
                         [placeholder]="
                             'SIGNAGE_MANAGER.SELECT_PLUGIN' | translate
                         "
-                        [attr.aria-label]="
+                        [aria-label]="
                             'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA' | translate
                         "
                     >

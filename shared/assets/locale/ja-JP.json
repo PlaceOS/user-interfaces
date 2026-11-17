@@ -2437,7 +2437,6 @@
         "REQUEST_APPROVAL_SELECTED": "選択したプレイリストの承認を依頼",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "プレイリスト承認を依頼",
         "SCHEDULE": "スケジュール",
-        "SCHEDULE_INTERVAL_ARIA": "繰り返しスケジュールの間隔",
         "SCHEDULE_NUMBER": "スケジュール {{ number }}",
         "SCHEDULE_TYPES": "スケジュールタイプ",
         "SCHEDULE_TYPE_ARIA": "プレイリストスケジュールタイプ",

@@ -2437,7 +2437,6 @@
         "REQUEST_APPROVAL_SELECTED": "Demander une approbation pour la liste de lecture sélectionnée",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "Demander une approbation de liste de lecture",
         "SCHEDULE": "Planification",
-        "SCHEDULE_INTERVAL_ARIA": "Intervalle de la planification récurrente",
         "SCHEDULE_NUMBER": "Planification {{ number }}",
         "SCHEDULE_TYPES": "Types de planification",
         "SCHEDULE_TYPE_ARIA": "Type de planification de la liste de lecture",

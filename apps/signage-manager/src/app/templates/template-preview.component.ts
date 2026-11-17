@@ -95,7 +95,7 @@ const ASPECT_RATIOS: AspectRatioOption[] = [
                             'SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY'
                                 | translate
                         "
-                        [attr.aria-label]="
+                        [aria-label]="
                             'SIGNAGE_MANAGER.TEMPLATE_SELECT_DISPLAY'
                                 | translate
                         "

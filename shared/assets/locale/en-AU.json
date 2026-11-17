@@ -589,7 +589,6 @@
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "Request playlist approval",
         "REQUEST_TEMPLATE_APPROVAL_TOOLTIP": "Request template approval",
         "SCHEDULE": "Schedule",
-        "SCHEDULE_INTERVAL_ARIA": "Recurring schedule interval",
         "SCHEDULE_NUMBER": "Schedule {{ number }}",
         "SCHEDULE_TYPES": "Schedule types",
         "SCHEDULE_TYPE_ARIA": "Playlist schedule type",

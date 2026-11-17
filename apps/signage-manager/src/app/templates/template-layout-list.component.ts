@@ -227,7 +227,7 @@ import {
                                                     setPlugin($index, $event)
                                                 "
                                                 [disabled]="!can_update()"
-                                                [attr.aria-label]="
+                                                [aria-label]="
                                                     'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA'
                                                         | translate
                                                 "
@@ -256,7 +256,10 @@ import {
                                         @let axes = positionAxes(layout);
                                         <div class="flex gap-2">
                                             @if (axes.includes('x_pos')) {
-                                                <label class="min-w-0 flex-1">
+                                                <label
+                                                    class="min-w-0 flex-1"
+                                                    [for]="'x-pos-' + $index"
+                                                >
                                                     <div class="mb-1 text-sm">
                                                         {{
                                                             xLabel(
@@ -287,16 +290,17 @@ import {
                                                         [render_fn]="
                                                             renderPercent
                                                         "
-                                                        [attr.aria-label]="
-                                                            xLabel(
-                                                                layout.position
-                                                            ) | translate
+                                                        [input_id]="
+                                                            'x-pos-' + $index
                                                         "
                                                     />
                                                 </label>
                                             }
                                             @if (axes.includes('y_pos')) {
-                                                <label class="min-w-0 flex-1">
+                                                <label
+                                                    class="min-w-0 flex-1"
+                                                    [for]="'y-pos-' + $index"
+                                                >
                                                     <div class="mb-1 text-sm">
                                                         {{
                                                             yLabel(
@@ -327,10 +331,8 @@ import {
                                                         [render_fn]="
                                                             renderPercent
                                                         "
-                                                        [attr.aria-label]="
-                                                            yLabel(
-                                                                layout.position
-                                                            ) | translate
+                                                        [input_id]="
+                                                            'y-pos-' + $index
                                                         "
                                                     />
                                                 </label>

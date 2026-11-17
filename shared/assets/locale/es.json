@@ -2437,7 +2437,6 @@
         "REQUEST_APPROVAL_SELECTED": "Solicitar aprobación para la lista de reproducción seleccionada",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "Solicitar aprobación de lista de reproducción",
         "SCHEDULE": "Programación",
-        "SCHEDULE_INTERVAL_ARIA": "Intervalo de la programación recurrente",
         "SCHEDULE_NUMBER": "Programación {{ number }}",
         "SCHEDULE_TYPES": "Tipos de programación",
         "SCHEDULE_TYPE_ARIA": "Tipo de programación de la lista de reproducción",

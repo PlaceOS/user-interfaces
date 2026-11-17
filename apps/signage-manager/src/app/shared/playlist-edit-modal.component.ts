@@ -147,6 +147,7 @@ export interface PlaylistEditFormModel {
                             >
                                 <input
                                     matSliderThumb
+                                    id="default-duration"
                                     [formField]="form.default_duration"
                                 />
                             </mat-slider>
@@ -170,7 +171,7 @@ export interface PlaylistEditFormModel {
                                 [placeholder]="
                                     'COMMON.LOCATION_UNSPECIFIED' | translate
                                 "
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.PLAYLIST_ORIENTATION_ARIA'
                                         | translate
                                 "
@@ -204,7 +205,7 @@ export interface PlaylistEditFormModel {
                             <mat-select
                                 [formField]="form.default_animation"
                                 [placeholder]="'COMMON.DEFAULT' | translate"
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.DEFAULT_ANIMATION'
                                         | translate
                                 "

@@ -77,14 +77,18 @@ export interface PlaylistRequestApprovalModalResult {
                         <div class="font-medium">{{ data.playlist.name }}</div>
                     </div>
                     <div>
-                        <label for="approval-approver">{{
-                            'SIGNAGE_MANAGER.APPROVER' | translate
-                        }}</label>
+                        <label
+                            id="approval-approver-label"
+                            for="approval-approver"
+                            >{{ 'SIGNAGE_MANAGER.APPROVER' | translate }}</label
+                        >
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
                         >
                             <mat-select
+                                id="approval-approver"
+                                aria-labelledby="approval-approver-label"
                                 name="approval-approver"
                                 [(ngModel)]="selected_approver_id"
                             >
@@ -109,6 +113,7 @@ export interface PlaylistRequestApprovalModalResult {
                         >
                             <textarea
                                 matInput
+                                id="message"
                                 name="message"
                                 class="min-h-28 resize-y"
                                 [placeholder]="

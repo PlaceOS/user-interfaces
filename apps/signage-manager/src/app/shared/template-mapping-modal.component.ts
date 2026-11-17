@@ -114,7 +114,7 @@ interface TemplateMappingFormModel {
                                         | translate
                                 "
                                 [formField]="form_model.template_id"
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.SELECT_APPROVED_TEMPLATE'
                                         | translate
                                 "

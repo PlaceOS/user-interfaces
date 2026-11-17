@@ -103,7 +103,7 @@ export function newTextBlock(
                                 (ngModelChange)="
                                     patchBlock(block.id, { role: $event })
                                 "
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_SIZE'
                                         | translate
                                 "
@@ -132,7 +132,7 @@ export function newTextBlock(
                                 (ngModelChange)="
                                     patchBlock(block.id, { align: $event })
                                 "
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_ALIGN'
                                         | translate
                                 "
@@ -161,7 +161,7 @@ export function newTextBlock(
                                 (ngModelChange)="
                                     patchBlock(block.id, { font: $event })
                                 "
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.IMAGE_GEN_TEXT_FONT'
                                         | translate
                                 "
@@ -272,7 +272,7 @@ export function newTextBlock(
                                 (ngModelChange)="
                                     patch({ logo_position: $event })
                                 "
-                                [attr.aria-label]="
+                                [aria-label]="
                                     'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_POSITION'
                                         | translate
                                 "
@@ -307,7 +307,7 @@ export function newTextBlock(
                                     (ngModelChange)="
                                         patch({ logo_choice: $event })
                                     "
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.IMAGE_GEN_LOGO_VERSION'
                                             | translate
                                     "

@@ -2834,7 +2834,6 @@
         "EDIT_SCHEDULE": "Edit Schedule",
         "ITEM_SCHEDULES": "Item Schedules",
         "NO_SCHEDULES": "No schedules",
-        "SCHEDULE_INTERVAL_ARIA": "Recurring schedule interval",
         "SCHEDULE_NUMBER": "Schedule {{ number }}",
         "SCHEDULE_TYPES": "Schedule types",
         "SCHEDULE_TYPE_ARIA": "Playlist schedule type",

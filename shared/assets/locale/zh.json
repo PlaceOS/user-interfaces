@@ -2438,7 +2438,6 @@
         "REQUEST_APPROVAL_SELECTED": "请求审批所选播放列表",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "请求播放列表审批",
         "SCHEDULE": "计划",
-        "SCHEDULE_INTERVAL_ARIA": "重复计划间隔",
         "SCHEDULE_NUMBER": "计划 {{ number }}",
         "SCHEDULE_TYPES": "计划类型",
         "SCHEDULE_TYPE_ARIA": "播放列表计划类型",

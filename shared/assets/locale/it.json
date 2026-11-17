@@ -2437,7 +2437,6 @@
         "REQUEST_APPROVAL_SELECTED": "Richiedi approvazione per la lista di riproduzione selezionata",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "Richiedi approvazione lista di riproduzione",
         "SCHEDULE": "Pianificazione",
-        "SCHEDULE_INTERVAL_ARIA": "Intervallo della pianificazione ricorrente",
         "SCHEDULE_NUMBER": "Pianificazione {{ number }}",
         "SCHEDULE_TYPES": "Tipi di pianificazione",
         "SCHEDULE_TYPE_ARIA": "Tipo di pianificazione lista di riproduzione",

@@ -2437,7 +2437,6 @@
         "REQUEST_APPROVAL_SELECTED": "Pedir aprovação para a lista de reprodução selecionada",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "Pedir aprovação da lista de reprodução",
         "SCHEDULE": "Agenda",
-        "SCHEDULE_INTERVAL_ARIA": "Intervalo da agenda recorrente",
         "SCHEDULE_NUMBER": "Agenda {{ number }}",
         "SCHEDULE_TYPES": "Tipos de agenda",
         "SCHEDULE_TYPE_ARIA": "Tipo de agenda da lista de reprodução",
