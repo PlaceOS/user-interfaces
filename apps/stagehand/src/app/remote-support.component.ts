@@ -30,7 +30,10 @@ import {
     SimpleTableComponent,
     ViewportVisibilityComponent,
 } from '@placeos/components';
-import { CameraSnapshotModalComponent } from './camera-snapshot-modal.component';
+import {
+    CAMERA_SNAPSHOT_TITLE_ID,
+    CameraSnapshotModalComponent,
+} from './camera-snapshot-modal.component';
 import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { SupportService } from './support.service';
@@ -50,7 +53,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                 >
                     <icon class="text-info mb-5 text-3xl">sensors</icon>
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Total Rooms</h3>
+                        <h2 class="text-xl font-medium">Total Rooms</h2>
                         <div class="stagehand-muted text-sm">
                             Total room count with devices
                         </div>
@@ -64,7 +67,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                 >
                     <icon class="text-error text-3xl">warning</icon>
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Active Alerts</h3>
+                        <h2 class="text-xl font-medium">Active Alerts</h2>
                     </div>
                     <div class="px-2 text-4xl font-bold">
                         {{ room_alerts().length }}
@@ -127,6 +130,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                             key: 'actions',
                             name: ' ',
                             content: actions_template,
+                            sortable: false,
                             size: '6rem',
                         },
                         {
@@ -244,6 +248,8 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                             (click)="openCameraSnapshot(space)"
                             (mouseenter)="setHovering(true)"
                             (mouseleave)="setHovering(false)"
+                            (focus)="setHovering(true)"
+                            (blur)="setHovering(false)"
                             [attr.aria-label]="
                                 'View camera feed for ' +
                                 (space.display_name || space.name)
@@ -274,7 +280,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         <div
                             class="border-base-300 bg-base-300 m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border"
                         >
-                            <icon class="text-3xl opacity-30">hide_image</icon>
+                            <icon
+                                class="text-3xl opacity-30"
+                                label="No camera feed"
+                                >hide_image</icon
+                            >
                         </div>
                     }
                 </ng-template>
@@ -604,6 +614,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
 
     public openCameraSnapshot(space: Space) {
         this._dialog.open(CameraSnapshotModalComponent, {
+            ariaLabelledBy: CAMERA_SNAPSHOT_TITLE_ID,
             data: {
                 camera_snapshot_urls: space.camera_snapshot_urls,
                 camera_url: space.camera_url,

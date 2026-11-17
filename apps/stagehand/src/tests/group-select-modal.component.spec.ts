@@ -59,7 +59,7 @@ describe('GroupSelectModalComponent', () => {
         spectator.component.search.set('nowhere');
         spectator.detectChanges();
         expect(options()).toEqual([]);
-        expect(spectator.query('main')).toHaveText(
+        expect(spectator.query('[content]')).toHaveText(
             'No support groups available',
         );
     });

@@ -7,7 +7,10 @@ import { settingSignal } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import type { Mock } from 'vitest';
 
-import { CameraSnapshotModalComponent } from '../app/camera-snapshot-modal.component';
+import {
+    CAMERA_SNAPSHOT_TITLE_ID,
+    CameraSnapshotModalComponent,
+} from '../app/camera-snapshot-modal.component';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { RemoteSupportComponent } from '../app/remote-support.component';
 import { SupportService } from '../app/support.service';
@@ -309,6 +312,7 @@ describe('RemoteSupportComponent', () => {
         }) as any;
         spectator.component.openCameraSnapshot(space);
         expect(dialog_open).toHaveBeenCalledWith(CameraSnapshotModalComponent, {
+            ariaLabelledBy: CAMERA_SNAPSHOT_TITLE_ID,
             data: {
                 camera_snapshot_urls: ['http://feed'],
                 camera_url: 'http://manage',

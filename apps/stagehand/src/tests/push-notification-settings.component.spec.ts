@@ -46,7 +46,7 @@ describe('PushNotificationSettingsComponent', () => {
     it('should warn when push notifications are unsupported', () => {
         push.supported.set(false);
         spectator.detectChanges();
-        expect(spectator.query('main')).toHaveText(
+        expect(spectator.query('[content]')).toHaveText(
             'Push notifications are not supported',
         );
     });
@@ -55,7 +55,7 @@ describe('PushNotificationSettingsComponent', () => {
         push.enabled.set(false);
         push.permission.set('denied');
         spectator.detectChanges();
-        expect(spectator.query('main')).toHaveText(
+        expect(spectator.query('[content]')).toHaveText(
             'Notifications have been blocked',
         );
     });
@@ -65,7 +65,7 @@ describe('PushNotificationSettingsComponent', () => {
         push.permission.set('default');
         spectator.detectChanges();
 
-        const button = spectator.query('main button');
+        const button = spectator.query('[content] button');
         expect(button).toHaveText('Enable Notifications');
         spectator.click(button);
         expect(push.requestPermission).toHaveBeenCalledTimes(1);

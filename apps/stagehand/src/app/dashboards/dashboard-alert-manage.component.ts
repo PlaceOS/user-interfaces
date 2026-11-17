@@ -1,3 +1,4 @@
+import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import {
     Component,
@@ -43,14 +44,24 @@ export type AlertType = 'threshold' | 'status' | 'custom';
 @Component({
     selector: `stagehand-dashboard-alert-manage`,
     template: `
-        <div class="bg-base-200 fixed inset-0 overflow-auto">
+        <!--
+            Covers the page. Focus stays in the editor and returns on close.
+            No aria-modal: the select panels render outside the editor
+        -->
+        <div
+            role="dialog"
+            aria-labelledby="alert-editor-title"
+            cdkTrapFocus
+            cdkTrapFocusAutoCapture
+            class="bg-base-200 fixed inset-0 overflow-auto"
+        >
             <div
                 class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x p-2"
             >
                 <header
                     class="bg-base-200 sticky top-0 z-10 mx-auto flex h-14 w-full max-w-156 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
-                    <h2 class="text-xl font-medium capitalize">
+                    <h2 id="alert-editor-title" class="text-xl font-medium capitalize">
                         {{
                             (model().id
                                 ? 'APP.STAGEHAND.DASHBOARD_ALERTS_EDIT'
@@ -71,16 +82,17 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         <icon>close</icon>
                     </a>
                 </header>
-                <main class="p-2">
+                <div class="p-2">
                     <form class="flex flex-col">
                         <label for="name"
                             >{{ 'FORM.NAME' | translate
-                            }}<span required>*</span></label
+                            }}<span required aria-hidden="true">*</span></label
                         >
                         <mat-form-field appearance="outline">
                             <input
                                 id="name"
                                 matInput
+                                cdkFocusInitial
                                 placeholder="Alert Name"
                                 [formField]="form.name"
                             />
@@ -115,13 +127,13 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         </div>
                         <div class="flex space-x-4">
                             <div class="flex flex-1 flex-col">
-                                <label for="severity">{{
+                                <label id="alert-severity-label">{{
                                     'APP.STAGEHAND.ALERT_FIELD_SEVERITY'
                                         | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
-                                        aria-label="Severity"
+                                        aria-labelledby="alert-severity-label"
                                         [formField]="form.severity"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_SEVERITY'
@@ -143,12 +155,12 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 </mat-form-field>
                             </div>
                             <div class="flex flex-1 flex-col">
-                                <label for="type">{{
+                                <label id="alert-type-label">{{
                                     'APP.STAGEHAND.ALERT_FIELD_TYPE' | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
-                                        aria-label="Type"
+                                        aria-labelledby="alert-type-label"
                                         [formField]="form.alert_type"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_TYPE'
@@ -170,7 +182,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 </mat-form-field>
                             </div>
                         </div>
-                        <label for="description">{{
+                        <label id="alert-conditions-label">{{
                             'APP.STAGEHAND.ALERT_CONDITIONS' | translate
                         }}</label>
                         <div class="mb-4 flex space-x-2">
@@ -194,7 +206,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 Add Condition
                             </button>
                         </div>
-                        <section>
+                        <section aria-labelledby="alert-conditions-label">
                             <simple-table
                                 class="mb-4 block w-full min-w-lg text-sm"
                                 [data]="
@@ -269,7 +281,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         </section>
                     </form>
                     <div class="h-20 w-full"></div>
-                </main>
+                </div>
                 <footer
                     class="bg-base-200 fixed bottom-2 flex w-156 max-w-full justify-end rounded-sm p-2"
                 >
@@ -289,6 +301,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
     `,
     styles: [],
     imports: [
+        CdkTrapFocus,
         CommonModule,
         TranslatePipe,
         IconComponent,

@@ -14,7 +14,10 @@ import {
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { firstValueFrom } from 'rxjs';
 import { DashboardsService } from '../dashboards/dashboards.service';
-import { PushNotificationSettingsComponent } from '../push-notification-settings.component';
+import {
+    NOTIFICATION_SETTINGS_TITLE_ID,
+    PushNotificationSettingsComponent,
+} from '../push-notification-settings.component';
 import { AlertNotificationService } from '../push-notification.service';
 import { SupportGroupsService } from '../support-groups.service';
 
@@ -207,11 +210,8 @@ const COMPACT_SIGNAL = signal(
                         type="button"
                         class="hover:bg-base-100/10 relative flex w-full items-center justify-center gap-2 rounded-sm p-2"
                         (click)="toggleDarkMode()"
-                        [attr.aria-label]="
-                            dark_mode()
-                                ? 'Switch to light mode'
-                                : 'Switch to dark mode'
-                        "
+                        aria-label="Dark mode"
+                        [attr.aria-pressed]="dark_mode()"
                         [matTooltip]="
                             is_compact()
                                 ? dark_mode()
@@ -228,7 +228,9 @@ const COMPACT_SIGNAL = signal(
                             <span class="flex-1 truncate text-left text-sm"
                                 >Dark Mode</span
                             >
+                            <!-- aria-pressed gives the state -->
                             <span
+                                aria-hidden="true"
                                 class="ml-auto rounded-full px-2 py-0.5 text-xs"
                                 [class.bg-success]="dark_mode()"
                                 [class.text-success-content]="dark_mode()"
@@ -435,9 +437,10 @@ export class SidebarComponent {
 
     /** Let the user pick the support group to work in */
     public async selectGroup() {
-        const { GroupSelectModalComponent } =
+        const { GroupSelectModalComponent, GROUP_SELECT_TITLE_ID } =
             await import('./group-select-modal.component');
         const ref = this._dialog.open(GroupSelectModalComponent, {
+            ariaLabelledBy: GROUP_SELECT_TITLE_ID,
             data: {
                 groups: this._groups.groups(),
                 selected_group_id: this._groups.group_id(),
@@ -460,6 +463,8 @@ export class SidebarComponent {
     }
 
     public openNotificationSettings() {
-        this._dialog.open(PushNotificationSettingsComponent);
+        this._dialog.open(PushNotificationSettingsComponent, {
+            ariaLabelledBy: NOTIFICATION_SETTINGS_TITLE_ID,
+        });
     }
 }

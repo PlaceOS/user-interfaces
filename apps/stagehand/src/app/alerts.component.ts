@@ -73,7 +73,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         >warning</icon
                     >
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Critical</h3>
+                        <h2 class="text-xl font-medium">Critical</h2>
                         <div class="stagehand-muted text-sm">
                             Attention required
                         </div>
@@ -91,7 +91,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         >error</icon
                     >
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Warnings</h3>
+                        <h2 class="text-xl font-medium">Warnings</h2>
                         <div class="stagehand-muted text-sm">
                             May require attention
                         </div>
@@ -107,7 +107,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         >schedule</icon
                     >
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Open</h3>
+                        <h2 class="text-xl font-medium">Open</h2>
                         <div class="stagehand-muted text-sm">
                             Pending resolution
                         </div>
@@ -190,7 +190,10 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
             <div class="overflow-auto p-4">
                 @if (show_alert_list_loading()) {
                     <div class="flex h-48 w-full items-center justify-center">
-                        <mat-spinner [diameter]="36"></mat-spinner>
+                        <mat-spinner
+                            aria-label="Loading alerts"
+                            [diameter]="36"
+                        ></mat-spinner>
                     </div>
                 } @else {
                     <simple-table

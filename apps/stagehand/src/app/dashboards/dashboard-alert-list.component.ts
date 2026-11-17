@@ -21,9 +21,12 @@ import { DashboardsService } from './dashboards.service';
     selector: `stagehand-dashboard-alert-list`,
     template: `
         <div class="p-4">
+            <!-- Hidden bar keeps its space, so hide it from assistive technology too -->
             <mat-progress-bar
                 class="w-full"
+                aria-label="Loading alerts"
                 [class.opacity-0]="loading().length <= 0"
+                [attr.aria-hidden]="loading().length <= 0 ? 'true' : null"
             />
             <simple-table
                 class="bg-base-100 block min-w-3xl"
@@ -83,6 +86,7 @@ import { DashboardsService } from './dashboards.service';
                     >
                         <div class="flex-1">
                             {{ list?.comparisons?.length }}
+                            <span class="sr-only">comparison conditions</span>
                         </div>
                         <icon class="text-lg">compare_arrows</icon>
                     </div>
@@ -92,6 +96,7 @@ import { DashboardsService } from './dashboards.service';
                     >
                         <div class="flex-1">
                             {{ list?.time_dependents?.length }}
+                            <span class="sr-only">time dependent conditions</span>
                         </div>
                         <icon class="text-lg">avg_time</icon>
                     </div>

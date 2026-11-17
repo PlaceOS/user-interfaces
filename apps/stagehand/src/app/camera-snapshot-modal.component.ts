@@ -40,6 +40,9 @@ interface MpegTsLibrary {
     isSupported(): boolean;
 }
 
+/** ID of the dialog title. Pass it as `ariaLabelledBy` to name the dialog. */
+export const CAMERA_SNAPSHOT_TITLE_ID = 'camera-snapshot-title';
+
 @Component({
     selector: 'camera-snapshot-modal',
     template: `
@@ -47,7 +50,7 @@ interface MpegTsLibrary {
             <header
                 class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
-                <h2 class="px-2 text-xl font-medium">
+                <h2 class="px-2 text-xl font-medium" [id]="title_id">
                     Camera Feed - {{ data.room_name }}
                 </h2>
                 <button
@@ -60,7 +63,8 @@ interface MpegTsLibrary {
                     <icon>close</icon>
                 </button>
             </header>
-            <main
+            <div
+                content
                 class="mb-2 max-h-[65vh] w-3xl max-w-[calc(100vw-2rem)] space-y-4 overflow-auto px-2"
             >
                 <div
@@ -124,7 +128,9 @@ interface MpegTsLibrary {
                         <div
                             class="absolute bottom-2 left-1/2 z-10 flex -translate-x-1/2 items-center space-x-2 rounded-full bg-black/40 px-3 py-1 text-xs text-white"
                         >
-                            <span
+                            <!-- Announces the feed change from the previous and next buttons -->
+                            <span aria-live="polite"
+                                ><span class="sr-only">Camera feed </span
                                 >{{ feed_index() + 1 }} /
                                 {{ feed_count() }}</span
                             >
@@ -144,7 +150,7 @@ interface MpegTsLibrary {
                         <span>Manage Camera</span>
                     </a>
                 }
-            </main>
+            </div>
         </div>
     `,
     styles: [
@@ -176,6 +182,7 @@ interface MpegTsLibrary {
     ],
 })
 export class CameraSnapshotModalComponent extends AsyncHandler {
+    public readonly title_id = CAMERA_SNAPSHOT_TITLE_ID;
     public readonly data = inject<CameraSnapshotData>(MAT_DIALOG_DATA);
 
     public readonly timestamp = signal(Date.now());

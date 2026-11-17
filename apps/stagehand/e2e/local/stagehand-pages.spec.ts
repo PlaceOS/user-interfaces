@@ -100,7 +100,7 @@ test.afterAll(async ({ adminApi }) => {
 /** The number on the summary card headed `title` */
 async function cardCount(page: Page, title: string): Promise<number> {
     const card = page
-        .locator(`div:has(> div > h3:text-is("${title}"))`)
+        .locator(`div:has(> div > h2:text-is("${title}"))`)
         .first();
     return Number(
         (await card.locator('.text-4xl').first().textContent())?.trim(),

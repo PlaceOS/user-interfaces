@@ -60,7 +60,7 @@ export function calculateModuleIndex(
                     "
                 ></ng-container>
                 @if (form().left().touched() && form().left().errors().length) {
-                    <div class="error">
+                    <div class="error" role="alert">
                         {{ 'TRIGGERS.COMPARE_VARIABLE_ERROR' | translate }}
                     </div>
                 }
@@ -69,6 +69,7 @@ export function calculateModuleIndex(
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [formField]="form().operator"
+                                [aria-label]="'TRIGGERS.COMPARE_OP' | translate"
                                 [placeholder]="
                                     'TRIGGERS.COMPARE_OP_SELECT' | translate
                                 "
@@ -90,6 +91,7 @@ export function calculateModuleIndex(
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="compared-to"
+                                aria-label="Compare to"
                                 [(ngModel)]="rhs_type"
                                 (ngModelChange)="
                                     form().right().value.set('')
@@ -111,6 +113,9 @@ export function calculateModuleIndex(
                             <input
                                 matInput
                                 [formField]="form().right"
+                                [attr.aria-label]="
+                                    'TRIGGERS.COMPARE_CONSTANT' | translate
+                                "
                                 placeholder="true/false, 'string', 123.456"
                             />
                             <mat-error>{{
@@ -132,12 +137,13 @@ export function calculateModuleIndex(
             <div class="flex space-x-4">
                 @if (sideData(side)) {
                     <div class="flex flex-1 flex-col">
-                        <label for="type">{{
+                        <label [id]="side + '-module-label'">{{
                             'COMMON.MODULE' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 name="type"
+                                [aria-labelledby]="side + '-module-label'"
                                 [ngModel]="sideData(side).mod"
                                 (ngModelChange)="
                                     setSideMod(side, $event);
@@ -159,12 +165,13 @@ export function calculateModuleIndex(
                 }
                 @if (statusVars(side)?.length) {
                     <div class="flex flex-1 flex-col">
-                        <label [for]="side + '-status-var'">{{
+                        <label [id]="side + '-status-var-label'">{{
                             'TRIGGERS.COMPARE_VARIABLE' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <mat-select
                                 [name]="side + '-status-var'"
+                                [aria-labelledby]="side + '-status-var-label'"
                                 [ngModel]="sideData(side).status"
                                 (ngModelChange)="
                                     setSideStatus(side, $event);
@@ -197,6 +204,7 @@ export function calculateModuleIndex(
                     <mat-form-field appearance="outline">
                         <input
                             matInput
+                            [id]="side + '-subkeys'"
                             [ngModel]="keysFor(side)"
                             (ngModelChange)="
                                 setSideKeys(side, $event);
