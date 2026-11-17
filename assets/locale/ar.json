@@ -2288,9 +2288,7 @@
         "GROUP_NEW_HEADING": "مجموعة لافتات جديدة",
         "GROUP_SAVING": "جار حفظ مجموعة اللافتات...",
         "GROUP_SELECT_DETAILS": "حدد مجموعة لعرض تفاصيلها.",
-        "HIDE_APPROVAL_CHANGES": "إخفاء تغييرات الاعتماد",
         "HOURS_BETWEEN_PLAYS": "الساعات بين مرات التشغيل",
-        "ITEM_ACTIONS": "إجراءات العنصر",
         "LOADING_PLAYLIST_ITEMS": "جار تحميل عناصر قائمة التشغيل...",
         "LOADING_PLUGIN_DETAILS": "جار تحميل تفاصيل الملحق...",
         "LOADING_PLUGIN_PREVIEW": "جار تحميل معاينة الملحق...",
@@ -2437,7 +2435,6 @@
         "REQUEST_APPROVAL_SELECTED": "طلب اعتماد قائمة التشغيل المحددة",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "طلب اعتماد قائمة التشغيل",
         "SCHEDULE": "الجدول",
-        "SCHEDULE_INTERVAL_ARIA": "فاصل الجدول المتكرر",
         "SCHEDULE_NUMBER": "الجدول {{ number }}",
         "SCHEDULE_TYPES": "أنواع الجداول",
         "SCHEDULE_TYPE_ARIA": "نوع جدول قائمة التشغيل",
@@ -2451,7 +2448,6 @@
         "SEARCH_ZONES_PLAYLISTS": "البحث في المناطق أو قوائم التشغيل",
         "SELECT_GROUP": "تحديد المجموعة",
         "SELECT_MEDIA": "تحديد {{ name }}",
-        "SELECT_MEDIA_ITEM": "تحديد عنصر الوسائط {{ name }}",
         "SELECT_PARENT": "تحديد المجموعة الأصلية",
         "SELECT_PLAYLIST_DETAILS": "حدد قائمة تشغيل لعرض تفاصيلها.",
         "SELECT_PLAYLIST_ITEMS": "حدد قائمة تشغيل لعرض عناصرها.",
@@ -2462,7 +2458,6 @@
         "SHARE": "مشاركة",
         "SHARE_PLAYLIST_TOOLTIP": "مشاركة قائمة التشغيل",
         "SHARE_SELECTED_PLAYLIST": "مشاركة قائمة التشغيل المحددة",
-        "SHOW_APPROVAL_CHANGES": "إظهار تغييرات الاعتماد",
         "SHOW_NEXT_DAY": "إظهار اليوم التالي",
         "SHOW_PREVIOUS_DAY": "إظهار اليوم السابق",
         "SHOW_TODAY": "إظهار اليوم",
@@ -2596,6 +2591,8 @@
         "ZONE_SELECT_DETAILS": "حدد منطقة لعرض تفاصيلها.",
         "SVC_REMOVING": "جارٍ الإزالة...",
         "SCHEDULE_UNTIL_FROM_NOW": "ينتهي بعد {{ time }}",
-        "SCHEDULE_UNTIL_AGO": "انتهى منذ {{ time }}"
+        "SCHEDULE_UNTIL_AGO": "انتهى منذ {{ time }}",
+        "ACTIONS_FOR": "إجراءات {{ name }}",
+        "EDIT_NAMED": "تعديل {{ name }}"
     }
 }
