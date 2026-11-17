@@ -1,1 +1,0 @@
-import{t as So}from"./main-QPO6LVI6.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
