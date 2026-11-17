@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["welcome.component.ts"],
-  "sourcesContent": ["\n            a {\n                height: 3.5rem;\n            }\n        "],
-  "mappings": "AACY,EACI,OAAA,MACJ",
+  "sourcesContent": ["\n            a {\n                height: 3.5rem;\n            }\n\n            /* The actions rise in after the heading */\n            [actions] {\n                animation-delay: var(--motion-fast);\n                animation-fill-mode: backwards;\n            }\n        "],
+  "mappings": "AACY,EACI,OAAA,MACJ,CAGA,CAAA,SACI,gBAAA,IAAA,eACA,oBAAA,SACJ",
   "names": []
 }

@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["take-photo.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n            }\n\n            [name='camera'] {\n                width: 22.5rem;\n                height: 25rem;\n            }\n\n            button {\n                width: 8rem;\n            }\n        "],
-  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,YAAA,MACJ,CAEA,CAAA,aACI,MAAA,QACA,OAAA,KACJ,CAEA,OACI,MAAA,IACJ",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n            }\n\n            [name='camera'] {\n                width: 22.5rem;\n                height: 25rem;\n            }\n\n            /* The live camera and the photo cross-fade */\n            video,\n            canvas {\n                transition: opacity var(--motion-base) var(--motion-ease);\n            }\n\n            /* A short white flash shows that the camera took the photo */\n            [shutter] {\n                position: absolute;\n                inset: 0;\n                pointer-events: none;\n                background: white;\n                opacity: 0;\n                animation: shutter var(--motion-base) ease-out;\n            }\n\n            @keyframes shutter {\n                from {\n                    opacity: 0.8;\n                }\n            }\n\n            button {\n                width: 8rem;\n            }\n        "],
+  "mappings": "AACY,MACI,QAAA,KACA,eAAA,OACA,YAAA,MACJ,CAEA,CAAA,aACI,MAAA,QACA,OAAA,KACJ,CAGA,aAEI,WAAA,QAAA,IAAA,eAAA,IAAA,cACJ,CAGA,CAAA,SACI,SAAA,eACA,EACA,eAAA,KACA,WAAA,KACA,QAAA,EACA,UAAA,QAAA,IAAA,eAAA,QACJ,CAEA,WAHI,QAIA,GACI,QAAA,EACJ,CACJ,CAEA,OACI,MAAA,IACJ",
   "names": []
 }
