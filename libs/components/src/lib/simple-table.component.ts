@@ -304,8 +304,12 @@ export function rowSearchText(
                         </div>
                     }
                     @if (show_children()[row['id']] && child_template()) {
+                        <!-- Virtual scroll makes rows again as they scroll into view -->
                         <div
                             child-node
+                            [animate.enter]="
+                                virtual_scroll() ? '' : 'motion-drop-in'
+                            "
                             [style.gridColumn]="'span ' + column_count()"
                             class="border-base-200 relative border-b last:border-t last:border-b-0"
                         >
@@ -350,6 +354,7 @@ export function rowSearchText(
                 <div
                     [style.gridColumnStart]="'span ' + column_count()"
                     class="flex items-center justify-center p-8 opacity-70"
+                    animate.enter="motion-fade-in"
                     [attr.aria-busy]="loading() || null"
                 >
                     {{
