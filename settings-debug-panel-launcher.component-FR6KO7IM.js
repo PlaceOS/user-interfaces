@@ -6,17 +6,17 @@ import {
 } from "./chunk-LNO4KFLG.js";
 import {
   installBindingDebugHooks
-} from "./chunk-VLPFIYKS.js";
+} from "./chunk-55HUOKOF.js";
 import {
   RemoteLoggingService
-} from "./chunk-KN4L7R3Y.js";
+} from "./chunk-NBIAMB33.js";
 import "./chunk-GLALPF4J.js";
 import {
   AsyncHandler,
   HotkeysService,
   SettingsService,
   user_group_names
-} from "./chunk-KPBPD4B6.js";
+} from "./chunk-2V4LGC3L.js";
 import {
   IconComponent
 } from "./chunk-ECEYXSP4.js";
@@ -70,15 +70,15 @@ import "./chunk-KUGYOAP2.js";
 // libs/components/src/lib/settings-debug-panel-launcher.component.ts
 var SettingsDebugPanelLauncherComponent_Conditional_0_Defer_26_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel.component-QW3A4NBT.js").then((m) => m.SettingsDebugPanelComponent)
+  import("./settings-debug-panel.component-N2PQ7UWF.js").then((m) => m.SettingsDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Conditional_0_Defer_29_DepsFn = () => [
   /* @ts-ignore */
-  import("./binding-debug-panel.component-LFOC5GVB.js").then((m) => m.BindingDebugPanelComponent)
+  import("./binding-debug-panel.component-VDOVWAFG.js").then((m) => m.BindingDebugPanelComponent)
 ];
 var SettingsDebugPanelLauncherComponent_Conditional_0_Defer_32_DepsFn = () => [
   /* @ts-ignore */
-  import("./debug-console.component-GSYSVR2T.js").then((m) => m.DebugConsoleComponent)
+  import("./debug-console.component-JUJH45RH.js").then((m) => m.DebugConsoleComponent)
 ];
 function SettingsDebugPanelLauncherComponent_Conditional_0_Conditional_24_Template(rf, ctx) {
   if (rf & 1) {
@@ -390,11 +390,11 @@ var SettingsDebugPanelLauncherComponent = _SettingsDebugPanelLauncherComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(SettingsDebugPanelLauncherComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel.component-QW3A4NBT.js").then((m) => m.SettingsDebugPanelComponent),
+    import("./settings-debug-panel.component-N2PQ7UWF.js").then((m) => m.SettingsDebugPanelComponent),
     /* @ts-ignore */
-    import("./binding-debug-panel.component-LFOC5GVB.js").then((m) => m.BindingDebugPanelComponent),
+    import("./binding-debug-panel.component-VDOVWAFG.js").then((m) => m.BindingDebugPanelComponent),
     /* @ts-ignore */
-    import("./debug-console.component-GSYSVR2T.js").then((m) => m.DebugConsoleComponent)
+    import("./debug-console.component-JUJH45RH.js").then((m) => m.DebugConsoleComponent)
   ], (SettingsDebugPanelComponent, BindingDebugPanelComponent, DebugConsoleComponent) => {
     setClassMetadata(SettingsDebugPanelLauncherComponent, [{
       type: Component,
@@ -489,4 +489,4 @@ export {
   SettingsDebugPanelLauncherComponent
 };
 //# debugId=80f2246a-23f8-5f8e-ac1d-6cea53b74f8d
-//# sourceMappingURL=settings-debug-panel-launcher.component-QSKC6WY5.js.map
+//# sourceMappingURL=settings-debug-panel-launcher.component-FR6KO7IM.js.map
