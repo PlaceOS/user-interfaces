@@ -12,7 +12,11 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 
 @Component({
@@ -21,7 +25,7 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.GROUP_ADD_USER' | translate }}
             </h2>
             <button
@@ -34,7 +38,7 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
                 <icon>close</icon>
             </button>
         </header>
-        <main
+        <div
             class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
             <mat-form-field
@@ -99,8 +103,9 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
                     </div>
                 </div>
             }
-        </main>
+        </div>
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         FormsModule,
         MatRippleModule,

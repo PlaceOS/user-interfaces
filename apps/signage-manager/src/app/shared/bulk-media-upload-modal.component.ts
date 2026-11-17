@@ -8,7 +8,11 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { humanReadableByteCount } from '@placeos/cloud-uploads';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { SignageMedia } from '@placeos/ts-client';
 import {
     bulkItemName,
@@ -67,7 +71,7 @@ function uploadErrorMessage(error: unknown) {
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_TITLE' | translate }}
             </h2>
             @if (!uploading()) {
@@ -84,7 +88,7 @@ function uploadErrorMessage(error: unknown) {
                 </button>
             }
         </header>
-        <main
+        <div
             class="max-h-[65vh] w-[32rem] max-w-full space-y-2 overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:w-auto max-md:flex-1"
         >
             @for (row of rows(); track row.id) {
@@ -149,7 +153,7 @@ function uploadErrorMessage(error: unknown) {
                     }
                 </div>
             }
-        </main>
+        </div>
         <footer
             class="border-base-200 flex items-center justify-end space-x-2 border-t px-4 py-2"
         >
@@ -212,7 +216,7 @@ function uploadErrorMessage(error: unknown) {
             </button>
         </footer>
     `,
-    styles: [``],
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         MatDialogModule,
         MatProgressSpinnerModule,

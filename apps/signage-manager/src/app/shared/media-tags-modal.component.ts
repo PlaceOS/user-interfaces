@@ -7,7 +7,11 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { ItemListFieldComponent } from '@placeos/form-fields';
 
 export interface MediaTagsModalData {
@@ -22,7 +26,10 @@ export interface MediaTagsModalData {
         <header
             class="bg-base-200 m-2 flex w-[calc(100%-1rem)] min-w-0 items-center justify-between overflow-hidden rounded-sm p-2"
         >
-            <h2 class="min-w-0 flex-1 truncate px-2 text-xl font-medium">
+            <h2
+                mat-dialog-title
+                class="min-w-0 flex-1 truncate px-2 text-xl font-medium"
+            >
                 {{ heading }}
             </h2>
             <button
@@ -36,7 +43,7 @@ export interface MediaTagsModalData {
                 <icon>close</icon>
             </button>
         </header>
-        <main class="min-w-0 px-4 py-2">
+        <div class="min-w-0 px-4 py-2">
             <label>{{ 'COMMON.TAGS' | translate }}</label>
             <item-list-field
                 name="media-tags"
@@ -44,7 +51,7 @@ export interface MediaTagsModalData {
                 [options]="tag_options"
                 [placeholder]="'COMMON.TAGS' | translate"
             />
-        </main>
+        </div>
         <footer class="border-base-300 flex justify-end border-t p-2">
             <button
                 btn
@@ -58,6 +65,7 @@ export interface MediaTagsModalData {
             </button>
         </footer>
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         FormsModule,
         MatDialogModule,

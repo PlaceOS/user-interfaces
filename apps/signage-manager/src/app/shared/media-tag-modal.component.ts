@@ -9,7 +9,11 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 
 export type MediaTagModalAction = 'rename' | 'remove';
 
@@ -31,7 +35,10 @@ export type MediaTagModalResult =
         <header
             class="bg-base-200 m-2 flex w-[calc(100%-1rem)] min-w-0 items-center justify-between overflow-hidden rounded-sm p-2"
         >
-            <h2 class="min-w-0 flex-1 truncate px-2 text-xl font-medium">
+            <h2
+                mat-dialog-title
+                class="min-w-0 flex-1 truncate px-2 text-xl font-medium"
+            >
                 {{
                     (is_rename
                         ? 'SIGNAGE_MANAGER.RENAME_MEDIA_TAG'
@@ -50,7 +57,7 @@ export type MediaTagModalResult =
                 <icon>close</icon>
             </button>
         </header>
-        <main class="min-w-0 px-4 py-2">
+        <div class="min-w-0 px-4 py-2">
             @if (is_rename) {
                 <label for="media-tag-name">{{
                     'SIGNAGE_MANAGER.TAG_NAME' | translate
@@ -86,7 +93,7 @@ export type MediaTagModalResult =
                     </p>
                 }
             }
-        </main>
+        </div>
         <footer class="border-base-300 flex justify-end gap-2 border-t p-2">
             <button
                 btn
@@ -115,6 +122,7 @@ export type MediaTagModalResult =
             </button>
         </footer>
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         FormField,
         IconComponent,

@@ -12,7 +12,11 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { i18n, notifyError } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     SignageMedia,
     SignagePlaylist,
@@ -43,7 +47,7 @@ export interface PlaylistRequestApprovalModalResult {
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.REQUEST_APPROVAL' | translate }}
             </h2>
             @if (!loading()) {
@@ -61,7 +65,7 @@ export interface PlaylistRequestApprovalModalResult {
             }
         </header>
         @if (!loading()) {
-            <main
+            <div
                 class="flex max-h-[70vh] max-w-[calc(100vw-2rem)] flex-col gap-4 overflow-auto px-4 pt-2 pb-4 max-md:w-auto max-md:flex-1"
                 [ngClass]="show_preview() ? 'w-[50rem]' : 'w-[28rem]'"
             >
@@ -167,7 +171,7 @@ export interface PlaylistRequestApprovalModalResult {
                         />
                     }
                 }
-            </main>
+            </div>
             <footer
                 class="border-base-300 bg-base-100 sticky bottom-0 flex justify-end gap-2 border-t p-4"
             >
@@ -207,16 +211,17 @@ export interface PlaylistRequestApprovalModalResult {
                 }
             </footer>
         } @else {
-            <main>
+            <div>
                 <div
                     class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                 >
                     <mat-spinner diameter="32" />
                     <p>{{ loading() }}</p>
                 </div>
-            </main>
+            </div>
         }
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         CommonModule,
         FormsModule,
