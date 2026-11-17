@@ -35,6 +35,7 @@ import {
     BookingRowKeyFields,
     selectedBookings,
 } from '../ui/bulk-booking-actions';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import { ParkingBookingsWeekViewComponent } from './parking-bookings-week-view.component';
 import { ParkingStateService } from './parking-state.service';
 import {
@@ -361,6 +362,7 @@ interface ParkingBookingColumnTemplates {
                         <button
                             matRipple
                             class="h-10 w-30 rounded-3xl border-none"
+                            [pulseOnChange]="statusLabel(row)"
                             [class.text-success-content]="
                                 row?.status === 'approved' &&
                                 !isAssignedBooking(row) &&
@@ -684,6 +686,7 @@ interface ParkingBookingColumnTemplates {
     `,
     styles: [``],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         MatProgressBarModule,
         MatProgressSpinnerModule,

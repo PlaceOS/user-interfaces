@@ -18,6 +18,7 @@ import {
     BookingRowKeyFields,
     selectedBookings,
 } from '../ui/bulk-booking-actions';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import { LockerStateService } from './locker-state.service';
 
 @Component({
@@ -150,6 +151,7 @@ import { LockerStateService } from './locker-state.service';
                     <button
                         matRipple
                         class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
+                        [pulseOnChange]="row?.status"
                         [class.text-success-content!]="
                             row?.status === 'approved' && !row.deleted
                         "
@@ -219,6 +221,7 @@ import { LockerStateService } from './locker-state.service';
                     <button
                         matRipple
                         class="bg-warning text-warning-content h-10 w-24 rounded-3xl border-none"
+                        [pulseOnChange]="data"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.bg-neutral!]="!data"
                         [class.text-neutral-content!]="!data"
@@ -294,6 +297,7 @@ import { LockerStateService } from './locker-state.service';
         `,
     ],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         MatRippleModule,
         MatMenuModule,

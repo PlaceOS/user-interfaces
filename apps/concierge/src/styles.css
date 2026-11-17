@@ -66,6 +66,13 @@
     }
 }
 
+@keyframes motion-pulse {
+    from {
+        opacity: 0.5;
+        transform: scale(1.15);
+    }
+}
+
 /*
  * Classes for `animate.enter` and `animate.leave`. The shared components
  * (libs/components) use them too. Signage Manager has the same classes.
@@ -73,6 +80,7 @@
  * - motion-rise-in / motion-rise-out: a floating bar or panel
  * - motion-drop-in: content that opens below its control
  * - motion-fade-out: content that closes
+ * - motion-pulse: a value that changed (PulseOnChangeDirective)
  */
 .motion-fade-in {
     animation: motion-fade-in var(--motion-fast) var(--motion-ease);
@@ -84,6 +92,10 @@
 
 .motion-drop-in {
     animation: motion-drop-in var(--motion-base) var(--motion-ease);
+}
+
+.motion-pulse {
+    animation: motion-pulse var(--motion-base) var(--motion-ease);
 }
 
 /* A leaving element must not catch clicks while it fades out */

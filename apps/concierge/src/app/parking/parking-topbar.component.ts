@@ -30,6 +30,7 @@ import {
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { queryParamsWriter } from '../ui/page-transitions';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
     loadPersistedZones,
@@ -325,6 +326,7 @@ import {
                     @let percent = total ? occupied / total : 0;
                     <span
                         class="rounded-sm px-2 py-1 font-mono text-xs"
+                        [pulseOnChange]="percent"
                         [class.bg-error]="percent >= 1"
                         [class.text-error-content]="percent >= 1"
                         [class.bg-warning]="percent >= 0.5 && percent < 1"
@@ -378,6 +380,7 @@ import {
         `,
     ],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         FormsModule,
         DateOptionsComponent,

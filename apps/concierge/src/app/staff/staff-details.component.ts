@@ -26,7 +26,10 @@ import { StaffStateService } from './staff-state.service';
                     </div>
                 </div>
                 @if (onsite()) {
-                    <div class="px-4 text-xs opacity-70">
+                    <div
+                        class="px-4 text-xs opacity-70"
+                        animate.enter="motion-fade-in"
+                    >
                         {{ 'APP.CONCIERGE.DIRECTORY_ONSITE' | translate }}
                     </div>
                 }

@@ -31,13 +31,14 @@ import {
 } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
 import { errorText } from '../ui/modal-actions';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import { EventsStateService } from './events-state.service';
 
 @Component({
     selector: 'room-bookings-approvals',
     template: `
         <div
-            class="border-base-300 flex h-full w-[20rem] flex-col overflow-hidden border-l"
+            class="border-base-300 flex h-full w-[20rem] flex-col overflow-hidden border-l transition-[width] duration-(--motion-base) ease-(--motion-ease)"
             [style.width]="show() ? '' : '0px'"
         >
             <div
@@ -69,7 +70,10 @@ import { EventsStateService } from './events-state.service';
                                   }
                     }}
                 </h3>
-                <div class="bg-info-light rounded-full px-2 py-1 text-xs">
+                <div
+                    class="bg-info-light rounded-full px-2 py-1 text-xs"
+                    [pulseOnChange]="pending().length"
+                >
                     {{ filtered_pending().length || '0' }} of
                     {{ pending().length || '0' }}
                 </div>
@@ -87,10 +91,13 @@ import { EventsStateService } from './events-state.service';
                     search
                 </icon>
             </div>
-            <div class="bg-base-200 flex-1 space-y-1 overflow-auto p-1">
+            <div
+                class="bg-base-200 relative flex-1 space-y-1 overflow-auto p-1"
+            >
                 @if (!filtered_pending().length) {
+                    <!-- Over the list, so a card that fades out stays in place -->
                     <div
-                        class="flex h-full w-full flex-col items-center justify-center space-y-2"
+                        class="absolute inset-0 flex flex-col items-center justify-center space-y-2"
                     >
                         <img alt="" src="assets/icons/no-pending.svg" />
                         <p class="opacity-70">
@@ -101,8 +108,10 @@ import { EventsStateService } from './events-state.service';
                     </div>
                 }
                 @for (event of filtered_pending(); track event.id) {
+                    <!-- Fades out when approved, declined or filtered out -->
                     <div
                         class="border-base-300 bg-base-100 hover:border-info relative w-full rounded-lg border p-2 hover:shadow-lg"
+                        animate.leave="motion-fade-out"
                     >
                         @if (event.recurring_event_id) {
                             <div
@@ -319,6 +328,7 @@ import { EventsStateService } from './events-state.service';
         `,
     ],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         TranslatePipe,
         IconComponent,
