@@ -1,5 +1,5 @@
 import {
-    afterNextRender,
+    afterEveryRender,
     Component,
     effect,
     ElementRef,
@@ -90,6 +90,7 @@ import { SignageContextService } from './signage-context.service';
     `,
     host: {
         '(document:keydown)': 'onKeydown($event)',
+        '(document:focusin)': 'onFocusIn($event)',
         '(window:dragover)': 'blockMissedFileDrop($event)',
         '(window:drop)': 'blockMissedFileDrop($event)',
     },
@@ -132,21 +133,15 @@ export class AppComponent implements OnInit {
     public readonly show_nav = signal(false);
     private readonly _main =
         viewChild.required<ElementRef<HTMLElement>>('main');
+    /** Element that last had focus, to find out when a render removes it */
+    private _last_focus: HTMLElement | null = null;
 
     constructor() {
-        let first_navigation = true;
         this._router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
             if (!(event instanceof NavigationEnd)) return;
             this.show_nav.set(showsNav(this._router.routerState.snapshot.root));
-            // Keep the skip link as the first tab stop on page load
-            if (first_navigation) {
-                first_navigation = false;
-                return;
-            }
-            afterNextRender(() => this._recoverFocus(), {
-                injector: this._injector,
-            });
         });
+        afterEveryRender({ read: () => this._recoverFocus() });
 
         // The templates guard only runs on navigation. Leave the section when
         // the selected group turns templates off while it is open.
@@ -175,15 +170,35 @@ export class AppComponent implements OnInit {
         this._main().nativeElement.focus();
     }
 
+    public onFocusIn(event: FocusEvent) {
+        this._last_focus =
+            event.target instanceof HTMLElement ? event.target : null;
+    }
+
     /**
-     * A navigation can remove the focused element, for example a list row of
-     * the page that closed. Move focus to the main content so that keyboard
-     * and screen reader users do not start again from the top of the page.
+     * A render can remove or hide the focused element, for example a list
+     * row of a page that closed, or a button that a loading message
+     * replaces. The browser then moves focus to the page body, and keyboard
+     * and screen reader users start again from the top. Move focus to the
+     * top-most dialog, or to the main content, instead.
      */
     private _recoverFocus() {
-        const active = document.activeElement;
-        if (active && active !== document.body) return;
-        this._main().nativeElement.focus({ preventScroll: true });
+        const last = this._last_focus;
+        const visible = last?.checkVisibility?.() ?? true;
+        if (!last || (last.isConnected && visible)) return;
+        this._last_focus = null;
+        // Wait for menus and dialogs that move focus back when they close
+        setTimeout(() => {
+            // A hidden element can keep focus until the browser next renders
+            const active = document.activeElement;
+            if (active && active !== document.body && active !== last) return;
+            const dialogs = document.querySelectorAll<HTMLElement>(
+                'mat-dialog-container',
+            );
+            const target =
+                dialogs[dialogs.length - 1] ?? this._main().nativeElement;
+            target.focus({ preventScroll: true });
+        });
     }
 
     /** Stop a file dropped outside a drop target from leaving the app */

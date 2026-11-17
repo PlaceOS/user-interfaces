@@ -144,4 +144,22 @@ describe('AppComponent', () => {
         });
         expect(component.show_nav()).toBe(false);
     });
+
+    it('moves focus to the top-most dialog when a render removes the focused element', async () => {
+        placeos.init.mockReturnValue(new Promise(() => {}));
+        TestBed.createComponent(AppComponent);
+        const dialog = document.createElement('mat-dialog-container');
+        dialog.tabIndex = -1;
+        const button = document.createElement('button');
+        document.body.append(dialog, button);
+        button.focus();
+
+        // For example a loading message that replaces the focused button
+        button.remove();
+        TestBed.tick();
+        await new Promise((resolve) => setTimeout(resolve));
+
+        expect(document.activeElement).toBe(dialog);
+        dialog.remove();
+    });
 });
