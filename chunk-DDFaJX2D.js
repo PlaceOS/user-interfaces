@@ -1,0 +1,1 @@
+import{t as Ro}from"./main-BG3PJRND.js";function n(){Ro(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
