@@ -31,7 +31,7 @@ test.describe('US-SM-019: View Room Status Overview', () => {
         await waitForRemoteSupportPage(page);
 
         const card = page
-            .locator('div:has(h3:has-text("Total Rooms"))')
+            .locator('div:has(h2:has-text("Total Rooms"))')
             .first();
         await expect(card).toBeVisible({ timeout: ACTION_TIMEOUT });
 
@@ -44,7 +44,7 @@ test.describe('US-SM-019: View Room Status Overview', () => {
         await waitForRemoteSupportPage(page);
 
         const card = page
-            .locator('div:has(h3:has-text("Active Alerts"))')
+            .locator('div:has(h2:has-text("Active Alerts"))')
             .first();
         await expect(card).toBeVisible({ timeout: ACTION_TIMEOUT });
 

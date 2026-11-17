@@ -207,11 +207,8 @@ const COMPACT_SIGNAL = signal(
                         type="button"
                         class="hover:bg-base-100/10 relative flex w-full items-center justify-center gap-2 rounded-sm p-2"
                         (click)="toggleDarkMode()"
-                        [attr.aria-label]="
-                            dark_mode()
-                                ? 'Switch to light mode'
-                                : 'Switch to dark mode'
-                        "
+                        aria-label="Dark mode"
+                        [attr.aria-pressed]="dark_mode()"
                         [matTooltip]="
                             is_compact()
                                 ? dark_mode()
@@ -228,7 +225,9 @@ const COMPACT_SIGNAL = signal(
                             <span class="flex-1 truncate text-left text-sm"
                                 >Dark Mode</span
                             >
+                            <!-- aria-pressed gives the state -->
                             <span
+                                aria-hidden="true"
                                 class="ml-auto rounded-full px-2 py-0.5 text-xs"
                                 [class.bg-success]="dark_mode()"
                                 [class.text-success-content]="dark_mode()"

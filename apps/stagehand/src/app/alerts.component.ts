@@ -73,7 +73,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         >warning</icon
                     >
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Critical</h3>
+                        <h2 class="text-xl font-medium">Critical</h2>
                         <div class="stagehand-muted text-sm">
                             Attention required
                         </div>
@@ -91,7 +91,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         >error</icon
                     >
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Warnings</h3>
+                        <h2 class="text-xl font-medium">Warnings</h2>
                         <div class="stagehand-muted text-sm">
                             May require attention
                         </div>
@@ -107,7 +107,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         >schedule</icon
                     >
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Open</h3>
+                        <h2 class="text-xl font-medium">Open</h2>
                         <div class="stagehand-muted text-sm">
                             Pending resolution
                         </div>

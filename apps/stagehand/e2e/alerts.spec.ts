@@ -29,7 +29,7 @@ test.describe('US-SM-001: View All System Alerts', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const card = page.locator('div:has(h3:has-text("Critical"))').first();
+        const card = page.locator('div:has(h2:has-text("Critical"))').first();
         await expect(card).toBeVisible({ timeout: ACTION_TIMEOUT });
 
         const count = await getAlertCount(page, 'critical');
@@ -40,7 +40,7 @@ test.describe('US-SM-001: View All System Alerts', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const card = page.locator('div:has(h3:has-text("Warnings"))').first();
+        const card = page.locator('div:has(h2:has-text("Warnings"))').first();
         await expect(card).toBeVisible({ timeout: ACTION_TIMEOUT });
 
         const count = await getAlertCount(page, 'warnings');
@@ -51,7 +51,7 @@ test.describe('US-SM-001: View All System Alerts', () => {
         await navigateWithMock(page, ALERTS_URL);
         await waitForAlertsPage(page);
 
-        const card = page.locator('div:has(h3:has-text("Open"))').first();
+        const card = page.locator('div:has(h2:has-text("Open"))').first();
         await expect(card).toBeVisible({ timeout: ACTION_TIMEOUT });
 
         const count = await getAlertCount(page, 'open');

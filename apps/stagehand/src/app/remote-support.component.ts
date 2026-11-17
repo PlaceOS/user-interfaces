@@ -50,7 +50,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                 >
                     <icon class="text-info mb-5 text-3xl">sensors</icon>
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Total Rooms</h3>
+                        <h2 class="text-xl font-medium">Total Rooms</h2>
                         <div class="stagehand-muted text-sm">
                             Total room count with devices
                         </div>
@@ -64,7 +64,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                 >
                     <icon class="text-error text-3xl">warning</icon>
                     <div class="flex-1">
-                        <h3 class="text-xl font-medium">Active Alerts</h3>
+                        <h2 class="text-xl font-medium">Active Alerts</h2>
                     </div>
                     <div class="px-2 text-4xl font-bold">
                         {{ room_alerts().length }}
@@ -127,6 +127,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                             key: 'actions',
                             name: ' ',
                             content: actions_template,
+                            sortable: false,
                             size: '6rem',
                         },
                         {

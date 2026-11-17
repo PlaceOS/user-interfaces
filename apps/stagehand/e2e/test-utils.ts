@@ -229,7 +229,7 @@ export async function getAlertCount(
     // Use more specific selector - the card is in stagehand-alerts and has specific structure
     const card = page
         .locator(
-            `stagehand-alerts div:has(> div > h3:has-text("${card_text}"))`,
+            `stagehand-alerts div:has(> div > h2:has-text("${card_text}"))`,
         )
         .first();
     const count = card.locator('.text-4xl').first();
@@ -308,7 +308,7 @@ export async function selectRoomStateFilter(
  * Gets the total room count from the remote support page.
  */
 export async function getTotalRoomCount(page: Page): Promise<string> {
-    const card = page.locator('div:has(h3:has-text("Total Rooms"))').first();
+    const card = page.locator('div:has(h2:has-text("Total Rooms"))').first();
     const count = card.locator('.text-4xl').first();
     return (await count.textContent()) || '0';
 }
@@ -317,7 +317,7 @@ export async function getTotalRoomCount(page: Page): Promise<string> {
  * Gets the active alerts count from the remote support page.
  */
 export async function getActiveAlertsCount(page: Page): Promise<string> {
-    const card = page.locator('div:has(h3:has-text("Active Alerts"))').first();
+    const card = page.locator('div:has(h2:has-text("Active Alerts"))').first();
     const count = card.locator('.text-4xl').first();
     return (await count.textContent()) || '0';
 }
