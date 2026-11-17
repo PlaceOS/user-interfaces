@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1794916619378,
+  "timestamp": 1794917024860,
   "index": "./index.html",
   "assetGroups": [
     {
@@ -533,14 +533,14 @@
     "./favicon.ico": "a6c4460151fec22d352f6ada6467c8d21b6d35e6",
     "./fr-BBH-5TQG.js": "ace41bc2b9b3baa98d3c94f474f9043b59864e51",
     "./index.es-CpPgn0uf.js": "b9bca4d6682939ccc34240b64885310da41deb9e",
-    "./index.html": "7d9663da6070aa343ce3c17de811bb7790b35e42",
+    "./index.html": "8778af1364ccb152578d4383aba2bdc073a827cb",
     "./induction-settings-modal.component-DKNkMglz.js": "cd1f48976df66552952387f2ac9b5d7828944110",
     "./it-CKncUqxZ.js": "e86641b9ae7ebed2832b7c038f84f9aaee75e434",
     "./ja-DngrQVLH.js": "fb52890e58546e9fddbfe0cca453a27df3377541",
     "./keyboard-shortcuts-modal.component-BQ0dWlUJ.js": "21e175ebb25af167788add4a94432f4bad188a38",
     "./lockers-report.component-RhhP2Xbu.js": "00806462b5839197e153ac394e502abc494949db",
     "./lockers.routes-BYJQw1DU.js": "f9394f1ed91b726a2e02b197500ccc136adce192",
-    "./main.js": "863ad8bcaf12a5f209c244f43056be64957730de",
+    "./main.js": "162f38f6a5e20bffdcd91d45f6a532e4aa39e9c8",
     "./manifest.webmanifest": "8fb029e2b745a70817e4200920c410daf0425443",
     "./map-editor-page.component-1XAPOWJH.js": "c42810ee1d63203f0c301595e169577082de1f83",
     "./map-manager.routes-CTie8aqM.js": "f2d253e4376b25966648a7dcec6e7d5955d1fb55",
