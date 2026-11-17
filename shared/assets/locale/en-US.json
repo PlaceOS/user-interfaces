@@ -2848,7 +2848,6 @@
         "SEARCH_ZONES_PLAYLISTS": "Search zones or playlists",
         "SELECT_GROUP": "Select Group",
         "SELECT_MEDIA": "Select {{ name }}",
-        "SELECT_MEDIA_ITEM": "Select media item {{ name }}",
         "SELECT_PARENT": "Select parent group",
         "SELECT_PLAYLIST_DETAILS": "Select a playlist to view details.",
         "SELECT_PLAYLIST_ITEMS": "Select a playlist to view its items.",

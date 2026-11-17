@@ -188,6 +188,19 @@ describe('TemplateLayoutListComponent', () => {
         expect(draft()[0].position).toBe('top');
     });
 
+    it('moves a layout item one place without dragging', async () => {
+        draft.set([
+            { position: 'top', plugin_params: {} },
+            { position: 'left', plugin_params: {} },
+        ]);
+        const component = await make();
+        component.moveLayout(0, 1);
+        expect(draft().map((item) => item.position)).toEqual(['left', 'top']);
+        // Past the end of the list does nothing
+        component.moveLayout(1, 1);
+        expect(draft().map((item) => item.position)).toEqual(['left', 'top']);
+    });
+
     it('applies plugin and schema defaults to a layout', async () => {
         widgets.set([
             {

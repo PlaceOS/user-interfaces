@@ -2450,7 +2450,6 @@
         "SEARCH_ZONES_PLAYLISTS": "Pesquisar zonas ou listas de reprodução",
         "SELECT_GROUP": "Selecionar grupo",
         "SELECT_MEDIA": "Selecionar {{ name }}",
-        "SELECT_MEDIA_ITEM": "Selecionar item multimédia {{ name }}",
         "SELECT_PARENT": "Selecionar grupo principal",
         "SELECT_PLAYLIST_DETAILS": "Selecione uma lista de reprodução para ver os detalhes.",
         "SELECT_PLAYLIST_ITEMS": "Selecione uma lista de reprodução para ver os itens.",

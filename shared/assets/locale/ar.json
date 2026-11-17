@@ -2450,7 +2450,6 @@
         "SEARCH_ZONES_PLAYLISTS": "البحث في المناطق أو قوائم التشغيل",
         "SELECT_GROUP": "تحديد المجموعة",
         "SELECT_MEDIA": "تحديد {{ name }}",
-        "SELECT_MEDIA_ITEM": "تحديد عنصر الوسائط {{ name }}",
         "SELECT_PARENT": "تحديد المجموعة الأصلية",
         "SELECT_PLAYLIST_DETAILS": "حدد قائمة تشغيل لعرض تفاصيلها.",
         "SELECT_PLAYLIST_ITEMS": "حدد قائمة تشغيل لعرض عناصرها.",

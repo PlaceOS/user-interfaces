@@ -478,6 +478,8 @@ export function playlistSchedulePayload(
                     class="flex min-w-0 flex-1 items-center gap-3 text-left"
                     [attr.aria-expanded]="open()"
                     (click)="toggle.emit()"
+                    [matTooltip]="scheduleExpiryTooltip()"
+                    [matTooltipDisabled]="!value().has_valid_until"
                 >
                     <div class="min-w-24 text-sm font-medium">
                         {{
@@ -487,8 +489,6 @@ export function playlistSchedulePayload(
                     </div>
                     <div
                         class="text-base-content min-w-0 flex-1 truncate text-xs"
-                        [matTooltip]="scheduleExpiryTooltip()"
-                        [matTooltipDisabled]="!value().has_valid_until"
                     >
                         {{ scheduleSummary() }}
                     </div>

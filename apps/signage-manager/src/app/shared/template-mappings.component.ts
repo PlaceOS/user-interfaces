@@ -272,6 +272,11 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                             </div>
                                             <div
                                                 class="rounded-md p-2"
+                                                [attr.tabindex]="
+                                                    scheduleTooltip(schedule)
+                                                        ? 0
+                                                        : null
+                                                "
                                                 [matTooltip]="
                                                     scheduleTooltip(schedule)
                                                 "

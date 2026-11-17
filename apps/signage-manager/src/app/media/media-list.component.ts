@@ -4,13 +4,10 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
     Component,
     computed,
-    DestroyRef,
     effect,
     inject,
     input,
     linkedSignal,
-    OnInit,
-    signal,
     untracked,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -59,6 +56,7 @@ const UNTAGGED = '\0untagged';
                 [matTooltip]="other_tags().join(', ')"
             >
                 +{{ other_tags().length }}
+                <span class="sr-only">{{ other_tags().join(', ') }}</span>
             </span>
         }
     `,
@@ -592,7 +590,7 @@ export class MediaTagChipsComponent {
                         </div>
                     </button>
                 }
-                @if (sidebar_hidden() && can_update()) {
+                @if (can_update()) {
                     <button
                         type="button"
                         mat-menu-item
@@ -770,14 +768,12 @@ export class MediaTagChipsComponent {
         MediaTagChipsComponent,
     ],
 })
-export class MediaListComponent implements OnInit {
+export class MediaListComponent {
     private readonly _context = inject(SignageContextService);
     private readonly _media_service = inject(SignageMediaService);
     private readonly _image_gen = inject(ImageGenService);
-    private readonly _destroy = inject(DestroyRef);
 
     public readonly playlist_count = input(0);
-    public readonly sidebar_hidden = signal(false);
     public readonly playlist_ids = computed(() =>
         new Array(this.playlist_count())
             .fill(0)
@@ -796,10 +792,6 @@ export class MediaListComponent implements OnInit {
         () => this.selected_media().length,
     );
 
-    private _mql = window.matchMedia('(max-width: 767px)');
-    private _onMediaChange = (e: MediaQueryListEvent | MediaQueryList) =>
-        this.sidebar_hidden.set(e.matches);
-
     constructor() {
         // An open folder filters the loaded pages, and its items can be on
         // any page, so load every page while it is open. Paging stops on the
@@ -810,14 +802,6 @@ export class MediaListComponent implements OnInit {
             if (!this.has_more() || this.loading()) return;
             untracked(() => this.loadMore());
         });
-    }
-
-    public ngOnInit() {
-        this._onMediaChange(this._mql);
-        this._mql.addEventListener('change', this._onMediaChange);
-        this._destroy.onDestroy(() =>
-            this._mql.removeEventListener('change', this._onMediaChange),
-        );
     }
 
     public readonly media = this._media_service.media;

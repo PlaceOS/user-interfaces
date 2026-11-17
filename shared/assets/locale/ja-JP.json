@@ -2450,7 +2450,6 @@
         "SEARCH_ZONES_PLAYLISTS": "ゾーンまたはプレイリストを検索",
         "SELECT_GROUP": "グループを選択",
         "SELECT_MEDIA": "{{ name }} を選択",
-        "SELECT_MEDIA_ITEM": "メディア項目 {{ name }} を選択",
         "SELECT_PARENT": "親グループを選択",
         "SELECT_PLAYLIST_DETAILS": "詳細を表示するプレイリストを選択してください。",
         "SELECT_PLAYLIST_ITEMS": "項目を表示するプレイリストを選択してください。",

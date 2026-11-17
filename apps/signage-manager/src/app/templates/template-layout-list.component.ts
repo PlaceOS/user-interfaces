@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
     CdkDrag,
     CdkDragDrop,
@@ -6,13 +7,17 @@ import {
     moveItemInArray,
 } from '@angular/cdk/drag-drop';
 import {
+    afterNextRender,
     Component,
     computed,
+    ElementRef,
     inject,
+    Injector,
     model,
     resource,
     signal,
     viewChild,
+    viewChildren,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -151,6 +156,7 @@ import {
                                         >
                                     }
                                     <button
+                                        #layout_button
                                         type="button"
                                         class="flex min-w-0 flex-1 items-center gap-2 text-left"
                                         [attr.aria-expanded]="
@@ -187,6 +193,37 @@ import {
                                             </div>
                                         </div>
                                     </button>
+                                    @if (can_update() && layouts().length > 1) {
+                                        <!-- for users who cannot drag -->
+                                        <button
+                                            icon
+                                            default
+                                            type="button"
+                                            matRipple
+                                            [disabled]="$first"
+                                            (click)="moveLayout($index, -1)"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.PLAYLIST_ITEM_MOVE_UP'
+                                                    | translate
+                                            "
+                                        >
+                                            <icon>arrow_upward</icon>
+                                        </button>
+                                        <button
+                                            icon
+                                            default
+                                            type="button"
+                                            matRipple
+                                            [disabled]="$last"
+                                            (click)="moveLayout($index, 1)"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.PLAYLIST_ITEM_MOVE_DOWN'
+                                                    | translate
+                                            "
+                                        >
+                                            <icon>arrow_downward</icon>
+                                        </button>
+                                    }
                                     @if (can_update()) {
                                         <button
                                             icon
@@ -746,6 +783,10 @@ export class TemplateLayoutListComponent {
     private readonly _plugin_service = inject(SignagePluginService);
     private readonly _template_service = inject(SignageTemplateService);
     private readonly _zone_service = inject(SignageZoneService);
+    private readonly _announcer = inject(LiveAnnouncer);
+    private readonly _injector = inject(Injector);
+    private readonly _layout_buttons =
+        viewChildren<ElementRef<HTMLElement>>('layout_button');
 
     /** Active inner tab. Below lg the parent drives it from its own tabs. */
     public readonly view_tab = model<'items' | 'details'>('items', {
@@ -881,10 +922,35 @@ export class TemplateLayoutListComponent {
     }
 
     public onDrop(event: CdkDragDrop<SignageTemplateLayout[]>) {
+        this._moveLayout(event.previousIndex, event.currentIndex);
+    }
+
+    /**
+     * Move a layout item one place, for users who cannot drag. Keeps focus
+     * on the moved item and says its new position.
+     * @param offset -1 to move up, 1 to move down
+     */
+    public moveLayout(index: number, offset: -1 | 1) {
+        const target = index + offset;
+        if (target < 0 || target >= this.layouts().length) return;
+        this._moveLayout(index, target);
+        afterNextRender(
+            () => this._layout_buttons()[target]?.nativeElement.focus(),
+            { injector: this._injector },
+        );
+        void this._announcer.announce(
+            i18n('COMMON.MOVED_TO_POSITION', {
+                position: target + 1,
+                count: this.layouts().length,
+            }),
+        );
+    }
+
+    private _moveLayout(from: number, to: number) {
         if (!this.can_update()) return;
-        if (event.previousIndex === event.currentIndex) return;
+        if (from === to) return;
         const layouts = [...this.layouts()];
-        moveItemInArray(layouts, event.previousIndex, event.currentIndex);
+        moveItemInArray(layouts, from, to);
         // Keep the selection on the same layout item after the move
         const selected = this.selected_index();
         if (selected !== null) {

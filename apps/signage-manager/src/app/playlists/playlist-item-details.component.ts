@@ -217,6 +217,13 @@ import { SignagePlaylistService } from './signage-playlist.service';
                                                 track schedule
                                             ) {
                                                 <div
+                                                    [attr.tabindex]="
+                                                        schedule_expiry_tooltips()[
+                                                            $index
+                                                        ]
+                                                            ? 0
+                                                            : null
+                                                    "
                                                     [matTooltip]="
                                                         schedule_expiry_tooltips()[
                                                             $index

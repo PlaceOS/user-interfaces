@@ -151,14 +151,13 @@ function mediaSaveErrorMessage(error: unknown) {
         >
             <form>
                 <div class="flex flex-col">
-                    <button
-                        type="button"
-                        matRipple
-                        class="bg-base-300 border-base-300 relative mx-auto mb-4 h-48 w-full overflow-hidden rounded-xl border shadow"
+                    <!-- Not a button: the preview can hold an iframe or a
+                     plugin, which must not sit inside a button. The click
+                     here is for the mouse; the button below is for the
+                     keyboard. -->
+                    <div
+                        class="bg-base-300 border-base-300 relative mx-auto mb-4 h-48 w-full cursor-pointer overflow-hidden rounded-xl border shadow"
                         (click)="preview()"
-                        [attr.aria-label]="
-                            'SIGNAGE_MANAGER.PREVIEW_MEDIA_ARIA' | translate
-                        "
                     >
                         @if (media_type === 'plugin' && plugin_loading()) {
                             <div
@@ -217,7 +216,19 @@ function mediaSaveErrorMessage(error: unknown) {
                         >
                             {{ media_type }}
                         </div>
-                    </button>
+                        <button
+                            icon
+                            type="button"
+                            matRipple
+                            class="bg-base-100 text-base-content absolute top-2 right-2 shadow"
+                            (click)="$event.stopPropagation(); preview()"
+                            [attr.aria-label]="
+                                'SIGNAGE_MANAGER.PREVIEW_MEDIA_ARIA' | translate
+                            "
+                        >
+                            <icon>open_in_full</icon>
+                        </button>
+                    </div>
                     @if (dimensions_warning) {
                         <p
                             class="bg-warning text-warning-content mb-4 rounded-lg px-4 py-2 text-sm"

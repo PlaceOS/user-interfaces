@@ -2451,7 +2451,6 @@
         "SEARCH_ZONES_PLAYLISTS": "搜索区域或播放列表",
         "SELECT_GROUP": "选择组",
         "SELECT_MEDIA": "选择 {{ name }}",
-        "SELECT_MEDIA_ITEM": "选择媒体项目 {{ name }}",
         "SELECT_PARENT": "选择父组",
         "SELECT_PLAYLIST_DETAILS": "选择播放列表以查看其详情。",
         "SELECT_PLAYLIST_ITEMS": "选择播放列表以查看其项目。",
