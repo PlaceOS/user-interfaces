@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { BuildingListComponent } from '../building-manager/building-list.component';
@@ -14,6 +14,7 @@ import { RegionListComponent } from '../region-manager/region-list.component';
 import { RegionManagementService } from '../region-manager/region-management.service';
 import { AppSettingsMenuComponent } from '../ui/app-settings/app-settings-menu.component';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { queryParamsWriter } from '../ui/page-transitions';
 
 @Component({
     selector: '[app-zone-manager]',
@@ -116,7 +117,8 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
     private readonly _level_service = inject(LevelManagementService);
     private readonly _org = inject(OrganisationService);
     private readonly _route = inject(ActivatedRoute);
-    private readonly _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
 
     public readonly selected_tab = signal(0);
 
@@ -150,11 +152,7 @@ export class ZoneManagerComponent extends AsyncHandler implements OnInit {
 
     public onTabChange(index: number) {
         this.selected_tab.set(index);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { tab: this.TAB_NAMES[index] },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ tab: this.TAB_NAMES[index] });
     }
 
     public async ngOnInit() {

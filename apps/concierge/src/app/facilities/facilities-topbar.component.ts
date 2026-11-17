@@ -1,6 +1,6 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { AsyncHandler, Identity, OrganisationService } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { EventsStateService } from '../day-view/events-state.service';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { sameZones } from '../ui/zone-persistence';
 
@@ -76,7 +77,8 @@ export class FacilitiesTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(EventsStateService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
 
     private readonly _ready = signal(false);
     private readonly _query_params = toSignal(this._route.queryParamMap);
@@ -98,11 +100,7 @@ export class FacilitiesTopbarComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         this.zones.set(z);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: z.join(',') },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ zone_ids: z.join(',') });
         this._state.setZones(z);
     };
     /** List of levels for the active building */

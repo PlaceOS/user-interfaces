@@ -143,8 +143,13 @@ describe('ReportsOptionsComponent', () => {
 
     it('should drop the zone_ids param when no zones are selected', () => {
         spectator.component.setZones([]);
-        const call = navigate.mock.calls.at(-1);
-        expect(call[1].queryParams.zone_ids).toBeUndefined();
+        expect(navigate).toHaveBeenLastCalledWith(
+            [],
+            expect.objectContaining({
+                queryParams: { zone_ids: null },
+                queryParamsHandling: 'merge',
+            }),
+        );
     });
 
     it('should find desk asset levels when reporting on a building', async () => {

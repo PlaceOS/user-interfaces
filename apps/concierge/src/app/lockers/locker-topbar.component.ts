@@ -29,6 +29,7 @@ import {
 } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
     loadPersistedZones,
@@ -193,6 +194,8 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
     private _previous_path = '';
@@ -232,10 +235,8 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
         if (!this._router.url.includes('lockers')) return;
         const zones = (z || []).filter((_) => !!_);
         this.zones.set(zones);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            zone_ids: zones.length ? zones.join(',') : null,
         });
         this._state.setFilters({ zones });
         persistZones(

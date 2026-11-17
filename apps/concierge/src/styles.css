@@ -16,6 +16,43 @@
     border-radius: 0;
 }
 
+/*
+ * Interface motion. Use these tokens for every interface animation, so that
+ * the reduced motion setting stops all of them.
+ */
+:root {
+    --motion-fast: 120ms;
+    --motion-base: 200ms;
+    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-fast: 0ms;
+        --motion-base: 0ms;
+    }
+}
+
+/*
+ * Page changes (`withViewTransitions` in app.config.ts). The page
+ * cross-fades, so parts that do not change stay still. Each page shows its
+ * own sidebar, which changes at once instead of fading.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease);
+}
+
+::view-transition-old(concierge-sidebar) {
+    display: none;
+}
+
+::view-transition-new(concierge-sidebar) {
+    animation: none;
+}
+
 html,
 body {
     height: 100%;

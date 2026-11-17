@@ -497,6 +497,8 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 height: 100%;
                 width: 16rem;
                 border-right: 1px solid var(--base-200);
+                /* Stays still on page changes (styles.css) */
+                view-transition-name: concierge-sidebar;
             }
 
             :host.rail {

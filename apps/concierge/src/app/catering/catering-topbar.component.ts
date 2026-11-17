@@ -1,5 +1,5 @@
 import { Component, effect, inject, OnInit, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -18,6 +18,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
     loadPersistedZones,
@@ -198,7 +199,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     private _catering = inject(CateringStateService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _settings = inject(SettingsService);
 
     /** List of selected levels */
@@ -226,10 +228,8 @@ export class CateringTopbarComponent extends AsyncHandler implements OnInit {
     public readonly updateZones = (z) => {
         const zones = z || [];
         this.zones.set(zones);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            zone_ids: zones.length ? zones.join(',') : null,
         });
         this._orders.filters = { ...this._orders.filters, zones };
         this.filters.set(this._orders.filters);

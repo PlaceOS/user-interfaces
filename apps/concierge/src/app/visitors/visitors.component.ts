@@ -5,12 +5,13 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { BuildingPipe, TranslatePipe } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { parse } from 'date-fns';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { GuestListingComponent } from './guest-listing.component';
 import { InviteVisitorModalComponent } from './invite-visitor-modal.component';
@@ -119,7 +120,8 @@ import { VisitorsStateService } from './visitors-state.service';
 export class VisitorsComponent implements OnInit, OnDestroy {
     private _state = inject(VisitorsStateService);
     private _org = inject(OrganisationService);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _route = inject(ActivatedRoute);
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
@@ -144,10 +146,8 @@ export class VisitorsComponent implements OnInit, OnDestroy {
     public readonly setSearch = (str) => this._state.setSearchString(str);
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.length ? zones.join(',') : null },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            zone_ids: zones.length ? zones.join(',') : null,
         });
         this._state.setFilters({ zones });
     };
