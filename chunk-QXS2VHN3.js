@@ -6873,15 +6873,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "27ce1b1",
-  "hash": "27ce1b1",
+  "raw": "2e0c848",
+  "hash": "2e0c848",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "27ce1b1",
+  "suffix": "2e0c848",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1794954031959
+  "time": 1794954532403
 };
 
 // libs/common/src/lib/settings.ts
@@ -9463,5 +9463,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=4c7ed261-d4be-54fe-a9b6-b2a023c5ec96
-//# sourceMappingURL=chunk-OGWXLR3C.js.map
+//# debugId=fc4c8974-9807-57e1-9e49-cc2359e365eb
+//# sourceMappingURL=chunk-QXS2VHN3.js.map
