@@ -1,0 +1,4 @@
+import{bn as ca,h as D}from"./chunk-CfIW15Lg.js";import{f as q,r as G}from"./chunk-CgVXclja.js";function s(n,u){let c=D(G),d=D(q),e=ca(()=>u(n()));return{active:e.asReadonly(),select(r){r!==e()&&(e.set(r),d.navigate([],{relativeTo:c,queryParams:{tab:r},queryParamsHandling:`merge`,replaceUrl:!0}))}}}export{s as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="df449bf9-b481-5388-9a22-9fa848f6c0fc")}catch(e){}}();
+//# debugId=df449bf9-b481-5388-9a22-9fa848f6c0fc
+//# sourceMappingURL=chunk-BT4FeWNB.js.map

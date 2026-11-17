@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["nav-footer.component.ts"],
-  "sourcesContent": ["\n            a [active] {\n                transition: opacity 300ms;\n            }\n\n            a:not(.active) [active] {\n                opacity: 0;\n            }\n\n            a.active [active] {\n                opacity: 1;\n            }\n        "],
-  "mappings": "AACY,EAAA,CAAA,QACI,WAAA,QAAA,GACJ,CAEA,CAAA,KAAA,CAAA,QAAA,CAAA,QACI,QAAA,CACJ,CAEA,CAAA,CAJA,OAIA,CAAA,QACI,QAAA,CACJ",
+  "sourcesContent": ["\n            a [active] {\n                transition: opacity 300ms;\n            }\n\n            a:not(.active) [active] {\n                opacity: 0;\n            }\n\n            /* The footer stays in place while a route transition slides the page */\n            nav {\n                view-transition-name: nav-footer;\n            }\n\n            /* The marker slides to the new page in a route transition */\n            a.active [active] {\n                opacity: 1;\n                view-transition-name: nav-marker;\n            }\n        "],
+  "mappings": "AACY,EAAA,CAAA,QACI,WAAA,QAAA,GACJ,CAEA,CAAA,KAAA,CAAA,QAAA,CAAA,QACI,QAAA,CACJ,CAGA,IACI,qBAAA,UACJ,CAGA,CAAA,CAVA,OAUA,CAAA,QACI,QAAA,EACA,qBAAA,UACJ",
   "names": []
 }
