@@ -88,6 +88,9 @@ import { SignageMediaService } from './signage-media.service';
                                 'SIGNAGE_MANAGER.OPEN_PLAYLIST'
                                     | translate: { name: playlist.name }
                             "
+                            [attr.aria-describedby]="
+                                'sidebar-playlist-status-' + playlist.id
+                            "
                         >
                             <div
                                 cdkDropList
@@ -110,6 +113,10 @@ import { SignageMediaService } from './signage-media.service';
                                     </div>
                                     <div
                                         class="flex flex-wrap gap-1 text-[0.625rem]"
+                                        [id]="
+                                            'sidebar-playlist-status-' +
+                                            playlist.id
+                                        "
                                     >
                                         @if (!playlist.enabled) {
                                             <playlist-status-badge

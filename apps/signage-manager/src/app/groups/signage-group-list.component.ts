@@ -70,6 +70,11 @@ interface GroupListRow {
                                         | translate
                                             : { name: group.name || group.id }
                                 "
+                                [attr.aria-current]="
+                                    group.id === selected_group()?.id
+                                        ? 'true'
+                                        : null
+                                "
                                 (click)="selectGroup(group)"
                             >
                                 <div class="min-w-0 flex-1">
@@ -131,6 +136,9 @@ interface GroupListRow {
                             [cdkTreeNodePadding]="row.level"
                             [cdkTreeNodePaddingIndent]="8"
                             class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
+                            [attr.aria-selected]="
+                                row.group.id === selected_group()?.id
+                            "
                             [class.bg-primary]="
                                 row.group.id === selected_group()?.id
                             "

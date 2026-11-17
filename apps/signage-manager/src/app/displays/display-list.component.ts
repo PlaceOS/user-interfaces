@@ -65,6 +65,10 @@ import { SignageDisplayService } from './signage-display.service';
                         "
                         [routerLink]="['/displays', display.id]"
                         queryParamsHandling="merge"
+                        [attr.aria-current]="
+                            selected()?.id === display.id ? 'page' : null
+                        "
+                        [attr.aria-describedby]="'display-status-' + display.id"
                         [attr.aria-label]="
                             'SIGNAGE_MANAGER.OPEN_DISPLAY'
                                 | translate
@@ -78,6 +82,7 @@ import { SignageDisplayService } from './signage-display.service';
                         <div
                             class="relative shrink-0"
                             role="img"
+                            [id]="'display-status-' + display.id"
                             [matTooltip]="
                                 statusLabel(display)
                                     | translate: { time: lastSeen(display) }
@@ -87,7 +92,9 @@ import { SignageDisplayService } from './signage-display.service';
                                     | translate: { time: lastSeen(display) }
                             "
                         >
-                            <icon class="text-2xl">tv</icon>
+                            <icon class="text-2xl">{{
+                                isOnline(display) ? 'tv' : 'tv_off'
+                            }}</icon>
                             <span
                                 class="border-base-100 absolute -right-0.5 -bottom-0.5 h-2.5 w-2.5 rounded-full border-2"
                                 [class.bg-success]="isOnline(display)"

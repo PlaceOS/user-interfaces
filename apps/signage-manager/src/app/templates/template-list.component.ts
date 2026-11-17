@@ -62,6 +62,12 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                             'SIGNAGE_MANAGER.OPEN_TEMPLATE'
                                 | translate: { name: template.name }
                         "
+                        [attr.aria-describedby]="
+                            'template-status-' + template.id
+                        "
+                        [attr.aria-current]="
+                            selected()?.id === template.id ? 'page' : null
+                        "
                     >
                         <icon class="shrink-0 text-3xl opacity-60"
                             >dashboard_customize</icon
@@ -72,6 +78,7 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                             </div>
                             <div
                                 class="flex flex-wrap gap-1 text-[0.625rem] font-medium uppercase"
+                                [id]="'template-status-' + template.id"
                             >
                                 <span
                                     class="bg-base-200 text-base-content shrink-0 rounded px-1.5 py-0.5"

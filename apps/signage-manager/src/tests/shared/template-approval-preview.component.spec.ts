@@ -106,10 +106,11 @@ describe('TemplateApprovalPreviewComponent', () => {
         const position_values = Array.from(
             fixture.nativeElement.querySelectorAll('[data-layout-values]'),
         ).map((item: Element) => item.textContent?.replace(/\s+/g, ' ').trim());
+        // Changed values also say so in text, not only by colour
         expect(position_values).toEqual([
-            'X position: 30%',
+            'X position: 30% (Changed)',
             'X position: 50% Y position: 60%',
-            'X position: 20%',
+            'X position: 20% (Changed)',
         ]);
         expect(fixture.nativeElement.textContent).not.toContain(
             'Y position: 25%',
@@ -162,9 +163,16 @@ describe('TemplateApprovalPreviewComponent', () => {
         const merge_labels = Array.from(
             fixture.nativeElement.querySelectorAll('span'),
         ).filter(
-            (item: HTMLElement) => item.textContent.trim() === 'Merge',
+            (item: HTMLElement) =>
+                item.firstChild?.textContent?.trim() === 'Merge',
         ) as HTMLElement[];
         expect(merge_labels).toHaveLength(2);
+        expect(merge_labels[0].textContent.replace(/\s+/g, ' ').trim()).toBe(
+            'Merge (Changed)',
+        );
+        expect(merge_labels[1].textContent.replace(/\s+/g, ' ').trim()).toBe(
+            'Merge (Off) (Changed)',
+        );
         expect(merge_labels[0].className).toContain('bg-success/20');
         expect(merge_labels[0].classList.contains('line-through')).toBe(false);
         expect(merge_labels[1].className).toContain('bg-error/20');

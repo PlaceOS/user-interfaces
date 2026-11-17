@@ -106,7 +106,12 @@ import { SignageMediaService } from './signage-media.service';
                     {{ 'SIGNAGE_MANAGER.MEDIA_SORT' | translate }}
                 </div>
                 @for (sort of sorts; track sort) {
-                    <button mat-menu-item (click)="setView({ sort })">
+                    <button
+                        mat-menu-item
+                        role="menuitemradio"
+                        [attr.aria-checked]="view().sort === sort"
+                        (click)="setView({ sort })"
+                    >
                         <div class="flex items-center gap-2">
                             <icon class="text-xl">{{
                                 view().sort === sort ? 'check' : ''
@@ -121,6 +126,8 @@ import { SignageMediaService } from './signage-media.service';
                 @for (type of type_filters; track type) {
                     <button
                         mat-menu-item
+                        role="menuitemcheckbox"
+                        [attr.aria-checked]="view().type === type"
                         (click)="
                             setView({
                                 type: view().type === type ? null : type,
@@ -141,6 +148,8 @@ import { SignageMediaService } from './signage-media.service';
                 @for (expiry of expiry_filters; track expiry) {
                     <button
                         mat-menu-item
+                        role="menuitemcheckbox"
+                        [attr.aria-checked]="view().expiry === expiry"
                         (click)="
                             setView({
                                 expiry:

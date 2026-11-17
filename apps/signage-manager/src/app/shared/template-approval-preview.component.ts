@@ -98,6 +98,14 @@ interface TemplateVersionPreview {
                                     "
                                 >
                                     {{ template.name }}
+                                    @if (version.fields.includes('name')) {
+                                        <span class="sr-only">
+                                            ({{
+                                                'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                    | translate
+                                            }})</span
+                                        >
+                                    }
                                 </span>
                             </div>
                             @if (template.description) {
@@ -113,6 +121,18 @@ interface TemplateVersionPreview {
                                         "
                                     >
                                         {{ template.description }}
+                                        @if (
+                                            version.fields.includes(
+                                                'description'
+                                            )
+                                        ) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                        | translate
+                                                }})</span
+                                            >
+                                        }
                                     </span>
                                 </div>
                             }
@@ -150,6 +170,21 @@ interface TemplateVersionPreview {
                                             'SIGNAGE_MANAGER.TEMPLATE_FULLSCREEN_TAKEOVER'
                                                 | translate
                                         }}
+                                        @if (!template.full_screen_takeover) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'COMMON.OFF' | translate
+                                                }})</span
+                                            >
+                                        }
+                                        @if (takeover_changed) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                        | translate
+                                                }})</span
+                                            >
+                                        }
                                     </span>
                                 }
                                 @let merge_changed =
@@ -168,6 +203,21 @@ interface TemplateVersionPreview {
                                             'SIGNAGE_MANAGER.TEMPLATE_MERGE'
                                                 | translate
                                         }}
+                                        @if (!template.merge) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'COMMON.OFF' | translate
+                                                }})</span
+                                            >
+                                        }
+                                        @if (merge_changed) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                        | translate
+                                                }})</span
+                                            >
+                                        }
                                     </span>
                                 }
                                 @let background_changed =
@@ -192,6 +242,14 @@ interface TemplateVersionPreview {
                                                 : 'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_EMPTY'
                                             ) | translate
                                         }}
+                                        @if (background_changed) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                        | translate
+                                                }})</span
+                                            >
+                                        }
                                     </span>
                                 }
                                 @for (tag of version.tags; track tag.name) {
@@ -205,6 +263,14 @@ interface TemplateVersionPreview {
                                         "
                                     >
                                         #{{ tag.name }}
+                                        @if (tag.changed) {
+                                            <span class="sr-only">
+                                                ({{
+                                                    'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                        | translate
+                                                }})</span
+                                            >
+                                        }
                                     </span>
                                 }
                             </div>
@@ -322,6 +388,18 @@ interface TemplateVersionPreview {
                                                 positionLabel(layout)
                                                     | translate
                                             }}
+                                            @if (
+                                                item.changes.includes(
+                                                    'position'
+                                                )
+                                            ) {
+                                                <span class="sr-only">
+                                                    ({{
+                                                        'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                            | translate
+                                                    }})</span
+                                                >
+                                            }
                                         </div>
                                         @if (item.status !== 'unchanged') {
                                             <span
@@ -352,6 +430,18 @@ interface TemplateVersionPreview {
                                                     ('SIGNAGE_MANAGER.TEMPLATE_NO_PLUGIN'
                                                         | translate)
                                             }}
+                                            @if (
+                                                item.changes.includes(
+                                                    'plugin_id'
+                                                )
+                                            ) {
+                                                <span class="sr-only">
+                                                    ({{
+                                                        'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                            | translate
+                                                    }})</span
+                                                >
+                                            }
                                         </div>
                                     </div>
                                     <div
@@ -374,6 +464,18 @@ interface TemplateVersionPreview {
                                             >
                                                 {{ value.label | translate }}:
                                                 {{ value.value }}%
+                                                @if (
+                                                    item.changes.includes(
+                                                        value.axis
+                                                    )
+                                                ) {
+                                                    <span class="sr-only">
+                                                        ({{
+                                                            'SIGNAGE_MANAGER.TEMPLATE_CHANGE_CHANGED'
+                                                                | translate
+                                                        }})</span
+                                                    >
+                                                }
                                             </span>
                                         }
                                     </div>

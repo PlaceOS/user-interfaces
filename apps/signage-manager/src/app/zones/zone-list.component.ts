@@ -79,6 +79,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         [isExpanded]="isExpanded(node)"
                         (expandedChange)="onExpandedChange(node, $event)"
                         (activation)="openZone(node.zone)"
+                        [attr.aria-selected]="selected()?.id === node.zone.id"
                         class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                         [class.bg-primary]="selected()?.id === node.zone.id"
                         [class.text-primary-content]="

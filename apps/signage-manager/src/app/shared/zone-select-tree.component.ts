@@ -94,6 +94,7 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
                     [isExpanded]="isExpanded(node)"
                     (expandedChange)="onExpandedChange(node, $event)"
                     (activation)="selectZone(node.zone)"
+                    [attr.aria-selected]="selected()?.id === node.zone.id"
                     class="border-base-300 bg-base-100 hover:bg-base-200/50 relative mb-2 flex min-h-0 items-center gap-1 overflow-hidden rounded-lg border pr-1 transition-colors"
                     [class.bg-primary]="selected()?.id === node.zone.id"
                     [class.text-primary-content]="

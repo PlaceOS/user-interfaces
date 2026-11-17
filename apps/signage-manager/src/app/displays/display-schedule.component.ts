@@ -131,6 +131,11 @@ import { SignageDisplayService } from './signage-display.service';
                             <div
                                 class="border-base-content/[0.06] min-w-48 flex-1 border-r p-2 last:border-none"
                                 [class.today-column]="isToday(day)"
+                                role="group"
+                                [attr.aria-label]="day | date: 'EEEE MMM d'"
+                                [attr.aria-current]="
+                                    isToday(day) ? 'date' : null
+                                "
                             >
                                 <ul class="space-y-2">
                                     @for (
@@ -181,6 +186,18 @@ import { SignageDisplayService } from './signage-display.service';
                                                         {{
                                                             block.playlist.name
                                                         }}
+                                                        @if (
+                                                            !block.playlist
+                                                                .enabled
+                                                        ) {
+                                                            <span
+                                                                class="sr-only"
+                                                                >({{
+                                                                    'COMMON.DISABLED'
+                                                                        | translate
+                                                                }})</span
+                                                            >
+                                                        }
                                                     </div>
                                                     <div
                                                         class="text-base-content/60 text-[11px] tabular-nums"
@@ -248,6 +265,19 @@ import { SignageDisplayService } from './signage-display.service';
                                                                                 .playlist
                                                                                 .name
                                                                         }}
+                                                                        @if (
+                                                                            !child
+                                                                                .playlist
+                                                                                .enabled
+                                                                        ) {
+                                                                            <span
+                                                                                class="sr-only"
+                                                                                >({{
+                                                                                    'COMMON.DISABLED'
+                                                                                        | translate
+                                                                                }})</span
+                                                                            >
+                                                                        }
                                                                     </div>
                                                                     <div
                                                                         class="text-base-content/60 text-[11px] tabular-nums"

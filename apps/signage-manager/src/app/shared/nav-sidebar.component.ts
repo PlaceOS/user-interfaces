@@ -161,6 +161,10 @@ class NavScrollState {
                             <button
                                 type="button"
                                 mat-menu-item
+                                role="menuitemradio"
+                                [attr.aria-checked]="
+                                    active_locale() === lang.id
+                                "
                                 (click)="setLocale(lang.id)"
                                 [matTooltip]="localeDetails(lang)"
                                 matTooltipPosition="right"

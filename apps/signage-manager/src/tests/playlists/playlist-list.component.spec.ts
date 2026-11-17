@@ -126,9 +126,13 @@ describe('PlaylistListComponent', () => {
                 '[data-playlist-status="disabled"]',
             ),
         ).not.toBeNull();
-        expect(disabled_playlist?.getAttribute('aria-label')).toContain(
-            'Disabled',
-        );
+        const description_id =
+            disabled_playlist?.getAttribute('aria-describedby') ?? '';
+        expect(
+            element
+                .querySelector(`[id="${description_id}"]`)
+                ?.querySelector('[data-playlist-status="disabled"]'),
+        ).not.toBeNull();
         expect(enabled_playlist?.classList).not.toContain('bg-warning/10');
     });
 
