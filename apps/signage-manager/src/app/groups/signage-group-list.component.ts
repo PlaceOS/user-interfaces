@@ -123,8 +123,12 @@ interface GroupListRow {
                         </div>
                     }
                 } @else if (visible_group_rows().length) {
+                    <!-- Each tree item takes focus and handles the arrow keys, Enter
+                    and Space. The controls in an item are for the mouse, so they
+                    are not in the tab order. -->
                     <cdk-tree
                         class="group-tree"
+                        [attr.aria-label]="'COMMON.GROUPS' | translate"
                         [dataSource]="visible_group_rows()"
                         [levelAccessor]="levelAccessor"
                         [trackBy]="trackByRow"
@@ -135,9 +139,17 @@ interface GroupListRow {
                             cdkTreeNodePadding
                             [cdkTreeNodePadding]="row.level"
                             [cdkTreeNodePaddingIndent]="8"
+                            [isExpandable]="childCount(row.group) > 0"
+                            [isExpanded]="isExpanded(row.group)"
+                            (expandedChange)="setExpanded(row.group, $event)"
+                            (activation)="selectGroup(row.group)"
                             class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                             [attr.aria-selected]="
                                 row.group.id === selected_group()?.id
+                            "
+                            [attr.aria-label]="
+                                row.group.name ||
+                                ('SIGNAGE_MANAGER.UNNAMED_GROUP' | translate)
                             "
                             [class.bg-primary]="
                                 row.group.id === selected_group()?.id
@@ -157,8 +169,8 @@ interface GroupListRow {
                             @if (childCount(row.group) > 0) {
                                 <button
                                     type="button"
+                                    tabindex="-1"
                                     class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
-                                    [attr.aria-expanded]="isExpanded(row.group)"
                                     [attr.aria-label]="
                                         (isExpanded(row.group)
                                             ? 'SIGNAGE_MANAGER.COLLAPSE_GROUP'
@@ -193,6 +205,7 @@ interface GroupListRow {
                             <button
                                 type="button"
                                 matRipple
+                                tabindex="-1"
                                 class="flex min-w-0 flex-1 items-center gap-3 rounded-md py-3 text-left transition-colors"
                                 (click)="selectGroup(row.group)"
                             >

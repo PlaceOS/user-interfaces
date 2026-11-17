@@ -171,6 +171,26 @@ describe('SignageGroupListComponent', () => {
         expect(levels()).toEqual(['1', '2', '2']);
     });
 
+    it('expands and selects groups from the keyboard on the tree item', async () => {
+        const fixture = await render();
+        const root = (fixture.nativeElement as HTMLElement).querySelector(
+            'cdk-tree-node',
+        ) as HTMLElement;
+        const press = (key: string) =>
+            root.dispatchEvent(
+                new KeyboardEvent('keydown', { key, bubbles: true }),
+            );
+        expect(root.getAttribute('aria-expanded')).toBe('false');
+
+        root.focus();
+        press('ArrowRight');
+        await fixture.whenStable();
+        expect(signage_group_tree_expanded()['root']).toBe(true);
+
+        press('Enter');
+        expect(managed_group_id()).toBe('root');
+    });
+
     it('shows an error, not an empty state, when the group list fails', async () => {
         manageable_signage_groups.set([]);
         manageable_signage_groups_failed.set(true);

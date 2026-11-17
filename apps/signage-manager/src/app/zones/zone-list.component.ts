@@ -63,8 +63,12 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                     <!-- Some lists loaded, so the tree may lack zones -->
                     <load-error (retry)="retry()" />
                 }
+                <!-- Each tree item takes focus and handles the arrow keys, Enter
+                and Space. The controls in an item are for the mouse, so they
+                are not in the tab order. -->
                 <cdk-tree
                     class="zone-tree"
+                    [attr.aria-label]="'SIGNAGE_MANAGER.NAV_ZONES' | translate"
                     [dataSource]="flat_tree_nodes()"
                     [levelAccessor]="levelAccessor"
                     [expansionKey]="expansionKey"
@@ -80,6 +84,9 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         (expandedChange)="onExpandedChange(node, $event)"
                         (activation)="openZone(node.zone)"
                         [attr.aria-selected]="selected()?.id === node.zone.id"
+                        [attr.aria-label]="
+                            node.zone.display_name || node.zone.name
+                        "
                         class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                         [class.bg-primary]="selected()?.id === node.zone.id"
                         [class.text-primary-content]="
@@ -97,6 +104,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         @if (canExpand(node)) {
                             <button
                                 type="button"
+                                tabindex="-1"
                                 class="hover:bg-base-content/20 ml-1 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg transition-colors"
                                 [attr.aria-label]="
                                     (isExpanded(node)
@@ -128,6 +136,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         }
                         <a
                             matRipple
+                            tabindex="-1"
                             class="flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-md py-3 text-left no-underline transition-colors"
                             [routerLink]="['/zones', node.zone.id]"
                             queryParamsHandling="merge"
