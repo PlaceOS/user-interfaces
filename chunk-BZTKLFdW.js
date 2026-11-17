@@ -1,1 +1,0 @@
-import{t as So}from"./main-LMRSS3JA.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
