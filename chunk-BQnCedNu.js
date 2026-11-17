@@ -1,0 +1,1 @@
+import{t as So}from"./main-VJVU2O5J.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
