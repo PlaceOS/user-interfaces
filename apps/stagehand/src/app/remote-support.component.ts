@@ -275,7 +275,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         <div
                             class="border-base-300 bg-base-300 m-2 flex h-16 w-16 items-center justify-center overflow-hidden rounded-sm border"
                         >
-                            <icon class="text-3xl opacity-30">hide_image</icon>
+                            <icon
+                                class="text-3xl opacity-30"
+                                label="No camera feed"
+                                >hide_image</icon
+                            >
                         </div>
                     }
                 </ng-template>

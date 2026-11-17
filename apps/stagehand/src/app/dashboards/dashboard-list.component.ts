@@ -22,9 +22,12 @@ import { DashboardsService } from './dashboards.service';
     selector: `stagehand-dashboard-list`,
     template: `
         <div class="p-4">
+            <!-- Hidden bar keeps its space, so hide it from assistive technology too -->
             <mat-progress-bar
                 class="w-full"
+                aria-label="Loading dashboards"
                 [class.opacity-0]="loading().length <= 0"
+                [attr.aria-hidden]="loading().length <= 0 ? 'true' : null"
             />
             <simple-table
                 class="bg-base-100 block min-w-3xl"

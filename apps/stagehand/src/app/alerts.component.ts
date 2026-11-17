@@ -190,7 +190,10 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
             <div class="overflow-auto p-4">
                 @if (show_alert_list_loading()) {
                     <div class="flex h-48 w-full items-center justify-center">
-                        <mat-spinner [diameter]="36"></mat-spinner>
+                        <mat-spinner
+                            aria-label="Loading alerts"
+                            [diameter]="36"
+                        ></mat-spinner>
                     </div>
                 } @else {
                     <simple-table

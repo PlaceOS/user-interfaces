@@ -52,7 +52,10 @@ import { SupportGroupsService } from '../support-groups.service';
                 </div>
                 @if (loading()) {
                     <div class="suffix" matSuffix>
-                        <mat-spinner diameter="16"></mat-spinner>
+                        <mat-spinner
+                            diameter="16"
+                            aria-label="Loading systems"
+                        ></mat-spinner>
                     </div>
                 }
             </mat-form-field>
