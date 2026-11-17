@@ -157,9 +157,6 @@ import { DecimalPipe } from '@angular/common';
                         [ngModel]="system()?.volume || 0"
                         (ngModelChange)="setVolume($event)"
                 /></mat-slider>
-                <span volume-level class="w-12 text-right tabular-nums">
-                    {{ system()?.volume || 0 | number:"1.0-0" }}%
-                </span>
             </div>
         }
     `,
@@ -190,8 +187,7 @@ import { DecimalPipe } from '@angular/common';
         MatRippleModule,
         IconComponent,
         MediaDurationPipe,
-        TranslatePipe,
-        DecimalPipe
+        TranslatePipe
     ],
 })
 export class ControlStatusBarComponent {
