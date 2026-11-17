@@ -571,12 +571,14 @@ import {
                                 @if (mappings_loading()) {
                                     <div
                                         class="border-base-300 text-base-content/70 rounded-lg border px-3 py-4 text-center text-sm"
+                                        role="status"
                                     >
                                         {{ 'COMMON.LOADING' | translate }}
                                     </div>
                                 } @else if (mappings_error()) {
                                     <div
                                         class="border-error text-error rounded-lg border px-3 py-3 text-sm"
+                                        role="alert"
                                     >
                                         {{
                                             'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS_LOAD_ERROR'

@@ -55,12 +55,16 @@ interface BrandColour {
             </p>
 
             @if (load_state() === 'loading') {
-                <div class="flex justify-center p-8">
-                    <mat-spinner diameter="32" />
+                <div class="flex justify-center p-8" role="status">
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <span class="sr-only">{{
+                        'COMMON.LOADING' | translate
+                    }}</span>
                 </div>
             } @else if (load_state() === 'failed') {
                 <div
                     class="border-error/40 bg-error/10 flex items-center gap-3 rounded-lg border p-3 text-sm"
+                    role="alert"
                 >
                     <icon class="text-error">error</icon>
                     <span class="flex-1">{{

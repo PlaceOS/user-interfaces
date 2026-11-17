@@ -176,7 +176,10 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                                 <icon>chevron_right</icon>
                             </button>
                             <div class="ml-1.5">
-                                <div class="text-sm leading-tight font-medium">
+                                <div
+                                    class="text-sm leading-tight font-medium"
+                                    aria-live="polite"
+                                >
                                     {{
                                         selected_date()
                                             | date: 'EEEE, d MMMM yyyy'
@@ -249,8 +252,9 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                         } @else if (!rows().length && inventory_loading()) {
                             <div
                                 class="flex flex-1 flex-col items-center justify-center gap-3 opacity-70"
+                                role="status"
                             >
-                                <mat-spinner diameter="32" />
+                                <mat-spinner diameter="32" aria-hidden="true" />
                                 <p class="text-sm">
                                     {{ 'COMMON.LOADING' | translate }}
                                 </p>

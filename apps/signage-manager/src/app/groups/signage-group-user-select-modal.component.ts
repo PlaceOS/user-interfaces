@@ -55,8 +55,11 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
                 />
             </mat-form-field>
             @if (loading()) {
-                <div class="flex justify-center p-8">
-                    <mat-spinner diameter="32" />
+                <div class="flex justify-center p-8" role="status">
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <span class="sr-only">{{
+                        'COMMON.LOADING' | translate
+                    }}</span>
                 </div>
             } @else if (failed()) {
                 <div

@@ -155,8 +155,9 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
             } @else if (loading()) {
                 <div
                     class="text-base-content/70 flex flex-1 flex-col items-center justify-center space-y-3 p-8"
+                    role="status"
                 >
-                    <mat-spinner diameter="32" />
+                    <mat-spinner diameter="32" aria-hidden="true" />
                     <p>{{ 'COMMON.LOADING' | translate }}</p>
                 </div>
             } @else if (error()) {

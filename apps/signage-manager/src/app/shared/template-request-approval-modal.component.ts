@@ -12,6 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { i18n } from '@placeos/common';
 import {
+    AnnounceDirective,
     DIALOG_TITLE_STYLES,
     IconComponent,
     TranslatePipe,
@@ -151,7 +152,7 @@ export interface TemplateRequestApprovalModalResult {
                 </button>
                 @if (show_preview()) {
                     @if (versions_error()) {
-                        <p class="text-error p-8 text-center">
+                        <p class="text-error p-8 text-center" role="alert">
                             {{
                                 'SIGNAGE_MANAGER.TEMPLATE_VERSIONS_LOAD_ERROR'
                                     | translate
@@ -207,14 +208,15 @@ export interface TemplateRequestApprovalModalResult {
                 <div
                     class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                 >
-                    <mat-spinner diameter="32" />
-                    <p>{{ loading() }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <p announce>{{ loading() }}</p>
                 </div>
             </div>
         }
     `,
     styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         FormsModule,
         MatRippleModule,
         MatDialogModule,

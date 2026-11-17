@@ -8,6 +8,7 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
+    AnnounceDirective,
     DIALOG_TITLE_STYLES,
     IconComponent,
     TranslatePipe,
@@ -49,7 +50,7 @@ interface TemplateApproveModalData {
                     class="max-h-[60vh] max-w-[80vw] min-w-xl gap-2 overflow-auto py-2"
                 >
                     @if (versions_error()) {
-                        <p class="text-error p-8 text-center">
+                        <p class="text-error p-8 text-center" role="alert">
                             {{
                                 'SIGNAGE_MANAGER.TEMPLATE_VERSIONS_LOAD_ERROR'
                                     | translate
@@ -92,8 +93,8 @@ interface TemplateApproveModalData {
                     <div
                         class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                     >
-                        <mat-spinner diameter="32" />
-                        <p>{{ loading() }}</p>
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <p announce>{{ loading() }}</p>
                     </div>
                 </div>
             }
@@ -101,6 +102,7 @@ interface TemplateApproveModalData {
     `,
     styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         IconComponent,
         MatRippleModule,
         MatDialogModule,

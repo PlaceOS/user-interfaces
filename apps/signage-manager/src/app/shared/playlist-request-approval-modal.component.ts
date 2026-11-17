@@ -13,6 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { i18n, notifyError } from '@placeos/common';
 import {
+    AnnounceDirective,
     DIALOG_TITLE_STYLES,
     IconComponent,
     TranslatePipe,
@@ -220,14 +221,15 @@ export interface PlaylistRequestApprovalModalResult {
                 <div
                     class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                 >
-                    <mat-spinner diameter="32" />
-                    <p>{{ loading() }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <p announce>{{ loading() }}</p>
                 </div>
             </div>
         }
     `,
     styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         CommonModule,
         FormsModule,
         MatRippleModule,

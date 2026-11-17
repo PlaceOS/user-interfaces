@@ -79,7 +79,7 @@ interface MediaPreviewModalData {
                     @if (media_error()) {
                         <div
                             class="bg-base-200/80 absolute inset-0 z-10 flex flex-col items-center justify-center space-y-2 p-4 text-center"
-                            aria-live="assertive"
+                            role="alert"
                         >
                             <icon class="text-error text-6xl">error</icon>
                             <p class="text-base font-medium">
@@ -98,9 +98,12 @@ interface MediaPreviewModalData {
                     } @else if (media_loading()) {
                         <div
                             class="bg-base-200/60 absolute inset-0 z-10 flex items-center justify-center"
-                            aria-live="polite"
+                            role="status"
                         >
-                            <mat-spinner [diameter]="48"></mat-spinner>
+                            <mat-spinner
+                                [diameter]="48"
+                                aria-hidden="true"
+                            ></mat-spinner>
                             <span class="sr-only">{{
                                 'COMMON.LOADING' | translate
                             }}</span>

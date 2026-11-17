@@ -61,8 +61,11 @@ interface AdGroupRow {
         >
             <div class="flex w-[36rem] max-w-full flex-col gap-4">
                 @if (!loaded()) {
-                    <div class="flex justify-center p-8">
-                        <mat-spinner diameter="32" />
+                    <div class="flex justify-center p-8" role="status">
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <span class="sr-only">{{
+                            'COMMON.LOADING' | translate
+                        }}</span>
                     </div>
                 } @else {
                     <section
@@ -312,8 +315,17 @@ interface AdGroupRow {
                                         }
                                     }
                                     @if (directory_loading()) {
-                                        <div class="flex justify-center p-2">
-                                            <mat-spinner diameter="24" />
+                                        <div
+                                            class="flex justify-center p-2"
+                                            role="status"
+                                        >
+                                            <mat-spinner
+                                                diameter="24"
+                                                aria-hidden="true"
+                                            />
+                                            <span class="sr-only">{{
+                                                'COMMON.LOADING' | translate
+                                            }}</span>
                                         </div>
                                     }
                                 </div>

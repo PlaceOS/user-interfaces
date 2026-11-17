@@ -52,8 +52,11 @@ type ListKey = keyof SignageGroupFeatures;
                     {{ 'SIGNAGE_MANAGER.GROUP_FEATURES_HINT' | translate }}
                 </p>
                 @if (!inherited_loaded()) {
-                    <div class="flex justify-center p-8">
-                        <mat-spinner diameter="32" />
+                    <div class="flex justify-center p-8" role="status">
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <span class="sr-only">{{
+                            'COMMON.LOADING' | translate
+                        }}</span>
                     </div>
                 } @else {
                     <section

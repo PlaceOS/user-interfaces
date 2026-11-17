@@ -217,6 +217,7 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
         } @else if (list().loading()) {
             <div
                 class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                role="status"
             >
                 <div class="text-base-content/70">
                     {{ 'COMMON.LOADING' | translate }}

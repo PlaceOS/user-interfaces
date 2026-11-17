@@ -46,7 +46,7 @@ import { SignageDisplayService } from './signage-display.service';
                 >
                     <icon>today</icon>
                 </button>
-                <span class="ml-1.5 text-sm font-medium">
+                <span class="ml-1.5 text-sm font-medium" aria-live="polite">
                     {{ weekLabel() }}
                 </span>
                 <button
@@ -64,11 +64,14 @@ import { SignageDisplayService } from './signage-display.service';
             </div>
 
             @if (templates_loading()) {
-                <div class="flex flex-1 items-center justify-center p-8">
+                <div
+                    class="flex flex-1 items-center justify-center p-8"
+                    role="status"
+                >
                     {{ 'COMMON.LOADING' | translate }}
                 </div>
             } @else if (templates_error()) {
-                <div class="text-error p-8 text-center">
+                <div class="text-error p-8 text-center" role="alert">
                     {{
                         'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS_LOAD_ERROR'
                             | translate

@@ -70,12 +70,14 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                 @if (loading()) {
                     <div
                         class="text-base-content/70 flex h-full items-center justify-center p-8"
+                        role="status"
                     >
                         {{ 'COMMON.LOADING' | translate }}
                     </div>
                 } @else if (load_error()) {
                     <div
                         class="text-error flex h-full flex-col items-center justify-center gap-2 p-8 text-center"
+                        role="alert"
                     >
                         <icon class="text-4xl">error</icon>
                         <p>

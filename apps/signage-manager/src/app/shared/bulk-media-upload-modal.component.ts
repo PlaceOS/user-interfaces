@@ -9,6 +9,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { humanReadableByteCount } from '@placeos/cloud-uploads';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
+    AnnounceDirective,
     DIALOG_TITLE_STYLES,
     IconComponent,
     TranslatePipe,
@@ -158,7 +159,7 @@ function uploadErrorMessage(error: unknown) {
             class="border-base-200 flex items-center justify-end space-x-2 border-t px-4 py-2"
         >
             @if (uploading()) {
-                <div class="text-base-content/70 flex-1 text-sm">
+                <div class="text-base-content/70 flex-1 text-sm" announce>
                     @if (stopping()) {
                         {{ 'SIGNAGE_MANAGER.BULK_UPLOAD_STOPPING' | translate }}
                     } @else {
@@ -218,6 +219,7 @@ function uploadErrorMessage(error: unknown) {
     `,
     styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         MatDialogModule,
         MatProgressSpinnerModule,
         MatRippleModule,

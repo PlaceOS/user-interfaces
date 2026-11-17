@@ -111,8 +111,12 @@ describe('ZonesSectionComponent', () => {
 
         await vi.waitFor(() => {
             for (const tab of ['templates', 'playlists', 'displays']) {
-                expect(badge(tab)?.textContent?.trim()).toBe('?');
-                expect(badge(tab)?.getAttribute('aria-busy')).toBe('true');
+                // "?" is visual only; screen readers hear the loading text
+                expect(
+                    badge(tab)?.querySelector('[aria-hidden="true"]')
+                        ?.textContent,
+                ).toBe('?');
+                expect(badge(tab)?.querySelector('.sr-only')).not.toBeNull();
             }
         });
 
@@ -122,7 +126,6 @@ describe('ZonesSectionComponent', () => {
         await fixture.whenStable();
         for (const tab of ['templates', 'playlists', 'displays']) {
             expect(badge(tab)?.textContent?.trim()).toBe('0');
-            expect(badge(tab)?.getAttribute('aria-busy')).toBe('false');
         }
     });
 

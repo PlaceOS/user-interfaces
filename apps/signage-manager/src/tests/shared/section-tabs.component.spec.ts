@@ -55,12 +55,11 @@ describe('SectionTabsComponent', () => {
         const { tab } = await make();
 
         expect(tab('users')?.querySelector('span')).toBeNull();
-        expect(tab('zones')?.querySelector('span')?.textContent?.trim()).toBe(
-            '?',
-        );
+        const loading_badge = tab('zones')?.querySelector('span');
         expect(
-            tab('zones')?.querySelector('span')?.getAttribute('aria-busy'),
-        ).toBe('true');
+            loading_badge?.querySelector('[aria-hidden="true"]')?.textContent,
+        ).toBe('?');
+        expect(loading_badge?.querySelector('.sr-only')).not.toBeNull();
         expect(tab('media')?.querySelector('span')?.textContent?.trim()).toBe(
             '2',
         );

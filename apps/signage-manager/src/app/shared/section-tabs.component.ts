@@ -60,9 +60,15 @@ export function tabKeyIndex(key: string, index: number, count: number) {
                 @if (tab.count !== undefined) {
                     <span
                         class="bg-base-content/5 inline-flex h-6 min-w-6 items-center justify-center rounded-full px-1.5 text-xs tabular-nums"
-                        [attr.aria-busy]="!!tab.count_loading"
                     >
-                        {{ tab.count_loading ? '?' : tab.count }}
+                        @if (tab.count_loading) {
+                            <span aria-hidden="true">?</span>
+                            <span class="sr-only">{{
+                                'COMMON.LOADING' | translate
+                            }}</span>
+                        } @else {
+                            {{ tab.count }}
+                        }
                     </span>
                 }
             </button>

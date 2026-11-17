@@ -9,6 +9,7 @@ import {
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
 import {
+    AnnounceDirective,
     DIALOG_TITLE_STYLES,
     IconComponent,
     TranslatePipe,
@@ -108,8 +109,8 @@ interface PlaylistApproveModalData {
                     <div
                         class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                     >
-                        <mat-spinner diameter="32" />
-                        <p>{{ loading() }}</p>
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <p announce>{{ loading() }}</p>
                     </div>
                 </div>
             }
@@ -117,6 +118,7 @@ interface PlaylistApproveModalData {
     `,
     styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         CommonModule,
         IconComponent,
         MatRippleModule,

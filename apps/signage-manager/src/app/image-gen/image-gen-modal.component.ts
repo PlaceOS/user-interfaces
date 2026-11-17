@@ -1,3 +1,4 @@
+import { LiveAnnouncer } from '@angular/cdk/a11y';
 import {
     Component,
     computed,
@@ -24,6 +25,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
 import {
+    AnnounceDirective,
     AuthenticatedImageDirective,
     IconComponent,
     TranslatePipe,
@@ -149,8 +151,11 @@ interface Candidate {
                             <div
                                 class="absolute inset-0 flex flex-col items-center justify-center gap-3"
                             >
-                                <mat-spinner diameter="48"></mat-spinner>
-                                <p class="m-0 text-sm">
+                                <mat-spinner
+                                    diameter="48"
+                                    aria-hidden="true"
+                                ></mat-spinner>
+                                <p class="m-0 text-sm" announce>
                                     {{
                                         'SIGNAGE_MANAGER.IMAGE_GEN_WORKING'
                                             | translate
@@ -568,6 +573,7 @@ interface Candidate {
         </div>
     `,
     imports: [
+        AnnounceDirective,
         FormsModule,
         MatDialogModule,
         MatFormFieldModule,
@@ -593,6 +599,7 @@ export class ImageGenModalComponent implements OnDestroy {
     private readonly _media_service = inject(SignageMediaService);
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _image_gen = inject(ImageGenService);
+    private readonly _announcer = inject(LiveAnnouncer);
 
     private readonly _layer = viewChild(ImageGenLayerComponent);
     private readonly _aspect_options = computed(() => {
@@ -1264,6 +1271,10 @@ export class ImageGenModalComponent implements OnDestroy {
         this.state.set('review');
         this.composing.set(false);
         this.select(newest);
+        // the service does not announce a job shown on screen, so say it here
+        void this._announcer.announce(
+            i18n('SIGNAGE_MANAGER.IMAGE_GEN_JOB_DONE'),
+        );
         if (!this._logos_read) this._loadBrandLogos();
     }
 

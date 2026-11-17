@@ -155,12 +155,16 @@ const MEMBER_TEXT = {
                         </div>
                     }
                 } @else if (loading()) {
-                    <div class="flex justify-center p-6">
-                        <mat-spinner diameter="32" />
+                    <div class="flex justify-center p-6" role="status">
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <span class="sr-only">{{
+                            'COMMON.LOADING' | translate
+                        }}</span>
                     </div>
                 } @else if (failed()) {
                     <div
                         class="text-error flex flex-col items-center justify-center space-y-2 p-6"
+                        role="alert"
                     >
                         <icon class="text-4xl">error</icon>
                         <p class="text-sm">
