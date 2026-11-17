@@ -228,14 +228,13 @@ describe('PlaylistsSectionComponent', () => {
         expect(navigate).not.toHaveBeenCalled();
     });
 
-    it('deselects the playlist and returns to the list', async () => {
+    // The route sync clears the selection, inside the route transition
+    it('returns to the list and leaves the selection to the route', async () => {
         selected_playlist.set({ id: 'pl-1' });
-        selected_playlist_item.set({ id: 'm-1' });
         const component = await make();
         component.deselectPlaylist();
-        expect(selected_playlist()).toBeNull();
-        expect(selected_playlist_item()).toBeNull();
-        expect(navigate).toHaveBeenCalledWith(['/playlists'], {});
+        expect(navigate).toHaveBeenCalledWith(['/playlists']);
+        expect(selected_playlist()).toEqual({ id: 'pl-1' });
     });
 
     describe('files dropped on the page', () => {

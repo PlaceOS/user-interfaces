@@ -112,6 +112,18 @@ function uploadErrorMessage(error: unknown) {
                                 {{ row.formatted_size }}
                             }
                         </div>
+                        @if (row.status === 'uploading') {
+                            <div
+                                class="bg-base-300 mt-1 h-1 overflow-hidden rounded-full"
+                            >
+                                <div
+                                    class="bg-primary h-full origin-left transition-transform duration-(--motion-base) ease-(--motion-ease)"
+                                    [style.transform]="
+                                        'scaleX(' + row.progress / 100 + ')'
+                                    "
+                                ></div>
+                            </div>
+                        }
                     </div>
                     @switch (row.status) {
                         @case ('uploading') {

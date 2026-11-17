@@ -98,6 +98,153 @@ select:focus-visible,
 }
 
 /*
+ * Interface motion. Use these tokens for every interface animation, so that
+ * the reduced motion setting stops all of them. A duration of 0 also makes
+ * Angular remove an `animate.leave` element at once.
+ */
+:root {
+    --motion-fast: 120ms;
+    --motion-base: 200ms;
+    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-fast: 0ms;
+        --motion-base: 0ms;
+    }
+}
+
+@keyframes motion-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@keyframes motion-rise-out {
+    to {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+/* Classes for `animate.enter` and `animate.leave` */
+.motion-fade-in {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
+.motion-rise-in {
+    animation: motion-rise-in var(--motion-base) var(--motion-ease);
+}
+
+/*
+ * A tab panel fades in when it shows. A CSS animation also starts again when
+ * an element changes from `display: none`, so this covers panels that a tab
+ * hides with a class too. Material tabs have their own animation.
+ */
+[role='tabpanel']:not(.mat-mdc-tab-body) {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
+/* A leaving element must not catch clicks or drops while it fades out */
+.motion-fade-out {
+    pointer-events: none;
+    animation: motion-fade-out var(--motion-fast) var(--motion-ease) forwards;
+}
+
+.motion-rise-out {
+    pointer-events: none;
+    animation: motion-rise-out var(--motion-fast) var(--motion-ease) forwards;
+}
+
+/*
+ * Route transitions (`withViewTransitions` in app.config.ts). The page
+ * cross-fades, so parts that do not change stay still. On small screens a
+ * move in one section, such as from a list to an item, slides the page.
+ * `data-nav-direction` comes from shared/view-transitions.ts.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease);
+}
+
+@keyframes motion-slide-from-end {
+    from {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes motion-slide-to-end {
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes motion-slide-from-start {
+    from {
+        opacity: 0;
+        transform: translateX(-25%);
+    }
+}
+
+@keyframes motion-slide-to-start {
+    to {
+        opacity: 0;
+        transform: translateX(-25%);
+    }
+}
+
+@media (max-width: 639px) {
+    html[data-nav-direction]::view-transition-old(root),
+    html[data-nav-direction]::view-transition-new(root) {
+        mix-blend-mode: normal;
+    }
+
+    html[data-nav-direction='forward']::view-transition-old(root) {
+        animation-name: motion-slide-to-start;
+    }
+
+    html[data-nav-direction='forward']::view-transition-new(root) {
+        animation-name: motion-slide-from-end;
+    }
+
+    /* The page that leaves goes over the page that it uncovers */
+    html[data-nav-direction='back']::view-transition-old(root) {
+        z-index: 1;
+        animation-name: motion-slide-to-end;
+    }
+
+    html[data-nav-direction='back']::view-transition-new(root) {
+        animation-name: motion-slide-from-start;
+    }
+}
+
+/*
+ * Drag and drop. The CDK moves the other items and the dropped item with
+ * transforms. Without a transition they jump. Put `motion-sortable` on a
+ * drop list that users reorder. Lists that only start a drag stay still.
+ */
+.cdk-drag-animating,
+.motion-sortable.cdk-drop-list-dragging .cdk-drag:not(.cdk-drag-placeholder) {
+    transition: transform var(--motion-base) var(--motion-ease);
+}
+
+/*
  * A search field standing in a row of icon buttons.
  *
  * The app's form fields are 48px and the icon buttons are 50, so a toolbar that

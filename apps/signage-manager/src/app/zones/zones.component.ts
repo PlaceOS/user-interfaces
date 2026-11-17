@@ -245,9 +245,9 @@ export class ZonesSectionComponent {
         });
     }
 
+    /** `selectRoutedItem` clears the selection when the id drops */
     public deselectZone() {
-        this._zone_service.selected_zone.set(null);
-        this._router.navigate(['/zones'], {});
+        void this._router.navigate(['/zones']);
     }
 
     public editZone() {

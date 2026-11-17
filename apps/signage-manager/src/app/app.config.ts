@@ -14,9 +14,11 @@ import {
     RouterStateSnapshot,
     Routes,
     TitleStrategy,
+    UrlMatcher,
     withComponentInputBinding,
     withHashLocation,
     withNavigationErrorHandler,
+    withViewTransitions,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
@@ -31,6 +33,7 @@ import {
     UnauthorisedComponent,
 } from '@placeos/components';
 import { environment } from '../environments/environment';
+import { onViewTransitionCreated } from './shared/view-transitions';
 import { manageGroupsGuard, signageAccessGuard } from './signage-access.guard';
 import { templatesEnabledGuard } from './templates-enabled.guard';
 import { templateUnsavedGuard } from './templates/template-unsaved.guard';
@@ -60,6 +63,19 @@ class SignageTitleStrategy extends TitleStrategy {
     }
 }
 
+/**
+ * Matches `<path>` and `<path>/<id>` with one route, so that the section stays
+ * open when users open or close an item. The section then changes its
+ * selection while the route transition runs, not before it.
+ */
+function listOrItem(path: string): UrlMatcher {
+    return (segments) => {
+        if (segments[0]?.path !== path || segments.length > 2) return null;
+        const id = segments[1];
+        return { consumed: segments, posParams: id ? { id } : {} };
+    };
+}
+
 const APP_ROUTES: Routes = [
     {
         path: 'unauthorised',
@@ -80,15 +96,7 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
-                path: 'playlists/:id',
-                title: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
-                loadComponent: () =>
-                    import('./playlists/playlists.component').then(
-                        (m) => m.PlaylistsSectionComponent,
-                    ),
-            },
-            {
-                path: 'playlists',
+                matcher: listOrItem('playlists'),
                 title: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
                 loadComponent: () =>
                     import('./playlists/playlists.component').then(
@@ -123,15 +131,7 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
-                path: 'displays/:id',
-                title: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
-                loadComponent: () =>
-                    import('./displays/displays.component').then(
-                        (m) => m.DisplaysSectionComponent,
-                    ),
-            },
-            {
-                path: 'displays',
+                matcher: listOrItem('displays'),
                 title: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
                 loadComponent: () =>
                     import('./displays/displays.component').then(
@@ -186,15 +186,7 @@ const APP_ROUTES: Routes = [
                     ),
             },
             {
-                path: 'zones/:id',
-                title: 'SIGNAGE_MANAGER.NAV_ZONES',
-                loadComponent: () =>
-                    import('./zones/zones.component').then(
-                        (m) => m.ZonesSectionComponent,
-                    ),
-            },
-            {
-                path: 'zones',
+                matcher: listOrItem('zones'),
                 title: 'SIGNAGE_MANAGER.NAV_ZONES',
                 loadComponent: () =>
                     import('./zones/zones.component').then(
@@ -222,6 +214,10 @@ export const APP_CONFIG: ApplicationConfig = {
             withHashLocation(),
             withComponentInputBinding(),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
+            withViewTransitions({
+                skipInitialTransition: true,
+                onViewTransitionCreated,
+            }),
         ),
         { provide: TitleStrategy, useClass: SignageTitleStrategy },
         {

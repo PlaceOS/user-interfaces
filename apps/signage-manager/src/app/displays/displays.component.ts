@@ -257,9 +257,9 @@ export class DisplaysSectionComponent {
         });
     }
 
+    /** `selectRoutedItem` clears the selection when the id drops */
     public deselectDisplay() {
-        this._display_service.selected_display.set(null);
-        this._router.navigate(['/displays'], {});
+        void this._router.navigate(['/displays']);
     }
 
     public editDisplay() {

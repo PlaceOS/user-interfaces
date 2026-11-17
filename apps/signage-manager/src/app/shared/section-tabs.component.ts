@@ -45,9 +45,8 @@ export function tabKeyIndex(key: string, index: number, count: number) {
             <button
                 type="button"
                 role="tab"
-                class="flex flex-1 items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium transition-colors"
-                [class.border-primary]="active() === tab.id"
-                [class.border-b-2]="active() === tab.id"
+                class="after:bg-primary relative flex flex-1 items-center justify-center gap-2 border-b-2 border-transparent px-4 py-2.5 text-sm font-medium transition-colors after:absolute after:inset-x-0 after:-bottom-0.5 after:h-0.5 after:scale-x-0 after:transition-transform after:duration-(--motion-base) after:ease-(--motion-ease)"
+                [class.after:scale-x-100]="active() === tab.id"
                 [class.text-primary]="active() === tab.id"
                 [class.opacity-60]="active() !== tab.id"
                 [attr.aria-selected]="active() === tab.id"

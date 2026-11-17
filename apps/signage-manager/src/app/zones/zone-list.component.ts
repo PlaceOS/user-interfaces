@@ -87,7 +87,7 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                         [attr.aria-label]="
                             node.zone.display_name || node.zone.name
                         "
-                        class="border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
+                        class="motion-fade-in border-base-300 bg-base-200/30 relative flex min-h-0 items-center gap-2 border-b pr-2"
                         [class.bg-primary]="selected()?.id === node.zone.id"
                         [class.text-primary-content]="
                             selected()?.id === node.zone.id
@@ -123,13 +123,11 @@ interface FlatZoneTreeNode extends ZoneTreeNode {
                                     $event.stopPropagation()
                                 "
                             >
-                                <icon class="text-xl">
-                                    {{
-                                        isExpanded(node)
-                                            ? 'expand_more'
-                                            : 'chevron_right'
-                                    }}
-                                </icon>
+                                <icon
+                                    class="text-xl transition-transform duration-(--motion-fast) ease-(--motion-ease)"
+                                    [class.rotate-90]="isExpanded(node)"
+                                    >chevron_right</icon
+                                >
                             </button>
                         } @else {
                             <div class="min-w-8"></div>

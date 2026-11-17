@@ -124,7 +124,7 @@ export class MediaTagChipsComponent {
                     @for (folder of folders(); track folder.id) {
                         <div
                             role="listitem"
-                            class="border-base-300 bg-base-100 hover:border-info relative flex rounded-lg border hover:shadow-xl"
+                            class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex rounded-lg border hover:shadow-xl"
                         >
                             <button
                                 type="button"
@@ -248,7 +248,7 @@ export class MediaTagChipsComponent {
                             <div
                                 cdkDrag
                                 role="listitem"
-                                class="border-base-300 bg-base-100 hover:border-info relative flex items-center gap-3 rounded-lg border p-2 hover:shadow-md"
+                                class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex items-center gap-3 rounded-lg border p-2 hover:shadow-md"
                                 [class.opacity-60]="isExpired(media_item)"
                                 [class.ring-2]="isSelected(media_item.id)"
                                 [class.ring-primary]="isSelected(media_item.id)"
@@ -362,7 +362,7 @@ export class MediaTagChipsComponent {
                             <div
                                 cdkDrag
                                 role="listitem"
-                                class="border-base-300 bg-base-100 hover:border-info relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
+                                class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
                                 [class.opacity-60]="isExpired(media_item)"
                                 [class.ring-2]="isSelected(media_item.id)"
                                 [class.ring-primary]="isSelected(media_item.id)"
@@ -654,6 +654,8 @@ export class MediaTagChipsComponent {
 
         @if (selected_count() > 0) {
             <footer
+                animate.enter="motion-rise-in"
+                animate.leave="motion-rise-out"
                 class="bg-base-100 border-base-300 sticky bottom-2 z-20 mx-2 mt-2 flex items-center justify-between gap-2 rounded-xl border p-2 shadow-lg"
                 aria-live="polite"
             >

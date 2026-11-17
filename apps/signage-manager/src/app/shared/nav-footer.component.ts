@@ -109,8 +109,15 @@ import { injectNavItems } from './nav-items';
                 opacity: 0;
             }
 
+            /* The footer stays in place while a route transition slides the page */
+            nav {
+                view-transition-name: nav-footer;
+            }
+
+            /* The marker slides to the new page in a route transition */
             a.active [active] {
                 opacity: 1;
+                view-transition-name: nav-marker;
             }
         `,
     ],

@@ -283,13 +283,14 @@ describe('DisplaysSectionComponent', () => {
         expect(navigate).not.toHaveBeenCalled();
     });
 
-    it('deselects the display and returns to the display list', async () => {
+    // The route sync clears the selection, inside the route transition
+    it('returns to the display list and leaves the selection to the route', async () => {
         selected_display.set({ id: 'd1' });
         const [component] = await make();
         component.deselectDisplay();
 
-        expect(selected_display()).toBeNull();
-        expect(navigate).toHaveBeenCalledWith(['/displays'], {});
+        expect(navigate).toHaveBeenCalledWith(['/displays']);
+        expect(selected_display()).toEqual({ id: 'd1' });
     });
 
     it('edits the selected display', async () => {
