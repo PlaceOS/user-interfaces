@@ -8,8 +8,8 @@ import {
 /**
  * A camera snapshot, loaded again whenever `timestamp` changes. A refresh of
  * the same camera keeps showing the last image until the new one loads; a
- * different camera shows a loading placeholder until its first image does.
- * An image that fails to load shows a broken image icon.
+ * different camera shows a loading placeholder until its first image does,
+ * then fades it in. An image that fails to load shows a broken image icon.
  */
 @Component({
     selector: 'camera-image',
@@ -22,6 +22,7 @@ import {
             [class.object-cover]="fit() === 'cover'"
             [class.object-contain]="fit() === 'contain'"
             [class.invisible]="state() !== 'loaded'"
+            [class.stagehand-fade-in]="state() === 'loaded'"
             (load)="onLoad()"
             (error)="onError()"
         />

@@ -1,4 +1,4 @@
-import { Component, linkedSignal } from '@angular/core';
+import { Component, linkedSignal, signal } from '@angular/core';
 import { AsyncHandler, settingSignal } from '@placeos/common';
 
 import { FormsModule } from '@angular/forms';
@@ -33,8 +33,13 @@ interface AnalyticsPage {
             </div>
             @if (page()?.url; as url) {
                 <!-- No allow-top-navigation: a cross-origin dashboard can't send this tab to another page -->
+                <!-- Hidden until the dashboard loads, so it does not flash blank -->
                 <iframe
+                    #frame
                     class="h-full w-full"
+                    [class.opacity-0]="loaded_url() !== url"
+                    [class.stagehand-fade-in]="loaded_url() === url"
+                    (load)="onFrameLoad(frame, url)"
                     sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-downloads"
                     [title]="page()?.name || 'Analytics dashboard'"
                     [src]="url | safe: 'resource'"
@@ -74,4 +79,16 @@ export class AnalyticsComponent extends AsyncHandler {
     public readonly page = linkedSignal<AnalyticsPage | null>(
         () => this.analytics_pages()[0] || null,
     );
+    /** URL of the dashboard that last loaded in the iframe */
+    public readonly loaded_url = signal('');
+
+    /**
+     * Shows the dashboard when the iframe loads it. Skips the empty page that
+     * a new iframe loads before its first URL. A cross-origin dashboard has no
+     * readable document, so it counts as loaded.
+     */
+    public onFrameLoad(frame: HTMLIFrameElement, url: string) {
+        if (frame.contentDocument?.URL === 'about:blank') return;
+        this.loaded_url.set(url);
+    }
 }

@@ -56,6 +56,20 @@ describe('AnalyticsComponent', () => {
         expect(iframe?.getAttribute('title')).toBe('Systems');
     });
 
+    it('should show the dashboard only after it loads, not the empty first page', () => {
+        const url = '/analytics/x';
+        const frame = (document_url: string) =>
+            ({
+                contentDocument: { URL: document_url },
+            }) as HTMLIFrameElement;
+
+        spectator.component.onFrameLoad(frame('about:blank'), url);
+        expect(spectator.component.loaded_url()).toBe('');
+
+        spectator.component.onFrameLoad(frame(`http://host${url}`), url);
+        expect(spectator.component.loaded_url()).toBe(url);
+    });
+
     it('should not let the dashboard navigate the app tab', () => {
         spectator.component.page.set({ name: 'Systems', url: '/analytics/x' });
         spectator.detectChanges();

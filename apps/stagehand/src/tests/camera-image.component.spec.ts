@@ -37,15 +37,17 @@ describe('CameraImageComponent', () => {
         );
     });
 
-    it('shows a loading placeholder until the first image loads', () => {
+    it('shows a loading placeholder until the first image loads, then fades it in', () => {
         show('http://host/one.jpg');
         expect(spinner()).toBeTruthy();
         expect(img()).toHaveClass('invisible');
+        expect(img()).not.toHaveClass('stagehand-fade-in');
 
         load();
         spectator.detectChanges();
         expect(spinner()).toBeFalsy();
         expect(img()).not.toHaveClass('invisible');
+        expect(img()).toHaveClass('stagehand-fade-in');
     });
 
     it('keeps showing the last image while the same camera refreshes', () => {

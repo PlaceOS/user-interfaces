@@ -108,7 +108,10 @@ export function calculateModuleIndex(
                     </div>
                 }
                 @if (rhs_type() === 'constant' && form().right) {
-                    <div class="flex flex-1 flex-col">
+                    <div
+                        class="flex flex-1 flex-col"
+                        animate.enter="stagehand-drop-in"
+                    >
                         <mat-form-field appearance="outline">
                             <input
                                 matInput
@@ -163,8 +166,12 @@ export function calculateModuleIndex(
                         </mat-form-field>
                     </div>
                 }
+                <!-- Shows when the module's variables load -->
                 @if (statusVars(side)?.length) {
-                    <div class="flex flex-1 flex-col">
+                    <div
+                        class="flex flex-1 flex-col"
+                        animate.enter="stagehand-drop-in"
+                    >
                         <label [id]="side + '-status-var-label'">{{
                             'TRIGGERS.COMPARE_VARIABLE' | translate
                         }}</label>
@@ -197,7 +204,7 @@ export function calculateModuleIndex(
                 }
             </div>
             @if (statusVars(side)?.length) {
-                <div class="flex flex-col">
+                <div class="flex flex-col" animate.enter="stagehand-drop-in">
                     <label [for]="side + '-subkeys'">{{
                         'TRIGGERS.COMPARE_SUBKEYS' | translate
                     }}</label>
