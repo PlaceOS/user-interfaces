@@ -21,6 +21,7 @@ import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { showSystem } from '@placeos/ts-client';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { afterPageTransition } from './page-transitions';
+import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
 import { backofficeLink } from './ui/sidebar.component';
 import { StagehandPageComponent } from './ui/stagehand-page.component';
 
@@ -81,7 +82,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         </div>
                     </div>
                     <div class="px-2 text-4xl font-bold">
-                        {{ critical_alerts() || '0' }}
+                        <span
+                            class="inline-block"
+                            [pulseOnChange]="critical_alerts()"
+                            >{{ critical_alerts() || '0' }}</span
+                        >
                     </div>
                 </div>
                 <div
@@ -99,7 +104,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         </div>
                     </div>
                     <div class="px-2 text-4xl font-bold">
-                        {{ warning_alerts() || '0' }}
+                        <span
+                            class="inline-block"
+                            [pulseOnChange]="warning_alerts()"
+                            >{{ warning_alerts() || '0' }}</span
+                        >
                     </div>
                 </div>
                 <div
@@ -115,7 +124,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         </div>
                     </div>
                     <div class="px-2 text-4xl font-bold">
-                        {{ open_alerts() || '0' }}
+                        <span
+                            class="inline-block"
+                            [pulseOnChange]="open_alerts()"
+                            >{{ open_alerts() || '0' }}</span
+                        >
                     </div>
                 </div>
             </div>
@@ -199,6 +212,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                     </div>
                 } @else {
                     <simple-table
+                        animate.enter="stagehand-fade-in"
                         class="bg-base-100 block w-full min-w-4xl overflow-hidden text-sm"
                         [data]="filtered_alerts()"
                         [filter]="search()"
@@ -349,6 +363,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
         MatSelectModule,
         MatInputModule,
         StagehandPageComponent,
+        PulseOnChangeDirective,
         FormsModule,
         MatTooltipModule,
         MatProgressSpinnerModule,

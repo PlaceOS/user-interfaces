@@ -40,6 +40,7 @@ import { DashboardsService } from './dashboards/dashboards.service';
 import { afterPageTransition } from './page-transitions';
 import { SupportService } from './support.service';
 import { CameraImageComponent } from './ui/camera-image.component';
+import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
 import { backofficeLink } from './ui/sidebar.component';
 import { StagehandPageComponent } from './ui/stagehand-page.component';
 
@@ -61,7 +62,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         </div>
                     </div>
                     <div class="px-2 text-4xl font-bold">
-                        {{ zone_rooms()?.length || '0' }}
+                        <span
+                            class="inline-block"
+                            [pulseOnChange]="zone_rooms()?.length"
+                            >{{ zone_rooms()?.length || '0' }}</span
+                        >
                     </div>
                 </div>
                 <div
@@ -72,7 +77,11 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         <h2 class="text-xl font-medium">Active Alerts</h2>
                     </div>
                     <div class="px-2 text-4xl font-bold">
-                        {{ room_alerts().length }}
+                        <span
+                            class="inline-block"
+                            [pulseOnChange]="room_alerts().length"
+                            >{{ room_alerts().length }}</span
+                        >
                     </div>
                 </div>
             </div>
@@ -124,8 +133,10 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
                         bind="status"
                     ></i>
                 }
+                <!-- Adding the class plays the fade, so the rows fade in when they load -->
                 <simple-table
                     class="bg-base-100 block w-full min-w-5xl overflow-hidden text-sm"
+                    [class.stagehand-fade-in]="!loading()"
                     [data]="filtered_rooms()"
                     [columns]="[
                         {
@@ -395,6 +406,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
         MatSelectModule,
         MatInputModule,
         StagehandPageComponent,
+        PulseOnChangeDirective,
         FormsModule,
         MatTooltipModule,
         ViewportVisibilityComponent,

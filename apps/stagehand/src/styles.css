@@ -81,6 +81,12 @@ body {
     --stagehand-ease-in: cubic-bezier(0.4, 0, 1, 1);
 }
 
+@keyframes stagehand-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
 @keyframes stagehand-fade-out {
     to {
         opacity: 0;
@@ -91,6 +97,20 @@ body {
     from {
         opacity: 0;
         transform: translateY(0.5rem);
+    }
+}
+
+@keyframes stagehand-drop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+}
+
+@keyframes stagehand-pulse {
+    from {
+        opacity: 0.4;
+        transform: scale(1.25);
     }
 }
 
@@ -106,6 +126,27 @@ body {
         opacity: 0;
         transform: translateY(1.5rem);
     }
+}
+
+/*
+ * Classes for `animate.enter`, or to bind when content arrives:
+ * - stagehand-fade-in: content that loaded
+ * - stagehand-drop-in: content that opens below its control
+ * - stagehand-pulse: a value that changed (PulseOnChangeDirective)
+ */
+.stagehand-fade-in {
+    animation: stagehand-fade-in var(--stagehand-motion)
+        var(--stagehand-ease-out);
+}
+
+.stagehand-drop-in {
+    animation: stagehand-drop-in var(--stagehand-motion)
+        var(--stagehand-ease-out);
+}
+
+.stagehand-pulse {
+    animation: stagehand-pulse var(--stagehand-motion-slow)
+        var(--stagehand-ease-out);
 }
 
 /*
@@ -146,6 +187,12 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+    .stagehand-fade-in,
+    .stagehand-drop-in,
+    .stagehand-pulse {
+        animation: none;
+    }
+
     ::view-transition-group(*),
     ::view-transition-old(*),
     ::view-transition-new(*) {
