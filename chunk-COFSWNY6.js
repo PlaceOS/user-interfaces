@@ -1,6 +1,6 @@
 import {
   OrganisationService
-} from "./chunk-JNYPZOM7.js";
+} from "./chunk-KP2AOJHV.js";
 import {
   AsyncHandler,
   J,
@@ -14,7 +14,7 @@ import {
   log,
   notifyError,
   randomString
-} from "./chunk-Y5LWMXQA.js";
+} from "./chunk-BEXGYV6C.js";
 import {
   Injectable,
   Pipe,
@@ -2585,4 +2585,4 @@ export {
   ChatService
 };
 //# debugId=dc00d242-8338-574b-99dc-5a4c3f791869
-//# sourceMappingURL=chunk-EPMN6REB.js.map
+//# sourceMappingURL=chunk-COFSWNY6.js.map
