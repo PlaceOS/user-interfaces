@@ -1,1 +1,0 @@
-import{t as So}from"./main-FX7OKC5C.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
