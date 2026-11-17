@@ -240,11 +240,9 @@ export class PlaylistsSectionComponent {
         this._playlist_service.selected_playlist_item_index.set(null);
     }
 
+    /** The route sync effect clears the selection when the id drops */
     public deselectPlaylist() {
-        this._playlist_service.selected_playlist.set(null);
-        this._playlist_service.selected_playlist_item.set(null);
-        this._playlist_service.selected_playlist_item_index.set(null);
-        this._router.navigate(['/playlists'], {});
+        void this._router.navigate(['/playlists']);
     }
 
     /** Upload files dropped on the selected playlist, then add them to it */

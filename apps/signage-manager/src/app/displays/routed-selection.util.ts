@@ -52,10 +52,10 @@ export function selectRoutedItem<T extends { id: string }>(options: {
         if (match) {
             if (selected()?.id !== match.id) selected.set(match);
             route_resolved = true;
-        } else if (
-            untracked(selected)?.id !== route_id &&
-            requested_id !== route_id
-        ) {
+        } else if (untracked(selected)?.id === route_id) {
+            // Selected before the route changed, such as a search result
+            route_resolved = true;
+        } else if (requested_id !== route_id) {
             requested_id = route_id;
             untracked(() => loadItem(route_id));
         }

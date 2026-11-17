@@ -229,6 +229,18 @@ describe('ZonesSectionComponent', () => {
         expect(selected_zone()).toBeNull();
     });
 
+    it('clears a search result selected before its route on the way back', async () => {
+        const [, fixture] = await make();
+        selected_zone.set({ id: 'found' });
+        fixture.componentRef.setInput('id', 'found');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        fixture.componentRef.setInput('id', '');
+        TestBed.flushEffects();
+        expect(selected_zone()).toBeNull();
+    });
+
     it('syncs the active tab from the route query param', async () => {
         const [component, fixture] = await make();
         fixture.componentRef.setInput('tab', 'displays');
@@ -267,13 +279,14 @@ describe('ZonesSectionComponent', () => {
         expect(navigate).not.toHaveBeenCalled();
     });
 
-    it('deselects the zone and returns to the zone list', async () => {
+    // The route sync clears the selection, inside the route transition
+    it('returns to the zone list and leaves the selection to the route', async () => {
         selected_zone.set({ id: 'z1' });
         const [component] = await make();
         component.deselectZone();
 
-        expect(selected_zone()).toBeNull();
-        expect(navigate).toHaveBeenCalledWith(['/zones'], {});
+        expect(navigate).toHaveBeenCalledWith(['/zones']);
+        expect(selected_zone()).toEqual({ id: 'z1' });
     });
 
     it('allows managers to edit only signage-tagged zones', async () => {

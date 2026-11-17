@@ -219,8 +219,10 @@ class NavScrollState {
             a:not(.active) [active] {
                 opacity: 0;
             }
+            /* The marker slides to the new page in a route transition */
             a.active [active] {
                 opacity: 1;
+                view-transition-name: nav-marker;
             }
 
             .no-scrollbar {
