@@ -8,7 +8,8 @@ import { TranslatePipe } from './translate.pipe';
 /**
  * Floating bar for actions on the selected rows of a list.
  * Put the action buttons inside the element. The bar shows only while
- * `count` is more than zero.
+ * `count` is more than zero. It rises in and out with the `motion-rise-*`
+ * classes of the app styles, if the app has them.
  */
 @Component({
     selector: 'bulk-actions-bar',
@@ -16,6 +17,8 @@ import { TranslatePipe } from './translate.pipe';
         @if (count() > 0) {
             <div
                 role="toolbar"
+                animate.enter="motion-rise-in"
+                animate.leave="motion-rise-out"
                 class="bg-base-100 border-base-300 fixed bottom-16 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full border py-1 pr-1 pl-4 shadow-xl"
             >
                 <span class="mr-2 text-sm font-medium whitespace-nowrap">

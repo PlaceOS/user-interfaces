@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, ParamMap, Router } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
@@ -24,6 +24,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { RoomManagementService } from './room-management.service';
 
@@ -106,7 +107,8 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     private _manager = inject(RoomManagementService);
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _dialog = inject(MatDialog);
     private _settings = inject(SettingsService);
 
@@ -129,11 +131,7 @@ export class RoomManagerTopbarComponent extends AsyncHandler implements OnInit {
     public readonly setSearch = (str) => this._manager.setSearchString(str);
     /** Update active zones for desks */
     public readonly updateZones = (zones) => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { zone_ids: zones.join(',') },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ zone_ids: zones.join(',') });
     };
 
     public readonly newRoom = () => this._manager.editRoom();

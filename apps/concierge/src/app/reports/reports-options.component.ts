@@ -8,7 +8,7 @@ import {
     resource,
     signal,
 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -38,6 +38,7 @@ import { requestSpacesForZone } from '@placeos/events';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { listChildMetadata } from '@placeos/ts-client';
 import { endOfDay, startOfDay } from 'date-fns';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { ReportOptions } from './reports-state.service';
 
 type ReportResourceType = ReportOptions['type'];
@@ -167,7 +168,8 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _route = inject(ActivatedRoute);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
 
     public readonly loading = input<boolean>(false);
     public readonly has_data = input<boolean>(false);
@@ -228,25 +230,12 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
      * old URL, so the second would restore the old value.
      */
     private _navigateToDates() {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { start: this.start(), end: this.end() },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ start: this.start(), end: this.end() });
     }
 
     public readonly setZones = (zones) => {
         this.zones.set(zones);
-        // Get current query params
-        const q = { ...this._route.snapshot.queryParams };
-        q.zone_ids = zones.join(',');
-
-        // Delete the specific query param
-        if (!q.zone_ids) delete q.zone_ids;
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: q,
-        });
+        this._setQueryParams({ zone_ids: zones.join(',') || null });
     };
 
     public get use_region() {

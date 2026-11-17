@@ -26,7 +26,12 @@ import { SplitJoinPipe } from './split-join.pipe';
     selector: 'asset-request-details',
     template: `
         @if (request()) {
-            <div class="fixed inset-0 z-50" (click)="close()">
+            <div
+                class="fixed inset-0 z-50"
+                animate.enter="motion-fade-in"
+                animate.leave="motion-fade-out"
+                (click)="close()"
+            >
                 <div class="absolute inset-0 bg-black opacity-50"></div>
                 <!--
                     Focus stays in the panel and returns on close. No
@@ -40,6 +45,7 @@ import { SplitJoinPipe } from './split-join.pipe';
                     cdkTrapFocus
                     cdkTrapFocusAutoCapture
                     class="bg-base-100 absolute inset-y-0 right-0 w-[480px]"
+                    animate.enter="motion-slide-in-end"
                     (click)="$event.stopPropagation()"
                     (keydown.escape)="close()"
                 >

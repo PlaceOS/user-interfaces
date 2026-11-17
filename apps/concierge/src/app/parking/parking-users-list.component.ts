@@ -18,7 +18,7 @@ import { ParkingStateService } from './parking-state.service';
         <div class="w-fit min-w-full px-8">
             <mat-progress-bar
                 [class.opacity-0]="!loading().includes('users')"
-                class="w-full"
+                class="w-full transition-opacity duration-(--motion-fast)"
             />
             <simple-table
                 class="block min-w-272 text-sm"

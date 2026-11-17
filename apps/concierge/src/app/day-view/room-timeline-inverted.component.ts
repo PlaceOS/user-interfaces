@@ -167,7 +167,7 @@ import {
                             <button
                                 event
                                 matRipple
-                                class="absolute z-10 text-left transition-all duration-150 hover:z-20 hover:scale-[1.01]"
+                                class="absolute z-10 text-left transition-transform duration-150 hover:z-20 hover:scale-[1.01]"
                                 [style.left]="timeToOffset(event.date) + '%'"
                                 [style.top]="i * row_height + 0.15 + 'rem'"
                                 [style.width]="

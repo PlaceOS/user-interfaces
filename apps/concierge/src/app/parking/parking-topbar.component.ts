@@ -29,6 +29,8 @@ import {
 } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { queryParamsWriter } from '../ui/page-transitions';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
     loadPersistedZones,
@@ -324,6 +326,7 @@ import {
                     @let percent = total ? occupied / total : 0;
                     <span
                         class="rounded-sm px-2 py-1 font-mono text-xs"
+                        [pulseOnChange]="percent"
                         [class.bg-error]="percent >= 1"
                         [class.text-error-content]="percent >= 1"
                         [class.bg-warning]="percent >= 0.5 && percent < 1"
@@ -377,6 +380,7 @@ import {
         `,
     ],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         FormsModule,
         DateOptionsComponent,
@@ -396,6 +400,8 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
@@ -479,11 +485,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
     };
     /** Set selected period */
     public readonly setPeriod = (p: 'day' | 'week') => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { period: p },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ period: p });
         this._state.setPeriod(p);
     };
     /** Set filter string */
@@ -513,11 +515,7 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
             return;
         }
         if (!query_matches) {
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: { zone_ids: zone_param },
-                queryParamsHandling: 'merge',
-            });
+            this._setQueryParams({ zone_ids: zone_param });
         }
         if (!selected_zones_match) this.zones.set(zones);
         if (!option_zones_match) this._state.setOptions({ zones });

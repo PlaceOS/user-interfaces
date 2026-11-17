@@ -15,6 +15,7 @@ import {
 import { UserPipe } from '@placeos/users';
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
 import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import {
     canChangeDeskBooking,
     isDeskBookingRejected,
@@ -170,6 +171,7 @@ import {
                     <button
                         matRipple
                         class="bg-warning text-warning-content h-10 w-30 rounded-3xl border-none"
+                        [pulseOnChange]="row?.status"
                         [class.text-success-content!]="
                             row?.status === 'approved' && !row.deleted
                         "
@@ -256,6 +258,7 @@ import {
                     <button
                         matRipple
                         class="bg-warning text-warning-content h-10 w-18 rounded-3xl border-none"
+                        [pulseOnChange]="data"
                         [matMenuTriggerFor]="checkinMenu"
                         [class.bg-neutral!]="!data"
                         [class.text-neutral-content!]="!data"
@@ -433,6 +436,7 @@ import {
         `,
     ],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         TranslatePipe,
         MatRippleModule,

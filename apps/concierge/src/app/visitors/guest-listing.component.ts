@@ -30,6 +30,7 @@ import {
 import { UserDetails, UserLabelComponent } from '@placeos/users';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
+import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';
 import { showVisitorFlag } from './visitor-flags';
 import { VisitorsStateService } from './visitors-state.service';
 
@@ -147,58 +148,64 @@ import { VisitorsStateService } from './visitors-state.service';
             [sortable]="true"
         />
         <ng-template #state_template let-row="row">
-            @if (!row?.checked_in && row.checked_out_at) {
-                <div
-                    class="bg-base-400 text-neutral-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                    [matTooltip]="
-                        'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
-                            | translate
-                                : {
-                                      time:
-                                          (row.checked_out_at * 1000
-                                          | date: time_format : tz()),
-                                  }
-                    "
-                    matTooltipPosition="right"
-                >
-                    <icon [label]="'COMMON.CHECKED_OUT' | translate">done</icon>
-                </div>
-            }
-            @if (!row?.checked_in && !row.checked_out_at) {
-                <div
-                    class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                    [matTooltip]="
-                        'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
-                            | translate
-                    "
-                    matTooltipPosition="right"
-                >
-                    <icon
-                        [label]="
+            <div [pulseOnChange]="row?.checked_in">
+                @if (!row?.checked_in && row.checked_out_at) {
+                    <div
+                        class="bg-base-400 text-neutral-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                        [matTooltip]="
+                            'APP.CONCIERGE.VISITOR_STATUS_CHECKED_OUT'
+                                | translate
+                                    : {
+                                          time:
+                                              (row.checked_out_at * 1000
+                                              | date: time_format : tz()),
+                                      }
+                        "
+                        matTooltipPosition="right"
+                    >
+                        <icon [label]="'COMMON.CHECKED_OUT' | translate"
+                            >done</icon
+                        >
+                    </div>
+                }
+                @if (!row?.checked_in && !row.checked_out_at) {
+                    <div
+                        class="bg-warning text-warning-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                        [matTooltip]="
                             'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
                                 | translate
                         "
-                        >question_mark</icon
+                        matTooltipPosition="right"
                     >
-                </div>
-            }
-            @if (row?.checked_in) {
-                <div
-                    class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
-                    [matTooltip]="
-                        'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
-                            | translate
-                                : {
-                                      time:
-                                          (row.checked_in_at * 1000
-                                          | date: time_format : tz()),
-                                  }
-                    "
-                    matTooltipPosition="right"
-                >
-                    <icon [label]="'COMMON.CHECKED_IN' | translate">done</icon>
-                </div>
-            }
+                        <icon
+                            [label]="
+                                'APP.CONCIERGE.VISITOR_STATUS_NOT_CHECKED_IN'
+                                    | translate
+                            "
+                            >question_mark</icon
+                        >
+                    </div>
+                }
+                @if (row?.checked_in) {
+                    <div
+                        class="bg-success text-success-content mx-auto flex h-8 w-8 items-center justify-center rounded-sm text-2xl"
+                        [matTooltip]="
+                            'APP.CONCIERGE.VISITOR_STATUS_CHECKED_IN'
+                                | translate
+                                    : {
+                                          time:
+                                              (row.checked_in_at * 1000
+                                              | date: time_format : tz()),
+                                      }
+                        "
+                        matTooltipPosition="right"
+                    >
+                        <icon [label]="'COMMON.CHECKED_IN' | translate"
+                            >done</icon
+                        >
+                    </div>
+                }
+            </div>
         </ng-template>
         <ng-template #person_template let-row="row">
             <div class="px-4 py-2">
@@ -361,6 +368,7 @@ import { VisitorsStateService } from './visitors-state.service';
                 <button
                     matRipple
                     class="h-10 w-30 rounded-3xl border-none"
+                    [pulseOnChange]="row?.status"
                     [class.text-success-content]="row?.status === 'approved'"
                     [class.bg-success]="row?.status === 'approved'"
                     [class.text-error-content]="
@@ -783,6 +791,7 @@ import { VisitorsStateService } from './visitors-state.service';
         `,
     ],
     imports: [
+        PulseOnChangeDirective,
         CommonModule,
         MatRippleModule,
         MatTooltipModule,

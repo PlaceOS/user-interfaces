@@ -16,7 +16,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     downloadFile,
@@ -36,6 +36,7 @@ import {
 import { requestSpacesForZone } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
 import { format } from 'date-fns';
+import { queryParamsWriter } from '../ui/page-transitions';
 import {
     loadPersistedZones,
     persistZones,
@@ -243,12 +244,14 @@ const EMPTY = [];
             @if (load_error() && view() === 'timeline') {
                 <load-error
                     class="border-error/30 mx-8 mt-4 block rounded-lg border"
+                    animate.enter="motion-drop-in"
                     (retry)="retryLoad()"
                 />
             } @else if (failed_space_names()) {
                 <div
                     role="alert"
                     class="border-warning/30 bg-warning/10 mx-8 mt-4 flex items-center gap-2 rounded-lg border p-2 pl-4 text-sm"
+                    animate.enter="motion-drop-in"
                 >
                     <icon class="text-warning text-xl">warning</icon>
                     <p class="flex-1">
@@ -274,19 +277,25 @@ const EMPTY = [];
                         @if (day_timeline_view() === 'inverted') {
                             <room-bookings-inverted-timeline
                                 class="relative z-0 w-1/2 flex-1"
+                                animate.enter="motion-fade-in"
                             />
                         } @else {
                             <room-bookings-timeline
                                 class="relative z-0 w-1/2 flex-1"
+                                animate.enter="motion-fade-in"
                             />
                         }
                     } @else {
                         <room-week-bookings-timeline
                             class="relative z-0 w-1/2 flex-1"
+                            animate.enter="motion-fade-in"
                         />
                     }
                 } @else {
-                    <room-bookings-list class="relative z-0 w-1/2 flex-1" />
+                    <room-bookings-list
+                        class="relative z-0 w-1/2 flex-1"
+                        animate.enter="motion-fade-in"
+                    />
                 }
                 @if (has_approvals) {
                     <room-bookings-approvals class="relative z-10" />
@@ -320,7 +329,8 @@ const EMPTY = [];
 export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     private _org = inject(OrganisationService);
     private _state = inject(EventsStateService);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _route = inject(ActivatedRoute);
     private _settings = inject(SettingsService);
     private _user_pipe = inject(UserPipe);
@@ -400,12 +410,8 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     /** List of levels for the active building */
     public readonly updateZones = (zones: string[]) => {
         const zone_ids = this._clean_zone_ids(zones);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: {
-                zone_ids: zone_ids.length ? zone_ids.join(',') : null,
-            },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            zone_ids: zone_ids.length ? zone_ids.join(',') : null,
         });
         this._state.setZones(zone_ids);
         persistZones(
@@ -416,19 +422,11 @@ export class RoomBookingsComponent extends AsyncHandler implements OnInit {
     };
     public readonly updateUIOptions = (o) => this._state.setUIOptions(o);
     public readonly setPeriod = (p) => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { period: p },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ period: p });
         this._state.setPeriod(p);
     };
     public readonly setView = (view: 'timeline' | 'list') => {
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { view },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ view });
         this.view.set(view);
     };
     /**  */

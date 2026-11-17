@@ -11,7 +11,7 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
     AsyncHandler,
     OrganisationService,
@@ -33,6 +33,7 @@ import {
     startOfWeek,
     subMonths,
 } from 'date-fns';
+import { queryParamsWriter } from '../ui/page-transitions';
 import {
     loadPersistedZones,
     persistZones,
@@ -205,12 +206,17 @@ function periodOptions(
             </div>
             <div class="relative h-1/2 w-full flex-1 overflow-y-auto px-8">
                 @if (view() === 'list') {
-                    <div class="min-h-full w-full overflow-x-auto">
+                    <div
+                        class="min-h-full w-full overflow-x-auto"
+                        animate.enter="motion-fade-in"
+                    >
                         <event-listing class="block"></event-listing>
                     </div>
                 }
                 @if (view() === 'calendar') {
-                    <event-calendar></event-calendar>
+                    <event-calendar
+                        animate.enter="motion-fade-in"
+                    ></event-calendar>
                 }
             </div>
         </div>
@@ -247,7 +253,8 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
     private _settings = inject(SettingsService);
     private _state = inject(EventStateService);
     private _org = inject(OrganisationService);
-    private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _route = inject(ActivatedRoute);
 
     public readonly period = computed(() => this._state.options().period);
@@ -360,12 +367,8 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.zones.set(zones);
         this._state.setOptions({ zone_ids: zones });
         if (persist) {
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: {
-                    zone_ids: zones.length ? zones.join(',') : null,
-                },
-                queryParamsHandling: 'merge',
+            this._setQueryParams({
+                zone_ids: zones.length ? zones.join(',') : null,
             });
             persistZones(
                 'events',
@@ -377,22 +380,14 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
 
     public setView(view: 'list' | 'calendar') {
         this.view.set(view);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { view: view },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ view: view });
     }
 
     /** Change the period type. The range is cleared, so the current period shows. */
     public setPeriodType(type: 'week' | 'month', set_route = true) {
         this._state.setOptions({ period: type });
         if (set_route) {
-            this._router.navigate([], {
-                relativeTo: this._route,
-                queryParams: { period: type, range: null },
-                queryParamsHandling: 'merge',
-            });
+            this._setQueryParams({ period: type, range: null });
         }
     }
 
@@ -404,11 +399,7 @@ export class EventsListComponent extends AsyncHandler implements OnInit {
         this.selected_range.set(item.id);
         const { start, end } = item;
         this._state.setOptions({ date: start, end });
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { range: id },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ range: id });
     }
 
     /** Show the period that contains the current time */

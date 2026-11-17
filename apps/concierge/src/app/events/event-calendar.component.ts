@@ -1,9 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { ActivatedRoute, Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addMonths, addWeeks } from 'date-fns';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { EventMonthViewComponent } from './event-month-view.component';
 import { EventStateService } from './event-state.service';
 import { EventWeekViewComponent } from './event-week-view.component';
@@ -102,8 +102,8 @@ import { EventWeekViewComponent } from './event-week-view.component';
 })
 export class EventCalendarComponent {
     private _state = inject(EventStateService);
-    private _router = inject(Router);
-    private _route = inject(ActivatedRoute);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
 
     public readonly options = computed(() => ({
         date: Date.now(),
@@ -120,38 +120,26 @@ export class EventCalendarComponent {
     /** Change the period type. The range is cleared, so the current period shows. */
     public setPeriod(period: 'week' | 'month') {
         this._state.setOptions({ period });
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: { period, range: null },
-            queryParamsHandling: 'merge',
-        });
+        this._setQueryParams({ period, range: null });
     }
 
     public nextPeriod() {
         const { date, period } = this.options();
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: {
-                range:
-                    period === 'week'
-                        ? addWeeks(date, 1).valueOf()
-                        : addMonths(date, 1).valueOf(),
-            },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            range:
+                period === 'week'
+                    ? addWeeks(date, 1).valueOf()
+                    : addMonths(date, 1).valueOf(),
         });
     }
 
     public previousPeriod() {
         const { date, period } = this.options();
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: {
-                range:
-                    period === 'week'
-                        ? addWeeks(date, -1).valueOf()
-                        : addMonths(date, -1).valueOf(),
-            },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            range:
+                period === 'week'
+                    ? addWeeks(date, -1).valueOf()
+                    : addMonths(date, -1).valueOf(),
         });
     }
 }

@@ -9,7 +9,7 @@ import {
 
 /**
  * Scroll area of a report page: the logo header bar, then a loading
- * spinner, an empty message or the report body.
+ * spinner, an empty message or the report body, which fade in.
  *
  * Put the report body in a child `<ng-template>`. It is created only when
  * the report is not loading and has data, so its components do not run
@@ -38,10 +38,13 @@ import {
         </div>
         @if (!loading()) {
             @if (has_data()) {
-                <ng-container [ngTemplateOutlet]="content()" />
+                <div animate.enter="motion-fade-in">
+                    <ng-container [ngTemplateOutlet]="content()" />
+                </div>
             } @else {
                 <div
                     class="screen-only flex h-full w-full flex-col items-center p-8"
+                    animate.enter="motion-fade-in"
                 >
                     <p class="opacity-70">
                         {{ 'APP.CONCIERGE.REPORTS_EMPTY' | translate }}
@@ -49,7 +52,10 @@ import {
                 </div>
             }
         } @else {
-            <div class="flex h-full w-full flex-col items-center p-8">
+            <div
+                class="flex h-full w-full flex-col items-center p-8"
+                animate.enter="motion-fade-in"
+            >
                 <mat-spinner [diameter]="32" class="mb-4"></mat-spinner>
                 <p class="opacity-70">
                     {{ 'APP.CONCIERGE.REPORTS_LOADING' | translate }}

@@ -53,6 +53,7 @@ import { EventsStateService } from './events-state.service';
             @if (show()) {
                 <div
                     class="border-base-300 bg-base-100 absolute top-full right-4 max-h-[65vh] w-[18rem] translate-y-2 overflow-auto rounded-sm border shadow-sm"
+                    animate.enter="motion-drop-in"
                 >
                     <div class="bg-base-100 sticky top-0 z-10 rounded-sm p-4">
                         <div class="text-xs opacity-70">

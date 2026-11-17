@@ -87,6 +87,27 @@ describe('EmailTemplateManageComponent', () => {
         );
     });
 
+    it('should show the saving state while the template saves', async () => {
+        let finish: () => void = () => undefined;
+        saveTemplate.mockReturnValueOnce(
+            new Promise<void>((resolve) => (finish = resolve)),
+        );
+        spectator.component.model.update((m) => ({ ...m, zone_id: 'bld-1' }));
+        spectator.detectChanges();
+
+        const saving = spectator.component.save();
+        spectator.detectChanges();
+        expect(spectator.query('mat-spinner')).toBeTruthy();
+        // The page behind the overlay
+        const page = spectator.element.firstElementChild as HTMLElement;
+        expect(page.inert).toBe(true);
+
+        finish();
+        await saving;
+        spectator.detectChanges();
+        expect(spectator.query('mat-spinner')).toBeFalsy();
+    });
+
     it('should save the template with extracted text and navigate away', async () => {
         spectator.component.model.update((m) => ({
             ...m,

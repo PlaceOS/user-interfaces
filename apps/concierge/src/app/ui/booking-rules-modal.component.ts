@@ -63,13 +63,17 @@ import { restoreFocusAfterRender } from './restore-focus';
                 @switch (view()) {
                     @case ('form') {
                         <booking-rules-form
+                            animate.enter="motion-fade-in"
                             [ruleset]="selected()"
                             [save]="activate_save()"
                             (rulesetChange)="save($event)"
                         />
                     }
                     @case ('list') {
-                        <div class="-mx-2 w-[calc(100%+1rem)] overflow-auto">
+                        <div
+                            class="-mx-2 w-[calc(100%+1rem)] overflow-auto"
+                            animate.enter="motion-fade-in"
+                        >
                             <div
                                 class="border-base-300 grid min-w-3xl border text-sm"
                                 [style.grid-template-columns]="TABLE_COLUMNS"

@@ -47,6 +47,7 @@ import { DateOptionsComponent } from '@placeos/form-fields';
 import { showMetadata } from '@placeos/ts-client';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
+import { queryParamsWriter } from '../ui/page-transitions';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import {
     loadPersistedZones,
@@ -266,11 +267,17 @@ import { DesksStateService } from './desks-state.service';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto">
                     <router-outlet></router-outlet>
                 </div>
-                @if (loading() && path() === 'events') {
-                    <mat-progress-bar
-                        class="w-full"
-                        mode="indeterminate"
-                    ></mat-progress-bar>
+                @if (path() === 'events') {
+                    <!-- Keeps the space of the bar, so the content does not move -->
+                    <div class="h-1 w-full">
+                        @if (loading()) {
+                            <mat-progress-bar
+                                class="w-full"
+                                mode="indeterminate"
+                                animate.enter="motion-fade-in"
+                            ></mat-progress-bar>
+                        }
+                    </div>
                 }
             </main>
         </div>
@@ -329,6 +336,8 @@ import { DesksStateService } from './desks-state.service';
 export class DesksComponent extends AsyncHandler implements OnInit {
     private _state = inject(DesksStateService);
     private _router = inject(Router);
+    /** Writes filters to the URL after the page transition */
+    private readonly _setQueryParams = queryParamsWriter();
     private _route = inject(ActivatedRoute);
     private _dialog = inject(MatDialog);
     private _org = inject(OrganisationService);
@@ -414,12 +423,8 @@ export class DesksComponent extends AsyncHandler implements OnInit {
     /** Update active zones for desks */
     public readonly updateZones = (zones: string[]) => {
         const clean_zones = (zones || []).filter((_) => !!_);
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: {
-                zone_ids: clean_zones.length ? clean_zones.join(',') : null,
-            },
-            queryParamsHandling: 'merge',
+        this._setQueryParams({
+            zone_ids: clean_zones.length ? clean_zones.join(',') : null,
         });
         this._state.setFilters({ zones: clean_zones });
         const persistence_view = this.manage()

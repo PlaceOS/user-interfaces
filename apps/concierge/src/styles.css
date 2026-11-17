@@ -16,6 +16,130 @@
     border-radius: 0;
 }
 
+/*
+ * Interface motion. Use these tokens for every interface animation, so that
+ * the reduced motion setting stops all of them.
+ */
+:root {
+    --motion-fast: 120ms;
+    --motion-base: 200ms;
+    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-fast: 0ms;
+        --motion-base: 0ms;
+    }
+}
+
+@keyframes motion-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@keyframes motion-rise-out {
+    to {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@keyframes motion-drop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+}
+
+@keyframes motion-slide-in-end {
+    from {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes motion-pulse {
+    from {
+        opacity: 0.5;
+        transform: scale(1.15);
+    }
+}
+
+/*
+ * Classes for `animate.enter` and `animate.leave`. The shared components
+ * (libs/components) use them too. Signage Manager has the same classes.
+ * - motion-fade-in: content that loaded or changed
+ * - motion-rise-in / motion-rise-out: a floating bar or panel
+ * - motion-drop-in: content that opens below its control
+ * - motion-slide-in-end: a side panel that opens from the end edge
+ * - motion-fade-out: content that closes
+ * - motion-pulse: a value that changed (PulseOnChangeDirective)
+ */
+.motion-fade-in {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
+.motion-rise-in {
+    animation: motion-rise-in var(--motion-base) var(--motion-ease);
+}
+
+.motion-drop-in {
+    animation: motion-drop-in var(--motion-base) var(--motion-ease);
+}
+
+.motion-slide-in-end {
+    animation: motion-slide-in-end var(--motion-base) var(--motion-ease);
+}
+
+.motion-pulse {
+    animation: motion-pulse var(--motion-base) var(--motion-ease);
+}
+
+/* A leaving element must not catch clicks while it fades out */
+.motion-fade-out {
+    pointer-events: none;
+    animation: motion-fade-out var(--motion-fast) var(--motion-ease) forwards;
+}
+
+.motion-rise-out {
+    pointer-events: none;
+    animation: motion-rise-out var(--motion-fast) var(--motion-ease) forwards;
+}
+
+/*
+ * Page changes (`withViewTransitions` in app.config.ts). The page
+ * cross-fades, so parts that do not change stay still. Each page shows its
+ * own sidebar, which changes at once instead of fading.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease);
+}
+
+::view-transition-old(concierge-sidebar) {
+    display: none;
+}
+
+::view-transition-new(concierge-sidebar) {
+    animation: none;
+}
+
 html,
 body {
     height: 100%;
@@ -30,6 +154,13 @@ body {
     @page {
         size: auto;
         margin: 0;
+    }
+
+    /* Content that still fades in would print faded */
+    *,
+    ::before,
+    ::after {
+        animation: none !important;
     }
 
     .mat-mdc-snackbar-surface {

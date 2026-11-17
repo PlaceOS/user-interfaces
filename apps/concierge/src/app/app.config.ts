@@ -16,11 +16,13 @@ import {
     TitleStrategy,
     withHashLocation,
     withNavigationErrorHandler,
+    withViewTransitions,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { onPageTransitionCreated } from './ui/page-transitions';
 
 import {
     LazySentryErrorHandler,
@@ -43,6 +45,11 @@ export const appConfig: ApplicationConfig = {
             routes,
             withHashLocation(),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
+            // Page change animations are in styles.css
+            withViewTransitions({
+                skipInitialTransition: true,
+                onViewTransitionCreated: onPageTransitionCreated,
+            }),
         ),
         {
             provide: ErrorHandler,

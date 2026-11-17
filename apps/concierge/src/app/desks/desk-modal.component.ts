@@ -220,6 +220,7 @@ export interface DeskModalData {
                     @if (future_bookings().length) {
                         <div
                             class="bg-warning/10 border-warning text-warning-content mb-4 flex items-start space-x-2 rounded-sm border p-2 text-sm"
+                            animate.enter="motion-drop-in"
                         >
                             <icon class="text-warning">warning</icon>
                             <p class="flex-1">
