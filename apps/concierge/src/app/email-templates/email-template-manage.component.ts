@@ -33,7 +33,11 @@ import {
             'hasUnsavedChanges() && $event.preventDefault()',
     },
     template: `
-        <div class="bg-base-200 absolute inset-0 overflow-auto">
+        <!-- Inert while the loading overlay covers it -->
+        <div
+            class="bg-base-200 absolute inset-0 overflow-auto"
+            [inert]="!!loading()"
+        >
             <div
                 class="bg-base-100 border-base-300 mx-auto min-h-full w-164 max-w-full border-x"
             >
@@ -344,8 +348,12 @@ import {
                 }
             </div>
         </div>
-        <ng-template #load_state>
-            <div class="bg-base-100 absolute inset-0">
+        @if (loading()) {
+            <!-- Above the sticky header (z-20) -->
+            <div
+                class="bg-base-100 absolute inset-0 z-30"
+                animate.enter="motion-fade-in"
+            >
                 <div
                     class="flex h-full w-full flex-col items-center justify-center space-y-2"
                 >
@@ -353,7 +361,7 @@ import {
                     <p>{{ loading() }}</p>
                 </div>
             </div>
-        </ng-template>
+        }
     `,
     styles: [``],
     imports: [
