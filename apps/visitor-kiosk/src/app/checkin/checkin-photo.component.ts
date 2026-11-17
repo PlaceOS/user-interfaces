@@ -12,6 +12,7 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading()) {
             <div
+                step-card
                 class="bg-base-100 relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h1 pageHeading class="mb-4 text-xl">

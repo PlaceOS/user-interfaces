@@ -10,6 +10,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: 'checkin-error',
     template: `
         <div
+            step-card
             class="bg-base-100 relative m-4 flex flex-col items-center space-y-4 overflow-hidden rounded-sm px-16 py-4 text-center shadow-sm"
         >
             <h1 pageHeading class="pb-2 text-2xl">

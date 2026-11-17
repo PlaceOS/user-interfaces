@@ -40,6 +40,7 @@ import { parseTokenFromUrl } from './token-from-url';
     template: `
         @if (!loading()) {
             <div
+                step-card
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h1
@@ -101,6 +102,7 @@ import { parseTokenFromUrl } from './token-from-url';
             </div>
         } @else {
             <div
+                step-card
                 class="bg-base-100 relative flex h-80 w-md flex-col items-center justify-center space-y-2 overflow-hidden rounded-sm p-8 shadow-sm"
             >
                 <mat-spinner [diameter]="32" aria-hidden="true"></mat-spinner>

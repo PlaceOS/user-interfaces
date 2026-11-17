@@ -28,6 +28,7 @@ const DEFAULT_TEMPLATE = `
     template: `
         @if (event()) {
             <div
+                step-card
                 class="bg-base-100 relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm p-4 shadow-sm print:hidden"
             >
                 @let ev = event();

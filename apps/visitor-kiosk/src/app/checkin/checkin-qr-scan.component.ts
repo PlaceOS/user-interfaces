@@ -84,6 +84,7 @@ function shouldDecode(
     selector: '[checkin-qr-scan]',
     template: `
         <div
+            step-card
             class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code()"
         >
@@ -198,6 +199,7 @@ function shouldDecode(
         </div>
         @if (checking_code()) {
             <div
+                step-card
                 class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
             >
                 <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>

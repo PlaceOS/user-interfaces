@@ -54,6 +54,64 @@ html[data-page-motion='reset']::view-transition-new(*) {
     animation-duration: var(--motion-slow);
 }
 
+/*
+ * Each flow step shows its content on a card with `step-card`. The card
+ * moves and changes its size from one step to the next. In a flow, the
+ * content slides forward to a new step and back to the first step.
+ */
+[step-card] {
+    view-transition-name: step-card;
+}
+
+@keyframes motion-step-from-end {
+    from {
+        opacity: 0;
+        transform: translateX(3rem);
+    }
+}
+
+@keyframes motion-step-to-end {
+    to {
+        opacity: 0;
+        transform: translateX(3rem);
+    }
+}
+
+@keyframes motion-step-from-start {
+    from {
+        opacity: 0;
+        transform: translateX(-3rem);
+    }
+}
+
+@keyframes motion-step-to-start {
+    to {
+        opacity: 0;
+        transform: translateX(-3rem);
+    }
+}
+
+html[data-page-motion]::view-transition-old(step-card),
+html[data-page-motion]::view-transition-new(step-card) {
+    mix-blend-mode: normal;
+}
+
+html[data-page-motion='forward']::view-transition-old(step-card) {
+    animation-name: motion-step-to-start;
+}
+
+html[data-page-motion='forward']::view-transition-new(step-card) {
+    animation-name: motion-step-from-end;
+}
+
+html[data-page-motion='back']::view-transition-old(step-card) {
+    animation-name: motion-step-to-end;
+}
+
+html[data-page-motion='back']::view-transition-new(step-card) {
+    animation-name: motion-step-from-start;
+}
+
 @media print {
     @page {
         size: auto;
