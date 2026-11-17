@@ -150,6 +150,15 @@ select:focus-visible,
     animation: motion-rise-in var(--motion-base) var(--motion-ease);
 }
 
+/*
+ * A tab panel fades in when it shows. A CSS animation also starts again when
+ * an element changes from `display: none`, so this covers panels that a tab
+ * hides with a class too. Material tabs have their own animation.
+ */
+[role='tabpanel']:not(.mat-mdc-tab-body) {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
 /* A leaving element must not catch clicks or drops while it fades out */
 .motion-fade-out {
     pointer-events: none;
