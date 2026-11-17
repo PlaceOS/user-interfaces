@@ -260,25 +260,6 @@ describe('ControlStateService', () => {
         });
     });
 
-    it("should only list events for the room's meeting URL", async () => {
-        vi.mocked(client.responseHeaders).mockReturnValue({});
-        // `get` is overloaded, so cast the event list response to its type
-        vi.mocked(client.get).mockImplementation((async () => [
-            { id: 'e1', meeting_url: 'https://meet.room/abc' },
-            { id: 'e2', meeting_url: 'https://other.site/abc' },
-        ]) as unknown as typeof client.get);
-        connect();
-        bindings['supported_meeting_url']('https://meet.room');
-        spectator.service.setCalendar({ id: 'cal-1' } as Calendar);
-        TestBed.tick();
-        await vi.waitFor(() =>
-            expect(spectator.service.events().map((_) => _.id)).toEqual(['e1']),
-        );
-        expect(client.get).toHaveBeenCalledWith(
-            expect.stringContaining('calendars=cal-1'),
-        );
-    });
-
     it('should only unroute outputs that show a source', async () => {
         connect([
             { id: 'out-1', source: 'in-1' },

@@ -4,7 +4,6 @@ import {
     inject,
     Injectable,
     Injector,
-    resource,
     signal,
     Signal,
     untracked,
@@ -24,8 +23,7 @@ import {
     log,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { CalendarService, queryEvents, SpacesService } from '@placeos/events';
-import { endOfDay, getUnixTime } from 'date-fns';
+import { CalendarService, SpacesService } from '@placeos/events';
 import { CONTROL_STORE_KEY } from './control-store-key';
 import { BOTTOM_SHEET_DIALOG } from './mobile-layout';
 import { systemBinding } from './system-binding';
@@ -166,6 +164,8 @@ export class ControlStateService extends AsyncHandler {
     /** General data associated with the active system */
     public readonly system = this._system.asReadonly();
     public readonly calendar = this._calendar.asReadonly();
+    /** Meeting URL prefix that the room can join */
+    public readonly meeting_url = this._url.asReadonly();
     /** List of available light sources */
     public readonly lights = this._lights.asReadonly();
     public readonly active_output = this._active_output.asReadonly();
@@ -298,24 +298,6 @@ export class ControlStateService extends AsyncHandler {
     ]);
 
     public readonly calendars = this._cal.calendar_list;
-
-    private readonly _events = resource({
-        params: () => ({ url: this._url(), calendar: this._calendar() }),
-        loader: async ({ params: { url, calendar } }) => {
-            if (!calendar || !url) return [] as CalendarEvent[];
-            const list = await queryEvents({
-                period_start: getUnixTime(Date.now()),
-                period_end: getUnixTime(endOfDay(Date.now())),
-                calendars: calendar.id,
-            });
-            return list.filter((_) => _.meeting_url.startsWith(url));
-        },
-    });
-    public readonly events = computed(() =>
-        this._events.hasValue() ? this._events.value() : [],
-    );
-    /** Whether today's events for the active calendar are loading */
-    public readonly events_loading = this._events.isLoading;
 
     public get id() {
         return this._id();

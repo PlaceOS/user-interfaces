@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject, resource } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
@@ -17,7 +17,8 @@ import {
     openConfirmModal,
     TranslatePipe,
 } from '@placeos/components';
-import { format } from 'date-fns';
+import { queryEvents } from '@placeos/events';
+import { endOfDay, format, getUnixTime } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
 import { errorText } from '../error-text';
 
@@ -120,11 +121,28 @@ export class SelectMeetingModalComponent {
         inject<MatDialogRef<SelectMeetingModalComponent>>(MatDialogRef);
 
     public readonly calendars = this._service.calendars;
-    public readonly events = this._service.events;
-
-    public readonly loading = this._service.events_loading;
-
     public readonly calendar = this._service.calendar;
+
+    /** Today's joinable events for the active calendar. Loads only while the modal is open */
+    private readonly _events = resource({
+        params: () => ({
+            url: this._service.meeting_url(),
+            calendar: this.calendar(),
+        }),
+        loader: async ({ params: { url, calendar } }) => {
+            if (!calendar || !url) return [] as CalendarEvent[];
+            const list = await queryEvents({
+                period_start: getUnixTime(Date.now()),
+                period_end: getUnixTime(endOfDay(Date.now())),
+                calendars: calendar.id,
+            });
+            return list.filter((_) => _.meeting_url?.startsWith(url));
+        },
+    });
+    public readonly events = computed(() =>
+        this._events.hasValue() ? this._events.value() : [],
+    );
+    public readonly loading = this._events.isLoading;
 
     public readonly setCalendar = (c: any) => this._service.setCalendar(c);
 

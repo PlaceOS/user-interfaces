@@ -4,18 +4,36 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { setNotifyOutlet } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockPipe } from 'ng-mocks';
 import { NEVER, of, tap } from 'rxjs';
 
 import { ControlStateService } from '../../app/control-state.service';
 import { SelectMeetingModalComponent } from '../../app/ui/select-meeting-modal.component';
 
+// `queryEvents` can't be mocked under the bundling builder, so stub the
+// ts-client `get` that it calls.
+vi.mock('@placeos/ts-client', { spy: true });
+
+/** Raw API event with a meeting URL that the room supports */
+const STANDUP = {
+    id: 'e1',
+    title: 'Standup',
+    organiser: { name: 'Ada' },
+    meeting_url: 'https://meet.room/abc',
+};
+
+/** Make the events API answer with the given raw events */
+const respond = (events: Promise<unknown[]> | unknown[]) =>
+    vi
+        .mocked(ts_client.get)
+        .mockImplementation((() =>
+            Promise.resolve(events)) as unknown as typeof ts_client.get);
+
 describe('SelectMeetingModalComponent', () => {
     let spectator: Spectator<SelectMeetingModalComponent>;
     let calendars: ReturnType<typeof signal<any[]>>;
-    let events: ReturnType<typeof signal<any[]>>;
     let calendar: ReturnType<typeof signal<unknown>>;
-    let events_loading: ReturnType<typeof signal<boolean>>;
     let service: any;
     let dialog_ref: { close: unknown };
     let dialog_open: any;
@@ -28,23 +46,27 @@ describe('SelectMeetingModalComponent', () => {
             MockPipe(TranslatePipe, (v) => v),
         ],
         imports: [MatProgressSpinnerModule],
+        detectChanges: false,
     });
 
+    /** Open the modal and wait for the events to load */
+    const open = async () => {
+        spectator.detectChanges();
+        await spectator.fixture.whenStable();
+        spectator.detectChanges();
+    };
+
     beforeEach(() => {
+        respond([STANDUP]);
         calendars = signal<unknown[]>([
             { id: 'c1', name: 'Cal One' },
             { id: 'c2', summary: 'Cal Two' },
         ]);
-        events = signal<unknown[]>([
-            { title: 'Standup', date: Date.now(), organiser: { name: 'Ada' } },
-        ]);
         calendar = signal<unknown>(calendars()[0]);
-        events_loading = signal(false);
         service = {
             calendars,
-            events,
-            events_loading,
             calendar,
+            meeting_url: signal('https://meet.room'),
             setCalendar: vi.fn((c) => calendar.set(c)),
             setEvent: vi.fn(async () => undefined),
         };
@@ -73,19 +95,31 @@ describe('SelectMeetingModalComponent', () => {
         setNotifyOutlet(null, true);
     });
 
-    it('should render a button for each event', () => {
+    it('should not load events before the modal opens', () => {
+        expect(ts_client.get).not.toHaveBeenCalled();
+    });
+
+    it("should list today's events for the room's meeting URL", async () => {
+        respond([
+            STANDUP,
+            { id: 'e2', title: 'Other', meeting_url: 'https://other.site/abc' },
+        ]);
+        await open();
+        expect(ts_client.get).toHaveBeenCalledWith(
+            expect.stringContaining('calendars=c1'),
+        );
         expect(spectator.queryAll('button[btn]')).toHaveLength(1);
         expect(spectator.query('button[btn]')).toContainText('Standup');
     });
 
-    it('should show an empty state when there are no events', () => {
-        events.set([]);
-        spectator.detectChanges();
+    it('should show an empty state when there are no events', async () => {
+        respond([]);
+        await open();
         expect(spectator.query('button[btn]')).not.toExist();
     });
 
     it('should show a loading spinner while loading', () => {
-        events_loading.set(true);
+        respond(new Promise(() => {}));
         spectator.detectChanges();
         expect('mat-spinner').toExist();
         expect(spectator.query('button[btn]')).not.toExist();
@@ -109,7 +143,8 @@ describe('SelectMeetingModalComponent', () => {
     it('should join a meeting when the confirmation is completed', async () => {
         const confirm_ref = confirmedRef();
         dialog_open.mockReturnValue(confirm_ref);
-        const event = events()[0];
+        await open();
+        const event = spectator.component.events()[0];
         await spectator.component.select(event);
         expect(dialog_open).toHaveBeenCalled();
         expect(service.setEvent).toHaveBeenCalledWith(event);
@@ -122,7 +157,8 @@ describe('SelectMeetingModalComponent', () => {
         const confirm_ref = confirmedRef();
         dialog_open.mockReturnValue(confirm_ref);
         service.setEvent.mockRejectedValue(new Error('offline'));
-        await spectator.component.select(events()[0]);
+        await open();
+        await spectator.component.select(spectator.component.events()[0]);
         expect(notify_open).toHaveBeenCalled();
         expect(confirm_ref.close).toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
@@ -139,7 +175,8 @@ describe('SelectMeetingModalComponent', () => {
             close: vi.fn(),
         };
         dialog_open.mockReturnValue(confirm_ref);
-        await spectator.component.select(events()[0]);
+        await open();
+        await spectator.component.select(spectator.component.events()[0]);
         expect(service.setEvent).not.toHaveBeenCalled();
         expect(notify_open).not.toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
