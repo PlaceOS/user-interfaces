@@ -1,15 +1,13 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, resource, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
-import { AsyncHandler, CalendarEvent, log } from '@placeos/common';
+import { AsyncHandler, CalendarEvent, HashMap } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { queryEvents } from '@placeos/events';
-import { differenceInMinutes, endOfDay, getUnixTime } from 'date-fns';
+import { differenceInMinutes, endOfDay } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
+import { systemBinding } from '../system-binding';
 import { PulseOnChangeDirective } from './pulse-on-change.directive';
 
-/** Time between reloads of the room's meetings */
-const REFRESH_MS = 5 * 60 * 1000;
 /** Time between updates of the "starts in" label */
 const TICK_MS = 30 * 1000;
 /** Meetings that start within this many minutes show a countdown */
@@ -17,6 +15,7 @@ const COUNTDOWN_MINUTES = 60;
 
 /**
  * Shows the current or next meeting booked in the room today.
+ * Reads the room's Bookings module, which pushes changes to its bookings.
  * Used on the start screen. When the meeting has a supported meeting URL,
  * it offers a button that starts the room and joins the meeting.
  */
@@ -72,31 +71,23 @@ export class NextMeetingComponent extends AsyncHandler {
     private _state = inject(ControlStateService);
 
     private readonly _now = signal(Date.now());
-    private readonly _events = resource({
-        params: () => this._state.system_id(),
-        loader: async ({ params: id }) => {
-            if (!id) return [] as CalendarEvent[];
-            try {
-                return await queryEvents({
-                    system_ids: id,
-                    period_start: getUnixTime(Date.now()),
-                    period_end: getUnixTime(endOfDay(Date.now())),
-                });
-            } catch (error) {
-                log('Control', 'Error loading room meetings:', error, 'warn');
-                return [] as CalendarEvent[];
-            }
-        },
-    });
+    private readonly _current = this._booking('current_booking');
+    private readonly _next = this._booking('next_booking');
 
     /** Meeting in progress, or the next meeting today */
     public readonly meeting = computed(() => {
         const now = this._now();
-        const events = this._events.hasValue() ? this._events.value() : [];
+        const today_end = endOfDay(now).valueOf();
+        // The driver updates each minute, so the current meeting can be
+        // over before the next one replaces it
         return (
-            events
-                .filter((_) => _.type !== 'cancelled' && _.date_end > now)
-                .sort((a, b) => a.date - b.date)[0] ?? null
+            [this._current(), this._next()].find(
+                (_) =>
+                    !!_ &&
+                    _.type !== 'cancelled' &&
+                    _.date_end > now &&
+                    _.date <= today_end,
+            ) ?? null
         );
     });
     public readonly minutes_until = computed(() =>
@@ -117,7 +108,17 @@ export class NextMeetingComponent extends AsyncHandler {
     constructor() {
         super();
         this.interval('tick', () => this._now.set(Date.now()), TICK_MS);
-        this.interval('refresh', () => this._events.reload(), REFRESH_MS);
+    }
+
+    /** Booking status from the room's Bookings module as an event */
+    private _booking(name: 'current_booking' | 'next_booking') {
+        const raw = systemBinding<HashMap | null>(
+            this._state.system_id,
+            'Bookings',
+            name,
+            null,
+        );
+        return computed(() => (raw() ? new CalendarEvent(raw()) : null));
     }
 
     /** Power on the room and push the meeting to it */
