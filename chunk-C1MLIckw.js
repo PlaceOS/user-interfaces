@@ -1,1 +1,0 @@
-import{t as Ro}from"./main-3S2ESMMP.js";function n(){Ro(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
