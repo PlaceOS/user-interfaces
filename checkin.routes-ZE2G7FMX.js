@@ -2,8 +2,8 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-4U2PX2US.js";
-import "./chunk-TDYUSKCJ.js";
+} from "./chunk-UVGYLY7Y.js";
+import "./chunk-PPRDITPD.js";
 import {
   PageHeadingDirective
 } from "./chunk-42PXP3KN.js";
@@ -19,7 +19,7 @@ import {
   MatRadioModule,
   UserAvatarComponent,
   ensureHiddenCategory
-} from "./chunk-5VLOTDIW.js";
+} from "./chunk-RVLMZKFS.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
@@ -27,14 +27,14 @@ import {
 import {
   MatSelect,
   MatSelectModule
-} from "./chunk-RIX5TGWW.js";
+} from "./chunk-TE35OHT2.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-3CHOP5C5.js";
+} from "./chunk-5JS7BNEZ.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-HEI7ZVHS.js";
+} from "./chunk-SF2BMLUO.js";
 import {
   MatError,
   MatFormField,
@@ -48,24 +48,24 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-NAC3ZK63.js";
+} from "./chunk-CZ5OQJ7F.js";
 import {
   AnnounceDirective,
   getGuestCateringItem,
   setGuestCateringItem
-} from "./chunk-ASIBZFNA.js";
+} from "./chunk-POEMZYY7.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-TAOQMALH.js";
+} from "./chunk-2FTAL4LT.js";
 import {
   FormField,
   email,
   form,
   required
-} from "./chunk-TNZNZVTG.js";
+} from "./chunk-LJRXW52G.js";
 import {
   TranslatePipe
-} from "./chunk-GXBFKKMB.js";
+} from "./chunk-WFZCSGQC.js";
 import {
   IconComponent
 } from "./chunk-IZCLOVZ4.js";
@@ -74,7 +74,7 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-UB2TZGVJ.js";
+} from "./chunk-AB4YYNFE.js";
 import {
   AsyncHandler,
   CateringItem,
@@ -94,7 +94,7 @@ import {
   themedLogo,
   up,
   withTimeout
-} from "./chunk-D67HMTC3.js";
+} from "./chunk-KZY4C3WX.js";
 import "./chunk-LBBA5C7V.js";
 import {
   MatRipple,
@@ -2831,4 +2831,4 @@ export {
   ROUTES
 };
 //# debugId=52d69178-e203-50b7-ad27-b57c2d47ef31
-//# sourceMappingURL=checkin.routes-IPBGHTMX.js.map
+//# sourceMappingURL=checkin.routes-ZE2G7FMX.js.map

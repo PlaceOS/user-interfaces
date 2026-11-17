@@ -2,30 +2,30 @@ import {
   BookingFormService,
   DurationFieldComponent,
   UserSearchFieldComponent
-} from "./chunk-75Z4ASMP.js";
+} from "./chunk-ZZ2A7BNQ.js";
 import "./chunk-OFF525KQ.js";
 import {
   minuteClock
-} from "./chunk-TDYUSKCJ.js";
+} from "./chunk-PPRDITPD.js";
 import {
   PageHeadingDirective
 } from "./chunk-42PXP3KN.js";
 import {
   MatCheckbox,
   MatCheckboxModule
-} from "./chunk-5VLOTDIW.js";
+} from "./chunk-RVLMZKFS.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
 } from "./chunk-2AADRT6L.js";
-import "./chunk-RIX5TGWW.js";
+import "./chunk-TE35OHT2.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-3CHOP5C5.js";
+} from "./chunk-5JS7BNEZ.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-HEI7ZVHS.js";
+} from "./chunk-SF2BMLUO.js";
 import {
   MatError,
   MatFormField,
@@ -33,22 +33,22 @@ import {
 } from "./chunk-VEBGB24P.js";
 import "./chunk-ZG3JQ7HP.js";
 import "./chunk-KDUJLNKF.js";
-import "./chunk-YICTTJP3.js";
+import "./chunk-BZJDIVPK.js";
 import {
   CheckinStateService
-} from "./chunk-NAC3ZK63.js";
+} from "./chunk-CZ5OQJ7F.js";
 import {
   AnnounceDirective
-} from "./chunk-ASIBZFNA.js";
+} from "./chunk-POEMZYY7.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-TAOQMALH.js";
+} from "./chunk-2FTAL4LT.js";
 import {
   FormField
-} from "./chunk-TNZNZVTG.js";
+} from "./chunk-LJRXW52G.js";
 import {
   TranslatePipe
-} from "./chunk-GXBFKKMB.js";
+} from "./chunk-WFZCSGQC.js";
 import {
   IconComponent
 } from "./chunk-IZCLOVZ4.js";
@@ -57,7 +57,7 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-UB2TZGVJ.js";
+} from "./chunk-AB4YYNFE.js";
 import {
   AsyncHandler,
   EMPTY_USER,
@@ -68,7 +68,7 @@ import {
   notifyError,
   settingSignal,
   unique
-} from "./chunk-D67HMTC3.js";
+} from "./chunk-KZY4C3WX.js";
 import "./chunk-LBBA5C7V.js";
 import {
   MatRipple,
@@ -782,4 +782,4 @@ export {
   VisitorRegistrationComponent
 };
 //# debugId=ff59dc07-4fa3-5f3f-8135-b04086ae8e1b
-//# sourceMappingURL=visitor-registration.component-Q32JNJUW.js.map
+//# sourceMappingURL=visitor-registration.component-BJDLBSGC.js.map
