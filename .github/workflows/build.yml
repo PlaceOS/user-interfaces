@@ -197,6 +197,15 @@ jobs:
         steps:
             - uses: actions/checkout@v6
 
+            # The concurrency group above makes this run after an earlier
+            # deploy of this app, so it compares with the newest build.
+            - name: Check release order
+              if: ${{ github.ref_type == 'tag' }}
+              run: .github/scripts/check-release-order.sh
+              env:
+                  BRANCH: build/${{ matrix.package }}/${{ env.deploy_branch }}
+                  GH_TOKEN: ${{ github.token }}
+
             - name: Cache node modules
               id: cache
               uses: actions/cache@v5

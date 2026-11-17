@@ -1,6 +1,12 @@
 const assert = require('node:assert/strict');
 const { spawnSync } = require('node:child_process');
-const { mkdtempSync, readFileSync, rmSync } = require('node:fs');
+const {
+    chmodSync,
+    mkdtempSync,
+    readFileSync,
+    rmSync,
+    writeFileSync,
+} = require('node:fs');
 const { tmpdir } = require('node:os');
 const path = require('node:path');
 const { after, test } = require('node:test');
@@ -73,6 +79,56 @@ test('allows release tags only on develop and hotfix branches', () => {
         const result = run('bash', [check], { cwd: root });
         assert.equal(result.status === 0, allowed, branch);
     }
+});
+
+test('allows release tags only on commits that contain the current build', () => {
+    const { root, git } = fixture([]);
+    const origin = mkdtempSync(path.join(tmpdir(), 'release-origin-'));
+    fixtures.push(origin);
+    run('git', ['init', '-q', '--bare', origin]);
+    git('remote', 'add', 'origin', origin);
+    // A fake `gh` prints the compare status and records the compared commits.
+    const calls = path.join(root, 'gh-calls');
+    writeFileSync(
+        path.join(root, 'gh'),
+        `#!/usr/bin/env bash\necho "$*" >> "${calls}"\necho "$COMPARE_STATUS"\n`,
+    );
+    chmodSync(path.join(root, 'gh'), 0o755);
+    const check = (status) =>
+        run(
+            'bash',
+            [path.join(repoRoot, '.github/scripts/check-release-order.sh')],
+            {
+                cwd: root,
+                env: {
+                    ...process.env,
+                    BRANCH: 'build/workplace/prod',
+                    COMPARE_STATUS: status,
+                    GITHUB_REPOSITORY: 'fixture/repository',
+                    PATH: `${root}${path.delimiter}${process.env.PATH}`,
+                },
+            },
+        ).status;
+
+    assert.equal(check('behind'), 0, 'a first release has no build to compare');
+
+    const tree = git('hash-object', '-t', 'tree', '-w', '/dev/null');
+    const build = git(
+        'commit-tree',
+        tree,
+        '-m',
+        'build(workplace): [abc1234] CI build',
+    );
+    git('push', '-q', 'origin', `${build}:refs/heads/build/workplace/prod`);
+    assert.equal(check('ahead'), 0);
+    assert.equal(check('identical'), 0);
+    assert.notEqual(check('behind'), 0);
+    assert.notEqual(check('diverged'), 0);
+    const head = git('rev-parse', 'HEAD');
+    assert.match(
+        readFileSync(calls, 'utf8'),
+        new RegExp(`compare/abc1234\\.\\.\\.${head}`),
+    );
 });
 
 test('builds the mobile applications that a mobile tag names', () => {

@@ -26,16 +26,21 @@ The tagged commit must be on `develop` or on a `hotfix/*` branch. Push the commi
 to that branch before you push the tag. Otherwise, CI fails and does not deploy.
 `tools/get-affected.js` selects the applications from the tag.
 `.github/scripts/check-release-source.sh` checks the branches. It does not check
-review or who pushed the tag. Anyone who can push a `hotfix/*` branch and a tag
-can release.
+review.
+
+The `Release tags` repository ruleset lets only the admin and maintain roles
+create, move, or delete `v*`, `*/v*`, and `mobile/*/v*` tags.
 
 GitHub does not start workflows for tags when one push contains more than three
 tags. To release more than three applications, use one `v<version>` tag, or push
 the tags in separate pushes.
 
-Deploys of one application to one build branch run one at a time. CI does not
-check that a tag is newer than the current production build. A tag on an older
-commit deploys that older build.
+Deploys of one application to one build branch run one at a time. Before each
+production deploy, `.github/scripts/check-release-order.sh` checks that the
+tagged commit contains the source commit of the current build. Thus a tag on an
+older commit fails, and does not replace a newer build. Start a `hotfix/*` branch
+from the commit of the current production build. Merge the hotfix into `develop`
+before the next release from `develop`.
 
 Mobile tags build Android and iOS artifacts. They do not deploy web applications:
 
