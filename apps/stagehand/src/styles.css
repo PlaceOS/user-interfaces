@@ -133,6 +133,9 @@ body {
  * - stagehand-fade-in: content that loaded
  * - stagehand-drop-in: content that opens below its control
  * - stagehand-pulse: a value that changed (PulseOnChangeDirective)
+ * - stagehand-label-in: a sidebar label. It waits until the sidebar is
+ *   mostly open, so it does not show cut off
+ * - stagehand-fade-out: for `animate.leave`, content that closes
  */
 .stagehand-fade-in {
     animation: stagehand-fade-in var(--stagehand-motion)
@@ -147,6 +150,16 @@ body {
 .stagehand-pulse {
     animation: stagehand-pulse var(--stagehand-motion-slow)
         var(--stagehand-ease-out);
+}
+
+.stagehand-label-in {
+    animation: stagehand-fade-in var(--stagehand-motion-fast)
+        var(--stagehand-ease-out) 100ms both;
+}
+
+.stagehand-fade-out {
+    animation: stagehand-fade-out var(--stagehand-motion-fast)
+        var(--stagehand-ease-in) both;
 }
 
 /*
@@ -189,7 +202,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .stagehand-fade-in,
     .stagehand-drop-in,
-    .stagehand-pulse {
+    .stagehand-pulse,
+    .stagehand-label-in,
+    .stagehand-fade-out {
         animation: none;
     }
 
