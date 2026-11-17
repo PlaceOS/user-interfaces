@@ -70,12 +70,14 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                 @if (loading()) {
                     <div
                         class="text-base-content/70 flex h-full items-center justify-center p-8"
+                        role="status"
                     >
                         {{ 'COMMON.LOADING' | translate }}
                     </div>
                 } @else if (load_error()) {
                     <div
                         class="text-error flex h-full flex-col items-center justify-center gap-2 p-8 text-center"
+                        role="alert"
                     >
                         <icon class="text-4xl">error</icon>
                         <p>
@@ -220,8 +222,14 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                         )
                                                     "
                                                     [attr.aria-label]="
-                                                        'COMMON.EDIT'
+                                                        'SIGNAGE_MANAGER.EDIT_NAMED'
                                                             | translate
+                                                                : {
+                                                                      name: card
+                                                                          .mapping
+                                                                          .template_details
+                                                                          .name,
+                                                                  }
                                                     "
                                                 >
                                                     <icon>edit</icon>
@@ -246,8 +254,14 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                                             )
                                                         "
                                                         [attr.aria-label]="
-                                                            'COMMON.REMOVE'
+                                                            'COMMON.REMOVE_ITEM'
                                                                 | translate
+                                                                    : {
+                                                                          item: card
+                                                                              .mapping
+                                                                              .template_details
+                                                                              .name,
+                                                                      }
                                                         "
                                                     >
                                                         <icon>delete</icon>
@@ -270,6 +284,11 @@ export type TemplateMappingTargetType = 'display' | 'zone';
                                             </div>
                                             <div
                                                 class="rounded-md p-2"
+                                                [attr.tabindex]="
+                                                    scheduleTooltip(schedule)
+                                                        ? 0
+                                                        : null
+                                                "
                                                 [matTooltip]="
                                                     scheduleTooltip(schedule)
                                                 "

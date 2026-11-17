@@ -478,6 +478,8 @@ export function playlistSchedulePayload(
                     class="flex min-w-0 flex-1 items-center gap-3 text-left"
                     [attr.aria-expanded]="open()"
                     (click)="toggle.emit()"
+                    [matTooltip]="scheduleExpiryTooltip()"
+                    [matTooltipDisabled]="!value().has_valid_until"
                 >
                     <div class="min-w-24 text-sm font-medium">
                         {{
@@ -487,8 +489,6 @@ export function playlistSchedulePayload(
                     </div>
                     <div
                         class="text-base-content min-w-0 flex-1 truncate text-xs"
-                        [matTooltip]="scheduleExpiryTooltip()"
-                        [matTooltipDisabled]="!value().has_valid_until"
                     >
                         {{ scheduleSummary() }}
                     </div>
@@ -536,7 +536,7 @@ export function playlistSchedulePayload(
                     >
                         <mat-select
                             [formField]="schedule().schedule_type"
-                            [attr.aria-label]="
+                            [aria-label]="
                                 'SIGNAGE_MANAGER.SCHEDULE_TYPE_ARIA' | translate
                             "
                         >
@@ -649,7 +649,7 @@ export function playlistSchedulePayload(
                                             [formField]="
                                                 schedule().recurrence_type
                                             "
-                                            [attr.aria-label]="
+                                            [aria-label]="
                                                 'SIGNAGE_MANAGER.REPEAT_PATTERN_ARIA'
                                                     | translate
                                             "
@@ -694,7 +694,10 @@ export function playlistSchedulePayload(
                                     </mat-form-field>
                                 </div>
                                 @if (isIntervalRecurrence()) {
-                                    <label class="m-0 min-w-40 flex-1">
+                                    <label
+                                        class="m-0 min-w-40 flex-1"
+                                        for="recurrence-interval"
+                                    >
                                         <div>
                                             {{
                                                 'SIGNAGE_MANAGER.HOURS_BETWEEN_PLAYS'
@@ -707,10 +710,7 @@ export function playlistSchedulePayload(
                                             [formField]="
                                                 schedule().recurrence_interval
                                             "
-                                            [attr.aria-label]="
-                                                'SIGNAGE_MANAGER.SCHEDULE_INTERVAL_ARIA'
-                                                    | translate
-                                            "
+                                            input_id="recurrence-interval"
                                         />
                                     </label>
                                 }
@@ -787,7 +787,7 @@ export function playlistSchedulePayload(
                                                 schedule()
                                                     .recurrence_day_of_month
                                             "
-                                            [attr.aria-label]="
+                                            [aria-label]="
                                                 'SIGNAGE_MANAGER.DAYS_OF_MONTH_ARIA'
                                                     | translate
                                             "
@@ -822,7 +822,7 @@ export function playlistSchedulePayload(
                                                     schedule()
                                                         .recurrence_week_of_month
                                                 "
-                                                [attr.aria-label]="
+                                                [aria-label]="
                                                     'SIGNAGE_MANAGER.WEEK_OF_MONTH_ARIA'
                                                         | translate
                                                 "
@@ -850,7 +850,7 @@ export function playlistSchedulePayload(
                                                     schedule()
                                                         .recurrence_weekdays
                                                 "
-                                                [attr.aria-label]="
+                                                [aria-label]="
                                                     'SIGNAGE_MANAGER.DAYS_OF_WEEK_ARIA'
                                                         | translate
                                                 "
@@ -1020,10 +1020,7 @@ export function playlistSchedulePayload(
                                         [ngModelOptions]="{
                                             standalone: true,
                                         }"
-                                        [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.MASK_REPEAT_LENGTH'
-                                                | translate
-                                        "
+                                        input_id="mask-length"
                                     />
                                     <p
                                         class="text-base-content/70 shrink-0 text-sm whitespace-nowrap"

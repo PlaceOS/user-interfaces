@@ -73,11 +73,14 @@ import { SignagePlaylistService } from './signage-playlist.service';
                             !playlist.enabled ? true : null
                         "
                         [attr.aria-label]="
-                            ('SIGNAGE_MANAGER.OPEN_PLAYLIST'
-                                | translate: { name: playlist.name }) +
-                            (!playlist.enabled
-                                ? ', ' + ('COMMON.DISABLED' | translate)
-                                : '')
+                            'SIGNAGE_MANAGER.OPEN_PLAYLIST'
+                                | translate: { name: playlist.name }
+                        "
+                        [attr.aria-describedby]="
+                            'playlist-status-' + playlist.id
+                        "
+                        [attr.aria-current]="
+                            selected()?.id === playlist.id ? 'page' : null
                         "
                     >
                         <playlist-thumbnail
@@ -94,6 +97,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
                             </div>
                             <div
                                 class="flex flex-wrap gap-1 text-[0.625rem] font-medium uppercase"
+                                [id]="'playlist-status-' + playlist.id"
                             >
                                 @if (!playlist.enabled) {
                                     <playlist-status-badge status="disabled" />

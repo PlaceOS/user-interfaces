@@ -105,10 +105,9 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                     @for (row of keyed_items(); track row.key) {
                         @let item = row.item;
                         <div cdkDrag role="listitem" class="mb-2">
+                            <!-- The row is a large click target. The button inside
+                             it is the keyboard and screen reader control. -->
                             <div
-                                #item_row
-                                role="button"
-                                tabindex="0"
                                 class="bg-base-100 border-base-300 flex cursor-pointer items-center gap-3 rounded-lg border p-2 transition-colors"
                                 [class.bg-primary]="
                                     isItemSelected(item, $index)
@@ -124,16 +123,6 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                     isBulkItemSelected($index)
                                 "
                                 (click)="selectItem(item, $index)"
-                                (keydown.enter)="
-                                    selectItemWithKeyboard($event, item, $index)
-                                "
-                                (keydown.space)="
-                                    selectItemWithKeyboard($event, item, $index)
-                                "
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
-                                        | translate: { name: item.name }
-                                "
                             >
                                 <icon
                                     cdkDragHandle
@@ -154,11 +143,22 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                     [cover]="true"
                                     class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
                                 />
-                                <div class="min-w-0 flex-1">
-                                    <div class="truncate text-sm font-medium">
+                                <button
+                                    #item_row
+                                    type="button"
+                                    class="min-w-0 flex-1 text-left"
+                                    [attr.aria-current]="
+                                        isItemSelected(item, $index)
+                                            ? 'true'
+                                            : null
+                                    "
+                                >
+                                    <span
+                                        class="block truncate text-sm font-medium"
+                                    >
                                         {{ item.name }}
-                                    </div>
-                                    <div class="flex items-center gap-2">
+                                    </span>
+                                    <span class="flex items-center gap-2">
                                         <span
                                             class="rounded px-1.5 py-0.5 text-[10px] capitalize"
                                             [class.bg-info]="
@@ -198,8 +198,8 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                                 }}
                                             </span>
                                         }
-                                    </div>
-                                </div>
+                                    </span>
+                                </button>
                                 <button
                                     icon
                                     default
@@ -208,8 +208,8 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                     [matMenuTriggerFor]="item_menu"
                                     (click)="$event.stopPropagation()"
                                     [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.ITEM_ACTIONS'
-                                            | translate
+                                        'SIGNAGE_MANAGER.ACTIONS_FOR'
+                                            | translate: { name: item.name }
                                     "
                                 >
                                     <icon>more_vert</icon>
@@ -353,8 +353,6 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                         @let schedule = itemSchedule(item, row.index);
                         <div role="listitem" class="mb-2">
                             <div
-                                role="button"
-                                tabindex="0"
                                 class="bg-base-100 border-base-300 cursor-pointer rounded-lg border p-2 transition-colors"
                                 [class.bg-primary]="
                                     isItemSelected(item, row.index)
@@ -370,24 +368,6 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                     isBulkItemSelected(row.index)
                                 "
                                 (click)="selectItem(item, row.index)"
-                                (keydown.enter)="
-                                    selectItemWithKeyboard(
-                                        $event,
-                                        item,
-                                        row.index
-                                    )
-                                "
-                                (keydown.space)="
-                                    selectItemWithKeyboard(
-                                        $event,
-                                        item,
-                                        row.index
-                                    )
-                                "
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.SELECT_MEDIA_ITEM'
-                                        | translate: { name: item.name }
-                                "
                             >
                                 <div class="flex items-start gap-3">
                                     <mat-checkbox
@@ -406,13 +386,21 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                         [cover]="true"
                                         class="bg-base-300 h-12 w-16 shrink-0 overflow-hidden rounded"
                                     />
-                                    <div class="min-w-0 flex-1">
-                                        <div
-                                            class="truncate text-sm font-medium"
+                                    <button
+                                        type="button"
+                                        class="min-w-0 flex-1 text-left"
+                                        [attr.aria-current]="
+                                            isItemSelected(item, row.index)
+                                                ? 'true'
+                                                : null
+                                        "
+                                    >
+                                        <span
+                                            class="block truncate text-sm font-medium"
                                         >
                                             {{ item.name }}
-                                        </div>
-                                        <div class="flex items-center gap-2">
+                                        </span>
+                                        <span class="flex items-center gap-2">
                                             <span
                                                 class="rounded px-1.5 py-0.5 text-[10px] capitalize"
                                                 [class.bg-info]="
@@ -454,8 +442,8 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                                     }}
                                                 </span>
                                             }
-                                        </div>
-                                    </div>
+                                        </span>
+                                    </button>
                                     <button
                                         icon
                                         default
@@ -466,8 +454,8 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                         "
                                         (click)="$event.stopPropagation()"
                                         [attr.aria-label]="
-                                            'SIGNAGE_MANAGER.ITEM_ACTIONS'
-                                                | translate
+                                            'SIGNAGE_MANAGER.ACTIONS_FOR'
+                                                | translate: { name: item.name }
                                         "
                                     >
                                         <icon>more_vert</icon>
@@ -575,6 +563,13 @@ const NEXT_PLAY_SORT_STORAGE_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
                                             ) {
                                                 <div
                                                     class="rounded-md p-2"
+                                                    [attr.tabindex]="
+                                                        schedule_tooltips().get(
+                                                            item_schedule
+                                                        )
+                                                            ? 0
+                                                            : null
+                                                    "
                                                     [matTooltip]="
                                                         schedule_tooltips().get(
                                                             item_schedule
@@ -978,22 +973,6 @@ export class PlaylistItemsComponent {
             collapsed[this.scheduleKey(item, index)] = true;
         });
         this.collapsed_schedules.set(collapsed);
-    }
-
-    /**
-     * Select an item with Enter or Space on its row. Keys from controls in
-     * the row, such as the checkbox and the actions button, keep their own
-     * behaviour.
-     */
-    public selectItemWithKeyboard(
-        event: Event,
-        item: SignageMedia,
-        index: number,
-    ) {
-        if (event.target !== event.currentTarget) return;
-        event.preventDefault();
-        event.stopPropagation();
-        this.selectItem(item, index);
     }
 
     public previewItem(item: SignageMedia) {

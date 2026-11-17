@@ -8,7 +8,12 @@ import {
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AnnounceDirective,
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     approveSignagePlaylist,
     SignageMedia,
@@ -33,7 +38,7 @@ interface PlaylistApproveModalData {
     template: `
         <div class="p-2">
             <header class="bg-base-200 rounded-sm p-2">
-                <h2 class="px-2 text-xl font-medium">
+                <h2 mat-dialog-title class="px-2 text-xl font-medium">
                     {{ 'SIGNAGE_MANAGER.APPROVE_PLAYLIST' | translate }}
                 </h2>
                 @if (!loading()) {
@@ -51,7 +56,7 @@ interface PlaylistApproveModalData {
                 }
             </header>
             @if (!loading()) {
-                <main class="max-h-[60vh] gap-2 overflow-auto py-2">
+                <div class="max-h-[60vh] gap-2 overflow-auto py-2">
                     @if (versions_error()) {
                         <div
                             class="text-base-content/70 flex flex-col items-center justify-center space-y-2 p-8"
@@ -72,7 +77,7 @@ interface PlaylistApproveModalData {
                             (preview)="previewItem($event)"
                         />
                     }
-                </main>
+                </div>
                 <footer
                     class="bg-base-200 flex items-center justify-end space-x-2 rounded-sm p-2"
                 >
@@ -100,18 +105,20 @@ interface PlaylistApproveModalData {
                     </button>
                 </footer>
             } @else {
-                <main>
+                <div>
                     <div
                         class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                     >
-                        <mat-spinner diameter="32" />
-                        <p>{{ loading() }}</p>
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <p announce>{{ loading() }}</p>
                     </div>
-                </main>
+                </div>
             }
         </div>
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         CommonModule,
         IconComponent,
         MatRippleModule,

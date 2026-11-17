@@ -11,7 +11,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { i18n } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AnnounceDirective,
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     SignageTemplate,
     type SignageTemplateApprover,
@@ -38,7 +43,7 @@ export interface TemplateRequestApprovalModalResult {
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.REQUEST_APPROVAL' | translate }}
             </h2>
             @if (!loading()) {
@@ -56,7 +61,7 @@ export interface TemplateRequestApprovalModalResult {
             }
         </header>
         @if (!loading()) {
-            <main
+            <div
                 class="flex max-h-[70vh] max-w-[calc(100vw-2rem)] flex-col gap-4 overflow-auto px-4 pt-2 pb-4 max-md:w-auto max-md:flex-1"
                 [style.width]="show_preview() ? '50rem' : '28rem'"
             >
@@ -68,15 +73,18 @@ export interface TemplateRequestApprovalModalResult {
                         <div class="font-medium">{{ data.template.name }}</div>
                     </div>
                     <div>
-                        <label for="template-approval-approver">{{
-                            'SIGNAGE_MANAGER.APPROVER' | translate
-                        }}</label>
+                        <label
+                            id="template-approval-approver-label"
+                            for="template-approval-approver"
+                            >{{ 'SIGNAGE_MANAGER.APPROVER' | translate }}</label
+                        >
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
                         >
                             <mat-select
                                 id="template-approval-approver"
+                                aria-labelledby="template-approval-approver-label"
                                 name="template-approval-approver"
                                 [(ngModel)]="selected_approver_id"
                             >
@@ -119,12 +127,6 @@ export interface TemplateRequestApprovalModalResult {
                     class="border-base-300 bg-base-100 flex w-full items-center justify-between rounded-sm border p-2 text-left"
                     [class.bg-base-200]="show_preview()"
                     [attr.aria-pressed]="show_preview()"
-                    [attr.aria-label]="
-                        (show_preview()
-                            ? 'SIGNAGE_MANAGER.HIDE_APPROVAL_CHANGES'
-                            : 'SIGNAGE_MANAGER.SHOW_APPROVAL_CHANGES'
-                        ) | translate
-                    "
                     (click)="togglePreview()"
                 >
                     <div>
@@ -144,7 +146,7 @@ export interface TemplateRequestApprovalModalResult {
                 </button>
                 @if (show_preview()) {
                     @if (versions_error()) {
-                        <p class="text-error p-8 text-center">
+                        <p class="text-error p-8 text-center" role="alert">
                             {{
                                 'SIGNAGE_MANAGER.TEMPLATE_VERSIONS_LOAD_ERROR'
                                     | translate
@@ -156,7 +158,7 @@ export interface TemplateRequestApprovalModalResult {
                         />
                     }
                 }
-            </main>
+            </div>
             <footer
                 class="border-base-300 bg-base-100 sticky bottom-0 flex justify-end gap-2 border-t p-4"
             >
@@ -196,17 +198,19 @@ export interface TemplateRequestApprovalModalResult {
                 }
             </footer>
         } @else {
-            <main>
+            <div>
                 <div
                     class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                 >
-                    <mat-spinner diameter="32" />
-                    <p>{{ loading() }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <p announce>{{ loading() }}</p>
                 </div>
-            </main>
+            </div>
         }
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         FormsModule,
         MatRippleModule,
         MatDialogModule,

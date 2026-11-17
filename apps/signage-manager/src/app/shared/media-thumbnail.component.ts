@@ -25,7 +25,7 @@ import {
             <img
                 auth
                 [source]="thumbnail_url()"
-                [alt]="item().name + ' thumbnail'"
+                alt=""
                 class="flex h-full w-full items-center justify-center text-xs"
                 [class.object-cover]="cover()"
                 [class.object-contain]="!cover()"

@@ -115,7 +115,7 @@ interface DisplayEditFormModel {
                     <mat-form-field appearance="outline" class="w-full">
                         <mat-select
                             [formField]="form.orientation"
-                            [attr.aria-label]="
+                            [aria-label]="
                                 'SIGNAGE_MANAGER.DISPLAY_ORIENTATION_ARIA'
                                     | translate
                             "

@@ -76,6 +76,7 @@ export interface TemplateEditFormModel {
                 <mat-form-field appearance="outline" class="w-full">
                     <input
                         matInput
+                        id="name"
                         [placeholder]="'FORM.NAME' | translate"
                         [formField]="form.name"
                         [attr.aria-label]="
@@ -92,6 +93,7 @@ export interface TemplateEditFormModel {
                 <mat-form-field appearance="outline" class="w-full">
                     <textarea
                         matInput
+                        id="description"
                         [placeholder]="'COMMON.DESCRIPTION' | translate"
                         [formField]="form.description"
                         class="min-h-32"

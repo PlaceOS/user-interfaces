@@ -46,7 +46,7 @@ import { SignageDisplayService } from './signage-display.service';
                 >
                     <icon>today</icon>
                 </button>
-                <span class="ml-1.5 text-sm font-medium">
+                <span class="ml-1.5 text-sm font-medium" aria-live="polite">
                     {{ weekLabel() }}
                 </span>
                 <button
@@ -64,11 +64,14 @@ import { SignageDisplayService } from './signage-display.service';
             </div>
 
             @if (templates_loading()) {
-                <div class="flex flex-1 items-center justify-center p-8">
+                <div
+                    class="flex flex-1 items-center justify-center p-8"
+                    role="status"
+                >
                     {{ 'COMMON.LOADING' | translate }}
                 </div>
             } @else if (templates_error()) {
-                <div class="text-error p-8 text-center">
+                <div class="text-error p-8 text-center" role="alert">
                     {{
                         'SIGNAGE_MANAGER.TEMPLATE_MAPPINGS_LOAD_ERROR'
                             | translate
@@ -131,6 +134,11 @@ import { SignageDisplayService } from './signage-display.service';
                             <div
                                 class="border-base-content/[0.06] min-w-48 flex-1 border-r p-2 last:border-none"
                                 [class.today-column]="isToday(day)"
+                                role="group"
+                                [attr.aria-label]="day | date: 'EEEE MMM d'"
+                                [attr.aria-current]="
+                                    isToday(day) ? 'date' : null
+                                "
                             >
                                 <ul class="space-y-2">
                                     @for (
@@ -181,6 +189,18 @@ import { SignageDisplayService } from './signage-display.service';
                                                         {{
                                                             block.playlist.name
                                                         }}
+                                                        @if (
+                                                            !block.playlist
+                                                                .enabled
+                                                        ) {
+                                                            <span
+                                                                class="sr-only"
+                                                                >({{
+                                                                    'COMMON.DISABLED'
+                                                                        | translate
+                                                                }})</span
+                                                            >
+                                                        }
                                                     </div>
                                                     <div
                                                         class="text-base-content/60 text-[11px] tabular-nums"
@@ -248,6 +268,19 @@ import { SignageDisplayService } from './signage-display.service';
                                                                                 .playlist
                                                                                 .name
                                                                         }}
+                                                                        @if (
+                                                                            !child
+                                                                                .playlist
+                                                                                .enabled
+                                                                        ) {
+                                                                            <span
+                                                                                class="sr-only"
+                                                                                >({{
+                                                                                    'COMMON.DISABLED'
+                                                                                        | translate
+                                                                                }})</span
+                                                                            >
+                                                                        }
                                                                     </div>
                                                                     <div
                                                                         class="text-base-content/60 text-[11px] tabular-nums"

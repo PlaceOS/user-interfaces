@@ -12,7 +12,12 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { i18n, notifyError } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AnnounceDirective,
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import {
     SignageMedia,
     SignagePlaylist,
@@ -43,7 +48,7 @@ export interface PlaylistRequestApprovalModalResult {
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.REQUEST_APPROVAL' | translate }}
             </h2>
             @if (!loading()) {
@@ -61,7 +66,7 @@ export interface PlaylistRequestApprovalModalResult {
             }
         </header>
         @if (!loading()) {
-            <main
+            <div
                 class="flex max-h-[70vh] max-w-[calc(100vw-2rem)] flex-col gap-4 overflow-auto px-4 pt-2 pb-4 max-md:w-auto max-md:flex-1"
                 [ngClass]="show_preview() ? 'w-[50rem]' : 'w-[28rem]'"
             >
@@ -73,14 +78,18 @@ export interface PlaylistRequestApprovalModalResult {
                         <div class="font-medium">{{ data.playlist.name }}</div>
                     </div>
                     <div>
-                        <label for="approval-approver">{{
-                            'SIGNAGE_MANAGER.APPROVER' | translate
-                        }}</label>
+                        <label
+                            id="approval-approver-label"
+                            for="approval-approver"
+                            >{{ 'SIGNAGE_MANAGER.APPROVER' | translate }}</label
+                        >
                         <mat-form-field
                             appearance="outline"
                             class="no-subscript w-full"
                         >
                             <mat-select
+                                id="approval-approver"
+                                aria-labelledby="approval-approver-label"
                                 name="approval-approver"
                                 [(ngModel)]="selected_approver_id"
                             >
@@ -105,6 +114,7 @@ export interface PlaylistRequestApprovalModalResult {
                         >
                             <textarea
                                 matInput
+                                id="message"
                                 name="message"
                                 class="min-h-28 resize-y"
                                 [placeholder]="
@@ -122,12 +132,6 @@ export interface PlaylistRequestApprovalModalResult {
                     class="border-base-300 bg-base-100 flex w-full items-center justify-between rounded-sm border p-2 text-left"
                     [class.bg-base-200]="show_preview()"
                     [attr.aria-pressed]="show_preview()"
-                    [attr.aria-label]="
-                        (show_preview()
-                            ? 'SIGNAGE_MANAGER.HIDE_APPROVAL_CHANGES'
-                            : 'SIGNAGE_MANAGER.SHOW_APPROVAL_CHANGES'
-                        ) | translate
-                    "
                     (click)="togglePreview()"
                 >
                     <div>
@@ -167,7 +171,7 @@ export interface PlaylistRequestApprovalModalResult {
                         />
                     }
                 }
-            </main>
+            </div>
             <footer
                 class="border-base-300 bg-base-100 sticky bottom-0 flex justify-end gap-2 border-t p-4"
             >
@@ -207,17 +211,19 @@ export interface PlaylistRequestApprovalModalResult {
                 }
             </footer>
         } @else {
-            <main>
+            <div>
                 <div
                     class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                 >
-                    <mat-spinner diameter="32" />
-                    <p>{{ loading() }}</p>
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <p announce>{{ loading() }}</p>
                 </div>
-            </main>
+            </div>
         }
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         CommonModule,
         FormsModule,
         MatRippleModule,

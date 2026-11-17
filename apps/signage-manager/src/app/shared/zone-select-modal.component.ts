@@ -1,7 +1,11 @@
 import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { PlaceZone } from '@placeos/ts-client';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { byDisplayName, PagedSearch } from './paged-search';
@@ -13,7 +17,7 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
         <header
             class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
         >
-            <h2 class="px-2 text-xl font-medium">
+            <h2 mat-dialog-title class="px-2 text-xl font-medium">
                 {{ 'SIGNAGE_MANAGER.ADD_ZONE_TITLE' | translate }}
             </h2>
             <button
@@ -26,7 +30,7 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
                 <icon>close</icon>
             </button>
         </header>
-        <main
+        <div
             class="h-[65vh] max-w-lg min-w-lg overflow-auto px-4 pt-2 pb-4 max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
             <zone-select-tree
@@ -36,7 +40,7 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
                 [scoped_search]="true"
                 [(selected)]="selected_zone"
             />
-        </main>
+        </div>
         <footer class="border-base-300 flex items-center gap-2 border-t p-2">
             <!-- A zone picked from the search can be hidden in the tree -->
             <div class="min-w-0 flex-1 truncate px-2">
@@ -54,6 +58,7 @@ import { ZoneSelectTreeComponent } from './zone-select-tree.component';
             </button>
         </footer>
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
         MatRippleModule,
         MatDialogModule,

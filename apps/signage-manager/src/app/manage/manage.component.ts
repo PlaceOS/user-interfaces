@@ -2,8 +2,6 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
 import { ImageGenService } from '../image-gen/image-gen.service';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 
 /**
  * Manage section. Shows the content report and branding as tabs, each on
@@ -12,8 +10,7 @@ import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 @Component({
     selector: 'manage-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div class="bg-base-100 flex min-h-0 min-w-0 flex-1 flex-col">
                 <nav
                     class="border-base-300 flex shrink-0 gap-2 border-b px-4"
@@ -35,17 +32,9 @@ import { NavSidebarComponent } from '../shared/nav-sidebar.component';
                     <router-outlet />
                 </div>
             </div>
-            <nav-footer />
         </div>
     `,
-    imports: [
-        RouterLink,
-        RouterLinkActive,
-        RouterOutlet,
-        TranslatePipe,
-        NavFooterComponent,
-        NavSidebarComponent,
-    ],
+    imports: [RouterLink, RouterLinkActive, RouterOutlet, TranslatePipe],
 })
 export class ManageSectionComponent {
     private readonly _image_gen = inject(ImageGenService);

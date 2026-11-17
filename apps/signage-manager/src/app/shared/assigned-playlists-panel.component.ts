@@ -62,6 +62,9 @@ import { PlaylistThumbnailComponent } from './playlist-thumbnail.component';
                                 'SIGNAGE_MANAGER.OPEN_PLAYLIST'
                                     | translate: { name: playlist.name }
                             "
+                            [attr.aria-describedby]="
+                                'assigned-playlist-status-' + playlist.id
+                            "
                         >
                             <playlist-thumbnail
                                 [playlist]="playlist"
@@ -71,7 +74,13 @@ import { PlaylistThumbnailComponent } from './playlist-thumbnail.component';
                                 <div class="truncate text-sm font-medium">
                                     {{ playlist.name }}
                                 </div>
-                                <div class="mt-1 flex flex-wrap gap-1">
+                                <div
+                                    class="mt-1 flex flex-wrap gap-1"
+                                    [id]="
+                                        'assigned-playlist-status-' +
+                                        playlist.id
+                                    "
+                                >
                                     @if (!playlist.enabled) {
                                         <playlist-status-badge
                                             status="disabled"

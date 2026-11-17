@@ -55,12 +55,16 @@ interface BrandColour {
             </p>
 
             @if (load_state() === 'loading') {
-                <div class="flex justify-center p-8">
-                    <mat-spinner diameter="32" />
+                <div class="flex justify-center p-8" role="status">
+                    <mat-spinner diameter="32" aria-hidden="true" />
+                    <span class="sr-only">{{
+                        'COMMON.LOADING' | translate
+                    }}</span>
                 </div>
             } @else if (load_state() === 'failed') {
                 <div
                     class="border-error/40 bg-error/10 flex items-center gap-3 rounded-lg border p-3 text-sm"
+                    role="alert"
                 >
                     <icon class="text-error">error</icon>
                     <span class="flex-1">{{
@@ -106,7 +110,7 @@ interface BrandColour {
                     />
                 </mat-form-field>
 
-                <label class="mt-4 mb-2 block">{{
+                <label id="brand-colours-label" class="mt-4 mb-2 block">{{
                     'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
                 }}</label>
                 <div class="flex flex-col items-start gap-2">
@@ -119,8 +123,9 @@ interface BrandColour {
                                 [disabled]="!can_edit()"
                                 [value]="colour.value"
                                 (input)="setColourFromInput($index, $event)"
-                                [attr.aria-label]="
-                                    'SIGNAGE_MANAGER.BRAND_COLOURS' | translate
+                                [attr.aria-labelledby]="
+                                    'brand-colours-label brand-colour-key-' +
+                                    $index
                                 "
                             />
                             <mat-form-field
@@ -136,11 +141,21 @@ interface BrandColour {
                                     [attr.aria-invalid]="
                                         colour_errors()[$index] ? 'true' : null
                                     "
+                                    [attr.aria-labelledby]="
+                                        'brand-colours-label brand-colour-key-' +
+                                        $index
+                                    "
+                                    [attr.aria-describedby]="
+                                        colour_errors()[$index]
+                                            ? 'brand-colour-error'
+                                            : null
+                                    "
                                     placeholder="#0E6E52"
                                 />
                             </mat-form-field>
                             <span
                                 class="text-base-content/60 text-xs uppercase"
+                                [id]="'brand-colour-key-' + $index"
                                 >{{ colour.key }}</span
                             >
                             @if (can_edit()) {
@@ -165,6 +180,14 @@ interface BrandColour {
                             }
                         </div>
                     }
+                    @if (has_colour_error()) {
+                        <p id="brand-colour-error" class="text-error text-sm">
+                            {{
+                                'SIGNAGE_MANAGER.BRAND_COLOUR_INVALID'
+                                    | translate
+                            }}
+                        </p>
+                    }
                     @if (can_edit() && colours().length < max_colours) {
                         <button
                             btn
@@ -178,12 +201,13 @@ interface BrandColour {
                     }
                 </div>
 
-                <label class="mt-6" for="brand-font">{{
+                <label id="brand-font-label" class="mt-6" for="brand-font">{{
                     'SIGNAGE_MANAGER.BRAND_FONT' | translate
                 }}</label>
                 <mat-form-field appearance="outline" class="w-full max-w-sm">
                     <mat-select
                         id="brand-font"
+                        aria-labelledby="brand-font-label"
                         [(ngModel)]="font"
                         [disabled]="!can_edit()"
                         (ngModelChange)="previewFont()"
@@ -303,6 +327,8 @@ interface BrandColour {
                     <input
                         #logo_input
                         type="file"
+                        tabindex="-1"
+                        aria-hidden="true"
                         class="sr-only"
                         accept="image/png,image/jpeg,image/webp,image/svg+xml"
                         [attr.aria-label]="
@@ -474,6 +500,10 @@ export class BrandingComponent implements OnInit {
             (colour) => !BrandingComponent.COLOUR.test(colour.value),
         ),
     );
+    /** Whether any colour is not a valid hex value. Shows the error text. */
+    public readonly has_colour_error = computed(() =>
+        this.colour_errors().some(Boolean),
+    );
 
     public setColour(index: number, value: string) {
         this.colours.update((list) =>
@@ -557,7 +587,7 @@ export class BrandingComponent implements OnInit {
 
     public async save() {
         if (!this.can_edit()) return;
-        if (this.colour_errors().some(Boolean)) {
+        if (this.has_colour_error()) {
             notifyError(i18n('SIGNAGE_MANAGER.BRAND_COLOUR_INVALID'));
             return;
         }

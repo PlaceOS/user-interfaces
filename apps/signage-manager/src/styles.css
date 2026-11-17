@@ -21,9 +21,24 @@ textarea:focus-visible,
 select:focus-visible,
 [role='button']:focus-visible,
 [role='tab']:focus-visible,
+[role='treeitem']:focus-visible,
 [mat-menu-item]:focus-visible {
     outline: 3px solid var(--color-primary, #2563eb);
     outline-offset: 2px;
+}
+
+/* Tree lists scroll and clip their sides, so draw the ring inside the item */
+[role='treeitem']:focus-visible {
+    outline-offset: -3px;
+}
+
+/*
+ * A selected item has the primary background, so the ring uses its text
+ * colour, inset far enough that the background shows on both sides of it
+ */
+[role='treeitem'][aria-selected='true']:focus-visible {
+    outline-color: var(--primary-content, #ffffff);
+    outline-offset: -6px;
 }
 
 .skip-link {

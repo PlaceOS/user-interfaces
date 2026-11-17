@@ -67,14 +67,18 @@ interface ReportSection {
             @if (report.isLoading()) {
                 <div
                     class="flex flex-1 flex-col items-center justify-center gap-3 opacity-70"
+                    role="status"
                 >
-                    <mat-spinner diameter="32" />
+                    <mat-spinner diameter="32" aria-hidden="true" />
                     <p>
                         {{ 'SIGNAGE_MANAGER.REPORT_LOADING' | translate }}
                     </p>
                 </div>
             } @else if (report.error()) {
-                <p class="border-error text-error rounded border p-3 text-sm">
+                <p
+                    class="border-error text-error rounded border p-3 text-sm"
+                    role="alert"
+                >
                     {{ 'SIGNAGE_MANAGER.REPORT_ERROR' | translate }}
                 </p>
             } @else {

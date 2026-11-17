@@ -135,7 +135,7 @@ export interface ZoneEditFormModel {
                         />
                     </div>
                     @if (form.parent_id().touched() && !model().parent_id) {
-                        <div class="text-error mt-1 text-sm">
+                        <div class="text-error mt-1 text-sm" role="alert">
                             {{
                                 'SIGNAGE_MANAGER.ZONE_PARENT_REQUIRED'
                                     | translate

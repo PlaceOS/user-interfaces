@@ -39,9 +39,9 @@ import { SignageMediaService } from './signage-media.service';
             class="bg-base-100 border-base-300 sticky top-0 flex flex-wrap items-center gap-1 border-b px-4 py-2 shadow sm:flex-nowrap sm:gap-2"
         >
             <div class="py-2">
-                <h3 class="text-2xl font-medium">
+                <h1 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.MEDIA_TITLE' | translate }}
-                </h3>
+                </h1>
                 <div class="flex flex-wrap items-center gap-2">
                     <div class="text-sm opacity-60">
                         {{
@@ -106,7 +106,12 @@ import { SignageMediaService } from './signage-media.service';
                     {{ 'SIGNAGE_MANAGER.MEDIA_SORT' | translate }}
                 </div>
                 @for (sort of sorts; track sort) {
-                    <button mat-menu-item (click)="setView({ sort })">
+                    <button
+                        mat-menu-item
+                        role="menuitemradio"
+                        [attr.aria-checked]="view().sort === sort"
+                        (click)="setView({ sort })"
+                    >
                         <div class="flex items-center gap-2">
                             <icon class="text-xl">{{
                                 view().sort === sort ? 'check' : ''
@@ -121,6 +126,8 @@ import { SignageMediaService } from './signage-media.service';
                 @for (type of type_filters; track type) {
                     <button
                         mat-menu-item
+                        role="menuitemcheckbox"
+                        [attr.aria-checked]="view().type === type"
                         (click)="
                             setView({
                                 type: view().type === type ? null : type,
@@ -141,6 +148,8 @@ import { SignageMediaService } from './signage-media.service';
                 @for (expiry of expiry_filters; track expiry) {
                     <button
                         mat-menu-item
+                        role="menuitemcheckbox"
+                        [attr.aria-checked]="view().expiry === expiry"
                         (click)="
                             setView({
                                 expiry:
@@ -229,7 +238,7 @@ import { SignageMediaService } from './signage-media.service';
                                         'SIGNAGE_MANAGER.SELECT_PLUGIN'
                                             | translate
                                     "
-                                    [attr.aria-label]="
+                                    [aria-label]="
                                         'SIGNAGE_MANAGER.SELECT_PLUGIN_ARIA'
                                             | translate
                                     "
@@ -397,6 +406,8 @@ import { SignageMediaService } from './signage-media.service';
                 <input
                     #upload_input
                     type="file"
+                    tabindex="-1"
+                    aria-hidden="true"
                     multiple
                     class="sr-only"
                     [attr.accept]="file_accept"

@@ -307,33 +307,24 @@ describe('PlaylistItemsComponent', () => {
         rows().forEach((row, index) => expect(row).toBe(moved[index]));
     });
 
-    it('leaves Enter and Space to the controls inside a row', async () => {
+    it('selects an item from a button that holds no other controls', async () => {
         const item = media('a');
         setItems([item]);
         selected_playlist.set({ id: 'pl-1' });
         const fixture = await render();
         const element: HTMLElement = fixture.nativeElement;
-        const press = (target: Element, key: string) => {
-            const event = new KeyboardEvent('keydown', {
-                key,
-                bubbles: true,
-                cancelable: true,
-            });
-            target.dispatchEvent(event);
-            return event;
-        };
 
-        // A default action that is not prevented lets the browser click
-        // the actions button, which opens the menu, or toggle the checkbox
-        const menu_trigger = element.querySelector('.mat-mdc-menu-trigger');
-        expect(press(menu_trigger, 'Enter').defaultPrevented).toBe(false);
-        const checkbox = element.querySelector('mat-checkbox input');
-        expect(press(checkbox, ' ').defaultPrevented).toBe(false);
-        expect(selected_playlist_item()).toBeNull();
+        // The checkbox and actions menu sit beside the button, not in it
+        const select = element.querySelector<HTMLButtonElement>(
+            '[role="listitem"] button:not([icon])',
+        );
+        expect(select?.querySelector('button, input')).toBeNull();
+        expect(element.querySelector('[role="button"]')).toBeNull();
 
-        const row = element.querySelector('[role="button"]');
-        expect(press(row, 'Enter').defaultPrevented).toBe(true);
+        select?.click();
+        await fixture.whenStable();
         expect(selected_playlist_item()).toBe(item);
+        expect(select?.getAttribute('aria-current')).toBe('true');
     });
 
     it('shows a load error with retry when the items fail to load', async () => {

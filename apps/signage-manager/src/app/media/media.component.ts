@@ -2,8 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { isFileDrag, isFileDragTaken } from '../shared/file-drop.directive';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { SignageContextService } from '../signage-context.service';
 import { MediaListHeaderComponent } from './media-list-header.component';
 import { MediaListComponent } from './media-list.component';
@@ -14,17 +12,16 @@ import { SignageMediaService } from './signage-media.service';
     selector: 'media-section',
     template: `
         <div
-            class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row"
+            class="bg-base-200 absolute inset-0 flex flex-col"
             (window:dragenter)="handleDragEnter($event)"
             (window:dragover)="handleDragOver($event)"
             (window:dragleave)="handleDragLeave($event)"
             (window:drop)="handleDrop($event)"
         >
-            <nav-sidebar class="sm:h-full" />
             <div class="flex min-h-0 min-w-0 flex-1 flex-col">
                 <media-list-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
-                    <main class="relative min-w-0 flex-1 overflow-auto">
+                    <div class="relative min-w-0 flex-1 overflow-auto">
                         <media-list
                             class="relative z-0"
                             [playlist_count]="playlists()?.length"
@@ -61,20 +58,17 @@ import { SignageMediaService } from './signage-media.service';
                                 </div>
                             </div>
                         }
-                    </main>
+                    </div>
                     <playlist-sidebar />
                 </div>
             </div>
-            <nav-footer />
         </div>
     `,
     styles: [``],
     imports: [
-        NavSidebarComponent,
         MediaListComponent,
         MediaListHeaderComponent,
         PlaylistSidebarComponent,
-        NavFooterComponent,
         IconComponent,
         TranslatePipe,
     ],

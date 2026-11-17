@@ -7,7 +7,12 @@ import {
 } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    AnnounceDirective,
+    DIALOG_TITLE_STYLES,
+    IconComponent,
+    TranslatePipe,
+} from '@placeos/components';
 import { approveSignageTemplate, SignageTemplate } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import { SignageTemplateService } from '../templates/signage-template.service';
@@ -23,7 +28,7 @@ interface TemplateApproveModalData {
     template: `
         <div class="p-2">
             <header class="bg-base-200 rounded-sm p-2">
-                <h2 class="px-2 text-xl font-medium">
+                <h2 mat-dialog-title class="px-2 text-xl font-medium">
                     {{ 'SIGNAGE_MANAGER.APPROVE_TEMPLATE' | translate }}
                 </h2>
                 @if (!loading()) {
@@ -41,11 +46,11 @@ interface TemplateApproveModalData {
                 }
             </header>
             @if (!loading()) {
-                <main
+                <div
                     class="max-h-[60vh] max-w-[80vw] min-w-xl gap-2 overflow-auto py-2"
                 >
                     @if (versions_error()) {
-                        <p class="text-error p-8 text-center">
+                        <p class="text-error p-8 text-center" role="alert">
                             {{
                                 'SIGNAGE_MANAGER.TEMPLATE_VERSIONS_LOAD_ERROR'
                                     | translate
@@ -56,7 +61,7 @@ interface TemplateApproveModalData {
                             [versions]="template_versions()"
                         />
                     }
-                </main>
+                </div>
                 <footer
                     class="bg-base-200 flex items-center justify-end space-x-2 rounded-sm p-2"
                 >
@@ -84,18 +89,20 @@ interface TemplateApproveModalData {
                     </button>
                 </footer>
             } @else {
-                <main>
+                <div>
                     <div
                         class="flex flex-col items-center justify-center space-y-4 px-32 py-16"
                     >
-                        <mat-spinner diameter="32" />
-                        <p>{{ loading() }}</p>
+                        <mat-spinner diameter="32" aria-hidden="true" />
+                        <p announce>{{ loading() }}</p>
                     </div>
-                </main>
+                </div>
             }
         </div>
     `,
+    styles: [DIALOG_TITLE_STYLES],
     imports: [
+        AnnounceDirective,
         IconComponent,
         MatRippleModule,
         MatDialogModule,

@@ -15,9 +15,9 @@ import { SignageGroupEditModalComponent } from './signage-group-edit-modal.compo
             class="bg-base-100 border-base-300 sticky top-0 z-10 flex flex-nowrap items-center gap-4 border-b px-4 py-3 shadow"
         >
             <div class="flex-1 shrink-0">
-                <h3 class="text-2xl font-medium">
+                <h1 class="text-2xl font-medium">
                     {{ 'SIGNAGE_MANAGER.GROUPS_TITLE' | translate }}
-                </h3>
+                </h1>
                 <div class="flex items-center gap-4">
                     <div class="text-sm opacity-60">
                         {{

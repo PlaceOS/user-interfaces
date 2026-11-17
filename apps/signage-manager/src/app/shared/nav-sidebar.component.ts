@@ -29,9 +29,9 @@ import { injectNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
 /**
- * Nav list scroll state, shared across sidebar instances. Each page mounts
- * its own sidebar, so without this the list jumps to the top and the arrows
- * appear one frame late on every navigation.
+ * Nav list scroll state, shared across sidebar instances. The sidebar mounts
+ * again after a page without nav, such as remote setup, so without this the
+ * list jumps to the top and the arrows appear one frame late.
  */
 @Injectable({ providedIn: 'root' })
 class NavScrollState {
@@ -51,6 +51,7 @@ class NavScrollState {
                 logo
                 class="bg-base-100/80 mx-auto flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl shadow-xl"
                 [routerLink]="['/']"
+                [attr.aria-label]="'COMMON.HOME' | translate"
             >
                 @if (logo_src(); as logo) {
                     <img
@@ -147,7 +148,11 @@ class NavScrollState {
                         [matMenuTriggerFor]="language_menu"
                         [matTooltip]="active_locale_details()"
                         matTooltipPosition="right"
-                        [attr.aria-label]="'COMMON.LANGUAGE_SELECT' | translate"
+                        [attr.aria-label]="
+                            ('COMMON.LANGUAGE' | translate) +
+                            ': ' +
+                            (active_locale_label() | translate)
+                        "
                     >
                         <icon class="text-3xl">language</icon>
                         <div
@@ -161,6 +166,10 @@ class NavScrollState {
                             <button
                                 type="button"
                                 mat-menu-item
+                                role="menuitemradio"
+                                [attr.aria-checked]="
+                                    active_locale() === lang.id
+                                "
                                 (click)="setLocale(lang.id)"
                                 [matTooltip]="localeDetails(lang)"
                                 matTooltipPosition="right"

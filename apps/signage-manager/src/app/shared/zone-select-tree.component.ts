@@ -78,8 +78,12 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
             }
         </mat-form-field>
         @if (flat_tree_nodes().length) {
+            <!-- Each tree item takes focus and handles the arrow keys, Enter
+            and Space. The controls in an item are for the mouse, so they
+            are not in the tab order. -->
             <cdk-tree
                 class="zone-tree"
+                [attr.aria-label]="'SIGNAGE_MANAGER.NAV_ZONES' | translate"
                 [dataSource]="flat_tree_nodes()"
                 [levelAccessor]="levelAccessor"
                 [expansionKey]="expansionKey"
@@ -94,6 +98,8 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
                     [isExpanded]="isExpanded(node)"
                     (expandedChange)="onExpandedChange(node, $event)"
                     (activation)="selectZone(node.zone)"
+                    [attr.aria-selected]="selected()?.id === node.zone.id"
+                    [attr.aria-label]="node.zone.display_name || node.zone.name"
                     class="border-base-300 bg-base-100 hover:bg-base-200/50 relative mb-2 flex min-h-0 items-center gap-1 overflow-hidden rounded-lg border pr-1 transition-colors"
                     [class.bg-primary]="selected()?.id === node.zone.id"
                     [class.text-primary-content]="
@@ -112,6 +118,7 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
                             icon
                             default
                             type="button"
+                            tabindex="-1"
                             class="ml-2 text-xs"
                             [attr.aria-label]="
                                 (isExpanded(node)
@@ -141,6 +148,7 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
                     <button
                         type="button"
                         matRipple
+                        tabindex="-1"
                         class="flex min-h-16 min-w-0 flex-1 items-center gap-2 px-1 py-2 text-left"
                         (click)="selectZone(node.zone)"
                     >
@@ -216,6 +224,7 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
         } @else if (list().loading()) {
             <div
                 class="bg-base-200 flex h-[calc(100%-3.5rem)] w-full flex-col items-center justify-center rounded-lg p-16"
+                role="status"
             >
                 <div class="text-base-content/70">
                     {{ 'COMMON.LOADING' | translate }}

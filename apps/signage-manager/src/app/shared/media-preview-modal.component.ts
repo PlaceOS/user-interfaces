@@ -9,6 +9,7 @@ import { RouterLink } from '@angular/router';
 import { mediaAnimation } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
+    DIALOG_TITLE_STYLES,
     IconComponent,
     LoadErrorComponent,
     MediaDurationPipe,
@@ -46,7 +47,9 @@ interface MediaPreviewModalData {
             <header
                 class="bg-base-200 sticky top-0 z-10 m-2 w-[calc(100%-1rem)] rounded-sm border-none p-2"
             >
-                <h2 class="truncate text-xl font-medium">{{ item.name }}</h2>
+                <h2 mat-dialog-title class="truncate text-xl font-medium">
+                    {{ item.name }}
+                </h2>
                 <button
                     icon
                     type="button"
@@ -59,7 +62,7 @@ interface MediaPreviewModalData {
                     <icon>close</icon>
                 </button>
             </header>
-            <main
+            <div
                 class="bg-base-100 z-0 mx-2 mb-2 flex w-[calc(100%-1rem)] flex-1 gap-2 overflow-hidden rounded-sm max-md:flex-col"
             >
                 <section
@@ -76,7 +79,7 @@ interface MediaPreviewModalData {
                     @if (media_error()) {
                         <div
                             class="bg-base-200/80 absolute inset-0 z-10 flex flex-col items-center justify-center space-y-2 p-4 text-center"
-                            aria-live="assertive"
+                            role="alert"
                         >
                             <icon class="text-error text-6xl">error</icon>
                             <p class="text-base font-medium">
@@ -95,9 +98,12 @@ interface MediaPreviewModalData {
                     } @else if (media_loading()) {
                         <div
                             class="bg-base-200/60 absolute inset-0 z-10 flex items-center justify-center"
-                            aria-live="polite"
+                            role="status"
                         >
-                            <mat-spinner [diameter]="48"></mat-spinner>
+                            <mat-spinner
+                                [diameter]="48"
+                                aria-hidden="true"
+                            ></mat-spinner>
                             <span class="sr-only">{{
                                 'COMMON.LOADING' | translate
                             }}</span>
@@ -377,10 +383,11 @@ interface MediaPreviewModalData {
                         ></signage-shared-with>
                     </div>
                 </aside>
-            </main>
+            </div>
         </div>
     `,
     styles: [
+        DIALOG_TITLE_STYLES,
         `
             :host {
                 display: flex;

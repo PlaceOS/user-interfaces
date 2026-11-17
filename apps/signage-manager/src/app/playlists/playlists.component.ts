@@ -5,8 +5,6 @@ import { i18n, notifyWarn } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageMediaService } from '../media/signage-media.service';
 import { FileDropDirective } from '../shared/file-drop.directive';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { routedTab } from '../shared/routed-tab.util';
 import {
     SectionTab,
@@ -29,8 +27,7 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
 @Component({
     selector: 'playlists-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div class="flex min-h-0 flex-1 flex-col">
                 <playlist-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
@@ -111,7 +108,6 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
                     </div>
                 </div>
             </div>
-            <nav-footer />
         </div>
     `,
     styles: [
@@ -129,8 +125,6 @@ function parsePlaylistTab(value: string | null): PlaylistTab {
     ],
     imports: [
         FileDropDirective,
-        NavSidebarComponent,
-        NavFooterComponent,
         PlaylistHeaderComponent,
         PlaylistListComponent,
         PlaylistItemsComponent,

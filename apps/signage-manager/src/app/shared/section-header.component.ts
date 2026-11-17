@@ -16,9 +16,9 @@ import { GroupBreadcrumbsComponent } from './group-breadcrumbs.component';
             class="bg-base-100 border-base-300 sticky top-0 flex flex-wrap items-center gap-2 border-b px-4 py-2 shadow sm:flex-nowrap"
         >
             <div class="py-2">
-                <h3 class="text-2xl font-medium">
+                <h1 class="text-2xl font-medium">
                     {{ heading() | translate }}
-                </h3>
+                </h1>
                 <div class="flex flex-wrap items-center gap-2">
                     @let total = count();
                     @if (total !== null) {

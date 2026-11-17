@@ -1,13 +1,23 @@
 import {
+    afterEveryRender,
     Component,
     effect,
+    ElementRef,
     inject,
     Injector,
     OnInit,
+    signal,
     untracked,
+    viewChild,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { MatRippleModule } from '@angular/material/core';
-import { Router, RouterOutlet } from '@angular/router';
+import {
+    ActivatedRouteSnapshot,
+    NavigationEnd,
+    Router,
+    RouterOutlet,
+} from '@angular/router';
 import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
 import {
     GlobalBannerComponent,
@@ -21,14 +31,19 @@ import { authority } from '@placeos/ts-client';
 
 import { CommandPaletteService } from './shared/command-palette.service';
 import { blockMissedFileDrop } from './shared/file-drop.directive';
+import { NavFooterComponent } from './shared/nav-footer.component';
+import { NavSidebarComponent } from './shared/nav-sidebar.component';
 import { SignageContextService } from './signage-context.service';
 
 @Component({
     selector: 'app-root',
     template: `
-        <a class="skip-link" href="#main-content">{{
-            'SIGNAGE_MANAGER.SKIP_TO_CONTENT' | translate
-        }}</a>
+        <a
+            class="skip-link"
+            href="#main-content"
+            (click)="skipToContent($event)"
+            >{{ 'SIGNAGE_MANAGER.SKIP_TO_CONTENT' | translate }}</a
+        >
         <global-banner />
         @if (groups_failed()) {
             <div
@@ -50,13 +65,22 @@ import { SignageContextService } from './signage-context.service';
                 </button>
             </div>
         }
-        <main
-            id="main-content"
-            tabindex="-1"
-            class="relative h-1/2 w-full flex-1"
-        >
-            <router-outlet></router-outlet>
-        </main>
+        <div class="flex h-1/2 w-full flex-1 flex-col sm:flex-row">
+            @if (show_nav()) {
+                <nav-sidebar class="sm:h-full" />
+            }
+            <main
+                #main
+                id="main-content"
+                tabindex="-1"
+                class="relative min-h-0 min-w-0 flex-1"
+            >
+                <router-outlet></router-outlet>
+            </main>
+            @if (show_nav()) {
+                <nav-footer />
+            }
+        </div>
         <global-loading />
         @defer (on idle) {
             <settings-debug-panel-launcher
@@ -66,6 +90,7 @@ import { SignageContextService } from './signage-context.service';
     `,
     host: {
         '(document:keydown)': 'onKeydown($event)',
+        '(document:focusin)': 'onFocusIn($event)',
         '(window:dragover)': 'blockMissedFileDrop($event)',
         '(window:drop)': 'blockMissedFileDrop($event)',
     },
@@ -85,6 +110,8 @@ import { SignageContextService } from './signage-context.service';
         IconComponent,
         RouterOutlet,
         GlobalLoadingComponent,
+        NavFooterComponent,
+        NavSidebarComponent,
         SettingsDebugPanelLauncherComponent,
         TranslatePipe,
     ],
@@ -102,8 +129,20 @@ export class AppComponent implements OnInit {
 
     /** Whether the signage groups failed to load. Shows a banner with retry. */
     public readonly groups_failed = this._context.signage_groups_failed;
+    /** Whether the current route shows the nav. Routes turn it off with `data: { nav: false }`. */
+    public readonly show_nav = signal(false);
+    private readonly _main =
+        viewChild.required<ElementRef<HTMLElement>>('main');
+    /** Element that last had focus, to find out when a render removes it */
+    private _last_focus: HTMLElement | null = null;
 
     constructor() {
+        this._router.events.pipe(takeUntilDestroyed()).subscribe((event) => {
+            if (!(event instanceof NavigationEnd)) return;
+            this.show_nav.set(showsNav(this._router.routerState.snapshot.root));
+        });
+        afterEveryRender({ read: () => this._recoverFocus() });
+
         // The templates guard only runs on navigation. Leave the section when
         // the selected group turns templates off while it is open.
         effect(() => {
@@ -119,6 +158,46 @@ export class AppComponent implements OnInit {
                     void this._router.navigate(['/media']);
                 }
             });
+        });
+    }
+
+    /**
+     * Move focus to the main content. The app uses hash routes, so the skip
+     * link's own `#main-content` would navigate instead of moving focus.
+     */
+    public skipToContent(event: Event) {
+        event.preventDefault();
+        this._main().nativeElement.focus();
+    }
+
+    public onFocusIn(event: FocusEvent) {
+        this._last_focus =
+            event.target instanceof HTMLElement ? event.target : null;
+    }
+
+    /**
+     * A render can remove or hide the focused element, for example a list
+     * row of a page that closed, or a button that a loading message
+     * replaces. The browser then moves focus to the page body, and keyboard
+     * and screen reader users start again from the top. Move focus to the
+     * top-most dialog, or to the main content, instead.
+     */
+    private _recoverFocus() {
+        const last = this._last_focus;
+        const visible = last?.checkVisibility?.() ?? true;
+        if (!last || (last.isConnected && visible)) return;
+        this._last_focus = null;
+        // Wait for menus and dialogs that move focus back when they close
+        setTimeout(() => {
+            // A hidden element can keep focus until the browser next renders
+            const active = document.activeElement;
+            if (active && active !== document.body && active !== last) return;
+            const dialogs = document.querySelectorAll<HTMLElement>(
+                'mat-dialog-container',
+            );
+            const target =
+                dialogs[dialogs.length - 1] ?? this._main().nativeElement;
+            target.focus({ preventScroll: true });
         });
     }
 
@@ -153,4 +232,13 @@ export class AppComponent implements OnInit {
         await image_gen.load(authority()?.config?.org_zone);
         if (image_gen.enabled()) await image_gen.loadRecent();
     }
+}
+
+/** Whether no route in the active branch turns the nav off */
+function showsNav(route: ActivatedRouteSnapshot | null): boolean {
+    for (let depth = 0; route && depth < 32; depth++) {
+        if (route.data['nav'] === false) return false;
+        route = route.firstChild;
+    }
+    return true;
 }
