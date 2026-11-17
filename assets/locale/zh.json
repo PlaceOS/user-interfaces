@@ -2289,9 +2289,7 @@
         "GROUP_NEW_HEADING": "新建数字标牌组",
         "GROUP_SAVING": "正在保存数字标牌组...",
         "GROUP_SELECT_DETAILS": "选择组以查看其详情。",
-        "HIDE_APPROVAL_CHANGES": "隐藏审批变更",
         "HOURS_BETWEEN_PLAYS": "播放间隔小时数",
-        "ITEM_ACTIONS": "项目操作",
         "LOADING_PLAYLIST_ITEMS": "正在加载播放列表项目...",
         "LOADING_PLUGIN_DETAILS": "正在加载插件详情...",
         "LOADING_PLUGIN_PREVIEW": "正在加载插件预览...",
@@ -2438,7 +2436,6 @@
         "REQUEST_APPROVAL_SELECTED": "请求审批所选播放列表",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "请求播放列表审批",
         "SCHEDULE": "计划",
-        "SCHEDULE_INTERVAL_ARIA": "重复计划间隔",
         "SCHEDULE_NUMBER": "计划 {{ number }}",
         "SCHEDULE_TYPES": "计划类型",
         "SCHEDULE_TYPE_ARIA": "播放列表计划类型",
@@ -2452,7 +2449,6 @@
         "SEARCH_ZONES_PLAYLISTS": "搜索区域或播放列表",
         "SELECT_GROUP": "选择组",
         "SELECT_MEDIA": "选择 {{ name }}",
-        "SELECT_MEDIA_ITEM": "选择媒体项目 {{ name }}",
         "SELECT_PARENT": "选择父组",
         "SELECT_PLAYLIST_DETAILS": "选择播放列表以查看其详情。",
         "SELECT_PLAYLIST_ITEMS": "选择播放列表以查看其项目。",
@@ -2463,7 +2459,6 @@
         "SHARE": "共享",
         "SHARE_PLAYLIST_TOOLTIP": "共享播放列表",
         "SHARE_SELECTED_PLAYLIST": "共享所选播放列表",
-        "SHOW_APPROVAL_CHANGES": "显示审批变更",
         "SHOW_NEXT_DAY": "显示下一天",
         "SHOW_PREVIOUS_DAY": "显示上一天",
         "SHOW_TODAY": "显示今天",
@@ -2597,6 +2592,8 @@
         "ZONE_SELECT_DETAILS": "选择区域以查看其详情。",
         "SVC_REMOVING": "正在删除...",
         "SCHEDULE_UNTIL_FROM_NOW": "{{ time }}后结束",
-        "SCHEDULE_UNTIL_AGO": "已于 {{ time }}前结束"
+        "SCHEDULE_UNTIL_AGO": "已于 {{ time }}前结束",
+        "ACTIONS_FOR": "{{ name }} 的操作",
+        "EDIT_NAMED": "编辑 {{ name }}"
     }
 }
