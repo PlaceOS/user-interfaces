@@ -17,10 +17,54 @@ body {
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+/*
+ * Interface motion. Use these tokens for every interface animation, so that
+ * the reduced motion setting stops all of them.
+ * - motion-base: a page change
+ * - motion-slow: the idle return to the welcome page
+ */
+:root {
+    --motion-base: 200ms;
+    --motion-slow: 600ms;
+    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-base: 0ms;
+        --motion-slow: 0ms;
+    }
+}
+
+/*
+ * Page changes (`withViewTransitions` in app.config.ts). The page
+ * cross-fades, so the background that the pages share stays still.
+ * `data-page-motion` comes from page-transitions.ts.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease);
+}
+
+html[data-page-motion='reset']::view-transition-group(*),
+html[data-page-motion='reset']::view-transition-old(*),
+html[data-page-motion='reset']::view-transition-new(*) {
+    animation-duration: var(--motion-slow);
+}
+
 @media print {
     @page {
         size: auto;
         margin: 0;
+    }
+
+    /* Content that still fades in would print faded */
+    *,
+    ::before,
+    ::after {
+        animation: none !important;
     }
 
     .mat-mdc-snackbar-surface {
