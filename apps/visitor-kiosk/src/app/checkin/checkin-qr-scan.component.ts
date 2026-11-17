@@ -85,7 +85,7 @@ function shouldDecode(
     template: `
         <div
             step-card
-            class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
+            class="motion-fade-in bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code()"
         >
             <h1 pageHeading class="mt-2 text-xl">
@@ -128,7 +128,9 @@ function shouldDecode(
                 aria-live="polite"
             >
                 @if (email_error()) {
-                    {{ 'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate }}
+                    <span animate.enter="motion-fade-in">
+                        {{ 'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate }}
+                    </span>
                 }
             </p>
             <div
@@ -200,6 +202,7 @@ function shouldDecode(
         @if (checking_code()) {
             <div
                 step-card
+                animate.enter="motion-fade-in"
                 class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
             >
                 <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>

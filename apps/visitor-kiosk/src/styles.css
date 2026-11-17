@@ -19,11 +19,14 @@ body {
 
 /*
  * Interface motion. Use these tokens for every interface animation, so that
- * the reduced motion setting stops all of them.
- * - motion-base: a page change
+ * the reduced motion setting stops all of them. A duration of 0 also makes
+ * Angular remove an `animate.leave` element at once.
+ * - motion-fast: content that shows or closes in a page
+ * - motion-base: a page change or a floating panel
  * - motion-slow: the idle return to the welcome page
  */
 :root {
+    --motion-fast: 120ms;
     --motion-base: 200ms;
     --motion-slow: 600ms;
     --motion-ease: cubic-bezier(0.2, 0, 0, 1);
@@ -31,9 +34,51 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
     :root {
+        --motion-fast: 0ms;
         --motion-base: 0ms;
         --motion-slow: 0ms;
     }
+}
+
+@keyframes motion-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@keyframes motion-rise-out {
+    to {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+/*
+ * Classes for `animate.enter` and `animate.leave`.
+ * - motion-fade-in: content that loaded or changed, such as a spinner that
+ *   changes to a form
+ * - motion-rise-in / motion-rise-out: a floating panel, such as the idle
+ *   warning
+ */
+.motion-fade-in {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
+.motion-rise-in {
+    animation: motion-rise-in var(--motion-base) var(--motion-ease);
+}
+
+/* A leaving element must not catch taps while it moves out */
+.motion-rise-out {
+    pointer-events: none;
+    animation: motion-rise-out var(--motion-fast) var(--motion-ease) forwards;
 }
 
 /*

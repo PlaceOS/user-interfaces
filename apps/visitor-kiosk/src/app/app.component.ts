@@ -32,6 +32,8 @@ import { returnToWelcomeWhenIdle } from './inactivity-reset';
         </div>
         @if (idle.warning_secs(); as seconds) {
             <div
+                animate.enter="motion-rise-in"
+                animate.leave="motion-rise-out"
                 class="bg-base-100 text-base-content fixed bottom-8 left-1/2 z-50 flex -translate-x-1/2 items-center gap-4 rounded-sm p-4 shadow-lg"
             >
                 <!-- Read once. A live region would read each second -->

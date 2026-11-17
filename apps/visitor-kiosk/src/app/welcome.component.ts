@@ -186,6 +186,7 @@ import { minuteClock } from './minute-clock';
             }
             @if (is_public_mode()) {
                 <div
+                    animate.enter="motion-fade-in"
                     class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
                 >
                     <div class="max-w-xl space-y-2">

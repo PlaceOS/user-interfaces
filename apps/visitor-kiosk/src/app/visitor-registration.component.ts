@@ -58,6 +58,7 @@ import { minuteClock } from './minute-clock';
             @if (!loading()) {
                 <div
                     step-card
+                    animate.enter="motion-fade-in"
                     class="bg-base-100 absolute top-1/2 left-4 max-h-[80vh] w-lg max-w-[calc(100%-2rem)] -translate-y-1/2 overflow-auto rounded-sm shadow-sm"
                 >
                     <div
@@ -228,6 +229,7 @@ import { minuteClock } from './minute-clock';
             } @else {
                 <div
                     step-card
+                    animate.enter="motion-fade-in"
                     class="bg-base-100 absolute top-1/2 left-4 flex w-[24rem] -translate-y-1/2 flex-col items-center justify-center space-y-4 rounded-sm p-16 shadow-sm"
                 >
                     <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
