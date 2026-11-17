@@ -55,7 +55,7 @@ import { SignageDisplayService } from './signage-display.service';
                     <a
                         #display_item
                         matRipple
-                        class="border-base-300 flex w-full cursor-pointer items-center gap-3 border-b px-4 py-3 text-left no-underline transition-colors"
+                        class="motion-fade-in border-base-300 flex w-full cursor-pointer items-center gap-3 border-b px-4 py-3 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === display.id"
                         [class.text-primary-content]="
                             selected()?.id === display.id

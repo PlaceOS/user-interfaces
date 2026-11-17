@@ -51,7 +51,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
                     <a
                         #playlist_item
                         matRipple
-                        class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
+                        class="motion-fade-in border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-1 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === playlist.id"
                         [class.bg-warning/10]="
                             !playlist.enabled && selected()?.id !== playlist.id

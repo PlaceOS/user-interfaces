@@ -48,7 +48,7 @@ type TemplateStatus = 'awaiting_approval' | 'awaiting_review' | null;
                     <a
                         #template_item
                         matRipple
-                        class="border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-2 text-left no-underline transition-colors"
+                        class="motion-fade-in border-base-300 relative z-0 flex w-full cursor-pointer items-center gap-3 border-b px-2 py-2 text-left no-underline transition-colors"
                         [class.bg-primary]="selected()?.id === template.id"
                         [class.text-primary-content]="
                             selected()?.id === template.id

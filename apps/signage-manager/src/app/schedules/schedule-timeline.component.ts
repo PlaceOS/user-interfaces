@@ -175,7 +175,7 @@ function dayPercent(minutes: number) {
                             @for (block of view.blocks; track block.key) {
                                 <a
                                     schedule-block
-                                    class="schedule-block absolute z-10 text-left"
+                                    class="schedule-block motion-fade-in absolute z-10 text-left"
                                     [style.left.%]="block.left"
                                     [style.top.rem]="block.top"
                                     [style.width.%]="block.width"
