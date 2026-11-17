@@ -10,6 +10,7 @@ import {
     Routes,
     withHashLocation,
     withNavigationErrorHandler,
+    withViewTransitions,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
@@ -23,6 +24,7 @@ import {
 } from '@placeos/components';
 
 import { AppComponent } from './app/app.component';
+import { onPageTransitionCreated } from './app/page-transitions';
 import { tabbedRouteMatcher } from './app/tabbed-view/tabbed-route';
 import { environment } from './environments/environment';
 
@@ -74,6 +76,11 @@ bootstrapApplication(AppComponent, {
             routes,
             withHashLocation(),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
+            // Page change animations are in styles.css
+            withViewTransitions({
+                skipInitialTransition: true,
+                onViewTransitionCreated: onPageTransitionCreated,
+            }),
         ),
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode() && environment.service_worker,

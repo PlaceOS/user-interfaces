@@ -35,9 +35,18 @@ import { ControlStateService } from '../control-state.service';
     `,
     styles: [
         `
+            /* One of the crossfade colours, for the reduced motion setting */
             :host {
-                animation: crossfade 10s linear;
-                animation-iteration-count: infinite;
+                background-color: #1976d2;
+            }
+
+            /* The fade in is here, as this rule overrides animate.enter classes */
+            @media (prefers-reduced-motion: no-preference) {
+                :host {
+                    animation:
+                        motion-fade-in var(--motion-fast) var(--motion-ease),
+                        crossfade 10s linear infinite;
+                }
             }
         `,
     ],

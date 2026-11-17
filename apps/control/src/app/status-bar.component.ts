@@ -9,6 +9,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
+import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
 
 @Component({
     selector: 'control-status-bar',
@@ -16,6 +17,7 @@ import { ControlStateService } from './control-state.service';
         @if (capture_mod()) {
             <div
                 recording
+                animate.enter="motion-fade-in"
                 class="divide-base-200 text-base-content flex items-center divide-x overflow-x-auto text-xs max-sm:w-full"
             >
                 <div hidden>
@@ -99,7 +101,8 @@ import { ControlStateService } from './control-state.service';
                 </div>
                 <div class="flex h-12 w-32 flex-col p-2">
                     <div
-                        class="rounded-sm p-2 text-center uppercase"
+                        class="rounded-sm p-2 text-center uppercase transition-colors duration-(--motion-fast)"
+                        [pulseOnChange]="rec_status"
                         [class.bg-error]="rec_status === 'playing'"
                         [class.text-error-content]="rec_status === 'playing'"
                         [class.bg-warning]="rec_status === 'paused'"
@@ -143,7 +146,10 @@ import { ControlStateService } from './control-state.service';
                 >
                     <icon aria-hidden="true">{{ volume_icon() }}</icon>
                 </button>
-                <mat-slider class="flex-1" [class.opacity-50]="system()?.mute">
+                <mat-slider
+                    class="flex-1 transition-opacity duration-(--motion-fast)"
+                    [class.opacity-50]="system()?.mute"
+                >
                     <input
                         matSliderThumb
                         [attr.aria-label]="'APP.CONTROL.VOLUME' | translate"
@@ -177,6 +183,7 @@ import { ControlStateService } from './control-state.service';
     ],
     imports: [
         BindingDirective,
+        PulseOnChangeDirective,
         MatSliderModule,
         FormsModule,
         MatRippleModule,

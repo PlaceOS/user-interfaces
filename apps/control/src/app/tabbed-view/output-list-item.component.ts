@@ -9,19 +9,19 @@ import { ICON_MAP } from '../ui/output-display.component';
     template: `
         @if (item()) {
             <div
-                class="bg-base-100 relative m-2 h-40 w-full flex-1 rounded-sm border p-2 shadow-sm"
+                class="bg-base-100 relative m-2 h-40 w-full flex-1 rounded-sm border p-2 shadow-sm transition-colors duration-(--motion-fast)"
                 [class.border-base-200]="!active()"
                 [class.border-primary]="active()"
             >
                 @let source = input();
                 <button
                     matRipple
-                    class="bg-info relative z-0 flex h-full w-full flex-col items-center justify-center rounded-sm"
+                    class="bg-info relative z-0 flex h-full w-full flex-col items-center justify-center rounded-sm transition-colors duration-(--motion-fast)"
                     [class.bg-base-300!]="!source"
                     (click)="setActiveOutput()"
                 >
                     <div
-                        class="border-base-300 bg-base-100 text-base-content absolute top-1 left-1 rounded-full border px-2 py-1 text-xs"
+                        class="border-base-300 bg-base-100 text-base-content absolute top-1 left-1 rounded-full border px-2 py-1 text-xs transition-colors duration-(--motion-fast)"
                         [class.bg-primary!]="active()"
                     >
                         {{ item()?.name || 'Display' }}
@@ -29,7 +29,7 @@ import { ICON_MAP } from '../ui/output-display.component';
                     @if (item()?.power != null) {
                         <div
                             power
-                            class="border-base-100 absolute top-2 right-2 size-3 rounded-full border"
+                            class="border-base-100 absolute top-2 right-2 size-3 rounded-full border transition-colors duration-(--motion-fast)"
                             [class.bg-success]="item()?.power"
                             [class.bg-base-300]="!item()?.power"
                             [attr.title]="

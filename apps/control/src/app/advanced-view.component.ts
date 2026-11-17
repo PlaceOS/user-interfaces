@@ -18,6 +18,7 @@ const PAGE_SIZE = 6;
                     track output.id || output.name
                 ) {
                     <output-display
+                        animate.enter="motion-fade-in"
                         class="w-full min-w-[33%] sm:w-auto max-sm:landscape:w-1/2"
                         [item]="output"
                     ></output-display>
@@ -38,6 +39,7 @@ const PAGE_SIZE = 6;
                     <button
                         icon
                         matRipple
+                        class="transition-colors duration-(--motion-fast)"
                         [class.bg-primary]="page() === i"
                         [class.text-black]="page() !== i"
                         [class.bg-base-200]="page() !== i"

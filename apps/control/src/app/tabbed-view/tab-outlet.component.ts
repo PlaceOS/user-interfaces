@@ -47,7 +47,7 @@ import { TVControlsComponent } from './tv-controls.component';
                     @for (tab of tabs(); track tab) {
                         <a
                             matRipple
-                            class="bg-base-100 text-base-content mx-1 flex h-16 w-20 shrink-0 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm sm:h-24 sm:w-32"
+                            class="bg-base-100 text-base-content mx-1 flex h-16 w-20 shrink-0 flex-col items-center justify-center overflow-hidden rounded-t rounded-b-none leading-tight opacity-60 shadow-sm transition duration-(--motion-fast) sm:h-24 sm:w-32"
                             [routerLink]="['/tabbed', id(), tab.id || tab.name]"
                             [class.opacity-100!]="
                                 (tab.id || tab.name) === active_tab()
@@ -138,7 +138,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                     <button
                                         source
                                         matRipple
-                                        class="border-base-200 flex w-full items-center space-x-4 border-t px-4 py-3 text-left"
+                                        class="border-base-200 flex w-full items-center space-x-4 border-t px-4 py-3 text-left transition-colors duration-(--motion-fast)"
                                         [class.text-secondary]="selected"
                                         [attr.aria-pressed]="selected"
                                         [attr.aria-haspopup]="
@@ -162,6 +162,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                             </div>
                                             @if (shown) {
                                                 <div
+                                                    animate.enter="motion-fade-in"
                                                     class="text-base-content truncate text-sm opacity-60"
                                                 >
                                                     {{
@@ -346,7 +347,7 @@ import { TVControlsComponent } from './tv-controls.component';
                                 <button
                                     btn
                                     matRipple
-                                    class="w-full"
+                                    class="w-full transition-colors duration-(--motion-fast)"
                                     [class.inverse]="
                                         system()?.selected_input !==
                                         (input.id || input.name)
@@ -439,12 +440,14 @@ import { TVControlsComponent } from './tv-controls.component';
                     @if (call()) {
                         <div
                             video-call-page
+                            animate.enter="motion-fade-in"
                             [reserve_top]="!!tab()?.help && !mobile()"
                             [present_output]="tab()?.presentation_source"
                             [redirect]="false"
                         ></div>
                     } @else {
                         <div
+                            animate.enter="motion-fade-in"
                             class="flex flex-col items-center sm:flex-row sm:items-stretch sm:justify-center sm:space-x-8"
                         >
                             <!-- Phones show the dial view first, as calls are the main task.

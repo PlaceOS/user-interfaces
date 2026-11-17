@@ -16,6 +16,7 @@ import { SplashComponent } from './ui/splash.component';
         @if (system()?.connected) {
             @if (system()?.active) {
                 <div
+                    animate.enter="motion-fade-in"
                     class="bg-base-200 absolute inset-0 flex flex-col pt-[env(safe-area-inset-top)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)]"
                 >
                     <topbar-header></topbar-header>
@@ -30,7 +31,7 @@ import { SplashComponent } from './ui/splash.component';
                 </control-splash>
             }
         } @else {
-            <control-connecting />
+            <control-connecting animate.enter="motion-fade-in" />
         }
     `,
     styles: [

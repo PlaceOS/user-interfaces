@@ -14,7 +14,10 @@ import { VideoCallPageComponent } from './video-call-page.component';
     template: `
         @if (system()?.connected) {
             @if (system()?.active) {
-                <div class="absolute inset-0 flex flex-col">
+                <div
+                    animate.enter="motion-fade-in"
+                    class="absolute inset-0 flex flex-col"
+                >
                     <topbar-header></topbar-header>
                     <div class="h-1/2 flex-1">
                         <div
@@ -28,7 +31,7 @@ import { VideoCallPageComponent } from './video-call-page.component';
                 <control-splash />
             }
         } @else {
-            <control-connecting />
+            <control-connecting animate.enter="motion-fade-in" />
         }
     `,
     styles: [

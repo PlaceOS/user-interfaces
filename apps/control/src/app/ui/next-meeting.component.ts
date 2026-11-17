@@ -6,6 +6,7 @@ import { TranslatePipe } from '@placeos/components';
 import { queryEvents } from '@placeos/events';
 import { differenceInMinutes, endOfDay, getUnixTime } from 'date-fns';
 import { ControlStateService } from '../control-state.service';
+import { PulseOnChangeDirective } from './pulse-on-change.directive';
 
 /** Time between reloads of the room's meetings */
 const REFRESH_MS = 5 * 60 * 1000;
@@ -24,9 +25,13 @@ const COUNTDOWN_MINUTES = 60;
     template: `
         @if (meeting(); as event) {
             <div
+                animate.enter="motion-fade-in"
                 class="flex max-w-[32rem] flex-col items-center rounded-sm bg-black/30 px-6 py-4 text-center"
             >
-                <div class="text-sm uppercase opacity-80">
+                <div
+                    class="text-sm uppercase opacity-80"
+                    [pulseOnChange]="status()"
+                >
                     @switch (status()) {
                         @case ('now') {
                             {{ 'APP.CONTROL.MEETING_NOW' | translate }}
@@ -61,7 +66,7 @@ const COUNTDOWN_MINUTES = 60;
             </div>
         }
     `,
-    imports: [DatePipe, MatRippleModule, TranslatePipe],
+    imports: [DatePipe, MatRippleModule, PulseOnChangeDirective, TranslatePipe],
 })
 export class NextMeetingComponent extends AsyncHandler {
     private _state = inject(ControlStateService);

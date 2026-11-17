@@ -36,7 +36,12 @@ export class CustomTooltipData<T = any> {
     template: `
         <ng-content />
         <ng-template #portal_content>
-            <div custom-tooltip class="relative print:hidden">
+            <!-- motion-fade-in is defined in the styles.css of each app that animates -->
+            <div
+                custom-tooltip
+                class="relative print:hidden"
+                animate.enter="motion-fade-in"
+            >
                 @switch (type()) {
                     @case ('component') {
                         <ng-container

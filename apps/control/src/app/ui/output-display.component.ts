@@ -23,7 +23,7 @@ export const ICON_MAP = {
                 <div
                     view
                     matRipple
-                    class="border-base-200 relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded-sm border"
+                    class="border-base-200 relative mb-2 flex h-48 flex-col items-center justify-center space-y-2 rounded-sm border transition duration-(--motion-fast)"
                     [class.opacity-60]="!input()"
                     [class.bg-base-200]="!input()"
                     (click)="switchSource()"
