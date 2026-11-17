@@ -83,12 +83,16 @@ import { VisitorsStateService } from './visitors-state.service';
                 <div class="min-h-0 flex-1 overflow-hidden">
                     <guest-listings></guest-listings>
                 </div>
-                @if (loading()) {
-                    <mat-progress-bar
-                        class="w-full print:hidden"
-                        mode="indeterminate"
-                    ></mat-progress-bar>
-                }
+                <!-- Keeps the space of the bar, so the content does not move -->
+                <div class="h-1 w-full print:hidden">
+                    @if (loading()) {
+                        <mat-progress-bar
+                            class="w-full"
+                            mode="indeterminate"
+                            animate.enter="motion-fade-in"
+                        ></mat-progress-bar>
+                    }
+                </div>
             </main>
         </div>
     `,

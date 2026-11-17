@@ -267,11 +267,17 @@ import { DesksStateService } from './desks-state.service';
                 <div class="relative h-1/2 w-full flex-1 overflow-auto">
                     <router-outlet></router-outlet>
                 </div>
-                @if (loading() && path() === 'events') {
-                    <mat-progress-bar
-                        class="w-full"
-                        mode="indeterminate"
-                    ></mat-progress-bar>
+                @if (path() === 'events') {
+                    <!-- Keeps the space of the bar, so the content does not move -->
+                    <div class="h-1 w-full">
+                        @if (loading()) {
+                            <mat-progress-bar
+                                class="w-full"
+                                mode="indeterminate"
+                                animate.enter="motion-fade-in"
+                            ></mat-progress-bar>
+                        }
+                    </div>
                 }
             </main>
         </div>

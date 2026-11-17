@@ -116,14 +116,15 @@ interface ParkingBookingColumnTemplates {
                 </button>
             </div>
             @if (period() === 'week') {
-                <parking-bookings-week-view />
+                <parking-bookings-week-view animate.enter="motion-fade-in" />
             } @else {
                 <mat-progress-bar
                     [class.opacity-0]="!loading().includes('[BOOKINGS]')"
                     mode="indeterminate"
-                    class="sticky left-0 w-full"
+                    class="sticky left-0 w-full transition-opacity duration-(--motion-fast)"
                 />
                 <simple-table
+                    animate.enter="motion-fade-in"
                     [error]="load_error()"
                     [loading]="loading().includes('[BOOKINGS]')"
                     (retry)="retryLoad()"

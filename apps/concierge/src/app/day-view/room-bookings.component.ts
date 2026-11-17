@@ -244,12 +244,14 @@ const EMPTY = [];
             @if (load_error() && view() === 'timeline') {
                 <load-error
                     class="border-error/30 mx-8 mt-4 block rounded-lg border"
+                    animate.enter="motion-drop-in"
                     (retry)="retryLoad()"
                 />
             } @else if (failed_space_names()) {
                 <div
                     role="alert"
                     class="border-warning/30 bg-warning/10 mx-8 mt-4 flex items-center gap-2 rounded-lg border p-2 pl-4 text-sm"
+                    animate.enter="motion-drop-in"
                 >
                     <icon class="text-warning text-xl">warning</icon>
                     <p class="flex-1">
@@ -275,19 +277,25 @@ const EMPTY = [];
                         @if (day_timeline_view() === 'inverted') {
                             <room-bookings-inverted-timeline
                                 class="relative z-0 w-1/2 flex-1"
+                                animate.enter="motion-fade-in"
                             />
                         } @else {
                             <room-bookings-timeline
                                 class="relative z-0 w-1/2 flex-1"
+                                animate.enter="motion-fade-in"
                             />
                         }
                     } @else {
                         <room-week-bookings-timeline
                             class="relative z-0 w-1/2 flex-1"
+                            animate.enter="motion-fade-in"
                         />
                     }
                 } @else {
-                    <room-bookings-list class="relative z-0 w-1/2 flex-1" />
+                    <room-bookings-list
+                        class="relative z-0 w-1/2 flex-1"
+                        animate.enter="motion-fade-in"
+                    />
                 }
                 @if (has_approvals) {
                     <room-bookings-approvals class="relative z-10" />
