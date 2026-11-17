@@ -1,7 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { TranslatePipe } from '@placeos/components';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import {
     SectionTab,
     SectionTabsComponent,
@@ -15,11 +13,10 @@ import { SignageGroupListComponent } from './signage-group-list.component';
 @Component({
     selector: 'groups-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <signage-group-header />
-                <main class="flex min-h-0 flex-1 flex-row overflow-hidden">
+                <div class="flex min-h-0 flex-1 flex-row overflow-hidden">
                     <signage-group-list />
                     <section
                         class="flex min-h-0 w-px flex-1 flex-col"
@@ -49,14 +46,11 @@ import { SignageGroupListComponent } from './signage-group-list.component';
                             </div>
                         }
                     </section>
-                </main>
+                </div>
             </div>
-            <nav-footer />
         </div>
     `,
     imports: [
-        NavSidebarComponent,
-        NavFooterComponent,
         SignageGroupHeaderComponent,
         SignageGroupListComponent,
         SignageGroupDetailHeaderComponent,

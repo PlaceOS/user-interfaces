@@ -29,9 +29,9 @@ import { injectNavItems } from './nav-items';
 import { SignageGroupSelectorComponent } from './signage-group-selector.component';
 
 /**
- * Nav list scroll state, shared across sidebar instances. Each page mounts
- * its own sidebar, so without this the list jumps to the top and the arrows
- * appear one frame late on every navigation.
+ * Nav list scroll state, shared across sidebar instances. The sidebar mounts
+ * again after a page without nav, such as remote setup, so without this the
+ * list jumps to the top and the arrows appear one frame late.
  */
 @Injectable({ providedIn: 'root' })
 class NavScrollState {

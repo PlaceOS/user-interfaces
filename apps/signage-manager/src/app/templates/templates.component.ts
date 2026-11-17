@@ -11,8 +11,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import {
     SectionTab,
     SectionTabsComponent,
@@ -32,8 +30,7 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
 @Component({
     selector: 'templates-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div class="flex min-h-0 flex-1 flex-col">
                 <template-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
@@ -260,13 +257,10 @@ type TemplateViewTab = 'preview' | 'layouts' | 'details';
                     </div>
                 </div>
             </div>
-            <nav-footer />
         </div>
     `,
     host: { '(window:beforeunload)': 'onBeforeUnload($event)' },
     imports: [
-        NavSidebarComponent,
-        NavFooterComponent,
         TemplateHeaderComponent,
         TemplateListComponent,
         TemplatePreviewComponent,

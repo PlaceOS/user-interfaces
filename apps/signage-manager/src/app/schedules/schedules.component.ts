@@ -19,8 +19,6 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { routedTab } from '../shared/routed-tab.util';
 import { tabKeyIndex } from '../shared/section-tabs.component';
 import { SignageInventoryService } from '../signage-inventory.service';
@@ -51,8 +49,7 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
 @Component({
     selector: 'schedules-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div class="flex min-h-0 flex-1 flex-col overflow-hidden">
                 <div
                     class="bg-base-100 border-base-300 relative z-10 border-b px-4 py-3"
@@ -61,11 +58,11 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                         class="flex flex-col gap-3 sm:flex-row sm:items-center"
                     >
                         <div class="min-w-0 flex-1">
-                            <h2 class="text-lg font-semibold">
+                            <h1 class="text-lg font-semibold">
                                 {{
                                     'SIGNAGE_MANAGER.NAV_SCHEDULES' | translate
                                 }}
-                            </h2>
+                            </h1>
                             <group-breadcrumbs />
                         </div>
                         <div
@@ -294,7 +291,6 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                     </div>
                 </div>
             </div>
-            <nav-footer />
         </div>
     `,
     styles: [
@@ -312,8 +308,6 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
-        NavSidebarComponent,
-        NavFooterComponent,
         GroupBreadcrumbsComponent,
         ScheduleTimelineComponent,
         MatFormFieldModule,

@@ -8,8 +8,6 @@ import { selectRoutedItem } from '../displays/routed-selection.util';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
-import { NavFooterComponent } from '../shared/nav-footer.component';
-import { NavSidebarComponent } from '../shared/nav-sidebar.component';
 import { routedTab } from '../shared/routed-tab.util';
 import {
     SectionTab,
@@ -32,8 +30,7 @@ function parseZoneTab(value: string | null): ZoneTab {
 @Component({
     selector: 'zones-section',
     template: `
-        <div class="bg-base-200 absolute inset-0 flex flex-col sm:flex-row">
-            <nav-sidebar class="sm:h-full" />
+        <div class="bg-base-200 absolute inset-0 flex flex-col">
             <div class="flex min-h-0 flex-1 flex-col">
                 <zone-header class="relative z-10" />
                 <div class="flex min-h-0 flex-1 flex-row">
@@ -137,12 +134,9 @@ function parseZoneTab(value: string | null): ZoneTab {
                     </div>
                 </div>
             </div>
-            <nav-footer />
         </div>
     `,
     imports: [
-        NavSidebarComponent,
-        NavFooterComponent,
         ZoneHeaderComponent,
         ZoneListComponent,
         ZoneContentComponent,

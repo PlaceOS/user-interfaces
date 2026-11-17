@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { PlaceOS_Service, UploadsService } from '@placeos/common';
+import { Subject } from 'rxjs';
 import { AppComponent } from '../app/app.component';
 import { ImageGenService } from '../app/image-gen/image-gen.service';
 import { CommandPaletteService } from '../app/shared/command-palette.service';
@@ -22,13 +23,19 @@ describe('AppComponent', () => {
         templates_enabled: signal(true),
         reloadSignageGroups: vi.fn(),
     };
-    const router = { url: '/media', navigate: vi.fn() };
+    const router = {
+        url: '/media',
+        navigate: vi.fn(),
+        events: new Subject<unknown>(),
+        routerState: { snapshot: { root: {} } },
+    };
 
     beforeEach(async () => {
         vi.clearAllMocks();
         context.features_ready.set(true);
         context.templates_enabled.set(true);
         router.url = '/media';
+        router.routerState.snapshot.root = {};
         placeos.init.mockResolvedValue(undefined);
         image_gen.load.mockResolvedValue(undefined);
         image_gen.loadRecent.mockResolvedValue([]);
@@ -117,5 +124,24 @@ describe('AppComponent', () => {
         TestBed.tick();
 
         expect(router.navigate).not.toHaveBeenCalled();
+    });
+
+    it('hides the nav when a route in the active branch turns it off', () => {
+        placeos.init.mockReturnValue(new Promise(() => {}));
+        const component =
+            TestBed.createComponent(AppComponent).componentInstance;
+        const navigate = (root: object) => {
+            router.routerState.snapshot.root = root;
+            router.events.next(new NavigationEnd(1, '/', '/'));
+        };
+
+        navigate({ data: {}, firstChild: { data: {}, firstChild: null } });
+        expect(component.show_nav()).toBe(true);
+
+        navigate({
+            data: {},
+            firstChild: { data: { nav: false }, firstChild: null },
+        });
+        expect(component.show_nav()).toBe(false);
     });
 });

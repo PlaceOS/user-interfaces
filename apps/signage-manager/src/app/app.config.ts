@@ -2,20 +2,25 @@ import {
     ApplicationConfig,
     ErrorHandler,
     inject,
+    Injectable,
     LOCALE_ID,
     provideAppInitializer,
     provideBrowserGlobalErrorListeners,
     provideZonelessChangeDetection,
 } from '@angular/core';
+import { Title } from '@angular/platform-browser';
 import {
     provideRouter,
+    RouterStateSnapshot,
     Routes,
+    TitleStrategy,
     withComponentInputBinding,
     withHashLocation,
     withNavigationErrorHandler,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
+    i18n,
     LazySentryErrorHandler,
     LocaleService,
     registerActiveLocale,
@@ -30,10 +35,36 @@ import { manageGroupsGuard, signageAccessGuard } from './signage-access.guard';
 import { templatesEnabledGuard } from './templates-enabled.guard';
 import { templateUnsavedGuard } from './templates/template-unsaved.guard';
 
+/** Name of the app, shown after the page name in the browser title */
+const APP_NAME = 'Signage Manager';
+
+/**
+ * Sets the browser title from the route `title`, which is a translation key,
+ * for example "Media - Signage Manager". A route without a title shows only
+ * the app name.
+ */
+@Injectable({ providedIn: 'root' })
+class SignageTitleStrategy extends TitleStrategy {
+    private readonly _title = inject(Title);
+    private readonly _locale = inject(LocaleService);
+
+    public override async updateTitle(snapshot: RouterStateSnapshot) {
+        const key = this.buildTitle(snapshot);
+        if (!key) {
+            this._title.setTitle(APP_NAME);
+            return;
+        }
+        // Before the translations load, i18n returns the key
+        await this._locale.loaded();
+        this._title.setTitle(`${i18n(key)} - ${APP_NAME}`);
+    }
+}
+
 const APP_ROUTES: Routes = [
     {
         path: 'unauthorised',
         component: UnauthorisedComponent,
+        data: { nav: false },
     },
     {
         path: '',
@@ -42,6 +73,7 @@ const APP_ROUTES: Routes = [
         children: [
             {
                 path: 'media',
+                title: 'SIGNAGE_MANAGER.NAV_MEDIA',
                 loadComponent: () =>
                     import('./media/media.component').then(
                         (m) => m.MediaSectionComponent,
@@ -49,6 +81,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'playlists/:id',
+                title: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
                 loadComponent: () =>
                     import('./playlists/playlists.component').then(
                         (m) => m.PlaylistsSectionComponent,
@@ -56,6 +89,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'playlists',
+                title: 'SIGNAGE_MANAGER.NAV_PLAYLISTS',
                 loadComponent: () =>
                     import('./playlists/playlists.component').then(
                         (m) => m.PlaylistsSectionComponent,
@@ -65,6 +99,7 @@ const APP_ROUTES: Routes = [
                 path: 'templates/:id',
                 canActivate: [templatesEnabledGuard],
                 canDeactivate: [templateUnsavedGuard],
+                title: 'SIGNAGE_MANAGER.NAV_TEMPLATES',
                 loadComponent: () =>
                     import('./templates/templates.component').then(
                         (m) => m.TemplatesSectionComponent,
@@ -73,6 +108,7 @@ const APP_ROUTES: Routes = [
             {
                 path: 'templates',
                 canActivate: [templatesEnabledGuard],
+                title: 'SIGNAGE_MANAGER.NAV_TEMPLATES',
                 loadComponent: () =>
                     import('./templates/templates.component').then(
                         (m) => m.TemplatesSectionComponent,
@@ -80,6 +116,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'schedules',
+                title: 'SIGNAGE_MANAGER.NAV_SCHEDULES',
                 loadComponent: () =>
                     import('./schedules/schedules.component').then(
                         (m) => m.SchedulesSectionComponent,
@@ -87,6 +124,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'displays/:id',
+                title: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
                 loadComponent: () =>
                     import('./displays/displays.component').then(
                         (m) => m.DisplaysSectionComponent,
@@ -94,6 +132,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'displays',
+                title: 'SIGNAGE_MANAGER.NAV_DISPLAYS',
                 loadComponent: () =>
                     import('./displays/displays.component').then(
                         (m) => m.DisplaysSectionComponent,
@@ -101,6 +140,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'manage',
+                title: 'SIGNAGE_MANAGER.NAV_MANAGE',
                 loadComponent: () =>
                     import('./manage/manage.component').then(
                         (m) => m.ManageSectionComponent,
@@ -109,6 +149,7 @@ const APP_ROUTES: Routes = [
                     { path: '', pathMatch: 'full', redirectTo: 'report' },
                     {
                         path: 'report',
+                        title: 'SIGNAGE_MANAGER.NAV_REPORT',
                         loadComponent: () =>
                             import('./report/content-report.component').then(
                                 (m) => m.ContentReportComponent,
@@ -116,6 +157,7 @@ const APP_ROUTES: Routes = [
                     },
                     {
                         path: 'branding',
+                        title: 'SIGNAGE_MANAGER.NAV_BRANDING',
                         loadComponent: () =>
                             import('./branding/branding.component').then(
                                 (m) => m.BrandingComponent,
@@ -125,6 +167,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'remote-setup',
+                data: { nav: false },
                 loadComponent: () =>
                     import('./remote-setup/remote-setup.component').then(
                         (m) => m.RemoteSetupComponent,
@@ -136,6 +179,7 @@ const APP_ROUTES: Routes = [
             {
                 path: 'groups',
                 canActivate: [manageGroupsGuard],
+                title: 'COMMON.GROUPS',
                 loadComponent: () =>
                     import('./groups/groups.component').then(
                         (m) => m.GroupsSectionComponent,
@@ -143,6 +187,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'zones/:id',
+                title: 'SIGNAGE_MANAGER.NAV_ZONES',
                 loadComponent: () =>
                     import('./zones/zones.component').then(
                         (m) => m.ZonesSectionComponent,
@@ -150,6 +195,7 @@ const APP_ROUTES: Routes = [
             },
             {
                 path: 'zones',
+                title: 'SIGNAGE_MANAGER.NAV_ZONES',
                 loadComponent: () =>
                     import('./zones/zones.component').then(
                         (m) => m.ZonesSectionComponent,
@@ -177,6 +223,7 @@ export const APP_CONFIG: ApplicationConfig = {
             withComponentInputBinding(),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
         ),
+        { provide: TitleStrategy, useClass: SignageTitleStrategy },
         {
             provide: ErrorHandler,
             useClass: LazySentryErrorHandler,
