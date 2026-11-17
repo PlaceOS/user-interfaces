@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage-manager/src/app/shared/confirm-then-run.ts"
+  ],
+  "sourcesContent": [
+    "import { MatDialog } from '@angular/material/dialog';\nimport { i18n, notifyError } from '@placeos/common';\nimport {\n    type ConfirmModalData,\n    ConfirmModalComponent,\n    openConfirmModal,\n} from '@placeos/components';\n\n/**\n * Ask the user to confirm, then run `action` while the confirm modal shows\n * a loading message. The modal cannot be closed while `action` runs, as that\n * would not stop the request, and it always closes when `action` ends.\n * Shows the error of `error_key` when `action` throws.\n * @returns Whether the user confirmed and `action` succeeded\n */\nexport async function confirmThenRun(\n    dialog: MatDialog,\n    confirm: ConfirmModalData,\n    options: {\n        loading_key: string;\n        error_key: string;\n        action: () => Promise<unknown>;\n    },\n) {\n    const result = await openConfirmModal(confirm, dialog);\n    if (result.reason !== 'done') return false;\n    result.loading(i18n(options.loading_key));\n    const confirm_ref = dialog.openDialogs?.at(-1);\n    if (confirm_ref?.componentInstance instanceof ConfirmModalComponent) {\n        confirm_ref.disableClose = true;\n    }\n    try {\n        await options.action();\n        return true;\n    } catch {\n        notifyError(i18n(options.error_key));\n        return false;\n    } finally {\n        result.close();\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;AAeA,eAAsB,eAClB,QACA,SACA,SAIC;AAED,QAAM,SAAS,MAAM,iBAAiB,SAAS,MAAM;AACrD,MAAI,OAAO,WAAW;AAAQ,WAAO;AACrC,SAAO,QAAQ,KAAK,QAAQ,WAAW,CAAC;AACxC,QAAM,cAAc,OAAO,aAAa,GAAG,EAAE;AAC7C,MAAI,aAAa,6BAA6B,uBAAuB;AACjE,gBAAY,eAAe;EAC/B;AACA,MAAI;AACA,UAAM,QAAQ,OAAM;AACpB,WAAO;EACX,QAAQ;AACJ,gBAAY,KAAK,QAAQ,SAAS,CAAC;AACnC,WAAO;EACX;AACI,WAAO,MAAK;EAChB;AACJ;",
+  "names": [],
+  "debugId": "a425cdad-533e-5bd9-bf66-c15613443faa"
+}
