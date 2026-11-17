@@ -2288,9 +2288,7 @@
         "GROUP_NEW_HEADING": "Nuovo gruppo di segnaletica",
         "GROUP_SAVING": "Salvataggio gruppo di segnaletica...",
         "GROUP_SELECT_DETAILS": "Seleziona un gruppo per visualizzarne i dettagli.",
-        "HIDE_APPROVAL_CHANGES": "Nascondi modifiche di approvazione",
         "HOURS_BETWEEN_PLAYS": "Ore tra le riproduzioni",
-        "ITEM_ACTIONS": "Azioni elemento",
         "LOADING_PLAYLIST_ITEMS": "Caricamento elementi lista di riproduzione...",
         "LOADING_PLUGIN_DETAILS": "Caricamento dettagli componente aggiuntivo...",
         "LOADING_PLUGIN_PREVIEW": "Caricamento anteprima componente aggiuntivo...",
@@ -2437,7 +2435,6 @@
         "REQUEST_APPROVAL_SELECTED": "Richiedi approvazione per la lista di riproduzione selezionata",
         "REQUEST_PLAYLIST_APPROVAL_TOOLTIP": "Richiedi approvazione lista di riproduzione",
         "SCHEDULE": "Pianificazione",
-        "SCHEDULE_INTERVAL_ARIA": "Intervallo della pianificazione ricorrente",
         "SCHEDULE_NUMBER": "Pianificazione {{ number }}",
         "SCHEDULE_TYPES": "Tipi di pianificazione",
         "SCHEDULE_TYPE_ARIA": "Tipo di pianificazione lista di riproduzione",
@@ -2451,7 +2448,6 @@
         "SEARCH_ZONES_PLAYLISTS": "Cerca zone o lista di riproduzione",
         "SELECT_GROUP": "Seleziona gruppo",
         "SELECT_MEDIA": "Seleziona {{ name }}",
-        "SELECT_MEDIA_ITEM": "Seleziona elemento multimediale {{ name }}",
         "SELECT_PARENT": "Seleziona gruppo genitore",
         "SELECT_PLAYLIST_DETAILS": "Seleziona una lista di riproduzione per visualizzarne i dettagli.",
         "SELECT_PLAYLIST_ITEMS": "Seleziona una lista di riproduzione per visualizzarne gli elementi.",
@@ -2462,7 +2458,6 @@
         "SHARE": "Condividi",
         "SHARE_PLAYLIST_TOOLTIP": "Condividi lista di riproduzione",
         "SHARE_SELECTED_PLAYLIST": "Condividi lista di riproduzione selezionata",
-        "SHOW_APPROVAL_CHANGES": "Mostra modifiche di approvazione",
         "SHOW_NEXT_DAY": "Mostra giorno successivo",
         "SHOW_PREVIOUS_DAY": "Mostra giorno precedente",
         "SHOW_TODAY": "Mostra oggi",
@@ -2596,6 +2591,8 @@
         "ZONE_SELECT_DETAILS": "Seleziona una zona per visualizzarne i dettagli.",
         "SVC_REMOVING": "Rimozione in corso...",
         "SCHEDULE_UNTIL_FROM_NOW": "termina tra {{ time }}",
-        "SCHEDULE_UNTIL_AGO": "terminato {{ time }} fa"
+        "SCHEDULE_UNTIL_AGO": "terminato {{ time }} fa",
+        "ACTIONS_FOR": "Azioni per {{ name }}",
+        "EDIT_NAMED": "Modifica {{ name }}"
     }
 }
