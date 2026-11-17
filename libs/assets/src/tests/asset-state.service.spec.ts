@@ -319,7 +319,8 @@ describe('AssetStateService', () => {
         vi.mocked(ts_client.queryAssets).mockReturnValue(
             response([{ id: 'a1', asset_type_id: 't1' }]),
         );
-        spectator.service.setOptions({ zone: 'zone-rules' });
+        // Rules and groups are cached per zone, so use a zone of its own
+        spectator.service.setOptions({ zone: 'zone-visitor-rules' });
         spectator.service.available_groups();
 
         await vi.waitFor(() => {
