@@ -75,7 +75,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                     <form class="flex flex-col">
                         <label for="name"
                             >{{ 'FORM.NAME' | translate
-                            }}<span required>*</span></label
+                            }}<span required aria-hidden="true">*</span></label
                         >
                         <mat-form-field appearance="outline">
                             <input
@@ -115,13 +115,13 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         </div>
                         <div class="flex space-x-4">
                             <div class="flex flex-1 flex-col">
-                                <label for="severity">{{
+                                <label id="alert-severity-label">{{
                                     'APP.STAGEHAND.ALERT_FIELD_SEVERITY'
                                         | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
-                                        aria-label="Severity"
+                                        aria-labelledby="alert-severity-label"
                                         [formField]="form.severity"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_SEVERITY'
@@ -143,12 +143,12 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 </mat-form-field>
                             </div>
                             <div class="flex flex-1 flex-col">
-                                <label for="type">{{
+                                <label id="alert-type-label">{{
                                     'APP.STAGEHAND.ALERT_FIELD_TYPE' | translate
                                 }}</label>
                                 <mat-form-field appearance="outline">
                                     <mat-select
-                                        aria-label="Type"
+                                        aria-labelledby="alert-type-label"
                                         [formField]="form.alert_type"
                                         [placeholder]="
                                             'APP.STAGEHAND.ALERT_FIELD_TYPE'
@@ -170,7 +170,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 </mat-form-field>
                             </div>
                         </div>
-                        <label for="description">{{
+                        <label id="alert-conditions-label">{{
                             'APP.STAGEHAND.ALERT_CONDITIONS' | translate
                         }}</label>
                         <div class="mb-4 flex space-x-2">
@@ -194,7 +194,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                                 Add Condition
                             </button>
                         </div>
-                        <section>
+                        <section aria-labelledby="alert-conditions-label">
                             <simple-table
                                 class="mb-4 block w-full min-w-lg text-sm"
                                 [data]="

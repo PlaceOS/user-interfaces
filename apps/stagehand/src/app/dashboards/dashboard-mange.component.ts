@@ -58,7 +58,7 @@ import { DashboardsService } from './dashboards.service';
                     <form class="flex flex-col">
                         <label for="name"
                             >{{ 'FORM.NAME' | translate
-                            }}<span required>*</span></label
+                            }}<span required aria-hidden="true">*</span></label
                         >
                         <mat-form-field appearance="outline">
                             <input
