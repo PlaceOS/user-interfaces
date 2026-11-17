@@ -12,6 +12,8 @@ import { CheckinStateService } from './checkin-state.service';
     template: `
         @if (!loading()) {
             <div
+                step-card
+                animate.enter="motion-fade-in"
                 class="bg-base-100 relative flex w-[24rem] flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h1 pageHeading class="mb-4 text-xl">
@@ -24,7 +26,10 @@ import { CheckinStateService } from './checkin-state.service';
                 ></a-take-photo>
             </div>
         } @else {
-            <div class="m-auto flex flex-col items-center">
+            <div
+                animate.enter="motion-fade-in"
+                class="m-auto flex flex-col items-center"
+            >
                 <mat-spinner [diameter]="48" aria-hidden="true"></mat-spinner>
                 <div class="my-4 text-lg text-white" announce>
                     {{ 'APP.VISITOR_KIOSK.PRINT_LOADING' | translate }}

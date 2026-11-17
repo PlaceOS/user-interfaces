@@ -48,8 +48,12 @@ function stopTracks(stream: MediaStream) {
                 class="absolute top-1/2 left-1/2 mx-auto h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                 [class.opacity-0]="!has_photo()"
             ></canvas>
+            @if (has_photo()) {
+                <div shutter aria-hidden="true"></div>
+            }
             @if (camera_error()) {
                 <div
+                    animate.enter="motion-fade-in"
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-2 p-8 text-center opacity-70"
                 >
                     <icon class="text-6xl" aria-hidden="true"
@@ -61,6 +65,7 @@ function stopTracks(stream: MediaStream) {
                 </div>
             } @else if (loading()) {
                 <div
+                    animate.enter="motion-fade-in"
                     class="absolute inset-0 flex flex-col items-center justify-center space-y-4"
                 >
                     <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
@@ -73,6 +78,7 @@ function stopTracks(stream: MediaStream) {
         <div class="mt-4 flex w-full items-center justify-center space-x-2">
             @if (!has_photo()) {
                 <button
+                    animate.enter="motion-fade-in"
                     class="inverse flex-1"
                     btn
                     matRipple
@@ -81,6 +87,7 @@ function stopTracks(stream: MediaStream) {
                     {{ back_text() || ('COMMON.BACK' | translate) }}
                 </button>
                 <button
+                    animate.enter="motion-fade-in"
                     class="take-photo flex-1"
                     btn
                     matRipple
@@ -91,6 +98,7 @@ function stopTracks(stream: MediaStream) {
                 </button>
             } @else {
                 <button
+                    animate.enter="motion-fade-in"
                     class="inverse flex-1"
                     btn
                     matRipple
@@ -98,7 +106,13 @@ function stopTracks(stream: MediaStream) {
                 >
                     {{ 'APP.VISITOR_KIOSK.RETAKE' | translate }}
                 </button>
-                <button btn matRipple class="flex-1" (click)="acceptPhoto()">
+                <button
+                    animate.enter="motion-fade-in"
+                    btn
+                    matRipple
+                    class="flex-1"
+                    (click)="acceptPhoto()"
+                >
                     {{ 'COMMON.ACCEPT' | translate }}
                 </button>
             }
@@ -115,6 +129,28 @@ function stopTracks(stream: MediaStream) {
             [name='camera'] {
                 width: 22.5rem;
                 height: 25rem;
+            }
+
+            /* The live camera and the photo cross-fade */
+            video,
+            canvas {
+                transition: opacity var(--motion-base) var(--motion-ease);
+            }
+
+            /* A short white flash shows that the camera took the photo */
+            [shutter] {
+                position: absolute;
+                inset: 0;
+                pointer-events: none;
+                background: white;
+                opacity: 0;
+                animation: shutter var(--motion-base) ease-out;
+            }
+
+            @keyframes shutter {
+                from {
+                    opacity: 0.8;
+                }
             }
 
             button {
@@ -229,11 +265,11 @@ export class TakePhotoComponent
         this.loading.set(false);
     }
 
+    /** Fades the photo out and starts the camera again */
     public cancelPhoto() {
         this.loading.set(true);
-        const canvas = this._canvas_el().nativeElement;
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Keep the photo on the canvas, so that it fades out.
+        // The next capture draws over all of it.
         this.has_photo.set(false);
         this.startCapture();
     }

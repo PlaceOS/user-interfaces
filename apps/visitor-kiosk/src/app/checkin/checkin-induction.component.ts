@@ -19,6 +19,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-induction]',
     template: `
         <div
+            step-card
             class="bg-base-100 relative flex w-lg flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
         >
             <h1 pageHeading class="my-4">

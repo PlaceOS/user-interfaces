@@ -7,6 +7,7 @@ import { Subject } from 'rxjs';
 
 import { CheckinStateService } from '../app/checkin/checkin-state.service';
 import { IdleReset, returnToWelcomeWhenIdle } from '../app/inactivity-reset';
+import { IDLE_RESET_INFO } from '../app/page-transitions';
 
 describe('returnToWelcomeWhenIdle', () => {
     const events = new Subject<unknown>();
@@ -48,7 +49,9 @@ describe('returnToWelcomeWhenIdle', () => {
         vi.advanceTimersByTime(1);
         expect(dialog.closeAll).toHaveBeenCalled();
         expect(checkin.clear).toHaveBeenCalled();
-        expect(router.navigate).toHaveBeenCalledWith(['/welcome']);
+        expect(router.navigate).toHaveBeenCalledWith(['/welcome'], {
+            info: IDLE_RESET_INFO,
+        });
     });
 
     it('should restart the timeout when the visitor touches the screen', () => {
@@ -58,7 +61,9 @@ describe('returnToWelcomeWhenIdle', () => {
         vi.advanceTimersByTime(100_000);
         expect(router.navigate).not.toHaveBeenCalled();
         vi.advanceTimersByTime(20_000);
-        expect(router.navigate).toHaveBeenCalledWith(['/welcome']);
+        expect(router.navigate).toHaveBeenCalledWith(['/welcome'], {
+            info: IDLE_RESET_INFO,
+        });
     });
 
     it('should warn the visitor 20 seconds before the reset', () => {

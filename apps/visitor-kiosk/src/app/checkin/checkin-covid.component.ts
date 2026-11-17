@@ -12,6 +12,7 @@ import { CheckinStateService } from './checkin-state.service';
     selector: '[checkin-covid]',
     template: `
         <div
+            step-card
             class="bg-base-100 relative overflow-x-hidden overflow-y-auto rounded-sm p-4"
         >
             <h1 pageHeading class="mb-4 text-xl font-medium">

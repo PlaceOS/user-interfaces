@@ -4,6 +4,7 @@ import { NavigationEnd, Router } from '@angular/router';
 import { settingSignal } from '@placeos/common';
 
 import { CheckinStateService } from './checkin/checkin-state.service';
+import { IDLE_RESET_INFO } from './page-transitions';
 
 /** Default for the `inactivity_timeout_secs` setting */
 export const DEFAULT_INACTIVITY_TIMEOUT_SECS = 120;
@@ -78,7 +79,7 @@ export function returnToWelcomeWhenIdle(): IdleReset {
             // Navigation does not close dialogs, so close them here
             dialog.closeAll();
             checkin.clear();
-            router.navigate(['/welcome']);
+            router.navigate(['/welcome'], { info: IDLE_RESET_INFO });
         }, secs * 1000);
     };
 

@@ -10,6 +10,7 @@ import {
     provideRouter,
     withHashLocation,
     withNavigationErrorHandler,
+    withViewTransitions,
 } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import {
@@ -21,6 +22,7 @@ import {
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
+import { onPageTransitionCreated } from './page-transitions';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -34,6 +36,10 @@ export const appConfig: ApplicationConfig = {
             withNavigationErrorHandler((error) =>
                 reloadOnChunkLoadError(error.error),
             ),
+            withViewTransitions({
+                skipInitialTransition: true,
+                onViewTransitionCreated: onPageTransitionCreated,
+            }),
         ),
         provideServiceWorker('ngsw-worker.js', {
             enabled: environment.production,

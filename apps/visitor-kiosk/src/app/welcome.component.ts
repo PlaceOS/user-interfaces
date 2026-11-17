@@ -32,7 +32,10 @@ import { minuteClock } from './minute-clock';
 @Component({
     selector: 'app-welcome',
     template: `
-        <div class="absolute inset-0 flex items-center overflow-hidden p-8">
+        <div
+            class="absolute inset-0 flex items-center overflow-hidden p-8"
+            [class.motion-fade-out]="reloading()"
+        >
             <img
                 auth
                 alt=""
@@ -42,13 +45,16 @@ import { minuteClock } from './minute-clock';
             <div class="z-10 flex w-[60%] flex-col justify-center space-y-8">
                 <h1
                     pageHeading
-                    class="mb-4 space-y-4 text-6xl text-white"
+                    class="motion-rise-in mb-4 space-y-4 text-6xl text-white"
                     [innerHTML]="
                         welcome_message() ||
                         ('APP.VISITOR_KIOSK.WELCOME_MESSAGE' | translate)
                     "
                 ></h1>
-                <div class="flex flex-wrap items-center gap-4 font-medium">
+                <div
+                    actions
+                    class="motion-rise-in flex flex-wrap items-center gap-4 font-medium"
+                >
                     <a
                         btn
                         matRipple
@@ -186,6 +192,7 @@ import { minuteClock } from './minute-clock';
             }
             @if (is_public_mode()) {
                 <div
+                    animate.enter="motion-fade-in"
                     class="bg-base-300/90 text-base-content absolute inset-0 z-20 flex items-center justify-center p-8 text-center"
                 >
                     <div class="max-w-xl space-y-2">
@@ -205,6 +212,12 @@ import { minuteClock } from './minute-clock';
         `
             a {
                 height: 3.5rem;
+            }
+
+            /* The actions rise in after the heading */
+            [actions] {
+                animation-delay: var(--motion-fast);
+                animation-fill-mode: backwards;
             }
         `,
     ],
@@ -245,6 +258,8 @@ export class WelcomeComponent
     public readonly locales = settingSignal('locales', []);
     public readonly is_public_mode = isPublicMode;
     public readonly locale = signal(this._locale.locale);
+    /** True while the page fades out before the reload for a new language */
+    public readonly reloading = signal(false);
     public readonly active_locale = computed(() => {
         const locale_list = this.locales();
         const locale = this.locale();
@@ -258,6 +273,7 @@ export class WelcomeComponent
         this.locale.set(code);
         this._locale.setLocale(code);
         localStorage.setItem('PLACEOS.locale', code);
+        this.reloading.set(true);
         setTimeout(() => location.reload(), 300);
     };
 

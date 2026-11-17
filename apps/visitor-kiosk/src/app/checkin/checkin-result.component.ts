@@ -9,7 +9,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { generateQRCode } from '@placeos/common/qr-code';
-import { TranslatePipe } from '@placeos/components';
+import { IconComponent, TranslatePipe } from '@placeos/components';
 import { UserLabelComponent } from '@placeos/users';
 import { roundToNearestMinutes, startOfMinute } from 'date-fns';
 import { PageHeadingDirective } from '../components/page-heading.directive';
@@ -28,9 +28,15 @@ const DEFAULT_TEMPLATE = `
     template: `
         @if (event()) {
             <div
+                step-card
                 class="bg-base-100 relative flex w-xl flex-col items-center space-y-4 overflow-hidden rounded-sm p-4 shadow-sm print:hidden"
             >
                 @let ev = event();
+                <icon
+                    class="success-mark text-success text-6xl"
+                    aria-hidden="true"
+                    >check_circle</icon
+                >
                 <h1 pageHeading class="text-xl">
                     {{
                         (ev.extension_data?.self_registered
@@ -92,12 +98,26 @@ const DEFAULT_TEMPLATE = `
             :host > div {
                 max-width: calc(100vw - 2rem);
             }
+
+            /* The check mark pops in to show that the check-in is done */
+            .success-mark {
+                animation: success-pop calc(var(--motion-base) * 2)
+                    cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+            }
+
+            @keyframes success-pop {
+                from {
+                    opacity: 0;
+                    transform: scale(0.5);
+                }
+            }
         `,
     ],
     providers: [DatePipe],
     imports: [
         PageHeadingDirective,
         CommonModule,
+        IconComponent,
         MatRippleModule,
         TranslatePipe,
         UserLabelComponent,

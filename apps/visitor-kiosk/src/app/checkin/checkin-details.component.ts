@@ -25,6 +25,8 @@ import { CheckinStateService } from './checkin-state.service';
         @if (ready_form()) {
             <form
                 autocomplete="off"
+                step-card
+                animate.enter="motion-fade-in"
                 class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             >
                 <h1 pageHeading class="m-4 text-2xl">
@@ -149,9 +151,11 @@ import { CheckinStateService } from './checkin-state.service';
             </form>
         } @else {
             <div
+                animate.enter="motion-fade-in"
                 class="absolute inset-0 flex flex-col items-center justify-center"
             >
                 <div
+                    step-card
                     class="bg-base-100 flex flex-col items-center space-y-2 rounded-sm p-16 shadow-sm"
                 >
                     <mat-spinner

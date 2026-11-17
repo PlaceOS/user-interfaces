@@ -17,10 +17,169 @@ body {
     font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
 
+/*
+ * Interface motion. Use these tokens for every interface animation, so that
+ * the reduced motion setting stops all of them. A duration of 0 also makes
+ * Angular remove an `animate.leave` element at once.
+ * - motion-fast: content that shows or closes in a page
+ * - motion-base: a page change or a floating panel
+ * - motion-slow: the idle return to the welcome page
+ */
+:root {
+    --motion-fast: 120ms;
+    --motion-base: 200ms;
+    --motion-slow: 600ms;
+    --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root {
+        --motion-fast: 0ms;
+        --motion-base: 0ms;
+        --motion-slow: 0ms;
+    }
+}
+
+@keyframes motion-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes motion-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@keyframes motion-rise-out {
+    to {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+/*
+ * Classes for `animate.enter` and `animate.leave`.
+ * - motion-fade-in: content that loaded or changed, such as a spinner that
+ *   changes to a form
+ * - motion-fade-out: a page that closes, such as before a reload
+ * - motion-rise-in / motion-rise-out: a floating panel, such as the idle
+ *   warning, or content that a page shows when it opens
+ */
+.motion-fade-in {
+    animation: motion-fade-in var(--motion-fast) var(--motion-ease);
+}
+
+.motion-rise-in {
+    animation: motion-rise-in var(--motion-base) var(--motion-ease);
+}
+
+/* A leaving element must not catch taps while it moves out */
+.motion-fade-out {
+    pointer-events: none;
+    animation: motion-fade-out var(--motion-base) var(--motion-ease) forwards;
+}
+
+.motion-rise-out {
+    pointer-events: none;
+    animation: motion-rise-out var(--motion-fast) var(--motion-ease) forwards;
+}
+
+/*
+ * Page changes (`withViewTransitions` in app.config.ts). The page
+ * cross-fades, so the background that the pages share stays still.
+ * `data-page-motion` comes from page-transitions.ts.
+ */
+::view-transition-group(*),
+::view-transition-old(*),
+::view-transition-new(*) {
+    animation-duration: var(--motion-base);
+    animation-timing-function: var(--motion-ease);
+}
+
+html[data-page-motion='reset']::view-transition-group(*),
+html[data-page-motion='reset']::view-transition-old(*),
+html[data-page-motion='reset']::view-transition-new(*) {
+    animation-duration: var(--motion-slow);
+}
+
+/*
+ * Each flow step shows its content on a card with `step-card`. The card
+ * moves and changes its size from one step to the next. In a flow, the
+ * content slides forward to a new step and back to the first step.
+ */
+[step-card] {
+    view-transition-name: step-card;
+}
+
+@keyframes motion-step-from-end {
+    from {
+        opacity: 0;
+        transform: translateX(3rem);
+    }
+}
+
+@keyframes motion-step-to-end {
+    to {
+        opacity: 0;
+        transform: translateX(3rem);
+    }
+}
+
+@keyframes motion-step-from-start {
+    from {
+        opacity: 0;
+        transform: translateX(-3rem);
+    }
+}
+
+@keyframes motion-step-to-start {
+    to {
+        opacity: 0;
+        transform: translateX(-3rem);
+    }
+}
+
+html[data-page-motion]::view-transition-old(step-card),
+html[data-page-motion]::view-transition-new(step-card) {
+    mix-blend-mode: normal;
+}
+
+html[data-page-motion='forward']::view-transition-old(step-card) {
+    animation-name: motion-step-to-start;
+}
+
+html[data-page-motion='forward']::view-transition-new(step-card) {
+    animation-name: motion-step-from-end;
+}
+
+html[data-page-motion='back']::view-transition-old(step-card) {
+    animation-name: motion-step-to-end;
+}
+
+html[data-page-motion='back']::view-transition-new(step-card) {
+    animation-name: motion-step-from-start;
+}
+
 @media print {
     @page {
         size: auto;
         margin: 0;
+    }
+
+    /* Content that still fades in would print faded */
+    *,
+    ::before,
+    ::after {
+        animation: none !important;
     }
 
     .mat-mdc-snackbar-surface {

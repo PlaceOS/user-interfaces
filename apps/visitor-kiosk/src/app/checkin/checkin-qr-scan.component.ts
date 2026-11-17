@@ -84,7 +84,8 @@ function shouldDecode(
     selector: '[checkin-qr-scan]',
     template: `
         <div
-            class="bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
+            step-card
+            class="motion-fade-in bg-base-100 relative flex w-xl flex-col items-center overflow-hidden rounded-sm p-4 shadow-sm"
             [class.hidden]="checking_code()"
         >
             <h1 pageHeading class="mt-2 text-xl">
@@ -127,7 +128,9 @@ function shouldDecode(
                 aria-live="polite"
             >
                 @if (email_error()) {
-                    {{ 'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate }}
+                    <span animate.enter="motion-fade-in">
+                        {{ 'APP.VISITOR_KIOSK.INVALID_EMAIL' | translate }}
+                    </span>
                 }
             </p>
             <div
@@ -162,6 +165,7 @@ function shouldDecode(
                 @if (scanner_ready() && !checking_code()) {
                     <div
                         aria-hidden="true"
+                        animate.enter="motion-fade-in"
                         class="qr-guide pointer-events-none absolute top-1/2 left-1/2 z-20 aspect-square h-2/3 -translate-x-1/2 -translate-y-1/2 rounded-xl"
                     >
                         <span
@@ -179,6 +183,7 @@ function shouldDecode(
                     </div>
                     <div
                         announce
+                        animate.enter="motion-fade-in"
                         class="bg-base-100/90 text-base-content absolute right-2 bottom-2 z-20 inline-flex items-center gap-2 rounded px-2 py-1 text-sm shadow"
                     >
                         <span class="status-dot" aria-hidden="true"></span>
@@ -198,6 +203,8 @@ function shouldDecode(
         </div>
         @if (checking_code()) {
             <div
+                step-card
+                animate.enter="motion-fade-in"
                 class="bg-base-100 relative flex flex-col items-center overflow-hidden rounded-sm p-16 shadow-sm"
             >
                 <mat-spinner diameter="32" aria-hidden="true"></mat-spinner>
@@ -220,6 +227,15 @@ function shouldDecode(
                 width: 0.5rem;
                 height: 0.5rem;
                 display: inline-block;
+                /* Slow pulse that shows the camera is live */
+                animation: status-pulse calc(var(--motion-base) * 10)
+                    ease-in-out infinite;
+            }
+
+            @keyframes status-pulse {
+                50% {
+                    opacity: 0.3;
+                }
             }
 
             .qr-guide {
