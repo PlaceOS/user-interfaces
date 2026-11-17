@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    DestroyRef,
     effect,
     inject,
     OnInit,
@@ -19,6 +20,7 @@ import { AsyncHandler } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import { showSystem } from '@placeos/ts-client';
 import { DashboardsService } from './dashboards/dashboards.service';
+import { afterPageTransition } from './page-transitions';
 import { backofficeLink } from './ui/sidebar.component';
 import { StagehandPageComponent } from './ui/stagehand-page.component';
 
@@ -356,6 +358,7 @@ import { StagehandPageComponent } from './ui/stagehand-page.component';
 export class AlertsComponent extends AsyncHandler implements OnInit {
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
+    private _destroy_ref = inject(DestroyRef);
     private _dashboards = inject(DashboardsService);
     private _initialized = signal(false);
     private _waiting_for_first_alert = signal(true);
@@ -414,11 +417,14 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
             ...location_params,
         };
 
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: query_params,
-            replaceUrl: true,
-        });
+        // A navigation now would stop the transition to this page
+        afterPageTransition(this._destroy_ref, () =>
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: query_params,
+                replaceUrl: true,
+            }),
+        );
     });
     public readonly alert_list = this._dashboards.dashboard_alerts;
     public readonly dashboard = signal(null);

@@ -202,12 +202,14 @@ describe('AlertsComponent', () => {
         );
     });
 
-    it('should keep the filters and location in the URL', () => {
+    it('should keep the filters and location in the URL', async () => {
         spectator = build({ search: 'projector' });
         // the first tick runs ngOnInit
         TestBed.tick();
         spectator.component.severity.set('critical');
         TestBed.tick();
+        // the URL changes after the page transition
+        await vi.waitFor(() => expect(router.navigate).toHaveBeenCalled());
         expect(router.navigate).toHaveBeenLastCalledWith([], {
             relativeTo: route,
             queryParams: {

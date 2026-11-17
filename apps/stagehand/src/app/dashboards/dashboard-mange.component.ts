@@ -29,14 +29,15 @@ import { DashboardsService } from './dashboards.service';
     template: `
         <!--
             Covers the page. Focus stays in the editor and returns on close.
-            No aria-modal: the select panels render outside the editor
+            No aria-modal: the select panels render outside the editor.
+            The view transition name slides it in and out (see styles.css)
         -->
         <div
             role="dialog"
             aria-labelledby="dashboard-editor-title"
             cdkTrapFocus
             cdkTrapFocusAutoCapture
-            class="bg-base-200 fixed inset-0 overflow-auto"
+            class="bg-base-200 fixed inset-0 overflow-auto [view-transition-name:stagehand-editor]"
         >
             <div
                 class="border-base-300 bg-base-100 mx-auto min-h-full w-160 max-w-full border-x p-2"

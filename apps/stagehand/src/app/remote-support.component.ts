@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
     Component,
     computed,
+    DestroyRef,
     effect,
     inject,
     OnInit,
@@ -36,6 +37,7 @@ import {
 } from './camera-snapshot-modal.component';
 import { Alert } from './dashboards/broker-alerts';
 import { DashboardsService } from './dashboards/dashboards.service';
+import { afterPageTransition } from './page-transitions';
 import { SupportService } from './support.service';
 import { CameraImageComponent } from './ui/camera-image.component';
 import { backofficeLink } from './ui/sidebar.component';
@@ -404,6 +406,7 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
     private readonly _support = inject(SupportService);
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
+    private readonly _destroy_ref = inject(DestroyRef);
     private readonly _dialog = inject(MatDialog);
     private _initialized = signal(false);
 
@@ -436,11 +439,14 @@ export class RemoteSupportComponent extends AsyncHandler implements OnInit {
             ...location_params,
         };
 
-        this._router.navigate([], {
-            relativeTo: this._route,
-            queryParams: query_params,
-            replaceUrl: true,
-        });
+        // A navigation now would stop the transition to this page
+        afterPageTransition(this._destroy_ref, () =>
+            this._router.navigate([], {
+                relativeTo: this._route,
+                queryParams: query_params,
+                replaceUrl: true,
+            }),
+        );
     });
 
     public readonly room_list = signal<Space[]>([]);
