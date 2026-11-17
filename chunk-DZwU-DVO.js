@@ -1,0 +1,4 @@
+import{Pr as _t,Sr as We}from"./main.js";var l=50;async function i(e){let t=await e,n=t?.data||[],a=[...n],o=1;for(;n.length>0&&t.next&&o<l&&(!t.total||a.length<t.total);){let s=t.next();if(!s)break;t=await s,n=t?.data||[],a.push(...n),o+=1}return a}function f(e={}){return i(_t({query_params:e,endpoint:`/api/staff/v1/surveys/questions`,path:``,fn:t=>new We(t)}))}function c(e={}){return i(_t({query_params:e,endpoint:`/api/engine/v2/short_url`,path:``,fn:t=>t}))}export{f as n,i as r,c as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="8e1c8f96-79b6-5396-ad4e-959624c592a6")}catch(e){}}();
+//# debugId=8e1c8f96-79b6-5396-ad4e-959624c592a6
+//# sourceMappingURL=chunk-DZwU-DVO.js.map
