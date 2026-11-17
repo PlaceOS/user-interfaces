@@ -597,6 +597,18 @@ export async function rejectBookingInstance(
 }
 
 /**
+ * Throw the error message from the body of a failed check-in response. Errors
+ * that are not a `Response`, such as a network failure, and bodies that are not
+ * JSON are thrown unchanged.
+ * @param e Error from the check-in request
+ */
+async function checkinError(e: unknown): Promise<never> {
+    if (!(e instanceof Response)) throw e;
+    const body = await e.json().catch(() => null);
+    throw body?.error || body?.message || body || e;
+}
+
+/**
  * Set the checkin state of a booking
  * @param id ID of the booking to grab
  * @param state New checkin state of the booking
@@ -614,8 +626,7 @@ export async function checkinBooking(
             ),
         );
     } catch (e) {
-        const body = await e.json();
-        throw body.error || body.message || body;
+        return checkinError(e);
     }
 }
 
@@ -639,8 +650,7 @@ export async function checkinBookingInstance(
             ),
         );
     } catch (e) {
-        const body = await e.json();
-        throw body.error || body.message || body;
+        return checkinError(e);
     }
 }
 

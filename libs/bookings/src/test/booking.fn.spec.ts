@@ -1056,7 +1056,9 @@ describe('[Booking API]', () => {
             const failWith = (body: object) =>
                 vi
                     .spyOn(ts_client, 'post')
-                    .mockRejectedValueOnce({ json: async () => body });
+                    .mockRejectedValueOnce(
+                        new Response(JSON.stringify(body), { status: 400 }),
+                    );
 
             failWith({ error: 'Too early', message: 'ignored' });
             await expect(checkinBooking('1', true)).rejects.toBe('Too early');
@@ -1066,6 +1068,18 @@ describe('[Booking API]', () => {
             await expect(checkinBooking('1', true)).rejects.toEqual({
                 code: 500,
             });
+        });
+
+        it('should throw errors that are not a response unchanged', async () => {
+            const error = new TypeError('Load failed');
+            vi.spyOn(ts_client, 'post').mockRejectedValueOnce(error);
+            await expect(checkinBooking('1', true)).rejects.toBe(error);
+        });
+
+        it('should throw the response when its body is not JSON', async () => {
+            const response = new Response('Bad Gateway', { status: 502 });
+            vi.spyOn(ts_client, 'post').mockRejectedValueOnce(response);
+            await expect(checkinBooking('1', true)).rejects.toBe(response);
         });
     });
 
