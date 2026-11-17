@@ -133,9 +133,14 @@ export const TRACE_PROPAGATION_TARGET =
  *   browser extension rejects with these strings when the page wakes. They
  *   have no stack, and no PlaceOS code or dependency uses these actions.
  *   The sessions that sent them also ran WalkMe, which PlaceOS does not load.
+ * - `cannot communicate with background`: an extension content script
+ *   rejects with this string when it cannot reach its background script. It
+ *   has no stack, and no PlaceOS code or dependency has this string. The
+ *   session that sent it also ran WalkMe.
  */
 export const IGNORED_ERRORS = [
     /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
+    /^Non-Error promise rejection captured with value: cannot communicate with background$/,
 ];
 
 /** Sample rates from the app settings, from 0 to 1 */

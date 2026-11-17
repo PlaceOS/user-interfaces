@@ -162,11 +162,19 @@ describe('IGNORED_ERRORS', () => {
         }
     });
 
+    it('should drop the extension background rejection', async () => {
+        const process = await filter();
+        expect(
+            process(`${PREFIX}cannot communicate with background`),
+        ).toBeNull();
+    });
+
     it('should keep other rejections', async () => {
         const process = await filter();
         for (const value of [
             `${PREFIX}unknown action: getBookings`,
             `${PREFIX}Failed to load authority`,
+            `${PREFIX}cannot communicate with background service`,
         ]) {
             expect(process(value)).not.toBeNull();
         }
