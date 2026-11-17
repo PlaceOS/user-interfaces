@@ -1,6 +1,6 @@
 import {
   LocaleService
-} from "./chunk-HFRVW335.js";
+} from "./chunk-E36N5Q2O.js";
 import {
   LiveAnnouncer
 } from "./chunk-BASABP4M.js";
@@ -67,4 +67,4 @@ export {
   CONTROL_STORE_KEY
 };
 //# debugId=da5c3109-98c2-5b4c-ba2e-d4610602744a
-//# sourceMappingURL=chunk-S56TWG2I.js.map
+//# sourceMappingURL=chunk-FLNTLGRA.js.map

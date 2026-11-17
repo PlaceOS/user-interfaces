@@ -1,10 +1,10 @@
 import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-CLD7UYYS.js";
+} from "./chunk-KOCPTJ2A.js";
 import {
   VideoCallPageComponent
-} from "./chunk-PKWHC4SL.js";
+} from "./chunk-P5CSFYH7.js";
 import {
   AuthenticatedImageDirective,
   BindingDirective,
@@ -27,7 +27,7 @@ import {
   moveCamera,
   selectCamera,
   zoomCamera
-} from "./chunk-AGN6NGVN.js";
+} from "./chunk-KZFSSS52.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule,
@@ -42,20 +42,20 @@ import {
   MatInputModule
 } from "./chunk-BXP4U32H.js";
 import "./chunk-SERBA7SX.js";
-import "./chunk-3FR6MMOB.js";
+import "./chunk-UUGFIKDA.js";
 import {
   MatOption
 } from "./chunk-JUUS2SUZ.js";
 import "./chunk-RPKADTNN.js";
-import "./chunk-AT2RA5KG.js";
-import "./chunk-S56TWG2I.js";
+import "./chunk-AYIW7E5J.js";
+import "./chunk-FLNTLGRA.js";
 import "./chunk-XKVYNJCG.js";
 import {
   TranslatePipe
-} from "./chunk-HTKYK4NN.js";
+} from "./chunk-ZG5ULEL5.js";
 import {
   OrganisationService
-} from "./chunk-2OYTUM6T.js";
+} from "./chunk-BC7J3XHF.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -75,7 +75,7 @@ import {
   randomInt,
   randomString,
   themedLogo
-} from "./chunk-HFRVW335.js";
+} from "./chunk-E36N5Q2O.js";
 import {
   IconComponent
 } from "./chunk-UBLB46YX.js";
@@ -4237,4 +4237,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=a30e8c07-3ff4-5eeb-b730-410593cbbdab
-//# sourceMappingURL=tabbed-view.component-LMLZVWHX.js.map
+//# sourceMappingURL=tabbed-view.component-36G57WC6.js.map
