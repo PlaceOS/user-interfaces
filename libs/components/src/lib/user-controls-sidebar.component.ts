@@ -33,11 +33,21 @@ import { UserControlsComponent } from './user-controls.component';
             </ng-content>
         </button>
         @if (is_rendered()) {
-            <div class="fixed inset-0 z-9999 overflow-hidden">
+            <!--
+                A popover shows in the top layer, so stacking contexts of
+                the host page (such as a view-transition-name) cannot hide
+                it. Overlays that open from the panel show above it. The
+                starting: classes animate the panel in when the popover shows.
+            -->
+            <div
+                #layer
+                popover="manual"
+                class="fixed inset-0 m-0 h-full max-h-none w-full max-w-none overflow-hidden border-0 bg-transparent p-0 text-inherit"
+            >
                 <button
                     type="button"
                     aria-label="Close user controls"
-                    class="absolute inset-0 bg-black transition-opacity duration-200"
+                    class="absolute inset-0 bg-black transition-opacity duration-200 starting:opacity-0"
                     [class.opacity-50]="is_open()"
                     [class.opacity-0]="!is_open()"
                     (click)="close()"
@@ -49,7 +59,7 @@ import { UserControlsComponent } from './user-controls.component';
                         aria-modal="true"
                         tabindex="-1"
                         cdkTrapFocus
-                        class="bg-base-100 relative h-full w-80 max-w-[100vw] overflow-auto pt-[calc(env(safe-area-inset-top)+1rem)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] shadow-xl transition-transform duration-200 ease-out focus:outline-hidden"
+                        class="bg-base-100 relative h-full w-80 max-w-[100vw] overflow-auto pt-[calc(env(safe-area-inset-top)+1rem)] pr-[env(safe-area-inset-right)] pb-[env(safe-area-inset-bottom)] shadow-xl transition-transform duration-200 ease-out focus:outline-hidden starting:translate-x-full"
                         [attr.aria-label]="'COMMON.USER_CONTROLS' | translate"
                         [class.translate-x-0]="is_open()"
                         [class.translate-x-full]="!is_open()"
@@ -85,6 +95,7 @@ export class UserControlsSidebarComponent {
     /** Element that had focus before the sidebar opened */
     private _return_focus: HTMLElement | null = null;
     private readonly _panel = viewChild<ElementRef<HTMLElement>>('panel');
+    private readonly _layer = viewChild<ElementRef<HTMLElement>>('layer');
 
     public readonly is_open = signal(false);
     public readonly is_rendered = signal(false);
@@ -99,6 +110,8 @@ export class UserControlsSidebarComponent {
         this._return_focus = document.activeElement as HTMLElement;
         this.is_rendered.set(true);
         requestAnimationFrame(() => {
+            // Force does not fail if the popover is still open from a close
+            this._layer()?.nativeElement.togglePopover?.(true);
             this.is_open.set(true);
             // The panel is still off screen, so do not scroll to it
             this._panel()?.nativeElement.focus({ preventScroll: true });
