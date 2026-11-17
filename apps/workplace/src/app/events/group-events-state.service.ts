@@ -96,13 +96,14 @@ export class GroupEventsStateService {
             if (!active) return;
             this._loading.set(false);
             this._failed.set(failed);
+            // Private (draft) events show only to their creator or host.
+            // Do not use `mailbox`: Staff API sets it to the viewer's email.
             const events = (list || [])
                 .filter(
                     (_) =>
                         (_.permission !== 'private' ||
                             currentUser()?.email === _.creator ||
-                            currentUser()?.email === _.host ||
-                            currentUser()?.email === _.mailbox) &&
+                            currentUser()?.email === _.host) &&
                         _.extension_data.shared_event,
                 )
                 .sort((a, b) => a.date - b.date);
