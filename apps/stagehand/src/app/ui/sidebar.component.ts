@@ -1,4 +1,10 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    afterNextRender,
+    Component,
+    computed,
+    inject,
+    signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -8,8 +14,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
 import {
     OrganisationService,
-    SettingsService,
     settingSignal,
+    SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { firstValueFrom } from 'rxjs';
@@ -96,7 +102,11 @@ const COMPACT_SIGNAL = signal(
                             selected_group() ? 'group' : 'public'
                         }}</icon>
                         @if (!is_compact()) {
-                            <div class="min-w-0 flex-1">
+                            <div
+                                class="min-w-0 flex-1"
+                                [animate.enter]="label_enter()"
+                                animate.leave="stagehand-fade-out"
+                            >
                                 <div
                                     class="stagehand-muted text-xs font-medium tracking-wide uppercase"
                                 >
@@ -106,7 +116,12 @@ const COMPACT_SIGNAL = signal(
                                     {{ group_label() }}
                                 </div>
                             </div>
-                            <icon class="text-xl">unfold_more</icon>
+                            <icon
+                                class="text-xl"
+                                [animate.enter]="label_enter()"
+                                animate.leave="stagehand-fade-out"
+                                >unfold_more</icon
+                            >
                         }
                     </button>
                 </div>
@@ -115,7 +130,8 @@ const COMPACT_SIGNAL = signal(
                 @let r_list = region_list();
                 @let bld_list = building_list();
                 @if (r_list.length || bld_list.length) {
-                    <div class="space-y-2 p-2">
+                    <!-- Fades in only, so the links move up at once on collapse -->
+                    <div class="space-y-2 p-2" [animate.enter]="label_enter()">
                         @if (r_list.length > 0) {
                             <label
                                 class="block px-1 text-xs font-medium tracking-wide uppercase"
@@ -194,7 +210,12 @@ const COMPACT_SIGNAL = signal(
                     >
                         <icon class="ml-0! text-3xl">{{ link.icon }}</icon>
                         @if (!is_compact()) {
-                            <span class="truncate">{{ link.name }}</span>
+                            <span
+                                class="truncate"
+                                [animate.enter]="label_enter()"
+                                animate.leave="stagehand-fade-out"
+                                >{{ link.name }}</span
+                            >
                         }
                     </a>
                 }
@@ -225,12 +246,17 @@ const COMPACT_SIGNAL = signal(
                             dark_mode() ? 'dark_mode' : 'light_mode'
                         }}</icon>
                         @if (!is_compact()) {
-                            <span class="flex-1 truncate text-left text-sm"
+                            <span
+                                class="flex-1 truncate text-left text-sm"
+                                [animate.enter]="label_enter()"
+                                animate.leave="stagehand-fade-out"
                                 >Dark Mode</span
                             >
                             <!-- aria-pressed gives the state -->
                             <span
                                 aria-hidden="true"
+                                [animate.enter]="label_enter()"
+                                animate.leave="stagehand-fade-out"
                                 class="ml-auto rounded-full px-2 py-0.5 text-xs"
                                 [class.bg-success]="dark_mode()"
                                 [class.text-success-content]="dark_mode()"
@@ -257,13 +283,18 @@ const COMPACT_SIGNAL = signal(
                             : 'notifications_off'
                     }}</icon>
                     @if (!is_compact()) {
-                        <span class="flex-1 truncate text-left text-sm"
+                        <span
+                            class="flex-1 truncate text-left text-sm"
+                            [animate.enter]="label_enter()"
+                            animate.leave="stagehand-fade-out"
                             >Notifications</span
                         >
                     }
                     @if (notifications_active() && !is_compact()) {
                         <span
                             class="bg-success text-success-content ml-auto rounded-full px-2 py-0.5 text-xs"
+                            [animate.enter]="label_enter()"
+                            animate.leave="stagehand-fade-out"
                             >ON</span
                         >
                     }
@@ -285,7 +316,11 @@ const COMPACT_SIGNAL = signal(
                     rel="noopener noreferrer"
                 >
                     @if (!is_compact()) {
-                        <span class="truncate text-sm">
+                        <span
+                            class="truncate text-sm"
+                            [animate.enter]="label_enter()"
+                            animate.leave="stagehand-fade-out"
+                        >
                             Launch PlaceOS Backoffice
                         </span>
                     }
@@ -294,9 +329,20 @@ const COMPACT_SIGNAL = signal(
                     }
                 </a>
                 @if (!is_compact()) {
-                    <p class="stagehand-muted text-center text-xs">
-                        Access system configuration and management
-                    </p>
+                    <!--
+                        The text keeps the open sidebar's width (16rem less the
+                        padding), so it does not wrap onto more lines while the
+                        sidebar changes width
+                    -->
+                    <div
+                        class="overflow-hidden"
+                        [animate.enter]="label_enter()"
+                        animate.leave="stagehand-fade-out"
+                    >
+                        <p class="stagehand-muted w-56 text-center text-xs">
+                            Access system configuration and management
+                        </p>
+                    </div>
                 }
             </div>
         </nav>
@@ -306,6 +352,13 @@ const COMPACT_SIGNAL = signal(
             [sidebar],
             [header] {
                 transition: width 200ms;
+            }
+
+            @media (prefers-reduced-motion: reduce) {
+                [sidebar],
+                [header] {
+                    transition: none;
+                }
             }
         `,
     ],
@@ -329,6 +382,11 @@ export class SidebarComponent {
 
     public readonly push = inject(AlertNotificationService);
     public readonly is_compact = COMPACT_SIGNAL;
+    /**
+     * Enter animation of the labels. It is empty for the first render, so the
+     * labels fade in when the sidebar expands, but not when a page opens
+     */
+    public readonly label_enter = signal('');
     private readonly _allow_dark_mode = this._settings.signal(
         'allow_dark_mode',
         false,
@@ -416,6 +474,10 @@ export class SidebarComponent {
             ? buildings.filter((b) => scope.zones.has(b.id))
             : buildings;
     });
+
+    constructor() {
+        afterNextRender(() => this.label_enter.set('stagehand-label-in'));
+    }
 
     public regionById(id: string) {
         return this.region_list().find((r) => r.id === id) || null;

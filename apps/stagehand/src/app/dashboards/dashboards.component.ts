@@ -1,14 +1,7 @@
-import {
-    Component,
-    computed,
-    effect,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { StagehandPageComponent } from '../ui/stagehand-page.component';
@@ -86,26 +79,21 @@ export class DashboardsComponent extends AsyncHandler implements OnInit {
     );
     public readonly dashboard = this._service.dashboard;
 
-    private readonly _page_sync = effect(() => {
-        this._router.currentNavigation();
-        this._updatePage();
-    });
-
     public ngOnInit() {
         this._updatePage();
+        // Update in the same frame as the page change, so the header changes
+        // with the page transition
+        this.subscription(
+            'page',
+            this._router.events.subscribe((event) => {
+                if (event instanceof NavigationEnd) this._updatePage();
+            }),
+        );
     }
 
     private _updatePage() {
-        this.timeout(
-            'page',
-            () => {
-                this.page.set(
-                    this._router.url.includes('/alerts')
-                        ? 'alerts'
-                        : 'dashboards',
-                );
-            },
-            50,
+        this.page.set(
+            this._router.url.includes('/alerts') ? 'alerts' : 'dashboards',
         );
     }
 }

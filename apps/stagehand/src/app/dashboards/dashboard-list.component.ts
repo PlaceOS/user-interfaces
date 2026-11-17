@@ -65,9 +65,11 @@ import { DashboardsService } from './dashboards.service';
             />
             <ng-template #child_template let-dash="row">
                 <div
+                    animate.enter="stagehand-fade-in"
                     class="bg-info-light absolute inset-0 z-0 opacity-30"
                 ></div>
                 <simple-table
+                    animate.enter="stagehand-drop-in"
                     class="block min-w-3xl"
                     [data]="alert_map()?.[dash.id] || []"
                     [filter]="search_term()"

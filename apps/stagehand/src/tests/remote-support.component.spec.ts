@@ -201,11 +201,13 @@ describe('RemoteSupportComponent', () => {
         expect(dashboards.listenForDashboardAlerts).toHaveBeenCalledWith(true);
     });
 
-    it('should keep the search, state and location in the URL', () => {
+    it('should keep the search, state and location in the URL', async () => {
         spectator.component.ngOnInit();
         spectator.component.search_term.set('board');
         spectator.component.state.set('issues');
         TestBed.tick();
+        // the URL changes after the page transition
+        await vi.waitFor(() => expect(navigate).toHaveBeenCalled());
         expect(navigate).toHaveBeenLastCalledWith(
             [],
             expect.objectContaining({

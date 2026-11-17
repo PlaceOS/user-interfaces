@@ -68,3 +68,149 @@ body {
 #stagehand-page-content {
     scroll-margin-top: 1rem;
 }
+
+/*
+ * Motion. Durations and easing for every Stagehand animation. The reduced
+ * motion rule at the end of this file turns all of them off.
+ */
+:root {
+    --stagehand-motion-fast: 150ms;
+    --stagehand-motion: 200ms;
+    --stagehand-motion-slow: 250ms;
+    --stagehand-ease-out: cubic-bezier(0.2, 0, 0, 1);
+    --stagehand-ease-in: cubic-bezier(0.4, 0, 1, 1);
+}
+
+@keyframes stagehand-fade-in {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes stagehand-fade-out {
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes stagehand-rise-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem);
+    }
+}
+
+@keyframes stagehand-drop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-0.5rem);
+    }
+}
+
+@keyframes stagehand-pulse {
+    from {
+        opacity: 0.4;
+        transform: scale(1.25);
+    }
+}
+
+@keyframes stagehand-slide-up-in {
+    from {
+        opacity: 0;
+        transform: translateY(1.5rem);
+    }
+}
+
+@keyframes stagehand-slide-down-out {
+    to {
+        opacity: 0;
+        transform: translateY(1.5rem);
+    }
+}
+
+/*
+ * Classes for `animate.enter`, or to bind when content arrives:
+ * - stagehand-fade-in: content that loaded
+ * - stagehand-drop-in: content that opens below its control
+ * - stagehand-pulse: a value that changed (PulseOnChangeDirective)
+ * - stagehand-label-in: a sidebar label. It waits until the sidebar is
+ *   mostly open, so it does not show cut off
+ * - stagehand-fade-out: for `animate.leave`, content that closes
+ */
+.stagehand-fade-in {
+    animation: stagehand-fade-in var(--stagehand-motion)
+        var(--stagehand-ease-out);
+}
+
+.stagehand-drop-in {
+    animation: stagehand-drop-in var(--stagehand-motion)
+        var(--stagehand-ease-out);
+}
+
+.stagehand-pulse {
+    animation: stagehand-pulse var(--stagehand-motion-slow)
+        var(--stagehand-ease-out);
+}
+
+.stagehand-label-in {
+    animation: stagehand-fade-in var(--stagehand-motion-fast)
+        var(--stagehand-ease-out) 100ms both;
+}
+
+.stagehand-fade-out {
+    animation: stagehand-fade-out var(--stagehand-motion-fast)
+        var(--stagehand-ease-in) both;
+}
+
+/*
+ * Page changes. The router starts a view transition on each page change
+ * (app.config.ts). Elements with these names animate on their own:
+ * - stagehand-sidebar and stagehand-header (stagehand-page) change at once
+ * - stagehand-content (stagehand-page) fades out, and the new page rises in
+ * - stagehand-editor (the dashboard and alert editors) slides up when it
+ *   opens and down when it closes
+ */
+::view-transition-old(stagehand-sidebar),
+::view-transition-old(stagehand-header) {
+    display: none;
+}
+
+::view-transition-new(stagehand-sidebar),
+::view-transition-new(stagehand-header) {
+    animation: none;
+}
+::view-transition-old(stagehand-content) {
+    animation: stagehand-fade-out var(--stagehand-motion-fast)
+        var(--stagehand-ease-in) both;
+}
+
+::view-transition-new(stagehand-content) {
+    animation: stagehand-rise-in var(--stagehand-motion)
+        var(--stagehand-ease-out) both;
+}
+
+::view-transition-old(stagehand-editor) {
+    animation: stagehand-slide-down-out var(--stagehand-motion)
+        var(--stagehand-ease-in) both;
+}
+
+::view-transition-new(stagehand-editor) {
+    animation: stagehand-slide-up-in var(--stagehand-motion-slow)
+        var(--stagehand-ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .stagehand-fade-in,
+    .stagehand-drop-in,
+    .stagehand-pulse,
+    .stagehand-label-in,
+    .stagehand-fade-out {
+        animation: none;
+    }
+
+    ::view-transition-group(*),
+    ::view-transition-old(*),
+    ::view-transition-new(*) {
+        animation: none !important;
+    }
+}

@@ -26,6 +26,7 @@ interface RecorderStreamMetadata {
                 @for (image of images(); track image.id) {
                     <div
                         class="border-base-300 bg-base-100 relative min-h-[25vh] overflow-hidden rounded-xl border"
+                        animate.enter="stagehand-fade-in"
                     >
                         <div
                             class="bg-base-300 absolute inset-2 overflow-hidden rounded-lg"
