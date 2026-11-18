@@ -188,16 +188,20 @@ export class LocaleService {
             this._locale_mappings[locale] = cached;
             this._changes.update((value) => value + 1);
         }
-        const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-        if (!resp.ok) {
-            // Any cached mappings are left in place.
+        let locale_data: unknown;
+        try {
+            const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+            if (!resp.ok) throw resp;
+            locale_data = await resp.json();
+        } catch (error) {
+            // An error response or a network failure. Any cached mappings are
+            // left in place, and a later setLocale can load the locale again.
             delete this._load_promises[locale];
             return console.error(
-                `Failed to loaded locale file for "${locale}".`,
-                resp,
+                `Failed to load locale file for "${locale}".`,
+                error,
             );
         }
-        const locale_data = await resp.json();
         const locale_override_data = this.zone_id
             ? await showMetadata(this.zone_id, `locale_${locale}`)
             : { details: {} };
