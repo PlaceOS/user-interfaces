@@ -1,6 +1,6 @@
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TriggerConditionOperator } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 

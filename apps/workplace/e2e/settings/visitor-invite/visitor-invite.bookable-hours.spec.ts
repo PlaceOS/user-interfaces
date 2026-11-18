@@ -8,7 +8,12 @@
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
-import { type Audit, type Settings, test, visitor } from '../support/settings-harness';
+import {
+    type Audit,
+    type Settings,
+    test,
+    visitor,
+} from '../support/settings-harness';
 
 test.describe.configure({ timeout: 120_000 });
 
@@ -42,22 +47,27 @@ async function open(page: Page, audit: Audit, overrides: Settings) {
     return visitor(page, audit, { ...DURATIONS, ...overrides });
 }
 
-test('visitors.bookable_hours 10-16 overrides bookings.bookable_hours 8-12 for the start times',
-    async ({ staffPage, audit }) => {
-        const form = await open(staffPage, audit, {
-            'app.visitors.bookable_hours': { start: 10, end: 16 },
-            'app.bookings.bookable_hours': { start: 8, end: 12 },
-        });
-        const options = await startTimes(form);
-        expect(options).toContain(10 * 60);
-        expect(options).toContain(15 * 60);
-        expect(Math.min(...options)).toBe(10 * 60);
-        expect(Math.max(...options)).toBe(15 * 60);
-        expect(options).not.toContain(9 * 60 + 45);
-        expect(options).not.toContain(15 * 60 + 15);
+test('visitors.bookable_hours 10-16 overrides bookings.bookable_hours 8-12 for the start times', async ({
+    staffPage,
+    audit,
+}) => {
+    const form = await open(staffPage, audit, {
+        'app.visitors.bookable_hours': { start: 10, end: 16 },
+        'app.bookings.bookable_hours': { start: 8, end: 12 },
     });
+    const options = await startTimes(form);
+    expect(options).toContain(10 * 60);
+    expect(options).toContain(15 * 60);
+    expect(Math.min(...options)).toBe(10 * 60);
+    expect(Math.max(...options)).toBe(15 * 60);
+    expect(options).not.toContain(9 * 60 + 45);
+    expect(options).not.toContain(15 * 60 + 15);
+});
 
-test('visitors.bookable_hours unset falls back to bookings.bookable_hours 8-12', async ({ staffPage, audit }) => {
+test('visitors.bookable_hours unset falls back to bookings.bookable_hours 8-12', async ({
+    staffPage,
+    audit,
+}) => {
     const form = await open(staffPage, audit, {
         'app.visitors.bookable_hours': null,
         'app.bookings.bookable_hours': { start: 8, end: 12 },
@@ -67,7 +77,10 @@ test('visitors.bookable_hours unset falls back to bookings.bookable_hours 8-12',
     expect(Math.max(...options)).toBe(11 * 60);
 });
 
-test('visitors.bookable_hours and bookings.bookable_hours unset offer the whole day', async ({ staffPage, audit }) => {
+test('visitors.bookable_hours and bookings.bookable_hours unset offer the whole day', async ({
+    staffPage,
+    audit,
+}) => {
     const form = await open(staffPage, audit, {
         'app.visitors.bookable_hours': null,
         'app.bookings.bookable_hours': null,

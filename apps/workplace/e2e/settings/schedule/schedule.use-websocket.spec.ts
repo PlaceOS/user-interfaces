@@ -30,7 +30,11 @@
 // any external request is recorded and aborted, and fails the scenario.
 import type { Page, Route } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
@@ -39,10 +43,10 @@ import {
     type Settings,
     clearOrganisationCache,
     expectSafe,
-    guardedStaffTest as test,
     protectNetwork,
     syntheticOrg,
     syntheticOrgRoutes,
+    guardedStaffTest as test,
     validPeriod,
 } from '../support/settings-harness';
 

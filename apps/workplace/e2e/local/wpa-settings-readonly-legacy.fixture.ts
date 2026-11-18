@@ -1,6 +1,11 @@
 import * as path from 'path';
 import { pauseBackground } from '../../../../e2e/support/background';
-import { APP_URL, AUTH_DIR, BACKEND_URL, staffEmail } from '../../../../e2e/support/env';
+import {
+    APP_URL,
+    AUTH_DIR,
+    BACKEND_URL,
+    staffEmail,
+} from '../../../../e2e/support/env';
 import { expect, test } from '../../../../e2e/support/fixtures';
 import { closedByTeardown } from '../../../../e2e/support/teardown';
 
@@ -30,7 +35,10 @@ export const readOnlyTest = test.extend<{
     staffPage: async ({ browser, staffToken, readOnlyTimezone }, use, info) => {
         void staffToken;
         const context = await browser.newContext({
-            storageState: path.join(AUTH_DIR, `staff-${info.parallelIndex}.json`),
+            storageState: path.join(
+                AUTH_DIR,
+                `staff-${info.parallelIndex}.json`,
+            ),
             baseURL: APP_URL,
             ignoreHTTPSErrors: true,
             serviceWorkers: 'block',

@@ -320,7 +320,10 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                                     object.id === state.selected_id() &&
                                     state.multi_select().length < 2
                                 ) {
-                                    @for (pos of selected_handles(); track pos.handle) {
+                                    @for (
+                                        pos of selected_handles();
+                                        track pos.handle
+                                    ) {
                                         <circle
                                             [attr.cx]="pos.x"
                                             [attr.cy]="pos.y"
@@ -330,7 +333,9 @@ const clamp01 = (value: number) => Math.max(0, Math.min(1, value));
                                             [attr.stroke-width]="
                                                 state.stroke_width() * 0.75
                                             "
-                                            [style.cursor]="cursorFor(pos.handle)"
+                                            [style.cursor]="
+                                                cursorFor(pos.handle)
+                                            "
                                         />
                                     }
                                     <line
@@ -856,8 +861,7 @@ export class CanvasComponent {
 
     /** Move cursor over objects the select tool can drag, else inherit */
     public moveCursor(object: MapObject) {
-        const cycles =
-            this.state.availability_enabled() && isBookable(object);
+        const cycles = this.state.availability_enabled() && isBookable(object);
         return this._can_move() &&
             !cycles &&
             !object.locked &&

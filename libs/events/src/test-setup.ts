@@ -1,5 +1,5 @@
-import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections } from '@ngneat/spectator';
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { MockPipe } from 'ng-mocks';
 import { TextDecoder, TextEncoder } from 'util';
 

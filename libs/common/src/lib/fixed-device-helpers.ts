@@ -1,7 +1,7 @@
 import { isFixedDevice } from '@placeos/ts-client';
 import { scoped_log } from './general';
 
-const log = scoped_log('FIXED_DEV')
+const log = scoped_log('FIXED_DEV');
 
 let _wake_lock: WakeLockSentinel | null = null;
 
@@ -16,7 +16,7 @@ export async function requestScreenWakeLock() {
             setTimeout(() => requestScreenWakeLock(), 1000);
         }
     } catch (e) {
-        log.error("Failed to acquire screen wake lock.", e)
+        log.error('Failed to acquire screen wake lock.', e);
     }
 }
 

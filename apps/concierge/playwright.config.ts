@@ -38,10 +38,19 @@ export default defineConfig({
     retries: CI ? 2 : 0,
     reporter: [
         ['list'],
-        ['html', { outputFolder: '../../reports/e2e/concierge', open: 'never' }],
+        [
+            'html',
+            { outputFolder: '../../reports/e2e/concierge', open: 'never' },
+        ],
         ...(CI
             ? ([
-                  ['json', { outputFile: '../../reports/e2e/concierge-results.json' }],
+                  [
+                      'json',
+                      {
+                          outputFile:
+                              '../../reports/e2e/concierge-results.json',
+                      },
+                  ],
                   ['github'],
               ] as const)
             : []),
@@ -108,7 +117,9 @@ export default defineConfig({
         // checks E2E_BACKEND_URL, never the proxy target.
         env: {
             PLACE_PROXY_DOMAIN: new URL(BACKEND_URL).host,
-            PLACE_PROXY_SECURE: String(new URL(BACKEND_URL).protocol === 'https:'),
+            PLACE_PROXY_SECURE: String(
+                new URL(BACKEND_URL).protocol === 'https:',
+            ),
             PLACE_PROXY_VALID_SSL: 'false',
         },
     },

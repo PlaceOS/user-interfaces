@@ -33,7 +33,11 @@
 // any external request is recorded and aborted, and fails the scenario.
 import type { Page, Route } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
@@ -42,10 +46,10 @@ import {
     type Settings,
     clearOrganisationCache,
     expectSafe,
-    guardedStaffTest as test,
     protectNetwork,
     syntheticOrg,
     syntheticOrgRoutes,
+    guardedStaffTest as test,
     validPeriod,
 } from '../support/settings-harness';
 
@@ -115,7 +119,10 @@ async function syntheticGets(page: Page) {
     };
 }
 
-function scheduleSettings(use_driver: boolean, use_websocket: boolean): Settings {
+function scheduleSettings(
+    use_driver: boolean,
+    use_websocket: boolean,
+): Settings {
     return {
         ...READ_ONLY_SETTINGS,
         ...CONTROLS,
@@ -134,7 +141,11 @@ function scheduleSettings(use_driver: boolean, use_websocket: boolean): Settings
     };
 }
 
-async function openSchedule(page: Page, use_driver: boolean, use_websocket: boolean) {
+async function openSchedule(
+    page: Page,
+    use_driver: boolean,
+    use_websocket: boolean,
+) {
     assertLocalOnly(APP_URL, BACKEND_URL);
     const audit = await protectNetwork(page);
     await page.setViewportSize({ width: 1440, height: 1100 });

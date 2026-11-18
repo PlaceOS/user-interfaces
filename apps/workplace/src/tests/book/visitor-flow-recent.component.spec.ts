@@ -1,5 +1,8 @@
 import { signal, WritableSignal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
 import { VisitorFlowRecentComponent } from 'apps/workplace/src/app/book/visitor-flow-new/visitor-flow-recent.component';
@@ -14,12 +17,9 @@ describe('VisitorFlowRecentComponent', () => {
         component: VisitorFlowRecentComponent,
         shallow: true,
         providers: [
-            MockProvider(
-                SettingsService,
-                {
-                    get: (...args: any[]) => get_setting(...args),
-                } as any,
-            ),
+            MockProvider(SettingsService, {
+                get: (...args: any[]) => get_setting(...args),
+            } as any),
             {
                 provide: BookingFormService,
                 useFactory: () => {

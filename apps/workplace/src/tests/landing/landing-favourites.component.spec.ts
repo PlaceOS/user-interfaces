@@ -27,10 +27,13 @@ describe('LandingFavouritesComponent', () => {
                 loadParkingResources: vi.fn(() => of([])),
                 newForm: vi.fn(),
                 setOptions: vi.fn(),
-                model: Object.assign(vi.fn(() => ({})), {
-                    update: vi.fn(),
-                    set: vi.fn(),
-                }),
+                model: Object.assign(
+                    vi.fn(() => ({})),
+                    {
+                        update: vi.fn(),
+                        set: vi.fn(),
+                    },
+                ),
             } as any),
             MockProvider(Router, { navigate: vi.fn() }),
             MockProvider(SpacePipe),
@@ -79,8 +82,7 @@ describe('LandingFavouritesComponent', () => {
             type: 'parking',
         });
         expect(booking_form.model.update).toHaveBeenCalled();
-        const update_fn = (booking_form.model.update as any).mock
-            .calls[0][0];
+        const update_fn = (booking_form.model.update as any).mock.calls[0][0];
         expect(update_fn({})).toEqual({
             resources: [item],
             asset_id: 'park-123',

@@ -8,7 +8,13 @@
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { type DebugWindow, getOnly, prepareSettings, type Settings, test } from '../support/settings-harness';
+import {
+    type DebugWindow,
+    getOnly,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
 const BASE: Settings = {
     ...READ_ONLY_SETTINGS,
@@ -44,7 +50,8 @@ async function openExplore(page: Page, overrides: Settings) {
                 page,
                 (url) =>
                     url.pathname === '/api/engine/v2/systems' &&
-                    [...url.searchParams.keys()].sort().join(',') === 'limit,zone_id' &&
+                    [...url.searchParams.keys()].sort().join(',') ===
+                        'limit,zone_id' &&
                     url.searchParams.get('limit') === '50',
                 () => [],
             ),
@@ -57,9 +64,7 @@ async function openExplore(page: Page, overrides: Settings) {
 }
 
 const overlay = (page: Page, label: string) =>
-    page
-        .locator('explore-map-view settings-toggle')
-        .filter({ hasText: label });
+    page.locator('explore-map-view settings-toggle').filter({ hasText: label });
 
 /**
  * Whether the Explore map's applied options disable `devices`
@@ -68,126 +73,127 @@ const overlay = (page: Page, label: string) =>
  */
 function devicesDisabled(page: Page) {
     return page.locator('explore-map-view').evaluate((element) => {
-        const view = (window as DebugWindow).ng?.getComponent(element) as { options?: () => { disable?: string[] } } | undefined;
-        if (!view?.options) throw new Error('explore map options are unavailable');
+        const view = (window as DebugWindow).ng?.getComponent(element) as
+            | { options?: () => { disable?: string[] } }
+            | undefined;
+        if (!view?.options)
+            throw new Error('explore map options are unavailable');
         return !!view.options().disable?.includes('devices');
     });
 }
 
-test(
-    'explore.hide_zones false shows the Areas overlay toggle',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': false,
-            'app.explore.hide_devices': true,
-            'app.explore.hide_sensors': true,
-        });
-        await expect(overlay(staffPage, 'Areas')).toHaveCount(1);
-        await expect(overlay(staffPage, 'Areas')).toBeVisible();
-    },
-);
+test('explore.hide_zones false shows the Areas overlay toggle', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': false,
+        'app.explore.hide_devices': true,
+        'app.explore.hide_sensors': true,
+    });
+    await expect(overlay(staffPage, 'Areas')).toHaveCount(1);
+    await expect(overlay(staffPage, 'Areas')).toBeVisible();
+});
 
-test(
-    'explore.hide_zones true removes the Areas overlay toggle',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': true,
-            'app.explore.hide_sensors': true,
-        });
-        await expect(overlay(staffPage, 'Areas')).toHaveCount(0);
-    },
-);
+test('explore.hide_zones true removes the Areas overlay toggle', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': true,
+        'app.explore.hide_sensors': true,
+    });
+    await expect(overlay(staffPage, 'Areas')).toHaveCount(0);
+});
 
-test(
-    'explore.hide_devices false shows the Show Devices overlay toggle',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': false,
-            'app.explore.hide_sensors': true,
-        });
-        await expect(overlay(staffPage, 'Show Devices')).toHaveCount(1);
-        await expect(overlay(staffPage, 'Show Devices')).toBeVisible();
-    },
-);
+test('explore.hide_devices false shows the Show Devices overlay toggle', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': false,
+        'app.explore.hide_sensors': true,
+    });
+    await expect(overlay(staffPage, 'Show Devices')).toHaveCount(1);
+    await expect(overlay(staffPage, 'Show Devices')).toBeVisible();
+});
 
-test(
-    'explore.hide_devices true removes the Show Devices overlay toggle',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': true,
-            'app.explore.hide_sensors': true,
-        });
-        await expect(overlay(staffPage, 'Show Devices')).toHaveCount(0);
-    },
-);
+test('explore.hide_devices true removes the Show Devices overlay toggle', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': true,
+        'app.explore.hide_sensors': true,
+    });
+    await expect(overlay(staffPage, 'Show Devices')).toHaveCount(0);
+});
 
-test(
-    'explore.hide_sensors false shows the Show Sensors overlay toggle',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': true,
-            'app.explore.hide_sensors': false,
-        });
-        await expect(overlay(staffPage, 'Show Sensors')).toHaveCount(1);
-        await expect(overlay(staffPage, 'Show Sensors')).toBeVisible();
-    },
-);
+test('explore.hide_sensors false shows the Show Sensors overlay toggle', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': true,
+        'app.explore.hide_sensors': false,
+    });
+    await expect(overlay(staffPage, 'Show Sensors')).toHaveCount(1);
+    await expect(overlay(staffPage, 'Show Sensors')).toBeVisible();
+});
 
-test(
-    'explore.hide_sensors true removes the Show Sensors overlay toggle',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': true,
-            'app.explore.hide_sensors': true,
-        });
-        await expect(overlay(staffPage, 'Show Sensors')).toHaveCount(0);
-    },
-);
+test('explore.hide_sensors true removes the Show Sensors overlay toggle', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': true,
+        'app.explore.hide_sensors': true,
+    });
+    await expect(overlay(staffPage, 'Show Sensors')).toHaveCount(0);
+});
 
-test(
-    'explore.disable devices hides the Show Devices toggle and keeps devices disabled',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': false,
-            'app.explore.hide_sensors': false,
-            'app.explore.disable': ['devices'],
-        });
-        // Show Sensors renders in the same overlay list, so the list is on screen.
-        await expect(overlay(staffPage, 'Show Sensors')).toBeVisible();
-        await expect(overlay(staffPage, 'Show Devices')).toHaveCount(0);
-        await expect
-            .poll(() => devicesDisabled(staffPage), { message: 'devices disabled by explore.disable' })
-            .toBe(true);
-    },
-);
+test('explore.disable devices hides the Show Devices toggle and keeps devices disabled', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': false,
+        'app.explore.hide_sensors': false,
+        'app.explore.disable': ['devices'],
+    });
+    // Show Sensors renders in the same overlay list, so the list is on screen.
+    await expect(overlay(staffPage, 'Show Sensors')).toBeVisible();
+    await expect(overlay(staffPage, 'Show Devices')).toHaveCount(0);
+    await expect
+        .poll(() => devicesDisabled(staffPage), {
+            message: 'devices disabled by explore.disable',
+        })
+        .toBe(true);
+});
 
-test(
-    'explore.disable without devices allows the Show Devices toggle to turn on',
-    async ({ staffPage }) => {
-        await openExplore(staffPage, {
-            'app.explore.hide_zones': true,
-            'app.explore.hide_devices': false,
-            'app.explore.hide_sensors': true,
-            'app.explore.disable': [],
-        });
-        const toggle = overlay(staffPage, 'Show Devices').locator('button').first();
-        await expect(toggle).toHaveCount(1);
-        // Devices start disabled (ExploreStateService.reset); the same click
-        // enables them here, which proves the click is handled.
-        await expect
-            .poll(() => devicesDisabled(staffPage), { message: 'devices disabled before the click' })
-            .toBe(true);
-        await expect(toggle).toHaveAttribute('aria-checked', 'false');
-        await toggle.click();
-        await expect
-            .poll(() => devicesDisabled(staffPage), { message: 'devices enabled after the click' })
-            .toBe(false);
-        await expect(toggle).toHaveAttribute('aria-checked', 'true');
-    },
-);
+test('explore.disable without devices allows the Show Devices toggle to turn on', async ({
+    staffPage,
+}) => {
+    await openExplore(staffPage, {
+        'app.explore.hide_zones': true,
+        'app.explore.hide_devices': false,
+        'app.explore.hide_sensors': true,
+        'app.explore.disable': [],
+    });
+    const toggle = overlay(staffPage, 'Show Devices').locator('button').first();
+    await expect(toggle).toHaveCount(1);
+    // Devices start disabled (ExploreStateService.reset); the same click
+    // enables them here, which proves the click is handled.
+    await expect
+        .poll(() => devicesDisabled(staffPage), {
+            message: 'devices disabled before the click',
+        })
+        .toBe(true);
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+    await toggle.click();
+    await expect
+        .poll(() => devicesDisabled(staffPage), {
+            message: 'devices enabled after the click',
+        })
+        .toBe(false);
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+});

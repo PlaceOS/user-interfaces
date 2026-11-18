@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';

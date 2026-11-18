@@ -1,9 +1,9 @@
 import { DatePipe } from '@angular/common';
 import {
     Component,
-    OnInit,
     effect,
     inject,
+    OnInit,
     signal,
     untracked,
 } from '@angular/core';
@@ -51,10 +51,7 @@ import {
                     </div>
                 </div>
             </header>
-            <kiosk-location-picker
-                #picker
-                (submitted)="bootstrapKiosk($event)"
-            >
+            <kiosk-location-picker #picker (submitted)="bootstrapKiosk($event)">
                 @if (picker.active_level()?.tags.includes('parking')) {
                     <settings-toggle
                         [ngModel]="parking()"

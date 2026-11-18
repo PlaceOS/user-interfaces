@@ -63,9 +63,11 @@ test.describe('Group Events', () => {
             timeout: LOAD_TIMEOUT,
         });
         await expect(
-            page.locator(
-                '[group-events] img, [group-events] group-events-sidebar',
-            ).first(),
+            page
+                .locator(
+                    '[group-events] img, [group-events] group-events-sidebar',
+                )
+                .first(),
         ).toBeAttached({ timeout: LOAD_TIMEOUT });
     });
 });

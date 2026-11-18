@@ -28,7 +28,10 @@ import { expect, test } from '../../../../e2e/support/fixtures';
 import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
-import { bookRoomViaUI, setDate } from '../../../../e2e/support/room/room.flows';
+import {
+    bookRoomViaUI,
+    setDate,
+} from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     LIMITED_HOURS,
@@ -124,7 +127,11 @@ test.describe('room booking times', () => {
         await form.open();
         // A day with all of its hours ahead of it. Today offers only what is
         // left of the bookable hours, which can be nothing.
-        await setDate(form, staffPage, slotFor(ROOM_SLOTS.times.limits).date_ms);
+        await setDate(
+            form,
+            staffPage,
+            slotFor(ROOM_SLOTS.times.limits).date_ms,
+        );
 
         const lengths = await form.durationOptions();
         expect(

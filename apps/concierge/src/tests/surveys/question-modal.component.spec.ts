@@ -1,5 +1,5 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';

@@ -16,10 +16,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     CalendarEvent,
+    HashMap,
     OrganisationService,
     SettingsService,
     getTimezoneOffsetString,
-    HashMap,
     notifyError,
     notifySuccess,
 } from '@placeos/common';

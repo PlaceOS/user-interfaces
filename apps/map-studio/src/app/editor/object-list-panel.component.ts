@@ -148,7 +148,8 @@ export class ObjectListPanelComponent {
     public readonly asValue = (event: Event) =>
         (event.target as HTMLInputElement).value;
 
-    public readonly colorFor = (type: string) => TYPE_ACCENT_COLORS[type] ?? '#6b7280';
+    public readonly colorFor = (type: string) =>
+        TYPE_ACCENT_COLORS[type] ?? '#6b7280';
 
     public readonly plural = (type: string) =>
         type === 'amenity' ? 'amenities' : `${type}s`;

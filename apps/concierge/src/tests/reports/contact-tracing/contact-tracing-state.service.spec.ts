@@ -1,10 +1,14 @@
+import { signal } from '@angular/core';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { signal } from '@angular/core';
 
-import { OrganisationService, SettingsService, setNotifyOutlet } from '@placeos/common';
+import {
+    OrganisationService,
+    setNotifyOutlet,
+    SettingsService,
+} from '@placeos/common';
 import { ContactTracingStateService } from 'apps/concierge/src/app/reports/contact-tracing/contact-tracing-state.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 import { captureDownloads } from '../download-capture.helper';

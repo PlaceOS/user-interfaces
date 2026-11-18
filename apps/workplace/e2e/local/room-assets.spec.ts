@@ -84,27 +84,30 @@
  * The group offered is the asset TYPE, not an individual unit: the app allocates
  * specific units itself.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     listBookings,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { equipmentCatalogue } from '../../../../e2e/support/room/asset.seed';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import {
     ROOM_SLOTS_3,
     THIRD_DAY,
     slotFor,
 } from '../../../../e2e/support/room/room.env';
+import {
+    bookRoomViaUI,
+    setDate,
+} from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { equipmentCatalogue } from '../../../../e2e/support/room/asset.seed';
-import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import {
     ROOM_ASSETS_MODE,
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
-import { bookRoomViaUI, setDate } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -115,7 +118,12 @@ async function ourAssetRequests(
     api: Parameters<typeof listBookings>[0],
     unit_ids: string[],
 ) {
-    const all = await listBookings(api, 'asset-request', window_from(), window_to());
+    const all = await listBookings(
+        api,
+        'asset-request',
+        window_from(),
+        window_to(),
+    );
     return all.filter((booking) => {
         const ids = [
             booking.asset_id,
@@ -145,7 +153,10 @@ test.describe('room booking equipment requests', () => {
             await deleteBooking(staffApi, stale.id);
         }
 
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...ROOM_ASSETS_MODE });
+        await useSettings(staffPage, {
+            ...ROOM_BASE_SETTINGS,
+            ...ROOM_ASSETS_MODE,
+        });
 
         try {
             // Through the shared flow rather than the page object directly. It
@@ -153,11 +164,17 @@ test.describe('room booking equipment requests', () => {
             // the room before the equipment — and getting that wrong is what
             // made the first attempt at this spec fail on a start time the form
             // had never been asked to offer.
-            const meeting = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                startTime: `${String(ROOM_SLOTS_3.assets.hour).padStart(2, '0')}:00`,
-                assets: [kit.type_name],
-            });
+            const meeting = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    startTime: `${String(ROOM_SLOTS_3.assets.hour).padStart(2, '0')}:00`,
+                    assets: [kit.type_name],
+                },
+            );
             expect(
                 meeting?.id,
                 'the meeting itself was not stored, so nothing can be said about its ' +
@@ -166,16 +183,20 @@ test.describe('room booking equipment requests', () => {
 
             // 2. The request reached the backend as its own booking.
             await expect
-                .poll(async () => (await ourAssetRequests(staffApi, unit_ids)).length, {
-                    message:
-                        'no `asset-request` booking was stored. This is the quiet ' +
-                        'failure the test exists for: the meeting is booked, the screen ' +
-                        'says it worked, and the equipment was never requested. If the ' +
-                        'response was 422 "error linking booking to event", equipment ' +
-                        'has regressed onto the calendar-only path that breaks catering ' +
-                        '(ROOM-B5)',
-                    timeout: 25_000,
-                })
+                .poll(
+                    async () =>
+                        (await ourAssetRequests(staffApi, unit_ids)).length,
+                    {
+                        message:
+                            'no `asset-request` booking was stored. This is the quiet ' +
+                            'failure the test exists for: the meeting is booked, the screen ' +
+                            'says it worked, and the equipment was never requested. If the ' +
+                            'response was 422 "error linking booking to event", equipment ' +
+                            'has regressed onto the calendar-only path that breaks catering ' +
+                            '(ROOM-B5)',
+                        timeout: 25_000,
+                    },
+                )
                 .toBe(1);
 
             const [request] = await ourAssetRequests(staffApi, unit_ids);
@@ -207,7 +228,10 @@ test.describe('room booking equipment requests', () => {
             // 5. It is tied back to the meeting rather than floating free. The
             //    native path links by `parent_id` (assets.fn.ts) rather than by
             //    `event_id`, so accept either and say which was found.
-            const extension = (request.extension_data ?? {}) as Record<string, unknown>;
+            const extension = (request.extension_data ?? {}) as Record<
+                string,
+                unknown
+            >;
             const link =
                 (request as Record<string, unknown>).parent_id ??
                 extension.parent_id ??
@@ -307,7 +331,9 @@ test.describe('room booking equipment requests', () => {
                     `If it still offers all of them, availability is not reading ` +
                     `existing asset-request bookings and two meetings can be given ` +
                     `the same projector`,
-            ).toHaveText(new RegExp(`(^|\\D)${free}(\\D|$)`), { timeout: 25_000 });
+            ).toHaveText(new RegExp(`(^|\\D)${free}(\\D|$)`), {
+                timeout: 25_000,
+            });
         } finally {
             for (const id of held) await deleteBooking(staffApi, id);
             for (const stale of await ourAssetRequests(staffApi, unit_ids)) {

@@ -8,9 +8,9 @@ import {
     Space,
 } from '@placeos/common';
 import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
+import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
 import { from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, shareReplay, tap } from 'rxjs/operators';
-import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
 import { updateSpaceList } from './space.pipe';
 
 const SPACE_LIST_REQUESTS: Record<string, Observable<Space[]>> = {};
@@ -132,9 +132,7 @@ export function generateSystemsFormFields(
         onFieldChange(
             model,
             (value) => value.zone,
-            (zone) =>
-                zone &&
-                model.update((m) => ({ ...m, zones: [zone.id] })),
+            (zone) => zone && model.update((m) => ({ ...m, zones: [zone.id] })),
             injector,
         );
     }

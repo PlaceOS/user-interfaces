@@ -146,10 +146,14 @@ export async function isLive(
         },
     });
     if (!res.ok()) {
-        throw new Error(`GET /bookings failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /bookings failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
-    const list: ScheduleBooking[] = Array.isArray(body) ? body : (body.results ?? []);
+    const list: ScheduleBooking[] = Array.isArray(body)
+        ? body
+        : (body.results ?? []);
     return list.some((b) => Number(b.id) === id && !b.deleted);
 }
 
@@ -160,7 +164,9 @@ export async function readBooking(
 ): Promise<ScheduleBooking> {
     const res = await api.get(`${STAFF_API}/bookings/${id}`);
     if (!res.ok()) {
-        throw new Error(`GET /bookings/${id} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /bookings/${id} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return res.json();
 }
@@ -178,7 +184,8 @@ export async function deleteGuestByEmail(
         const body = await res.json();
         const list = Array.isArray(body) ? body : (body.results ?? []);
         for (const guest of list) {
-            if (`${guest.email}`.toLowerCase() !== email.toLowerCase()) continue;
+            if (`${guest.email}`.toLowerCase() !== email.toLowerCase())
+                continue;
             await api.delete(`${STAFF_API}/guests/${guest.id ?? guest.email}`);
         }
     } catch {

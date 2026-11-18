@@ -31,12 +31,12 @@
  * invisible to one of them. `ensureParkingSpaces` handles that and is
  * idempotent, so it reuses whatever the workplace parking seeder already built.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import {
     cleanUpBookings,
     createBookingFor,
     ensureParkingSpaces,
 } from '../../../../e2e/support/concierge/concierge.api';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import {
     columnIndex,
     LIVE_ONLY,
@@ -73,7 +73,7 @@ test.describe('concierge parking', () => {
         await cleanUpBookings(adminApi, created.splice(0));
     });
 
-    test('CON-PARK-01: the parking listing shows another user\'s booking, naming them and the booker', async ({
+    test("CON-PARK-01: the parking listing shows another user's booking, naming them and the booker", async ({
         adminPage,
         adminApi,
     }) => {
@@ -101,7 +101,9 @@ test.describe('concierge parking', () => {
         // because cancelled bookings stay on this listing forever, so by the
         // second run the space name matches this booking AND last run's
         // cancelled one, and `waitForRow` refuses to guess between them.
-        const row = await waitForRow(adminPage, space.name, { where: LIVE_ONLY });
+        const row = await waitForRow(adminPage, space.name, {
+            where: LIVE_ONLY,
+        });
         const snapshot = await readTable(adminPage);
 
         expect(
@@ -115,10 +117,13 @@ test.describe('concierge parking', () => {
 
         // The row is proof the screen shows it; this is proof it is the booking
         // we made, and that the listing is not showing a stale copy.
-        const stored = await adminApi.get(`/api/staff/v1/bookings/${booking.id}`);
-        expect(stored.ok(), 'the booking should still exist on the backend').toBe(
-            true,
+        const stored = await adminApi.get(
+            `/api/staff/v1/bookings/${booking.id}`,
         );
+        expect(
+            stored.ok(),
+            'the booking should still exist on the backend',
+        ).toBe(true);
         expect((await stored.json()).user_email).toBe(HOLDER.email);
     });
 

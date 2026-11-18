@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { NEVER, of } from 'rxjs';
 
@@ -102,7 +105,9 @@ describe('BuildingManagementService', () => {
     });
 
     it('should add the returned zone after editing a building', () => {
-        dialog_open.mockReturnValue({ afterClosed: () => of({ id: 'new-bld' }) });
+        dialog_open.mockReturnValue({
+            afterClosed: () => of({ id: 'new-bld' }),
+        });
         spectator.service.editBuilding();
         expect(dialog_open).toHaveBeenCalled();
         expect(org.addZone).toHaveBeenCalledWith({ id: 'new-bld' });
@@ -117,7 +122,10 @@ describe('BuildingManagementService', () => {
     it('should remove the building when the confirmation is accepted', async () => {
         const close = confirmRef('done');
 
-        await spectator.service.removeBuilding({ id: 'b1', name: 'Alpha Tower' } as any);
+        await spectator.service.removeBuilding({
+            id: 'b1',
+            name: 'Alpha Tower',
+        } as any);
 
         expect(ts_client.removeZone).toHaveBeenCalledWith('b1');
         expect(org.removeZone).toHaveBeenCalledWith(
@@ -134,7 +142,10 @@ describe('BuildingManagementService', () => {
     it('should abort removal when the confirmation is cancelled', async () => {
         const close = confirmRef('cancel');
 
-        await spectator.service.removeBuilding({ id: 'b1', name: 'Alpha Tower' } as any);
+        await spectator.service.removeBuilding({
+            id: 'b1',
+            name: 'Alpha Tower',
+        } as any);
 
         expect(ts_client.removeZone).not.toHaveBeenCalled();
         expect(org.removeZone).not.toHaveBeenCalled();

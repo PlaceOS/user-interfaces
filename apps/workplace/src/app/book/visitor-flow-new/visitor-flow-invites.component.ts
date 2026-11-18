@@ -57,7 +57,9 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                                             | translate
                                     "
                                     (focus)="
-                                        search_term.set(model().asset_name || '')
+                                        search_term.set(
+                                            model().asset_name || ''
+                                        )
                                     "
                                     [matAutocomplete]="name_auto"
                                 />

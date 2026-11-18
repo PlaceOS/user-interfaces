@@ -42,7 +42,9 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
     const auth = { Authorization: `Bearer ${m.accessToken}` };
 
     const zones = (
-        await (await fetch(`${B}/api/engine/v2/zones?limit=100`, { headers: auth })).json()
+        await (
+            await fetch(`${B}/api/engine/v2/zones?limit=100`, { headers: auth })
+        ).json()
     ).map((z: any) => z.id);
     const me = await (
         await fetch(`${B}/api/engine/v2/users/current`, { headers: auth })

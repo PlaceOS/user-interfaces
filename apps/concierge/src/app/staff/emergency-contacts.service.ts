@@ -89,9 +89,8 @@ export class EmergencyContactsService {
                 zone_id: bld.id,
             } as any);
             return (
-                data.find(
-                    (c) => c.name === EMERGENCY_CONTACTS_CATEGORY_NAME,
-                ) || null
+                data.find((c) => c.name === EMERGENCY_CONTACTS_CATEGORY_NAME) ||
+                null
             );
         } catch {
             return null;
@@ -157,7 +156,10 @@ export class EmergencyContactsService {
         id: string;
     }): Promise<EmergencyContactData> {
         try {
-            const { details } = await showMetadata(bld.id, 'emergency_contacts');
+            const { details } = await showMetadata(
+                bld.id,
+                'emergency_contacts',
+            );
             return (
                 (details as EmergencyContactData) || {
                     contacts: [],

@@ -12,13 +12,48 @@ import { expect, test } from './fixtures';
 const LOAD_TIMEOUT = 30000;
 
 const FLOWS = [
-    { id: 'US-020', name: 'desk', url: '/#/book/desk/form?mock=true', selector: 'desk-flow-new' },
-    { id: 'US-021', name: 'meeting room', url: '/#/book/meeting/form?mock=true', selector: 'meeting-flow-new' },
-    { id: 'US-022', name: 'parking', url: '/#/book/parking/form?mock=true', selector: 'placeos-parking-flow' },
-    { id: 'US-023', name: 'parking request', url: '/#/book/parking-request/form?mock=true', selector: 'placeos-parking-request-flow' },
-    { id: 'US-024', name: 'visitor', url: '/#/book/visitor/form?mock=true', selector: 'visitor-flow-new' },
-    { id: 'US-025', name: 'locker', url: '/#/book/locker/form?mock=true', selector: 'placeos-book-locker-flow' },
-    { id: 'US-026', name: 'code', url: '/#/book/code?mock=true', selector: 'book-code-flow' },
+    {
+        id: 'US-020',
+        name: 'desk',
+        url: '/#/book/desk/form?mock=true',
+        selector: 'desk-flow-new',
+    },
+    {
+        id: 'US-021',
+        name: 'meeting room',
+        url: '/#/book/meeting/form?mock=true',
+        selector: 'meeting-flow-new',
+    },
+    {
+        id: 'US-022',
+        name: 'parking',
+        url: '/#/book/parking/form?mock=true',
+        selector: 'placeos-parking-flow',
+    },
+    {
+        id: 'US-023',
+        name: 'parking request',
+        url: '/#/book/parking-request/form?mock=true',
+        selector: 'placeos-parking-request-flow',
+    },
+    {
+        id: 'US-024',
+        name: 'visitor',
+        url: '/#/book/visitor/form?mock=true',
+        selector: 'visitor-flow-new',
+    },
+    {
+        id: 'US-025',
+        name: 'locker',
+        url: '/#/book/locker/form?mock=true',
+        selector: 'placeos-book-locker-flow',
+    },
+    {
+        id: 'US-026',
+        name: 'code',
+        url: '/#/book/code?mock=true',
+        selector: 'book-code-flow',
+    },
 ] as const;
 
 test.describe('Booking flows', () => {

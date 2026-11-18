@@ -18,13 +18,16 @@
  */
 import { type BrowserContext } from '@playwright/test';
 import { apiFor, currentUser, ENGINE_API } from '../../../../e2e/support/api';
-import { calendarBacked } from '../../../../e2e/support/calendar/calendar.api';
 import { buildStorageState, mintToken } from '../../../../e2e/support/auth';
 import { pauseBackground } from '../../../../e2e/support/background';
+import {
+    SCHEDULE_DAYS,
+    slotOn,
+} from '../../../../e2e/support/bookings/bookings.env';
+import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { calendarBacked } from '../../../../e2e/support/calendar/calendar.api';
 import { APP_URL, BACKEND_URL } from '../../../../e2e/support/env';
 import { test as base, expect } from '../../../../e2e/support/fixtures';
-import { SCHEDULE_DAYS, slotOn } from '../../../../e2e/support/bookings/bookings.env';
-import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 
 // Override only this spec's page; shared worker identities remain untouched.
 const test = base.extend({
@@ -57,7 +60,12 @@ const test = base.extend({
             expect(created.ok(), 'temporary empty-user creation').toBe(true);
             user_id = (await created.json()).id;
             expect(user_id).toBeTruthy();
-            const token = await mintToken(BACKEND_URL, APP_URL, email, password);
+            const token = await mintToken(
+                BACKEND_URL,
+                APP_URL,
+                email,
+                password,
+            );
             context = await browser.newContext({
                 storageState: buildStorageState(token, APP_URL),
             });
@@ -83,8 +91,10 @@ const test = base.extend({
                         `${ENGINE_API}/users/${user_id}`,
                         { timeout: 5_000 },
                     );
-                    expect(deleted.ok() || deleted.status() === 404,
-                        'temporary empty-user cleanup').toBe(true);
+                    expect(
+                        deleted.ok() || deleted.status() === 404,
+                        'temporary empty-user cleanup',
+                    ).toBe(true);
                 }
             } finally {
                 try {
@@ -121,7 +131,9 @@ test.describe('your bookings — an empty day', () => {
         // panel, so that is what is asserted, plus any 5xx below.
         const problems: string[] = [];
         const server_errors: string[] = [];
-        staffPage.on('pageerror', (error) => problems.push(`pageerror: ${error.message}`));
+        staffPage.on('pageerror', (error) =>
+            problems.push(`pageerror: ${error.message}`),
+        );
         staffPage.on('response', (r) => {
             if (r.status() < 500) return;
             server_errors.push(`${r.status()} ${new URL(r.url()).pathname}`);

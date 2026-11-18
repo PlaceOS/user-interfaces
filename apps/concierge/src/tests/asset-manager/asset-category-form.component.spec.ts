@@ -4,8 +4,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetCategoryFormComponent } from '../../app/asset-manager/asset-category-form.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -35,7 +35,9 @@ describe('AssetCategoryFormComponent', () => {
         (ts_client.updateAssetCategory as any).mockResolvedValue({
             id: 'saved-1',
         });
-        (ts_client.addAssetCategory as any).mockResolvedValue({ id: 'saved-1' });
+        (ts_client.addAssetCategory as any).mockResolvedValue({
+            id: 'saved-1',
+        });
         spectator = createComponent({
             providers: [
                 { provide: MatDialogRef, useValue: dialog_ref },

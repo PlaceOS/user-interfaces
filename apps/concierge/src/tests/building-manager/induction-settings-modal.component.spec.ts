@@ -2,8 +2,8 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -90,7 +90,9 @@ describe('InductionSettingsModalComponent', () => {
             description: '',
             details: {},
         });
-        spectator.component.induction_details.set('Please sign in at reception');
+        spectator.component.induction_details.set(
+            'Please sign in at reception',
+        );
         spectator.component.is_enabled.set(true);
 
         await spectator.component.save();
@@ -100,7 +102,9 @@ describe('InductionSettingsModalComponent', () => {
             (_) => _[1].details,
         );
         for (const details of bodies) {
-            expect(details.induction_details).toBe('Please sign in at reception');
+            expect(details.induction_details).toBe(
+                'Please sign in at reception',
+            );
             expect(details.induction_enabled).toBe(true);
         }
         expect(notify_open).toHaveBeenCalledWith(

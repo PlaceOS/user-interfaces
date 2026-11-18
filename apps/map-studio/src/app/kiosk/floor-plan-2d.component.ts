@@ -1,10 +1,10 @@
 import {
-    Component,
-    DestroyRef,
-    ElementRef,
     afterNextRender,
+    Component,
     computed,
+    DestroyRef,
     effect,
+    ElementRef,
     inject,
     input,
     linkedSignal,

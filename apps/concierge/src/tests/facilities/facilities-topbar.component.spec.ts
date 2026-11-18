@@ -1,7 +1,10 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 

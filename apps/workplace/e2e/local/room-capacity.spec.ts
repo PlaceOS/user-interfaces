@@ -35,19 +35,30 @@
  * once. So the control of test 1 is a booking that goes through, and the test
  * deletes it afterwards.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, listBookings, uniqueTitle } from '../../../../e2e/support/api';
+import {
+    deleteBooking,
+    listBookings,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
-import { type RoomBooking, releaseRoom } from '../../../../e2e/support/room/room.api';
-import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import {
+    type RoomBooking,
+    releaseRoom,
+} from '../../../../e2e/support/room/room.api';
+import {
+    ROOM_SLOTS_2,
+    SECOND_DAY,
+    slotFor,
+} from '../../../../e2e/support/room/room.env';
+import { setDate } from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     ROOM_BASE_SETTINGS,
     STRICT_CAPACITY,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
-import { setDate } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -63,7 +74,10 @@ test.describe('room capacity', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers for a second address');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers for a second address',
+        );
 
         const small = await roomForWorker(mine, 'small');
         const slot = slotFor(ROOM_SLOTS_2.capacity.strict, SECOND_DAY);
@@ -72,7 +86,10 @@ test.describe('room capacity', () => {
         let booking_id: number | undefined;
 
         await releaseRoom(staffApi, small.id, window_from(), window_to());
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...STRICT_CAPACITY });
+        await useSettings(staffPage, {
+            ...ROOM_BASE_SETTINGS,
+            ...STRICT_CAPACITY,
+        });
 
         // Watch every booking write, not just the successful ones. The point of
         // this test is that the backend is never asked at all, and a request
@@ -125,7 +142,9 @@ test.describe('room capacity', () => {
                 ),
                 form.confirm.click(),
             ]);
-            const body = await response.text().catch(() => '<body unavailable>');
+            const body = await response
+                .text()
+                .catch(() => '<body unavailable>');
             expect(
                 response.ok(),
                 'with the meeting back inside the room capacity the booking must go ' +
@@ -151,7 +170,10 @@ test.describe('room capacity', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers for a second address');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers for a second address',
+        );
 
         const room = await roomForWorker(mine);
         const small = await roomForWorker(mine, 'small');
@@ -223,14 +245,17 @@ test.describe('room capacity', () => {
                 window_to(),
             )) as RoomBooking[];
             const made = live.find(
-                (b) => `${b.extension_data?.title ?? ''}` === title && !b.deleted,
+                (b) =>
+                    `${b.extension_data?.title ?? ''}` === title && !b.deleted,
             );
             expect(
                 made,
                 'a booking should exist for the over-capacity meeting that was warned ' +
                     'about and confirmed anyway',
             ).toBeTruthy();
-            expect(made?.asset_id, 'and it holds the small room').toBe(small.id);
+            expect(made?.asset_id, 'and it holds the small room').toBe(
+                small.id,
+            );
             booking_id = made?.id;
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);

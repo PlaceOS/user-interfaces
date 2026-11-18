@@ -3,7 +3,6 @@ import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TriggerConditionOperator } from '@placeos/ts-client';
 
-
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { queryModules, systemModuleState } from '@placeos/ts-client';
@@ -26,11 +25,11 @@ function makeField(initial: any) {
 }
 
 /** Build a mock comparison form tree matching what the component reads */
-function makeCompareForm(opts: { left?: any; right?: any; operator?: any } = {}) {
+function makeCompareForm(
+    opts: { left?: any; right?: any; operator?: any } = {},
+) {
     return {
-        left: makeField(
-            opts.left ?? { mod: '', status: '', keys: [] },
-        ),
+        left: makeField(opts.left ?? { mod: '', status: '', keys: [] }),
         right: makeField(opts.right ?? ''),
         operator: makeField(opts.operator ?? TriggerConditionOperator.EQ),
     };
@@ -87,7 +86,9 @@ describe('AlertConditionComparisonFormComponent', () => {
 
         it('returns at least 1 for a module missing from the list', () => {
             const list = [{ id: 'a', name: 'Display' }] as any[];
-            expect(calculateModuleIndex(list, { id: 'z', name: 'Other' } as any)).toBe(1);
+            expect(
+                calculateModuleIndex(list, { id: 'z', name: 'Other' } as any),
+            ).toBe(1);
         });
     });
 
@@ -103,7 +104,11 @@ describe('AlertConditionComparisonFormComponent', () => {
 
     it('splits comma separated sub-key input into an array', () => {
         spectator.component.setSideKeys('left', 'x,y,z');
-        expect(spectator.component.sideData('left').keys).toEqual(['x', 'y', 'z']);
+        expect(spectator.component.sideData('left').keys).toEqual([
+            'x',
+            'y',
+            'z',
+        ]);
     });
 
     it('updates the module and status of a side independently', () => {
@@ -158,7 +163,11 @@ describe('AlertConditionComparisonFormComponent', () => {
             spectator.component.loadSystemStatusVariables('Display_1', 'left');
             await flush();
 
-            expect(systemModuleState).toHaveBeenCalledWith('sys-1', 'Display', 1);
+            expect(systemModuleState).toHaveBeenCalledWith(
+                'sys-1',
+                'Display',
+                1,
+            );
             expect(
                 spectator.component.left_status_variables().map((_) => _.id),
             ).toEqual(['power', 'volume']);
@@ -215,7 +224,11 @@ describe('AlertConditionComparisonFormComponent', () => {
             'Display_1',
         ]);
         // the index is the last part of the name, the class the rest
-        expect(systemModuleState).toHaveBeenCalledWith('sys-1', 'Camera_Main', 2);
+        expect(systemModuleState).toHaveBeenCalledWith(
+            'sys-1',
+            'Camera_Main',
+            2,
+        );
         expect(systemModuleState).toHaveBeenCalledWith('sys-1', 'Display', 1);
         expect(
             spectator.component.left_status_variables().map((_) => _.id),
@@ -247,7 +260,9 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
         await flush();
 
-        expect(queryModules).toHaveBeenCalledWith({ control_system_id: 'sys-1' });
+        expect(queryModules).toHaveBeenCalledWith({
+            control_system_id: 'sys-1',
+        });
         expect(spectator.component.module_list().map((_) => _.name)).toEqual([
             'Display_1',
             'Display_2',

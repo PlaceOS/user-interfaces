@@ -191,11 +191,12 @@ export const createSettingsServiceMock = (
         saveUserSetting: test_mock.fn(),
         initialised: of(true),
         overrides$: of([]),
-        signal: test_mock.fn((name: string, default_value?: unknown, root = false) =>
-            computed(() => {
-                version();
-                return get(root ? name : `app.${name}`) ?? default_value;
-            }),
+        signal: test_mock.fn(
+            (name: string, default_value?: unknown, root = false) =>
+                computed(() => {
+                    version();
+                    return get(root ? name : `app.${name}`) ?? default_value;
+                }),
         ),
         time_format_signal: test_mock.fn(() =>
             get('app.use_24_hour_time') ? 'HH:mm' : 'h:mm a',

@@ -71,7 +71,12 @@
 // request is recorded and aborted, and fails the scenario.
 import type { Page, Route } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+    staffEmail,
+} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
@@ -81,10 +86,10 @@ import {
     clearOrganisationCache,
     expectSafe,
     getOnly,
-    guardedStaffTest as test,
     protectNetwork,
     syntheticOrg,
     syntheticOrgRoutes,
+    guardedStaffTest as test,
     validPeriod,
 } from '../support/settings-harness';
 
@@ -329,7 +334,11 @@ async function awayIdentity(page: Page) {
                         ...(user.work_overrides ?? {}),
                         [day]: {
                             blocks: [
-                                { start_time: 0, end_time: 24, location: 'wfh' },
+                                {
+                                    start_time: 0,
+                                    end_time: 24,
+                                    location: 'wfh',
+                                },
                             ],
                         },
                     },
@@ -352,7 +361,8 @@ async function syntheticGets(
     await syntheticOrgRoutes(page, ORG, {
         label: 'Auto Release',
         zone_metadata: ZONE_METADATA,
-        zone_details: (_id, name) => (name.endsWith('_booking_rules') ? [] : {}),
+        zone_details: (_id, name) =>
+            name.endsWith('_booking_rules') ? [] : {},
         user_metadata: ['settings', 'contacts'],
         user_id: identity.then((user) => user?.id),
     });

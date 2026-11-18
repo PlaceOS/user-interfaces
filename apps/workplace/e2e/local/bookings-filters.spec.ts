@@ -25,21 +25,21 @@
  *
  * Both seed through the API: the subject is the page, not the booking forms.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import {
+    createBookingViaApi,
+    deleteGuestByEmail,
+    releaseFor,
+} from '../../../../e2e/support/bookings/bookings.api';
 import {
     SCHEDULE_DAYS,
     dayBoundsOn,
     scheduleVisitorFor,
     slotOn,
 } from '../../../../e2e/support/bookings/bookings.env';
-import {
-    createBookingViaApi,
-    deleteGuestByEmail,
-    releaseFor,
-} from '../../../../e2e/support/bookings/bookings.api';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 
@@ -182,7 +182,9 @@ test.describe('your bookings — type filters', () => {
             } else {
                 // Say so rather than skipping silently: a missing chip is a
                 // layout difference, and the reload half below still applies.
-                console.warn('  ! no desk filter chip on screen; testing the reload only');
+                console.warn(
+                    '  ! no desk filter chip on screen; testing the reload only',
+                );
                 await schedule.setShown('desk', false);
             }
 

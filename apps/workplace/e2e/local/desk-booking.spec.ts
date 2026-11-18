@@ -14,10 +14,6 @@
  *    the desk for the remainder of the day and every later run would fail with
  *    something that looks unrelated.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
-import { bookDeskViaUI } from '../../../../e2e/support/flows';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     deleteBooking,
     getBooking,
@@ -25,6 +21,10 @@ import {
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { bookDeskViaUI } from '../../../../e2e/support/flows';
 
 /** Window wide enough to cover an all-day booking made in any timezone. */
 const DAY = 86_400;
@@ -40,27 +40,45 @@ test.describe('desk booking', () => {
         const title = uniqueTitle('E2E Desk');
         let booking_id: number | undefined;
 
-        const swept = await releaseAsset(staffApi, 'desk', desk.id, window_from(), window_to());
-        if (swept) console.log(`  swept ${swept} stale booking(s) off ${desk.id}`);
+        const swept = await releaseAsset(
+            staffApi,
+            'desk',
+            desk.id,
+            window_from(),
+            window_to(),
+        );
+        if (swept)
+            console.log(`  swept ${swept} stale booking(s) off ${desk.id}`);
 
         try {
             const created = await bookDeskViaUI(staffPage, desk.name, title);
             booking_id = created.id;
 
             expect(created.id, 'the API returned a booking id').toBeTruthy();
-            expect(created.asset_id, 'the booking is against this worker’s desk').toBe(desk.id);
-            expect(created.title, 'the title we typed reached the backend').toBe(title);
+            expect(
+                created.asset_id,
+                'the booking is against this worker’s desk',
+            ).toBe(desk.id);
+            expect(
+                created.title,
+                'the title we typed reached the backend',
+            ).toBe(title);
 
             // The UI reached its success state — proof the app believed it too,
             // not merely that a POST happened.
             const flow = new DeskFlow(staffPage);
             await expect(staffPage).toHaveURL(/#\/book\/desk\/success/);
             await expect(flow.successContinue).toBeVisible();
-            await expect(flow.success, 'the success view names the desk').toContainText(desk.name);
+            await expect(
+                flow.success,
+                'the success view names the desk',
+            ).toContainText(desk.name);
 
             // Read it back independently of the response we just parsed.
             const stored = await getBooking(staffApi, booking_id);
-            expect(stored.booking_type, 'stored as a desk booking').toBe('desk');
+            expect(stored.booking_type, 'stored as a desk booking').toBe(
+                'desk',
+            );
             expect(stored.asset_id).toBe(desk.id);
             expect(stored.title).toBe(title);
             expect(stored.deleted, 'not soft-deleted').toBeFalsy();
@@ -72,7 +90,12 @@ test.describe('desk booking', () => {
 
             // ...and that it is discoverable through the listing the app uses,
             // not only by direct id lookup.
-            const listed = await listBookings(staffApi, 'desk', window_from(), window_to());
+            const listed = await listBookings(
+                staffApi,
+                'desk',
+                window_from(),
+                window_to(),
+            );
             expect(
                 listed.map((b) => b.id),
                 'the new booking appears in the desk listing',
@@ -82,22 +105,35 @@ test.describe('desk booking', () => {
         }
     });
 
-    test('a deleted desk booking leaves the listing', async ({ staffPage, staffApi }, testInfo) => {
+    test('a deleted desk booking leaves the listing', async ({
+        staffPage,
+        staffApi,
+    }, testInfo) => {
         const desk = deskFor(testInfo.parallelIndex);
         const title = uniqueTitle('E2E Desk Cleanup');
 
-        await releaseAsset(staffApi, 'desk', desk.id, window_from(), window_to());
+        await releaseAsset(
+            staffApi,
+            'desk',
+            desk.id,
+            window_from(),
+            window_to(),
+        );
 
         const created = await bookDeskViaUI(staffPage, desk.name, title);
         expect(
-            (await listBookings(staffApi, 'desk', window_from(), window_to())).map((b) => b.id),
+            (
+                await listBookings(staffApi, 'desk', window_from(), window_to())
+            ).map((b) => b.id),
             'precondition: the booking is in the listing before we delete it',
         ).toContain(created.id);
 
         await deleteBooking(staffApi, created.id);
 
         expect(
-            (await listBookings(staffApi, 'desk', window_from(), window_to())).map((b) => b.id),
+            (
+                await listBookings(staffApi, 'desk', window_from(), window_to())
+            ).map((b) => b.id),
             'a deleted booking must not come back in the listing — otherwise every ' +
                 'spec teardown silently leaks state into the next run',
         ).not.toContain(created.id);

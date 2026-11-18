@@ -4,8 +4,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { ReportSpacesUserListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-user-listing.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
+import { ReportSpacesUserListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-user-listing.component';
 
 describe('ReportSpacesUserListingComponent', () => {
     let spectator: Spectator<ReportSpacesUserListingComponent>;
@@ -29,9 +29,7 @@ describe('ReportSpacesUserListingComponent', () => {
     beforeEach(() => {
         stats = signal<unknown>({ events: [] });
         spectator = createComponent({
-            providers: [
-                { provide: ReportsStateService, useValue: { stats } },
-            ],
+            providers: [{ provide: ReportsStateService, useValue: { stats } }],
         });
     });
 

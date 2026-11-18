@@ -17,7 +17,6 @@
  * caller's own bookings would pass a same-user test and still let two colleagues
  * take one space.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
 import {
     deleteBooking,
@@ -25,22 +24,33 @@ import {
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { APP_URL, BACKEND_URL, WORKERS, roleFor } from '../../../../e2e/support/env';
 import { mintToken } from '../../../../e2e/support/auth';
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    roleFor,
+} from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    createParkingBookingViaApi,
+    tryParkingBooking,
+} from '../../../../e2e/support/parking/parking.api';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
     slotOn,
 } from '../../../../e2e/support/parking/parking.env';
 import { spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
-import {
-    createParkingBookingViaApi,
-    tryParkingBooking,
-} from '../../../../e2e/support/parking/parking.api';
 
 async function apiAsOtherUser(workerIndex: number) {
     const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        APP_URL,
+        role.email,
+        role.password,
+    );
     return request.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -54,7 +64,10 @@ test.describe('parking double-booking', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const space = await spaceForWorker(mine);
         const slot = slotOn(PARKING_SLOTS.clash.day, PARKING_SLOTS.clash.hour);
@@ -142,7 +155,10 @@ test.describe('parking double-booking', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const space = await spaceForWorker(mine);
         const slot = slotOn(PARKING_SLOTS.freed.day, PARKING_SLOTS.freed.hour);

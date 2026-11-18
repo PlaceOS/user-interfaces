@@ -1,11 +1,11 @@
-import {
-    createRoutingFactory,
-    SpectatorRouting,
-} from '@ngneat/spectator/vitest';
 import { Location } from '@angular/common';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DefaultUrlSerializer, UrlTree } from '@angular/router';
 import { SwUpdate, VersionEvent } from '@angular/service-worker';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     clearCacheCheck,
     HotkeysService,
@@ -176,8 +176,8 @@ describe('AppComponent', () => {
 
             await spectator.component.ngOnInit();
 
-            const [url, extras] = vi.mocked(spectator.router.navigateByUrl)
-                .mock.calls[0];
+            const [url, extras] = vi.mocked(spectator.router.navigateByUrl).mock
+                .calls[0];
             expect(url).toBeInstanceOf(UrlTree);
             expect(url_serializer.serialize(url as UrlTree)).toBe(
                 '/survey-1?ref=page&shared=hash',

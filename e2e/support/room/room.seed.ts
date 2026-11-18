@@ -16,7 +16,11 @@
  */
 import { APIRequestContext } from '@playwright/test';
 import { ENGINE_API, apiFor, zonesWithTag } from '../api';
-import { ensureLogicModule, restartModule, waitForModuleState } from '../drivers/drivers.api';
+import {
+    ensureLogicModule,
+    restartModule,
+    waitForModuleState,
+} from '../drivers/drivers.api';
 import { ensureDrivers } from '../drivers/drivers.seed';
 import { WORKERS } from '../env';
 import { adminApi } from '../seed';
@@ -37,9 +41,13 @@ import {
  * before the response was actually printed.
  */
 async function listSystems(api: APIRequestContext): Promise<any[]> {
-    const res = await api.get(`${ENGINE_API}/systems`, { params: { limit: '500' } });
+    const res = await api.get(`${ENGINE_API}/systems`, {
+        params: { limit: '500' },
+    });
     if (!res.ok()) {
-        throw new Error(`list systems failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `list systems failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body?.results ?? []);
@@ -93,7 +101,8 @@ export async function ensureRooms(api?: APIRequestContext): Promise<RoomSet> {
             for (let i = 0; i < WORKERS; i++) {
                 const want = roomFor(i, variant);
                 const found = existing.find(
-                    (s) => `${s.email}`.toLowerCase() === want.email.toLowerCase(),
+                    (s) =>
+                        `${s.email}`.toLowerCase() === want.email.toLowerCase(),
                 );
                 if (found) {
                     rooms[variant].push({ ...want, id: found.id });
@@ -143,8 +152,11 @@ export async function ensureRooms(api?: APIRequestContext): Promise<RoomSet> {
                         // invisible in the room list while existing perfectly well.
                         signage: false,
                         zones,
-                        ...(variant === 'alt' ? { features: [ALT_ROOM_FEATURE] } : {}),
-                        description: 'Room owned by the e2e suite. Safe to delete.',
+                        ...(variant === 'alt'
+                            ? { features: [ALT_ROOM_FEATURE] }
+                            : {}),
+                        description:
+                            'Room owned by the e2e suite. Safe to delete.',
                     },
                 });
                 if (!res.ok()) {
@@ -158,7 +170,9 @@ export async function ensureRooms(api?: APIRequestContext): Promise<RoomSet> {
                     // Another worker created it after our initial list. Re-read it.
                     const refreshed = await listSystems(admin);
                     const raced = refreshed.find(
-                        (s) => `${s.email}`.toLowerCase() === want.email.toLowerCase(),
+                        (s) =>
+                            `${s.email}`.toLowerCase() ===
+                            want.email.toLowerCase(),
                     );
                     if (!raced) {
                         throw new Error(
@@ -215,7 +229,12 @@ export async function ensureRoomModules(
                 await waitForModuleState(api, module_id, 'status', 45_000);
             } catch {
                 await restartModule(api, module_id);
-                await waitForModuleState(api, module_id, 'status', 120_000).catch((error) => {
+                await waitForModuleState(
+                    api,
+                    module_id,
+                    'status',
+                    120_000,
+                ).catch((error) => {
                     throw new Error(`${room.name}: ${error.message}`);
                 });
             }
@@ -283,11 +302,16 @@ export async function setRoomBookingRules(
         // as well, because nothing else writes booking rules and a stale
         // document on a level would be one more thing to explain later.
         const [building] = await zonesWithTag(admin, 'building');
-        if (!building?.id) throw new Error('no building zone — the stack is not seeded');
+        if (!building?.id)
+            throw new Error('no building zone — the stack is not seeded');
         const levels = await zonesWithTag(admin, 'level');
-        const targets = levels.filter((z) => (z.parent_id ?? building.id) === building.id);
+        const targets = levels.filter(
+            (z) => (z.parent_id ?? building.id) === building.id,
+        );
         if (!targets.length) {
-            throw new Error('no level zone under the building to write booking rules on');
+            throw new Error(
+                'no level zone under the building to write booking rules on',
+            );
         }
 
         const details = hidden_room_ids.length

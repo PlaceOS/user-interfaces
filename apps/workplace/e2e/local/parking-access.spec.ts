@@ -18,8 +18,14 @@
  * never registers. `setParkingDenied` writes the strings, and that is worth
  * knowing before debugging a test that seems to have no effect.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { currentUser, deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
+import {
+    currentUser,
+    deleteBooking,
+    releaseAsset,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
@@ -35,7 +41,6 @@ import {
     PARKING_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/parking/parking.settings';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 
 test.describe('parking access', () => {
     test('a user marked as denied cannot book, and can again once cleared', async ({
@@ -43,7 +48,10 @@ test.describe('parking access', () => {
         staffApi,
     }, testInfo) => {
         const space = await spaceForWorker(testInfo.parallelIndex);
-        const slot = slotOn(PARKING_SLOTS.access.day, PARKING_SLOTS.access.hour);
+        const slot = slotOn(
+            PARKING_SLOTS.access.day,
+            PARKING_SLOTS.access.hour,
+        );
         const { from, to } = dayBoundsOn(PARKING_SLOTS.access.day);
         const me = await currentUser(staffApi);
         let record_id: string | undefined;
@@ -88,7 +96,8 @@ test.describe('parking access', () => {
                 const response = await sent;
                 if (response) {
                     const body = await response.text();
-                    if (response.status() < 300) booking_id = JSON.parse(body).id;
+                    if (response.status() < 300)
+                        booking_id = JSON.parse(body).id;
                     expect(
                         response.status(),
                         `a denied user's booking must not be accepted. Got ` +

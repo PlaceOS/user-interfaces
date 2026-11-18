@@ -49,7 +49,10 @@ import { pickCalendarDay } from './calendar';
 type VisitorMode = 'single' | 'group';
 
 /** The icon on each button of the Single/Multiple toggle. */
-const MODE_ICONS: Record<VisitorMode, string> = { single: 'person', group: 'group' };
+const MODE_ICONS: Record<VisitorMode, string> = {
+    single: 'person',
+    group: 'group',
+};
 
 export class InviteVisitorForm {
     constructor(private readonly page: Page) {}
@@ -67,7 +70,9 @@ export class InviteVisitorForm {
     /** A `button[btn]` inside `scope`, matched on the whole name of its icon. */
     private iconButton(scope: Locator, icon: string): Locator {
         return scope.locator('button[btn]').filter({
-            has: this.page.locator('icon', { hasText: new RegExp(`^\\s*${icon}\\s*$`) }),
+            has: this.page.locator('icon', {
+                hasText: new RegExp(`^\\s*${icon}\\s*$`),
+            }),
         });
     }
 
@@ -323,7 +328,9 @@ export class InviteVisitorForm {
         // from either only touches the hash and Angular keeps the component —
         // with a half-sent group still in it after a failed attempt. Reload as
         // well, so it starts from a fresh form.
-        const on_visitor_route = new URL(this.page.url()).hash.startsWith('#/book/visitor');
+        const on_visitor_route = new URL(this.page.url()).hash.startsWith(
+            '#/book/visitor',
+        );
         await this.page.goto('/#/book/visitor/form');
         if (on_visitor_route) await this.page.reload();
         await expect(
@@ -349,7 +356,10 @@ export class InviteVisitorForm {
      */
     private async useMode(mode: VisitorMode, marker: Locator): Promise<void> {
         // Either mode renders this, so it proves the page is ready to be read.
-        await expect(this.invites, 'the visitor fields never rendered').toBeVisible({
+        await expect(
+            this.invites,
+            'the visitor fields never rendered',
+        ).toBeVisible({
             timeout: 30_000,
         });
         if (!(await marker.isVisible())) {
@@ -361,9 +371,11 @@ export class InviteVisitorForm {
             ).toBeVisible({ timeout: 10_000 });
             await toggle.click();
         }
-        await expect(marker, `the page did not go to ${mode} mode`).toBeVisible({
-            timeout: 30_000,
-        });
+        await expect(marker, `the page did not go to ${mode} mode`).toBeVisible(
+            {
+                timeout: 30_000,
+            },
+        );
     }
 
     /**
@@ -395,6 +407,8 @@ export class InviteVisitorForm {
         if ((await input.isChecked()) === want) return;
         // The visible mat-checkbox is the click target; the input holds `checked`.
         await input.locator('xpath=ancestor::mat-checkbox').click();
-        await (want ? expect(input).toBeChecked() : expect(input).not.toBeChecked());
+        await (want
+            ? expect(input).toBeChecked()
+            : expect(input).not.toBeChecked());
     }
 }

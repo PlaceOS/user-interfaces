@@ -59,7 +59,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                     class="border-base-300 bg-base-100 relative w-full rounded-xl border py-4 shadow-sm"
                 >
                     <div
-                        class="absolute right-2 top-2 rounded-full bg-base-300 p-1 text-2xl"
+                        class="bg-base-300 absolute top-2 right-2 rounded-full p-1 text-2xl"
                         [style.background-color]="typeColors[0]"
                         [style.color]="typeColors[1]"
                     >
@@ -150,7 +150,7 @@ import { GroupEventDetailsModalComponent } from './group-event-details-modal.com
                         !event()?.extension_data?.shared_event
                     ) {
                         <div
-                            class="absolute bottom-2 right-2 flex items-center pr-4 text-sm sm:bottom-auto sm:right-14 sm:top-2 sm:text-base"
+                            class="absolute right-2 bottom-2 flex items-center pr-4 text-sm sm:top-2 sm:right-14 sm:bottom-auto sm:text-base"
                         >
                             @for (
                                 user of event()?.attendees

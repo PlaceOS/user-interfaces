@@ -22,7 +22,10 @@ import {
 } from '../../../../e2e/support/api';
 import { expect, test } from '../../../../e2e/support/fixtures';
 import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
-import { releaseRoom, type RoomBooking } from '../../../../e2e/support/room/room.api';
+import {
+    releaseRoom,
+    type RoomBooking,
+} from '../../../../e2e/support/room/room.api';
 import { FOURTH_DAY, slotFor } from '../../../../e2e/support/room/room.env';
 import { setDate } from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
@@ -50,11 +53,20 @@ test.describe('room booking — the new flow', () => {
         const flow = new MeetingFlow(staffPage);
         let booking_id: number | undefined;
 
-        const swept = await releaseRoom(staffApi, room.id, window_from(), window_to());
-        if (swept) console.log(`  swept ${swept} stale booking(s) off ${room.name}`);
+        const swept = await releaseRoom(
+            staffApi,
+            room.id,
+            window_from(),
+            window_to(),
+        );
+        if (swept)
+            console.log(`  swept ${swept} stale booking(s) off ${room.name}`);
         // The All Day checkbox needs the setting. The spec sets it, so that it
         // does not depend on the default of the app.
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...ALLOW_ALL_DAY });
+        await useSettings(staffPage, {
+            ...ROOM_BASE_SETTINGS,
+            ...ALLOW_ALL_DAY,
+        });
 
         try {
             await flow.open();
@@ -63,7 +75,10 @@ test.describe('room booking — the new flow', () => {
             // All Day replaces the default slot, which is the next boundary of
             // the clock and makes the booking depend on how fast the run is.
             await flow.setAllDay(true);
-            await expect(flow.title, 'the title holds after the date change').toHaveValue(title);
+            await expect(
+                flow.title,
+                'the title holds after the date change',
+            ).toHaveValue(title);
 
             await flow.searchRooms.click();
             await expect(staffPage).toHaveURL(/view=1/);
@@ -85,8 +100,13 @@ test.describe('room booking — the new flow', () => {
                 flow.confirm.click(),
             ]);
             const status = response.status();
-            const body = await response.text().catch(() => '<body unavailable>');
-            expect(response.ok(), `POST /bookings should succeed, got ${status}: ${body}`).toBeTruthy();
+            const body = await response
+                .text()
+                .catch(() => '<body unavailable>');
+            expect(
+                response.ok(),
+                `POST /bookings should succeed, got ${status}: ${body}`,
+            ).toBeTruthy();
             const created_id: number = JSON.parse(body).id;
             booking_id = created_id;
 
@@ -95,10 +115,20 @@ test.describe('room booking — the new flow', () => {
             await expect(flow.successContinue).toBeVisible();
 
             // Read it back independently of the response parsed above.
-            const stored = (await getBooking(staffApi, created_id)) as RoomBooking;
-            expect(stored.booking_type, 'stored as a room booking').toBe('room');
-            expect(stored.asset_id, 'against the room this worker owns').toBe(room.id);
-            expect(stored.title, 'the meeting name we typed reached the backend').toBe(title);
+            const stored = (await getBooking(
+                staffApi,
+                created_id,
+            )) as RoomBooking;
+            expect(stored.booking_type, 'stored as a room booking').toBe(
+                'room',
+            );
+            expect(stored.asset_id, 'against the room this worker owns').toBe(
+                room.id,
+            );
+            expect(
+                stored.title,
+                'the meeting name we typed reached the backend',
+            ).toBe(title);
             expect(
                 new Date(stored.booking_start * 1000).toDateString(),
                 'on the day that was picked',
@@ -110,7 +140,12 @@ test.describe('room booking — the new flow', () => {
                 'carries its zone hierarchy (building/level)',
             ).toBeGreaterThan(0);
 
-            const listed = await listBookings(staffApi, 'room', window_from(), window_to());
+            const listed = await listBookings(
+                staffApi,
+                'room',
+                window_from(),
+                window_to(),
+            );
             expect(
                 listed.map((b) => b.id),
                 'the new booking appears in the room listing',
@@ -130,7 +165,8 @@ test.describe('room booking — the new flow', () => {
         const refusal = staffPage.locator('mat-snack-bar-container.error');
         const posts: string[] = [];
         staffPage.on('request', (request) => {
-            if (isBookingPost(request.url(), request.method())) posts.push(request.url());
+            if (isBookingPost(request.url(), request.method()))
+                posts.push(request.url());
         });
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
@@ -139,23 +175,47 @@ test.describe('room booking — the new flow', () => {
         await expect(flow.title).toHaveValue('');
         await expect(flow.titleError).toHaveCount(0);
         await flow.searchRooms.click();
-        await expect(flow.titleError, 'no title: the title shows an error').toBeVisible();
-        await expect(flow.title, 'no title: the title gets the focus').toBeFocused();
-        await expect(flow.details, 'no title: the flow stays on the details').toBeVisible();
+        await expect(
+            flow.titleError,
+            'no title: the title shows an error',
+        ).toBeVisible();
+        await expect(
+            flow.title,
+            'no title: the title gets the focus',
+        ).toBeFocused();
+        await expect(
+            flow.details,
+            'no title: the flow stays on the details',
+        ).toBeVisible();
         await expect(flow.roomSelect).toHaveCount(0);
 
         // Step 1 -> 2 needs a room.
-        await expect(refusal, 'no notice is open before the room step').toHaveCount(0);
+        await expect(
+            refusal,
+            'no notice is open before the room step',
+        ).toHaveCount(0);
         await flow.title.fill(uniqueTitle('E2E New Room None'));
         await flow.searchRooms.click();
-        await expect(flow.rooms.first(), 'the room list should offer rooms').toBeVisible({
+        await expect(
+            flow.rooms.first(),
+            'the room list should offer rooms',
+        ).toBeVisible({
             timeout: 20_000,
         });
         await flow.continue.click();
-        await expect(refusal, 'no room: the flow shows an error notice').toBeVisible();
-        await expect(flow.roomSelect, 'no room: the flow stays on the room list').toBeVisible();
+        await expect(
+            refusal,
+            'no room: the flow shows an error notice',
+        ).toBeVisible();
+        await expect(
+            flow.roomSelect,
+            'no room: the flow stays on the room list',
+        ).toBeVisible();
         await expect(flow.options).toHaveCount(0);
 
-        expect(posts, 'no booking request may leave the page on a refused step').toEqual([]);
+        expect(
+            posts,
+            'no booking request may leave the page on a refused step',
+        ).toEqual([]);
     });
 });

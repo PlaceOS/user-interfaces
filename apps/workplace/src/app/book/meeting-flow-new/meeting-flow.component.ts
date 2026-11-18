@@ -21,12 +21,12 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
     selector: 'meeting-flow-new',
     template: `
         @if (flow_view() !== 'success') {
-            <div cdkScrollable class="h-full w-full overflow-auto bg-base-200">
+            <div cdkScrollable class="bg-base-200 h-full w-full overflow-auto">
                 <div
                     class="mx-auto min-h-full w-[80rem] max-w-full space-y-4 px-4 pt-4"
                 >
                     <div
-                        class="w-full rounded-xl border border-base-300 bg-base-100 p-4"
+                        class="border-base-300 bg-base-100 w-full rounded-xl border p-4"
                     >
                         <h3 class="mb-4 text-2xl font-medium">
                             {{
@@ -64,7 +64,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                     {{ 'COMMON.DETAILS' | translate }}
                                 </div>
                             </a>
-                            <div class="h-0.5 w-16 bg-base-200"></div>
+                            <div class="bg-base-200 h-0.5 w-16"></div>
                             <button
                                 type="button"
                                 name="step-select-room"
@@ -80,7 +80,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 (click)="navigateToView(1)"
                             >
                                 <div
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                    class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                                     [class.bg-base-200]="view() < 1"
                                     [class.bg-info]="view() === 1"
                                     [class.text-info-content]="view() === 1"
@@ -98,7 +98,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                     }}
                                 </div>
                             </button>
-                            <div class="h-0.5 w-16 bg-base-200"></div>
+                            <div class="bg-base-200 h-0.5 w-16"></div>
                             <button
                                 type="button"
                                 name="step-confirm"
@@ -114,7 +114,7 @@ import { MeetingFlowSpaceSelectComponent } from './meeting-flow-space-select.com
                                 (click)="navigateToView(2)"
                             >
                                 <div
-                                    class="flex h-8 w-8 items-center justify-center rounded-full bg-base-200"
+                                    class="bg-base-200 flex h-8 w-8 items-center justify-center rounded-full"
                                     [class.bg-base-200]="view() < 2"
                                     [class.bg-info]="view() === 2"
                                     [class.text-info-content]="view() === 2"

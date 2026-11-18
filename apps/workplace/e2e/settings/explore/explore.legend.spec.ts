@@ -56,7 +56,8 @@ async function openExplore(page: Page, audit: Audit, overrides: Settings) {
                 'explore level rooms',
                 (url) =>
                     url.pathname === '/api/engine/v2/systems' &&
-                    [...url.searchParams.keys()].sort().join(',') === 'limit,zone_id' &&
+                    [...url.searchParams.keys()].sort().join(',') ===
+                        'limit,zone_id' &&
                     url.searchParams.get('limit') === '50',
                 () => [],
             ),
@@ -71,29 +72,64 @@ async function openExplore(page: Page, audit: Audit, overrides: Settings) {
 const labels = (legend: ReturnType<Page['locator']>) =>
     legend.locator('#explore-map-legend-items > div > div:last-child');
 
-const TWO: [string, string][] = [['E2E Free', '#123456'], ['E2E Busy', '#654321']];
-const FOUR: [string, string][] = [...TWO, ['E2E Pending', '#112233'], ['E2E Closed', '#445566']];
+const TWO: [string, string][] = [
+    ['E2E Free', '#123456'],
+    ['E2E Busy', '#654321'],
+];
+const FOUR: [string, string][] = [
+    ...TWO,
+    ['E2E Pending', '#112233'],
+    ['E2E Closed', '#445566'],
+];
 
-test('explore.show_legend false hides a configured legend', async ({ staffPage, audit }) => {
-    const legend = await openExplore(staffPage, audit, { 'app.explore.show_legend': false, 'app.explore.legend': TWO });
+test('explore.show_legend false hides a configured legend', async ({
+    staffPage,
+    audit,
+}) => {
+    const legend = await openExplore(staffPage, audit, {
+        'app.explore.show_legend': false,
+        'app.explore.legend': TWO,
+    });
     await expect(legend).toHaveCount(0);
 });
 
-test('explore.show_legend true with explore.legend of two pairs renders labels and colours', async ({ staffPage, audit }) => {
-    const legend = await openExplore(staffPage, audit, { 'app.explore.show_legend': true, 'app.explore.legend': TWO });
+test('explore.show_legend true with explore.legend of two pairs renders labels and colours', async ({
+    staffPage,
+    audit,
+}) => {
+    const legend = await openExplore(staffPage, audit, {
+        'app.explore.show_legend': true,
+        'app.explore.legend': TWO,
+    });
     await expect(legend).toBeVisible();
     await expect(legend.locator('h3')).toHaveText('Legend');
-    await expect(legend.locator('button[aria-controls="explore-map-legend-items"]')).toHaveCount(0);
+    await expect(
+        legend.locator('button[aria-controls="explore-map-legend-items"]'),
+    ).toHaveCount(0);
     const items = legend.locator('#explore-map-legend-items > div');
     await expect(items).toHaveCount(2);
     await expect(labels(legend)).toHaveText(['E2E Free', 'E2E Busy']);
-    await expect(items.nth(0).locator('div').first()).toHaveCSS('background-color', 'rgb(18, 52, 86)');
-    await expect(items.nth(1).locator('div').first()).toHaveCSS('background-color', 'rgb(101, 67, 33)');
+    await expect(items.nth(0).locator('div').first()).toHaveCSS(
+        'background-color',
+        'rgb(18, 52, 86)',
+    );
+    await expect(items.nth(1).locator('div').first()).toHaveCSS(
+        'background-color',
+        'rgb(101, 67, 33)',
+    );
 });
 
-test('explore.legend of four pairs collapses behind a toggle', async ({ staffPage, audit }) => {
-    const legend = await openExplore(staffPage, audit, { 'app.explore.show_legend': true, 'app.explore.legend': FOUR });
-    const toggle = legend.locator('button[aria-controls="explore-map-legend-items"]');
+test('explore.legend of four pairs collapses behind a toggle', async ({
+    staffPage,
+    audit,
+}) => {
+    const legend = await openExplore(staffPage, audit, {
+        'app.explore.show_legend': true,
+        'app.explore.legend': FOUR,
+    });
+    const toggle = legend.locator(
+        'button[aria-controls="explore-map-legend-items"]',
+    );
     const items = legend.locator('#explore-map-legend-items');
     await expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await expect(items).toHaveClass(/\bhidden\b/);
@@ -103,7 +139,13 @@ test('explore.legend of four pairs collapses behind a toggle', async ({ staffPag
     await expect(labels(legend)).toHaveText(FOUR.map(([label]) => label));
 });
 
-test('explore.legend empty renders no legend even when shown', async ({ staffPage, audit }) => {
-    const legend = await openExplore(staffPage, audit, { 'app.explore.show_legend': true, 'app.explore.legend': [] });
+test('explore.legend empty renders no legend even when shown', async ({
+    staffPage,
+    audit,
+}) => {
+    const legend = await openExplore(staffPage, audit, {
+        'app.explore.show_legend': true,
+        'app.explore.legend': [],
+    });
     await expect(legend).toHaveCount(0);
 });

@@ -78,7 +78,9 @@ describe('ViewportVisibilityComponent', () => {
     });
 
     it('should stop observing after first intersection when not continuous', () => {
-        spectator = createHost(`<div viewport-only [continuous]="false"></div>`);
+        spectator = createHost(
+            `<div viewport-only [continuous]="false"></div>`,
+        );
         const observer = MockIntersectionObserver.instances[0];
         observer.trigger(false);
         expect(observer.disconnect).not.toHaveBeenCalled();

@@ -11,7 +11,7 @@ import { landingFeatures, QUICK_LINKS } from './landing-features';
     selector: 'landing-quick-actions',
     template: `
         <div
-            class="space-y-2 rounded-lg border border-base-300 bg-base-100 p-4"
+            class="border-base-300 bg-base-100 space-y-2 rounded-lg border p-4"
         >
             <div class="mb-2 flex items-center justify-between">
                 <h3 class="text-lg font-medium">

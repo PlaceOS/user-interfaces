@@ -1,5 +1,8 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 
 import { DealModalComponent } from '../../app/deals/deal-modal.component';
 

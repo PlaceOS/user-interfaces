@@ -8,8 +8,8 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 
-import { IconComponent, SettingsToggleComponent } from '@placeos/components';
 import { setNotifyOutlet } from '@placeos/common';
+import { IconComponent, SettingsToggleComponent } from '@placeos/components';
 import { DashboardManageComponent } from '../../app/dashboards/dashboard-mange.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
 
@@ -96,7 +96,9 @@ describe('DashboardManageComponent', () => {
     });
 
     it('should update an existing dashboard on save', async () => {
-        vi.mocked(updateAlertDashboard).mockResolvedValue({ id: 'dash-1' } as any);
+        vi.mocked(updateAlertDashboard).mockResolvedValue({
+            id: 'dash-1',
+        } as any);
         service.dashboard.set({ id: 'dash-1', name: 'Old' });
         build();
         spectator.component.model.set({
@@ -116,9 +118,7 @@ describe('DashboardManageComponent', () => {
     });
 
     it('should tell the user and stay put when the save request fails', async () => {
-        vi.mocked(addAlertDashboard).mockRejectedValue(
-            new Error('nope'),
-        );
+        vi.mocked(addAlertDashboard).mockRejectedValue(new Error('nope'));
         build();
         spectator.component.model.set({
             id: '',

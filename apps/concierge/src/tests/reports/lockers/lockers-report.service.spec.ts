@@ -1,6 +1,9 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
@@ -64,7 +67,10 @@ describe('LockersReportService', () => {
         } as any);
         vi.mocked(ts_client_mod.queryAssets).mockImplementation(
             () =>
-                Promise.resolve({ data: locker_assets, next: undefined }) as any,
+                Promise.resolve({
+                    data: locker_assets,
+                    next: undefined,
+                }) as any,
         );
         spectator = createService({
             providers: [
@@ -138,7 +144,9 @@ describe('LockersReportService', () => {
         spectator.service.setOptions({ start: day_1, end: day_1 });
 
         await spectator.service.downloadReport();
-        expect(downloads.filename).toMatch(/^report\+lockers\+2026-04-06\.tsv$/);
+        expect(downloads.filename).toMatch(
+            /^report\+lockers\+2026-04-06\.tsv$/,
+        );
     });
 
     it('should count available lockers per zone', async () => {
@@ -157,9 +165,9 @@ describe('LockersReportService', () => {
         spectator.service.setOptions({ zones: ['level-1'] });
         await settle();
         const zone_ids = () =>
-            vi.mocked(ts_client_mod.queryAssets).mock.calls.map(
-                ([q]: any) => q.zone_id,
-            );
+            vi
+                .mocked(ts_client_mod.queryAssets)
+                .mock.calls.map(([q]: any) => q.zone_id);
         expect(zone_ids()).toEqual(['building-1']);
 
         org.active_building.set({ id: 'building-2' });

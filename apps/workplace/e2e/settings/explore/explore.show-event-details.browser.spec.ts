@@ -40,18 +40,33 @@ const { COLOUR, ROOM, ROOM_FILL, PREFIX, hasParams } = EXPLORE;
 const LIVE = EXPLORE.LIVE;
 /** Exact Bookings values; regenerated once per isolated browser context. */
 function roomValues(): Record<string, unknown> {
-    return { bookings: [{
-        id: PREFIX + 'event', title: 'Synthetic meeting',
-        host: 'meeting-host@example.invalid', date: Date.now(), duration: 30,
-    }], status: 'busy', presence: false,
-        hide_meeting_details: false, hide_meeting_title: false };
+    return {
+        bookings: [
+            {
+                id: PREFIX + 'event',
+                title: 'Synthetic meeting',
+                host: 'meeting-host@example.invalid',
+                date: Date.now(),
+                duration: 30,
+            },
+        ],
+        status: 'busy',
+        presence: false,
+        hide_meeting_details: false,
+        hide_meeting_title: false,
+    };
 }
 const BASE: Settings = {
     ...EXPLORE.BASE,
-    'app.events.has_assets': false, 'app.events.can_book_for_others': false,
-    'app.events.bookable_hours': null, 'app.events.booking_unavailable': false,
-    'app.explore.colors': { 'zone-free': COLOUR,
-        'space-free': ROOM_FILL, 'space-busy': ROOM_FILL },
+    'app.events.has_assets': false,
+    'app.events.can_book_for_others': false,
+    'app.events.bookable_hours': null,
+    'app.events.booking_unavailable': false,
+    'app.explore.colors': {
+        'zone-free': COLOUR,
+        'space-free': ROOM_FILL,
+        'space-busy': ROOM_FILL,
+    },
 };
 
 type Audit = ControlAudit & { room_values: Record<string, unknown> };
@@ -69,47 +84,82 @@ async function openExplore(page: Page, audit: Audit, override: Settings) {
         bearer: FAKE_BEARER,
         rooms: [ROOM],
         // UserPipe -> showStaff uses this exact email-encoded staff endpoint.
-        gets: () => browserGet(page, (url) =>
-            url.pathname === '/api/staff/v1/people/meeting-host%40example.invalid' &&
-            hasParams(url, {}),
-        () => ({ id: PREFIX + 'meeting-host', name: 'Synthetic Meeting Host',
-            email: 'meeting-host@example.invalid' })),
+        gets: () =>
+            browserGet(
+                page,
+                (url) =>
+                    url.pathname ===
+                        '/api/staff/v1/people/meeting-host%40example.invalid' &&
+                    hasParams(url, {}),
+                () => ({
+                    id: PREFIX + 'meeting-host',
+                    name: 'Synthetic Meeting Host',
+                    email: 'meeting-host@example.invalid',
+                }),
+            ),
         delivered: exploreBindings(EXPLORE, LIVE, audit.room_values),
     });
 }
 
 for (const enabled of [true, false]) {
-    test('explore.show_event_details=' + enabled + ' controls details in the live room tooltip',
+    test(
+        'explore.show_event_details=' +
+            enabled +
+            ' controls details in the live room tooltip',
         async ({ isolated: { page, audit } }) => {
-            await openExplore(page, audit, { 'app.explore.show_event_details': enabled });
-            const feature = await exploreRoomReady(page, audit.room_values, EXPLORE);
+            await openExplore(page, audit, {
+                'app.explore.show_event_details': enabled,
+            });
+            const feature = await exploreRoomReady(
+                page,
+                audit.room_values,
+                EXPLORE,
+            );
             // Prove the same current event and both privacy permissions before
             // hovering, so absence cannot pass because Bookings never arrived.
-            await expect.poll(async () => (await roomState(page)).events).toHaveLength(1);
-            await expect.poll(async () => (await roomState(page)).next).toMatchObject({
-                title: 'Synthetic meeting', host: 'meeting-host@example.invalid',
-            });
+            await expect
+                .poll(async () => (await roomState(page)).events)
+                .toHaveLength(1);
+            await expect
+                .poll(async () => (await roomState(page)).next)
+                .toMatchObject({
+                    title: 'Synthetic meeting',
+                    host: 'meeting-host@example.invalid',
+                });
             await feature.hover({ position: { x: 10, y: 10 } });
-            const tooltip = page.locator('[custom-tooltip] [name="space-info"]');
+            const tooltip = page.locator(
+                '[custom-tooltip] [name="space-info"]',
+            );
             await expect(tooltip).toHaveCount(1);
             await expect(tooltip).toBeVisible();
             await expect(tooltip.locator('h4')).toHaveText(ROOM.name);
             await expect(tooltip.locator('[status]')).toHaveClass(/busy/);
             await expect(tooltip).toContainText(/Free\s+at/);
-            const title = tooltip.locator('h3').filter({ hasText: 'Synthetic meeting' });
-            const host = tooltip.getByText('Synthetic Meeting Host', { exact: true });
+            const title = tooltip
+                .locator('h3')
+                .filter({ hasText: 'Synthetic meeting' });
+            const host = tooltip.getByText('Synthetic Meeting Host', {
+                exact: true,
+            });
             await expect(title).toHaveCount(enabled ? 1 : 0);
             await expect(host).toHaveCount(enabled ? 1 : 0);
             if (enabled) {
                 await expect(title).toBeVisible();
                 await expect(host).toBeVisible();
-                await expect.poll(() =>
-                    audit.fixtures['/api/staff/v1/people/meeting-host%40example.invalid'] ?? 0)
+                await expect
+                    .poll(
+                        () =>
+                            audit.fixtures[
+                                '/api/staff/v1/people/meeting-host%40example.invalid'
+                            ] ?? 0,
+                    )
                     .toBeGreaterThan(0);
             } else {
-                await expect(tooltip).not.toContainText('meeting-host@example.invalid');
+                await expect(tooltip).not.toContainText(
+                    'meeting-host@example.invalid',
+                );
             }
             await expect(page.locator('mat-dialog-container')).toHaveCount(0);
-        });
+        },
+    );
 }
-

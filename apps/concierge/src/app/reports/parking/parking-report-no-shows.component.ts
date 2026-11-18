@@ -90,9 +90,10 @@ import { ParkingReportService } from './parking-report.service';
                 </div>
             </ng-template>
             <ng-template #expand_template let-row="row">
-                    <div class="p-2">
+                <div class="p-2">
                     <button
-                        icon default
+                        icon
+                        default
                         type="button"
                         matRipple
                         [attr.aria-expanded]="!!show_children()[row.id]"
@@ -105,7 +106,7 @@ import { ParkingReportService } from './parking-report.service';
                         }}</icon>
                         <span class="sr-only">{{ row.host }}</span>
                     </button>
-                    </div>
+                </div>
             </ng-template>
             <ng-template #incidents_template let-row="row">
                 <div class="bg-base-200/40 px-4 py-2">

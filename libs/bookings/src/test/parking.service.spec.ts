@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     setCurrentUser,
@@ -210,7 +213,9 @@ describe('ParkingService', () => {
                 zone: { id: 'lvl-1' },
                 metadata: {
                     desks: {
-                        details: [{ id: 'desk-1', assigned_to: 'me@example.com' }],
+                        details: [
+                            { id: 'desk-1', assigned_to: 'me@example.com' },
+                        ],
                     },
                 },
             },
@@ -254,7 +259,9 @@ describe('ParkingService', () => {
                 zone: { id: 'lvl-1' },
                 metadata: {
                     desks: {
-                        details: [{ id: 'desk-1', assigned_to: 'me@example.com' }],
+                        details: [
+                            { id: 'desk-1', assigned_to: 'me@example.com' },
+                        ],
                     },
                 },
             },
@@ -274,4 +281,3 @@ describe('ParkingService', () => {
         expect(spectator.service.home_building_id()).toBe('bld-3');
     });
 });
-

@@ -60,7 +60,9 @@ export async function createRoomBookingViaApi(
 ): Promise<RoomBooking> {
     const me = await currentUser(api);
     const zones = (
-        await Promise.all(['org', 'building', 'level'].map((t) => zonesWithTag(api, t)))
+        await Promise.all(
+            ['org', 'building', 'level'].map((t) => zonesWithTag(api, t)),
+        )
     )
         .flat()
         .map((z) => z.id);
@@ -119,7 +121,9 @@ export async function readUserSettings(
         params: { name: 'settings' },
     });
     if (!res.ok()) {
-        throw new Error(`read user settings failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `read user settings failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return body?.settings?.details ?? {};

@@ -45,7 +45,9 @@ describe('AssetPurchaseOrderFormComponent', () => {
             expected_service_start_date: new Date(
                 '2026-02-01T00:00:00Z',
             ).valueOf(),
-            expected_service_end_date: new Date('2027-02-01T00:00:00Z').valueOf(),
+            expected_service_end_date: new Date(
+                '2027-02-01T00:00:00Z',
+            ).valueOf(),
             unit_price: '150',
         };
         (ts_client.addAssetPurchaseOrder as any).mockReset();

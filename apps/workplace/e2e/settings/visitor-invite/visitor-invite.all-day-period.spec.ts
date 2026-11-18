@@ -23,7 +23,12 @@
 // any external request is recorded and aborted, and fails the scenario.
 import type { Page } from '@playwright/test';
 import { useSettings } from '../../../../../e2e/support/desk/desk.settings';
-import { APP_URL, BACKEND_URL, assertLocalOnly, staffEmail } from '../../../../../e2e/support/env';
+import {
+    APP_URL,
+    assertLocalOnly,
+    BACKEND_URL,
+    staffEmail,
+} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
@@ -105,7 +110,8 @@ async function syntheticGets(page: Page) {
     await syntheticOrgRoutes(page, ORG, {
         label: 'Visitor All Day',
         zone_metadata: ZONE_METADATA,
-        zone_details: (_id, name) => (name.endsWith('_booking_rules') ? [] : {}),
+        zone_details: (_id, name) =>
+            name.endsWith('_booking_rules') ? [] : {},
         user_metadata: ['settings', 'contacts'],
     });
     // BookingFormService checks whether the user has an assigned desk

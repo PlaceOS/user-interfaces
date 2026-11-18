@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { NEVER, of } from 'rxjs';
 
@@ -73,7 +76,9 @@ describe('LevelManagementService', () => {
     });
 
     it('should add the returned zone after editing a level', () => {
-        dialog_open.mockReturnValue({ afterClosed: () => of({ id: 'new-level' }) });
+        dialog_open.mockReturnValue({
+            afterClosed: () => of({ id: 'new-level' }),
+        });
         spectator.service.editLevel();
         expect(org.addZone).toHaveBeenCalledWith({ id: 'new-level' });
     });
@@ -87,7 +92,10 @@ describe('LevelManagementService', () => {
     it('should remove the level when the confirmation is accepted', async () => {
         const close = confirmRef('done');
 
-        await spectator.service.removeLevel({ id: 'level-1', name: 'Level 1' } as any);
+        await spectator.service.removeLevel({
+            id: 'level-1',
+            name: 'Level 1',
+        } as any);
 
         expect(ts_client.removeZone).toHaveBeenCalledWith('level-1');
         expect(org.removeZone).toHaveBeenCalledWith(
@@ -104,7 +112,10 @@ describe('LevelManagementService', () => {
     it('should abort removal when the confirmation is cancelled', async () => {
         const close = confirmRef('cancel');
 
-        await spectator.service.removeLevel({ id: 'level-1', name: 'Level 1' } as any);
+        await spectator.service.removeLevel({
+            id: 'level-1',
+            name: 'Level 1',
+        } as any);
 
         expect(ts_client.removeZone).not.toHaveBeenCalled();
         expect(org.removeZone).not.toHaveBeenCalled();

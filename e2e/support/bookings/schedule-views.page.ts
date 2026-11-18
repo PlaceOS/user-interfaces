@@ -42,9 +42,11 @@ export class ScheduleViewsPage extends SchedulePage {
 
     /** The topbar control that moves the day and week views one period on. */
     get nextDate(): Locator {
-        return this.topbar
-            .locator('button[btn]')
-            .filter({ has: this.page.locator('icon', { hasText: 'keyboard_arrow_right' }) });
+        return this.topbar.locator('button[btn]').filter({
+            has: this.page.locator('icon', {
+                hasText: 'keyboard_arrow_right',
+            }),
+        });
     }
 
     /** The topbar control that goes back to today. It is the first control. */
@@ -59,7 +61,9 @@ export class ScheduleViewsPage extends SchedulePage {
 
     /** A booking on the week view, by its title. */
     weekBooking(title: string): Locator {
-        return this.weekView.locator('div[body] button').filter({ hasText: title });
+        return this.weekView
+            .locator('div[body] button')
+            .filter({ hasText: title });
     }
 
     /**

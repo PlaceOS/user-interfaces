@@ -313,7 +313,12 @@ describe('AssetStateService', () => {
         );
         vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
             response([
-                { id: 't1', name: 'Speaker', description: '', category_id: 'c1' },
+                {
+                    id: 't1',
+                    name: 'Speaker',
+                    description: '',
+                    category_id: 'c1',
+                },
             ]),
         );
         vi.mocked(ts_client.queryAssets).mockReturnValue(

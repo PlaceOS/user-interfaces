@@ -24,13 +24,13 @@
  * extra level's desk appears when it is selected, and the ordinary level's desks
  * do not.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     createSecondLevel,
     removeSecondLevel,
 } from '../../../../e2e/support/desk/desk.zones';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 test.describe('desk level scoping', () => {
     test('choosing a level changes which desks the list offers', async ({

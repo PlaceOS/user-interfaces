@@ -1,15 +1,15 @@
-import type { Mock } from 'vitest';
+import { MatRippleModule } from '@angular/material/core';
 import {
     MAT_DIALOG_DATA,
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
+import type { Mock } from 'vitest';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

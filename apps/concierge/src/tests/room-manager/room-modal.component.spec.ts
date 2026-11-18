@@ -1,6 +1,10 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';

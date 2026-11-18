@@ -55,7 +55,7 @@ const EMPTY = [];
         @if (!use_mapsindoors()) {
             <div
                 controls
-                class="flex flex-col border-base-300 bg-base-100 absolute top-2 left-2 max-w-[calc(100vw-1rem)] gap-2 overflow-hidden rounded-lg border p-2 shadow-xl"
+                class="border-base-300 bg-base-100 absolute top-2 left-2 flex max-w-[calc(100vw-1rem)] flex-col gap-2 overflow-hidden rounded-lg border p-2 shadow-xl"
             >
                 <explore-map-controls></explore-map-controls>
                 @if (toggle_count() >= 2) {
@@ -63,7 +63,7 @@ const EMPTY = [];
                         toggle-controls
                         matRipple
                         type="button"
-                        class="bg-base-200 rounded flex w-full items-center justify-between space-x-4 font-medium p-2"
+                        class="bg-base-200 flex w-full items-center justify-between space-x-4 rounded p-2 font-medium"
                         [attr.aria-expanded]="!toggles_collapsed()"
                         aria-controls="explore-map-toggle-options"
                         (click)="toggles_collapsed.set(!toggles_collapsed())"
@@ -145,7 +145,7 @@ const EMPTY = [];
         }
         @if (locate()) {
             <button
-                class="border-base-300 bg-base-100 absolute bottom-2 right-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
+                class="border-base-300 bg-base-100 absolute right-2 bottom-2 h-12 min-w-32 rounded-lg border px-4 shadow-sm"
                 matRipple
                 (click)="clearLocate()"
             >

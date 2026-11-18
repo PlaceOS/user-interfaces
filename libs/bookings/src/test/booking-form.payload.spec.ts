@@ -124,9 +124,9 @@ describe('bookingSaveQuery', () => {
                 new Booking(),
             ),
         ).toEqual({ event_id: 'evt-1', ical_uid: 'uid-1' });
-        expect(
-            bookingSaveQuery({ parent_id: 'bkn-0' }, new Booking()),
-        ).toEqual({ booking_id: 'bkn-0' });
+        expect(bookingSaveQuery({ parent_id: 'bkn-0' }, new Booking())).toEqual(
+            { booking_id: 'bkn-0' },
+        );
     });
 
     it('should target one occurrence unless the whole series is updated', () => {

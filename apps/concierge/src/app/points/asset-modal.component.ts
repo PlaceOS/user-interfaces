@@ -1,9 +1,9 @@
 import {
     Component,
-    EventEmitter,
-    Output,
     computed,
+    EventEmitter,
     inject,
+    Output,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';

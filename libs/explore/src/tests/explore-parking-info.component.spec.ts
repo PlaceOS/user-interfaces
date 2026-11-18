@@ -11,15 +11,16 @@ describe('ExploreParkingInfoComponent', () => {
         ...ngMocks.guts(null),
         providers: [
             MockProvider(MAP_FEATURE_DATA, {}),
-            MockProvider(SettingsService, { get: vi.fn(), app_name: 'Workplace' }),
+            MockProvider(SettingsService, {
+                get: vi.fn(),
+                app_name: 'Workplace',
+            }),
         ],
     });
 
     it('should fall back to the identifier when no name is set', () => {
         spectator = createComponent({
-            providers: [
-                MockProvider(MAP_FEATURE_DATA, { identifier: 'P-12' }),
-            ],
+            providers: [MockProvider(MAP_FEATURE_DATA, { identifier: 'P-12' })],
         });
         expect(spectator.component.name()).toBe('P-12');
     });

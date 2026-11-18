@@ -861,7 +861,11 @@ export class GuestListingComponent extends AsyncHandler {
     }
 
     public get allow_international() {
-        return showVisitorFlag(this._settings, this._state.bookings(), 'international');
+        return showVisitorFlag(
+            this._settings,
+            this._state.bookings(),
+            'international',
+        );
     }
 
     public get allow_visitor_internal_or_external() {

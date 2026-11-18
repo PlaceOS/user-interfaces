@@ -13,11 +13,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { format } from 'date-fns';
+import { showVisitorFlag } from '../../visitors/visitor-flags';
 import {
     ReportMetricGuideComponent,
     ReportMetricGuideItem,
 } from '../report-metric-guide.component';
-import { showVisitorFlag } from '../../visitors/visitor-flags';
 import { VisitorsReportService } from './visitors-report.service';
 
 const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
@@ -147,7 +147,11 @@ export class VisitorReportListComponent {
 
     public readonly print = input(false);
     public get allow_international() {
-        return showVisitorFlag(this._settings, this._state.bookings(), 'international');
+        return showVisitorFlag(
+            this._settings,
+            this._state.bookings(),
+            'international',
+        );
     }
 
     public get allow_visitor_internal_or_external() {

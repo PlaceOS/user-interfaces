@@ -10,9 +10,7 @@ describe('EnrolmentErrorComponent', () => {
 
     const createComponent = createComponentFactory({
         component: EnrolmentErrorComponent,
-        providers: [
-            { provide: EnrolmentStateService, useValue: { error } },
-        ],
+        providers: [{ provide: EnrolmentStateService, useValue: { error } }],
         detectChanges: false,
     });
 

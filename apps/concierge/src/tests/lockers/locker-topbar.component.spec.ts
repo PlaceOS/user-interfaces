@@ -1,15 +1,18 @@
+import { signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { signal } from '@angular/core';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { LockersTopbarComponent } from '../../app/lockers/locker-topbar.component';
-import { LockerStateService } from '../../app/lockers/locker-state.service';
 import { DateOptionsComponent } from '@placeos/form-fields';
+import { LockerStateService } from '../../app/lockers/locker-state.service';
+import { LockersTopbarComponent } from '../../app/lockers/locker-topbar.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
 
 describe('LockersTopbarComponent', () => {
@@ -65,9 +68,9 @@ describe('LockersTopbarComponent', () => {
 
         (spectator.component as any)._updatePath();
 
-        expect(spectator.inject(LockerStateService).setSearch).toHaveBeenCalledWith(
-            '',
-        );
+        expect(
+            spectator.inject(LockerStateService).setSearch,
+        ).toHaveBeenCalledWith('');
         expect(spectator.component.zones()).toEqual([]);
     });
 });

@@ -34,7 +34,9 @@ export class ParkingForm {
         return this.page.locator('input[name$=".all_day"]').first();
     }
     get dateButton(): Locator {
-        return this.root.locator('a-date-field button, date-field button').first();
+        return this.root
+            .locator('a-date-field button, date-field button')
+            .first();
     }
     get datePicker(): Locator {
         return this.page.locator('.cdk-overlay-container date-calendar');
@@ -52,7 +54,9 @@ export class ParkingForm {
     }
     /** The spaces chosen on the form, one row each. */
     get chosenSpaces(): Locator {
-        return this.page.locator('parking-space-list-field [space], parking-space-list-field div[space]');
+        return this.page.locator(
+            'parking-space-list-field [space], parking-space-list-field div[space]',
+        );
     }
     /** `Confirm Reservation` on the FORM — moves to the confirm screen. */
     get confirmViewButton(): Locator {
@@ -68,7 +72,9 @@ export class ParkingForm {
      */
     get confirmButton(): Locator {
         return this.page
-            .locator('.cdk-overlay-container parking-flow-confirm button[confirm]')
+            .locator(
+                '.cdk-overlay-container parking-flow-confirm button[confirm]',
+            )
             .first();
     }
     get successPanel(): Locator {
@@ -104,7 +110,12 @@ export class ParkingForm {
      */
     async openDatePicker(): Promise<void> {
         await expect(async () => {
-            if (!(await this.datePicker.first().isVisible().catch(() => false))) {
+            if (
+                !(await this.datePicker
+                    .first()
+                    .isVisible()
+                    .catch(() => false))
+            ) {
                 await this.dateButton.click({ timeout: 10_000 });
             }
             await expect(
@@ -128,7 +139,9 @@ export class ParkingForm {
 
         await expect(async () => {
             await this.openDatePicker();
-            const cells = this.datePicker.locator('button[name="schedule-set-date"]');
+            const cells = this.datePicker.locator(
+                'button[name="schedule-set-date"]',
+            );
             const grid = await cells.evaluateAll((els) =>
                 els.map((el) => ({
                     text: (el.textContent ?? '').trim(),
@@ -136,7 +149,10 @@ export class ParkingForm {
                     today: !!el.querySelector('div.border-secondary'),
                 })),
             );
-            expect(grid.length, 'the calendar rendered no day cells').toBeGreaterThan(0);
+            expect(
+                grid.length,
+                'the calendar rendered no day cells',
+            ).toBeGreaterThan(0);
 
             const today_index = grid.findIndex((cell) => cell.today);
             expect(
@@ -160,7 +176,9 @@ export class ParkingForm {
                     `yesterday by the browser clock`,
             ).toBeTruthy();
 
-            const days = Math.round((target.valueOf() - anchor!.valueOf()) / 86_400_000);
+            const days = Math.round(
+                (target.valueOf() - anchor!.valueOf()) / 86_400_000,
+            );
             const index = today_index + days;
             expect(
                 index >= 0 && index < grid.length,
@@ -188,12 +206,20 @@ export class ParkingForm {
      */
     async chooseSpace(name: string): Promise<void> {
         await this.addSpaceButton.click({ timeout: 10_000 });
-        const modal = this.page.locator('parking-select-modal, mat-dialog-container');
-        await expect(modal.first(), 'the parking picker did not open').toBeVisible({
+        const modal = this.page.locator(
+            'parking-select-modal, mat-dialog-container',
+        );
+        await expect(
+            modal.first(),
+            'the parking picker did not open',
+        ).toBeVisible({
             timeout: 20_000,
         });
 
-        const row = this.page.locator('li[space]').filter({ hasText: name }).first();
+        const row = this.page
+            .locator('li[space]')
+            .filter({ hasText: name })
+            .first();
         const found = await row
             .waitFor({ state: 'visible', timeout: 20_000 })
             .then(() => true)
@@ -202,7 +228,9 @@ export class ParkingForm {
             // Say what IS on offer. "Not found" cannot tell apart a space that
             // was never seeded, one on a level that is not tagged `parking`, and
             // one the picker is hiding because it is already booked.
-            const offered = await this.page.locator('li[space]').allInnerTexts();
+            const offered = await this.page
+                .locator('li[space]')
+                .allInnerTexts();
             throw new Error(
                 `no parking space called "${name}" in the picker. It offers ` +
                     `${offered.length}: ` +
@@ -262,11 +290,18 @@ export class ParkingForm {
         const chosen = await options.evaluateAll(
             (els) =>
                 els
-                    .find((el) => el.querySelector('icon')?.textContent?.trim() === 'done')
+                    .find(
+                        (el) =>
+                            el.querySelector('icon')?.textContent?.trim() ===
+                            'done',
+                    )
                     ?.getAttribute('data-time') ?? '',
         );
         await this.page.keyboard.press('Escape');
-        await expect(options.first(), 'the start time menu did not close').toBeHidden();
+        await expect(
+            options.first(),
+            'the start time menu did not close',
+        ).toBeHidden();
         return chosen;
     }
 

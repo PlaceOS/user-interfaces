@@ -4,9 +4,9 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { captureDownloads } from '../download-capture.helper';
 import { VisitorReportDailyUsageComponent } from 'apps/concierge/src/app/reports/visitors/visitor-report-daily-usage.component';
 import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/visitors-report.service';
+import { captureDownloads } from '../download-capture.helper';
 
 describe('VisitorReportDailyUsageComponent', () => {
     let spectator: Spectator<VisitorReportDailyUsageComponent>;

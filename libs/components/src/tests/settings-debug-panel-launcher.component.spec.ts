@@ -181,7 +181,9 @@ describe('SettingsDebugPanelLauncherComponent', () => {
         );
         fixture.detectChanges();
         expect(logging_starts).toBe(0);
-        setCurrentUser(new StaffUser({ id: 'admin', groups: ['placeos_admin'] }));
+        setCurrentUser(
+            new StaffUser({ id: 'admin', groups: ['placeos_admin'] }),
+        );
         fixture.detectChanges();
         expect(logging_starts).toBe(1);
         const system_id = `sys-${Date.now()}-launcher`;

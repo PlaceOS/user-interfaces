@@ -1,9 +1,4 @@
-import {
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -96,7 +91,9 @@ import { DashboardsService } from './dashboards.service';
                     >
                         <div class="flex-1">
                             {{ list?.time_dependents?.length }}
-                            <span class="sr-only">time dependent conditions</span>
+                            <span class="sr-only"
+                                >time dependent conditions</span
+                            >
                         </div>
                         <icon class="text-lg">avg_time</icon>
                     </div>

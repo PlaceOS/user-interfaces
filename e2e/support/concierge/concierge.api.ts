@@ -44,7 +44,9 @@ const ZONE_TAGS = ['org', 'building', 'level'] as const;
 
 /** Every seeded zone id in the org → building → level chain. */
 export async function withZoneChain(api: APIRequestContext): Promise<string[]> {
-    const groups = await Promise.all(ZONE_TAGS.map((t) => zonesWithTag(api, t)));
+    const groups = await Promise.all(
+        ZONE_TAGS.map((t) => zonesWithTag(api, t)),
+    );
     const ids = groups.flat().map((z) => z.id);
     if (!ids.length) {
         throw new Error(
@@ -128,7 +130,8 @@ export async function cleanUpBookings(
     api: APIRequestContext,
     ids: Array<number | undefined>,
 ): Promise<void> {
-    for (const id of ids) if (typeof id === 'number') await deleteBooking(api, id);
+    for (const id of ids)
+        if (typeof id === 'number') await deleteBooking(api, id);
 }
 
 /**
@@ -143,17 +146,23 @@ export async function seededDesks(
     api: APIRequestContext,
 ): Promise<Array<{ id: string; name: string }>> {
     const [building] = await zonesWithTag(api, 'building');
-    if (!building) throw new Error('No building zone — the stack is not seeded.');
-    const res = await api.get(`/api/engine/v2/metadata/${building.id}/children`, {
-        params: { name: 'desks' },
-    });
+    if (!building)
+        throw new Error('No building zone — the stack is not seeded.');
+    const res = await api.get(
+        `/api/engine/v2/metadata/${building.id}/children`,
+        {
+            params: { name: 'desks' },
+        },
+    );
     if (!res.ok()) {
         throw new Error(
             `Could not read desk metadata for ${building.id}: HTTP ${res.status()}`,
         );
     }
     const body = (await res.json()) as Array<{
-        metadata?: { desks?: { details?: Array<{ id: string; name: string }> } };
+        metadata?: {
+            desks?: { details?: Array<{ id: string; name: string }> };
+        };
     }>;
     // DEDUPE BY ID, and do not remove this.
     //
@@ -244,7 +253,8 @@ export async function ensureParkingSpaces(
     name_prefix = 'E2E Parking',
 ): Promise<{ zone_id: string; spaces: Array<{ id: string; name: string }> }> {
     const [building] = await zonesWithTag(api, 'building');
-    if (!building) throw new Error('No building zone — the stack is not seeded.');
+    if (!building)
+        throw new Error('No building zone — the stack is not seeded.');
 
     const zone = await findOrCreate(
         api,
@@ -253,7 +263,8 @@ export async function ensureParkingSpaces(
         {
             name: PARKING_LEVEL_NAME,
             display_name: PARKING_LEVEL_NAME,
-            description: 'Parking level owned by the e2e suite. Safe to delete.',
+            description:
+                'Parking level owned by the e2e suite. Safe to delete.',
             tags: ['level', 'parking'],
             parent_id: building.id,
         },
@@ -285,7 +296,8 @@ export async function ensureParkingSpaces(
             category_id: category.id,
             // Required: without it the POST is a 422 "brand: should not be nil".
             brand: 'E2E',
-            description: 'Parking spaces owned by the e2e suite. Safe to delete.',
+            description:
+                'Parking spaces owned by the e2e suite. Safe to delete.',
         },
     );
 

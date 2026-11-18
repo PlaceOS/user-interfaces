@@ -23,7 +23,10 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                             class="bg-brand-content absolute inset-0 opacity-20"
                         ></div>
                         <div>
-                            {{ 'BOOKINGS.VISITOR_RECENT_QUICK_ACTION' | translate }}
+                            {{
+                                'BOOKINGS.VISITOR_RECENT_QUICK_ACTION'
+                                    | translate
+                            }}
                         </div>
                     </div>
                     <div class="flex items-center space-x-2">
@@ -66,7 +69,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                                     <icon class="text-2xl">person</icon>
                                 } @else {
                                     @if (isVisitorSelected(visitor)) {
-                                        <icon class="text-2xl">check_circle</icon>
+                                        <icon class="text-2xl"
+                                            >check_circle</icon
+                                        >
                                     } @else {
                                         <icon class="text-2xl"
                                             >radio_button_unchecked</icon
@@ -95,7 +100,9 @@ import { IconComponent, TranslatePipe } from '@placeos/components';
                         <icon class="text-4xl opacity-60">person_search</icon>
                         <div class="">
                             <div class="text-sm font-medium">
-                                {{ 'BOOKINGS.VISITOR_RECENT_EMPTY' | translate }}
+                                {{
+                                    'BOOKINGS.VISITOR_RECENT_EMPTY' | translate
+                                }}
                             </div>
                             <div class="text-xs opacity-80">
                                 {{
@@ -140,9 +147,11 @@ export class VisitorFlowRecentComponent implements OnInit {
     });
 
     public readonly recent_visitors = computed(() => {
-        return this.visitors().slice(0, 5).map((visitor) => {
-            return this.enrichVisitorData(visitor);
-        });
+        return this.visitors()
+            .slice(0, 5)
+            .map((visitor) => {
+                return this.enrichVisitorData(visitor);
+            });
     });
 
     public readonly selected_visitors = computed(() => {

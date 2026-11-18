@@ -89,7 +89,9 @@ export class LandingNewPage {
     deskWeekDay(day_of_month: number): Locator {
         return this.deskWeek
             .locator('div:visible')
-            .filter({ has: this.page.locator(`span:text-is("${day_of_month}")`) })
+            .filter({
+                has: this.page.locator(`span:text-is("${day_of_month}")`),
+            })
             .filter({ has: this.page.locator('button') })
             .last();
     }
@@ -98,14 +100,20 @@ export class LandingNewPage {
     deskWeekBooking(day_of_month: number): Locator {
         return this.deskWeekDay(day_of_month)
             .locator('button')
-            .filter({ has: this.page.locator('icon', { hasText: 'location_on' }) });
+            .filter({
+                has: this.page.locator('icon', { hasText: 'location_on' }),
+            });
     }
 
     /** The "book a desk" control of a day with no desk booking. */
     deskWeekBook(day_of_month: number): Locator {
         return this.deskWeekDay(day_of_month)
             .locator('button')
-            .filter({ has: this.page.locator('icon', { hasText: 'add_circle_outline' }) });
+            .filter({
+                has: this.page.locator('icon', {
+                    hasText: 'add_circle_outline',
+                }),
+            });
     }
 
     get favourites(): Locator {
@@ -118,7 +126,9 @@ export class LandingNewPage {
      */
     favourite(name: string): Locator {
         const book = this.page.locator('button[name="book-favourite"]');
-        return this.favourites.locator('div', { has: book, hasText: name }).last();
+        return this.favourites
+            .locator('div', { has: book, hasText: name })
+            .last();
     }
 
     /** The Book control of a favourite. */
@@ -133,7 +143,9 @@ export class LandingNewPage {
 
     /** A tab of the "available now" panel. */
     availableTab(tab: 'desks' | 'rooms' | 'lockers'): Locator {
-        return this.page.locator(`landing-available-now button[name="tab-${tab}"]`);
+        return this.page.locator(
+            `landing-available-now button[name="tab-${tab}"]`,
+        );
     }
 
     /**
@@ -141,12 +153,16 @@ export class LandingNewPage {
      * panel lists a level only when it has a free resource of the tab.
      */
     get availableLevels(): Locator {
-        return this.page.locator('landing-available-now a[name="available-level"]');
+        return this.page.locator(
+            'landing-available-now a[name="available-level"]',
+        );
     }
 
     /** The quick action that finds a desk for today. */
     get autoAssignDesk(): Locator {
-        return this.page.locator('landing-quick-actions button[name="auto-assign-desk"]');
+        return this.page.locator(
+            'landing-quick-actions button[name="auto-assign-desk"]',
+        );
     }
 
     /** The modal that shows the desk the quick action found. */
@@ -193,14 +209,21 @@ export class LandingNewPage {
     async colleagueAction(email: string, icon: string): Promise<Locator> {
         await this.colleague(email)
             .locator('button[icon]')
-            .filter({ has: this.page.locator('icon', { hasText: 'more_vert' }) })
+            .filter({
+                has: this.page.locator('icon', { hasText: 'more_vert' }),
+            })
             .click();
         const action = this.page
             .locator('.cdk-overlay-container button[mat-menu-item]')
             .filter({
-                has: this.page.locator('icon', { hasText: new RegExp(`^\\s*${icon}\\s*$`) }),
+                has: this.page.locator('icon', {
+                    hasText: new RegExp(`^\\s*${icon}\\s*$`),
+                }),
             });
-        await expect(action, `the colleague menu has no "${icon}" action`).toBeVisible({
+        await expect(
+            action,
+            `the colleague menu has no "${icon}" action`,
+        ).toBeVisible({
             timeout: 10_000,
         });
         return action;
@@ -220,7 +243,9 @@ export class LandingNewPage {
     async addColleague(email: string): Promise<void> {
         await this.colleagues
             .locator('button[btn]')
-            .filter({ has: this.page.locator('icon', { hasText: 'person_add' }) })
+            .filter({
+                has: this.page.locator('icon', { hasText: 'person_add' }),
+            })
             .click();
         const modal = this.addColleaguesModal;
         const input = modal.locator('input');
@@ -238,10 +263,14 @@ export class LandingNewPage {
             });
         }).toPass({ timeout: 45_000 });
         await row.click();
-        await expect(row.locator('icon', { hasText: 'radio_button_unchecked' })).toHaveCount(0);
+        await expect(
+            row.locator('icon', { hasText: 'radio_button_unchecked' }),
+        ).toHaveCount(0);
         // The last control of the footer is Add. The first is Cancel.
         await modal.locator('footer button[btn]').last().click();
-        await expect(modal, 'the modal should close after the add').toHaveCount(0);
+        await expect(modal, 'the modal should close after the add').toHaveCount(
+            0,
+        );
     }
 
     async open(): Promise<void> {
@@ -251,7 +280,9 @@ export class LandingNewPage {
 
     /** Accept the shared confirm dialog. Its accept button has a stable name. */
     async acceptConfirm(): Promise<void> {
-        const accept = this.page.locator('.cdk-overlay-container button[name="accept"]');
+        const accept = this.page.locator(
+            '.cdk-overlay-container button[name="accept"]',
+        );
         await expect(
             accept,
             'the confirmation dialog did not open, so there was nothing to accept',

@@ -172,7 +172,9 @@ test.describe('editing a visitor invite', () => {
                 ).toHaveCount(1, { timeout: 30_000 });
                 await expect(async () => {
                     await form.reason.fill(new_reason);
-                    await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
+                    await expect(form.reason).toHaveValue(new_reason, {
+                        timeout: 1_000,
+                    });
                 }).toPass({ timeout: 30_000 });
             });
 
@@ -273,9 +275,11 @@ test.describe('editing a visitor invite', () => {
                     // one that stays.
                     await expect(async () => {
                         await form.chipIndexFor(kept.email);
-                    }, 'the edit form should load with the kept visitor listed').toPass({
-                        timeout: 30_000,
-                    });
+                    }, 'the edit form should load with the kept visitor listed').toPass(
+                        {
+                            timeout: 30_000,
+                        },
+                    );
                 }
 
                 // Not a `hasText` filter on the address: a chip renders only
@@ -286,7 +290,8 @@ test.describe('editing a visitor invite', () => {
                     .chipIndexFor(removed.email)
                     .then(() => true)
                     .catch(() => false);
-                if (attempt === 1 || still_listed) await form.removeVisitorChip(removed.email);
+                if (attempt === 1 || still_listed)
+                    await form.removeVisitorChip(removed.email);
                 await expect(
                     form.chips,
                     'one visitor was removed from the list',
@@ -379,7 +384,9 @@ test.describe('editing a visitor invite', () => {
 
                 await expect(async () => {
                     await form.reason.fill(new_reason);
-                    await expect(form.reason).toHaveValue(new_reason, { timeout: 1_000 });
+                    await expect(form.reason).toHaveValue(new_reason, {
+                        timeout: 1_000,
+                    });
                 }).toPass({ timeout: 30_000 });
             });
 

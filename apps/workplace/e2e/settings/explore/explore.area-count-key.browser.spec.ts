@@ -33,10 +33,18 @@ const EXPLORE = syntheticExplore('e2e-area-count-key-');
 const { LEVEL, TARGET, CONTROL, COLOUR } = EXPLORE;
 // Payloads are the values passed to StatusVariable callbacks, not GeoJSON.
 const LIVE: Record<string, unknown> = {
-    [LEVEL + ':areas']: { value: [
-        { area_id: TARGET, map_id: TARGET, capacity: 10, count: 2, people_count: 8 },
-        { area_id: CONTROL, map_id: CONTROL, count: 1 },
-    ] },
+    [LEVEL + ':areas']: {
+        value: [
+            {
+                area_id: TARGET,
+                map_id: TARGET,
+                capacity: 10,
+                count: 2,
+                people_count: 8,
+            },
+            { area_id: CONTROL, map_id: CONTROL, count: 1 },
+        ],
+    },
     [LEVEL]: { value: [] },
     [LEVEL + ':desk_bookings']: {},
     // LandingStateService.init binds AreaManagement overview (level occupancy).
@@ -44,8 +52,10 @@ const LIVE: Record<string, unknown> = {
 };
 const BASE: Settings = {
     ...EXPLORE.BASE,
-    'app.events.has_assets': false, 'app.events.can_book_for_others': false,
-    'app.events.bookable_hours': null, 'app.events.booking_unavailable': false,
+    'app.events.has_assets': false,
+    'app.events.can_book_for_others': false,
+    'app.events.bookable_hours': null,
+    'app.events.booking_unavailable': false,
     'app.explore.colors': { 'zone-free': COLOUR, 'zone-busy': '#654321' },
 };
 
@@ -58,7 +68,11 @@ const test = browserOnlyTest<ControlAudit>({
     }),
 });
 
-async function openExplore(page: Page, audit: ControlAudit, override: Settings) {
+async function openExplore(
+    page: Page,
+    audit: ControlAudit,
+    override: Settings,
+) {
     return openSyntheticExplore(page, audit, EXPLORE, {
         settings: { ...BASE, ...override },
         bearer: FAKE_BEARER,
@@ -70,21 +84,42 @@ for (const scenario of [
     { key: 'count', pixel: [18, 52, 86, 128] },
     { key: 'people_count', pixel: [101, 67, 33, 128] },
 ]) {
-    test('explore.area_count_key=' + scenario.key + ' paints the selected occupancy status',
+    test(
+        'explore.area_count_key=' +
+            scenario.key +
+            ' paints the selected occupancy status',
         async ({ isolated: { page, audit } }) => {
-            await openExplore(page, audit, { 'app.explore.area_count_key': scenario.key });
+            await openExplore(page, audit, {
+                'app.explore.area_count_key': scenario.key,
+            });
             // openExplore has already proved control polygon rendering, metadata
             // and the latest socket's complete live deliveries.
-            await expect.poll(async () => {
-                const actual = await pixel(page, 0.25, 0.25);
-                // Canvas alpha premultiplication can round RGB channels.
-                return actual[3] === scenario.pixel[3] &&
-                    actual.slice(0, 3).every((channel, index) =>
-                        Math.abs(channel - scenario.pixel[index]) <= 2);
-            }, {
-                message: 'target polygon uses the count selected by the setting',
-            }).toBe(true);
-            await expect(page.locator('explore-map-view [map-canvas] svg')).toBeVisible();
-        });
+            await expect
+                .poll(
+                    async () => {
+                        const actual = await pixel(page, 0.25, 0.25);
+                        // Canvas alpha premultiplication can round RGB channels.
+                        return (
+                            actual[3] === scenario.pixel[3] &&
+                            actual
+                                .slice(0, 3)
+                                .every(
+                                    (channel, index) =>
+                                        Math.abs(
+                                            channel - scenario.pixel[index],
+                                        ) <= 2,
+                                )
+                        );
+                    },
+                    {
+                        message:
+                            'target polygon uses the count selected by the setting',
+                    },
+                )
+                .toBe(true);
+            await expect(
+                page.locator('explore-map-view [map-canvas] svg'),
+            ).toBeVisible();
+        },
+    );
 }
-

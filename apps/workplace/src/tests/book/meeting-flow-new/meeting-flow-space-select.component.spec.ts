@@ -166,9 +166,7 @@ describe('MeetingFlowSpaceSelectComponent', () => {
 
     it('should aggregate space features with the service feature list', () => {
         const features = spectator.component.features();
-        expect(features).toEqual(
-            expect.arrayContaining(['whiteboard']),
-        );
+        expect(features).toEqual(expect.arrayContaining(['whiteboard']));
         // unique - no duplicates
         expect(features.filter((f) => f === 'whiteboard').length).toBe(1);
     });

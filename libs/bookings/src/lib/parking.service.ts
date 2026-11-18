@@ -137,7 +137,9 @@ export class ParkingService extends AsyncHandler {
             let active = true;
             onCleanup(() => (active = false));
             untracked(() =>
-                assignedDeskBuilding(this._org, email, use_assets).then((id) => active && this._home_building_id.set(id)),
+                assignedDeskBuilding(this._org, email, use_assets).then(
+                    (id) => active && this._home_building_id.set(id),
+                ),
             );
         });
         effect(() => {

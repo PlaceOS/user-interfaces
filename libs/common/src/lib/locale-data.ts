@@ -5,10 +5,7 @@ import { registerLocaleData } from '@angular/common';
  * import so the locale data file (~5KB each) is emitted as its own lazy chunk
  * rather than being bundled into the app's initial bundle.
  */
-const SUPPORTED_LOCALES: Record<
-    string,
-    () => Promise<{ default: unknown }>
-> = {
+const SUPPORTED_LOCALES: Record<string, () => Promise<{ default: unknown }>> = {
     ar: () => import('@angular/common/locales/ar'),
     es: () => import('@angular/common/locales/es'),
     fr: () => import('@angular/common/locales/fr'),

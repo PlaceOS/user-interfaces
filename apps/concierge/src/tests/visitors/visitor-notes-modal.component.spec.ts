@@ -1,5 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import { setNotifyOutlet } from '@placeos/common';

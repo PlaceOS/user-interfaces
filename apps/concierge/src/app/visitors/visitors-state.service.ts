@@ -142,15 +142,18 @@ export class VisitorsStateService extends AsyncHandler {
         const start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const end = addDays(start, filters.period || 1);
         let failed = false;
-        const list = await queryAllBookings({
-            type: 'visitor',
-            period_start: getUnixTime(start),
-            period_end: getUnixTime(end),
-            zones: (filters.zones || []).join(',') || building.id,
-            include_checked_out: true,
-            include_deleted: true,
-            limit: 200,
-        }, { signal: controller.signal }).catch(() => {
+        const list = await queryAllBookings(
+            {
+                type: 'visitor',
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
+                zones: (filters.zones || []).join(',') || building.id,
+                include_checked_out: true,
+                include_deleted: true,
+                limit: 200,
+            },
+            { signal: controller.signal },
+        ).catch(() => {
             failed = true;
             return [] as Booking[];
         });

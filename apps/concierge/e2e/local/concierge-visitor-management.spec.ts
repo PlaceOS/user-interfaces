@@ -131,9 +131,7 @@ test.describe('concierge visitor management', () => {
             columnIndex(table, 'notes'),
             table.column_ids.length,
         );
-        await notes
-            .locator('button')
-            .click();
+        await notes.locator('button').click();
         const modal = adminPage.locator('visitor-notes-modal');
         await modal.locator('textarea').fill(note);
         await modal.getByRole('button', { name: 'Save', exact: true }).click();

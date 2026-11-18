@@ -19,9 +19,9 @@ import { expect } from '@playwright/test';
 import {
     type DebugWindow,
     openZoneSensorExplore,
+    zoneSensorTest as test,
     ZONE_SENSOR_READING,
     ZONE_SENSOR_TARGET,
-    zoneSensorTest as test,
 } from '../support/settings-harness';
 
 const SCENARIOS = [
@@ -30,32 +30,72 @@ const SCENARIOS = [
 ];
 
 for (const scenario of SCENARIOS) {
-    test('use_imperial_units ' + scenario.imperial + ' labels the zone temperature ˚' + scenario.shown,
+    test(
+        'use_imperial_units ' +
+            scenario.imperial +
+            ' labels the zone temperature ˚' +
+            scenario.shown,
         async ({ zones: { page, audit } }) => {
             await openZoneSensorExplore(page, audit, {
                 'app.use_imperial_units': scenario.imperial,
                 'app.explore.show_zone_sensor_info': true,
             });
             // The room's sensor feature carries the reading and the unit.
-            await expect.poll(() => page.locator('explore-map-view').evaluate((element, id) => {
-                const view = (window as DebugWindow).ng?.getComponent(element) as {
-                    features(): { track_id?: string; data?: { temp?: number; temp_unit?: string } }[];
-                } | undefined;
-                if (!view) throw new Error('Read-only map features unavailable');
-                const feature = view.features().find((item) => item.track_id === 'sensors:' + id);
-                return feature ? { temp: feature.data?.temp, unit: feature.data?.temp_unit } : null;
-            }, ZONE_SENSOR_TARGET)).toEqual({ temp: ZONE_SENSOR_READING.temperature, unit: scenario.shown });
-            const button = page.locator('explore-map-view explore-sensor-info button');
+            await expect
+                .poll(() =>
+                    page.locator('explore-map-view').evaluate((element, id) => {
+                        const view = (window as DebugWindow).ng?.getComponent(
+                            element,
+                        ) as
+                            | {
+                                  features(): {
+                                      track_id?: string;
+                                      data?: {
+                                          temp?: number;
+                                          temp_unit?: string;
+                                      };
+                                  }[];
+                              }
+                            | undefined;
+                        if (!view)
+                            throw new Error(
+                                'Read-only map features unavailable',
+                            );
+                        const feature = view
+                            .features()
+                            .find((item) => item.track_id === 'sensors:' + id);
+                        return feature
+                            ? {
+                                  temp: feature.data?.temp,
+                                  unit: feature.data?.temp_unit,
+                              }
+                            : null;
+                    }, ZONE_SENSOR_TARGET),
+                )
+                .toEqual({
+                    temp: ZONE_SENSOR_READING.temperature,
+                    unit: scenario.shown,
+                });
+            const button = page.locator(
+                'explore-map-view explore-sensor-info button',
+            );
             await expect(button).toHaveCount(1);
             await expect(button).toBeVisible();
             await button.click();
-            const tooltip = page.locator('.cdk-overlay-container [custom-tooltip] > div');
+            const tooltip = page.locator(
+                '.cdk-overlay-container [custom-tooltip] > div',
+            );
             await expect(tooltip).toHaveCount(1);
             await expect(tooltip).toBeVisible();
-            await expect(tooltip).toContainText(ZONE_SENSOR_READING.temperature + '˚' + scenario.shown);
+            await expect(tooltip).toContainText(
+                ZONE_SENSOR_READING.temperature + '˚' + scenario.shown,
+            );
             await expect(tooltip).not.toContainText('˚' + scenario.other);
-            await expect(tooltip).toContainText(ZONE_SENSOR_READING.humidity + '%');
+            await expect(tooltip).toContainText(
+                ZONE_SENSOR_READING.humidity + '%',
+            );
             await expect(page.locator('mat-dialog-container')).toHaveCount(0);
             await page.keyboard.press('Escape');
-        });
+        },
+    );
 }

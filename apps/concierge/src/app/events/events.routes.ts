@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { unsavedChangesGuard } from '../ui/unsaved-changes.guard';
-import { EventsComponent } from './events.component';
 import { EventManageComponent } from './event-manage.component';
 import { EventViewComponent } from './event-view.component';
 import { EventsListComponent } from './events-list.component';
+import { EventsComponent } from './events.component';
 
 export const ROUTES: Routes = [
     {

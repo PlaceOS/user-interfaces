@@ -13,40 +13,73 @@
  * Both tests drive the real form, because the point is the form's behaviour.
  * The assertions are still made against what the backend stored.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
-import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
+import {
+    deleteBooking,
+    getBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
+import {
+    deleteGuest,
+    releaseVisitor,
+} from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 import {
     ALLOW_ALL_DAY,
     REASON_REQUIRED,
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
-import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
 const window_to = () => Math.floor(Date.now() / 1000) + 2 * DAY;
 
 test.describe('visitor invite settings', () => {
-    test('an all-day invite is stored as all-day', async ({ staffPage, staffApi }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.settings.allDay);
+    test('an all-day invite is stored as all-day', async ({
+        staffPage,
+        staffApi,
+    }, testInfo) => {
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.settings.allDay,
+        );
         const reason = uniqueTitle('E2E Visit All Day');
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
-        await useSettings(staffPage, { ...SINGLE_VISITOR_MODE, ...ALLOW_ALL_DAY });
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
+        await useSettings(staffPage, {
+            ...SINGLE_VISITOR_MODE,
+            ...ALLOW_ALL_DAY,
+        });
 
         try {
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
-                allDay: true,
-            });
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+                {
+                    allDay: true,
+                },
+            );
             booking_id = created.id;
 
             const stored = await getBooking(staffApi, booking_id);
-            expect(stored.all_day, 'the backend recorded it as an all-day booking').toBe(true);
+            expect(
+                stored.all_day,
+                'the backend recorded it as an all-day booking',
+            ).toBe(true);
 
             // An all-day invite should span a real day, not the one-hour default
             // the form starts with. Asserting the flag alone would pass even if
@@ -73,10 +106,21 @@ test.describe('visitor invite settings', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.settings.reason);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.settings.reason,
+        );
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
-        await useSettings(staffPage, { ...SINGLE_VISITOR_MODE, ...REASON_REQUIRED });
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
+        await useSettings(staffPage, {
+            ...SINGLE_VISITOR_MODE,
+            ...REASON_REQUIRED,
+        });
 
         const form = new InviteVisitorForm(staffPage);
         await form.open();
@@ -92,7 +136,10 @@ test.describe('visitor invite settings', () => {
 
         const posts: number[] = [];
         staffPage.on('response', (r) => {
-            if (r.url().includes('/api/staff/v1/bookings') && r.request().method() === 'POST') {
+            if (
+                r.url().includes('/api/staff/v1/bookings') &&
+                r.request().method() === 'POST'
+            ) {
                 posts.push(r.status());
             }
         });
@@ -100,7 +147,9 @@ test.describe('visitor invite settings', () => {
         await expect(async () => {
             await form.visitorName.fill(visitor.name);
             await form.visitorEmail.fill(visitor.email);
-            await expect(form.visitorEmail).toHaveValue(visitor.email, { timeout: 1_000 });
+            await expect(form.visitorEmail).toHaveValue(visitor.email, {
+                timeout: 1_000,
+            });
         }).toPass({ timeout: 30_000 });
 
         await form.sendButton.click();
@@ -125,7 +174,12 @@ test.describe('visitor invite settings', () => {
         let booking_id: number | undefined;
         try {
             const reason = uniqueTitle('E2E Visit Reason');
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason);
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+            );
             booking_id = created.id;
             expect(
                 (await getBooking(staffApi, booking_id)).title,

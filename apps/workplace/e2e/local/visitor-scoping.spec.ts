@@ -17,10 +17,8 @@
  * authorisation, and driving the UI would only add a way for the test to fail
  * for an unrelated reason.
  */
+import type { APIRequestContext } from '@playwright/test';
 import { request } from '@playwright/test';
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { APP_URL, BACKEND_URL, WORKERS, roleFor } from '../../../../e2e/support/env';
-import { mintToken } from '../../../../e2e/support/auth';
 import {
     STAFF_API,
     currentUser,
@@ -29,14 +27,24 @@ import {
     uniqueTitle,
     zonesWithTag,
 } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
+import { mintToken } from '../../../../e2e/support/auth';
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    roleFor,
+} from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     createBookingViaApi,
     deleteGuest,
     releaseVisitor,
     searchGuests,
 } from '../../../../e2e/support/visitor/visitor.api';
-import type { APIRequestContext } from '@playwright/test';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
 
 const DAY = 86_400;
 // Window comfortably wider than any invite these specs create. Keep it that
@@ -90,7 +98,10 @@ test.describe('visitor invite visibility between users', () => {
         // A genuinely different seeded user. With one worker there is nobody
         // else to compare against, so the spec would be meaningless.
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const visitor = visitorFor(mine, VISITOR_SLOTS.scoping.own);
         const title = uniqueTitle('E2E Visitor Scoping');
@@ -109,19 +120,27 @@ test.describe('visitor invite visibility between users', () => {
         const other = await request.newContext({
             baseURL: BACKEND_URL,
             ignoreHTTPSErrors: true,
-            extraHTTPHeaders: { Authorization: `Bearer ${other_mint.accessToken}` },
+            extraHTTPHeaders: {
+                Authorization: `Bearer ${other_mint.accessToken}`,
+            },
         });
 
         try {
             // Sanity: the two identities really are different, or everything
             // below would pass for the wrong reason.
             const them = await currentUser(other);
-            expect(them.email, 'the second user must be a different person').not.toBe(
-                me.email,
-            );
+            expect(
+                them.email,
+                'the second user must be a different person',
+            ).not.toBe(me.email);
 
             // The privacy boundary.
-            const their_view = await listBookings(other, 'visitor', from(), to());
+            const their_view = await listBookings(
+                other,
+                'visitor',
+                from(),
+                to(),
+            );
             expect(
                 their_view.map((b) => b.id),
                 "another user's listing must not include your visitor invite",
@@ -129,7 +148,9 @@ test.describe('visitor invite visibility between users', () => {
 
             // And they cannot remove it. A 2xx here would mean anyone can cancel
             // anyone's visitor, which is worse than merely being able to see it.
-            const their_delete = await other.delete(`${STAFF_API}/bookings/${booking.id}`);
+            const their_delete = await other.delete(
+                `${STAFF_API}/bookings/${booking.id}`,
+            );
             expect(
                 their_delete.status(),
                 `another user must not be able to delete your invite ` +
@@ -137,7 +158,12 @@ test.describe('visitor invite visibility between users', () => {
             ).toBeGreaterThanOrEqual(400);
 
             // Still there afterwards, from the owner's point of view.
-            const still_mine = await listBookings(staffApi, 'visitor', from(), to());
+            const still_mine = await listBookings(
+                staffApi,
+                'visitor',
+                from(),
+                to(),
+            );
             expect(
                 still_mine.map((b) => b.id),
                 'the invite should survive the other user attempting to delete it',
@@ -155,7 +181,10 @@ test.describe('visitor invite visibility between users', () => {
         // The control for the test above. Without it, "they cannot see it" would
         // also pass if nobody could see anything — which is exactly how an
         // earlier leak-check managed to be reassuring and wrong.
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.scoping.control);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.scoping.control,
+        );
         const title = uniqueTitle('E2E Visitor Scoping Control');
         await releaseVisitor(staffApi, visitor.email, from(), to());
 
@@ -169,7 +198,9 @@ test.describe('visitor invite visibility between users', () => {
             ).toContain(booking.id);
 
             expect(
-                (await searchGuests(staffApi, visitor.email)).map((g) => g.email),
+                (await searchGuests(staffApi, visitor.email)).map(
+                    (g) => g.email,
+                ),
                 'and the guest record it created',
             ).toContain(visitor.email);
         } finally {

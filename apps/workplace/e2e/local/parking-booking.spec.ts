@@ -17,7 +17,6 @@
  *  - the form has a PLATE NUMBER field, which no other booking type has;
  *  - spaces come from the parking asset API rather than from zone metadata.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
@@ -25,6 +24,9 @@ import {
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
+import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
@@ -32,12 +34,10 @@ import {
     slotOn,
 } from '../../../../e2e/support/parking/parking.env';
 import { spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 import {
     PARKING_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/parking/parking.settings';
-import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
 
 test.describe('parking booking', () => {
     test('a non-admin books a parking space in the UI and the backend stores it', async ({
@@ -45,7 +45,10 @@ test.describe('parking booking', () => {
         staffApi,
     }, testInfo) => {
         const space = await spaceForWorker(testInfo.parallelIndex);
-        const slot = slotOn(PARKING_SLOTS.booking.day, PARKING_SLOTS.booking.hour);
+        const slot = slotOn(
+            PARKING_SLOTS.booking.day,
+            PARKING_SLOTS.booking.hour,
+        );
         const { from, to } = dayBoundsOn(PARKING_SLOTS.booking.day);
         const title = uniqueTitle('E2E Parking');
         const plate = `E2E ${testInfo.parallelIndex}${Date.now() % 1000}`;
@@ -103,7 +106,9 @@ test.describe('parking booking', () => {
                 stored.booking_type,
                 'the booking must be stored as a parking booking',
             ).toBe('parking');
-            expect(stored.asset_id, 'against the space that was chosen').toBe(space.id);
+            expect(stored.asset_id, 'against the space that was chosen').toBe(
+                space.id,
+            );
             expect(
                 hhmm(stored.booking_start),
                 'at the time that was chosen',
@@ -123,7 +128,10 @@ test.describe('parking booking', () => {
         staffApi,
     }, testInfo) => {
         const space = await spaceForWorker(testInfo.parallelIndex);
-        const slot = slotOn(PARKING_SLOTS.cleanup.day, PARKING_SLOTS.cleanup.hour);
+        const slot = slotOn(
+            PARKING_SLOTS.cleanup.day,
+            PARKING_SLOTS.cleanup.hour,
+        );
         const { from, to } = dayBoundsOn(PARKING_SLOTS.cleanup.day);
         const title = uniqueTitle('E2E Parking Cleanup');
 
@@ -136,13 +144,17 @@ test.describe('parking booking', () => {
             end: slot.end,
         });
         expect(
-            (await listBookings(staffApi, 'parking', from, to)).map((b) => b.id),
+            (await listBookings(staffApi, 'parking', from, to)).map(
+                (b) => b.id,
+            ),
             'precondition: the booking is in the listing before it is deleted',
         ).toContain(booking.id);
 
         await deleteBooking(staffApi, booking.id);
         expect(
-            (await listBookings(staffApi, 'parking', from, to)).map((b) => b.id),
+            (await listBookings(staffApi, 'parking', from, to)).map(
+                (b) => b.id,
+            ),
             'a deleted booking must not come back in the listing — otherwise every ' +
                 'spec teardown silently leaks state into the next run, and a space is ' +
                 'exclusive, so a leak holds it for everyone',

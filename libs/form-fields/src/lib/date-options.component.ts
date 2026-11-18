@@ -15,10 +15,6 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
-import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
-import { IconComponent } from 'libs/components/src/lib/icon.component';
-import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { DateCalendarComponent } from './date-calendar.component';
 import {
     addDays,
     endOfWeek,
@@ -32,6 +28,10 @@ import {
     startOfWeek,
     subDays,
 } from 'date-fns';
+import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { IconComponent } from 'libs/components/src/lib/icon.component';
+import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { DateCalendarComponent } from './date-calendar.component';
 
 type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
@@ -95,18 +95,21 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
             }
             <div class="relative px-1" [class.top-2]="is_today()">
                 @if (display_mode() === 'day') {
-                    {{  display_date() | date:'E, MMM d, y' }}
-                }@else {
+                    {{ display_date() | date: 'E, MMM d, y' }}
+                } @else {
                     @let start = display_period().start;
                     @let end = display_period().end;
-                    @if(is_same_year()) {
+                    @if (is_same_year()) {
                         @if (is_same_month()) {
-                            {{ start | date:'MMM d' }} - {{ end | date:'d, y' }}
+                            {{ start | date: 'MMM d' }} -
+                            {{ end | date: 'd, y' }}
                         } @else {
-                            {{ start | date:'MMM d' }} - {{ end | date:'MMM d, y' }}
+                            {{ start | date: 'MMM d' }} -
+                            {{ end | date: 'MMM d, y' }}
                         }
                     } @else {
-                        {{ start | date:'mediumDate' }} - {{ end | date:'mediumDate' }}
+                        {{ start | date: 'mediumDate' }} -
+                        {{ end | date: 'mediumDate' }}
                     }
                 }
             </div>
@@ -172,7 +175,7 @@ type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
         CustomTooltipComponent,
         DateCalendarComponent,
         IconComponent,
-        MatTooltipModule
+        MatTooltipModule,
     ],
 })
 export class DateOptionsComponent
@@ -217,18 +220,16 @@ export class DateOptionsComponent
         const end = endOfWeek(date, {
             weekStartsOn: this._week_start,
         });
-        return { start, end }
+        return { start, end };
     });
     public readonly is_same_month = computed(() => {
-        const { start, end } = this.display_period()
+        const { start, end } = this.display_period();
         return isSameMonth(start, end);
-
-    })
+    });
     public readonly is_same_year = computed(() => {
-        const { start, end } = this.display_period()
+        const { start, end } = this.display_period();
         return isSameYear(start, end);
-
-    })
+    });
 
     public ngOnInit() {
         this.subscription(
@@ -243,7 +244,8 @@ export class DateOptionsComponent
                         ).valueOf();
                         // Our own navigation comes back as the day already shown. Skip it,
                         // or the date would reset to midnight and emit a second time
-                        if (!isValid(date) || isSameDay(date, this.date())) return;
+                        if (!isValid(date) || isSameDay(date, this.date()))
+                            return;
                         this.date.set(date);
                         this.dateChange.emit(this.date());
                     });

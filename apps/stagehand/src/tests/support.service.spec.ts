@@ -57,7 +57,8 @@ describe('SupportService', () => {
     });
 
     it('should query systems scoped to the active organisation zone', async () => {
-        (ts_client.querySystems as any).mockReturnValue(Promise.resolve({ data: [] }),
+        (ts_client.querySystems as any).mockReturnValue(
+            Promise.resolve({ data: [] }),
         );
         await create();
         expect(ts_client.querySystems).toHaveBeenCalledWith({
@@ -67,7 +68,8 @@ describe('SupportService', () => {
     });
 
     it('should keep only systems that expose a support surface', async () => {
-        (ts_client.querySystems as any).mockReturnValue(Promise.resolve({
+        (ts_client.querySystems as any).mockReturnValue(
+            Promise.resolve({
                 data: [
                     { id: 'support', support_url: 'http://x' },
                     { id: 'camera', camera_url: 'http://cam' },
@@ -83,7 +85,8 @@ describe('SupportService', () => {
     });
 
     it('should normalise camera snapshot urls, dropping empty entries', async () => {
-        (ts_client.querySystems as any).mockReturnValue(Promise.resolve({
+        (ts_client.querySystems as any).mockReturnValue(
+            Promise.resolve({
                 data: [
                     {
                         id: 'snapshot',
@@ -141,7 +144,11 @@ describe('SupportService', () => {
                         zones: ['org-1', 'bld-1', 'lvl-2'],
                         support_url: 'x',
                     },
-                    { id: 'other', zones: ['org-1', 'bld-9'], support_url: 'x' },
+                    {
+                        id: 'other',
+                        zones: ['org-1', 'bld-9'],
+                        support_url: 'x',
+                    },
                 ],
             });
             await create();

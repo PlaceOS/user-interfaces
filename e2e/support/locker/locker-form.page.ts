@@ -115,7 +115,9 @@ export class LockerForm {
     async selectLocker(bankName: string, lockerName: string): Promise<void> {
         await this.openLockerSelection();
         await this.bankButtons.filter({ hasText: bankName }).click();
-        const locker = this.lockerButtons.filter({ hasText: lockerName }).first();
+        const locker = this.lockerButtons
+            .filter({ hasText: lockerName })
+            .first();
         await expect(locker).toBeVisible({ timeout: 20_000 });
         await locker.click();
         await expect(this.toggleLockerButton).toBeEnabled({ timeout: 10_000 });
@@ -124,14 +126,18 @@ export class LockerForm {
         // click that starts before the modal detaches waits out its timeout.
         await this.toggleLockerButton.click();
         await expect(this.modal).toBeHidden({ timeout: 10_000 });
-        await expect(this.selectedLocker.filter({ hasText: lockerName })).toBeVisible({
+        await expect(
+            this.selectedLocker.filter({ hasText: lockerName }),
+        ).toBeVisible({
             timeout: 20_000,
         });
     }
 
     async confirmAndSend(): Promise<Response> {
         await this.openConfirmationButton.click();
-        await expect(this.finalConfirmationButton).toBeVisible({ timeout: 20_000 });
+        await expect(this.finalConfirmationButton).toBeVisible({
+            timeout: 20_000,
+        });
         const responsePromise = this.page.waitForResponse(
             (response) =>
                 response.url().includes('/api/staff/v1/bookings') &&

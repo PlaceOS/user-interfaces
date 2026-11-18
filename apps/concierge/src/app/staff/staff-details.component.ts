@@ -110,15 +110,13 @@ export class StaffDetailsComponent {
     };
     public readonly checkout = async () => {
         this.loading.set(true);
-        await this._state
-            .checkout(this.user())
-            .catch((e) =>
-                notifyError(
-                    i18n('APP.CONCIERGE.DIRECTORY_CHECKOUT_ERROR', {
-                        error: e,
-                    }),
-                ),
-            );
+        await this._state.checkout(this.user()).catch((e) =>
+            notifyError(
+                i18n('APP.CONCIERGE.DIRECTORY_CHECKOUT_ERROR', {
+                    error: e,
+                }),
+            ),
+        );
         this.loading.set(false);
     };
 }

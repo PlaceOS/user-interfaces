@@ -15,5 +15,7 @@ export async function calendarBacked(api: APIRequestContext): Promise<boolean> {
         await getJson(api, `${STAFF_API}/tenants`),
     );
     const domain = new URL(BACKEND_URL).hostname;
-    return tenants.find((t) => t.domain === domain)?.name === CALENDAR_TENANT_NAME;
+    return (
+        tenants.find((t) => t.domain === domain)?.name === CALENDAR_TENANT_NAME
+    );
 }

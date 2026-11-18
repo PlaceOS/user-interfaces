@@ -62,10 +62,14 @@ async function listAll(
         params: { limit: '500', ...params },
     });
     if (!res.ok()) {
-        throw new Error(`list ${path} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `list ${path} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
-    return (Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])) as any[];
+    return (
+        Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])
+    ) as any[];
 }
 
 /** Does this error body mean another worker already created the row? */
@@ -118,13 +122,20 @@ async function ensureParkingLevel(api: APIRequestContext): Promise<string> {
 
 /** The hidden category and the space type inside it. */
 async function ensureSpaceType(api: APIRequestContext): Promise<string> {
-    const categories = await listAll(api, 'asset_categories', { hidden: 'true' });
+    const categories = await listAll(api, 'asset_categories', {
+        hidden: 'true',
+    });
     let category = categories.find((c) => c.name === PARKING_CATEGORY);
     category =
         category ??
-        (await create(api, 'asset_categories', { name: PARKING_CATEGORY, hidden: true }));
+        (await create(api, 'asset_categories', {
+            name: PARKING_CATEGORY,
+            hidden: true,
+        }));
 
-    const types = await listAll(api, 'asset_types', { category_id: category.id });
+    const types = await listAll(api, 'asset_types', {
+        category_id: category.id,
+    });
     let type = types.find((t) => t.name === PARKING_TYPE);
     type =
         type ??
@@ -133,7 +144,8 @@ async function ensureSpaceType(api: APIRequestContext): Promise<string> {
             category_id: category.id,
             // Required: without it the POST is a 422 "brand: should not be nil".
             brand: 'E2E',
-            description: 'Parking spaces owned by the e2e suite. Safe to delete.',
+            description:
+                'Parking spaces owned by the e2e suite. Safe to delete.',
         }));
     return type.id;
 }
@@ -217,12 +229,19 @@ export async function setParkingDenied(
     const admin = await apiFor('admin', 0);
     try {
         const seed = await parkingSeed();
-        const categories = await listAll(admin, 'asset_categories', { hidden: 'true' });
+        const categories = await listAll(admin, 'asset_categories', {
+            hidden: 'true',
+        });
         let category = categories.find((c) => c.name === PARKING_CATEGORY);
         category =
             category ??
-            (await create(admin, 'asset_categories', { name: PARKING_CATEGORY, hidden: true }));
-        const types = await listAll(admin, 'asset_types', { category_id: category.id });
+            (await create(admin, 'asset_categories', {
+                name: PARKING_CATEGORY,
+                hidden: true,
+            }));
+        const types = await listAll(admin, 'asset_types', {
+            category_id: category.id,
+        });
         let type = types.find((t) => t.name === PARKING_USER_TYPE);
         type =
             type ??
@@ -238,7 +257,9 @@ export async function setParkingDenied(
             type_id: type.id,
         });
         const found = existing.find(
-            (a) => `${a.other_data?.email ?? ''}`.toLowerCase() === email.toLowerCase(),
+            (a) =>
+                `${a.other_data?.email ?? ''}`.toLowerCase() ===
+                email.toLowerCase(),
         );
         const data = {
             identifier: email,
@@ -253,7 +274,9 @@ export async function setParkingDenied(
             },
         };
         if (found) {
-            const res = await admin.patch(`${ENGINE_API}/assets/${found.id}`, { data });
+            const res = await admin.patch(`${ENGINE_API}/assets/${found.id}`, {
+                data,
+            });
             if (!res.ok()) {
                 throw new Error(
                     `update parking user failed: HTTP ${res.status()} ${await res.text()}`,

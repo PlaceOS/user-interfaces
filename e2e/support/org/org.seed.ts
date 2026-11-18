@@ -33,7 +33,9 @@ const REGION_TIMEZONE = 'Australia/Sydney';
  * native app reads it to find the org; without it, it matches an org whose
  * name contains the hostname's first label.
  */
-async function ensureOrgZone(api: APIRequestContext): Promise<{ org: string; set: boolean }> {
+async function ensureOrgZone(
+    api: APIRequestContext,
+): Promise<{ org: string; set: boolean }> {
     const { id } = await json(api, '/auth/authority');
     const domain = await json(api, `${ENGINE_API}/domains/${id}`);
     const config = domain.config ?? {};
@@ -41,19 +43,28 @@ async function ensureOrgZone(api: APIRequestContext): Promise<{ org: string; set
 
     const orgs = await zones(api, { tags: 'org' });
     if (orgs.length !== 1) {
-        throw new Error(`expected one org zone to use as org_zone, found ${orgs.length}`);
+        throw new Error(
+            `expected one org zone to use as org_zone, found ${orgs.length}`,
+        );
     }
     const res = await api.patch(`${ENGINE_API}/domains/${id}`, {
         data: { config: { ...config, org_zone: orgs[0].id } },
     });
     if (!res.ok()) {
-        throw new Error(`patch domain org_zone failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `patch domain org_zone failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return { org: orgs[0].id, set: true };
 }
 
-async function zones(api: APIRequestContext, query: Record<string, string>): Promise<Zone[]> {
-    return asList<Zone>(await json(api, `${ENGINE_API}/zones`, { limit: '500', ...query }));
+async function zones(
+    api: APIRequestContext,
+    query: Record<string, string>,
+): Promise<Zone[]> {
+    return asList<Zone>(
+        await json(api, `${ENGINE_API}/zones`, { limit: '500', ...query }),
+    );
 }
 
 /**
@@ -61,9 +72,14 @@ async function zones(api: APIRequestContext, query: Record<string, string>): Pro
  * search and can lag a create, so a duplicate-name rejection is looked up
  * again.
  */
-async function ensureRegion(api: APIRequestContext, org: string): Promise<Zone> {
+async function ensureRegion(
+    api: APIRequestContext,
+    org: string,
+): Promise<Zone> {
     const find = async () =>
-        (await zones(api, { tags: 'region', parent_id: org })).find((z) => z.name === REGION_NAME);
+        (await zones(api, { tags: 'region', parent_id: org })).find(
+            (z) => z.name === REGION_NAME,
+        );
 
     const found = await find();
     if (found) return found;
@@ -99,21 +115,35 @@ async function fillZone(
 ): Promise<boolean> {
     const data: Record<string, string> = {};
     if (!zone.timezone) data.timezone = fields.timezone;
-    if (!zone.display_name && zone.name.startsWith('Zone-')) data.display_name = fields.display_name;
+    if (!zone.display_name && zone.name.startsWith('Zone-'))
+        data.display_name = fields.display_name;
     if (!Object.keys(data).length) return false;
     const res = await api.patch(`${ENGINE_API}/zones/${zone.id}`, { data });
     if (!res.ok()) {
-        throw new Error(`patch zone ${zone.id} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `patch zone ${zone.id} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return true;
 }
 
-async function putMetadata(api: APIRequestContext, zone: string, name: string, details: unknown) {
+async function putMetadata(
+    api: APIRequestContext,
+    zone: string,
+    name: string,
+    details: unknown,
+) {
     const res = await api.put(`${ENGINE_API}/metadata/${zone}`, {
-        data: { name, details, description: `${name} (e2e, modelled on mqt.placeos.run)` },
+        data: {
+            name,
+            details,
+            description: `${name} (e2e, modelled on mqt.placeos.run)`,
+        },
     });
     if (!res.ok()) {
-        throw new Error(`put ${name} on ${zone} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `put ${name} on ${zone} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
 }
 
@@ -124,7 +154,10 @@ export async function ensureOrgShape(api: APIRequestContext) {
     const buildings = (await zones(api, { tags: 'building' })).filter(
         (z) => z.parent_id === org || z.parent_id === region.id,
     );
-    if (!buildings.length) throw new Error(`no building zone under ${org}; did \`init start\` run?`);
+    if (!buildings.length)
+        throw new Error(
+            `no building zone under ${org}; did \`init start\` run?`,
+        );
 
     let moved = 0;
     for (const building of buildings) {
@@ -139,13 +172,23 @@ export async function ensureOrgShape(api: APIRequestContext) {
             }
             moved++;
         }
-        await putMetadata(api, building.id, 'workplace_app', buildingWorkplaceApp());
+        await putMetadata(
+            api,
+            building.id,
+            'workplace_app',
+            buildingWorkplaceApp(),
+        );
     }
     await putMetadata(api, org, 'workplace_app', orgWorkplaceApp());
 
     let filled = 0;
-    const fill = async (zone: Zone | undefined, timezone: string, display_name: string) => {
-        if (zone && (await fillZone(api, zone, { timezone, display_name }))) filled++;
+    const fill = async (
+        zone: Zone | undefined,
+        timezone: string,
+        display_name: string,
+    ) => {
+        if (zone && (await fillZone(api, zone, { timezone, display_name })))
+            filled++;
     };
     await fill(
         (await zones(api, { tags: 'org' })).find((z) => z.id === org),
@@ -155,12 +198,20 @@ export async function ensureOrgShape(api: APIRequestContext) {
     await fill(region, REGION_TIMEZONE, REGION_NAME);
     const levels = await zones(api, { tags: 'level' });
     for (const [b, building] of buildings.entries()) {
-        const name = buildings.length > 1 ? `E2E Building ${b + 1}` : 'E2E Building';
+        const name =
+            buildings.length > 1 ? `E2E Building ${b + 1}` : 'E2E Building';
         await fill(building, ZONE_TIMEZONE, name);
         for (const level of levels.filter((l) => l.parent_id === building.id)) {
             await fill(level, ZONE_TIMEZONE, `${name} Level 1`);
         }
     }
 
-    return { org, org_zone_set, region: region.id, buildings: buildings.map((b) => b.id), moved, filled };
+    return {
+        org,
+        org_zone_set,
+        region: region.id,
+        buildings: buildings.map((b) => b.id),
+        moved,
+        filled,
+    };
 }

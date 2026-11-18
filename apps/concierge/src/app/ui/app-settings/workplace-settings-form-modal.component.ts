@@ -29,6 +29,7 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { errorText } from '../modal-actions';
 import {
     applyAppSettings,
     applyBookingFallbacks,
@@ -41,6 +42,7 @@ import {
     mergeAppSettings,
     saveAppSettings,
 } from './app-settings.utilities';
+import { SettingsCurrencySelectComponent } from './settings-currency-select.component';
 import {
     AVAILABLE_PERIOD_EXTENDED_OPTIONS,
     BANNER_TYPE_OPTIONS,
@@ -54,10 +56,8 @@ import {
     SETUP_BREAKDOWN_OPTIONS,
     WEEK_START_OPTIONS,
 } from './settings-option.constants';
-import { SettingsCurrencySelectComponent } from './settings-currency-select.component';
 import { SettingsSelectComponent } from './settings-select.component';
 import { UploadButtonComponent } from './upload-button.component';
-import { errorText } from '../modal-actions';
 
 @Component({
     selector: 'workplace-settings-form-modal',
@@ -70,13 +70,19 @@ import { errorText } from '../modal-actions';
             <form class="flex flex-col space-y-8 pb-4">
                 <section general class="bg-base-100 space-y-2 rounded-sm">
                     <div>
-                        <label for="workplace-settings-form-modal-logo_light">Light Mode Logo</label>
+                        <label for="workplace-settings-form-modal-logo_light"
+                            >Light Mode Logo</label
+                        >
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input id="workplace-settings-form-modal-logo_light" matInput [formField]="form.logo_light" />
+                                <input
+                                    id="workplace-settings-form-modal-logo_light"
+                                    matInput
+                                    [formField]="form.logo_light"
+                                />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -91,13 +97,19 @@ import { errorText } from '../modal-actions';
                         </div>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-logo_dark">Dark Mode Logo</label>
+                        <label for="workplace-settings-form-modal-logo_dark"
+                            >Dark Mode Logo</label
+                        >
                         <div class="mb-4 flex items-center space-x-2">
                             <mat-form-field
                                 appearance="outline"
                                 class="no-subscript w-full"
                             >
-                                <input id="workplace-settings-form-modal-logo_dark" matInput [formField]="form.logo_dark" />
+                                <input
+                                    id="workplace-settings-form-modal-logo_dark"
+                                    matInput
+                                    [formField]="form.logo_dark"
+                                />
                             </mat-form-field>
                             <upload-button
                                 ngModel
@@ -112,9 +124,17 @@ import { errorText } from '../modal-actions';
                         </div>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-features" id="workplace-settings-form-modal-features-label">Features</label>
+                        <label
+                            for="workplace-settings-form-modal-features"
+                            id="workplace-settings-form-modal-features-label"
+                            >Features</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
-                            <mat-select aria-labelledby="workplace-settings-form-modal-features-label" [formField]="form.features" multiple>
+                            <mat-select
+                                aria-labelledby="workplace-settings-form-modal-features-label"
+                                [formField]="form.features"
+                                multiple
+                            >
                                 <mat-option value="spaces"> Rooms </mat-option>
                                 <mat-option value="desks">Desks</mat-option>
                                 <mat-option value="explore">Explore</mat-option>
@@ -143,8 +163,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-hide-landing-widgets"
-                             id="workplace-settings-form-modal-hide-landing-widgets-label">Hidden Landing Widgets</label
+                        <label
+                            for="workplace-settings-form-modal-hide-landing-widgets"
+                            id="workplace-settings-form-modal-hide-landing-widgets-label"
+                            >Hidden Landing Widgets</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -182,8 +204,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-features-2"
-                             id="workplace-settings-form-modal-features-2-label">Hide Global Search Item Types</label
+                        <label
+                            for="workplace-settings-form-modal-features-2"
+                            id="workplace-settings-form-modal-features-2-label"
+                            >Hide Global Search Item Types</label
                         >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
@@ -221,7 +245,11 @@ import { errorText } from '../modal-actions';
                         </h3>
                         <div class="flex items-center space-x-4">
                             <div class="flex-1">
-                                <label for="workplace-settings-form-modal-banner-type" id="workplace-settings-form-modal-banner-type-label">Type</label>
+                                <label
+                                    for="workplace-settings-form-modal-banner-type"
+                                    id="workplace-settings-form-modal-banner-type-label"
+                                    >Type</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
@@ -257,7 +285,10 @@ import { errorText } from '../modal-actions';
                                 </mat-form-field>
                             </div>
                             <div class="flex-1">
-                                <label for="workplace-settings-form-modal-banner-type-2">Message</label>
+                                <label
+                                    for="workplace-settings-form-modal-banner-type-2"
+                                    >Message</label
+                                >
                                 <mat-form-field
                                     appearance="outline"
                                     class="w-full"
@@ -267,7 +298,9 @@ import { errorText } from '../modal-actions';
                                         matInput
                                         name="banner-message"
                                         placeholder="Banner Message"
-                                        [ngModel]="model().banner?.content || ''"
+                                        [ngModel]="
+                                            model().banner?.content || ''
+                                        "
                                         (ngModelChange)="
                                             model.update((m) => ({
                                                 ...m,
@@ -287,7 +320,9 @@ import { errorText } from '../modal-actions';
                         </div>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-external-support-url">
+                        <label
+                            for="workplace-settings-form-modal-external-support-url"
+                        >
                             External Support URL
                         </label>
                         <mat-form-field appearance="outline" class="w-full">
@@ -305,7 +340,9 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-support-email">Support Email</label>
+                        <label for="workplace-settings-form-modal-support-email"
+                            >Support Email</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 id="workplace-settings-form-modal-support-email"
@@ -319,7 +356,9 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-default-route">Default Route</label>
+                        <label for="workplace-settings-form-modal-default-route"
+                            >Default Route</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 id="workplace-settings-form-modal-default-route"
@@ -331,7 +370,10 @@ import { errorText } from '../modal-actions';
                         </mat-form-field>
                     </div>
                     <div>
-                        <label for="workplace-settings-form-modal-catering-provider">Catering Provider</label>
+                        <label
+                            for="workplace-settings-form-modal-catering-provider"
+                            >Catering Provider</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <input
                                 id="workplace-settings-form-modal-catering-provider"
@@ -358,7 +400,11 @@ import { errorText } from '../modal-actions';
                         [field]="form.currency"
                     />
                     <div>
-                        <label for="workplace-settings-form-modal-locales" id="workplace-settings-form-modal-locales-label">Locales</label>
+                        <label
+                            for="workplace-settings-form-modal-locales"
+                            id="workplace-settings-form-modal-locales-label"
+                            >Locales</label
+                        >
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 aria-labelledby="workplace-settings-form-modal-locales-label"
@@ -529,7 +575,10 @@ import { errorText } from '../modal-actions';
                                     hint="Number of days ahead the user is able to book"
                                 />
                                 <div>
-                                    <label for="workplace-settings-form-modal-force-host">Force Host</label>
+                                    <label
+                                        for="workplace-settings-form-modal-force-host"
+                                        >Force Host</label
+                                    >
                                     <mat-form-field
                                         appearance="outline"
                                         class="w-full"
@@ -578,7 +627,9 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-events-bookable-start"
                                         label="Bookable Start"
-                                        [field]="form.events.bookable_hours.start"
+                                        [field]="
+                                            form.events.bookable_hours.start
+                                        "
                                         [options]="BOOKABLE_HOUR_START"
                                         placeholder="None"
                                     />
@@ -597,16 +648,22 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable booking requests"
-                                        [formField]="form.events.booking_unavailable"
+                                        [formField]="
+                                            form.events.booking_unavailable
+                                        "
                                         info="Prevent making backend requests for bookings and give users links to create the booking in their own calendars"
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking for other users"
-                                        [formField]="form.events.can_book_for_others"
+                                        [formField]="
+                                            form.events.can_book_for_others
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking for any users"
-                                        [formField]="form.events.can_book_for_anyone"
+                                        [formField]="
+                                            form.events.can_book_for_anyone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking with assets"
@@ -614,7 +671,9 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking multiple spaces"
-                                        [formField]="form.events.multiple_spaces"
+                                        [formField]="
+                                            form.events.multiple_spaces
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Force room as host"
@@ -622,21 +681,30 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow external attendees"
-                                        [formField]="form.events.allow_externals"
+                                        [formField]="
+                                            form.events.allow_externals
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow international attendees"
                                         info="Show a checkbox on the meeting form that flags each attendee as international"
-                                        [formField]="form.events.allow_international"
+                                        [formField]="
+                                            form.events.allow_international
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow attendees to be marked internal or external"
                                         info="Show a control on the meeting form that marks each attendee as internal (default) or external"
-                                        [formField]="form.events.allow_attendee_internal_or_external"
+                                        [formField]="
+                                            form.events
+                                                .allow_attendee_internal_or_external
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Enforce room capacity limits"
-                                        [formField]="form.events.strict_capacity_check"
+                                        [formField]="
+                                            form.events.strict_capacity_check
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable notes field"
@@ -649,11 +717,15 @@ import { errorText } from '../modal-actions';
                                     <settings-toggle
                                         label="Hide nearby desk action"
                                         info="Hide the book nearby desks button on the meeting success view"
-                                        [formField]="form.events.hide_nearby_desks"
+                                        [formField]="
+                                            form.events.hide_nearby_desks
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow recurring meetings"
-                                        [formField]="form.events.allow_recurrence"
+                                        [formField]="
+                                            form.events.allow_recurrence
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow multi-day bookings"
@@ -665,11 +737,16 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
-                                        [formField]="form.events.use_building_timezone"
+                                        [formField]="
+                                            form.events.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow daily all-day recurrence"
-                                        [formField]="form.events.allow_daily_allday_recurrence"
+                                        [formField]="
+                                            form.events
+                                                .allow_daily_allday_recurrence
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable standalone bookings"
@@ -682,7 +759,9 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-events-all-day-start"
                                         label="All Day Start"
-                                        [field]="form.events.all_day_period.start"
+                                        [field]="
+                                            form.events.all_day_period.start
+                                        "
                                         [options]="BLOCK_START"
                                     />
                                     <settings-select
@@ -745,7 +824,9 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-desks-bookable-start"
                                         label="Bookable Start"
-                                        [field]="form.desks.bookable_hours.start"
+                                        [field]="
+                                            form.desks.bookable_hours.start
+                                        "
                                         [options]="BOOKABLE_HOUR_START"
                                     />
                                     <settings-select
@@ -770,7 +851,9 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow time changes"
-                                        [formField]="form.desks.allow_time_changes"
+                                        [formField]="
+                                            form.desks.allow_time_changes
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Auto-allocation"
@@ -778,11 +861,15 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking for others"
-                                        [formField]="form.desks.can_book_for_others"
+                                        [formField]="
+                                            form.desks.can_book_for_others
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow also booking a locker"
-                                        [formField]="form.desks.can_book_lockers"
+                                        [formField]="
+                                            form.desks.can_book_lockers
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow requesting assets with booking"
@@ -790,7 +877,9 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow Recurring Desk bookings"
-                                        [formField]="form.desks.allow_recurrence"
+                                        [formField]="
+                                            form.desks.allow_recurrence
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Auto-checkin map bookingss"
@@ -798,11 +887,15 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Default to desk select modal to map view"
-                                        [formField]="form.desks.default_select_as_map"
+                                        [formField]="
+                                            form.desks.default_select_as_map
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show calendar links after booking"
-                                        [formField]="form.desks.show_calendar_links"
+                                        [formField]="
+                                            form.desks.show_calendar_links
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Enabled desk height"
@@ -814,7 +907,9 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
-                                        [formField]="form.desks.use_building_timezone"
+                                        [formField]="
+                                            form.desks.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -862,36 +957,50 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-bookings-bookable-start"
                                         label="Bookable Start"
-                                        [field]="form.bookings.bookable_hours.start"
+                                        [field]="
+                                            form.bookings.bookable_hours.start
+                                        "
                                         [options]="BOOKABLE_HOUR_START"
                                     />
                                     <settings-select
                                         field_id="workplace-settings-form-modal-bookings-bookable-end"
                                         label="Bookable End"
-                                        [field]="form.bookings.bookable_hours.end"
+                                        [field]="
+                                            form.bookings.bookable_hours.end
+                                        "
                                         [options]="BOOKABLE_HOUR_END"
                                     />
                                 </div>
                                 <div class="-mx-2 flex flex-wrap items-center">
                                     <settings-toggle
                                         label="Allow all day bookings"
-                                        [formField]="form.bookings.allow_all_day"
+                                        [formField]="
+                                            form.bookings.allow_all_day
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Default bookings to all day"
-                                        [formField]="form.bookings.all_day_default"
+                                        [formField]="
+                                            form.bookings.all_day_default
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
-                                        [formField]="form.bookings.use_building_timezone"
+                                        [formField]="
+                                            form.bookings.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking for other users"
-                                        [formField]="form.bookings.can_book_for_others"
+                                        [formField]="
+                                            form.bookings.can_book_for_others
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking multiple visitors"
-                                        [formField]="form.bookings.multiple_visitors"
+                                        [formField]="
+                                            form.bookings.multiple_visitors
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Auto-approve bookings"
@@ -905,7 +1014,8 @@ import { errorText } from '../modal-actions';
                                         <settings-toggle
                                             label="Show calendar links after visitor invite"
                                             [formField]="
-                                                form.visitors.show_calendar_links
+                                                form.visitors
+                                                    .show_calendar_links
                                             "
                                         ></settings-toggle>
                                     </ng-container>
@@ -913,7 +1023,8 @@ import { errorText } from '../modal-actions';
                                         <settings-toggle
                                             label="Allow international flag for visitors"
                                             [formField]="
-                                                form.visitors.allow_international
+                                                form.visitors
+                                                    .allow_international
                                             "
                                         ></settings-toggle>
                                     </ng-container>
@@ -933,14 +1044,18 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-bookings-all-day-start"
                                         label="All Day Start"
-                                        [field]="form.bookings.all_day_period.start"
+                                        [field]="
+                                            form.bookings.all_day_period.start
+                                        "
                                         [options]="BLOCK_START"
                                         placeholder="None"
                                     />
                                     <settings-select
                                         field_id="workplace-settings-form-modal-bookings-all-day-end"
                                         label="All Day End"
-                                        [field]="form.bookings.all_day_period.end"
+                                        [field]="
+                                            form.bookings.all_day_period.end
+                                        "
                                         [options]="BLOCK_END"
                                         placeholder="None"
                                     />
@@ -1081,7 +1196,8 @@ import { errorText } from '../modal-actions';
                                                     class="border-error text-error h-12 w-12 rounded-sm border"
                                                     (click)="removeLegend(i)"
                                                     [attr.aria-label]="
-                                                        'COMMON.DELETE' | translate
+                                                        'COMMON.DELETE'
+                                                            | translate
                                                     "
                                                 >
                                                     <icon>delete</icon>
@@ -1099,7 +1215,10 @@ import { errorText } from '../modal-actions';
                                     </div>
                                 }
                                 <div>
-                                    <label for="workplace-settings-form-modal-hide-device-fields" id="workplace-settings-form-modal-hide-device-fields-label">
+                                    <label
+                                        for="workplace-settings-form-modal-hide-device-fields"
+                                        id="workplace-settings-form-modal-hide-device-fields-label"
+                                    >
                                         Hidden Device Fields
                                     </label>
                                     <mat-form-field
@@ -1108,7 +1227,9 @@ import { errorText } from '../modal-actions';
                                     >
                                         <mat-select
                                             aria-labelledby="workplace-settings-form-modal-hide-device-fields-label"
-                                            [formField]="form.explore.hide_device_fields"
+                                            [formField]="
+                                                form.explore.hide_device_fields
+                                            "
                                             placeholder="None"
                                             multiple
                                         >
@@ -1118,12 +1239,18 @@ import { errorText } from '../modal-actions';
                                             <mat-option value="manufacturer">
                                                 Manufacturer
                                             </mat-option>
-                                            <mat-option value="os">OS</mat-option>
-                                            <mat-option value="ssid">SSID</mat-option>
+                                            <mat-option value="os"
+                                                >OS</mat-option
+                                            >
+                                            <mat-option value="ssid"
+                                                >SSID</mat-option
+                                            >
                                             <mat-option value="username">
                                                 Username
                                             </mat-option>
-                                            <mat-option value="user">User</mat-option>
+                                            <mat-option value="user"
+                                                >User</mat-option
+                                            >
                                         </mat-select>
                                         <mat-hint>
                                             Fields hidden from device info
@@ -1150,19 +1277,27 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show Booking QR Code"
-                                        [formField]="form.explore.show_booking_qr"
+                                        [formField]="
+                                            form.explore.show_booking_qr
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Use defined polygons for zones"
-                                        [formField]="form.explore.use_zone_polygons"
+                                        [formField]="
+                                            form.explore.use_zone_polygons
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show labels for zones"
-                                        [formField]="form.explore.show_zone_labels"
+                                        [formField]="
+                                            form.explore.show_zone_labels
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show zone sensor info"
-                                        [formField]="form.explore.show_zone_sensor_info"
+                                        [formField]="
+                                            form.explore.show_zone_sensor_info
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1218,13 +1353,17 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-parking-bookable-start"
                                         label="Bookable Start"
-                                        [field]="form.parking.bookable_hours.start"
+                                        [field]="
+                                            form.parking.bookable_hours.start
+                                        "
                                         [options]="BOOKABLE_HOUR_START"
                                     />
                                     <settings-select
                                         field_id="workplace-settings-form-modal-parking-bookable-end"
                                         label="Bookable End"
-                                        [field]="form.parking.bookable_hours.end"
+                                        [field]="
+                                            form.parking.bookable_hours.end
+                                        "
                                         [options]="BOOKABLE_HOUR_END"
                                     />
                                 </div>
@@ -1235,7 +1374,9 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Default bookings to all day"
-                                        [formField]="form.parking.all_day_default"
+                                        [formField]="
+                                            form.parking.all_day_default
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show assigned users on parking map"
@@ -1243,27 +1384,39 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show parking status details on map"
-                                        [formField]="form.parking.show_status_details"
+                                        [formField]="
+                                            form.parking.show_status_details
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow user selecting booking time"
-                                        [formField]="form.parking.allow_time_changes"
+                                        [formField]="
+                                            form.parking.allow_time_changes
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Auto-allocate parking spaces"
-                                        [formField]="form.parking.auto_allocation"
+                                        [formField]="
+                                            form.parking.auto_allocation
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow booking for other users"
-                                        [formField]="form.parking.can_book_for_others"
+                                        [formField]="
+                                            form.parking.can_book_for_others
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow recurring parking bookings"
-                                        [formField]="form.parking.allow_recurrence"
+                                        [formField]="
+                                            form.parking.allow_recurrence
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
-                                        [formField]="form.parking.use_building_timezone"
+                                        [formField]="
+                                            form.parking.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1312,13 +1465,17 @@ import { errorText } from '../modal-actions';
                                     <settings-select
                                         field_id="workplace-settings-form-modal-lockers-bookable-start"
                                         label="Bookable Start"
-                                        [field]="form.lockers.bookable_hours.start"
+                                        [field]="
+                                            form.lockers.bookable_hours.start
+                                        "
                                         [options]="BOOKABLE_HOUR_START"
                                     />
                                     <settings-select
                                         field_id="workplace-settings-form-modal-lockers-bookable-end"
                                         label="Bookable End"
-                                        [field]="form.lockers.bookable_hours.end"
+                                        [field]="
+                                            form.lockers.bookable_hours.end
+                                        "
                                         [options]="BOOKABLE_HOUR_END"
                                     />
                                 </div>
@@ -1329,11 +1486,15 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Default bookings to all day"
-                                        [formField]="form.lockers.all_day_default"
+                                        [formField]="
+                                            form.lockers.all_day_default
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Show Calendar Links after booking"
-                                        [formField]="form.lockers.show_calendar_links"
+                                        [formField]="
+                                            form.lockers.show_calendar_links
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Hide End time option"
@@ -1341,19 +1502,27 @@ import { errorText } from '../modal-actions';
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Allow user selecting booking time"
-                                        [formField]="form.lockers.allow_time_changes"
+                                        [formField]="
+                                            form.lockers.allow_time_changes
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Display times with building timezone"
-                                        [formField]="form.lockers.use_building_timezone"
+                                        [formField]="
+                                            form.lockers.use_building_timezone
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable date and time selection"
-                                        [formField]="form.lockers.disabled_date_select"
+                                        [formField]="
+                                            form.lockers.disabled_date_select
+                                        "
                                     ></settings-toggle>
                                     <settings-toggle
                                         label="Disable start time option"
-                                        [formField]="form.lockers.disabled_start_time"
+                                        [formField]="
+                                            form.lockers.disabled_start_time
+                                        "
                                     ></settings-toggle>
                                 </div>
                             </div>
@@ -1403,7 +1572,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public readonly loading = signal('');
     public readonly shown_group = signal<string>('');
     public readonly zone = this._data.zone;
-    public readonly heading = appSettingsHeading('Workplace Settings', this.zone);
+    public readonly heading = appSettingsHeading(
+        'Workplace Settings',
+        this.zone,
+    );
     public readonly settings_key = appMetadataKey(this._settings, 'workplace');
 
     public readonly AVAILABLE_PERIOD_EXTENDED =
@@ -1622,7 +1794,10 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
             const { inherited, stored } = this._layers;
             this.model.update((model) =>
                 applyBookingFallbacks(
-                    applyAppSettings(applyAppSettings(model, inherited), stored),
+                    applyAppSettings(
+                        applyAppSettings(model, inherited),
+                        stored,
+                    ),
                     mergeAppSettings(inherited, stored),
                     'lockers',
                     LOCKER_BOOKING_FALLBACKS,
@@ -1670,10 +1845,7 @@ export class WorkplaceSettingsFormModalComponent implements OnInit {
     public addLegend() {
         let legend = this.model().explore?.legend || [];
         if (!(legend instanceof Array)) legend = [];
-        const new_legend: [string, string][] = [
-            ...legend,
-            ['', '#1E88E5'],
-        ];
+        const new_legend: [string, string][] = [...legend, ['', '#1E88E5']];
         this.model.update((m) => ({
             ...m,
             explore: { ...m.explore, legend: new_legend },

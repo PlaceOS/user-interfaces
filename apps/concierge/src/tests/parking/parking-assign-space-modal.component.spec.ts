@@ -1,7 +1,7 @@
 import {
     availableParkingSpaces,
-    bookingZonesForLevel,
     bookedResourcePeriodForBooking,
+    bookingZonesForLevel,
     mapLocationFromClick,
 } from '../../app/parking/parking-assign-space-modal.component';
 
@@ -42,9 +42,9 @@ describe('mapLocationFromClick', () => {
         expect(
             mapLocationFromClick({ properties: { externalId: 'space-1' } }),
         ).toBe('space-1');
-        expect(mapLocationFromClick({ properties: { roomId: 'space-2' } })).toBe(
-            'space-2',
-        );
+        expect(
+            mapLocationFromClick({ properties: { roomId: 'space-2' } }),
+        ).toBe('space-2');
         expect(mapLocationFromClick({ id: 'space-3' })).toBe('space-3');
     });
 

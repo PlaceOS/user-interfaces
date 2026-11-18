@@ -9,7 +9,11 @@
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { prepareSettings, type Settings, test } from '../support/settings-harness';
+import {
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
@@ -32,7 +36,12 @@ async function prepare(page: Page, enabled: boolean) {
             'app.parking.show_calendar_links': enabled,
             'app.parking.show_status_details': true,
         },
-        { base: BASE, hidden: 'e2e-parking-links', landingRooms: false, identity: false },
+        {
+            base: BASE,
+            hidden: 'e2e-parking-links',
+            landingRooms: false,
+            identity: false,
+        },
     );
 }
 

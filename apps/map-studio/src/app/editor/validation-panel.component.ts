@@ -3,11 +3,7 @@ import { IconComponent } from '@placeos/components';
 
 import { MapObject, ValidationIssue } from '../data/types';
 import { EditorStateService } from './editor-state.service';
-import {
-    PreflightCheck,
-    preflightChecks,
-    validateObjects,
-} from './svg-export';
+import { PreflightCheck, preflightChecks, validateObjects } from './svg-export';
 
 @Component({
     selector: 'map-studio-validation-panel',

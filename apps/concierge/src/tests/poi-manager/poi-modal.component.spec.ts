@@ -1,16 +1,20 @@
 import { signal } from '@angular/core';
-import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
-import { POIModalComponent } from '../../app/poi-manager/poi-modal.component';
 import { PointOfInterest } from '../../app/poi-manager/poi-management.service';
+import { POIModalComponent } from '../../app/poi-manager/poi-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -33,7 +37,7 @@ describe('POIModalComponent', () => {
                 building: { id: 'bld-1' },
             } as any),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]),
+                get: (name: string) => settings_map[name],
             }),
             MockProvider(MatDialog, {}),
         ],

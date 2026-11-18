@@ -16,7 +16,9 @@ export class DeskGroupPage {
      * container (`notifications.ts`), so a success notice does not match.
      */
     get errorNotice() {
-        return this.page.locator('mat-snack-bar-container.error:not([mat-exit])');
+        return this.page.locator(
+            'mat-snack-bar-container.error:not([mat-exit])',
+        );
     }
 
     async prepare(

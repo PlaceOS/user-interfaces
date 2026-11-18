@@ -29,11 +29,14 @@ test.describe('desk form initialisation', () => {
             release_user = resolve;
         });
         let user_requests = 0;
-        await staffPage.route('**/api/engine/v2/users/current', async (route) => {
-            user_requests++;
-            await user_released;
-            await route.continue().catch(() => undefined);
-        });
+        await staffPage.route(
+            '**/api/engine/v2/users/current',
+            async (route) => {
+                user_requests++;
+                await user_released;
+                await route.continue().catch(() => undefined);
+            },
+        );
         // Fake timers, so that the test does not wait for the guards in real
         // time. Time continues to flow at its usual rate between the jumps.
         await staffPage.clock.install();

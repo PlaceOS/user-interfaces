@@ -1,21 +1,16 @@
-import {
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { RouterModule } from '@angular/router';
-import { PlaceAlertDashboard } from '@placeos/ts-client';
 import {
     IconComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { PlaceAlertDashboard } from '@placeos/ts-client';
 import { DashboardsService } from './dashboards.service';
 
 @Component({

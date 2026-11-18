@@ -77,13 +77,11 @@ for (const strict of [false, true]) {
             await expect(staffPage).toHaveURL(/view=2$/);
             if (strict) {
                 // The Confirm button is the only button on this step with the task_alt icon.
-                const confirm = root
-                    .locator('button')
-                    .filter({
-                        has: staffPage.locator('icon', {
-                            hasText: /^\s*task_alt\s*$/,
-                        }),
-                    });
+                const confirm = root.locator('button').filter({
+                    has: staffPage.locator('icon', {
+                        hasText: /^\s*task_alt\s*$/,
+                    }),
+                });
                 await expect(confirm).toHaveCount(1);
                 await confirm.click();
                 await expect(

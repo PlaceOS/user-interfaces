@@ -1,5 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal, WritableSignal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { MatRippleModule } from '@angular/material/core';

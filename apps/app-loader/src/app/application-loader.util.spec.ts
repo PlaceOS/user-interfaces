@@ -11,27 +11,49 @@ describe('application loader utilities', () => {
     describe('buildLauncherApplications', () => {
         it('filters unsupported redirect URIs and sorts by display name', () => {
             const apps = buildLauncherApplications([
-                { id: '2', name: 'Zeta', redirect_uri: 'https://example.com/zeta' },
+                {
+                    id: '2',
+                    name: 'Zeta',
+                    redirect_uri: 'https://example.com/zeta',
+                },
                 { id: '1', redirect_uri: 'https://alpha.example.com' },
-                { id: '3', name: 'Mail Link', redirect_uri: 'mailto:test@example.com' },
-                { id: '5', name: 'Script', redirect_uri: 'javascript:alert(1)' },
+                {
+                    id: '3',
+                    name: 'Mail Link',
+                    redirect_uri: 'mailto:test@example.com',
+                },
+                {
+                    id: '5',
+                    name: 'Script',
+                    redirect_uri: 'javascript:alert(1)',
+                },
                 { id: '4', name: 'No Link' },
             ]);
 
-            expect(apps.map((_) => _.name)).toEqual(['alpha.example.com', 'Zeta']);
+            expect(apps.map((_) => _.name)).toEqual([
+                'alpha.example.com',
+                'Zeta',
+            ]);
         });
 
         it('keeps a relative redirect URI and names it after the current host', () => {
-            const [app] = buildLauncherApplications([{ id: 'local', redirect_uri: '/local/' }]);
+            const [app] = buildLauncherApplications([
+                { id: 'local', redirect_uri: '/local/' },
+            ]);
 
             expect(app.redirect_uri).toBe('/local/');
             expect(app.name).toBe(location.hostname);
-            expect(app.icon_urls[0]).toBe(`${location.origin}/local/assets/favicon.svg`);
+            expect(app.icon_urls[0]).toBe(
+                `${location.origin}/local/assets/favicon.svg`,
+            );
         });
 
         it('falls back to the redirect URI for a missing id', () => {
             const [app] = buildLauncherApplications([
-                { name: 'Workplace', redirect_uri: 'https://example.com/workplace/' },
+                {
+                    name: 'Workplace',
+                    redirect_uri: 'https://example.com/workplace/',
+                },
             ]);
 
             expect(app).toEqual({
@@ -57,7 +79,10 @@ describe('application loader utilities', () => {
                         redirect_uri: 'https://example.com/workplace/',
                     },
                 ],
-                { current_uri: 'https://example.com/app-loader/index.html?x=1' },
+                {
+                    current_uri:
+                        'https://example.com/app-loader/index.html?x=1',
+                },
             );
 
             expect(apps.map((_) => _.id)).toEqual(['workplace']);
@@ -66,16 +91,29 @@ describe('application loader utilities', () => {
 
     describe('group restrictions', () => {
         const apps = [
-            { id: 'admin', name: 'Admin', redirect_uri: 'https://example.com/admin/' },
-            { id: 'public', name: 'Public', redirect_uri: 'https://example.com/public/' },
+            {
+                id: 'admin',
+                name: 'Admin',
+                redirect_uri: 'https://example.com/admin/',
+            },
+            {
+                id: 'public',
+                name: 'Public',
+                redirect_uri: 'https://example.com/public/',
+            },
         ];
         const visibleIds = (
             restrictions: ApplicationRestriction[],
             user_groups: string[] = ['staff'],
-        ) => buildLauncherApplications(apps, { restrictions, user_groups }).map((_) => _.id);
+        ) =>
+            buildLauncherApplications(apps, { restrictions, user_groups }).map(
+                (_) => _.id,
+            );
 
         it('hides a restricted app from users outside its groups', () => {
-            expect(visibleIds([{ id: 'admin', groups: ['admins'] }])).toEqual(['public']);
+            expect(visibleIds([{ id: 'admin', groups: ['admins'] }])).toEqual([
+                'public',
+            ]);
         });
 
         it('shows a restricted app to users in one of its groups', () => {
@@ -85,24 +123,41 @@ describe('application loader utilities', () => {
         });
 
         it('matches rules by name and by resolved redirect URI', () => {
-            expect(visibleIds([{ name: 'Admin', groups: ['admins'] }])).toEqual(['public']);
+            expect(visibleIds([{ name: 'Admin', groups: ['admins'] }])).toEqual(
+                ['public'],
+            );
             // A relative rule URI resolves against the current origin.
             expect(
                 buildLauncherApplications(
-                    [{ id: 'local', name: 'Local', redirect_uri: `${location.origin}/local/` }],
-                    { restrictions: [{ redirect_uri: '/local/', groups: ['admins'] }] },
+                    [
+                        {
+                            id: 'local',
+                            name: 'Local',
+                            redirect_uri: `${location.origin}/local/`,
+                        },
+                    ],
+                    {
+                        restrictions: [
+                            { redirect_uri: '/local/', groups: ['admins'] },
+                        ],
+                    },
                 ),
             ).toEqual([]);
         });
 
         it('requires every matcher on a rule to match', () => {
             expect(
-                visibleIds([{ id: 'admin', name: 'Other', groups: ['admins'] }]),
+                visibleIds([
+                    { id: 'admin', name: 'Other', groups: ['admins'] },
+                ]),
             ).toEqual(['admin', 'public']);
         });
 
         it('ignores rules that have no matcher', () => {
-            expect(visibleIds([{ groups: ['admins'] }])).toEqual(['admin', 'public']);
+            expect(visibleIds([{ groups: ['admins'] }])).toEqual([
+                'admin',
+                'public',
+            ]);
         });
 
         it('shows an app when any matching rule grants access', () => {
@@ -124,9 +179,15 @@ describe('application loader utilities', () => {
 
     describe('redirectPath', () => {
         it.each([
-            ['https://example.com/apps/app/index.html', 'https://example.com/apps/app/'],
+            [
+                'https://example.com/apps/app/index.html',
+                'https://example.com/apps/app/',
+            ],
             ['https://example.com/apps/app', 'https://example.com/apps/app/'],
-            ['https://example.com/apps/app/?x=1#y', 'https://example.com/apps/app/'],
+            [
+                'https://example.com/apps/app/?x=1#y',
+                'https://example.com/apps/app/',
+            ],
             ['https://example.com', 'https://example.com/'],
             ['/apps/app/', `${location.origin}/apps/app/`],
             ['http://[invalid', '/'],
@@ -146,15 +207,21 @@ describe('application loader utilities', () => {
     });
 
     it('detects self-referential links using the application base path', () => {
-        const current = 'https://example.com/apps/app-loader/index.html#fragment';
-        expect(isSelfReference('https://example.com/apps/app-loader/', current)).toBe(true);
-        expect(isSelfReference('https://example.com/apps/app-loader-v2/', current)).toBe(
-            false,
-        );
+        const current =
+            'https://example.com/apps/app-loader/index.html#fragment';
+        expect(
+            isSelfReference('https://example.com/apps/app-loader/', current),
+        ).toBe(true);
+        expect(
+            isSelfReference('https://example.com/apps/app-loader-v2/', current),
+        ).toBe(false);
         // The same path on another origin is a different application.
-        expect(isSelfReference('https://other.example.com/apps/app-loader/', current)).toBe(
-            false,
-        );
+        expect(
+            isSelfReference(
+                'https://other.example.com/apps/app-loader/',
+                current,
+            ),
+        ).toBe(false);
         expect(isSelfReference(undefined, current)).toBe(false);
     });
 

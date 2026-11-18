@@ -16,14 +16,17 @@
  * The decoy is removed in teardown. It is an asset of the same type on a zone
  * the parking flow should ignore — harmless, but not something to leave behind.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { ENGINE_API, apiFor, zonesWithTag } from '../../../../e2e/support/api';
-import { spaceForWorker, parkingSeed } from '../../../../e2e/support/parking/parking.seed';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
+import {
+    parkingSeed,
+    spaceForWorker,
+} from '../../../../e2e/support/parking/parking.seed';
 import {
     PARKING_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/parking/parking.settings';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 
 test.describe('parking level scoping', () => {
     test('a space on a level that is not tagged parking is not offered', async ({
@@ -75,7 +78,9 @@ test.describe('parking level scoping', () => {
                 'the parking picker did not open',
             ).toBeVisible({ timeout: 20_000 });
 
-            const offered = await staffPage.locator('li[space]').allInnerTexts();
+            const offered = await staffPage
+                .locator('li[space]')
+                .allInnerTexts();
             const names = offered.map((t) => t.split('\n')[0].trim());
 
             expect(
@@ -94,7 +99,9 @@ test.describe('parking level scoping', () => {
             ).toContain(proper.name);
         } finally {
             if (decoy_id) {
-                await admin.delete(`${ENGINE_API}/assets/${decoy_id}`).catch(() => null);
+                await admin
+                    .delete(`${ENGINE_API}/assets/${decoy_id}`)
+                    .catch(() => null);
             }
             await admin.dispose();
         }

@@ -1,7 +1,7 @@
-import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
 import { TranslatePipe } from '@placeos/components';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+import { installTestStorage } from 'libs/common/src/test-storage';
 import { MockPipe } from 'ng-mocks';
 import { TextDecoder, TextEncoder } from 'util';
 

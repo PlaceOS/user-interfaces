@@ -36,7 +36,9 @@ async function listAll(
         );
     }
     const body = await response.json();
-    return (Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])) as any[];
+    return (
+        Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])
+    ) as any[];
 }
 
 async function create(
@@ -88,19 +90,29 @@ async function ensureLockers(
     workerIndex: number,
 ): Promise<LockerFixture> {
     const [building] = await zonesWithTag(api, 'building');
-    if (!building?.id) throw new Error('no building zone — the stack is not seeded');
+    if (!building?.id)
+        throw new Error('no building zone — the stack is not seeded');
 
     const bank_name = `${BANK_PREFIX} ${workerIndex}`;
     const locker_name = `${LOCKER_PREFIX} ${workerIndex}`;
-    const categories = await listAll(api, 'asset_categories', { hidden: 'true' });
+    const categories = await listAll(api, 'asset_categories', {
+        hidden: 'true',
+    });
     const category =
         categories.find((item) => item.name === LOCKER_CATEGORY) ??
         (await create(api, 'asset_categories', {
             name: LOCKER_CATEGORY,
             hidden: true,
         }));
-    const types = await listAll(api, 'asset_types', { category_id: category.id });
-    const bank_type = await ensureType(api, types, category.id, LOCKER_BANK_TYPE);
+    const types = await listAll(api, 'asset_types', {
+        category_id: category.id,
+    });
+    const bank_type = await ensureType(
+        api,
+        types,
+        category.id,
+        LOCKER_BANK_TYPE,
+    );
     const locker_type = await ensureType(api, types, category.id, LOCKER_TYPE);
 
     const banks = await listAll(api, 'assets', {
@@ -181,9 +193,13 @@ async function ensureLockers(
 
 let cache = new Map<number, Promise<LockerFixture>>();
 
-export async function lockerForWorker(workerIndex: number): Promise<LockerFixture> {
+export async function lockerForWorker(
+    workerIndex: number,
+): Promise<LockerFixture> {
     if (workerIndex < 0 || workerIndex >= WORKERS) {
-        throw new Error(`worker ${workerIndex} is outside configured E2E_WORKERS=${WORKERS}`);
+        throw new Error(
+            `worker ${workerIndex} is outside configured E2E_WORKERS=${WORKERS}`,
+        );
     }
     let pending = cache.get(workerIndex);
     if (!pending) {

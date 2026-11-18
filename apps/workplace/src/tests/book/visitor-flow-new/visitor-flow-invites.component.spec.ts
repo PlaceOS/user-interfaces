@@ -11,8 +11,8 @@ import { FormValueControl } from '@angular/forms/signals';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     BookingForm,
-    BookingFormValue,
     BookingFormService,
+    BookingFormValue,
     generateBookingForm,
 } from '@placeos/bookings';
 import { settingSignal, SettingsService, User } from '@placeos/common';
@@ -52,7 +52,9 @@ describe('VisitorFlowInvitesComponent', () => {
                 provide: SettingsService,
                 useValue: {
                     get: vi.fn((key: string) =>
-                        key === 'visitor-invitees' ? stored_visitors : undefined,
+                        key === 'visitor-invitees'
+                            ? stored_visitors
+                            : undefined,
                     ),
                     saveUserSetting: (...args: any[]) =>
                         save_user_setting(...args),

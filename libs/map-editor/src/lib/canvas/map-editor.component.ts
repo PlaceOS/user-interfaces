@@ -212,9 +212,18 @@ import { PropertiesStripComponent } from './properties-strip.component';
                         <div class="float summary" role="status">
                             <span class="title">{{ preview.title }}</span>
                             <span class="muted note">{{ preview.note }}</span>
-                            @for (tally of preview.counts; track tally.category) {
-                                <span class="tally" [attr.data-category]="tally.category">
-                                    <span class="ring" aria-hidden="true"></span>
+                            @for (
+                                tally of preview.counts;
+                                track tally.category
+                            ) {
+                                <span
+                                    class="tally"
+                                    [attr.data-category]="tally.category"
+                                >
+                                    <span
+                                        class="ring"
+                                        aria-hidden="true"
+                                    ></span>
                                     {{ tally.label }}
                                 </span>
                             }
@@ -742,7 +751,8 @@ export class MapEditorComponent {
     );
     public readonly colourTitle = computed(() => {
         const strings = this.strings();
-        const name = strings[this.annotation_colour() as keyof MapEditorStrings];
+        const name =
+            strings[this.annotation_colour() as keyof MapEditorStrings];
         return `${strings.annotation_colour}: ${name}`;
     });
     public readonly marksCount = computed(() => {

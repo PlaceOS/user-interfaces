@@ -18,23 +18,29 @@
  * (the room edit specs learned that lesson the other way round). So the invite
  * is made with the real form, and only the edit is the subject.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
     getBooking,
     listBookings,
 } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
-import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
-    ALLOW_EDITING,
-    useSettings,
-} from '../../../../e2e/support/visitor/visitor.settings';
+    deleteGuest,
+    releaseVisitor,
+} from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
 import {
     inviteVisitorsViaUI,
     saveEditViaUI,
 } from '../../../../e2e/support/visitor/visitor.flows';
+import {
+    ALLOW_EDITING,
+    useSettings,
+} from '../../../../e2e/support/visitor/visitor.settings';
 import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
 
 const DAY = 86_400;
@@ -76,7 +82,12 @@ test.describe('moving a group invite', () => {
         const ids: number[] = [];
 
         for (const visitor of visitors) {
-            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            await releaseVisitor(
+                staffApi,
+                visitor.email,
+                window_from(),
+                window_to(),
+            );
         }
         // Sweep this host's GROUP CONTAINERS too, before and after.
         //
@@ -186,7 +197,12 @@ test.describe('moving a group invite', () => {
             await sweepContainers();
             for (const visitor of visitors) {
                 await deleteGuest(staffApi, visitor.email);
-                await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+                await releaseVisitor(
+                    staffApi,
+                    visitor.email,
+                    window_from(),
+                    window_to(),
+                );
             }
         }
     });

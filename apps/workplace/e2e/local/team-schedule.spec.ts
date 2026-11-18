@@ -16,8 +16,6 @@
  * The contacts and the favourites are documents of this worker's own user.
  */
 import { APIRequestContext } from '@playwright/test';
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { WORKERS, deskFor } from '../../../../e2e/support/env';
 import {
     ENGINE_API,
     STAFF_API,
@@ -28,6 +26,8 @@ import {
 } from '../../../../e2e/support/api';
 import { otherStaffEmail } from '../../../../e2e/support/bookings/bookings.env';
 import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import { WORKERS, deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     readContacts,
     readUserSettings,
@@ -48,10 +48,17 @@ const FAVOURITES_KEY = 'favourite_team_members';
  * The page reads each contact from the directory by address, so the row shows
  * the directory name and not the name in the contacts document.
  */
-async function directoryName(api: APIRequestContext, email: string): Promise<string> {
-    const res = await api.get(`${ENGINE_API}/users/${encodeURIComponent(email)}`);
+async function directoryName(
+    api: APIRequestContext,
+    email: string,
+): Promise<string> {
+    const res = await api.get(
+        `${ENGINE_API}/users/${encodeURIComponent(email)}`,
+    );
     if (!res.ok()) {
-        throw new Error(`read user ${email} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `read user ${email} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return (await res.json()).name;
 }
@@ -81,7 +88,12 @@ async function releaseColleagueDesk(
     to: number,
 ): Promise<void> {
     const res = await api.get(`${STAFF_API}/bookings`, {
-        params: { type: 'desk', email, period_start: String(from), period_end: String(to) },
+        params: {
+            type: 'desk',
+            email,
+            period_start: String(from),
+            period_end: String(to),
+        },
     });
     if (!res.ok()) return;
     for (const booking of asList<Booking>(await res.json())) {
@@ -103,7 +115,13 @@ test.describe('team schedule', () => {
         const team = new TeamSchedulePage(staffPage);
         const before = await readContacts(staffApi);
 
-        await releaseColleagueDesk(staffApi, colleague, desk.id, slot.start - 3600, slot.end + 3600);
+        await releaseColleagueDesk(
+            staffApi,
+            colleague,
+            desk.id,
+            slot.start - 3600,
+            slot.end + 3600,
+        );
         await setContacts(staffApi, [{ email: colleague, name }]);
         const created = await createDeskBookingViaApi(staffApi, {
             desk,
@@ -114,7 +132,10 @@ test.describe('team schedule', () => {
 
         try {
             await team.open();
-            await expect(team.member(name), 'the contact is a row of the table').toBeVisible({
+            await expect(
+                team.member(name),
+                'the contact is a row of the table',
+            ).toBeVisible({
                 timeout: 30_000,
             });
             // This week the colleague has no desk booking from this spec.
@@ -124,10 +145,12 @@ test.describe('team schedule', () => {
             const monday = team.day(name, 0);
             // The booking is made through the API with no display name, so
             // the day shows the desk id. A booking from the app shows the name.
-            await expect(monday, 'Monday shows the desk of the booking').toContainText(
-                new RegExp(`${desk.id}|${desk.name}`),
-                { timeout: 20_000 },
-            );
+            await expect(
+                monday,
+                'Monday shows the desk of the booking',
+            ).toContainText(new RegExp(`${desk.id}|${desk.name}`), {
+                timeout: 20_000,
+            });
             await expect(
                 team.day(name, 1),
                 'Tuesday has no booking, so it does not show the desk',
@@ -148,7 +171,9 @@ test.describe('team schedule', () => {
         const other_name = await directoryName(staffApi, other);
         const team = new TeamSchedulePage(staffPage);
         const contacts_before = await readContacts(staffApi);
-        const favourites_before: unknown = (await readUserSettings(staffApi))[FAVOURITES_KEY];
+        const favourites_before: unknown = (await readUserSettings(staffApi))[
+            FAVOURITES_KEY
+        ];
 
         // Two contacts, no favourites: the view has something to filter out.
         await setContacts(staffApi, [
@@ -161,10 +186,14 @@ test.describe('team schedule', () => {
             await team.open();
             await expect(team.member(name)).toBeVisible({ timeout: 30_000 });
             await expect(team.member(other_name)).toBeVisible();
-            await expect(team.favourite(name).locator('icon')).toHaveText('star_outline');
+            await expect(team.favourite(name).locator('icon')).toHaveText(
+                'star_outline',
+            );
 
             await team.favourite(name).click();
-            await expect(team.favourite(name).locator('icon')).toHaveText('star');
+            await expect(team.favourite(name).locator('icon')).toHaveText(
+                'star',
+            );
 
             await team.viewLink('favorites').click();
             await expect(staffPage).toHaveURL(/view=favorites/);
@@ -173,10 +202,15 @@ test.describe('team schedule', () => {
 
             // The save to the user settings is delayed, so poll the backend.
             await expect
-                .poll(async () => (await readUserSettings(staffApi))[FAVOURITES_KEY], {
-                    message: 'the favourite is in the user settings, not only on the page',
-                    timeout: 20_000,
-                })
+                .poll(
+                    async () =>
+                        (await readUserSettings(staffApi))[FAVOURITES_KEY],
+                    {
+                        message:
+                            'the favourite is in the user settings, not only on the page',
+                        timeout: 20_000,
+                    },
+                )
                 .toEqual([colleague]);
         } finally {
             await setContacts(staffApi, contacts_before);

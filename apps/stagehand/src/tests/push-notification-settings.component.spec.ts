@@ -37,9 +37,7 @@ describe('PushNotificationSettingsComponent', () => {
             setSeverityEnabled: vi.fn(),
         };
         spectator = create_component({
-            providers: [
-                { provide: AlertNotificationService, useValue: push },
-            ],
+            providers: [{ provide: AlertNotificationService, useValue: push }],
         });
     });
 
@@ -72,7 +70,12 @@ describe('PushNotificationSettingsComponent', () => {
     });
 
     it('should show a toggle per severity, switched on for the enabled ones', () => {
-        push.config.set({ critical: true, high: false, medium: true, low: false });
+        push.config.set({
+            critical: true,
+            high: false,
+            medium: true,
+            low: false,
+        });
         spectator.detectChanges();
         expect(toggles().map((t) => t.componentInstance.checked)).toEqual([
             true,

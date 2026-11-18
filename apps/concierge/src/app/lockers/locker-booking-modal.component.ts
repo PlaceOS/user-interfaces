@@ -1,10 +1,4 @@
-import {
-    Component,
-    inject,
-    Injector,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, Injector, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -23,9 +17,9 @@ import {
     currentUser,
     getInvalidSignalFields,
     i18n,
-    onFieldChange,
     notifyError,
     notifySuccess,
+    onFieldChange,
     SettingsService,
     User,
 } from '@placeos/common';
@@ -102,8 +96,16 @@ import { addDays, endOfDay } from 'date-fns';
                     </div>
                 </div>
                 <div class="relative">
-                    <label for="locker-booking-modal-date" id="locker-booking-modal-date-label">{{ 'FORM.DATE' | translate }}</label>
-                    <a-date-field role="group" aria-labelledby="locker-booking-modal-date-label" [formField]="form.date"></a-date-field>
+                    <label
+                        for="locker-booking-modal-date"
+                        id="locker-booking-modal-date-label"
+                        >{{ 'FORM.DATE' | translate }}</label
+                    >
+                    <a-date-field
+                        role="group"
+                        aria-labelledby="locker-booking-modal-date-label"
+                        [formField]="form.date"
+                    ></a-date-field>
                     @if (allow_all_day && !disable_date) {
                         <mat-checkbox
                             [formField]="form.all_day"
@@ -116,7 +118,10 @@ import { addDays, endOfDay } from 'date-fns';
                 @if (!model().all_day) {
                     <div class="flex items-center space-x-2">
                         <div class="w-1/3 flex-1">
-                            <label for="locker-booking-modal-start-time" id="locker-booking-modal-start-time-label">
+                            <label
+                                for="locker-booking-modal-start-time"
+                                id="locker-booking-modal-start-time-label"
+                            >
                                 {{ 'FORM.TIME_START' | translate
                                 }}<span>*</span>
                             </label>
@@ -126,7 +131,10 @@ import { addDays, endOfDay } from 'date-fns';
                                 name="start-time"
                                 [ngModel]="model().date"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="
@@ -139,7 +147,10 @@ import { addDays, endOfDay } from 'date-fns';
                         </div>
                         @if (!hide_end) {
                             <div class="relative w-1/3 flex-1">
-                                <label for="locker-booking-modal-end-time" id="locker-booking-modal-end-time-label">
+                                <label
+                                    for="locker-booking-modal-end-time"
+                                    id="locker-booking-modal-end-time-label"
+                                >
                                     {{ 'FORM.TIME_END' | translate
                                     }}<span>*</span>
                                 </label>
@@ -158,7 +169,11 @@ import { addDays, endOfDay } from 'date-fns';
                         }
                     </div>
                 }
-                <label for="locker-booking-modal-locker" id="locker-booking-modal-locker-label">{{ 'RESOURCE.LOCKER' | translate }}</label>
+                <label
+                    for="locker-booking-modal-locker"
+                    id="locker-booking-modal-locker-label"
+                    >{{ 'RESOURCE.LOCKER' | translate }}</label
+                >
                 <locker-list-field
                     role="group"
                     aria-labelledby="locker-booking-modal-locker-label"
@@ -311,8 +326,7 @@ export class LockerBookingModalComponent
         if (!this.model().user) {
             this.model.update((m) => ({
                 ...m,
-                user:
-                    (this._data.booking?.attendees[0]) || currentUser(),
+                user: this._data.booking?.attendees[0] || currentUser(),
             }));
         }
         if (this._data.parent_id) {

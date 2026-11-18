@@ -21,21 +21,21 @@
  * it here means the desk specs stay about the desk form, and this file owns
  * every route into the schedule's cancel dialog regardless of booking type.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import {
+    createBookingViaApi,
+    isLive,
+    readBooking,
+    releaseFor,
+} from '../../../../e2e/support/bookings/bookings.api';
 import {
     SCHEDULE_DAYS,
     dayBoundsOn,
     slotOn,
 } from '../../../../e2e/support/bookings/bookings.env';
-import {
-    createBookingViaApi,
-    readBooking,
-    isLive,
-    releaseFor,
-} from '../../../../e2e/support/bookings/bookings.api';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 
@@ -80,7 +80,13 @@ test.describe('your bookings — cancelling', () => {
             // booking was not live before anyone pressed Cancel", which is
             // alarming and wrong: the booking existed, the list was behind.
             await expect(async () => {
-                const live = await isLive(staffApi, 'desk', booking_id!, from, to);
+                const live = await isLive(
+                    staffApi,
+                    'desk',
+                    booking_id!,
+                    from,
+                    to,
+                );
                 if (!live) {
                     const row = await readBooking(staffApi, booking_id!);
                     expect(
@@ -97,12 +103,17 @@ test.describe('your bookings — cancelling', () => {
             // `showBooking` rather than day-then-filters, because the page's list
             // has been seen going stale under a full parallel run — see the note
             // on the helper.
-            await schedule.showBooking(booking_id, slot.date_ms, ['desk'], async () => {
-                const now = await readBooking(staffApi, booking_id!);
-                return `id ${now.id} deleted=${now.deleted} start=${new Date(
-                    now.booking_start * 1000,
-                ).toString()}`;
-            });
+            await schedule.showBooking(
+                booking_id,
+                slot.date_ms,
+                ['desk'],
+                async () => {
+                    const now = await readBooking(staffApi, booking_id!);
+                    return `id ${now.id} deleted=${now.deleted} start=${new Date(
+                        now.booking_start * 1000,
+                    ).toString()}`;
+                },
+            );
 
             // Menu -> Cancel -> confirm. `startCancel` opens the details modal,
             // the overflow menu, and picks the item by its ICON, because the
@@ -120,10 +131,17 @@ test.describe('your bookings — cancelling', () => {
 
             // And the desk is free again — which is the thing a user actually
             // cares about after cancelling.
-            const still_held = await isLive(staffApi, 'desk', booking_id, from, to);
-            expect(still_held, 'the desk must not stay held by a cancelled booking').toBe(
-                false,
+            const still_held = await isLive(
+                staffApi,
+                'desk',
+                booking_id,
+                from,
+                to,
             );
+            expect(
+                still_held,
+                'the desk must not stay held by a cancelled booking',
+            ).toBe(false);
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
             await releaseFor(staffApi, 'desk', desk.id, from, to);
@@ -156,10 +174,15 @@ test.describe('your bookings — cancelling', () => {
 
             const schedule = new SchedulePage(staffPage);
             await schedule.open();
-            await schedule.showBooking(booking_id, slot.date_ms, ['desk'], async () => {
-                const now = await readBooking(staffApi, booking_id!);
-                return `id ${now.id} deleted=${now.deleted}`;
-            });
+            await schedule.showBooking(
+                booking_id,
+                slot.date_ms,
+                ['desk'],
+                async () => {
+                    const now = await readBooking(staffApi, booking_id!);
+                    return `id ${now.id} deleted=${now.deleted}`;
+                },
+            );
 
             await schedule.startCancel(booking_id);
             await schedule.dismissConfirm();
@@ -182,10 +205,15 @@ test.describe('your bookings — cancelling', () => {
             // opposite of what happened.
             await staffPage.reload();
             await schedule.waitForLoaded();
-            await schedule.showBooking(booking_id, slot.date_ms, ['desk'], async () => {
-                const now = await readBooking(staffApi, booking_id!);
-                return `id ${now.id} deleted=${now.deleted}`;
-            });
+            await schedule.showBooking(
+                booking_id,
+                slot.date_ms,
+                ['desk'],
+                async () => {
+                    const now = await readBooking(staffApi, booking_id!);
+                    return `id ${now.id} deleted=${now.deleted}`;
+                },
+            );
             await expect(
                 schedule.card(booking_id),
                 'and it is still listed after a reload',

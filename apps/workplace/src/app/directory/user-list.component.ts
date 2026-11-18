@@ -280,9 +280,7 @@ export class DirectoryUserListComponent extends AsyncHandler {
         const grouped_users: Record<string, User[]> = Object.fromEntries(
             LETTERS.map((letter) => [letter, []]),
         );
-        const sorted = [...users].sort((a, b) =>
-            a.name.localeCompare(b.name),
-        );
+        const sorted = [...users].sort((a, b) => a.name.localeCompare(b.name));
         for (const user of sorted) {
             grouped_users[nameGroup(user.name)].push(user);
         }

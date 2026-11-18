@@ -118,7 +118,11 @@ async function prepare(page: Page, overrides: Settings) {
         region: { id: REGION, name: 'E2E Parking Region' },
         buildings: BUILDINGS,
         levels: LEVELS,
-        clearSession: ['PLACEOS.booking_form', 'PLACEOS.booking_form_options', 'PLACEOS.booking_form_filters'],
+        clearSession: [
+            'PLACEOS.booking_form',
+            'PLACEOS.booking_form_options',
+            'PLACEOS.booking_form_filters',
+        ],
         locale: 'en-AU',
     });
     // booked: BookingFormService._computeAvailableResources -> bookedResourceList.
@@ -126,7 +130,8 @@ async function prepare(page: Page, overrides: Settings) {
         base: BASE,
         controls: CONTROLS,
         hidden: 'e2e-hide-user',
-        hiddenAssets: (url) => ASSETS[url.searchParams.get('type_id') ?? ''] ?? [],
+        hiddenAssets: (url) =>
+            ASSETS[url.searchParams.get('type_id') ?? ''] ?? [],
         landingRooms: false,
         identity: false,
         locale: null,

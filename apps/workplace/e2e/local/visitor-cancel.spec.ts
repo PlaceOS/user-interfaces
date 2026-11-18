@@ -13,17 +13,27 @@
  * Both read the backend afterwards, so the result does not rest on the screen
  * alone.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { listBookings, deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
-import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
+import type { APIRequestContext } from '@playwright/test';
+import {
+    deleteBooking,
+    listBookings,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    deleteGuest,
+    releaseVisitor,
+} from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 import {
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
-import type { APIRequestContext } from '@playwright/test';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -40,15 +50,28 @@ test.describe('cancelling a visitor invite from the app', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.cancel.fromApp);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.cancel.fromApp,
+        );
         const reason = uniqueTitle('E2E Visit Cancel');
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
         try {
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason);
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+            );
             booking_id = created.id;
 
             const page = new YourBookingsPage(staffPage);
@@ -77,7 +100,8 @@ test.describe('cancelling a visitor invite from the app', () => {
                 'and its card must show as cancelled',
             ).toHaveAttribute('cancelled', '', { timeout: 30_000 });
         } finally {
-            if (booking_id != null) await deleteBooking(staffApi, booking_id).catch(() => null);
+            if (booking_id != null)
+                await deleteBooking(staffApi, booking_id).catch(() => null);
             await deleteGuest(staffApi, visitor.email);
         }
     });
@@ -86,15 +110,28 @@ test.describe('cancelling a visitor invite from the app', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.cancel.dismissed);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.cancel.dismissed,
+        );
         const reason = uniqueTitle('E2E Visit Keep');
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
         try {
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason);
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+            );
             booking_id = created.id;
 
             const page = new YourBookingsPage(staffPage);
@@ -113,7 +150,8 @@ test.describe('cancelling a visitor invite from the app', () => {
                 'walking away from the confirmation must not cancel anything',
             ).toBe(true);
         } finally {
-            if (booking_id != null) await deleteBooking(staffApi, booking_id).catch(() => null);
+            if (booking_id != null)
+                await deleteBooking(staffApi, booking_id).catch(() => null);
             await deleteGuest(staffApi, visitor.email);
         }
     });

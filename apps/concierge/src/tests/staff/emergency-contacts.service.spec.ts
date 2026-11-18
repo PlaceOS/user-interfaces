@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import {
     AssetCategory,
     AssetGroup,
@@ -46,7 +49,9 @@ describe('EmergencyContactsService', () => {
         vi.mocked(ts_client.updateAsset).mockResolvedValue({} as any);
         vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
         vi.mocked(ts_client.updateAssetCategory).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({ id: 'at1' } as any);
+        vi.mocked(ts_client.addAssetType).mockResolvedValue({
+            id: 'at1',
+        } as any);
         vi.mocked(ts_client.updateAssetType).mockResolvedValue({
             id: 'at1',
         } as any);
@@ -176,7 +181,10 @@ describe('EmergencyContactsService', () => {
             );
             const updated = vi
                 .mocked(ts_client.updateAsset)
-                .mock.calls.map(([id, asset]) => [id, asset.other_data?.['roles']]);
+                .mock.calls.map(([id, asset]) => [
+                    id,
+                    asset.other_data?.['roles'],
+                ]);
             expect(updated).toEqual([
                 ['asset-1', ['Warden']],
                 ['asset-2', []],
@@ -208,7 +216,9 @@ describe('EmergencyContactsService', () => {
         });
 
         it('should not need migration when the metadata cannot be read', async () => {
-            vi.mocked(ts_client.showMetadata).mockRejectedValue(new Error('404'));
+            vi.mocked(ts_client.showMetadata).mockRejectedValue(
+                new Error('404'),
+            );
 
             expect(await spectator.service.needsMigration()).toBe(false);
         });

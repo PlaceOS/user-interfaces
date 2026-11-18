@@ -10,7 +10,6 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import {
     SETTING_KEYS,
     settingSignal,
@@ -20,6 +19,7 @@ import {
 } from '@placeos/common';
 import { IconComponent, LevelPipe, TranslatePipe } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 
 @Component({
     selector: 'meeting-flow-space-list',
@@ -47,14 +47,13 @@ import { EventFormService } from '@placeos/events';
                                 : active_page() * page_size() + page_size();
                         track space.id
                     ) {
-                        @let closed =
-                            room_alerts()[space.id]?.[0] === 'closed';
+                        @let closed = room_alerts()[space.id]?.[0] === 'closed';
                         <li
                             space
                             [class.!border-success]="
                                 selected_spaces().includes(space.id)
                             "
-                            class="relative w-full rounded-lg border border-base-200 bg-base-100 shadow hover:border-info"
+                            class="border-base-200 bg-base-100 hover:border-info relative w-full rounded-lg border shadow"
                             [class.!bg-error-light]="closed"
                         >
                             <div
@@ -69,13 +68,13 @@ import { EventFormService } from '@placeos/events';
                                     (click)="space_selected.emit(space)"
                                 >
                                     <div
-                                        class="relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl bg-base-200"
+                                        class="bg-base-200 relative mr-4 flex h-20 w-20 min-w-[5rem] items-center justify-center overflow-hidden rounded-xl"
                                     >
                                         @if (
                                             selected_spaces().includes(space.id)
                                         ) {
                                             <icon
-                                                class="absolute left-1 top-1 rounded-full bg-base-200"
+                                                class="bg-base-200 absolute top-1 left-1 rounded-full"
                                                 >task_alt</icon
                                             >
                                         }
@@ -98,28 +97,34 @@ import { EventFormService } from '@placeos/events';
                                                     room_alerts()[space.id][1]
                                                 "
                                                 [class.bg-error]="
-                                                    room_alerts()[space.id][0] ===
-                                                    'closed'
+                                                    room_alerts()[
+                                                        space.id
+                                                    ][0] === 'closed'
                                                 "
                                                 [class.bg-info]="
-                                                    room_alerts()[space.id][0] ===
-                                                    'info'
+                                                    room_alerts()[
+                                                        space.id
+                                                    ][0] === 'info'
                                                 "
                                                 [class.bg-warning]="
-                                                    room_alerts()[space.id][0] ===
-                                                    'warn'
+                                                    room_alerts()[
+                                                        space.id
+                                                    ][0] === 'warn'
                                                 "
                                                 [class.text-error-content]="
-                                                    room_alerts()[space.id][0] ===
-                                                    'closed'
+                                                    room_alerts()[
+                                                        space.id
+                                                    ][0] === 'closed'
                                                 "
                                                 [class.text-info-content]="
-                                                    room_alerts()[space.id][0] ===
-                                                    'info'
+                                                    room_alerts()[
+                                                        space.id
+                                                    ][0] === 'info'
                                                 "
                                                 [class.text-warning-content]="
-                                                    room_alerts()[space.id][0] ===
-                                                    'warn'
+                                                    room_alerts()[
+                                                        space.id
+                                                    ][0] === 'warn'
                                                 "
                                                 (click)="
                                                     $event.stopPropagation()
@@ -146,7 +151,9 @@ import { EventFormService } from '@placeos/events';
                                             </div>
                                         }
                                     </div>
-                                    <div class="max-w-[calc(100%-6rem)] space-y-2">
+                                    <div
+                                        class="max-w-[calc(100%-6rem)] space-y-2"
+                                    >
                                         <div
                                             class="mr-10 truncate text-left font-medium"
                                         >
@@ -160,7 +167,7 @@ import { EventFormService } from '@placeos/events';
                                         @if (closed) {
                                             <div
                                                 closed
-                                                class="w-fit rounded bg-error px-2 py-0.5 text-xs font-medium text-error-content"
+                                                class="bg-error text-error-content w-fit rounded px-2 py-0.5 text-xs font-medium"
                                             >
                                                 {{
                                                     'CALENDAR_EVENT.ROOM_CLOSED'
@@ -207,7 +214,7 @@ import { EventFormService } from '@placeos/events';
                                 icon
                                 matRipple
                                 name="toggle-space-favourite"
-                                class="absolute right-1 top-1"
+                                class="absolute top-1 right-1"
                                 [class.text-info]="
                                     favourites().includes(space.id)
                                 "
@@ -236,7 +243,7 @@ import { EventFormService } from '@placeos/events';
                             </button>
                             @if (space.approval) {
                                 <div
-                                    class="absolute bottom-1 right-1 w-14 rounded bg-warning px-2 py-1 text-center text-[0.625rem] font-medium leading-tight text-warning-content"
+                                    class="bg-warning text-warning-content absolute right-1 bottom-1 w-14 rounded px-2 py-1 text-center text-[0.625rem] leading-tight font-medium"
                                 >
                                     {{ 'COMMON.APPROVAL_REQUIRED' | translate }}
                                 </div>
@@ -246,10 +253,10 @@ import { EventFormService } from '@placeos/events';
                 </ul>
                 @if (available_spaces().length > page_size()) {
                     <div
-                        class="mt-2 flex w-full items-center space-x-2 rounded-xl border border-base-300 bg-base-100 p-1"
+                        class="border-base-300 bg-base-100 mt-2 flex w-full items-center space-x-2 rounded-xl border p-1"
                     >
                         <div
-                            class="!ml-2 rounded-md bg-base-200 px-2 py-1 font-mono text-xs"
+                            class="bg-base-200 !ml-2 rounded-md px-2 py-1 font-mono text-xs"
                         >
                             @let range = active_range();
                             {{ range[0] }} - {{ range[1] }}
@@ -271,7 +278,7 @@ import { EventFormService } from '@placeos/events';
                             [disabled]="active_page() <= 0"
                             [attr.aria-label]="'COMMON.PREVIOUS' | translate"
                             (click)="page.set(active_page() - 1)"
-                            class="rounded-xl border border-base-300"
+                            class="border-base-300 rounded-xl border"
                         >
                             <icon>keyboard_arrow_left</icon>
                         </button>
@@ -281,7 +288,7 @@ import { EventFormService } from '@placeos/events';
                             [disabled]="active_page() + 1 >= max_pages()"
                             [attr.aria-label]="'COMMON.NEXT' | translate"
                             (click)="page.set(active_page() + 1)"
-                            class="rounded-xl border border-base-300"
+                            class="border-base-300 rounded-xl border"
                         >
                             <icon>keyboard_arrow_right</icon>
                         </button>

@@ -59,7 +59,11 @@ describe('ItemListModalComponent', () => {
             Promise.resolve({
                 details:
                     key === 'concierge_app'
-                        ? { support_issue_types: [{ name: 'HR', email: 'hr@x' }] }
+                        ? {
+                              support_issue_types: [
+                                  { name: 'HR', email: 'hr@x' },
+                              ],
+                          }
                         : {},
             }),
         );

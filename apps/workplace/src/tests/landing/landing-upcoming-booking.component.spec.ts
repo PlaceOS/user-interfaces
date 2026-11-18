@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingDetailsModalComponent } from '@placeos/bookings';
 import {
     Booking,
@@ -9,8 +12,8 @@ import {
     OrganisationService,
     settingSignal,
 } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
+import { MockProvider } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

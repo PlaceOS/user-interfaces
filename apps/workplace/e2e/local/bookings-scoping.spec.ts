@@ -19,9 +19,19 @@
  * Both tests book THIS worker's scoping desk (`scopingDeskFor`), as either
  * user; no other spec may book it.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
+import { mintToken } from '../../../../e2e/support/auth';
+import {
+    createBookingViaApi,
+    releaseFor,
+} from '../../../../e2e/support/bookings/bookings.api';
+import {
+    SCHEDULE_DAYS,
+    dayBoundsOn,
+    slotOn,
+} from '../../../../e2e/support/bookings/bookings.env';
+import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 import {
     APP_URL,
     BACKEND_URL,
@@ -29,17 +39,7 @@ import {
     roleFor,
     scopingDeskFor,
 } from '../../../../e2e/support/env';
-import { mintToken } from '../../../../e2e/support/auth';
-import {
-    SCHEDULE_DAYS,
-    dayBoundsOn,
-    slotOn,
-} from '../../../../e2e/support/bookings/bookings.env';
-import {
-    createBookingViaApi,
-    releaseFor,
-} from '../../../../e2e/support/bookings/bookings.api';
-import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 
@@ -57,7 +57,12 @@ function dayWindow(dayOffset: number) {
 /** An API context signed in as a DIFFERENT seeded user. */
 async function apiAsOtherUser(workerIndex: number) {
     const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        APP_URL,
+        role.email,
+        role.password,
+    );
     return request.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -66,13 +71,16 @@ async function apiAsOtherUser(workerIndex: number) {
 }
 
 test.describe('your bookings — visibility between users', () => {
-    test('another user\'s booking is not listed on your page', async ({
+    test("another user's booking is not listed on your page", async ({
         staffPage,
         staffApi,
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const desk = scopingDeskFor(mine);
         const day = SCHEDULE_DAYS.scoping;
@@ -115,7 +123,8 @@ test.describe('your bookings — visibility between users', () => {
                 `nothing of theirs should be listed. Rendered: [${rendered.join(', ')}]`,
             ).not.toContain(their_booking);
         } finally {
-            if (their_booking != null) await deleteBooking(other, their_booking);
+            if (their_booking != null)
+                await deleteBooking(other, their_booking);
             await releaseFor(other, 'desk', desk.id, from, to);
             await other.dispose();
         }

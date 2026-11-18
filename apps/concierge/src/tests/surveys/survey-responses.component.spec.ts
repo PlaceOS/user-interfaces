@@ -5,8 +5,8 @@ import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { SurveyResponsesComponent } from '../../app/surveys/survey-responses.component';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
+import { SurveyResponsesComponent } from '../../app/surveys/survey-responses.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

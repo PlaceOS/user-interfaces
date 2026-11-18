@@ -8,12 +8,12 @@ import { TranslatePipe } from './translate.pipe';
 @Component({
     selector: 'fullscreen-embed',
     template: `
-        <div class="relative h-screen w-screen bg-base-200">
+        <div class="bg-base-200 relative h-screen w-screen">
             <button
                 icon
                 matRipple
                 mat-dialog-close
-                class="absolute right-2 top-2 rounded border border-base-300 bg-base-100"
+                class="border-base-300 bg-base-100 absolute top-2 right-2 rounded border"
                 [attr.aria-label]="'COMMON.CLOSE' | translate"
             >
                 <icon>close</icon>

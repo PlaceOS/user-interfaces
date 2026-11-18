@@ -24,7 +24,6 @@
  *    `bookings.multiple_visitors` no longer chooses the mode: it only changes
  *    the wording of the success view.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
@@ -32,17 +31,21 @@ import {
     listBookings,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     deleteGuest,
     releaseVisitor,
     searchGuests,
 } from '../../../../e2e/support/visitor/visitor.api';
 import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
+import {
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 
 /** Window wide enough to cover an invite made in any timezone. */
 const DAY = 86_400;
@@ -54,7 +57,10 @@ test.describe('visitor invite (single)', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.invite.stores);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.invite.stores,
+        );
         const reason = uniqueTitle('E2E Visit');
         let booking_id: number | undefined;
 
@@ -64,7 +70,10 @@ test.describe('visitor invite (single)', () => {
             window_from(),
             window_to(),
         );
-        if (swept) console.log(`  swept ${swept} stale invite(s) for ${visitor.email}`);
+        if (swept)
+            console.log(
+                `  swept ${swept} stale invite(s) for ${visitor.email}`,
+            );
 
         // Prove the sweep worked before claiming the invite created anything — a
         // guest left over from an earlier run would make the check below pass
@@ -77,7 +86,12 @@ test.describe('visitor invite (single)', () => {
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
         try {
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason);
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+            );
             booking_id = created.id;
 
             expect(created.id, 'the API returned a booking id').toBeTruthy();
@@ -85,11 +99,17 @@ test.describe('visitor invite (single)', () => {
             // Read it back independently of the response we just parsed.
             const stored = await getBooking(staffApi, booking_id);
             const me = await currentUser(staffApi);
-            expect(stored.booking_type, 'stored as a visitor booking').toBe('visitor');
-            expect(stored.asset_id, 'against this worker’s visitor address').toBe(
-                visitor.email,
+            expect(stored.booking_type, 'stored as a visitor booking').toBe(
+                'visitor',
             );
-            expect(stored.title, 'the reason we typed reached the backend').toBe(reason);
+            expect(
+                stored.asset_id,
+                'against this worker’s visitor address',
+            ).toBe(visitor.email);
+            expect(
+                stored.title,
+                'the reason we typed reached the backend',
+            ).toBe(reason);
             expect(stored.deleted, 'not soft-deleted').toBeFalsy();
             expect(stored.rejected, 'not rejected').toBeFalsy();
             expect(
@@ -98,8 +118,12 @@ test.describe('visitor invite (single)', () => {
             ).toBeGreaterThan(0);
             // With no host chosen the signed-in user is both host and booker.
             // `visitor-delegate.spec.ts` covers the case where they differ.
-            expect(stored.user_email, 'the signed-in user is the host').toBe(me.email);
-            expect(stored.booked_by_email, 'and also the booker').toBe(me.email);
+            expect(stored.user_email, 'the signed-in user is the host').toBe(
+                me.email,
+            );
+            expect(stored.booked_by_email, 'and also the booker').toBe(
+                me.email,
+            );
 
             // A guest record is the half of this flow that lives outside the
             // booking, and it is what reception actually reads.
@@ -108,7 +132,9 @@ test.describe('visitor invite (single)', () => {
                 guests.map((g) => g.email),
                 'a guest record was created for the visitor',
             ).toContain(visitor.email);
-            expect(guests[0].name, 'carrying the name we typed').toBe(visitor.name);
+            expect(guests[0].name, 'carrying the name we typed').toBe(
+                visitor.name,
+            );
 
             // ...and the booking is discoverable through the listing the app
             // uses, not only by direct id lookup.
@@ -132,17 +158,35 @@ test.describe('visitor invite (single)', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.invite.cleanup);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.invite.cleanup,
+        );
         const reason = uniqueTitle('E2E Visit Cleanup');
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
-        const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason);
+        const created = await inviteVisitorViaUI(
+            staffPage,
+            staffApi,
+            visitor,
+            reason,
+        );
         try {
             expect(
                 (
-                    await listBookings(staffApi, 'visitor', window_from(), window_to())
+                    await listBookings(
+                        staffApi,
+                        'visitor',
+                        window_from(),
+                        window_to(),
+                    )
                 ).map((b) => b.id),
                 'precondition: the invite is in the listing before we delete it',
             ).toContain(created.id);
@@ -151,7 +195,12 @@ test.describe('visitor invite (single)', () => {
 
             expect(
                 (
-                    await listBookings(staffApi, 'visitor', window_from(), window_to())
+                    await listBookings(
+                        staffApi,
+                        'visitor',
+                        window_from(),
+                        window_to(),
+                    )
                 ).map((b) => b.id),
                 'a deleted invite must not come back in the listing — otherwise every ' +
                     'spec teardown silently leaks state into the next run',

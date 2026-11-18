@@ -31,7 +31,8 @@ import { queryParamsWriter } from '../ui/page-transitions';
                     <div class="flex items-center gap-2">
                         @if (selected_tab() === 0) {
                             <button
-                                icon default
+                                icon
+                                default
                                 matRipple
                                 [matMenuTriggerFor]="app_settings_menu.menu()"
                                 [matTooltip]="'Organisation App Settings'"
@@ -41,14 +42,15 @@ import { queryParamsWriter } from '../ui/page-transitions';
                             </button>
                         }
                         <button
-                            icon default
+                            icon
+                            default
                             matRipple
                             data-shortcut="new"
                             (click)="addItem()"
                             [matTooltip]="addButtonText() | translate"
                             [attr.aria-label]="addButtonText() | translate"
                         >
-                            <icon>{{addButtonIcon()}}</icon>
+                            <icon>{{ addButtonIcon() }}</icon>
                         </button>
                     </div>
                 </header>

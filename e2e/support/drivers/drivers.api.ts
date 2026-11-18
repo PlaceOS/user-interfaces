@@ -357,11 +357,18 @@ export async function moduleState(
 }
 
 /** Stop and start a module. */
-export async function restartModule(api: APIRequestContext, module_id: string): Promise<void> {
+export async function restartModule(
+    api: APIRequestContext,
+    module_id: string,
+): Promise<void> {
     for (const action of ['stop', 'start']) {
-        const res = await api.post(`${ENGINE_API}/modules/${module_id}/${action}`);
+        const res = await api.post(
+            `${ENGINE_API}/modules/${module_id}/${action}`,
+        );
         if (!res.ok()) {
-            throw new Error(`${action} ${module_id} failed: HTTP ${res.status()} ${await res.text()}`);
+            throw new Error(
+                `${action} ${module_id} failed: HTTP ${res.status()} ${await res.text()}`,
+            );
         }
     }
 }

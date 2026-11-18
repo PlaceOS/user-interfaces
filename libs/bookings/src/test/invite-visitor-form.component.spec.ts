@@ -481,9 +481,7 @@ describe('InviteVisitorFormComponent', () => {
             settingSignal('visitors.reason_required').set(true);
             await spectator.component.ngOnInit();
             expect(service.model().title).toBe('');
-            expect(spectator.component.form.title().required()).toBe(
-                true,
-            );
+            expect(spectator.component.form.title().required()).toBe(true);
             service.model.update((m) => ({
                 ...m,
                 asset_id: 'visitor@example.com',
@@ -498,12 +496,8 @@ describe('InviteVisitorFormComponent', () => {
                 await spectator.component.sendInvite();
                 expect(service.postForm).not.toHaveBeenCalled();
                 expect(service.postFormForVisitorGroup).not.toHaveBeenCalled();
-                expect(spectator.component.form.title().invalid()).toBe(
-                    true,
-                );
-                expect(spectator.component.form.title().touched()).toBe(
-                    true,
-                );
+                expect(spectator.component.form.title().invalid()).toBe(true);
+                expect(spectator.component.form.title().touched()).toBe(true);
             }
 
             service.model.update((m) => ({ ...m, title: 'Supplier meeting' }));

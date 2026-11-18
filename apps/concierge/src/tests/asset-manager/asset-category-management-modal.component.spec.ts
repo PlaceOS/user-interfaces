@@ -15,9 +15,7 @@ describe('AssetCategoryManagementModalComponent', () => {
     const createComponent = createComponentFactory({
         component: AssetCategoryManagementModalComponent,
         detectChanges: false,
-        providers: [
-            MockProvider(MatDialogRef, { close: vi.fn() }),
-        ],
+        providers: [MockProvider(MatDialogRef, { close: vi.fn() })],
     });
 
     beforeEach(() => {

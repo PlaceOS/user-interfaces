@@ -64,7 +64,11 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                             {{
                                 'BOOKINGS.ITEM_BOOKED'
                                     | translate
-                                        : { name: 'RESOURCE.MEETING' | translate }
+                                        : {
+                                              name:
+                                                  'RESOURCE.MEETING'
+                                                  | translate,
+                                          }
                             }}
                         </h2>
                         <img src="assets/icons/success.svg" alt="" />

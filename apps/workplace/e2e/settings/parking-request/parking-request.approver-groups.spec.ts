@@ -37,8 +37,8 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import {
     CONTROLS,
     optionLabels,
-    PRESETS,
     prepareSettings,
+    PRESETS,
     REQUEST,
     ROUTE,
     type Settings,

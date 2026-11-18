@@ -23,8 +23,14 @@
  * concurrent booking POSTs against a staff-api image that predates pg-orm 2.2.4.
  */
 import { APIRequestContext } from '@playwright/test';
+import {
+    ENGINE_API,
+    STAFF_API,
+    apiFor,
+    deleteBooking,
+    zonesWithTag,
+} from '../api';
 import { BACKEND_URL, assertLocalOnly } from '../env';
-import { ENGINE_API, STAFF_API, apiFor, deleteBooking, zonesWithTag } from '../api';
 import { deleteGuest } from '../visitor/visitor.api';
 
 const CONCURRENCY = Number(process.argv[2] ?? 4);
@@ -53,12 +59,16 @@ async function main() {
     try {
         const me = await (await api.get(`${ENGINE_API}/users/current`)).json();
         const zones = (
-            await Promise.all(['org', 'building', 'level'].map((t) => zonesWithTag(api, t)))
+            await Promise.all(
+                ['org', 'building', 'level'].map((t) => zonesWithTag(api, t)),
+            )
         )
             .flat()
             .map((z) => z.id);
 
-        console.log(`bursting ${CONCURRENCY} concurrent POSTs x ${ROUNDS} rounds\n`);
+        console.log(
+            `bursting ${CONCURRENCY} concurrent POSTs x ${ROUNDS} rounds\n`,
+        );
 
         for (let round = 0; round < ROUNDS; round++) {
             const start = Math.floor(Date.now() / 1000) + DAY + round * 3600;
@@ -92,7 +102,9 @@ async function main() {
                 const key = `${r.status}`;
                 statuses.set(key, (statuses.get(key) ?? 0) + 1);
                 if (r.status < 200 || r.status >= 300) {
-                    console.log(`  round ${round}: HTTP ${r.status} ${r.text.slice(0, 160)}`);
+                    console.log(
+                        `  round ${round}: HTTP ${r.status} ${r.text.slice(0, 160)}`,
+                    );
                 }
             }
         }

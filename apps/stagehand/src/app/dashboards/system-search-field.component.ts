@@ -1,7 +1,7 @@
 import {
     Component,
-    ElementRef,
     effect,
+    ElementRef,
     inject,
     input,
     OnInit,
@@ -115,9 +115,7 @@ import { SupportGroupsService } from '../support-groups.service';
             }
         `,
     ],
-    providers: [
-        provideValueAccessor(() => SystemSearchFieldComponent),
-    ],
+    providers: [provideValueAccessor(() => SystemSearchFieldComponent)],
     imports: [
         CommonModule,
         MatAutocompleteModule,

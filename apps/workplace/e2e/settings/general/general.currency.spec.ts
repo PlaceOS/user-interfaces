@@ -104,11 +104,9 @@ for (const [code, price] of [
             await expect(
                 field.locator('button[name="add-catering-item"]'),
             ).toHaveCount(0);
-            const add = field
-                .getByRole('button')
-                .filter({
-                    has: staffPage.locator('icon', { hasText: 'add_notes' }),
-                });
+            const add = field.getByRole('button').filter({
+                has: staffPage.locator('icon', { hasText: 'add_notes' }),
+            });
             await expect(add).toHaveCount(1);
             await expect(add).toBeEnabled();
             await add.click();

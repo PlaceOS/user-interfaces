@@ -6,8 +6,8 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetGroupFormComponent } from '../../app/asset-manager/asset-group-form.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

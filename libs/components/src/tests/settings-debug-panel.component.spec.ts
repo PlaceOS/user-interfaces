@@ -73,9 +73,7 @@ describe('SettingsDebugPanelComponent', () => {
             { value: 'day_view', label: 'Day' },
             { value: 'week-view', label: 'Week view' },
         ]);
-        expect(row(panel, 'app.zztest.enabled').description).toBe(
-            'Turn it on',
-        );
+        expect(row(panel, 'app.zztest.enabled').description).toBe('Turn it on');
         expect(row(panel, 'app.zztest.note').overridden).toBe(true);
         expect(row(panel, 'app.zztest.count').overridden).toBe(false);
     });

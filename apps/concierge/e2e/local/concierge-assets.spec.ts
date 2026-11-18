@@ -44,9 +44,9 @@ test.describe('concierge assets', () => {
             params: { limit: '500' },
         });
         const body = await existing.json();
-        const types = (Array.isArray(body) ? body : (body.data ?? body.results ?? [])) as Array<
-            Record<string, any>
-        >;
+        const types = (
+            Array.isArray(body) ? body : (body.data ?? body.results ?? [])
+        ) as Array<Record<string, any>>;
         if (!types.some((type) => type.name === ASSET_TYPE)) {
             await ensureEquipment();
         }
@@ -65,14 +65,21 @@ test.describe('concierge assets', () => {
         ).toBeVisible({ timeout: 45_000 });
 
         await expect
-            .poll(async () => (await listing.innerText().catch(() => '')).replace(/\s+/g, ' '), {
-                message:
-                    `the asset list should show the seeded category "${ASSET_CATEGORY}" ` +
-                    `and the type "${ASSET_TYPE}" inside it. The list groups by ` +
-                    `CATEGORY and lists TYPES, not individual units, so it will not ` +
-                    `name the three projector assets`,
-                timeout: 30_000,
-            })
+            .poll(
+                async () =>
+                    (await listing.innerText().catch(() => '')).replace(
+                        /\s+/g,
+                        ' ',
+                    ),
+                {
+                    message:
+                        `the asset list should show the seeded category "${ASSET_CATEGORY}" ` +
+                        `and the type "${ASSET_TYPE}" inside it. The list groups by ` +
+                        `CATEGORY and lists TYPES, not individual units, so it will not ` +
+                        `name the three projector assets`,
+                    timeout: 30_000,
+                },
+            )
             .toContain(ASSET_CATEGORY);
 
         const text = (await listing.innerText()).replace(/\s+/g, ' ');

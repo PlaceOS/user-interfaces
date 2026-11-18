@@ -3,16 +3,16 @@ import { form } from '@angular/forms/signals';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
 import {
+    FullscreenModalShellComponent,
+    TranslatePipe,
+} from '@placeos/components';
+import {
     PlaceAlert,
     PlaceSystem,
     TriggerComparison,
     TriggerConditionOperator,
     TriggerStatusVariable,
 } from '@placeos/ts-client';
-import {
-    FullscreenModalShellComponent,
-    TranslatePipe,
-} from '@placeos/components';
 import { AlertConditionComparisonFormComponent } from './alert-condition-compare-form.component';
 
 export interface AlertConditionData {

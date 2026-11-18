@@ -33,7 +33,10 @@ describe('registerMockSignage groups and image jobs', () => {
                 `${API}/ai/generate`,
             )({ body: { prompt, candidates: 2 } });
 
-            endpoint('POST', `${API}/ai/jobs/:id/cancel`)({
+            endpoint(
+                'POST',
+                `${API}/ai/jobs/:id/cancel`,
+            )({
                 route_params: { id: job.id },
             });
             vi.advanceTimersByTime(5000);

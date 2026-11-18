@@ -205,7 +205,10 @@ export class ExploreParkingService extends AsyncHandler {
             user_group_names();
             untracked(() => {
                 // Build lookups once, not once for each space
-                const event_by_space = new Map<string, (typeof events)[number]>();
+                const event_by_space = new Map<
+                    string,
+                    (typeof events)[number]
+                >();
                 for (const e of events) {
                     if (!e.rejected && !event_by_space.has(e.asset_id)) {
                         event_by_space.set(e.asset_id, e);

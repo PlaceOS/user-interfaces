@@ -149,7 +149,9 @@ test.describe('home page — the next-booking card', () => {
             booking_id = booking.id;
 
             await home.open();
-            await expect(home.upcomingTitle).toHaveText(title, { timeout: 30_000 });
+            await expect(home.upcomingTitle).toHaveText(title, {
+                timeout: 30_000,
+            });
             await home.viewAllBookings.click();
             await expect(
                 staffPage,
@@ -185,7 +187,10 @@ test.describe('home page — the next-booking card', () => {
      * booking gets (`resolveStatus`). The test fails only with BOTH filters
      * removed. With `!i.deleted` alone removed it passes, correctly.
      */
-    test('a cancelled booking leaves the card', async ({ staffPage, staffApi }, testInfo) => {
+    test('a cancelled booking leaves the card', async ({
+        staffPage,
+        staffApi,
+    }, testInfo) => {
         const desk = deskFor(testInfo.parallelIndex);
         const next_desk = scopingDeskFor(testInfo.parallelIndex);
         const cancelled_title = uniqueTitle('E2E Home Cancelled');
@@ -233,7 +238,8 @@ test.describe('home page — the next-booking card', () => {
                     'live booking',
             ).toHaveText(next_title, { timeout: 30_000 });
         } finally {
-            if (cancelled_id != null) await deleteBooking(staffApi, cancelled_id);
+            if (cancelled_id != null)
+                await deleteBooking(staffApi, cancelled_id);
             if (next_id != null) await deleteBooking(staffApi, next_id);
         }
     });

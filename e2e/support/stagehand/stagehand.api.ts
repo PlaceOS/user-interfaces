@@ -24,7 +24,9 @@ export async function hierarchyZones(
     api: APIRequestContext,
 ): Promise<HierarchyZones> {
     const [[org], [region], [building], [level]] = await Promise.all(
-        ['org', 'region', 'building', 'level'].map((tag) => zonesWithTag(api, tag)),
+        ['org', 'region', 'building', 'level'].map((tag) =>
+            zonesWithTag(api, tag),
+        ),
     );
     if (!org || !region || !building || !level) {
         throw new Error(
@@ -33,7 +35,12 @@ export async function hierarchyZones(
                 `\`init start\` and \`seed.ts\` create them`,
         );
     }
-    return { org: org.id, region: region.id, building: building.id, level: level.id };
+    return {
+        org: org.id,
+        region: region.id,
+        building: building.id,
+        level: level.id,
+    };
 }
 
 export interface SystemRow {

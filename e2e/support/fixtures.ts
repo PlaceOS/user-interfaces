@@ -8,11 +8,17 @@
  *
  * Import `test`/`expect` from this module rather than from @playwright/test.
  */
-import { test as base, expect, APIRequestContext, Page, request as pwRequest } from '@playwright/test';
+import {
+    APIRequestContext,
+    test as base,
+    expect,
+    Page,
+    request as pwRequest,
+} from '@playwright/test';
 import * as path from 'path';
-import { APP_URL, AUTH_DIR, BACKEND_URL } from './env';
 import { mintForWorker } from './api';
 import { pauseBackground } from './background';
+import { APP_URL, AUTH_DIR, BACKEND_URL } from './env';
 
 interface WorkerFixtures {
     /** storageState path for the admin identity of THIS worker. */
@@ -42,7 +48,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
     adminStorageState: [
         async ({}, use) => {
-            const { role } = await mintForWorker('admin', test.info().parallelIndex);
+            const { role } = await mintForWorker(
+                'admin',
+                test.info().parallelIndex,
+            );
             await use(role.storagePath);
         },
         { scope: 'worker' },
@@ -50,7 +59,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
     staffToken: [
         async ({}, use) => {
-            const { mint } = await mintForWorker('staff', test.info().parallelIndex);
+            const { mint } = await mintForWorker(
+                'staff',
+                test.info().parallelIndex,
+            );
             await use(mint.accessToken);
         },
         { scope: 'worker' },
@@ -70,7 +82,10 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     // what mints and writes the staff storageState file this context loads.
     staffPage: async ({ browser, staffToken }, use) => {
         void staffToken;
-        const storagePath = path.join(AUTH_DIR, `staff-${test.info().parallelIndex}.json`);
+        const storagePath = path.join(
+            AUTH_DIR,
+            `staff-${test.info().parallelIndex}.json`,
+        );
         const ctx = await browser.newContext({
             storageState: storagePath,
             ignoreHTTPSErrors: true,

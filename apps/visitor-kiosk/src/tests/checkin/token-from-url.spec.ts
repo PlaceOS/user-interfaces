@@ -17,9 +17,9 @@ describe('parseTokenFromUrl', () => {
     });
 
     it('should extract a jwt query parameter', () => {
-        expect(parseTokenFromUrl('http://localhost/checkin?jwt=jwt-token')).toBe(
-            'jwt-token',
-        );
+        expect(
+            parseTokenFromUrl('http://localhost/checkin?jwt=jwt-token'),
+        ).toBe('jwt-token');
     });
 
     it('should extract a token query parameter', () => {
@@ -43,9 +43,9 @@ describe('parseTokenFromUrl', () => {
     });
 
     it('should URL-decode query parameter values', () => {
-        expect(
-            parseTokenFromUrl('http://localhost/checkin?token=a%20b'),
-        ).toBe('a b');
+        expect(parseTokenFromUrl('http://localhost/checkin?token=a%20b')).toBe(
+            'a b',
+        );
     });
 
     it('should extract a token from a hash route with a query string', () => {

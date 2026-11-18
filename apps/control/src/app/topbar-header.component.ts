@@ -79,7 +79,8 @@ enum TOOLTIP {
                         "
                     >
                         <button
-                            icon default
+                            icon
+                            default
                             matRipple
                             [attr.type]="item.id"
                             [attr.aria-label]="item.name"
@@ -93,7 +94,8 @@ enum TOOLTIP {
             }
         </div>
         <button
-            icon default
+            icon
+            default
             matRipple
             [matMenuTriggerFor]="menu"
             class="sm:hidden"

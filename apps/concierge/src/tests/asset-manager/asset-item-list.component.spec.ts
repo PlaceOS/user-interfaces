@@ -1,9 +1,12 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetItemListComponent } from '../../app/asset-manager/asset-item-list.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 const loading = signal(false);
 const options_signal = signal<any>({ view: 'grid', search: '' });

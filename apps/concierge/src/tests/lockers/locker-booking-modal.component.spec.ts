@@ -1,5 +1,9 @@
 import { inject, Injector } from '@angular/core';
-import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import {
+    MAT_DIALOG_DATA,
+    MatDialog,
+    MatDialogRef,
+} from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, generateBookingForm } from '@placeos/bookings';
 import { SettingsService } from '@placeos/common';
@@ -24,7 +28,10 @@ describe('LockerBookingModalComponent', () => {
             {
                 provide: BookingFormService,
                 useFactory: () => {
-                    const ref = generateBookingForm(undefined, inject(Injector));
+                    const ref = generateBookingForm(
+                        undefined,
+                        inject(Injector),
+                    );
                     model = ref.model;
                     return {
                         model: ref.model,

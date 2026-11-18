@@ -27,9 +27,9 @@
  * exactly the blast radius it had.
  */
 import { APIRequestContext, request as pwRequest } from '@playwright/test';
-import { BACKEND_URL, roleFor } from '../env';
 import { ENGINE_API } from '../api';
 import { clientId, mintToken, redirectUriFor } from '../auth';
+import { BACKEND_URL, roleFor } from '../env';
 import { CONCIERGE_URL, assertConciergeLocal } from './concierge.env';
 
 /**
@@ -115,7 +115,8 @@ export async function ensureConciergeOAuthApp(): Promise<{
         });
         if (!res.ok()) {
             const body = await res.text();
-            if (alreadyExists(body)) return { uid, redirect_uri, created: false };
+            if (alreadyExists(body))
+                return { uid, redirect_uri, created: false };
             throw new Error(
                 `create oauth_app for the concierge origin failed: HTTP ${res.status()} ${body}`,
             );

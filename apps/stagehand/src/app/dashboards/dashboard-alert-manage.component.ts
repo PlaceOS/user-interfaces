@@ -1,12 +1,6 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
-import {
-    Component,
-    DestroyRef,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
@@ -23,17 +17,17 @@ import {
     notifyError,
 } from '@placeos/common';
 import {
-    addAlert,
-    TriggerComparison,
-    TriggerConditions,
-    updateAlert,
-} from '@placeos/ts-client';
-import {
     IconComponent,
     SettingsToggleComponent,
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import {
+    addAlert,
+    TriggerComparison,
+    TriggerConditions,
+    updateAlert,
+} from '@placeos/ts-client';
 import { AlertConditionModalComponent } from './alert-conditions-modal.component';
 import { DashboardsService } from './dashboards.service';
 import { SystemSearchFieldComponent } from './system-search-field.component';
@@ -62,7 +56,10 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                 <header
                     class="bg-base-200 sticky top-0 z-10 mx-auto flex h-14 w-full max-w-156 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
-                    <h2 id="alert-editor-title" class="text-xl font-medium capitalize">
+                    <h2
+                        id="alert-editor-title"
+                        class="text-xl font-medium capitalize"
+                    >
                         {{
                             (model().id
                                 ? 'APP.STAGEHAND.DASHBOARD_ALERTS_EDIT'
@@ -210,9 +207,7 @@ export type AlertType = 'threshold' | 'status' | 'custom';
                         <section aria-labelledby="alert-conditions-label">
                             <simple-table
                                 class="mb-4 block w-full min-w-lg text-sm"
-                                [data]="
-                                    model().conditions?.comparisons || []
-                                "
+                                [data]="model().conditions?.comparisons || []"
                                 [columns]="[
                                     {
                                         key: 'operator',
@@ -405,12 +400,14 @@ export class DashboardAlertManageComponent
                 system: system,
             },
         });
-        const result: TriggerConditions | null = await new Promise((resolve) => {
-            const sub = ref.afterClosed().subscribe((value) => {
-                sub.unsubscribe();
-                resolve(value);
-            });
-        });
+        const result: TriggerConditions | null = await new Promise(
+            (resolve) => {
+                const sub = ref.afterClosed().subscribe((value) => {
+                    sub.unsubscribe();
+                    resolve(value);
+                });
+            },
+        );
         if (!result) return;
         // The modal returns the full condition list, with the edit applied
         this.model.update((m) => ({ ...m, conditions: result }));
@@ -425,10 +422,7 @@ export class DashboardAlertManageComponent
         if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidSignalFields(
-                        this.form,
-                        this.model,
-                    ),
+                    field_list: getInvalidSignalFields(this.form, this.model),
                 }),
             );
         }

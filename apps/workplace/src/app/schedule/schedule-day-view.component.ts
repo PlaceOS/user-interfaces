@@ -36,13 +36,7 @@ import {
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
 import { UserPipe } from '@placeos/users';
-import {
-    format,
-    isSameDay,
-    setHours,
-    setMinutes,
-    startOfDay,
-} from 'date-fns';
+import { format, isSameDay, setHours, setMinutes, startOfDay } from 'date-fns';
 import {
     bookedForLabel,
     isBookingForOtherUser,

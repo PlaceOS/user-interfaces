@@ -16,19 +16,22 @@
  * visitor specs' invitee list and the other areas' favourites, and a careless
  * write would wipe them.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { altSpace, spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
-import { slotOn } from '../../../../e2e/support/parking/parking.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 import {
     FAVOURITE_PARKING_KEY,
     readUserSettings,
     setFavouriteParking,
 } from '../../../../e2e/support/parking/parking.api';
+import { slotOn } from '../../../../e2e/support/parking/parking.env';
+import {
+    altSpace,
+    spaceForWorker,
+} from '../../../../e2e/support/parking/parking.seed';
 import {
     PARKING_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/parking/parking.settings';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 
 test.describe('favourite parking spaces', () => {
     test('a space marked as a favourite is saved and drives favourites-only filtering', async ({
@@ -62,13 +65,25 @@ test.describe('favourite parking spaces', () => {
                 'parking-space-filters section[favs] settings-toggle button',
             );
             const expectBoth = async () => {
-                await expect(row, 'the worker space must be offered').toBeVisible();
-                await expect(other, 'the non-favourite control must be offered').toBeVisible();
+                await expect(
+                    row,
+                    'the worker space must be offered',
+                ).toBeVisible();
+                await expect(
+                    other,
+                    'the non-favourite control must be offered',
+                ).toBeVisible();
             };
             const expectFiltered = async () => {
-                await expect(other, 'filtering must exclude the non-favourite').toHaveCount(0);
+                await expect(
+                    other,
+                    'filtering must exclude the non-favourite',
+                ).toHaveCount(0);
                 // Check the retained row last so an empty/loading list cannot pass.
-                await expect(row, 'filtering must retain the favourite').toBeVisible();
+                await expect(
+                    row,
+                    'filtering must retain the favourite',
+                ).toBeVisible();
             };
             await openPicker();
             await expectBoth();
@@ -82,12 +97,16 @@ test.describe('favourite parking spaces', () => {
                 .then(() => true)
                 .catch(() => false);
             if (!found) {
-                const offered = await staffPage.locator('li[space]').allInnerTexts();
-                const buttons = await row.locator('button').evaluateAll((els) =>
-                    els.map((el) =>
-                        [...el.attributes].map((a) => a.name).join(','),
-                    ),
-                );
+                const offered = await staffPage
+                    .locator('li[space]')
+                    .allInnerTexts();
+                const buttons = await row
+                    .locator('button')
+                    .evaluateAll((els) =>
+                        els.map((el) =>
+                            [...el.attributes].map((a) => a.name).join(','),
+                        ),
+                    );
                 throw new Error(
                     `no favourite control on the row for ${space.name}. The picker ` +
                         `offers ${offered.length} space(s), and that row's buttons ` +

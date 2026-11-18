@@ -7,7 +7,6 @@
  * overlaps `visitor-invite.spec.ts`; it adds the success view. NEW-VIS-02 (no
  * address) and NEW-VIS-03 (the recent visitors) are covered nowhere else.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
@@ -15,20 +14,27 @@ import {
     listBookings,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { readUserSettings, setUserSetting } from '../../../../e2e/support/home/home.api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    readUserSettings,
+    setUserSetting,
+} from '../../../../e2e/support/home/home.api';
 import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
 import {
     deleteGuest,
     releaseVisitor,
     searchGuests,
 } from '../../../../e2e/support/visitor/visitor.api';
 import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
+import {
     ALLOW_ALL_DAY,
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 
 /** Window wide enough to cover an invite made in any timezone. */
 const DAY = 86_400;
@@ -48,12 +54,23 @@ test.describe('visitor invite — the new flow', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.new_flow.stores);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.new_flow.stores,
+        );
         const reason = uniqueTitle('E2E New Visit');
         let booking_id: number | undefined;
 
-        const swept = await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
-        if (swept) console.log(`  swept ${swept} stale invite(s) for ${visitor.email}`);
+        const swept = await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
+        if (swept)
+            console.log(
+                `  swept ${swept} stale invite(s) for ${visitor.email}`,
+            );
         // A guest left from an earlier run makes the guest check below pass
         // with no invite at all.
         expect(
@@ -69,9 +86,15 @@ test.describe('visitor invite — the new flow', () => {
             // and a bare click failed on that 400 in a parallel run.
             // All Day replaces the default slot, which is the next boundary of
             // the clock and makes the invite depend on how fast the run is.
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
-                allDay: true,
-            });
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+                {
+                    allDay: true,
+                },
+            );
             const created_id = created.id;
             booking_id = created_id;
 
@@ -83,15 +106,25 @@ test.describe('visitor invite — the new flow', () => {
             // Read it back independently of the response parsed above.
             const stored = await getBooking(staffApi, created_id);
             const me = await currentUser(staffApi);
-            expect(stored.booking_type, 'stored as a visitor booking').toBe('visitor');
-            expect(stored.asset_id, 'against this worker’s visitor address').toBe(visitor.email);
-            expect(stored.title, 'the reason we typed reached the backend').toBe(reason);
+            expect(stored.booking_type, 'stored as a visitor booking').toBe(
+                'visitor',
+            );
+            expect(
+                stored.asset_id,
+                'against this worker’s visitor address',
+            ).toBe(visitor.email);
+            expect(
+                stored.title,
+                'the reason we typed reached the backend',
+            ).toBe(reason);
             expect(stored.deleted, 'not soft-deleted').toBeFalsy();
             expect(
                 stored.zones.length,
                 'carries its zone hierarchy (org/building/level)',
             ).toBeGreaterThan(0);
-            expect(stored.user_email, 'the signed-in user is the host').toBe(me.email);
+            expect(stored.user_email, 'the signed-in user is the host').toBe(
+                me.email,
+            );
 
             // The guest record lives outside the booking. Reception reads it.
             const guests = await searchGuests(staffApi, visitor.email);
@@ -99,9 +132,16 @@ test.describe('visitor invite — the new flow', () => {
                 guests.map((g) => g.email),
                 'a guest record was created for the visitor',
             ).toContain(visitor.email);
-            expect(guests[0].name, 'carrying the name we typed').toBe(visitor.name);
+            expect(guests[0].name, 'carrying the name we typed').toBe(
+                visitor.name,
+            );
 
-            const listed = await listBookings(staffApi, 'visitor', window_from(), window_to());
+            const listed = await listBookings(
+                staffApi,
+                'visitor',
+                window_from(),
+                window_to(),
+            );
             expect(
                 listed.map((b) => b.id),
                 'the new invite appears in the visitor listing',
@@ -118,7 +158,8 @@ test.describe('visitor invite — the new flow', () => {
         const form = new InviteVisitorForm(staffPage);
         const posts: string[] = [];
         staffPage.on('request', (request) => {
-            if (isBookingPost(request.url(), request.method())) posts.push(request.url());
+            if (isBookingPost(request.url(), request.method()))
+                posts.push(request.url());
         });
         await useSettings(staffPage, SETTINGS);
 
@@ -128,34 +169,54 @@ test.describe('visitor invite — the new flow', () => {
         await expect(form.visitorEmail).toHaveValue('');
         await form.sendButton.click();
 
-        await expect(staffPage.locator('mat-snack-bar-container')).toBeVisible();
+        await expect(
+            staffPage.locator('mat-snack-bar-container'),
+        ).toBeVisible();
         await expect(staffPage).toHaveURL(/#\/book\/visitor\/form/);
-        expect(posts, 'no invite may leave the page without an address').toEqual([]);
+        expect(
+            posts,
+            'no invite may leave the page without an address',
+        ).toEqual([]);
     });
 
     test('NEW-VIS-03: a recent visitor from the user settings fills the visitor fields', async ({
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.new_flow.recent);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.new_flow.recent,
+        );
         const form = new InviteVisitorForm(staffPage);
-        const before: unknown = (await readUserSettings(staffApi))[INVITEES_KEY];
+        const before: unknown = (await readUserSettings(staffApi))[
+            INVITEES_KEY
+        ];
         const history: unknown[] = Array.isArray(before) ? before : [];
 
         // The last item is the most recent visitor, and the panel shows the
         // most recent first. Format: `email|name|company|international|phone`.
         await setUserSetting(staffApi, INVITEES_KEY, [
-            ...history.filter((item) => !`${item}`.startsWith(`${visitor.email}|`)),
+            ...history.filter(
+                (item) => !`${item}`.startsWith(`${visitor.email}|`),
+            ),
             `${visitor.email}|${visitor.name}|${visitor.company}|0|`,
         ]);
         await useSettings(staffPage, SETTINGS);
 
         try {
             await form.open();
-            await expect(form.visitorEmail, 'the fields start empty').toHaveValue('');
+            await expect(
+                form.visitorEmail,
+                'the fields start empty',
+            ).toHaveValue('');
 
-            const recent = form.recentVisitors.filter({ hasText: visitor.email });
-            await expect(recent, 'the panel offers the visitor from the settings').toBeVisible();
+            const recent = form.recentVisitors.filter({
+                hasText: visitor.email,
+            });
+            await expect(
+                recent,
+                'the panel offers the visitor from the settings',
+            ).toBeVisible();
             await recent.click();
 
             await expect(form.visitorEmail).toHaveValue(visitor.email);

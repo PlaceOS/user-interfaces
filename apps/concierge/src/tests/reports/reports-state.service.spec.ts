@@ -216,7 +216,11 @@ describe('ReportsStateService', () => {
         ];
         vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
             data: [
-                { id: 'type-bank', name: '_LOCKER_BANKS_', category_id: 'cat-lock' },
+                {
+                    id: 'type-bank',
+                    name: '_LOCKER_BANKS_',
+                    category_id: 'cat-lock',
+                },
                 { id: 'type-lock', name: '_LOCKERS_', category_id: 'cat-lock' },
             ],
             next: undefined,
@@ -229,7 +233,11 @@ describe('ReportsStateService', () => {
                             ? [
                                   { id: 'l1', parent_id: 'bank-1' },
                                   { id: 'l2', parent_id: 'bank-2' },
-                                  { id: 'l3', parent_id: 'bank-2', bookable: false },
+                                  {
+                                      id: 'l3',
+                                      parent_id: 'bank-2',
+                                      bookable: false,
+                                  },
                               ]
                             : [
                                   { id: 'bank-1', zones: ['lvl-1'] },
@@ -238,7 +246,10 @@ describe('ReportsStateService', () => {
                     next: undefined,
                 }) as any,
         );
-        spectator.service.setOptions({ type: 'lockers', zones: ['lvl-1', 'lvl-2'] });
+        spectator.service.setOptions({
+            type: 'lockers',
+            zones: ['lvl-1', 'lvl-2'],
+        });
         await TestBed.inject(ApplicationRef).whenStable();
 
         expect(spectator.service.counts()).toEqual({ 'lvl-1': 1, 'lvl-2': 1 });

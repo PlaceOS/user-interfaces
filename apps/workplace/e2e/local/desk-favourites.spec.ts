@@ -18,15 +18,15 @@
  * It is cleared either side, through a read-modify-write that cannot wipe the
  * neighbours.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
-import { altDesk, slotOn } from '../../../../e2e/support/desk/desk.env';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     readUserSettings,
     setFavouriteDesks,
 } from '../../../../e2e/support/desk/desk.api';
+import { altDesk, slotOn } from '../../../../e2e/support/desk/desk.env';
 import { useSettings } from '../../../../e2e/support/desk/desk.settings';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 test.describe('favourite desks', () => {
     test('a desk marked as a favourite is saved and drives favourites-only filtering', async ({
@@ -62,10 +62,13 @@ test.describe('favourite desks', () => {
                 ).not.toBeChecked();
                 await expect(async () => {
                     const names = await form.deskNames();
-                    expect(names, 'the worker desk must be offered').toContain(desk.name);
-                    expect(names, 'the non-favourite control must be offered').toContain(
-                        control.name,
+                    expect(names, 'the worker desk must be offered').toContain(
+                        desk.name,
                     );
+                    expect(
+                        names,
+                        'the non-favourite control must be offered',
+                    ).toContain(control.name);
                 }).toPass({ timeout: 30_000 });
             };
             const expectFiltered = async () => {
@@ -75,11 +78,15 @@ test.describe('favourite desks', () => {
                 ).toBeChecked();
                 await expect(async () => {
                     const names = await form.deskNames();
-                    expect(names, 'filtering must exclude the non-favourite').not.toContain(
-                        control.name,
-                    );
+                    expect(
+                        names,
+                        'filtering must exclude the non-favourite',
+                    ).not.toContain(control.name);
                     // Check the retained row too, so an empty list cannot pass.
-                    expect(names, 'filtering must retain the favourite').toContain(desk.name);
+                    expect(
+                        names,
+                        'filtering must retain the favourite',
+                    ).toContain(desk.name);
                 }).toPass({ timeout: 30_000 });
             };
             await openList();

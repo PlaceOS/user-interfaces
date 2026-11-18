@@ -23,9 +23,15 @@
  * The admin's booking is on THIS worker's scoping desk (`scopingDeskFor`); no
  * other spec may book it.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { apiFor, deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
+import {
+    apiFor,
+    deleteBooking,
+    releaseAsset,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 import { deskFor, scopingDeskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     clearToday,
     createBookingViaApi,
@@ -34,7 +40,6 @@ import {
     todayBounds,
 } from '../../../../e2e/support/home/home.api';
 import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
-import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
 
 const MINUTE = 60;
 
@@ -90,7 +95,8 @@ test.describe('home page — visibility between users', () => {
             ).toHaveText(mine_title, { timeout: 30_000 });
             await expect(home.upcoming).not.toContainText(theirs_title);
         } finally {
-            if (their_booking != null) await deleteBooking(admin, their_booking);
+            if (their_booking != null)
+                await deleteBooking(admin, their_booking);
             if (my_booking != null) await deleteBooking(staffApi, my_booking);
             await admin.dispose();
         }
@@ -106,7 +112,9 @@ test.describe('home page — visibility between users', () => {
     }, testInfo) => {
         const desk = scopingDeskFor(testInfo.parallelIndex);
         // Close enough to now that an evening run still lands inside today.
-        const start = Math.floor(Date.now() / 1000) + (46 + 10 * testInfo.parallelIndex) * MINUTE;
+        const start =
+            Math.floor(Date.now() / 1000) +
+            (46 + 10 * testInfo.parallelIndex) * MINUTE;
         test.skip(!stillToday(start), 'this window has crossed midnight');
         let booking_id: number | undefined;
 
@@ -133,7 +141,13 @@ test.describe('home page — visibility between users', () => {
             ).toBeVisible({ timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(staffApi, 'desk', desk.id, start - 60, start + 3600);
+            await releaseAsset(
+                staffApi,
+                'desk',
+                desk.id,
+                start - 60,
+                start + 3600,
+            );
         }
     });
 });

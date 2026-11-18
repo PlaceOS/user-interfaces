@@ -145,7 +145,9 @@ export interface ParkingSpaceModalData {
                             class="flex-1"
                         ></a-user-search-field>
                         <button
-                            icon default error
+                            icon
+                            default
+                            error
                             matRipple
                             class="text-xl"
                             [matTooltip]="

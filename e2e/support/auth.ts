@@ -17,8 +17,8 @@
  *  - The `_expires_at` we write must be in the FUTURE or ts-client treats the
  *    token as stale and triggers a re-auth redirect mid-test.
  */
+import { APIRequestContext, request as pwRequest } from '@playwright/test';
 import { createHash, randomBytes } from 'crypto';
-import { request as pwRequest, APIRequestContext } from '@playwright/test';
 
 /**
  * client_id as computed by ts-client: Md5(redirect_uri), 32 hex chars.
@@ -44,7 +44,11 @@ export function redirectUriFor(appUrl: string): string {
 }
 
 function base64url(buf: Buffer): string {
-    return buf.toString('base64').replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+    return buf
+        .toString('base64')
+        .replace(/=/g, '')
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_');
 }
 
 export interface MintResult {
@@ -133,7 +137,8 @@ export async function mintToken(
             );
         }
         const code = new URL(location, backendUrl).searchParams.get('code');
-        if (!code) throw new Error(`could not parse code from location: ${location}`);
+        if (!code)
+            throw new Error(`could not parse code from location: ${location}`);
 
         // Step 3 — exchange the code. Public client: a verifier, never a secret.
         const tokenRes = await ctx.post('/auth/oauth/token', {
@@ -156,7 +161,9 @@ export async function mintToken(
             expires_in?: number;
         };
         if (!body.access_token) {
-            throw new Error(`no access_token returned for ${email}: ${JSON.stringify(body)}`);
+            throw new Error(
+                `no access_token returned for ${email}: ${JSON.stringify(body)}`,
+            );
         }
 
         // Carry the backend's cookies across. Not needed when the SPA is served
@@ -191,7 +198,10 @@ export function buildStorageState(mint: MintResult, appUrl: string) {
         { name: `${mint.clientId}_expires_at`, value: String(expiresAt) },
     ];
     if (mint.refreshToken) {
-        localStorage.push({ name: `${mint.clientId}_refresh_token`, value: mint.refreshToken });
+        localStorage.push({
+            name: `${mint.clientId}_refresh_token`,
+            value: mint.refreshToken,
+        });
     }
     return { cookies: mint.cookies, origins: [{ origin, localStorage }] };
 }

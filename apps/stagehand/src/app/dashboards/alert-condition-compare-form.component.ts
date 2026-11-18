@@ -2,9 +2,9 @@ import {
     Component,
     OnChanges,
     OnInit,
-    signal,
     SimpleChanges,
     input,
+    signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
@@ -23,7 +23,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { Identity, i18n, notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-
 
 type ComparisonSide = 'left' | 'right';
 
@@ -93,9 +92,7 @@ export function calculateModuleIndex(
                                 name="compared-to"
                                 aria-label="Compare to"
                                 [(ngModel)]="rhs_type"
-                                (ngModelChange)="
-                                    form().right().value.set('')
-                                "
+                                (ngModelChange)="form().right().value.set('')"
                                 [ngModelOptions]="{ standalone: true }"
                             >
                                 @for (type of right_var_type(); track type) {
@@ -190,10 +187,7 @@ export function calculateModuleIndex(
                                         | translate
                                 "
                             >
-                                @for (
-                                    mod of statusVars(side);
-                                    track mod
-                                ) {
+                                @for (mod of statusVars(side); track mod) {
                                     <mat-option [value]="mod.name">
                                         {{ mod.name }}
                                     </mat-option>
@@ -454,11 +448,7 @@ export class AlertConditionComparisonFormComponent
             this.loadSystemStatusVariables(module, 'left');
             this.left_side.set(left_value);
         }
-        if (
-            form.right &&
-            form.right().value() &&
-            form.right().value().mod
-        ) {
+        if (form.right && form.right().value() && form.right().value().mod) {
             this.rhs_type.set('status_var');
             const right_value = form.right().value();
             const module = right_value.mod;
@@ -506,7 +496,9 @@ export class AlertConditionComparisonFormComponent
     }
 
     private _setSide(side: ComparisonSide, value: TriggerStatusVariable) {
-        side === 'left' ? this.left_side.set(value) : this.right_side.set(value);
+        side === 'left'
+            ? this.left_side.set(value)
+            : this.right_side.set(value);
     }
 
     private _setStatusVars(side: ComparisonSide, list: Identity[]) {

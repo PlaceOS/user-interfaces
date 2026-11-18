@@ -54,7 +54,9 @@ export async function createSecondLevel(
     try {
         const [building] = await zonesWithTag(admin, 'building');
         if (!building?.id) {
-            throw new Error('no building zone to hang a level off — the stack is not seeded');
+            throw new Error(
+                'no building zone to hang a level off — the stack is not seeded',
+            );
         }
         const name = `${LEVEL_NAME_PREFIX} ${workerIndex}`;
         const desk = {
@@ -64,7 +66,9 @@ export async function createSecondLevel(
 
         // Reuse the zone if an earlier run left it behind, so a crashed run does
         // not accumulate levels.
-        const existing = (await zonesWithTag(admin, 'level')).find((z) => z.name === name);
+        const existing = (await zonesWithTag(admin, 'level')).find(
+            (z) => z.name === name,
+        );
         const zone =
             existing ??
             (await (async () => {
@@ -72,7 +76,8 @@ export async function createSecondLevel(
                     data: {
                         name,
                         display_name: name,
-                        description: 'Extra level owned by the e2e suite. Safe to delete.',
+                        description:
+                            'Extra level owned by the e2e suite. Safe to delete.',
                         tags: ['level'],
                         parent_id: building.id,
                     },

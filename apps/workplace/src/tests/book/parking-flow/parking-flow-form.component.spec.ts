@@ -5,9 +5,9 @@ import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import {
-    SettingsService,
     setCurrentUser,
     setNotifyOutlet,
+    SettingsService,
     StaffUser,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';

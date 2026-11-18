@@ -53,7 +53,8 @@ const MAX_LIST_PAGES = 30;
  * The name of a desk, inside its row of the list. The row has no handle for
  * it, and the text of the row starts with icon ligatures.
  */
-const ROW_NAME = 'button[name="select-item"] > div:nth-child(2) > div:first-child';
+const ROW_NAME =
+    'button[name="select-item"] > div:nth-child(2) > div:first-child';
 
 export class DeskFlow {
     constructor(private readonly page: Page) {}
@@ -76,7 +77,9 @@ export class DeskFlow {
 
     /** An icon, by its ligature. Anchored, so `person` is not `person_add`. */
     private icon(name: string): Locator {
-        return this.page.locator('icon', { hasText: new RegExp(`^\\s*${name}\\s*$`) });
+        return this.page.locator('icon', {
+            hasText: new RegExp(`^\\s*${name}\\s*$`),
+        });
     }
 
     /** The title input. `name$=".title"` because the name is form-scoped. */
@@ -122,9 +125,9 @@ export class DeskFlow {
      * level down, so the sibling selector does not match them.
      */
     get favouritesOnly(): Locator {
-        return this.filter('date-field + settings-toggle ~ settings-toggle').locator(
-            'input[type="checkbox"]',
-        );
+        return this.filter(
+            'date-field + settings-toggle ~ settings-toggle',
+        ).locator('input[type="checkbox"]');
     }
 
     /**
@@ -136,7 +139,9 @@ export class DeskFlow {
      * one is not.
      */
     get requireLocker(): Locator {
-        return this.details.locator('mat-checkbox input[type="checkbox"]:not([name])');
+        return this.details.locator(
+            'mat-checkbox input[type="checkbox"]:not([name])',
+        );
     }
 
     /**
@@ -144,11 +149,15 @@ export class DeskFlow {
      * `can_book_for_others` is on.
      */
     get groupModeButton(): Locator {
-        return this.details.locator('button[btn]').filter({ has: this.icon('group_add') });
+        return this.details
+            .locator('button[btn]')
+            .filter({ has: this.icon('group_add') });
     }
 
     get bookForOtherButton(): Locator {
-        return this.details.locator('button[btn]').filter({ has: this.icon('person_add') });
+        return this.details
+            .locator('button[btn]')
+            .filter({ has: this.icon('person_add') });
     }
 
     /** The host field, rendered only while "Book for other" is active. */
@@ -220,7 +229,9 @@ export class DeskFlow {
 
     /** The Confirm button. It shows a spinner icon while the booking saves. */
     get confirm(): Locator {
-        return this.root.locator('button[btn]').filter({ has: this.icon('task_alt') });
+        return this.root
+            .locator('button[btn]')
+            .filter({ has: this.icon('task_alt') });
     }
 
     /**
@@ -258,10 +269,17 @@ export class DeskFlow {
             // native input, which lies over the box. Never `force` the click.
             // A forced click goes to the element on top, and while the app
             // starts that is its loading screen.
-            const toggle = box.locator('xpath=ancestor::settings-toggle/button');
-            await ((await toggle.count()) ? toggle : box).click({ timeout: 20_000 });
+            const toggle = box.locator(
+                'xpath=ancestor::settings-toggle/button',
+            );
+            await ((await toggle.count()) ? toggle : box).click({
+                timeout: 20_000,
+            });
         }
-        await expect(box, `the box should be ${want ? 'on' : 'off'}`).toBeChecked({
+        await expect(
+            box,
+            `the box should be ${want ? 'on' : 'off'}`,
+        ).toBeChecked({
             checked: want,
         });
     }
@@ -279,7 +297,8 @@ export class DeskFlow {
      * of the page. Only a change of that text is used, not the words in it.
      */
     private async turnListPage(button: Locator): Promise<boolean> {
-        if (!(await button.isVisible()) || !(await button.isEnabled())) return false;
+        if (!(await button.isVisible()) || !(await button.isEnabled()))
+            return false;
         const bar = button.locator('xpath=..');
         const before = (await bar.textContent()) ?? '';
         await button.click({ timeout: 5_000 });
@@ -292,7 +311,9 @@ export class DeskFlow {
      * when `visit` returns true or after the last page. Ends on the page of
      * the last visit.
      */
-    private async eachListPage(visit: () => Promise<boolean>): Promise<boolean> {
+    private async eachListPage(
+        visit: () => Promise<boolean>,
+    ): Promise<boolean> {
         for (let page = 0; page < MAX_LIST_PAGES; page++) {
             if (!(await this.turnListPage(this.previousPage))) break;
         }
@@ -333,7 +354,9 @@ export class DeskFlow {
             await this.waitForDesks(5_000);
             names = [];
             await this.eachListPage(async () => {
-                const page_names = await this.desks.locator(ROW_NAME).allInnerTexts();
+                const page_names = await this.desks
+                    .locator(ROW_NAME)
+                    .allInnerTexts();
                 names.push(...page_names.map((name) => name.trim()));
                 return false;
             });
@@ -430,7 +453,10 @@ export class DeskFlow {
             .and(this.page.locator('[aria-selected="true"]'))
             .filter({ hasNot: this.page.getByText(name, { exact: true }) });
         await expect(async () => {
-            if ((await this.levelSelect.getAttribute('aria-expanded')) !== 'true') {
+            if (
+                (await this.levelSelect.getAttribute('aria-expanded')) !==
+                'true'
+            ) {
                 await this.levelSelect.click({ timeout: 5_000 });
             }
             await expect(
@@ -445,7 +471,9 @@ export class DeskFlow {
             if ((await wanted.getAttribute('aria-selected')) !== 'true') {
                 await wanted.click({ timeout: 3_000 });
             }
-            await expect(wanted).toHaveAttribute('aria-selected', 'true', { timeout: 3_000 });
+            await expect(wanted).toHaveAttribute('aria-selected', 'true', {
+                timeout: 3_000,
+            });
         }).toPass({ timeout: 30_000 });
         await this.page.keyboard.press('Escape');
         await expect(options.first()).toBeHidden();
@@ -456,13 +484,15 @@ export class DeskFlow {
     async bookForOther(): Promise<void> {
         // A second click on the button clears the chosen person, so click
         // only when the host field is not there.
-        if (!(await this.userField.isVisible())) await this.bookForOtherButton.click();
+        if (!(await this.userField.isVisible()))
+            await this.bookForOtherButton.click();
         await expect(this.userField).toBeVisible();
     }
 
     /** Make Group the booking type, if it is not already. */
     async bookForGroup(): Promise<void> {
-        if (!(await this.groupField.isVisible())) await this.groupModeButton.click();
+        if (!(await this.groupField.isVisible()))
+            await this.groupModeButton.click();
         await expect(this.groupField).toBeVisible();
     }
 
@@ -486,7 +516,10 @@ export class DeskFlow {
      * option of a directory user, which has an avatar, that shows the address.
      * The address is data and each option renders it below the name.
      */
-    private async pickDirectoryUser(input: Locator, email: string): Promise<void> {
+    private async pickDirectoryUser(
+        input: Locator,
+        email: string,
+    ): Promise<void> {
         const option = this.page
             .locator('mat-option')
             .filter({ has: this.page.locator('a-user-avatar') })
@@ -518,7 +551,9 @@ export class DeskFlow {
         throw new Error(
             `no autocomplete option for ${email} after 3 tries. The panel offered ` +
                 `${offered.length}: ${JSON.stringify(
-                    offered.map((t) => t.replace(/\s+/g, ' ').trim()).slice(0, 8),
+                    offered
+                        .map((t) => t.replace(/\s+/g, ' ').trim())
+                        .slice(0, 8),
                 )}. The user has to exist in the directory — seed.ts creates one staff ` +
                 `user per worker — and the field only searches on real key events, so ` +
                 `check the typing reached it.`,
@@ -533,7 +568,10 @@ export class DeskFlow {
      * not a person, and the flow then refuses to confirm.
      */
     async chooseUser(email: string): Promise<void> {
-        await this.pickDirectoryUser(this.userField.locator('input').first(), email);
+        await this.pickDirectoryUser(
+            this.userField.locator('input').first(),
+            email,
+        );
         // The field shows the avatar of the person once it holds one.
         await expect(
             this.userField.locator('a-user-avatar'),
@@ -557,8 +595,12 @@ export class DeskFlow {
      * button, and a click on the button of an open picker closes it.
      */
     async openDatePicker(): Promise<void> {
-        if (!(await this.datePicker.first().isVisible())) await this.dateButton.click();
-        await expect(this.datePicker.first(), 'the date picker did not open').toBeVisible();
+        if (!(await this.datePicker.first().isVisible()))
+            await this.dateButton.click();
+        await expect(
+            this.datePicker.first(),
+            'the date picker did not open',
+        ).toBeVisible();
     }
 
     /**
@@ -581,8 +623,13 @@ export class DeskFlow {
         target.setHours(0, 0, 0, 0);
 
         await this.openDatePicker();
-        const cells = this.datePicker.locator('button[name="schedule-set-date"]');
-        await expect(cells.first(), 'the calendar rendered no day cells').toBeVisible();
+        const cells = this.datePicker.locator(
+            'button[name="schedule-set-date"]',
+        );
+        await expect(
+            cells.first(),
+            'the calendar rendered no day cells',
+        ).toBeVisible();
         const grid = await cells.evaluateAll((els) =>
             els.map((el) => ({
                 text: (el.textContent ?? '').trim(),
@@ -614,7 +661,9 @@ export class DeskFlow {
                 `yesterday by the browser clock`,
         ).toBeTruthy();
 
-        const days = Math.round((target.valueOf() - anchor!.valueOf()) / 86_400_000);
+        const days = Math.round(
+            (target.valueOf() - anchor!.valueOf()) / 86_400_000,
+        );
         const index = today_index + days;
         expect(
             index >= 0 && index < grid.length,

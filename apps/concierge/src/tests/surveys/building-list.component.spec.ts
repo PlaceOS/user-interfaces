@@ -1,5 +1,5 @@
-import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { signal } from '@angular/core';
+import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';

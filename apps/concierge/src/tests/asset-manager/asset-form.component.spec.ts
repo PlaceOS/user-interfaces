@@ -6,8 +6,8 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetFormComponent } from '../../app/asset-manager/asset-form.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -60,7 +60,10 @@ describe('AssetFormComponent', () => {
         await spectator.component.save();
 
         expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({ serial_number: 'SER-1', zone_id: 'bld-1' }),
+            expect.objectContaining({
+                serial_number: 'SER-1',
+                zone_id: 'bld-1',
+            }),
         );
         expect(
             spectator.inject(AssetManagerStateService).setExtraAssets,

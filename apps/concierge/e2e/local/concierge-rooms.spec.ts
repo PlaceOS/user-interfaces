@@ -45,13 +45,15 @@ async function seededRooms(
     const res = await api.get('/api/engine/v2/systems', {
         params: { limit: '200' },
     });
-    expect(res.ok(), 'GET /systems should answer — concierge room management ' +
-        'reads PlaceOS systems, not the calendar').toBe(true);
+    expect(
+        res.ok(),
+        'GET /systems should answer — concierge room management ' +
+            'reads PlaceOS systems, not the calendar',
+    ).toBe(true);
     const body = await res.json();
     const rows = Array.isArray(body) ? body : (body.results ?? []);
     return rows as RoomSystem[];
 }
-
 
 /**
  * Put a room's capacity back, and FAIL if it cannot be.
@@ -83,13 +85,17 @@ async function restoreCapacity(
     system_id: string,
     capacity: number,
 ): Promise<void> {
-    const current = await (await api.get(`/api/engine/v2/systems/${system_id}`)).json();
+    const current = await (
+        await api.get(`/api/engine/v2/systems/${system_id}`)
+    ).json();
     if (current.capacity === capacity) return;
     const res = await api.put(
         `/api/engine/v2/systems/${system_id}?version=${current.version ?? 0}`,
         { data: { capacity } },
     );
-    const after = await (await api.get(`/api/engine/v2/systems/${system_id}`)).json();
+    const after = await (
+        await api.get(`/api/engine/v2/systems/${system_id}`)
+    ).json();
     expect(
         after.capacity,
         `could not restore ${system_id} to capacity ${capacity} (PUT answered ` +
@@ -143,9 +149,9 @@ test.describe('concierge room management', () => {
     }) => {
         const rooms = await seededRooms(adminApi);
         const room = rooms[0];
-        const before = (await (await adminApi.get(
-            `/api/engine/v2/systems/${room.id}`,
-        )).json()) as RoomSystem;
+        const before = (await (
+            await adminApi.get(`/api/engine/v2/systems/${room.id}`)
+        ).json()) as RoomSystem;
         const original = before.capacity ?? 0;
 
         await adminPage.goto(ROOM_MANAGEMENT_ROUTE);
@@ -159,10 +165,7 @@ test.describe('concierge room management', () => {
                 actions,
                 snapshot.column_ids.length,
             );
-            await cell
-                .locator('button, [matripple]')
-                .first()
-                .click();
+            await cell.locator('button, [matripple]').first().click();
             // Filtered by text on the menu ITEM rather than `getByText` on the
             // page: a bare text match here hits the row's tooltip instead and
             // waits on an element that never becomes visible.
@@ -193,8 +196,12 @@ test.describe('concierge room management', () => {
             // so the only way to address it is by position among fourteen
             // inputs — which would break the first time a field is added. The
             // `add` button is unambiguous.
-            await modal.getByRole('button', { name: 'add', exact: true }).click();
-            await modal.getByRole('button', { name: 'Save', exact: false }).click();
+            await modal
+                .getByRole('button', { name: 'add', exact: true })
+                .click();
+            await modal
+                .getByRole('button', { name: 'Save', exact: false })
+                .click();
             await expect(
                 modal.getByRole('button', { name: 'Save', exact: false }),
                 'the form should close once the room is saved',
@@ -205,7 +212,9 @@ test.describe('concierge room management', () => {
                     async () =>
                         (
                             await (
-                                await adminApi.get(`/api/engine/v2/systems/${room.id}`)
+                                await adminApi.get(
+                                    `/api/engine/v2/systems/${room.id}`,
+                                )
                             ).json()
                         ).capacity,
                     {
@@ -254,10 +263,7 @@ test.describe('concierge room management', () => {
         try {
             const width = snapshot.column_ids.length;
             const cell = await rowCell(adminPage, row, actions, width);
-            await cell
-                .locator('button, [matripple]')
-                .first()
-                .click();
+            await cell.locator('button, [matripple]').first().click();
             await adminPage
                 .locator('.mat-mdc-menu-panel button, [role=menuitem]')
                 .filter({ hasText: 'Edit Room' })
@@ -285,7 +291,9 @@ test.describe('concierge room management', () => {
                     'nothing would be sent',
             ).toBeVisible({ timeout: 15_000 });
 
-            await modal.getByRole('button', { name: 'Save', exact: false }).click();
+            await modal
+                .getByRole('button', { name: 'Save', exact: false })
+                .click();
             await expect(
                 modal.getByRole('button', { name: 'Save', exact: false }),
                 'the form should close once the room is saved',
@@ -296,13 +304,15 @@ test.describe('concierge room management', () => {
                     async () =>
                         (
                             await (
-                                await adminApi.get(`/api/engine/v2/systems/${room.id}`)
+                                await adminApi.get(
+                                    `/api/engine/v2/systems/${room.id}`,
+                                )
                             ).json()
                         ).features ?? [],
                     {
                         message:
                             'the feature must be stored on the room system. This is ' +
-                            'also what unblocks the workplace picker\'s features ' +
+                            "also what unblocks the workplace picker's features " +
                             'filter (ROOM-29), which has been untestable because no ' +
                             'room had a feature to filter on',
                         timeout: 20_000,
@@ -315,7 +325,10 @@ test.describe('concierge room management', () => {
             const current = await (
                 await adminApi.get(`/api/engine/v2/systems/${room.id}`)
             ).json();
-            if (JSON.stringify(current.features ?? []) !== JSON.stringify(original)) {
+            if (
+                JSON.stringify(current.features ?? []) !==
+                JSON.stringify(original)
+            ) {
                 await adminApi.put(
                     `/api/engine/v2/systems/${room.id}?version=${current.version ?? 0}`,
                     { data: { features: original } },

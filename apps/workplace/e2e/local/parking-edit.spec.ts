@@ -17,13 +17,16 @@
  * HOUR is staggered by worker index — the day cannot be, since the schedule's
  * sidebar calendar only reaches the displayed month.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
+import { ParkingSchedulePage } from '../../../../e2e/support/parking/parking-schedule.page';
+import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
@@ -31,14 +34,14 @@ import {
     hourFor,
     slotOn,
 } from '../../../../e2e/support/parking/parking.env';
-import { altSpace, spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
-import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
+import {
+    altSpace,
+    spaceForWorker,
+} from '../../../../e2e/support/parking/parking.seed';
 import {
     PARKING_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/parking/parking.settings';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
-import { ParkingSchedulePage } from '../../../../e2e/support/parking/parking-schedule.page';
 
 test.describe('editing a parking booking', () => {
     test('a new start time chosen on the form is the one stored', async ({
@@ -113,9 +116,10 @@ test.describe('editing a parking booking', () => {
             }).toPass({ timeout: 45_000 });
 
             const updated = await getBooking(staffApi, booking_id);
-            expect(updated.asset_id, 'moving the time must not change the space').toBe(
-                space.id,
-            );
+            expect(
+                updated.asset_id,
+                'moving the time must not change the space',
+            ).toBe(space.id);
             expect(
                 updated.deleted,
                 'an edit must UPDATE the booking, not delete and replace it',
@@ -138,8 +142,20 @@ test.describe('editing a parking booking', () => {
         const { from, to } = dayBoundsOn(day);
         let booking_id: number | undefined;
 
-        await releaseAsset(staffApi, 'parking', space.id, slot.start - 60, slot.end + 60);
-        await releaseAsset(staffApi, 'parking', other.id, slot.start - 60, slot.end + 60);
+        await releaseAsset(
+            staffApi,
+            'parking',
+            space.id,
+            slot.start - 60,
+            slot.end + 60,
+        );
+        await releaseAsset(
+            staffApi,
+            'parking',
+            other.id,
+            slot.start - 60,
+            slot.end + 60,
+        );
         await useSettings(staffPage, PARKING_BASE_SETTINGS);
 
         try {
@@ -190,8 +206,20 @@ test.describe('editing a parking booking', () => {
             ).toBe(hhmm(slot.start));
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseAsset(staffApi, 'parking', space.id, slot.start - 60, slot.end + 60);
-            await releaseAsset(staffApi, 'parking', other.id, slot.start - 60, slot.end + 60);
+            await releaseAsset(
+                staffApi,
+                'parking',
+                space.id,
+                slot.start - 60,
+                slot.end + 60,
+            );
+            await releaseAsset(
+                staffApi,
+                'parking',
+                other.id,
+                slot.start - 60,
+                slot.end + 60,
+            );
         }
     });
 });

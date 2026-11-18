@@ -36,9 +36,12 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
     template: `
         @if (levels()?.length) {
             <div
-                class="absolute top-2 right-2 left-2 z-10 rounded border border-base-300 bg-base-100 p-2 shadow"
+                class="border-base-300 bg-base-100 absolute top-2 right-2 left-2 z-10 rounded border p-2 shadow"
             >
-                <mat-form-field appearance="outline" class="no-subscript w-full">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full"
+                >
                     <mat-select
                         name="location"
                         [ngModel]="level()"
@@ -58,7 +61,9 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
                                             <span class="opacity-0"> - </span>
                                         </div>
                                     }
-                                    <div>{{ lvl.display_name || lvl.name }}</div>
+                                    <div>
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
                                 </div>
                             </mat-option>
                         }
@@ -79,13 +84,13 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
         </div>
         @if (selected_space()) {
             <div
-                class="absolute bottom-4 left-4 right-16 z-10 flex items-center rounded-lg border border-success bg-base-100 p-2 shadow-lg"
+                class="border-success bg-base-100 absolute right-16 bottom-4 left-4 z-10 flex items-center rounded-lg border p-2 shadow-lg"
             >
                 <div
-                    class="relative mr-2 flex h-12 w-12 min-w-[3rem] items-center justify-center overflow-hidden rounded-lg bg-base-200"
+                    class="bg-base-200 relative mr-2 flex h-12 w-12 min-w-[3rem] items-center justify-center overflow-hidden rounded-lg"
                 >
                     <icon
-                        class="absolute left-0 top-0 rounded-full bg-base-200 text-success"
+                        class="bg-base-200 text-success absolute top-0 left-0 rounded-full"
                         >task_alt</icon
                     >
                     @if (selected_space().images?.length) {
@@ -113,13 +118,11 @@ import { DEFAULT_COLOURS } from '@placeos/explore';
                         <icon class="-ml-1 text-lg">place</icon>
                         <p class="truncate">
                             @let lvl = selected_space().zones | level;
-                            {{
-                                lvl?.display_name || lvl?.name
-                            }}
+                            {{ lvl?.display_name || lvl?.name }}
                         </p>
                     </div>
                 </div>
-                <div class="ml-2 text-xs font-medium text-success">
+                <div class="text-success ml-2 text-xs font-medium">
                     {{ 'COMMON.SELECTED' | translate }}
                 </div>
             </div>
@@ -174,8 +177,7 @@ export class MeetingFlowSpaceMapComponent extends AsyncHandler {
         );
         return level_list
             .filter(
-                (lvl) =>
-                    !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
             )
             .sort(
                 (a, b) =>

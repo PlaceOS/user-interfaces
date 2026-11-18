@@ -12,7 +12,8 @@ function legacyAssetId(page: Page) {
         const form = (window as Debug).ng?.getComponent(element) as
             | { model?: () => { asset_id?: string } }
             | undefined;
-        if (!form?.model) throw new Error('the legacy visitor form is unavailable');
+        if (!form?.model)
+            throw new Error('the legacy visitor form is unavailable');
         return form.model().asset_id ?? '';
     });
 }
@@ -46,11 +47,19 @@ for (const enabled of [false, true]) {
             await expect(form).toHaveCount(1);
             await expect(form.locator('button[send]')).toBeVisible();
             await expect(staffPage.locator('visitor-flow-new')).toHaveCount(0);
-            await expect(form.locator('input#visitor-email')).toHaveCount(enabled ? 0 : 1);
-            await expect(form.locator('input#visitor-name')).toHaveCount(enabled ? 0 : 1);
-            await expect(form.locator('a-user-list-field')).toHaveCount(enabled ? 1 : 0);
+            await expect(form.locator('input#visitor-email')).toHaveCount(
+                enabled ? 0 : 1,
+            );
+            await expect(form.locator('input#visitor-name')).toHaveCount(
+                enabled ? 0 : 1,
+            );
+            await expect(form.locator('a-user-list-field')).toHaveCount(
+                enabled ? 1 : 0,
+            );
             await expect
-                .poll(() => legacyAssetId(staffPage), { message: 'legacy form asset_id' })
+                .poll(() => legacyAssetId(staffPage), {
+                    message: 'legacy form asset_id',
+                })
                 .toBe(enabled ? 'multiple@place.tech' : '');
             await expect(form.locator('[sent]')).toHaveCount(0);
         },

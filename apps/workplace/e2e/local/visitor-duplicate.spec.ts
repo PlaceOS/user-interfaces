@@ -17,7 +17,6 @@
  * Written API-only on purpose. The subject is the backend's rule, and driving
  * the invite form twice would add unrelated ways to fail.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     STAFF_API,
     currentUser,
@@ -25,12 +24,16 @@ import {
     uniqueTitle,
     zonesWithTag,
 } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     createBookingViaApi,
     deleteGuest,
     releaseVisitor,
 } from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -48,19 +51,29 @@ test.describe('the same visitor twice', () => {
     test.fixme('a second invite for the same visitor and slot is refused', async ({
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.duplicate.same);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.duplicate.same,
+        );
         const start = tomorrowAt(9);
         const me = await currentUser(staffApi);
         const zones = (
             await Promise.all(
-                ['org', 'building', 'level'].map((t) => zonesWithTag(staffApi, t)),
+                ['org', 'building', 'level'].map((t) =>
+                    zonesWithTag(staffApi, t),
+                ),
             )
         )
             .flat()
             .map((z) => z.id);
         const ids: number[] = [];
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
 
         const invite = (title: string) => ({
             booking_type: 'visitor',
@@ -101,7 +114,12 @@ test.describe('the same visitor twice', () => {
         } finally {
             for (const id of ids) await deleteBooking(staffApi, id);
             await deleteGuest(staffApi, visitor.email);
-            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            await releaseVisitor(
+                staffApi,
+                visitor.email,
+                window_from(),
+                window_to(),
+            );
         }
     });
 });

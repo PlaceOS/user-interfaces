@@ -1,10 +1,4 @@
-import {
-    Component,
-    computed,
-    inject,
-    input,
-    resource,
-} from '@angular/core';
+import { Component, computed, inject, input, resource } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import {

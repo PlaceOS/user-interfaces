@@ -55,10 +55,10 @@ interface SpaceLocation {
     selector: 'meeting-flow-options',
     template: `
         <div
-            class="relative z-0 flex w-full flex-col overflow-hidden rounded-xl border border-base-300 bg-base-100"
+            class="border-base-300 bg-base-100 relative z-0 flex w-full flex-col overflow-hidden rounded-xl border"
         >
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
             >
                 <icon>task_alt</icon>
                 <div>
@@ -69,7 +69,7 @@ interface SpaceLocation {
                 <div>
                     <div class="mb-2 flex items-center space-x-4">
                         <div
-                            class="flex items-center justify-center rounded-full border border-success text-success"
+                            class="border-success text-success flex items-center justify-center rounded-full border"
                         >
                             <icon class="text-2xl">done</icon>
                         </div>
@@ -84,7 +84,9 @@ interface SpaceLocation {
                     <div class="space-y-1 pl-10">
                         <div class="flex items-center space-x-2">
                             <icon class="text-2xl">today</icon>
-                            <div date>{{ form_value().date | date: 'fullDate' }}</div>
+                            <div date>
+                                {{ form_value().date | date: 'fullDate' }}
+                            </div>
                         </div>
                         @if (form_value().recurrence?.pattern) {
                             <div class="flex items-center space-x-2">
@@ -97,18 +99,56 @@ interface SpaceLocation {
                             <div class="flex flex-col leading-tight">
                                 <div time>
                                     @if (is_multiday) {
-                                        {{ form_value().date | date: 'MMM d' }}@if (!form_value().all_day) {, {{ form_value().date | date: time_format }}}
+                                        {{ form_value().date | date: 'MMM d' }}
+                                        @if (!form_value().all_day) {
+                                            ,
+                                            {{
+                                                form_value().date
+                                                    | date: time_format
+                                            }}
+                                        }
                                         -
-                                        {{ form_value().date_end | date: 'MMM d' }}@if (!form_value().all_day) {, {{ form_value().date_end | date: time_format }}}
+                                        {{
+                                            form_value().date_end
+                                                | date: 'MMM d'
+                                        }}
+                                        @if (!form_value().all_day) {
+                                            ,
+                                            {{
+                                                form_value().date_end
+                                                    | date: time_format
+                                            }}
+                                        }
                                     } @else if (form_value().all_day) {
                                         {{ 'COMMON.ALL_DAY' | translate }}
                                     } @else {
-                                        {{ form_value().date | date: time_format }} - {{ form_value().date_end | date: time_format }} ({{ form_value().date | date: 'zzzz' }})
+                                        {{
+                                            form_value().date
+                                                | date: time_format
+                                        }}
+                                        -
+                                        {{
+                                            form_value().date_end
+                                                | date: time_format
+                                        }}
+                                        ({{ form_value().date | date: 'zzzz' }})
                                     }
                                 </div>
                                 @if (timezone) {
                                     <div class="text-xs opacity-30">
-                                        {{ form_value().date | date: time_format : timezone }} - {{ form_value().date_end | date: time_format : timezone }} ({{ form_value().date | date: 'zzzz' : timezone }})
+                                        {{
+                                            form_value().date
+                                                | date: time_format : timezone
+                                        }}
+                                        -
+                                        {{
+                                            form_value().date_end
+                                                | date: time_format : timezone
+                                        }}
+                                        ({{
+                                            form_value().date
+                                                | date: 'zzzz' : timezone
+                                        }})
                                     </div>
                                 }
                             </div>
@@ -119,7 +159,7 @@ interface SpaceLocation {
                     <div>
                         <div class="mb-2 flex items-center space-x-4">
                             <div
-                                class="flex items-center justify-center rounded-full border border-success text-success"
+                                class="border-success text-success flex items-center justify-center rounded-full border"
                             >
                                 <icon class="text-2xl">done</icon>
                             </div>
@@ -131,7 +171,10 @@ interface SpaceLocation {
                             </h3>
                         </div>
                         <div class="space-y-1 pl-10">
-                            @for (space of form_value().resources; track space.id) {
+                            @for (
+                                space of form_value().resources;
+                                track space.id
+                            ) {
                                 <div class="flex items-center space-x-2">
                                     <icon class="text-2xl"
                                         >room_preferences</icon
@@ -177,14 +220,14 @@ interface SpaceLocation {
                                                 track feature
                                             ) {
                                                 <span
-                                                    class="rounded-full bg-base-200 px-2 py-0.5 text-xs"
+                                                    class="bg-base-200 rounded-full px-2 py-0.5 text-xs"
                                                 >
                                                     {{ feature }}
                                                 </span>
                                             }
                                             @if (space.features.length > 5) {
                                                 <span
-                                                    class="rounded-full bg-base-200 px-2 py-0.5 text-xs"
+                                                    class="bg-base-200 rounded-full px-2 py-0.5 text-xs"
                                                 >
                                                     +{{
                                                         space.features.length -
@@ -205,7 +248,7 @@ interface SpaceLocation {
                 }
             </div>
             <div
-                class="gradient relative flex items-center space-x-2 border-l-8 border-base-content px-4 py-3 text-xl font-medium"
+                class="gradient border-base-content relative flex items-center space-x-2 border-l-8 px-4 py-3 text-xl font-medium"
             >
                 <icon>fork_right</icon>
                 <div>
@@ -230,7 +273,10 @@ interface SpaceLocation {
                             (click)="findAvailableTime()"
                         >
                             <div class="hidden sm:flex">
-                                {{ 'CALENDAR_EVENT.FIND_AVAILABILITY' | translate }}
+                                {{
+                                    'CALENDAR_EVENT.FIND_AVAILABILITY'
+                                        | translate
+                                }}
                             </div>
                             <div class="flex sm:hidden">
                                 {{ 'COMMON.AVAILABILITY' | translate }}
@@ -261,7 +307,7 @@ interface SpaceLocation {
                     </div>
                 }
                 @if (has_catering()) {
-                    <h3 class="mb-2 mt-4 flex items-center space-x-2 text-xl">
+                    <h3 class="mt-4 mb-2 flex items-center space-x-2 text-xl">
                         {{ 'CALENDAR_EVENT.CATERING' | translate }}
                     </h3>
                     <catering-list-field
@@ -291,7 +337,7 @@ interface SpaceLocation {
                             >
                                 <input
                                     #input
-                                    class="sticky top-0 z-50 w-full rounded-none border-x-0 border-b border-t-0 border-base-200 bg-base-100 px-4 py-3 text-base focus:border-b"
+                                    class="border-base-200 bg-base-100 sticky top-0 z-50 w-full rounded-none border-x-0 border-t-0 border-b px-4 py-3 text-base focus:border-b"
                                     [ngModel]="code_filter()"
                                     (ngModelChange)="code_filter.set($event)"
                                     [ngModelOptions]="{
@@ -303,10 +349,7 @@ interface SpaceLocation {
                                     "
                                 />
                                 <mat-option class="hidden"></mat-option>
-                                @for (
-                                    code of filtered_codes();
-                                    track code
-                                ) {
+                                @for (code of filtered_codes(); track code) {
                                     <mat-option [value]="code">
                                         {{ code }}
                                     </mat-option>
@@ -345,7 +388,7 @@ interface SpaceLocation {
                     }
                 }
                 @if (has_assets()) {
-                    <h3 class="mb-2 mt-4 flex items-center space-x-2 text-xl">
+                    <h3 class="mt-4 mb-2 flex items-center space-x-2 text-xl">
                         {{ 'RESOURCE.ASSETS' | translate }}
                     </h3>
                     <asset-list-field
@@ -362,7 +405,7 @@ interface SpaceLocation {
                     />
                 }
                 @if (!hide_notes()) {
-                    <h3 class="mb-2 mt-4 flex items-center space-x-2 text-xl">
+                    <h3 class="mt-4 mb-2 flex items-center space-x-2 text-xl">
                         {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
                     </h3>
                     <rich-text-input
@@ -373,7 +416,7 @@ interface SpaceLocation {
             </div>
         </div>
         <div
-            class="sticky bottom-0 mt-4 flex justify-between rounded-t-xl border-x border-t border-base-300 bg-base-100 p-3"
+            class="border-base-300 bg-base-100 sticky bottom-0 mt-4 flex justify-between rounded-t-xl border-x border-t p-3"
         >
             <a
                 btn
@@ -508,8 +551,7 @@ export class MeetingFlowOptionsComponent {
         () =>
             !this.strict_capacity_check() &&
             this.total_capacity() > 0 &&
-            this.total_capacity() <=
-                (this.form_value().attendees?.length || 0),
+            this.total_capacity() <= (this.form_value().attendees?.length || 0),
     );
 
     public get form() {
@@ -573,9 +615,7 @@ export class MeetingFlowOptionsComponent {
         // Get level information
         if (space.level) {
             const level = this._org.levelWithID([
-                typeof space.level === 'string'
-                    ? space.level
-                    : space.level.id,
+                typeof space.level === 'string' ? space.level : space.level.id,
             ]);
             if (level) {
                 parts.push(level.display_name || level.name);

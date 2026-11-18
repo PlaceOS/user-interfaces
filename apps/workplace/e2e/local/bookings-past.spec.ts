@@ -16,20 +16,19 @@
  * The app does still offer it, and whether that is right is a product question
  * rather than a defect — a test either way would be writing down an opinion.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
-import {
-    SCHEDULE_DAYS,
-    dayBoundsOn,
-    slotOn,
-} from '../../../../e2e/support/bookings/bookings.env';
 import {
     createBookingViaApi,
     readBooking,
     releaseFor,
 } from '../../../../e2e/support/bookings/bookings.api';
+import {
+    SCHEDULE_DAYS,
+    slotOn,
+} from '../../../../e2e/support/bookings/bookings.env';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 

@@ -26,7 +26,7 @@
  * calendars named in `X-Calendar-Issue`; the app treats that as success and
  * shows what came back.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
+import { uniqueTitle } from '../../../../e2e/support/api';
 import {
     calendarSlot,
     createRoomEvent,
@@ -35,7 +35,7 @@ import {
     listZoneEvents,
     sweepRoomEvents,
 } from '../../../../e2e/support/concierge/calendar.seed';
-import { uniqueTitle } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 
 /** The calendar surface every blocked test below is waiting on. */
 const CALENDAR_ENDPOINT = '/api/staff/v1/events';
@@ -111,7 +111,9 @@ test.describe('concierge day view', () => {
         // app surviving whatever comes back. 500 on the placeholder tenant, 206
         // on the real one (the native rooms' addresses are not mailboxes).
         // eslint-disable-next-line no-console
-        console.log(`CON-DAY-08: ${CALENDAR_ENDPOINT} answered ${calendar_status}`);
+        console.log(
+            `CON-DAY-08: ${CALENDAR_ENDPOINT} answered ${calendar_status}`,
+        );
         expect(
             crashes,
             'the day view must survive its calendar query failing or coming back ' +
@@ -158,8 +160,12 @@ test.describe('concierge day view', () => {
 
         async function goToDay(page, days_ahead: number) {
             await page.goto('/#/');
-            await expect(page.locator('room-bookings > div')).toBeVisible({ timeout: 45_000 });
-            const next = page.locator('date-options [data-shortcut="next"]').first();
+            await expect(page.locator('room-bookings > div')).toBeVisible({
+                timeout: 45_000,
+            });
+            const next = page
+                .locator('date-options [data-shortcut="next"]')
+                .first();
             for (let i = 0; i < days_ahead; i++) await next.click();
         }
 
@@ -170,16 +176,34 @@ test.describe('concierge day view', () => {
         }) => {
             const room = await ensureCalendarRoom(adminApi);
             const slot = calendarSlot(DAYS_AHEAD, 10);
-            await sweepRoomEvents(calendarApi, room, slot.day_start, slot.day_end);
+            await sweepRoomEvents(
+                calendarApi,
+                room,
+                slot.day_start,
+                slot.day_end,
+            );
             const title = uniqueTitle('E2E Day View');
-            const event = await createRoomEvent(calendarApi, room, { ...slot, title });
+            const event = await createRoomEvent(calendarApi, room, {
+                ...slot,
+                title,
+            });
             try {
                 // The API side first, so a UI failure below is known to be the UI's.
                 await expect
                     .poll(
                         async () =>
-                            (await listZoneEvents(adminApi, room.building_id, slot.day_start, slot.day_end))
-                                .filter((e) => e.title === title && e.system?.id === room.id).length,
+                            (
+                                await listZoneEvents(
+                                    adminApi,
+                                    room.building_id,
+                                    slot.day_start,
+                                    slot.day_end,
+                                )
+                            ).filter(
+                                (e) =>
+                                    e.title === title &&
+                                    e.system?.id === room.id,
+                            ).length,
                         {
                             message: `the building listing must return "${title}" against ${room.name}`,
                             timeout: 30_000,
@@ -209,20 +233,34 @@ test.describe('concierge day view', () => {
             // events cannot be declined for overlapping.
             const slot = calendarSlot(DAYS_AHEAD, 12);
             const title = uniqueTitle('E2E Day Change');
-            const event = await createRoomEvent(calendarApi, room, { ...slot, title });
+            const event = await createRoomEvent(calendarApi, room, {
+                ...slot,
+                title,
+            });
             try {
                 await goToDay(adminPage, DAYS_AHEAD);
-                const shown = adminPage.locator('room-bookings').getByText(title);
+                const shown = adminPage
+                    .locator('room-bookings')
+                    .getByText(title);
                 await expect(shown).toBeVisible({ timeout: 30_000 });
 
-                await adminPage.locator('date-options [data-shortcut="next"]').first().click();
+                await adminPage
+                    .locator('date-options [data-shortcut="next"]')
+                    .first()
+                    .click();
                 await expect(
                     shown,
                     'the day after must not show a booking that is on the day before',
                 ).toHaveCount(0, { timeout: 15_000 });
 
-                await adminPage.locator('date-options [data-shortcut="previous"]').first().click();
-                await expect(shown, 'and going back must show it again').toBeVisible({
+                await adminPage
+                    .locator('date-options [data-shortcut="previous"]')
+                    .first()
+                    .click();
+                await expect(
+                    shown,
+                    'and going back must show it again',
+                ).toBeVisible({
                     timeout: 30_000,
                 });
             } finally {
@@ -230,22 +268,16 @@ test.describe('concierge day view', () => {
             }
         });
 
-        test.fixme(
-            'CON-DAY-05: booking a room from the day view stores it correctly',
-            async () => {
-                // Not written: the booking modal (event-book-modal) with its
-                // space picker and time fields has not been mapped yet. Must
-                // run as the calendar identity (`calendarPage`), since staff-api
-                // creates the event on the signed-in user's own calendar.
-            },
-        );
+        test.fixme('CON-DAY-05: booking a room from the day view stores it correctly', async () => {
+            // Not written: the booking modal (event-book-modal) with its
+            // space picker and time fields has not been mapped yet. Must
+            // run as the calendar identity (`calendarPage`), since staff-api
+            // creates the event on the signed-in user's own calendar.
+        });
 
-        test.fixme(
-            'CON-DAY-06/07: approving and rejecting from the approvals list',
-            async () => {
-                // The approvals panel renders only with an `approvals` org
-                // binding, which is a driver module the stack does not run.
-            },
-        );
+        test.fixme('CON-DAY-06/07: approving and rejecting from the approvals list', async () => {
+            // The approvals panel renders only with an `approvals` org
+            // binding, which is a driver module the stack does not run.
+        });
     });
 });

@@ -11,9 +11,7 @@ interface SidebarEmbedData {
 @Component({
     selector: 'sidebar-embed',
     template: `
-        <div
-            class="sidebar-embed__container h-full w-full"
-        >
+        <div class="sidebar-embed__container h-full w-full">
             <iframe
                 class="block h-full w-full border-0"
                 [title]="'APP.WORKPLACE.EMBED_TITLE' | translate"
@@ -26,7 +24,9 @@ interface SidebarEmbedData {
             mat-dialog-close
             class="sidebar-embed__close border-base-300 bg-base-100 fixed top-2 z-10 rounded border"
             [class.sidebar-embed__close--left]="close_button_side() === 'left'"
-            [class.sidebar-embed__close--right]="close_button_side() === 'right'"
+            [class.sidebar-embed__close--right]="
+                close_button_side() === 'right'
+            "
             [attr.aria-label]="'COMMON.CLOSE' | translate"
         >
             <icon>close</icon>

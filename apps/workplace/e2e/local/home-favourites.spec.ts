@@ -20,9 +20,9 @@
  * Cleared either side through a read-modify-write: that blob is shared with the
  * visitor specs' invitee list and every other area's favourites.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
 import { uniqueTitle } from '../../../../e2e/support/api';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     FAVOURITE_DESKS_KEY,
     readUserSettings,
@@ -30,13 +30,16 @@ import {
 } from '../../../../e2e/support/home/home.api';
 import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     FAVOURITE_ROOMS_KEY,
     readUserSettings as readRoomUserSettings,
     setFavouriteSpaces,
 } from '../../../../e2e/support/room/room.api';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 test.describe('home page — favourites', () => {
     test('a favourite desk is listed in the Favourites section', async ({

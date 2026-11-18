@@ -13,12 +13,12 @@
  * The management pages are withheld from non-admins either way: the sidebar's
  * `is_admin` reads the user's flags and groups, not the access setting.
  */
-import { test, expect } from '../../../../e2e/support/concierge/fixtures';
 import { CONCIERGE_URL } from '../../../../e2e/support/concierge/concierge.env';
 import {
-    useSettings,
     REQUIRE_ACCESS_GROUP,
+    useSettings,
 } from '../../../../e2e/support/concierge/concierge.settings';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 
 /** Sidebar links that only an admin should ever be offered. */
 const ADMIN_ONLY = 'a[href*="zone-management"], a[href*="room-management"]';
@@ -138,7 +138,7 @@ test.describe('concierge access', () => {
                 .poll(() => onApp(page.url()), {
                     message:
                         'an unauthenticated visit must not stay on the concierge app. ' +
-                        'If it does, check whether a token was left in this origin\'s ' +
+                        "If it does, check whether a token was left in this origin's " +
                         'localStorage by another test — this context is deliberately ' +
                         'created without storage state',
                     timeout: 45_000,

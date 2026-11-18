@@ -4,12 +4,19 @@ export async function useSettings(
     page: Page,
     overrides: Record<string, unknown>,
 ): Promise<void> {
-    const invalid = Object.keys(overrides).filter((key) => !key.startsWith('app.'));
+    const invalid = Object.keys(overrides).filter(
+        (key) => !key.startsWith('app.'),
+    );
     if (invalid.length) {
-        throw new Error(`Locker settings must use app.* keys: ${invalid.join(', ')}`);
+        throw new Error(
+            `Locker settings must use app.* keys: ${invalid.join(', ')}`,
+        );
     }
     await page.addInitScript((value) => {
-        localStorage.setItem('PLACEOS.setting_overrides', JSON.stringify(value));
+        localStorage.setItem(
+            'PLACEOS.setting_overrides',
+            JSON.stringify(value),
+        );
     }, overrides);
 }
 

@@ -20,11 +20,14 @@
  * from the JSON parser.
  */
 import { uniqueTitle } from '../../../../e2e/support/api';
-import { test, expect } from '../../../../e2e/support/fixtures';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import { ALT_ROOM_FEATURE } from '../../../../e2e/support/room/room.env';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
-import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 test.describe('the room list facilities filter', () => {
     test('filtering by a feature narrows the list to the room that has it', async ({
@@ -47,9 +50,10 @@ test.describe('the room list facilities filter', () => {
             before.length,
             'the list must offer more than one room, or narrowing it proves nothing',
         ).toBeGreaterThan(1);
-        expect(before, 'precondition: both rooms are offered to begin with').toContain(
-            featured.name,
-        );
+        expect(
+            before,
+            'precondition: both rooms are offered to begin with',
+        ).toContain(featured.name);
         expect(before).toContain(plain.name);
 
         // The filter column has a toggle per feature. It is matched on the

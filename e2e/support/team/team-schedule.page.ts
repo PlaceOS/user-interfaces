@@ -49,9 +49,11 @@ export class TeamSchedulePage {
 
     /** The control that moves the table one week on. */
     get nextWeek(): Locator {
-        return this.filters
-            .locator('button[btn]')
-            .filter({ has: this.page.locator('icon', { hasText: 'keyboard_arrow_right' }) });
+        return this.filters.locator('button[btn]').filter({
+            has: this.page.locator('icon', {
+                hasText: 'keyboard_arrow_right',
+            }),
+        });
     }
 
     /**

@@ -6,10 +6,10 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { InteractiveMapComponent } from '@placeos/components';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { mockComponent } from '@placeos/common/tests';
 import { MeetingFlowSpaceMapComponent } from '../../../app/book/meeting-flow-new/meeting-flow-space-map.component';
 
 describe('MeetingFlowSpaceMapComponent', () => {
@@ -120,9 +120,7 @@ describe('MeetingFlowSpaceMapComponent', () => {
         const emitted: any[] = [];
         spectator.output('space_selected').subscribe((v) => emitted.push(v));
         spectator.component.actions()[0].callback();
-        expect(emitted[0]).toEqual(
-            expect.objectContaining({ id: 'space-1' }),
-        );
+        expect(emitted[0]).toEqual(expect.objectContaining({ id: 'space-1' }));
     });
 
     it('should style available spaces free, selected pending, and others busy', () => {

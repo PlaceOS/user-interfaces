@@ -2,9 +2,9 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockProvider } from 'ng-mocks';
 import { BookingFormService } from '@placeos/bookings';
 import { setCurrentUser, settingSignal } from '@placeos/common';
+import { MockProvider } from 'ng-mocks';
 import { TeamQuickActionsComponent } from '../../app/team-schedule/team-quick-actions.component';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
@@ -24,7 +24,9 @@ describe('TeamQuickActionsComponent', () => {
         providers: [
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(Router, { navigate } as any),
-            MockProvider(BookingFormService, { setOptions: set_options } as any),
+            MockProvider(BookingFormService, {
+                setOptions: set_options,
+            } as any),
             MockProvider(TeamScheduleService, {
                 select_mode,
                 selected_count,

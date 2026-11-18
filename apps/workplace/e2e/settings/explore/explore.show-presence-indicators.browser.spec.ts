@@ -33,9 +33,9 @@ import { expect, type Page, type WebSocketRoute } from '@playwright/test';
 import {
     browserOnlyTest,
     browserSignIn,
+    CONTROL_PATH,
     type ControlAudit,
     controlAudit,
-    CONTROL_PATH,
     controlSocket,
     type DebugWindow,
     fakeBearer,
@@ -45,8 +45,14 @@ import {
 } from '../support/settings-harness';
 
 const FAKE_BEARER = fakeBearer('presence');
-const USER = { id: 'e2e-presence-user', name: 'Synthetic Presence Staff',
-    email: 'presence-staff@example.invalid', groups: [], sys_admin: false, support: false };
+const USER = {
+    id: 'e2e-presence-user',
+    name: 'Synthetic Presence Staff',
+    email: 'presence-staff@example.invalid',
+    groups: [],
+    sys_admin: false,
+    support: false,
+};
 const READ_ONLY_SETTINGS: Settings = {
     'app.allow_dark_mode': false,
     'app.desks.can_book_lockers': false,
@@ -134,7 +140,8 @@ function presenceSocket(
 ) {
     const sends: string[] = [];
     let held_status: (() => void) | undefined;
-    if (new URL(socket.url()).pathname === CONTROL_PATH) audit.sends.push(sends);
+    if (new URL(socket.url()).pathname === CONTROL_PATH)
+        audit.sends.push(sends);
     controlSocket<PresenceAudit>({
         bearer: FAKE_BEARER,
         key: (request) => request.name,
@@ -207,8 +214,12 @@ async function openExplore(page: Page, audit: PresenceAudit, enabled: boolean) {
         page.locator('global-loading [initialisation-error]'),
     ).toHaveCount(0);
     await expect(page.locator('explore-map-view')).toHaveCount(1);
-    await expect.poll(() => audit.fixtures['/auth/authority'] ?? 0).toBeGreaterThan(0);
-    await expect.poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0).toBeGreaterThan(0);
+    await expect
+        .poll(() => audit.fixtures['/auth/authority'] ?? 0)
+        .toBeGreaterThan(0);
+    await expect
+        .poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0)
+        .toBeGreaterThan(0);
 }
 
 function presenceSetting(page: Page) {
@@ -223,33 +234,31 @@ function presenceSetting(page: Page) {
  * are unavailable.
  */
 function mapState(page: Page) {
-    return page
-        .locator('explore-map-view')
-        .evaluate((element, map_id) => {
-            const view = (window as DebugWindow).ng?.getComponent(element) as
-                | {
-                      features?: () => {
-                          location?: unknown;
-                          data?: { icon?: { content?: string }; color?: string };
-                      }[];
-                      styles?: () => Record<string, { fill?: string }>;
-                  }
-                | undefined;
-            if (!view?.features || !view.styles) {
-                throw new Error('explore map signals are unavailable');
-            }
-            return {
-                room_fill: view.styles()['#' + map_id]?.fill ?? '',
-                presence_icons: view
-                    .features()
-                    .filter(
-                        (feature) =>
-                            feature.location === map_id &&
-                            feature.data?.icon?.content === 'sensor_occupied',
-                    )
-                    .map((feature) => feature.data?.color ?? ''),
-            };
-        }, ROOM.map_id);
+    return page.locator('explore-map-view').evaluate((element, map_id) => {
+        const view = (window as DebugWindow).ng?.getComponent(element) as
+            | {
+                  features?: () => {
+                      location?: unknown;
+                      data?: { icon?: { content?: string }; color?: string };
+                  }[];
+                  styles?: () => Record<string, { fill?: string }>;
+              }
+            | undefined;
+        if (!view?.features || !view.styles) {
+            throw new Error('explore map signals are unavailable');
+        }
+        return {
+            room_fill: view.styles()['#' + map_id]?.fill ?? '',
+            presence_icons: view
+                .features()
+                .filter(
+                    (feature) =>
+                        feature.location === map_id &&
+                        feature.data?.icon?.content === 'sensor_occupied',
+                )
+                .map((feature) => feature.data?.color ?? ''),
+        };
+    }, ROOM.map_id);
 }
 
 /** Presence icons rendered on the map (explore-icon.component.ts). */
@@ -283,7 +292,9 @@ for (const scenario of SCENARIOS) {
             .toEqual(
                 expect.arrayContaining(['bookings', 'presence', 'status']),
             );
-        for (const sends of audit.sends.filter((sent) => sent.includes('status'))) {
+        for (const sends of audit.sends.filter((sent) =>
+            sent.includes('status'),
+        )) {
             expect(
                 sends.indexOf('presence'),
                 'presence is sent before status on every connection',
@@ -304,7 +315,10 @@ for (const scenario of SCENARIOS) {
             scenario.icons,
         );
         await expect(presenceIcons(page)).toHaveCount(scenario.rendered);
-        expect(audit.refused, 'no refused request, socket frame or extra page').toEqual([]);
+        expect(
+            audit.refused,
+            'no refused request, socket frame or extra page',
+        ).toEqual([]);
         expect(audit.errors, 'no application or HTTP errors').toEqual([]);
         expect(audit.monitoring, 'no interception failure').toEqual([]);
         expect(

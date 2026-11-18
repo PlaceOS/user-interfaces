@@ -11,17 +11,10 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
-import {
-    addDays,
-    addWeeks,
-    format,
-    getDay,
-    startOfWeek,
-} from 'date-fns';
 import * as ts_client from '@placeos/ts-client';
-import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
+import { addDays, addWeeks, format, getDay, startOfWeek } from 'date-fns';
 import { LandingDeskWeekComponent } from '../../app/landing-new/landing-desk-week.component';
+import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

@@ -1,5 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { signal, WritableSignal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockDirective, MockPipe } from 'ng-mocks';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';

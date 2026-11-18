@@ -7,7 +7,13 @@
  * `STAFF_API`, `isReg09`) are imported from there rather than duplicated.
  */
 import { APIRequestContext } from '@playwright/test';
-import { Booking, STAFF_API, deleteBooking, isReg09, listBookings } from '../api';
+import {
+    Booking,
+    STAFF_API,
+    deleteBooking,
+    isReg09,
+    listBookings,
+} from '../api';
 
 /**
  * A booking as the visitor flows deal with it.
@@ -50,10 +56,15 @@ export interface Guest {
  * `q` is the filter that works without a period; the windowed form
  * (`period_start`/`period_end`) lists guests expected in that window instead.
  */
-export async function searchGuests(api: APIRequestContext, q: string): Promise<Guest[]> {
+export async function searchGuests(
+    api: APIRequestContext,
+    q: string,
+): Promise<Guest[]> {
     const res = await api.get(`${STAFF_API}/guests`, { params: { q } });
     if (!res.ok()) {
-        throw new Error(`GET /guests?q=${q} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /guests?q=${q} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body.results ?? []);
@@ -85,7 +96,9 @@ export async function createBookingViaApi(
         if (!isReg09(res.status(), body)) {
             throw new Error(`POST /bookings failed: ${last}`);
         }
-        console.warn(`  ! REG-09 on attempt ${attempt}/${attempts}, retrying — ${last}`);
+        console.warn(
+            `  ! REG-09 on attempt ${attempt}/${attempts}, retrying — ${last}`,
+        );
         // A short pause lets the poisoned connection cycle out of the pool.
         await new Promise((r) => setTimeout(r, 400 * attempt));
     }
@@ -109,12 +122,17 @@ export async function checkInViaApi(
     id: number,
     state = true,
 ): Promise<{ status: number; body: string }> {
-    const res = await api.post(`${STAFF_API}/bookings/${id}/check_in?state=${state}`);
+    const res = await api.post(
+        `${STAFF_API}/bookings/${id}/check_in?state=${state}`,
+    );
     return { status: res.status(), body: await res.text() };
 }
 
 /** Best-effort guest removal — never throws, so teardown cannot fail a passing test. */
-export async function deleteGuest(api: APIRequestContext, email: string): Promise<void> {
+export async function deleteGuest(
+    api: APIRequestContext,
+    email: string,
+): Promise<void> {
     try {
         await api.delete(`${STAFF_API}/guests/${encodeURIComponent(email)}`);
     } catch {

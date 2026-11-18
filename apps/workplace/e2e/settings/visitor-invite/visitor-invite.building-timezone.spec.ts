@@ -8,7 +8,14 @@
 import type { Page, Route } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
-import { type Audit, BASE, ORIGINS, prepareSettings, type Settings, test } from '../support/settings-harness';
+import {
+    type Audit,
+    BASE,
+    ORIGINS,
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
 const BUILDING_TIMEZONE = 'Australia/Sydney';
 
@@ -30,7 +37,8 @@ async function visitor(page: Page, audit: Audit, overrides: Settings) {
         routes: async () => {
             await page.addInitScript(() => {
                 for (const key of Object.keys(localStorage)) {
-                    if (key.startsWith('PLACEOS.org.zones')) localStorage.removeItem(key);
+                    if (key.startsWith('PLACEOS.org.zones'))
+                        localStorage.removeItem(key);
                 }
             });
             await page.route(
@@ -39,7 +47,8 @@ async function visitor(page: Page, audit: Audit, overrides: Settings) {
                     url.pathname === '/api/engine/v2/zones' &&
                     url.searchParams.get('tags') === 'building',
                 async (route: Route) => {
-                    if (route.request().method() !== 'GET') return route.fallback();
+                    if (route.request().method() !== 'GET')
+                        return route.fallback();
                     const response = await route.fetch();
                     const body = await response.json();
                     const json = Array.isArray(body)
@@ -71,46 +80,52 @@ const timeField = (form: InviteVisitorForm) =>
 const timezoneLabel = (form: InviteVisitorForm) =>
     timeField(form).locator('.text-xs');
 
-test(
-    'visitors.use_building_timezone false leaves the time field in the browser zone',
-    async ({ staffPage, audit }) => {
-        const form = await visitor(staffPage, audit, {
-            'app.visitors.use_building_timezone': false,
-        });
-        const timezone = await staffPage.evaluate(() => {
-            const element = document.querySelector('visitor-flow-details');
-            return element
-                ? (window as any).ng.getComponent(element).timezone
-                : null;
-        });
-        expect(timezone).toBe('');
-        await expect(timeField(form)).toHaveCount(1);
-        await expect(timezoneLabel(form)).toHaveCount(0);
-    },
-);
+test('visitors.use_building_timezone false leaves the time field in the browser zone', async ({
+    staffPage,
+    audit,
+}) => {
+    const form = await visitor(staffPage, audit, {
+        'app.visitors.use_building_timezone': false,
+    });
+    const timezone = await staffPage.evaluate(() => {
+        const element = document.querySelector('visitor-flow-details');
+        return element
+            ? (window as any).ng.getComponent(element).timezone
+            : null;
+    });
+    expect(timezone).toBe('');
+    await expect(timeField(form)).toHaveCount(1);
+    await expect(timezoneLabel(form)).toHaveCount(0);
+});
 
-test(
-    'visitors.use_building_timezone true adds the building timezone label',
-    async ({ staffPage, audit }) => {
-        const form = await visitor(staffPage, audit, {
-            'app.visitors.use_building_timezone': true,
-        });
-        const timezone = await staffPage.evaluate(() => {
-            const element = document.querySelector('visitor-flow-details');
-            return element
-                ? (window as any).ng.getComponent(element).timezone
-                : null;
-        });
-        expect(timezone).toBe(BUILDING_TIMEZONE);
-        const label = timezoneLabel(form);
-        await expect(label).toHaveCount(1);
-        // The label is the date pipe's zone text, e.g. "(GMT+11)"; Intl gives
-        // the building's current offset.
-        const offset = await staffPage.evaluate((zone) =>
-            new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'shortOffset' })
+test('visitors.use_building_timezone true adds the building timezone label', async ({
+    staffPage,
+    audit,
+}) => {
+    const form = await visitor(staffPage, audit, {
+        'app.visitors.use_building_timezone': true,
+    });
+    const timezone = await staffPage.evaluate(() => {
+        const element = document.querySelector('visitor-flow-details');
+        return element
+            ? (window as any).ng.getComponent(element).timezone
+            : null;
+    });
+    expect(timezone).toBe(BUILDING_TIMEZONE);
+    const label = timezoneLabel(form);
+    await expect(label).toHaveCount(1);
+    // The label is the date pipe's zone text, e.g. "(GMT+11)"; Intl gives
+    // the building's current offset.
+    const offset = await staffPage.evaluate(
+        (zone) =>
+            new Intl.DateTimeFormat('en-US', {
+                timeZone: zone,
+                timeZoneName: 'shortOffset',
+            })
                 .formatToParts(new Date())
-                .find((part) => part.type === 'timeZoneName')?.value ?? '', BUILDING_TIMEZONE);
-        expect(offset).toMatch(/^GMT[+-]\d{1,2}(:\d{2})?$/);
-        await expect(label).toContainText('(' + offset + ')');
-    },
-);
+                .find((part) => part.type === 'timeZoneName')?.value ?? '',
+        BUILDING_TIMEZONE,
+    );
+    expect(offset).toMatch(/^GMT[+-]\d{1,2}(:\d{2})?$/);
+    await expect(label).toContainText('(' + offset + ')');
+});

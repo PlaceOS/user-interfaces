@@ -16,9 +16,13 @@
  * loaded, not about saving: what a saved edit stores is the business of
  * `desk-edit`, `visitor-edit` and `room-edit`.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import {
+    createBookingViaApi,
+    deleteGuestByEmail,
+    readBooking,
+    releaseFor,
+} from '../../../../e2e/support/bookings/bookings.api';
 import {
     SCHEDULE_DAYS,
     dayBoundsOn,
@@ -26,16 +30,12 @@ import {
     slotOn,
 } from '../../../../e2e/support/bookings/bookings.env';
 import {
-    createBookingViaApi,
-    readBooking,
-    deleteGuestByEmail,
-    releaseFor,
-} from '../../../../e2e/support/bookings/bookings.api';
-import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
-import {
     ALLOW_VISITOR_EDITING,
     useSettings,
 } from '../../../../e2e/support/bookings/bookings.settings';
+import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 
@@ -78,12 +78,17 @@ test.describe('your bookings — editing', () => {
             const schedule = new SchedulePage(staffPage);
             schedule.expectEditForm('desk-flow-new');
             await schedule.open();
-            await schedule.showBooking(booking_id, slot.date_ms, ['desk'], async () => {
-                const now = await readBooking(staffApi, booking_id!);
-                return `id ${now.id} deleted=${now.deleted} start=${new Date(
-                    now.booking_start * 1000,
-                ).toString()}`;
-            });
+            await schedule.showBooking(
+                booking_id,
+                slot.date_ms,
+                ['desk'],
+                async () => {
+                    const now = await readBooking(staffApi, booking_id!);
+                    return `id ${now.id} deleted=${now.deleted} start=${new Date(
+                        now.booking_start * 1000,
+                    ).toString()}`;
+                },
+            );
             await schedule.startEdit(booking_id);
 
             // The URL is half the assertion: landing on the desk form by

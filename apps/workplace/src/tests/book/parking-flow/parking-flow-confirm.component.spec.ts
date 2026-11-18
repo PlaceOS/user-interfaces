@@ -4,8 +4,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
-    SettingsService,
     setNotifyOutlet,
+    SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 

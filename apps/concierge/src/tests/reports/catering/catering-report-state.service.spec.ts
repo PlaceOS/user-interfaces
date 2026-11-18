@@ -1,8 +1,8 @@
+import { signal, WritableSignal } from '@angular/core';
 import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { signal, WritableSignal } from '@angular/core';
 
 import { CateringReportStateService } from 'apps/concierge/src/app/reports/catering/catering-report-state.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
@@ -72,10 +72,7 @@ describe('CateringReportStateService', () => {
     });
 
     it('should aggregate item quantities across orders by custom id', () => {
-        bookings.set([
-            bookingWithOrder(in_range),
-            bookingWithOrder(in_range),
-        ]);
+        bookings.set([bookingWithOrder(in_range), bookingWithOrder(in_range)]);
 
         const items = spectator.service.catering_items();
         expect(items.length).toBe(1);

@@ -27,9 +27,7 @@ describe('User', () => {
 
     it('should resolve photo from upload ID', () => {
         const user = new User({ photo_upload_id: 'upload/1' });
-        expect(user.photo).toBe(
-            '/api/engine/v2/uploads/upload%2F1/url',
-        );
+        expect(user.photo).toBe('/api/engine/v2/uploads/upload%2F1/url');
         expect(new User({ photo: 'http://a.jpg' }).photo).toBe('http://a.jpg');
     });
 
@@ -121,23 +119,23 @@ describe('StaffUser', () => {
     });
 
     it('should return out of office when no preference matches', () => {
-        expect(
-            user.location_time(new Date(2024, 0, 11, 10, 0).valueOf()),
-        ).toBe('ooo');
+        expect(user.location_time(new Date(2024, 0, 11, 10, 0).valueOf())).toBe(
+            'ooo',
+        );
     });
 
     it('should report whether the user is in work hours', () => {
         expect(user.in_hours_time(wednesday_10am)).toBe(true);
-        expect(
-            user.in_hours_time(new Date(2024, 0, 11, 10, 0).valueOf()),
-        ).toBe(false);
+        expect(user.in_hours_time(new Date(2024, 0, 11, 10, 0).valueOf())).toBe(
+            false,
+        );
     });
 
     it('should map locations to icons', () => {
         expect(user.location_icon(wednesday_10am)).toBe('business');
-        expect(
-            user.location_icon(new Date(2024, 0, 11, 10, 0).valueOf()),
-        ).toBe('event_busy');
+        expect(user.location_icon(new Date(2024, 0, 11, 10, 0).valueOf())).toBe(
+            'event_busy',
+        );
     });
 });
 

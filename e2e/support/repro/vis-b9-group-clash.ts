@@ -27,8 +27,14 @@
  * Expected today:  1 -> 201, 2 -> 409, 3 -> 201, 4 -> 201.
  * Expected after a fix: 2 -> 201 as well; two unrelated groups may overlap.
  */
+import {
+    ENGINE_API,
+    STAFF_API,
+    apiFor,
+    deleteBooking,
+    zonesWithTag,
+} from '../api';
 import { BACKEND_URL, assertLocalOnly } from '../env';
-import { ENGINE_API, STAFF_API, apiFor, deleteBooking, zonesWithTag } from '../api';
 
 async function main() {
     assertLocalOnly(BACKEND_URL);
@@ -39,7 +45,9 @@ async function main() {
     try {
         const me = await (await api.get(`${ENGINE_API}/users/current`)).json();
         const zones = (
-            await Promise.all(['org', 'building', 'level'].map((t) => zonesWithTag(api, t)))
+            await Promise.all(
+                ['org', 'building', 'level'].map((t) => zonesWithTag(api, t)),
+            )
         )
             .flat()
             .map((z) => z.id);
@@ -50,7 +58,12 @@ async function main() {
         slot.setHours(13, 30, 0, 0);
         const start = Math.floor(slot.valueOf() / 1000);
 
-        const container = (asset_id: string, from: number, to: number, title: string) => ({
+        const container = (
+            asset_id: string,
+            from: number,
+            to: number,
+            title: string,
+        ) => ({
             booking_type: 'group',
             asset_id,
             asset_name: 'Group Booking',
@@ -85,11 +98,21 @@ async function main() {
         );
         await post(
             '3rd group invite, later slot',
-            container(group_name, start + 2.5 * 3600, start + 3.5 * 3600, 'third group'),
+            container(
+                group_name,
+                start + 2.5 * 3600,
+                start + 3.5 * 3600,
+                'third group',
+            ),
         );
         await post(
             '4th, same time but "created" on another day',
-            container(`${me.email}[2020-01-01]`, start, start + 3600, 'fourth group'),
+            container(
+                `${me.email}[2020-01-01]`,
+                start,
+                start + 3600,
+                'fourth group',
+            ),
         );
 
         console.log(
@@ -99,7 +122,8 @@ async function main() {
                 : '\nNOT reproduced: the second invite was not refused. VIS-B9 may be fixed.',
         );
     } finally {
-        for (const id of created) await deleteBooking(api, id).catch(() => null);
+        for (const id of created)
+            await deleteBooking(api, id).catch(() => null);
         await api.dispose();
     }
 }

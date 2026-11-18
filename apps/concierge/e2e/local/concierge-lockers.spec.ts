@@ -20,18 +20,17 @@
  * that person — so the allocation is asserted on the booking record, not on the
  * row.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
-import { ensureLockers } from '../../../../e2e/support/concierge/locker.seed';
+import { getBooking, uniqueTitle } from '../../../../e2e/support/api';
 import {
     cleanUpBookings,
     createBookingFor,
 } from '../../../../e2e/support/concierge/concierge.api';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
+import { ensureLockers } from '../../../../e2e/support/concierge/locker.seed';
 import {
     columnIndex,
-    readTable,
     waitForAnyRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
-import { getBooking, uniqueTitle } from '../../../../e2e/support/api';
 import { roleFor } from '../../../../e2e/support/env';
 
 const LOCKER_MANAGE_ROUTE = '/#/book/lockers/manage';
@@ -87,9 +86,9 @@ test.describe('concierge lockers', () => {
         });
         expect(res.ok(), `GET /assets failed: HTTP ${res.status()}`).toBe(true);
         const body = await res.json();
-        const assets = (Array.isArray(body) ? body : (body.data ?? body.results ?? [])) as Array<
-            Record<string, any>
-        >;
+        const assets = (
+            Array.isArray(body) ? body : (body.data ?? body.results ?? [])
+        ) as Array<Record<string, any>>;
 
         for (const locker of fixture.lockers) {
             const stored = assets.find((asset) => asset.id === locker.id);
@@ -146,7 +145,9 @@ test.describe('concierge lockers', () => {
         const snapshot = await waitForAnyRow(adminPage);
         const person_col = columnIndex(snapshot, 'user_name');
         const asset_col = columnIndex(snapshot, 'asset_name');
-        const row = snapshot.rows.find((r) => r[person_col].includes(HOLDER.email));
+        const row = snapshot.rows.find((r) =>
+            r[person_col].includes(HOLDER.email),
+        );
         expect(
             row,
             `the locker bookings listing should show the allocation to ` +
@@ -197,7 +198,9 @@ test.describe('concierge lockers', () => {
         const snapshot = await waitForAnyRow(adminPage);
         const asset_col = columnIndex(snapshot, 'asset_name');
         const person_col = columnIndex(snapshot, 'user_name');
-        const row = snapshot.rows.find((r) => r[person_col].includes(HOLDER.email));
+        const row = snapshot.rows.find((r) =>
+            r[person_col].includes(HOLDER.email),
+        );
         expect(
             (row as string[])[asset_col],
             'the Locker column must name the locker. A front desk cannot work from ' +

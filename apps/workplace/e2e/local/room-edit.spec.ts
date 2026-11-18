@@ -38,15 +38,26 @@
  * step, and Confirm there sends the PATCH. So each test walks the three steps
  * and reads the summary before it sends.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { releaseRoom } from '../../../../e2e/support/room/room.api';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
-import { RoomSchedulePage } from '../../../../e2e/support/room/schedule.page';
+import {
+    deleteBooking,
+    getBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import { releaseRoom } from '../../../../e2e/support/room/room.api';
+import {
+    ROOM_SLOTS_2,
+    SECOND_DAY,
+    slotFor,
+} from '../../../../e2e/support/room/room.env';
 import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
+import { RoomSchedulePage } from '../../../../e2e/support/room/schedule.page';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -76,10 +87,16 @@ test.describe('editing a room booking', () => {
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: from.date_ms,
-                startTime: hhmm(from.start),
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: from.date_ms,
+                    startTime: hhmm(from.start),
+                },
+            );
             booking_id = created.id;
             expect(
                 (await getBooking(staffApi, booking_id)).booking_start,
@@ -150,10 +167,16 @@ test.describe('editing a room booking', () => {
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
 
         try {
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                startTime: hhmm(slot.start),
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    startTime: hhmm(slot.start),
+                },
+            );
             booking_id = created.id;
             expect(
                 (await getBooking(staffApi, booking_id)).asset_id,

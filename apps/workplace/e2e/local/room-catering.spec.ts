@@ -46,19 +46,29 @@
  * the assertions below check. Measured through the new meeting flow,
  * 13 Oct 2026: the order is stored and names the item.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     listBookings,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { cateringMenu } from '../../../../e2e/support/room/catering.seed';
-import { type RoomBooking, releaseRoom } from '../../../../e2e/support/room/room.api';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
+import {
+    type RoomBooking,
+    releaseRoom,
+} from '../../../../e2e/support/room/room.api';
+import {
+    ROOM_SLOTS_2,
+    SECOND_DAY,
+    slotFor,
+} from '../../../../e2e/support/room/room.env';
 import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -83,10 +93,16 @@ test.describe('room booking catering', () => {
             // Through the shared flow, so a refusal is reported with the
             // request, the response and what was on screen — which is what
             // makes a catering failure legible at all.
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                catering: [menu.item_name],
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    catering: [menu.item_name],
+                },
+            );
             booking_id = created.id;
 
             // And the food, as a booking of its own. Polled, because it is
@@ -117,7 +133,8 @@ test.describe('room booking catering', () => {
                         `${JSON.stringify(
                             orders.map((o) => ({
                                 id: o.id,
-                                parent: (o as Record<string, unknown>).parent_id,
+                                parent: (o as Record<string, unknown>)
+                                    .parent_id,
                                 event: o.extension_data?.event_id,
                                 deleted: o.deleted,
                             })),

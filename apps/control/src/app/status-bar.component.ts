@@ -10,7 +10,6 @@ import {
 } from '@placeos/components';
 import { ControlStateService } from './control-state.service';
 import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
-import { DecimalPipe } from '@angular/common';
 
 @Component({
     selector: 'control-status-bar',
@@ -187,7 +186,7 @@ import { DecimalPipe } from '@angular/common';
         MatRippleModule,
         IconComponent,
         MediaDurationPipe,
-        TranslatePipe
+        TranslatePipe,
     ],
 })
 export class ControlStatusBarComponent {

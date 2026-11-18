@@ -23,7 +23,11 @@
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
 import type { Page } from '@playwright/test';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { pickCalendarDay } from '../../../../../e2e/support/visitor/calendar';
@@ -35,9 +39,9 @@ import {
     expectSafe,
     getOnly,
     protectNetwork,
-    staffTokenTest as test,
     syntheticOrg,
     syntheticOrgRoutes,
+    staffTokenTest as test,
 } from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });

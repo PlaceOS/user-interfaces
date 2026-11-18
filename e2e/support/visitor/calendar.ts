@@ -113,12 +113,8 @@ export async function pickCalendarDay(
 
         const button =
             displayed < target
-                ? calendar.locator(
-                      'button[name="schedule-next-month"]',
-                  )
-                : calendar.locator(
-                      'button[name="schedule-previous-month"]',
-                  );
+                ? calendar.locator('button[name="schedule-next-month"]')
+                : calendar.locator('button[name="schedule-previous-month"]');
 
         await expect(
             button,
@@ -185,10 +181,14 @@ export async function pickCalendarDay(
 }
 
 /** Which cell the calendar currently shows as selected, or -1. */
-export async function selectedCalendarIndex(calendar: Locator): Promise<number> {
+export async function selectedCalendarIndex(
+    calendar: Locator,
+): Promise<number> {
     return calendar
         .locator('button[name="schedule-set-date"]')
-        .evaluateAll((els) => els.findIndex((el) => el.className.includes('bg-secondary')));
+        .evaluateAll((els) =>
+            els.findIndex((el) => el.className.includes('bg-secondary')),
+        );
 }
 
 /** The day number written on a cell, for diagnostics. */

@@ -205,9 +205,7 @@ describe('CalendarEvent', () => {
 
     it('should treat attendees matching the system email as resources', () => {
         const event = new CalendarEvent({
-            attendees: [
-                { name: 'Room 1', email: 'room-1@org.com' },
-            ] as any,
+            attendees: [{ name: 'Room 1', email: 'room-1@org.com' }] as any,
             system: { email: 'room-1@org.com' } as any,
         });
         expect(event.attendees.length).toBe(0);
@@ -346,9 +344,7 @@ describe('CalendarEvent', () => {
         });
         expect(event.type).toBe('external');
         const internal = new CalendarEvent({
-            attendees: [
-                { name: 'Alex', email: 'alex@dev.place.tech' },
-            ] as any,
+            attendees: [{ name: 'Alex', email: 'alex@dev.place.tech' }] as any,
         });
         expect(internal.type).toBe('internal');
     });

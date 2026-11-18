@@ -30,7 +30,7 @@
  * have no numbers to compare, and the third needs a user chosen from a
  * directory-backed picker.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
+import { uniqueTitle } from '../../../../e2e/support/api';
 import {
     calendarSlot,
     createRoomEvent,
@@ -39,7 +39,7 @@ import {
     listZoneEvents,
     sweepRoomEvents,
 } from '../../../../e2e/support/concierge/calendar.seed';
-import { uniqueTitle } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 
 const REPORTS = [
     {
@@ -143,15 +143,32 @@ test.describe('concierge reports', () => {
             const room = await ensureCalendarRoom(adminApi);
             // A day of its own: the day view specs use six days out.
             const slot = calendarSlot(7, 10);
-            await sweepRoomEvents(calendarApi, room, slot.day_start, slot.day_end);
+            await sweepRoomEvents(
+                calendarApi,
+                room,
+                slot.day_start,
+                slot.day_end,
+            );
             const title = uniqueTitle('E2E Report');
-            const event = await createRoomEvent(calendarApi, room, { ...slot, title });
+            const event = await createRoomEvent(calendarApi, room, {
+                ...slot,
+                title,
+            });
             try {
                 const from_api = async () =>
-                    (await listZoneEvents(adminApi, room.building_id, slot.day_start, slot.day_end))
-                        .filter((e) => e.status !== 'cancelled').length;
+                    (
+                        await listZoneEvents(
+                            adminApi,
+                            room.building_id,
+                            slot.day_start,
+                            slot.day_end,
+                        )
+                    ).filter((e) => e.status !== 'cancelled').length;
                 await expect
-                    .poll(from_api, { message: 'the API must list the event first', timeout: 30_000 })
+                    .poll(from_api, {
+                        message: 'the API must list the event first',
+                        timeout: 30_000,
+                    })
                     .toBeGreaterThan(0);
                 const expected = await from_api();
 
@@ -159,7 +176,10 @@ test.describe('concierge reports', () => {
                     `/#/reports/bookings?start=${slot.day_start * 1000}&end=${slot.day_end * 1000 - 1}` +
                         `&zones=${room.building_id}`,
                 );
-                await adminPage.locator('reports-options button[btn]').first().click();
+                await adminPage
+                    .locator('reports-options button[btn]')
+                    .first()
+                    .click();
                 const overall = adminPage.locator('report-spaces-overall');
                 await expect(
                     overall,

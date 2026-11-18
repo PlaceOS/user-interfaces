@@ -109,7 +109,9 @@ export function hasKioskLocation() {
                             <mat-option [value]="option">
                                 <ng-container
                                     [ngTemplateOutlet]="option_item"
-                                    [ngTemplateOutletContext]="{ $implicit: option }"
+                                    [ngTemplateOutletContext]="{
+                                        $implicit: option,
+                                    }"
                                 />
                             </mat-option>
                         }
@@ -150,7 +152,9 @@ export function hasKioskLocation() {
                             <mat-option [value]="option">
                                 <ng-container
                                     [ngTemplateOutlet]="option_item"
-                                    [ngTemplateOutletContext]="{ $implicit: option }"
+                                    [ngTemplateOutletContext]="{
+                                        $implicit: option,
+                                    }"
                                 />
                             </mat-option>
                         }
@@ -192,7 +196,9 @@ export function hasKioskLocation() {
                             <mat-option [value]="option">
                                 <ng-container
                                     [ngTemplateOutlet]="option_item"
-                                    [ngTemplateOutletContext]="{ $implicit: option }"
+                                    [ngTemplateOutletContext]="{
+                                        $implicit: option,
+                                    }"
                                 />
                             </mat-option>
                         }
@@ -218,7 +224,9 @@ export function hasKioskLocation() {
                             <mat-option [value]="option">
                                 <ng-container
                                     [ngTemplateOutlet]="option_item"
-                                    [ngTemplateOutletContext]="{ $implicit: option }"
+                                    [ngTemplateOutletContext]="{
+                                        $implicit: option,
+                                    }"
                                 />
                             </mat-option>
                         }
@@ -243,7 +251,9 @@ export function hasKioskLocation() {
                             <mat-option [value]="option">
                                 <ng-container
                                     [ngTemplateOutlet]="option_item"
-                                    [ngTemplateOutletContext]="{ $implicit: option }"
+                                    [ngTemplateOutletContext]="{
+                                        $implicit: option,
+                                    }"
                                 />
                             </mat-option>
                         }

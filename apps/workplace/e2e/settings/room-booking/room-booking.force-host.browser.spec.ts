@@ -31,9 +31,9 @@ import {
     MEETING_USER,
     meetingGet,
     meetingPersonPath,
-    meetingTest as test,
     openSubmissionMeeting,
     submitMeeting,
+    meetingTest as test,
 } from '../support/settings-harness';
 
 const FORCED = {
@@ -65,25 +65,46 @@ const SCENARIOS = [
 ];
 
 for (const scenario of SCENARIOS) {
-    test('events.force_host ' + scenario.label, async ({ meeting: { page, audit } }) => {
-        // The rules-host lookup for the forced address (UserPipe), served locally.
-        meetingGet(page, (url) => url.pathname === FORCED_PATH && !url.search, () => FORCED);
-        const confirm = await openSubmissionMeeting(page, audit, {
-            'app.events.force_host': scenario.force_host,
-            'app.events.room_as_host': false,
-        });
-        expect(audit.fixtures[FORCED_PATH] ?? 0, 'no host lookup before Confirm').toBe(0);
-        const body = await submitMeeting(page, audit, confirm);
-        const ext = (body.extension_data ?? {}) as Record<string, unknown>;
-        const attendees = (body.attendees as { email?: string }[]).map((a) => a.email);
+    test(
+        'events.force_host ' + scenario.label,
+        async ({ meeting: { page, audit } }) => {
+            // The rules-host lookup for the forced address (UserPipe), served locally.
+            meetingGet(
+                page,
+                (url) => url.pathname === FORCED_PATH && !url.search,
+                () => FORCED,
+            );
+            const confirm = await openSubmissionMeeting(page, audit, {
+                'app.events.force_host': scenario.force_host,
+                'app.events.room_as_host': false,
+            });
+            expect(
+                audit.fixtures[FORCED_PATH] ?? 0,
+                'no host lookup before Confirm',
+            ).toBe(0);
+            const body = await submitMeeting(page, audit, confirm);
+            const ext = (body.extension_data ?? {}) as Record<string, unknown>;
+            const attendees = (body.attendees as { email?: string }[]).map(
+                (a) => a.email,
+            );
 
-        expect(body.host).toBe(scenario.host);
-        expect(body.creator).toBe(MEETING_USER.email);
-        expect((body.organiser as { email?: string } | undefined)?.email).toBe(scenario.organiser);
-        expect(ext.host_override).toBe(scenario.host_override);
-        // postForm adds the form's organiser (the signed-in user) to the attendees.
-        expect(attendees).toEqual(expect.arrayContaining([MEETING_GUEST.email, MEETING_USER.email]));
-        expect(audit.fixtures[FORCED_PATH] ?? 0, 'rules-host lookups for the forced address')
-            .toBe(scenario.lookups);
-    });
+            expect(body.host).toBe(scenario.host);
+            expect(body.creator).toBe(MEETING_USER.email);
+            expect(
+                (body.organiser as { email?: string } | undefined)?.email,
+            ).toBe(scenario.organiser);
+            expect(ext.host_override).toBe(scenario.host_override);
+            // postForm adds the form's organiser (the signed-in user) to the attendees.
+            expect(attendees).toEqual(
+                expect.arrayContaining([
+                    MEETING_GUEST.email,
+                    MEETING_USER.email,
+                ]),
+            );
+            expect(
+                audit.fixtures[FORCED_PATH] ?? 0,
+                'rules-host lookups for the forced address',
+            ).toBe(scenario.lookups);
+        },
+    );
 }

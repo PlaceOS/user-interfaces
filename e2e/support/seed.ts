@@ -14,7 +14,15 @@
  *
  * Safe to re-run: every step is an upsert keyed on a natural identifier.
  */
-import { request as pwRequest, APIRequestContext } from '@playwright/test';
+import { APIRequestContext, request as pwRequest } from '@playwright/test';
+import { ENGINE_API, STAFF_API, alreadyExists, getJson as json } from './api';
+import { clientId, mintToken, redirectUriFor } from './auth';
+import {
+    CALENDAR_TENANT_NAME,
+    O365,
+    assertCalendarConfigured,
+} from './calendar/calendar.env';
+import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
 import {
     APP_URL,
     BACKEND_URL,
@@ -26,18 +34,19 @@ import {
     scopingDeskFor,
     staffEmail,
 } from './env';
-import { mintToken, clientId, redirectUriFor } from './auth';
-import { ENGINE_API, STAFF_API, alreadyExists, getJson as json } from './api';
-import { describeDrivers, ensureDrivers } from './drivers/drivers.seed';
 import { ensureOrgShape } from './org/org.seed';
-import { CALENDAR_TENANT_NAME, O365, assertCalendarConfigured } from './calendar/calendar.env';
 
 /** The app `init` guarantees exists — our way in before anything else is registered. */
 const BOOTSTRAP_APP_URL = `${BACKEND_URL}/backoffice`;
 
 export async function adminApi(): Promise<APIRequestContext> {
     const admin = roleFor('admin');
-    const mint = await mintToken(BACKEND_URL, BOOTSTRAP_APP_URL, admin.email, admin.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        BOOTSTRAP_APP_URL,
+        admin.email,
+        admin.password,
+    );
     return pwRequest.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -80,11 +89,17 @@ async function authority(api: APIRequestContext, timeoutMs = 90_000) {
  * `nx serve` the app origin is the dev server, NOT the stack, so this is a
  * different application from the deployed one.
  */
-export async function ensureOAuthApp(api: APIRequestContext, appUrl: string, name: string) {
+export async function ensureOAuthApp(
+    api: APIRequestContext,
+    appUrl: string,
+    name: string,
+) {
     const redirect_uri = redirectUriFor(appUrl);
     const uid = clientId(redirect_uri);
 
-    const existing = await json(api, `${ENGINE_API}/oauth_apps`, { limit: '500' });
+    const existing = await json(api, `${ENGINE_API}/oauth_apps`, {
+        limit: '500',
+    });
     const list = Array.isArray(existing) ? existing : (existing.results ?? []);
     if (list.some((a: { uid?: string }) => a.uid === uid)) {
         return { uid, redirect_uri, created: false };
@@ -92,7 +107,13 @@ export async function ensureOAuthApp(api: APIRequestContext, appUrl: string, nam
 
     const owner_id = (await authority(api)).id;
     const res = await api.post(`${ENGINE_API}/oauth_apps`, {
-        data: { name, redirect_uri, scopes: 'public', owner_id, confidential: false },
+        data: {
+            name,
+            redirect_uri,
+            scopes: 'public',
+            owner_id,
+            confidential: false,
+        },
     });
     if (!res.ok()) {
         const body = await res.text();
@@ -100,7 +121,9 @@ export async function ensureOAuthApp(api: APIRequestContext, appUrl: string, nam
         // within a second or two of the first can miss a row that Postgres
         // already has. A uniqueness rejection means it is there — not an error.
         if (alreadyExists(body)) return { uid, redirect_uri, created: false };
-        throw new Error(`create oauth_app failed: HTTP ${res.status()} ${body}`);
+        throw new Error(
+            `create oauth_app failed: HTTP ${res.status()} ${body}`,
+        );
     }
     return { uid, redirect_uri, created: true };
 }
@@ -122,12 +145,17 @@ export async function ensureOAuthApp(api: APIRequestContext, appUrl: string, nam
 async function ensureAbsoluteLoginUrl(api: APIRequestContext) {
     const auth = (await authority(api)) as { id: string; login_url?: string };
     const current = auth.login_url ?? '';
-    if (/^https?:\/\//i.test(current)) return { login_url: current, changed: false };
+    if (/^https?:\/\//i.test(current))
+        return { login_url: current, changed: false };
 
     const login_url = `${BACKEND_URL}/login?continue={{url}}`;
-    const res = await api.patch(`${ENGINE_API}/domains/${auth.id}`, { data: { login_url } });
+    const res = await api.patch(`${ENGINE_API}/domains/${auth.id}`, {
+        data: { login_url },
+    });
     if (!res.ok()) {
-        throw new Error(`patch domain login_url failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `patch domain login_url failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return { login_url, changed: true };
 }
@@ -160,7 +188,9 @@ async function ensureTenant(api: APIRequestContext) {
     const found = list.find((t: { domain?: string }) => t.domain === domain);
     // staff-api encrypts the credentials on save.
     const res = found
-        ? await api.put(`${STAFF_API}/tenants/${found.id}`, { data: { ...found, ...row } })
+        ? await api.put(`${STAFF_API}/tenants/${found.id}`, {
+              data: { ...found, ...row },
+          })
         : await api.post(`${STAFF_API}/tenants`, { data: row });
     if (!res.ok()) {
         throw new Error(
@@ -185,16 +215,22 @@ async function ensureUser(
     fields: { name: string; sys_admin: boolean },
 ): Promise<boolean> {
     const data = { ...fields, password: role.password, support: false };
-    const found = await json(api, `${ENGINE_API}/users`, { q: role.email, limit: '50' });
+    const found = await json(api, `${ENGINE_API}/users`, {
+        q: role.email,
+        limit: '50',
+    });
     const list = Array.isArray(found) ? found : (found.results ?? []);
     const user = list.find(
-        (u: { email?: string }) => u.email?.toLowerCase() === role.email.toLowerCase(),
+        (u: { email?: string }) =>
+            u.email?.toLowerCase() === role.email.toLowerCase(),
     );
     if (user) {
         const res = await api.patch(`${ENGINE_API}/users/${user.id}`, { data });
         if (!res.ok()) {
             const body = await res.text();
-            throw new Error(`update user ${role.email} failed: HTTP ${res.status()} ${body}`);
+            throw new Error(
+                `update user ${role.email} failed: HTTP ${res.status()} ${body}`,
+            );
         }
         return false;
     }
@@ -205,7 +241,9 @@ async function ensureUser(
         const body = await res.text();
         // The lookup above reads from Elasticsearch, which can lag a fresh row.
         if (alreadyExists(body)) return false;
-        throw new Error(`create user ${role.email} failed: HTTP ${res.status()} ${body}`);
+        throw new Error(
+            `create user ${role.email} failed: HTTP ${res.status()} ${body}`,
+        );
     }
     return true;
 }
@@ -238,9 +276,14 @@ async function ensureCalendarUser(api: APIRequestContext) {
  * the same asset (a desk is exclusive for a given time range).
  */
 async function ensureDesks(api: APIRequestContext) {
-    const levels = await json(api, `${ENGINE_API}/zones`, { tags: 'level', limit: '100' });
+    const levels = await json(api, `${ENGINE_API}/zones`, {
+        tags: 'level',
+        limit: '100',
+    });
     const level_list = Array.isArray(levels) ? levels : (levels.results ?? []);
-    const level = level_list.find((z: { parent_id?: string }) => z.parent_id) ?? level_list[0];
+    const level =
+        level_list.find((z: { parent_id?: string }) => z.parent_id) ??
+        level_list[0];
     if (!level) {
         throw new Error(
             'no `level` zone with a parent — workplace needs org -> building -> level. ' +
@@ -260,8 +303,8 @@ async function ensureDesks(api: APIRequestContext) {
         ...Array.from({ length: WORKERS + 1 }, (_, i) =>
             desk(`${DESK_PREFIX}${i}`, `E2E Desk ${i}`),
         ),
-        ...Array.from({ length: WORKERS }, (_, i) => scopingDeskFor(i)).map((d) =>
-            desk(d.id, d.name),
+        ...Array.from({ length: WORKERS }, (_, i) => scopingDeskFor(i)).map(
+            (d) => desk(d.id, d.name),
         ),
     ];
 
@@ -269,7 +312,9 @@ async function ensureDesks(api: APIRequestContext) {
         data: { name: 'desks', details, description: 'e2e bookable desks' },
     });
     if (!res.ok()) {
-        throw new Error(`put desks metadata failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `put desks metadata failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return { zone: level.id, count: details.length };
 }
@@ -292,7 +337,8 @@ async function ensureStaffUsers(api: APIRequestContext) {
     for (let i = 0; i < WORKERS; i++) {
         const role = roleFor('staff', i);
         const fields = { name: `E2E Staff ${i} (non-admin)`, sys_admin: false };
-        if (await ensureUser(api, role, authority_id, fields)) created.push(role.email);
+        if (await ensureUser(api, role, authority_id, fields))
+            created.push(role.email);
         else present.push(role.email);
     }
     return { created, present };
@@ -303,12 +349,18 @@ export async function seed(): Promise<void> {
     assertCalendarConfigured();
     const api = await adminApi();
     try {
-        const app = await ensureOAuthApp(api, APP_URL, 'workplace (e2e dev server)');
+        const app = await ensureOAuthApp(
+            api,
+            APP_URL,
+            'workplace (e2e dev server)',
+        );
         console.log(
             `  oauth app  ${app.created ? 'created' : 'present'}  ${app.uid}  ${app.redirect_uri}`,
         );
         const login = await ensureAbsoluteLoginUrl(api);
-        console.log(`  login_url  ${login.changed ? 'patched' : 'ok'}       ${login.login_url}`);
+        console.log(
+            `  login_url  ${login.changed ? 'patched' : 'ok'}       ${login.login_url}`,
+        );
         const tenant = await ensureTenant(api);
         console.log(
             `  tenant     ${tenant.created ? 'created' : 'present'}  domain=${tenant.domain}  ` +
@@ -333,7 +385,9 @@ export async function seed(): Promise<void> {
         // Only specs that bind a room's status need the drivers, so a build farm
         // that is down or slow is reported here instead of failing every spec.
         try {
-            const drivers = await ensureDrivers(api, (message) => console.log(`  drivers    ${message}`));
+            const drivers = await ensureDrivers(api, (message) =>
+                console.log(`  drivers    ${message}`),
+            );
             console.log(`  drivers    ${describeDrivers(drivers)}`);
         } catch (error) {
             console.warn(

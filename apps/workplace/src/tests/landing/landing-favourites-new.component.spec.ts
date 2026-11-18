@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Router } from '@angular/router';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import {
     OrganisationService,
@@ -10,8 +10,8 @@ import {
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { LandingStateService } from '../../app/landing/landing-state.service';
 import { LandingFavouritesNewComponent } from '../../app/landing-new/landing-favourites-new.component';
+import { LandingStateService } from '../../app/landing/landing-state.service';
 
 describe('LandingFavouritesNewComponent', () => {
     let spectator: Spectator<LandingFavouritesNewComponent>;
@@ -43,7 +43,13 @@ describe('LandingFavouritesNewComponent', () => {
                 loadResourceList: vi.fn((type: string) =>
                     Promise.resolve(
                         type === 'parking-spaces'
-                            ? [{ id: 'park-123', name: 'Parking 123', zones: [] }]
+                            ? [
+                                  {
+                                      id: 'park-123',
+                                      name: 'Parking 123',
+                                      zones: [],
+                                  },
+                              ]
                             : [],
                     ),
                 ),

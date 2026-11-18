@@ -1,11 +1,14 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
-    StaffUser,
     setCurrentUser,
     setNotifyOutlet,
+    StaffUser,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 

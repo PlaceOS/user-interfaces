@@ -157,7 +157,7 @@ interface MapLocateTarget {
                                 <div>
                                     {{
                                         'CALENDAR_EVENT.ATTENDEES_COUNT'
-                                            | translate: { count }: count
+                                            | translate: { count } : count
                                     }}
                                 </div>
                             </div>
@@ -171,7 +171,9 @@ interface MapLocateTarget {
                                 <button
                                     btn
                                     matRipple
-                                    [disabled]="checkinDisabled() || checking_in()"
+                                    [disabled]="
+                                        checkinDisabled() || checking_in()
+                                    "
                                     class="flex-1 space-x-2"
                                     [class.white]="!isCheckedIn()"
                                     [class.bg-success]="isCheckedIn()"
@@ -195,7 +197,9 @@ interface MapLocateTarget {
                                 btn
                                 matRipple
                                 name="edit-booking"
-                                [matTooltip]="'BOOKINGS.ACTION_EDIT' | translate"
+                                [matTooltip]="
+                                    'BOOKINGS.ACTION_EDIT' | translate
+                                "
                                 [attr.aria-label]="
                                     'BOOKINGS.ACTION_EDIT' | translate
                                 "
@@ -388,9 +392,7 @@ export class LandingUpcomingBookingComponent extends AsyncHandler {
     /** Set when the schedule has finished its first load */
     private readonly _schedule_loaded = signal(false);
     /** Show a placeholder, not the empty card, until the schedule loads */
-    public readonly show_placeholder = computed(
-        () => !this._schedule_loaded(),
-    );
+    public readonly show_placeholder = computed(() => !this._schedule_loaded());
     /** Set while a check in request is in progress */
     public readonly checking_in = signal(false);
 

@@ -1,14 +1,14 @@
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
-import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { ZoneManagerComponent } from '../../app/zone-manager/zone-manager.component';
 import { BuildingManagementService } from '../../app/building-manager/building-management.service';
 import { LevelManagementService } from '../../app/level-manager/level-management.service';
 import { RegionManagementService } from '../../app/region-manager/region-management.service';
+import { ZoneManagerComponent } from '../../app/zone-manager/zone-manager.component';
 
 describe('ZoneManagerComponent', () => {
     let spectator: Spectator<ZoneManagerComponent>;
@@ -42,7 +42,10 @@ describe('ZoneManagerComponent', () => {
         spectator = createComponent({
             providers: [
                 { provide: RegionManagementService, useValue: region_service },
-                { provide: BuildingManagementService, useValue: building_service },
+                {
+                    provide: BuildingManagementService,
+                    useValue: building_service,
+                },
                 { provide: LevelManagementService, useValue: level_service },
                 {
                     provide: OrganisationService,
@@ -53,7 +56,11 @@ describe('ZoneManagerComponent', () => {
                 },
                 {
                     provide: ActivatedRoute,
-                    useValue: { get queryParamMap() { return query_param_map; } },
+                    useValue: {
+                        get queryParamMap() {
+                            return query_param_map;
+                        },
+                    },
                 },
                 { provide: Router, useValue: { navigate: router_navigate } },
             ],
@@ -62,11 +69,17 @@ describe('ZoneManagerComponent', () => {
 
     it('should compute the add-button text for the active tab', () => {
         spectator.component.selected_tab.set(0);
-        expect(spectator.component.addButtonText()).toBe('APP.CONCIERGE.REGIONS_ADD');
+        expect(spectator.component.addButtonText()).toBe(
+            'APP.CONCIERGE.REGIONS_ADD',
+        );
         spectator.component.selected_tab.set(1);
-        expect(spectator.component.addButtonText()).toBe('APP.CONCIERGE.BUILDINGS_ADD');
+        expect(spectator.component.addButtonText()).toBe(
+            'APP.CONCIERGE.BUILDINGS_ADD',
+        );
         spectator.component.selected_tab.set(2);
-        expect(spectator.component.addButtonText()).toBe('APP.CONCIERGE.LEVELS_ADD');
+        expect(spectator.component.addButtonText()).toBe(
+            'APP.CONCIERGE.LEVELS_ADD',
+        );
     });
 
     it('should route the add action to the service for the active tab', () => {

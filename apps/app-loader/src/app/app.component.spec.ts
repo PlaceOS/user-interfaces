@@ -1,5 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { EMPTY_USER, setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
+import {
+    EMPTY_USER,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
 import {
     authority,
     PlaceApplication,
@@ -40,7 +45,9 @@ function useSettings(values: Record<string, unknown>) {
     settings_mock.get.mockImplementation((key: string) => values[key]);
 }
 
-function makeApp(overrides: Partial<LauncherApplication> = {}): LauncherApplication {
+function makeApp(
+    overrides: Partial<LauncherApplication> = {},
+): LauncherApplication {
     return {
         id: 'app-1',
         name: 'Workplace',
@@ -56,7 +63,9 @@ describe('AppComponent', () => {
 
     const create_component = createComponentFactory({
         component: AppComponent,
-        componentProviders: [{ provide: SettingsService, useValue: settings_mock }],
+        componentProviders: [
+            { provide: SettingsService, useValue: settings_mock },
+        ],
         detectChanges: false,
     });
 
@@ -72,12 +81,20 @@ describe('AppComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settings_mock.initialised = new BehaviorSubject<boolean>(false);
-        useSettings({ composer: {}, mock: false, 'app.application_restrictions': [] });
-        vi.mocked(authority).mockReturnValue({ id: 'auth-1' } as PlaceAuthority);
+        useSettings({
+            composer: {},
+            mock: false,
+            'app.application_restrictions': [],
+        });
+        vi.mocked(authority).mockReturnValue({
+            id: 'auth-1',
+        } as PlaceAuthority);
         respondWith([]);
         vi.mocked(setup).mockResolvedValue(undefined);
         vi.mocked(setAPI_Key).mockReturnValue(undefined);
-        setCurrentUser(new StaffUser({ email: 'user@example.com', groups: [] }));
+        setCurrentUser(
+            new StaffUser({ email: 'user@example.com', groups: [] }),
+        );
         window.history.replaceState({}, '', '/');
         spectator = create_component();
     });
@@ -114,11 +131,15 @@ describe('AppComponent', () => {
 
         await runInit();
 
-        expect(queryApplications).toHaveBeenCalledWith({ authority_id: 'auth-1' });
+        expect(queryApplications).toHaveBeenCalledWith({
+            authority_id: 'auth-1',
+        });
         expect(spectator.component.loading()).toBe(false);
         const tiles = spectator.queryAll('.app-grid a');
         expect(tiles.length).toBe(2);
-        const names = spectator.queryAll('.app-name').map((_) => _.textContent?.trim());
+        const names = spectator
+            .queryAll('.app-name')
+            .map((_) => _.textContent?.trim());
         expect(names).toEqual(['Concierge', 'Workplace']);
     });
 
@@ -134,7 +155,9 @@ describe('AppComponent', () => {
         await runInit();
 
         const tile = spectator.query('.app-grid a');
-        expect(tile?.getAttribute('href')).toBe('https://example.com/workplace/');
+        expect(tile?.getAttribute('href')).toBe(
+            'https://example.com/workplace/',
+        );
     });
 
     it('hides the tile that points back to the current page', async () => {
@@ -154,16 +177,22 @@ describe('AppComponent', () => {
 
         await runInit();
 
-        const names = spectator.queryAll('.app-name').map((_) => _.textContent?.trim());
+        const names = spectator
+            .queryAll('.app-name')
+            .map((_) => _.textContent?.trim());
         expect(names).toEqual(['Workplace']);
     });
 
     it('hides applications restricted to groups the user is not in', async () => {
         useSettings({
             composer: {},
-            'app.application_restrictions': [{ id: 'admin', groups: ['admins'] }],
+            'app.application_restrictions': [
+                { id: 'admin', groups: ['admins'] },
+            ],
         });
-        setCurrentUser(new StaffUser({ email: 'u@example.com', groups: ['staff'] }));
+        setCurrentUser(
+            new StaffUser({ email: 'u@example.com', groups: ['staff'] }),
+        );
         respondWith([
             {
                 id: 'admin',
@@ -179,18 +208,30 @@ describe('AppComponent', () => {
 
         await runInit();
 
-        const names = spectator.queryAll('.app-name').map((_) => _.textContent?.trim());
+        const names = spectator
+            .queryAll('.app-name')
+            .map((_) => _.textContent?.trim());
         expect(names).toEqual(['Workplace']);
     });
 
     it('waits for the signed-in user before applying application restrictions', async () => {
         useSettings({
             composer: {},
-            'app.application_restrictions': [{ id: 'admin', groups: ['admins'] }],
+            'app.application_restrictions': [
+                { id: 'admin', groups: ['admins'] },
+            ],
         });
         respondWith([
-            { id: 'admin', name: 'Admin', redirect_uri: 'https://example.com/admin/' },
-            { id: 'workplace', name: 'Workplace', redirect_uri: 'https://example.com/workplace/' },
+            {
+                id: 'admin',
+                name: 'Admin',
+                redirect_uri: 'https://example.com/admin/',
+            },
+            {
+                id: 'workplace',
+                name: 'Workplace',
+                redirect_uri: 'https://example.com/workplace/',
+            },
         ]);
         // The store holds the empty placeholder until the user request returns
         setCurrentUser(EMPTY_USER);
@@ -198,7 +239,9 @@ describe('AppComponent', () => {
 
         const init = spectator.component.ngOnInit();
         await new Promise((resolve) => setTimeout(resolve, 0));
-        setCurrentUser(new StaffUser({ email: 'admin@example.com', groups: ['admins'] }));
+        setCurrentUser(
+            new StaffUser({ email: 'admin@example.com', groups: ['admins'] }),
+        );
         await init;
 
         const names = spectator.component.applications().map((_) => _.name);
@@ -248,7 +291,10 @@ describe('AppComponent', () => {
         ['setup', () => vi.mocked(setup).mockRejectedValue(new Error('boom'))],
         [
             'the application query',
-            () => vi.mocked(queryApplications).mockRejectedValue(new Error('boom')),
+            () =>
+                vi
+                    .mocked(queryApplications)
+                    .mockRejectedValue(new Error('boom')),
         ],
     ])('surfaces an error message when %s fails', async (_, fail) => {
         vi.spyOn(console, 'error').mockImplementation(() => undefined);
@@ -292,7 +338,8 @@ describe('AppComponent', () => {
         expect(setup).toHaveBeenCalledWith(
             expect.objectContaining({
                 host: 'placeos.example.com:8443',
-                auth_uri: 'https://placeos.example.com:8443/auth/oauth/authorize',
+                auth_uri:
+                    'https://placeos.example.com:8443/auth/oauth/authorize',
                 mock: false,
             }),
         );
@@ -300,21 +347,29 @@ describe('AppComponent', () => {
 
     it.each([
         ['the mock setting is on', { composer: {}, mock: true }, '/'],
-        ['the page URL asks for it', { composer: {}, mock: false }, '/?mock=true'],
+        [
+            'the page URL asks for it',
+            { composer: {}, mock: false },
+            '/?mock=true',
+        ],
     ])('sets up PlaceOS in mock mode when %s', async (_, values, url) => {
         useSettings(values);
         window.history.replaceState({}, '', url);
 
         await runInit();
         // The mock data module loads lazily, so setup runs a few ticks later.
-        await vi.waitFor(() => expect(spectator.component.loading()).toBe(false));
+        await vi.waitFor(() =>
+            expect(spectator.component.loading()).toBe(false),
+        );
 
         expect(spectator.component.error()).toBe('');
-        expect(setup).toHaveBeenCalledWith(expect.objectContaining({ mock: true }));
-        // `setupPlace` also reads the URL, so check the mock endpoints exist first.
-        expect(vi.mocked(registerMockEndpoint).mock.invocationCallOrder[0]).toBeLessThan(
-            vi.mocked(setup).mock.invocationCallOrder[0],
+        expect(setup).toHaveBeenCalledWith(
+            expect.objectContaining({ mock: true }),
         );
+        // `setupPlace` also reads the URL, so check the mock endpoints exist first.
+        expect(
+            vi.mocked(registerMockEndpoint).mock.invocationCallOrder[0],
+        ).toBeLessThan(vi.mocked(setup).mock.invocationCallOrder[0]);
     });
 
     it('does not register an api key when none is provided', async () => {
@@ -331,9 +386,10 @@ describe('AppComponent', () => {
         }
 
         function failImage(index: number) {
-            spectator.queryAll('.app-grid a')[index].querySelector('img')!.dispatchEvent(
-                new Event('error'),
-            );
+            spectator
+                .queryAll('.app-grid a')
+                [index].querySelector('img')!
+                .dispatchEvent(new Event('error'));
             spectator.detectChanges();
         }
 
@@ -360,7 +416,9 @@ describe('AppComponent', () => {
             expect(spectator.query('.app-grid img')).toBeNull();
             expect(spectator.query('.app-grid span')).toHaveText('D');
             // Further errors cannot push the index past the candidate list.
-            spectator.component.loadNextIcon(spectator.component.applications()[0]);
+            spectator.component.loadNextIcon(
+                spectator.component.applications()[0],
+            );
             expect(spectator.component.applications()[0].icon_index).toBe(2);
         });
     });

@@ -17,18 +17,27 @@
  * caller's own bookings would pass a same-user test and still let two colleagues
  * double-book.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
-import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { APP_URL, BACKEND_URL, WORKERS, roleFor } from '../../../../e2e/support/env';
+import {
+    deleteBooking,
+    getBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
 import { mintToken } from '../../../../e2e/support/auth';
-import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    roleFor,
+} from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     createRoomBookingViaApi,
     releaseRoom,
     tryRoomBooking,
 } from '../../../../e2e/support/room/room.api';
+import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -44,7 +53,12 @@ const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
  */
 async function apiAsOtherUser(workerIndex: number) {
     const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        APP_URL,
+        role.email,
+        role.password,
+    );
     return request.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -58,7 +72,10 @@ test.describe('room double-booking', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const room = await roomForWorker(mine);
         const otherStaffApi = await apiAsOtherUser(theirs);
@@ -145,7 +162,10 @@ test.describe('room double-booking', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const room = await roomForWorker(mine);
         const otherStaffApi = await apiAsOtherUser(theirs);

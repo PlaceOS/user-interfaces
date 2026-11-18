@@ -31,21 +31,22 @@
 import { expect, type Page } from '@playwright/test';
 import {
     fakeBearer,
-    type Json,
     meetingFormSnapshot as formSnapshot,
-    meetingFormTest as test,
+    type Json,
     openStrictMeeting,
     type Settings,
     submitGuestMeeting,
     syntheticMeetingOrg,
+    meetingFormTest as test,
 } from '../support/settings-harness';
 
 const ORG = syntheticMeetingOrg('e2e-allow-international-');
 const { GROUP, GUEST } = ORG;
 // Both hosts are permitted. These scenarios cover rule-host resolution,
 // not hidden-rule rejection; every application error remains a test failure.
-const RULES: Json[] = [{ zone: '*', conditions: { groups: [GROUP] },
-    rules: { hidden: false } }];
+const RULES: Json[] = [
+    { zone: '*', conditions: { groups: [GROUP] }, rules: { hidden: false } },
+];
 const BASE: Settings = {
     ...ORG.BASE,
     'app.events.can_book_for_others': true,
@@ -54,35 +55,70 @@ const BASE: Settings = {
     'app.events.allow_attendee_internal_or_external': false,
 };
 
-const OPEN = { org: ORG, base: BASE, bearer: fakeBearer('attendee-flags'), rules: RULES, guest: true };
+const OPEN = {
+    org: ORG,
+    base: BASE,
+    bearer: fakeBearer('attendee-flags'),
+    rules: RULES,
+    guest: true,
+};
 
 /** The per-attendee international block (label BOOKINGS.INTERNATIONAL_VISITORS). */
-const internationalBlock = (page: Page) => page.locator('meeting-flow-options a-user-list-field div')
-    .filter({ has: page.locator('label', { hasText: 'International visitors:' }) })
-    .filter({ has: page.locator('mat-checkbox') });
+const internationalBlock = (page: Page) =>
+    page
+        .locator('meeting-flow-options a-user-list-field div')
+        .filter({
+            has: page.locator('label', { hasText: 'International visitors:' }),
+        })
+        .filter({ has: page.locator('mat-checkbox') });
 
-test('events.allow_international=true flags the attendee as international in the saved event',
-    async ({ isolated: { page, audit } }) => {
-        const confirm = await openStrictMeeting(page, audit, { 'app.events.allow_international': true }, OPEN);
-        const block = internationalBlock(page).last();
-        await expect(block).toBeVisible();
-        const checkbox = block.locator('mat-checkbox').filter({ hasText: GUEST.name });
-        await expect(block.locator('mat-checkbox')).toHaveCount(1);
-        await expect(checkbox.locator('input[type="checkbox"]')).not.toBeChecked();
-        await checkbox.locator('input[type="checkbox"]').check();
-        await expect(checkbox.locator('input[type="checkbox"]')).toBeChecked();
-        await expect.poll(async () => (await formSnapshot(page)).raw.attendees
-            .map((a) => (a.extension_data as Json | undefined)?.international)).toEqual([true]);
-        const ext = await submitGuestMeeting(page, audit, confirm, ORG);
-        expect(ext.attendee_flags).toEqual({ [GUEST.email]: { international: true } });
+test('events.allow_international=true flags the attendee as international in the saved event', async ({
+    isolated: { page, audit },
+}) => {
+    const confirm = await openStrictMeeting(
+        page,
+        audit,
+        { 'app.events.allow_international': true },
+        OPEN,
+    );
+    const block = internationalBlock(page).last();
+    await expect(block).toBeVisible();
+    const checkbox = block
+        .locator('mat-checkbox')
+        .filter({ hasText: GUEST.name });
+    await expect(block.locator('mat-checkbox')).toHaveCount(1);
+    await expect(checkbox.locator('input[type="checkbox"]')).not.toBeChecked();
+    await checkbox.locator('input[type="checkbox"]').check();
+    await expect(checkbox.locator('input[type="checkbox"]')).toBeChecked();
+    await expect
+        .poll(async () =>
+            (await formSnapshot(page)).raw.attendees.map(
+                (a) => (a.extension_data as Json | undefined)?.international,
+            ),
+        )
+        .toEqual([true]);
+    const ext = await submitGuestMeeting(page, audit, confirm, ORG);
+    expect(ext.attendee_flags).toEqual({
+        [GUEST.email]: { international: true },
     });
+});
 
-test('events.allow_international=false hides the international block and saves no flags',
-    async ({ isolated: { page, audit } }) => {
-        const confirm = await openStrictMeeting(page, audit, { 'app.events.allow_international': false }, OPEN);
-        // openStrictMeeting has proven the attendee chip is rendered.
-        await expect(page.locator('meeting-flow-options')).not.toContainText('International visitors:');
-        await expect(page.locator('meeting-flow-options a-user-list-field mat-checkbox')).toHaveCount(0);
-        const ext = await submitGuestMeeting(page, audit, confirm, ORG);
-        expect(ext).not.toHaveProperty('attendee_flags');
-    });
+test('events.allow_international=false hides the international block and saves no flags', async ({
+    isolated: { page, audit },
+}) => {
+    const confirm = await openStrictMeeting(
+        page,
+        audit,
+        { 'app.events.allow_international': false },
+        OPEN,
+    );
+    // openStrictMeeting has proven the attendee chip is rendered.
+    await expect(page.locator('meeting-flow-options')).not.toContainText(
+        'International visitors:',
+    );
+    await expect(
+        page.locator('meeting-flow-options a-user-list-field mat-checkbox'),
+    ).toHaveCount(0);
+    const ext = await submitGuestMeeting(page, audit, confirm, ORG);
+    expect(ext).not.toHaveProperty('attendee_flags');
+});

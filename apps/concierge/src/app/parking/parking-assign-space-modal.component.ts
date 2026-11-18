@@ -103,8 +103,7 @@ export function bookedResourcePeriodForBooking(booking: Booking) {
         booking.booking_end ||
         Math.floor(
             (booking.date_end ||
-                booking.date + (booking.duration || 0) * 60 * 1000) /
-                1000,
+                booking.date + (booking.duration || 0) * 60 * 1000) / 1000,
         );
     return {
         period_start: start - 5 * 60,
@@ -325,8 +324,7 @@ export class ParkingAssignSpaceModalComponent
             const level = this.selected_level();
             const spaces = this._all_spaces();
             const is_recurring =
-                booking.recurrence_type &&
-                booking.recurrence_type !== 'none';
+                booking.recurrence_type && booking.recurrence_type !== 'none';
             if (!level || !spaces.length || !is_recurring) return null;
             return { level, space_ids: spaces.map((s) => s.id) };
         },

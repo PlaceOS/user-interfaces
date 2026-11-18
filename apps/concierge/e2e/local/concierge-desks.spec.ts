@@ -33,10 +33,10 @@
  * the failure mode that matters — each test re-reads the booking through the
  * API and asserts on the stored record.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
+import { getBooking, uniqueTitle } from '../../../../e2e/support/api';
 import {
-    createBookingFor,
     cleanUpBookings,
+    createBookingFor,
     seededDesks,
 } from '../../../../e2e/support/concierge/concierge.api';
 import {
@@ -48,7 +48,7 @@ import {
     waitForAnyRow,
     waitForRow,
 } from '../../../../e2e/support/concierge/desks.page';
-import { getBooking, uniqueTitle } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import { roleFor } from '../../../../e2e/support/env';
 
 /**
@@ -93,7 +93,7 @@ test.describe('concierge desk bookings', () => {
         await cleanUpBookings(adminApi, created.splice(0));
     });
 
-    test('CON-DESK-01: the listing shows another user\'s booking, naming them and the booker', async ({
+    test("CON-DESK-01: the listing shows another user's booking, naming them and the booker", async ({
         adminPage,
         adminApi,
     }) => {
@@ -133,7 +133,7 @@ test.describe('concierge desk bookings', () => {
         ).toContain(desk.name);
     });
 
-    test('CON-DESK-07: approving another user\'s desk booking is stored on the backend', async ({
+    test("CON-DESK-07: approving another user's desk booking is stored on the backend", async ({
         adminPage,
         adminApi,
     }) => {
@@ -168,7 +168,10 @@ test.describe('concierge desk bookings', () => {
             .poll(
                 async () => {
                     const after = await getBooking(adminApi, booking.id);
-                    return { approved: after.approved, rejected: after.rejected };
+                    return {
+                        approved: after.approved,
+                        rejected: after.rejected,
+                    };
                 },
                 {
                     message:
@@ -186,7 +189,7 @@ test.describe('concierge desk bookings', () => {
         ).toBe(roleFor('admin').email);
     });
 
-    test('CON-DESK-08: rejecting another user\'s desk booking is stored on the backend', async ({
+    test("CON-DESK-08: rejecting another user's desk booking is stored on the backend", async ({
         adminPage,
         adminApi,
     }) => {
@@ -216,7 +219,7 @@ test.describe('concierge desk bookings', () => {
                 {
                     message:
                         'rejecting from the concierge listing must store the rejection. ' +
-                        'This is the closest thing the screen offers to the plan\'s ' +
+                        "This is the closest thing the screen offers to the plan's " +
                         '"cancel somebody else\'s booking" — there is no cancel control here',
                     timeout: 20_000,
                 },

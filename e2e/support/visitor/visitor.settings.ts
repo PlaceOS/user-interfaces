@@ -42,7 +42,10 @@ export async function useSettings(
         );
     }
     await page.addInitScript((value) => {
-        localStorage.setItem('PLACEOS.setting_overrides', JSON.stringify(value));
+        localStorage.setItem(
+            'PLACEOS.setting_overrides',
+            JSON.stringify(value),
+        );
     }, overrides);
 }
 

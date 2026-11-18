@@ -18,12 +18,12 @@ import {
     updateAlert,
 } from '@placeos/ts-client';
 
+import { setNotifyOutlet } from '@placeos/common';
 import {
     IconComponent,
     SettingsToggleComponent,
     SimpleTableComponent,
 } from '@placeos/components';
-import { setNotifyOutlet } from '@placeos/common';
 import { DashboardAlertManageComponent } from '../../app/dashboards/dashboard-alert-manage.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
 import { SystemSearchFieldComponent } from '../../app/dashboards/system-search-field.component';

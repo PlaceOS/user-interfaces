@@ -9,7 +9,6 @@
  * API-only: the subject is the backend's rules, and driving a form would only
  * add ways to fail.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     STAFF_API,
     currentUser,
@@ -17,7 +16,11 @@ import {
     uniqueTitle,
     zonesWithTag,
 } from '../../../../e2e/support/api';
-import { PARKING_SLOTS, slotOn } from '../../../../e2e/support/parking/parking.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    PARKING_SLOTS,
+    slotOn,
+} from '../../../../e2e/support/parking/parking.env';
 import { spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
 
 test.describe('parking booking API rules', () => {
@@ -68,7 +71,9 @@ test.describe('parking booking API rules', () => {
         const created: number[] = [];
         try {
             for (const { name, data } of cases) {
-                const res = await staffApi.post(`${STAFF_API}/bookings`, { data });
+                const res = await staffApi.post(`${STAFF_API}/bookings`, {
+                    data,
+                });
                 const body = await res.text();
                 if (res.ok()) {
                     // Accepting it is a finding rather than a crash, and this

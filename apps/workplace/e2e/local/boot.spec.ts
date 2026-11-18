@@ -12,10 +12,10 @@
  * looking page that is in fact the failure state, so asserting "not misconfigured"
  * is what separates "the app booted" from "the app booted and has data".
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { APP_URL } from '../../../../e2e/support/env';
-import { clientId, redirectUriFor } from '../../../../e2e/support/auth';
 import { currentUser, zonesWithTag } from '../../../../e2e/support/api';
+import { clientId, redirectUriFor } from '../../../../e2e/support/auth';
+import { APP_URL } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 /**
  * Boot-time 5xx this suite tolerates, derived from an observed run rather than
@@ -32,7 +32,9 @@ import { currentUser, zonesWithTag } from '../../../../e2e/support/api';
 const TOLERATED_5XX = ['/api/staff/v1/calendars', '/api/staff/v1/events'];
 
 test.describe('workplace boots against the local backend', () => {
-    test('the seeded token authenticates the SPA and org data resolves', async ({ page }) => {
+    test('the seeded token authenticates the SPA and org data resolves', async ({
+        page,
+    }) => {
         const failed_api: string[] = [];
         const unexpected_5xx: string[] = [];
         page.on('response', (r) => {
@@ -41,7 +43,8 @@ test.describe('workplace boots against the local backend', () => {
             // third-party URL that happens to contain that segment.
             const ours = url.origin === new URL(APP_URL).origin;
             const backend_path =
-                url.pathname.startsWith('/api/') || url.pathname.startsWith('/auth/');
+                url.pathname.startsWith('/api/') ||
+                url.pathname.startsWith('/auth/');
             if (!ours || !backend_path || r.status() < 400) return;
 
             const entry = `${r.status()} ${r.request().method()} ${url.pathname}`;
@@ -49,7 +52,10 @@ test.describe('workplace boots against the local backend', () => {
             // Only 5xx is asserted on. A 4xx during boot is frequently benign —
             // probes for optional resources, permission-shaped answers for a
             // non-admin — whereas a 5xx means a backend route is broken.
-            if (r.status() >= 500 && !TOLERATED_5XX.some((p) => url.pathname.startsWith(p))) {
+            if (
+                r.status() >= 500 &&
+                !TOLERATED_5XX.some((p) => url.pathname.startsWith(p))
+            ) {
                 unexpected_5xx.push(entry);
             }
         });
@@ -73,8 +79,14 @@ test.describe('workplace boots against the local backend', () => {
         // The token really is in the store ts-client reads from, under the key
         // derived from THIS app's redirect_uri.
         const cid = clientId(redirectUriFor(APP_URL));
-        const stored = await page.evaluate((k) => localStorage.getItem(k), `${cid}_access_token`);
-        expect(stored, `localStorage[${cid}_access_token] should hold the bearer`).toBeTruthy();
+        const stored = await page.evaluate(
+            (k) => localStorage.getItem(k),
+            `${cid}_access_token`,
+        );
+        expect(
+            stored,
+            `localStorage[${cid}_access_token] should hold the bearer`,
+        ).toBeTruthy();
 
         // Let in-flight boot requests land before asserting on them — the shell
         // renders before the org/zone calls finish, so without this a slow 500
@@ -83,7 +95,10 @@ test.describe('workplace boots against the local backend', () => {
         await page.waitForLoadState('networkidle');
 
         if (failed_api.length) {
-            console.log('  4xx/5xx API calls during boot:\n   ', failed_api.join('\n    '));
+            console.log(
+                '  4xx/5xx API calls during boot:\n   ',
+                failed_api.join('\n    '),
+            );
         }
 
         // The list above used to be logged and nothing more, so a required
@@ -98,13 +113,21 @@ test.describe('workplace boots against the local backend', () => {
     // Deliberately asserted as the NON-admin worker identity: a sys_admin can see
     // zones a normal user cannot, so proving the hierarchy exists for an ordinary
     // user is the assertion that actually matters.
-    test('the backend has the org hierarchy workplace requires', async ({ staffApi: api }) => {
+    test('the backend has the org hierarchy workplace requires', async ({
+        staffApi: api,
+    }) => {
         const user = await currentUser(api);
         expect(user.email, 'the token resolves to a real user').toBeTruthy();
-        expect(user.sys_admin, 'this assertion runs as a NON-admin').toBeFalsy();
+        expect(
+            user.sys_admin,
+            'this assertion runs as a NON-admin',
+        ).toBeFalsy();
 
         const orgs = await zonesWithTag(api, 'org');
-        expect(orgs.length, 'at least one zone tagged `org` (else -> /misconfigured)').toBeGreaterThan(0);
+        expect(
+            orgs.length,
+            'at least one zone tagged `org` (else -> /misconfigured)',
+        ).toBeGreaterThan(0);
 
         const levels = await zonesWithTag(api, 'level');
         const parented = levels.filter((z) => z.parent_id);

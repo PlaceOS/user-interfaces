@@ -65,11 +65,7 @@ describe('isParkingAllDayBooking', () => {
         };
 
         expect(
-            isParkingAllDayBooking(
-                booking,
-                'Australia/Sydney',
-                9 * 60,
-            ),
+            isParkingAllDayBooking(booking, 'Australia/Sydney', 9 * 60),
         ).toBe(true);
     });
 
@@ -82,11 +78,7 @@ describe('isParkingAllDayBooking', () => {
         };
 
         expect(
-            isParkingAllDayBooking(
-                booking,
-                'Australia/Sydney',
-                9 * 60,
-            ),
+            isParkingAllDayBooking(booking, 'Australia/Sydney', 9 * 60),
         ).toBe(false);
     });
 

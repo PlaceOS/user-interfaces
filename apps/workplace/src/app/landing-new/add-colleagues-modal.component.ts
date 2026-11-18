@@ -29,7 +29,7 @@ import { LandingStateService } from '../landing/landing-state.service';
         >
             <!-- Header -->
             <header
-                class="sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none bg-base-200 p-2"
+                class="bg-base-200 sticky top-0 z-10 m-2 h-14 w-[calc(100%-1rem)] min-w-[20rem] rounded border-none p-2"
             >
                 <h2 class="px-2 text-xl font-medium">
                     {{ 'APP.WORKPLACE.COLLEAGUES_ADD' | translate }}
@@ -86,7 +86,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                     } @else if (search_failed()) {
                         <div
                             search-error
-                            class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-16 text-sm opacity-60"
+                            class="bg-base-200 flex flex-col items-center justify-center rounded-xl py-16 text-sm opacity-60"
                         >
                             <icon class="mb-2 text-4xl">error</icon>
                             <div>{{ 'COMMON.LOAD_ERROR' | translate }}</div>
@@ -102,7 +102,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                             <div class="max-h-64 space-y-2 overflow-auto">
                                 @for (user of user_list; track user.email) {
                                     <button
-                                        class="flex w-full items-center space-x-2 rounded border border-base-300 bg-base-100 p-2 text-left hover:bg-base-200"
+                                        class="border-base-300 bg-base-100 hover:bg-base-200 flex w-full items-center space-x-2 rounded border p-2 text-left"
                                         matRipple
                                         [disabled]="
                                             loading() ||
@@ -151,7 +151,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                         </div>
                     } @else {
                         <div
-                            class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-16 text-sm opacity-60"
+                            class="bg-base-200 flex flex-col items-center justify-center rounded-xl py-16 text-sm opacity-60"
                         >
                             <icon class="mb-2 text-4xl">person_cancel</icon>
                             <div>{{ 'FORM.USER_EMPTY' | translate }}</div>
@@ -159,7 +159,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                     }
                 } @else {
                     <div
-                        class="flex flex-col items-center justify-center rounded-xl bg-base-200 py-16 text-sm opacity-60"
+                        class="bg-base-200 flex flex-col items-center justify-center rounded-xl py-16 text-sm opacity-60"
                     >
                         <icon class="mb-2 text-4xl">search</icon>
                         <p>
@@ -175,7 +175,7 @@ import { LandingStateService } from '../landing/landing-state.service';
 
                 <!-- Selected Users List -->
                 @if (selected_users().length > 0) {
-                    <div class="mt-4 space-y-2 border-t border-base-200 pt-4">
+                    <div class="border-base-200 mt-4 space-y-2 border-t pt-4">
                         <div class="text-sm font-medium">
                             {{
                                 'APP.WORKPLACE.COLLEAGUES_SELECTED'
@@ -188,7 +188,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                         </div>
                         @for (user of selected_users(); track user.email) {
                             <div
-                                class="bg-success/10 flex items-center space-x-2 rounded border border-base-300 p-2"
+                                class="bg-success/10 border-base-300 flex items-center space-x-2 rounded border p-2"
                             >
                                 <a-user-avatar [user]="user" />
                                 <div
@@ -230,7 +230,7 @@ import { LandingStateService } from '../landing/landing-state.service';
 
             <!-- Footer -->
             <footer
-                class="flex items-center justify-between gap-2 border-t border-base-200 p-4"
+                class="border-base-200 flex items-center justify-between gap-2 border-t p-4"
             >
                 <button
                     btn

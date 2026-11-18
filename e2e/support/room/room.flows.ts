@@ -49,10 +49,20 @@ function collectBookingPosts(page: Page) {
             r
                 .text()
                 .then((body) => {
-                    posts.push({ status: r.status(), body, request, request_bytes: request.length });
+                    posts.push({
+                        status: r.status(),
+                        body,
+                        request,
+                        request_bytes: request.length,
+                    });
                 })
                 .catch(() => {
-                    posts.push({ status: r.status(), body: '', request, request_bytes: request.length });
+                    posts.push({
+                        status: r.status(),
+                        body: '',
+                        request,
+                        request_bytes: request.length,
+                    });
                 }),
         );
     };
@@ -120,7 +130,8 @@ export async function bookRoomViaUI(
     if (options.allDay !== undefined) await flow.setAllDay(options.allDay);
     const host_name = options.host ? await flow.chooseHost(options.host) : '';
     if (options.startTime) await flow.setStartTime(options.startTime);
-    if (options.duration !== undefined) await flow.setDuration(options.duration);
+    if (options.duration !== undefined)
+        await flow.setDuration(options.duration);
 
     // PROVE the step still holds what was asked for, before leaving it.
     //
@@ -152,12 +163,14 @@ export async function bookRoomViaUI(
     // STEP 3, the options. Catering and equipment are delivered to the room,
     // which is why they come after it.
     await flow.toOptionsStep();
-    for (const attendee of options.attendees ?? []) await flow.addAttendee(attendee);
+    for (const attendee of options.attendees ?? [])
+        await flow.addAttendee(attendee);
     for (const attendee of options.removeAttendees ?? []) {
         await flow.removeAttendee(attendee);
     }
     for (const item of options.catering ?? []) await flow.addCateringItem(item);
-    for (const type_name of options.assets ?? []) await flow.addAssetRequest(type_name);
+    for (const type_name of options.assets ?? [])
+        await flow.addAssetRequest(type_name);
 
     // The summary of the last step shows what Confirm sends.
     await expect(
@@ -240,8 +253,14 @@ export async function bookRoomViaUI(
     // response would return a child order instead of the room's parent ID.
     const rooms = created
         .map((post) => JSON.parse(post.body) as RoomBooking)
-        .filter((booking) => booking.booking_type === 'room' && booking.asset_id === room.id);
-    expect(rooms, 'Exactly one native room booking should be created').toHaveLength(1);
+        .filter(
+            (booking) =>
+                booking.booking_type === 'room' && booking.asset_id === room.id,
+        );
+    expect(
+        rooms,
+        'Exactly one native room booking should be created',
+    ).toHaveLength(1);
     return rooms[0];
 }
 
@@ -252,18 +271,27 @@ export async function bookRoomViaUI(
  * the date before touching the times — the flow defaults to today, so a slot on
  * another day has its hour simply absent from the picker. That cost a run.
  */
-export async function setDate(form: MeetingFlow, page: Page, timestamp_ms: number) {
+export async function setDate(
+    form: MeetingFlow,
+    page: Page,
+    timestamp_ms: number,
+) {
     await form.dateButton.click();
     const calendar = form.datePicker;
-    await expect(calendar, 'the date picker did not open').toBeVisible({ timeout: 10_000 });
+    await expect(calendar, 'the date picker did not open').toBeVisible({
+        timeout: 10_000,
+    });
 
     const cells = calendar.locator('button[name="schedule-set-date"]');
     const today_index = await cells.evaluateAll((els) =>
         els.findIndex((el) => !!el.querySelector('div.border-secondary')),
     );
-    if (today_index < 0) throw new Error('no "today" cell in the date picker to count from');
+    if (today_index < 0)
+        throw new Error('no "today" cell in the date picker to count from');
 
-    const label = Number(((await cells.nth(today_index).textContent()) ?? '').trim());
+    const label = Number(
+        ((await cells.nth(today_index).textContent()) ?? '').trim(),
+    );
     const browser_now = await page.evaluate(() => Date.now());
     const anchor = [0, -1]
         .map((offset) => {
@@ -290,7 +318,10 @@ export async function setDate(form: MeetingFlow, page: Page, timestamp_ms: numbe
         );
     }
     await cells.nth(index).click();
-    await expect(calendar, 'the date picker stayed open after choosing a day').toBeHidden({
+    await expect(
+        calendar,
+        'the date picker stayed open after choosing a day',
+    ).toBeHidden({
         timeout: 10_000,
     });
     // The date button shows the new day a moment after the picker closes. Wait
@@ -299,7 +330,10 @@ export async function setDate(form: MeetingFlow, page: Page, timestamp_ms: numbe
     await expect(
         form.dateButton,
         `the date field does not show ${target.toDateString()}`,
-    ).toContainText(new RegExp(`(^|\\D)${target.getDate()}, ${target.getFullYear()}`), {
-        timeout: 10_000,
-    });
+    ).toContainText(
+        new RegExp(`(^|\\D)${target.getDate()}, ${target.getFullYear()}`),
+        {
+            timeout: 10_000,
+        },
+    );
 }

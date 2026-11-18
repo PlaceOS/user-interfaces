@@ -1,5 +1,5 @@
-import { installTestStorage } from 'libs/common/src/test-storage';
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
+import { installTestStorage } from 'libs/common/src/test-storage';
 // Deep imports, not the @placeos/* barrels: importing a barrel here preloads
 // every module it re-exports (e.g. shorten.fn) and binds their ts-client
 // references before a spec file's `vi.mock('@placeos/ts-client')` can apply,

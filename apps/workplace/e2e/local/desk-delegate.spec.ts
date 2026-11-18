@@ -23,7 +23,6 @@
  * `can_book_for_anyone` is a visitor-form key; setting it here would look
  * thorough and do nothing.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
@@ -31,15 +30,19 @@ import {
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { WORKERS, deskFor, staffEmail } from '../../../../e2e/support/env';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     DESK_SLOTS,
     dayBoundsOn,
     hhmm,
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
-import { BOOK_FOR_OTHERS, useSettings } from '../../../../e2e/support/desk/desk.settings';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import {
+    BOOK_FOR_OTHERS,
+    useSettings,
+} from '../../../../e2e/support/desk/desk.settings';
+import { WORKERS, deskFor, staffEmail } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 test.describe('booking a desk for a colleague', () => {
     test('the chosen colleague is stored as the user, and you as the booker', async ({
@@ -48,7 +51,10 @@ test.describe('booking a desk for a colleague', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const desk = deskFor(mine);
         const colleague = staffEmail(theirs);

@@ -13,7 +13,7 @@ import {
     generateBookingForm,
     InviteVisitorFormComponent,
 } from '@placeos/bookings';
-import { SettingsService, settingSignal, User } from '@placeos/common';
+import { settingSignal, SettingsService, User } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
@@ -336,9 +336,9 @@ describe('VisitorFlowNewComponent', () => {
 
                 model.update((m) => ({ ...m, title: 'Supplier meeting' }));
                 await spectator.component.confirmBooking();
-                expect(
-                    multiple ? post_group : post_form,
-                ).toHaveBeenCalledTimes(1);
+                expect(multiple ? post_group : post_form).toHaveBeenCalledTimes(
+                    1,
+                );
             },
         );
     });

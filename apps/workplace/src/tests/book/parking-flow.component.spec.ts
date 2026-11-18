@@ -1,5 +1,8 @@
 import { signal } from '@angular/core';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { BookingFormService, ParkingService } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';

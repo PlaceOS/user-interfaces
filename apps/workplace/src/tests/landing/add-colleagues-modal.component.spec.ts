@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MockProvider } from 'ng-mocks';
 import { setNotifyOutlet } from '@placeos/common';
-import { LandingStateService } from '../../app/landing/landing-state.service';
+import { MockProvider } from 'ng-mocks';
 import { AddColleaguesModalComponent } from '../../app/landing-new/add-colleagues-modal.component';
+import { LandingStateService } from '../../app/landing/landing-state.service';
 
 const user_a = { name: 'Alice', email: 'alice@example.com' };
 const user_b = { name: 'Bob', email: 'bob@example.com' };
@@ -81,7 +81,9 @@ describe('AddColleaguesModalComponent', () => {
     it('should recognise existing contacts', () => {
         contacts.set([user_a]);
         expect(spectator.component.isExistingContact(user_a as any)).toBe(true);
-        expect(spectator.component.isExistingContact(user_b as any)).toBe(false);
+        expect(spectator.component.isExistingContact(user_b as any)).toBe(
+            false,
+        );
     });
 
     it('should add selected colleagues and close on confirm', async () => {

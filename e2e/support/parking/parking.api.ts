@@ -77,10 +77,14 @@ export async function createParkingBookingViaApi(
                     `that two spec files are not sharing a slot (see PARKING_SLOTS).`,
             );
         }
-        console.warn(`  ! concurrent-write failure on attempt ${attempt}/4 — ${last}`);
+        console.warn(
+            `  ! concurrent-write failure on attempt ${attempt}/4 — ${last}`,
+        );
         await new Promise((r) => setTimeout(r, 400 * attempt));
     }
-    throw new Error(`create parking booking still failing after 4 attempts. Last: ${last}`);
+    throw new Error(
+        `create parking booking still failing after 4 attempts. Last: ${last}`,
+    );
 }
 
 /** Try to book and report what happened, without throwing — for clash specs. */
@@ -113,7 +117,9 @@ export async function readUserSettings(
         params: { name: 'settings' },
     });
     if (!res.ok()) {
-        throw new Error(`read user settings failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `read user settings failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return body?.settings?.details ?? {};

@@ -36,8 +36,8 @@ import type { Locator, Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import {
     CONTROLS,
-    PRESETS,
     prepareSettings,
+    PRESETS,
     REQUEST,
     ROUTE,
     type Settings,
@@ -51,7 +51,9 @@ const USER_GROUPS = ['e2e-approvers', 'e2e-everyone'];
 const BASE: Settings = {
     ...REQUEST,
     'app.parking.request_shift_options': [PRESETS[0]],
-    'app.parking.approver_groups': [{ id: 'e2e-approver-a', name: 'E2E Approver A' }],
+    'app.parking.approver_groups': [
+        { id: 'e2e-approver-a', name: 'E2E Approver A' },
+    ],
 };
 
 async function openRequest(page: Page, overrides: Settings) {

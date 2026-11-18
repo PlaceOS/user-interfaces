@@ -9,14 +9,14 @@
  *
  * There is no NEW-DESK-01. It was a copy of WP-E2E-05 and is merged into it.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
 import { uniqueTitle } from '../../../../e2e/support/api';
 import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     createSecondLevel,
     removeSecondLevel,
 } from '../../../../e2e/support/desk/desk.zones';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const isBookingPost = (url: string, method: string) =>
     url.includes('/api/staff/v1/bookings') && method === 'POST';
@@ -28,11 +28,15 @@ test.describe('desk booking — the new flow', () => {
         const flow = new DeskFlow(staffPage);
         const posts: string[] = [];
         staffPage.on('request', (request) => {
-            if (isBookingPost(request.url(), request.method())) posts.push(request.url());
+            if (isBookingPost(request.url(), request.method()))
+                posts.push(request.url());
         });
 
         await flow.open();
-        await expect(flow.desks.first(), 'the list should offer desks').toBeVisible({
+        await expect(
+            flow.desks.first(),
+            'the list should offer desks',
+        ).toBeVisible({
             timeout: 20_000,
         });
         await flow.title.fill(uniqueTitle('E2E New Desk None'));
@@ -40,10 +44,15 @@ test.describe('desk booking — the new flow', () => {
 
         // The refusal is an error notice. Assert that it shows, then that the
         // flow is still on the form: a notice alone does not prove no save.
-        await expect(staffPage.locator('mat-snack-bar-container.error')).toBeVisible();
+        await expect(
+            staffPage.locator('mat-snack-bar-container.error'),
+        ).toBeVisible();
         await expect(staffPage).toHaveURL(/#\/book\/desk\/form/);
         await expect(flow.successContinue).toHaveCount(0);
-        expect(posts, 'no booking request may leave the page without a desk').toEqual([]);
+        expect(
+            posts,
+            'no booking request may leave the page without a desk',
+        ).toEqual([]);
     });
 
     // FIXME (app fault, measured 2026-10-13): one desk whose metadata has no
@@ -66,7 +75,9 @@ test.describe('desk booking — the new flow', () => {
         staffPage,
     }, testInfo) => {
         const desk = deskFor(testInfo.parallelIndex);
-        const extra = await createSecondLevel(testInfo.parallelIndex, { features: false });
+        const extra = await createSecondLevel(testInfo.parallelIndex, {
+            features: false,
+        });
         try {
             const flow = new DeskFlow(staffPage);
             await flow.open();

@@ -1,13 +1,16 @@
 import { signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { setNotifyOutlet } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { EventFormService } from '@placeos/events';
-import { MeetingFlowNewComponent } from '../../../app/book/meeting-flow-new/meeting-flow.component';
 import { MeetingFlowDetailsComponent } from '../../../app/book/meeting-flow-new/meeting-flow-details.component';
 import { MeetingFlowOptionsComponent } from '../../../app/book/meeting-flow-new/meeting-flow-options.component';
 import { MeetingFlowSpaceSelectComponent } from '../../../app/book/meeting-flow-new/meeting-flow-space-select.component';
+import { MeetingFlowNewComponent } from '../../../app/book/meeting-flow-new/meeting-flow.component';
 import { MeetingFlowSuccessComponent } from '../../../app/book/meeting-flow/meeting-flow-success.component';
 
 describe('MeetingFlowNewComponent', () => {
@@ -51,9 +54,7 @@ describe('MeetingFlowNewComponent', () => {
         model = signal({ title: 'Weekly Sync', resources: [] });
         unavailable_resources = signal([]);
         spectator = createComponent();
-        vi.spyOn(spectator.inject(Router), 'navigate').mockResolvedValue(
-            true,
-        );
+        vi.spyOn(spectator.inject(Router), 'navigate').mockResolvedValue(true);
     });
 
     it('should render the stepper while the flow is not complete', () => {

@@ -1,6 +1,12 @@
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { type Debug, test, timezoneBuildings, untouchedVisitor, visitor } from '../support/settings-harness';
+import {
+    type Debug,
+    test,
+    timezoneBuildings,
+    untouchedVisitor,
+    visitor,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
@@ -14,9 +20,24 @@ const effective = (page: Page, key: string) =>
 // (invite-visitor-form.component.ts), so an explicit visitors value overrides
 // bookings and an unset visitors value falls back to it.
 const SCENARIOS = [
-    { label: 'bookings.use_building_timezone true gates the visitor secondary timezone label', bookings: true, visitors: null, shown: true },
-    { label: 'bookings.use_building_timezone false gates the visitor secondary timezone label', bookings: false, visitors: null, shown: false },
-    { label: 'visitors.use_building_timezone true gates the visitor secondary timezone label', bookings: false, visitors: true, shown: true },
+    {
+        label: 'bookings.use_building_timezone true gates the visitor secondary timezone label',
+        bookings: true,
+        visitors: null,
+        shown: true,
+    },
+    {
+        label: 'bookings.use_building_timezone false gates the visitor secondary timezone label',
+        bookings: false,
+        visitors: null,
+        shown: false,
+    },
+    {
+        label: 'visitors.use_building_timezone true gates the visitor secondary timezone label',
+        bookings: false,
+        visitors: true,
+        shown: true,
+    },
     {
         label: 'visitors.use_building_timezone false overrides bookings.use_building_timezone true and hides the visitor secondary timezone label',
         bookings: true,
@@ -36,16 +57,28 @@ for (const scenario of SCENARIOS) {
         const field = form.root.locator('a-time-field[name="time"]');
         await expect(field.locator('button[time-field]')).toBeVisible();
         await expect
-            .poll(() => effective(staffPage, 'app.bookings.use_building_timezone'))
+            .poll(() =>
+                effective(staffPage, 'app.bookings.use_building_timezone'),
+            )
             .toBe(scenario.bookings);
         await expect
-            .poll(() => effective(staffPage, 'app.visitors.use_building_timezone'))
+            .poll(() =>
+                effective(staffPage, 'app.visitors.use_building_timezone'),
+            )
             .toBe(scenario.visitors);
-        await expect.poll(() => field.evaluate((element) => {
-            const c = (window as Debug).ng?.getComponent(element) as { timezone(): string } | undefined;
-            return c?.timezone();
-        })).toBe(scenario.shown ? 'Pacific/Honolulu' : '');
-        const secondary = field.locator('button[time-field] div.truncate.text-xs');
+        await expect
+            .poll(() =>
+                field.evaluate((element) => {
+                    const c = (window as Debug).ng?.getComponent(element) as
+                        | { timezone(): string }
+                        | undefined;
+                    return c?.timezone();
+                }),
+            )
+            .toBe(scenario.shown ? 'Pacific/Honolulu' : '');
+        const secondary = field.locator(
+            'button[time-field] div.truncate.text-xs',
+        );
         await expect(secondary).toHaveCount(scenario.shown ? 1 : 0);
         if (scenario.shown) await expect(secondary).toBeVisible();
         await untouchedVisitor(form);

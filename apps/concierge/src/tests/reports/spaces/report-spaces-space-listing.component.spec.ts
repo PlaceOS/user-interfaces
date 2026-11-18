@@ -6,8 +6,8 @@ import { MockComponent } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
-import { ReportSpacesSpaceListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-space-listing.component';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
+import { ReportSpacesSpaceListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-space-listing.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
 

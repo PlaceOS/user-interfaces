@@ -1,11 +1,11 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SETTING_KEYS, settingSignal, SettingsService } from '@placeos/common';
-import { LevelPipe } from '@placeos/components';
-import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
-import { EventFormService } from '@placeos/events';
-import { MockPipe, MockProvider } from 'ng-mocks';
 import { mockDirective } from '@placeos/common/tests';
+import { LevelPipe } from '@placeos/components';
+import { EventFormService } from '@placeos/events';
+import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
+import { MockPipe, MockProvider } from 'ng-mocks';
 import { MeetingFlowSpaceListComponent } from '../../../app/book/meeting-flow-new/meeting-flow-space-list.component';
 
 describe('MeetingFlowSpaceListComponent', () => {
@@ -39,9 +39,13 @@ describe('MeetingFlowSpaceListComponent', () => {
                     },
                     add: {
                         imports: [
-                            MockPipe(LevelPipe, () => ({
-                                display_name: 'Level 1',
-                            }) as any) as any,
+                            MockPipe(
+                                LevelPipe,
+                                () =>
+                                    ({
+                                        display_name: 'Level 1',
+                                    }) as any,
+                            ) as any,
                             mockDirective(AuthenticatedImageDirective as any),
                         ],
                     },
@@ -99,9 +103,7 @@ describe('MeetingFlowSpaceListComponent', () => {
         spectator.output('space_selected').subscribe((v) => emitted.push(v));
         spectator.detectChanges();
         spectator.click(spectator.query('button[name="select-space"]'));
-        expect(emitted[0]).toEqual(
-            expect.objectContaining({ id: 'space-0' }),
-        );
+        expect(emitted[0]).toEqual(expect.objectContaining({ id: 'space-0' }));
     });
 
     it('should compute pagination bounds from the space count', () => {

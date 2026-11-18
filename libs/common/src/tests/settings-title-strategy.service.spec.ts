@@ -1,5 +1,8 @@
 import { Title } from '@angular/platform-browser';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 
 import { SettingsTitleStrategy } from '../lib/settings-title-strategy.service';
 import { SettingsService } from '../lib/settings.service';

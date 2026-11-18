@@ -1,16 +1,19 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { PlaceSystem } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
-import { RoomManagementService } from '../../app/room-manager/room-management.service';
 import { RoomAlertModalComponent } from '../../app/room-manager/room-alert-modal.component';
 import { RoomBookingHistoryModalComponent } from '../../app/room-manager/room-booking-history-modal.component';
+import { RoomManagementService } from '../../app/room-manager/room-management.service';
 import { RoomModalComponent } from '../../app/room-manager/room-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -32,7 +35,7 @@ describe('RoomManagementService', () => {
         providers: [
             MockProvider(OrganisationService, organisation_service),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]),
+                get: (name: string) => settings_map[name],
             }),
             MockProvider(MatDialog, {}),
         ],

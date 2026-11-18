@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { BookingFormService } from '@placeos/bookings';
 import { currentUser, settingSignal, User } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { BookingFormService } from '@placeos/bookings';
 import { TeamScheduleService } from './team-schedule.service';
 
 @Component({

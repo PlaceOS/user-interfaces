@@ -23,6 +23,7 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { addDays, endOfDay } from 'date-fns';
 import { AssetListFieldComponent } from 'libs/assets/src/lib/asset-list-field.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -32,7 +33,6 @@ import { RecurrenceFieldComponent } from 'libs/form-fields/src/lib/recurrence-fi
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { UserListFieldComponent } from 'libs/form-fields/src/lib/user-list-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import { addDays, endOfDay } from 'date-fns';
 import {
     BookingForm,
     BookingFormValue,

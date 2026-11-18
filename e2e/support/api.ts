@@ -3,10 +3,17 @@
  * directly rather than only through UI text. Specs should create and clean up
  * their own data through these.
  */
+import { APIRequestContext, request as pwRequest } from '@playwright/test';
 import * as fs from 'fs';
-import { request as pwRequest, APIRequestContext } from '@playwright/test';
-import { APP_URL, AUTH_DIR, BACKEND_URL, RoleName, assertLocalOnly, roleFor } from './env';
 import { buildStorageState, mintToken } from './auth';
+import {
+    APP_URL,
+    AUTH_DIR,
+    BACKEND_URL,
+    RoleName,
+    assertLocalOnly,
+    roleFor,
+} from './env';
 
 export const ENGINE_API = '/api/engine/v2';
 export const STAFF_API = '/api/staff/v1';
@@ -31,7 +38,10 @@ export async function getJson(
     params?: Record<string, string>,
 ) {
     const res = await api.get(path, { params });
-    if (!res.ok()) throw new Error(`GET ${path} failed: HTTP ${res.status()} ${await res.text()}`);
+    if (!res.ok())
+        throw new Error(
+            `GET ${path} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     return res.json();
 }
 
@@ -41,7 +51,9 @@ function storedToken(role: RoleName, workerIndex: number): string | null {
     if (!fs.existsSync(tokenPath)) return null;
     try {
         const { accessToken } = JSON.parse(fs.readFileSync(tokenPath, 'utf8'));
-        return typeof accessToken === 'string' && accessToken ? accessToken : null;
+        return typeof accessToken === 'string' && accessToken
+            ? accessToken
+            : null;
     } catch {
         return null;
     }
@@ -75,7 +87,11 @@ async function userBehind(token: string): Promise<CurrentUser | null> {
  * Throws when a `staff` role turns out to be admin or support: a permission
  * assertion made as that user passes whether or not the check works.
  */
-function assertRoleFits(role: RoleName, email: string, user: CurrentUser): void {
+function assertRoleFits(
+    role: RoleName,
+    email: string,
+    user: CurrentUser,
+): void {
     if (role === 'staff' && (user.sys_admin || user.support)) {
         throw new Error(
             `${email} is admin/support — permission checks would be bypassed, making ` +
@@ -101,7 +117,10 @@ export async function mintForWorker(role: RoleName, workerIndex: number) {
     assertRoleFits(role, r.email, user);
 
     fs.mkdirSync(AUTH_DIR, { recursive: true });
-    writeAtomic(r.storagePath, JSON.stringify(buildStorageState(mint, APP_URL), null, 2));
+    writeAtomic(
+        r.storagePath,
+        JSON.stringify(buildStorageState(mint, APP_URL), null, 2),
+    );
     writeAtomic(
         r.tokenPath,
         JSON.stringify(
@@ -147,11 +166,16 @@ export function tokenFor(role: RoleName, workerIndex = 0): Promise<string> {
 }
 
 /** An APIRequestContext authenticated as the given role, pointed at the backend. */
-export async function apiFor(role: RoleName, workerIndex = 0): Promise<APIRequestContext> {
+export async function apiFor(
+    role: RoleName,
+    workerIndex = 0,
+): Promise<APIRequestContext> {
     return pwRequest.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
-        extraHTTPHeaders: { Authorization: `Bearer ${await tokenFor(role, workerIndex)}` },
+        extraHTTPHeaders: {
+            Authorization: `Bearer ${await tokenFor(role, workerIndex)}`,
+        },
     });
 }
 
@@ -164,10 +188,14 @@ export interface CurrentUser {
     [k: string]: unknown;
 }
 
-export async function currentUser(api: APIRequestContext): Promise<CurrentUser> {
+export async function currentUser(
+    api: APIRequestContext,
+): Promise<CurrentUser> {
     const res = await api.get(`${ENGINE_API}/users/current`);
     if (!res.ok()) {
-        throw new Error(`GET /users/current failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /users/current failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return res.json();
 }
@@ -182,10 +210,17 @@ export interface Zone {
 }
 
 /** Zones by tag — the org hierarchy workplace's OrganisationService walks. */
-export async function zonesWithTag(api: APIRequestContext, tag: string): Promise<Zone[]> {
-    const res = await api.get(`${ENGINE_API}/zones`, { params: { tags: tag, limit: 500 } });
+export async function zonesWithTag(
+    api: APIRequestContext,
+    tag: string,
+): Promise<Zone[]> {
+    const res = await api.get(`${ENGINE_API}/zones`, {
+        params: { tags: tag, limit: 500 },
+    });
     if (!res.ok()) {
-        throw new Error(`GET /zones?tags=${tag} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /zones?tags=${tag} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body.results ?? []);
@@ -230,16 +265,23 @@ export async function listBookings(
         },
     });
     if (!res.ok()) {
-        throw new Error(`GET /bookings failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /bookings failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body.results ?? []);
 }
 
-export async function getBooking(api: APIRequestContext, id: number): Promise<Booking> {
+export async function getBooking(
+    api: APIRequestContext,
+    id: number,
+): Promise<Booking> {
     const res = await api.get(`${STAFF_API}/bookings/${id}`);
     if (!res.ok()) {
-        throw new Error(`GET /bookings/${id} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /bookings/${id} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     return res.json();
 }
@@ -297,14 +339,18 @@ export async function readBack(
  * built on pg-orm >= 2.2.4. A green run is not evidence that the image is fixed.
  */
 export function isReg09(status: number, body: string): boolean {
-    if (status === 400 && /Expected BeginObject but was EOF/.test(body)) return true;
+    if (status === 400 && /Expected BeginObject but was EOF/.test(body))
+        return true;
     if (status === 500 && /could not serialize access/.test(body)) return true;
     if (status === 422 && /"failures"\s*:\s*\[\s*\]/.test(body)) return true;
     return false;
 }
 
 /** Best-effort cleanup — never throws, so teardown cannot fail a passing test. */
-export async function deleteBooking(api: APIRequestContext, id: number): Promise<void> {
+export async function deleteBooking(
+    api: APIRequestContext,
+    id: number,
+): Promise<void> {
     try {
         await api.delete(`${STAFF_API}/bookings/${id}`);
     } catch {

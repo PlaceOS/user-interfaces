@@ -193,9 +193,7 @@ export class ParkingRequestModalComponent
         const building = this._org.building;
         const form_value = this.model();
         const plate_number = `${form_value.plate_number || ''}`.trim();
-        const booking_user_email = form_value.user?.email
-            ?.trim()
-            .toLowerCase();
+        const booking_user_email = form_value.user?.email?.trim().toLowerCase();
         const current_user_email = currentUser()?.email?.trim().toLowerCase();
         const save_plate_number =
             !!current_user_email && booking_user_email === current_user_email;

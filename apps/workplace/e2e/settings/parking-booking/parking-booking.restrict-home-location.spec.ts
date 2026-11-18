@@ -46,8 +46,8 @@ import {
     BOOKING,
     CONTROLS,
     type DebugWindow,
-    ORIGINS,
     organisationRoutes,
+    ORIGINS,
     prepareSettings,
     type Settings,
     test,
@@ -128,9 +128,16 @@ async function deskFixture(
             const id = new URL(route.request().url()).pathname.split('/')[5];
             if (Object.hasOwn(hits, id)) hits[id] += 1;
             await expect
-                .poll(() => user().then(() => true, () => false), {
-                    message: 'the app must read the staff identity',
-                })
+                .poll(
+                    () =>
+                        user().then(
+                            () => true,
+                            () => false,
+                        ),
+                    {
+                        message: 'the app must read the staff identity',
+                    },
+                )
                 .toBe(true);
             const me = await user();
             const details =
@@ -166,7 +173,11 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
         region: { id: REGION, name: 'E2E Parking Region' },
         buildings: BUILDINGS,
         levels: LEVELS,
-        clearSession: ['PLACEOS.booking_form', 'PLACEOS.booking_form_options', 'PLACEOS.booking_form_filters'],
+        clearSession: [
+            'PLACEOS.booking_form',
+            'PLACEOS.booking_form_options',
+            'PLACEOS.booking_form_filters',
+        ],
         locale: 'en-AU',
     });
     const hits: Record<string, number> = { [BUILDING_A]: 0, [BUILDING_B]: 0 };
@@ -179,7 +190,10 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
         // No parking spaces and no _PARKING_USERS_ assets: the deny gate stays
         // false, so only the home-location branch can hide the form.
         hiddenAssets: (url) => {
-            if (url.searchParams.get('type_id') === 'e2e-home-type-_PARKING_USERS_') {
+            if (
+                url.searchParams.get('type_id') ===
+                'e2e-home-type-_PARKING_USERS_'
+            ) {
                 const zone = url.searchParams.get('zone_id') ?? '';
                 users[zone] = (users[zone] ?? 0) + 1;
             }
@@ -189,7 +203,8 @@ async function prepare(page: Page, overrides: Settings, desk_building: string) {
         locale: null,
         bookings: { types: ['parking'] },
         booked: true,
-        routes: () => deskFixture(page, desk_building, () => fixture.user(), hits),
+        routes: () =>
+            deskFixture(page, desk_building, () => fixture.user(), hits),
     });
     const form = new ParkingForm(page);
     return {
@@ -340,8 +355,14 @@ test.describe('parking.restrict_home_location', () => {
             })
             .toBe(true);
         // Positive evidence only: the desk lists were read (by any caller).
-        expect(fixture.hits[BUILDING_A], 'desk list of building A read').toBeGreaterThan(0);
-        expect(fixture.hits[BUILDING_B], 'desk list of building B read').toBeGreaterThan(0);
+        expect(
+            fixture.hits[BUILDING_A],
+            'desk list of building A read',
+        ).toBeGreaterThan(0);
+        expect(
+            fixture.hits[BUILDING_B],
+            'desk list of building B read',
+        ).toBeGreaterThan(0);
         const state = await flowState(staffPage);
         expect(state.home, 'no home building').toBeNull();
         expect(state.restricted, 'not restricted').toBe(false);

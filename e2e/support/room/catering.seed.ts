@@ -49,18 +49,30 @@ export interface CateringMenu {
     zone_id: string;
 }
 
-async function listAll(api: APIRequestContext, path: string, params: Record<string, string> = {}) {
+async function listAll(
+    api: APIRequestContext,
+    path: string,
+    params: Record<string, string> = {},
+) {
     const res = await api.get(`${ENGINE_API}/${path}`, {
         params: { limit: '500', ...params },
     });
     if (!res.ok()) {
-        throw new Error(`list ${path} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `list ${path} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
-    return (Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])) as any[];
+    return (
+        Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])
+    ) as any[];
 }
 
-async function create(api: APIRequestContext, path: string, data: Record<string, unknown>) {
+async function create(
+    api: APIRequestContext,
+    path: string,
+    data: Record<string, unknown>,
+) {
     const res = await api.post(`${ENGINE_API}/${path}`, { data });
     if (!res.ok()) {
         throw new Error(
@@ -86,7 +98,9 @@ export async function ensureCateringMenu(): Promise<CateringMenu> {
             throw new Error('no building zone — the stack is not seeded');
         }
 
-        const categories = await listAll(admin, 'asset_categories', { hidden: 'true' });
+        const categories = await listAll(admin, 'asset_categories', {
+            hidden: 'true',
+        });
         let category = categories.find((c) => c.name === CATERING_CATEGORY);
         category =
             category ??
@@ -95,7 +109,9 @@ export async function ensureCateringMenu(): Promise<CateringMenu> {
                 hidden: true,
             }));
 
-        const types = await listAll(admin, 'asset_types', { category_id: category.id });
+        const types = await listAll(admin, 'asset_types', {
+            category_id: category.id,
+        });
         let type = types.find((t) => t.name === CATERING_CATEGORY_TYPE);
         type =
             type ??
@@ -106,7 +122,8 @@ export async function ensureCateringMenu(): Promise<CateringMenu> {
                 // "should not be nil", which is not obvious from the app, since
                 // the app's own menu editor always sends one.
                 brand: 'E2E',
-                description: 'Catering menu owned by the e2e suite. Safe to delete.',
+                description:
+                    'Catering menu owned by the e2e suite. Safe to delete.',
             }));
 
         const assets = await listAll(admin, 'assets', {

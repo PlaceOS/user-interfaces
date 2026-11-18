@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import { SpectatorService, createServiceFactory } from '@ngneat/spectator/vitest';
+import {
+    SpectatorService,
+    createServiceFactory,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
@@ -151,7 +154,12 @@ describe('AssetManagerStateService', () => {
         vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
             data: [
                 { id: 'g1', name: 'Office Chair', category_id: '', assets: [] },
-                { id: 'g2', name: 'Standing Desk', category_id: '', assets: [] },
+                {
+                    id: 'g2',
+                    name: 'Standing Desk',
+                    category_id: '',
+                    assets: [],
+                },
             ],
             total: 2,
             next: null,

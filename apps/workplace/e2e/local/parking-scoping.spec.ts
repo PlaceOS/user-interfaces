@@ -17,7 +17,6 @@
  * is. A UI that merely does not display someone else's booking proves nothing
  * about whether the data is reachable.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
 import {
     STAFF_API,
@@ -27,19 +26,30 @@ import {
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { APP_URL, BACKEND_URL, WORKERS, roleFor } from '../../../../e2e/support/env';
 import { mintToken } from '../../../../e2e/support/auth';
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    roleFor,
+} from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
     slotOn,
 } from '../../../../e2e/support/parking/parking.env';
 import { spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
-import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
 
 async function apiAsOtherUser(workerIndex: number) {
     const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        APP_URL,
+        role.email,
+        role.password,
+    );
     return request.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -53,10 +63,16 @@ test.describe('parking booking visibility between users', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const space = await spaceForWorker(mine);
-        const slot = slotOn(PARKING_SLOTS.scoping.day, PARKING_SLOTS.scoping.hour);
+        const slot = slotOn(
+            PARKING_SLOTS.scoping.day,
+            PARKING_SLOTS.scoping.hour,
+        );
         const { from, to } = dayBoundsOn(PARKING_SLOTS.scoping.day);
         const other = await apiAsOtherUser(theirs);
         let booking_id: number | undefined;
@@ -82,7 +98,9 @@ test.describe('parking booking visibility between users', () => {
 
             // And they cannot delete it. Checked on the backend afterwards,
             // because a refusal that deletes anyway is the failure that matters.
-            const attempt = await other.delete(`${STAFF_API}/bookings/${booking_id}`);
+            const attempt = await other.delete(
+                `${STAFF_API}/bookings/${booking_id}`,
+            );
             expect(
                 attempt.status(),
                 `deleting somebody else's booking must be refused, got ` +
@@ -122,7 +140,9 @@ test.describe('parking booking visibility between users', () => {
             booking_id = booking.id;
 
             expect(
-                (await listBookings(staffApi, 'parking', from, to)).map((b) => b.id),
+                (await listBookings(staffApi, 'parking', from, to)).map(
+                    (b) => b.id,
+                ),
                 'you must be able to see your own booking — without this, "nobody ' +
                     'sees anything" would pass as success',
             ).toContain(booking_id);

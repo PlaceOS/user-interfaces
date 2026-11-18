@@ -1,15 +1,15 @@
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { signal } from '@angular/core';
 import { OverlayContainer } from '@angular/cdk/overlay';
+import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { Booking, settingSignal } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
-import { LandingStateService } from '../../app/landing/landing-state.service';
 import { LandingColleaguesNewComponent } from '../../app/landing-new/landing-colleagues-new.component';
+import { LandingStateService } from '../../app/landing/landing-state.service';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
 describe('LandingColleaguesNewComponent', () => {

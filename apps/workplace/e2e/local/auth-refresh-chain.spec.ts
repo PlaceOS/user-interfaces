@@ -1,6 +1,6 @@
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { APP_URL, roleFor } from '../../../../e2e/support/env';
 import { clientId, redirectUriFor } from '../../../../e2e/support/auth';
+import { APP_URL, roleFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { loginViaUI } from '../../../../e2e/support/login';
 
 // The subject is authentication, so start without injected credentials.
@@ -65,7 +65,7 @@ test.describe('OAuth refresh-token rotation', () => {
                     });
                     const body = await response
                         .json()
-                        .catch(() => ({} as RefreshResult));
+                        .catch(() => ({}) as RefreshResult);
                     return {
                         status: response.status,
                         access_token: body.access_token,
@@ -77,13 +77,18 @@ test.describe('OAuth refresh-token rotation', () => {
                 { client_id: CLIENT_ID, refresh_token },
             );
 
-        expect(await callUsersCurrent(at0!), 'AT0 should be accepted').toBe(200);
+        expect(await callUsersCurrent(at0!), 'AT0 should be accepted').toBe(
+            200,
+        );
         const original_sub = claims(at0!).sub;
         expect(original_sub, 'AT0 should contain a subject').toBeTruthy();
 
         const refreshed1 = await refresh(rt0!);
         expect(refreshed1.status, 'RT0 refresh should succeed').toBe(200);
-        expect(refreshed1.scope, 'RT0 refresh should preserve public scope').toBe('public');
+        expect(
+            refreshed1.scope,
+            'RT0 refresh should preserve public scope',
+        ).toBe('public');
         const at1 = refreshed1.access_token;
         const rt1 = refreshed1.refresh_token;
         expect(at1, 'AT1 should exist').toBeTruthy();
@@ -91,16 +96,27 @@ test.describe('OAuth refresh-token rotation', () => {
         expect(at1, 'AT1 should differ from AT0').not.toBe(at0);
         expect(rt1, 'RT1 should differ from RT0').not.toBe(rt0);
         const claims1 = claims(at1!);
-        expect(claims1.sub, 'AT1 should preserve the original subject').toBe(original_sub);
-        expect(includesPublicScope(claims1.scope), 'AT1 should contain public scope').toBe(true);
-        expect(claims1.exp, 'AT1 should not already be expired').toBeGreaterThan(
-            Math.floor(Date.now() / 1000),
+        expect(claims1.sub, 'AT1 should preserve the original subject').toBe(
+            original_sub,
         );
-        expect(await callUsersCurrent(at1!), 'AT1 should be accepted').toBe(200);
+        expect(
+            includesPublicScope(claims1.scope),
+            'AT1 should contain public scope',
+        ).toBe(true);
+        expect(
+            claims1.exp,
+            'AT1 should not already be expired',
+        ).toBeGreaterThan(Math.floor(Date.now() / 1000));
+        expect(await callUsersCurrent(at1!), 'AT1 should be accepted').toBe(
+            200,
+        );
 
         const refreshed2 = await refresh(rt1!);
         expect(refreshed2.status, 'RT1 refresh should succeed').toBe(200);
-        expect(refreshed2.scope, 'RT1 refresh should preserve public scope').toBe('public');
+        expect(
+            refreshed2.scope,
+            'RT1 refresh should preserve public scope',
+        ).toBe('public');
         const at2 = refreshed2.access_token;
         const rt2 = refreshed2.refresh_token;
         expect(at2, 'AT2 should exist').toBeTruthy();
@@ -109,16 +125,27 @@ test.describe('OAuth refresh-token rotation', () => {
         expect(at2, 'AT2 should differ from AT0').not.toBe(at0);
         expect(rt2, 'RT2 should differ from RT1').not.toBe(rt1);
         const claims2 = claims(at2!);
-        expect(claims2.sub, 'AT2 should preserve the original subject').toBe(original_sub);
-        expect(includesPublicScope(claims2.scope), 'AT2 should contain public scope').toBe(true);
-        expect(claims2.exp, 'AT2 should not already be expired').toBeGreaterThan(
-            Math.floor(Date.now() / 1000),
+        expect(claims2.sub, 'AT2 should preserve the original subject').toBe(
+            original_sub,
         );
-        expect(await callUsersCurrent(at2!), 'AT2 should be accepted').toBe(200);
+        expect(
+            includesPublicScope(claims2.scope),
+            'AT2 should contain public scope',
+        ).toBe(true);
+        expect(
+            claims2.exp,
+            'AT2 should not already be expired',
+        ).toBeGreaterThan(Math.floor(Date.now() / 1000));
+        expect(await callUsersCurrent(at2!), 'AT2 should be accepted').toBe(
+            200,
+        );
 
         const refreshed3 = await refresh(rt2!);
         expect(refreshed3.status, 'RT2 refresh should succeed').toBe(200);
-        expect(refreshed3.scope, 'RT2 refresh should preserve public scope').toBe('public');
+        expect(
+            refreshed3.scope,
+            'RT2 refresh should preserve public scope',
+        ).toBe('public');
         const at3 = refreshed3.access_token;
         const rt3 = refreshed3.refresh_token;
         expect(at3, 'AT3 should exist').toBeTruthy();
@@ -128,11 +155,19 @@ test.describe('OAuth refresh-token rotation', () => {
         expect(at3, 'AT3 should differ from AT1').not.toBe(at1);
         expect(rt3, 'RT3 should differ from RT2').not.toBe(rt2);
         const claims3 = claims(at3!);
-        expect(claims3.sub, 'AT3 should preserve the original subject').toBe(original_sub);
-        expect(includesPublicScope(claims3.scope), 'AT3 should contain public scope').toBe(true);
-        expect(claims3.exp, 'AT3 should not already be expired').toBeGreaterThan(
-            Math.floor(Date.now() / 1000),
+        expect(claims3.sub, 'AT3 should preserve the original subject').toBe(
+            original_sub,
         );
-        expect(await callUsersCurrent(at3!), 'AT3 should be accepted').toBe(200);
+        expect(
+            includesPublicScope(claims3.scope),
+            'AT3 should contain public scope',
+        ).toBe(true);
+        expect(
+            claims3.exp,
+            'AT3 should not already be expired',
+        ).toBeGreaterThan(Math.floor(Date.now() / 1000));
+        expect(await callUsersCurrent(at3!), 'AT3 should be accepted').toBe(
+            200,
+        );
     });
 });

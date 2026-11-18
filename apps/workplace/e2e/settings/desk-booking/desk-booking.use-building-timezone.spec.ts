@@ -82,13 +82,21 @@ async function prepare(
     // Real building rows, rewritten to Pacific/Honolulu, which differs from the
     // browser's pinned Etc/UTC. This is a browser GET response only.
     await timezoneBuildings(page, audit);
-    const fixture = await prepareSettings(page, {
-        'app.desks.use_building_timezone': enabled,
-        'app.bookings.use_building_timezone': bookings,
-    }, { audit, base: DESK, hidden: 'e2e-desk-timezone', landingRooms: false });
+    const fixture = await prepareSettings(
+        page,
+        {
+            'app.desks.use_building_timezone': enabled,
+            'app.bookings.use_building_timezone': bookings,
+        },
+        { audit, base: DESK, hidden: 'e2e-desk-timezone', landingRooms: false },
+    );
     await page.goto('/#/book/desk/form');
     await fixture.ready({
-        keys: ['app.features', 'app.desks.use_building_timezone', 'app.bookings.use_building_timezone'],
+        keys: [
+            'app.features',
+            'app.desks.use_building_timezone',
+            'app.bookings.use_building_timezone',
+        ],
     });
     const details = page.locator('desk-flow-new desk-flow-details');
     await expect(details.locator('input[name$=".title"]')).toBeEditable();
@@ -103,7 +111,9 @@ const effective = (page: Page, key: string) =>
 /** The duration field's bound timezone ('' when the building time is off). */
 function durationTimezone(details: Locator) {
     return details.locator('duration-field').evaluate((element) => {
-        const field = (window as Debug).ng?.getComponent(element) as { timezone(): string } | undefined;
+        const field = (window as Debug).ng?.getComponent(element) as
+            | { timezone(): string }
+            | undefined;
         return field?.timezone();
     });
 }
@@ -112,44 +122,61 @@ function durationTimezone(details: Locator) {
 async function futureDeskWithDuration(page: Page, details: Locator) {
     await futureDesk(page, details);
     await details.locator('duration-field button[duration-field]').click();
-    await page.locator('.cdk-overlay-container button[data-duration]').first().click();
+    await page
+        .locator('.cdk-overlay-container button[data-duration]')
+        .first()
+        .click();
 }
 
 for (const enabled of [false, true]) {
-    test(`desks.use_building_timezone ${enabled} gates the duration secondary time line`,
-        async ({ staffPage, audit }) => {
-            const details = await prepare(staffPage, audit, enabled);
-            expect(audit.fixtures['timezone buildings'] ?? 0, 'building-timezone rows served').toBeGreaterThan(0);
-            await futureDeskWithDuration(staffPage, details);
-            const secondary = details.locator('duration-field div.opacity-30');
-            await expect(secondary).toHaveCount(enabled ? 1 : 0);
-            if (enabled) {
-                await expect(secondary).toBeVisible();
-                await expect(secondary).toContainText(/GMT-10/);
-            }
-            await expect(staffPage).toHaveURL(/#\/book\/desk\/form$/);
-            await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);
-        });
-}
-
-// PPT-2871
-test('desks.use_building_timezone false overrides bookings.use_building_timezone true and hides the duration secondary time line',
-    async ({ staffPage, audit }) => {
-        const details = await prepare(staffPage, audit, false, true);
-        expect(audit.fixtures['timezone buildings'] ?? 0, 'building-timezone rows served').toBeGreaterThan(0);
-        await expect
-            .poll(() => effective(staffPage, 'app.bookings.use_building_timezone'))
-            .toBe(true);
-        await expect
-            .poll(() => effective(staffPage, 'app.desks.use_building_timezone'))
-            .toBe(false);
+    test(`desks.use_building_timezone ${enabled} gates the duration secondary time line`, async ({
+        staffPage,
+        audit,
+    }) => {
+        const details = await prepare(staffPage, audit, enabled);
+        expect(
+            audit.fixtures['timezone buildings'] ?? 0,
+            'building-timezone rows served',
+        ).toBeGreaterThan(0);
         await futureDeskWithDuration(staffPage, details);
-        // The bound timezone proves the effective setting, so the count below
-        // is not inferred from waiting.
-        await expect
-            .poll(() => durationTimezone(details), { message: 'desk duration-field timezone' })
-            .toBe('');
-        await expect(details.locator('duration-field div.opacity-30')).toHaveCount(0);
+        const secondary = details.locator('duration-field div.opacity-30');
+        await expect(secondary).toHaveCount(enabled ? 1 : 0);
+        if (enabled) {
+            await expect(secondary).toBeVisible();
+            await expect(secondary).toContainText(/GMT-10/);
+        }
         await expect(staffPage).toHaveURL(/#\/book\/desk\/form$/);
         await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);
     });
+}
+
+// PPT-2871
+test('desks.use_building_timezone false overrides bookings.use_building_timezone true and hides the duration secondary time line', async ({
+    staffPage,
+    audit,
+}) => {
+    const details = await prepare(staffPage, audit, false, true);
+    expect(
+        audit.fixtures['timezone buildings'] ?? 0,
+        'building-timezone rows served',
+    ).toBeGreaterThan(0);
+    await expect
+        .poll(() => effective(staffPage, 'app.bookings.use_building_timezone'))
+        .toBe(true);
+    await expect
+        .poll(() => effective(staffPage, 'app.desks.use_building_timezone'))
+        .toBe(false);
+    await futureDeskWithDuration(staffPage, details);
+    // The bound timezone proves the effective setting, so the count below
+    // is not inferred from waiting.
+    await expect
+        .poll(() => durationTimezone(details), {
+            message: 'desk duration-field timezone',
+        })
+        .toBe('');
+    await expect(details.locator('duration-field div.opacity-30')).toHaveCount(
+        0,
+    );
+    await expect(staffPage).toHaveURL(/#\/book\/desk\/form$/);
+    await expect(staffPage.locator('desk-flow-success')).toHaveCount(0);
+});

@@ -173,7 +173,9 @@ const EMPTY = [];
                                 class="no-subscript"
                             >
                                 <mat-select
-                                    [aria-label]="'COMMON.VISIBILITY' | translate"
+                                    [aria-label]="
+                                        'COMMON.VISIBILITY' | translate
+                                    "
                                     [formField]="form.view_access"
                                 >
                                     <mat-option value="PRIVATE">{{

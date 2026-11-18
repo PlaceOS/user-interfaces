@@ -56,10 +56,14 @@ async function listAll(
         params: { limit: '500', ...params },
     });
     if (!res.ok()) {
-        throw new Error(`list ${path} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `list ${path} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
-    return (Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])) as any[];
+    return (
+        Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])
+    ) as any[];
 }
 
 async function create(
@@ -102,10 +106,13 @@ export async function ensureLockers(
     // Not explored, and worth a look before relying on it: whether a bank on a
     // level becomes visible once that specific level is selected in the topbar.
     const [building] = await zonesWithTag(api, 'building');
-    if (!building) throw new Error('no building zone — the stack is not seeded');
+    if (!building)
+        throw new Error('no building zone — the stack is not seeded');
     const level = building;
 
-    const categories = await listAll(api, 'asset_categories', { hidden: 'true' });
+    const categories = await listAll(api, 'asset_categories', {
+        hidden: 'true',
+    });
     let category = categories.find((c) => c.name === LOCKER_CATEGORY);
     category =
         category ??

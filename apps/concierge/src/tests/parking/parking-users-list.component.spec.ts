@@ -3,8 +3,8 @@ import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-import { ParkingUsersListComponent } from '../../app/parking/parking-users-list.component';
 import { ParkingStateService } from '../../app/parking/parking-state.service';
+import { ParkingUsersListComponent } from '../../app/parking/parking-users-list.component';
 
 describe('ParkingUsersListComponent', () => {
     let spectator: Spectator<ParkingUsersListComponent>;

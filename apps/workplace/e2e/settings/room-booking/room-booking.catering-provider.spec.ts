@@ -35,7 +35,11 @@
 // request, any non-GET request to a local non-API path (including /auth/) and
 // any external request is recorded and aborted, and fails the scenario.
 import type { Locator, Page } from '@playwright/test';
-import { APP_URL, BACKEND_URL, assertLocalOnly } from '../../../../../e2e/support/env';
+import {
+    APP_URL,
+    BACKEND_URL,
+    assertLocalOnly,
+} from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { useSettings } from '../../../../../e2e/support/room/room.settings';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
@@ -45,11 +49,11 @@ import {
     clearOrganisationCache,
     expectSafe,
     getOnly,
-    guardedStaffTest as test,
     protectNetwork,
+    validPeriod as strictPeriod,
     syntheticOrg,
     syntheticOrgRoutes,
-    validPeriod as strictPeriod,
+    guardedStaffTest as test,
 } from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
@@ -308,10 +312,22 @@ function catererState(modal: Locator) {
 // The provider removes the caterer choice and fixes the filter to itself; unset
 // offers both caterers and pre-selects the first (Alpha).
 const SCENARIOS = [
-    { label: "'Beta'", provider: 'Beta', caterers: [] as string[], filter: 'Beta',
-        listed: 'Beta prepared item', absent: 'Alpha prepared item' },
-    { label: 'unset', provider: '', caterers: ['Alpha', 'Beta'], filter: 'Alpha',
-        listed: 'Alpha prepared item', absent: 'Beta prepared item' },
+    {
+        label: "'Beta'",
+        provider: 'Beta',
+        caterers: [] as string[],
+        filter: 'Beta',
+        listed: 'Beta prepared item',
+        absent: 'Alpha prepared item',
+    },
+    {
+        label: 'unset',
+        provider: '',
+        caterers: ['Alpha', 'Beta'],
+        filter: 'Alpha',
+        listed: 'Alpha prepared item',
+        absent: 'Beta prepared item',
+    },
 ];
 
 for (const scenario of SCENARIOS) {
@@ -331,7 +347,10 @@ for (const scenario of SCENARIOS) {
             .poll(() => catererState(modal), {
                 message: 'offered caterers and menu filter',
             })
-            .toStrictEqual({ caterers: scenario.caterers, filter: scenario.filter });
+            .toStrictEqual({
+                caterers: scenario.caterers,
+                filter: scenario.filter,
+            });
         const list = modal.locator('catering-item-list');
         await expect(list.getByText(scenario.listed)).toHaveCount(1);
         await expect(list.getByText(scenario.absent)).toHaveCount(0);

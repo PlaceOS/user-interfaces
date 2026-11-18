@@ -14,21 +14,21 @@
  * Both read the backend afterwards — the card leaves the screen either way,
  * because the page removes it optimistically.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingSchedulePage } from '../../../../e2e/support/parking/parking-schedule.page';
+import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
     slotOn,
 } from '../../../../e2e/support/parking/parking.env';
 import { spaceForWorker } from '../../../../e2e/support/parking/parking.seed';
-import { createParkingBookingViaApi } from '../../../../e2e/support/parking/parking.api';
-import { ParkingSchedulePage } from '../../../../e2e/support/parking/parking-schedule.page';
 
 test.describe('cancelling a parking booking from the app', () => {
     test('cancelling from the booking menu removes it for real', async ({
@@ -36,7 +36,10 @@ test.describe('cancelling a parking booking from the app', () => {
         staffApi,
     }, testInfo) => {
         const space = await spaceForWorker(testInfo.parallelIndex);
-        const slot = slotOn(PARKING_SLOTS.cancel.day, PARKING_SLOTS.cancel.hour);
+        const slot = slotOn(
+            PARKING_SLOTS.cancel.day,
+            PARKING_SLOTS.cancel.hour,
+        );
         const { from, to } = dayBoundsOn(PARKING_SLOTS.cancel.day);
         let booking_id: number | undefined;
 

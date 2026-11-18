@@ -28,35 +28,47 @@ import {
     armMeetingSubmission,
     expectSimulatedSuccess,
     fakeBearer,
-    type Json,
     meetingFormSnapshot as formSnapshot,
-    meetingFormTest as test,
+    type Json,
     openStrictMeeting,
     type Settings,
     syntheticMeetingOrg,
+    meetingFormTest as test,
 } from '../support/settings-harness';
 
 const ORG = syntheticMeetingOrg('e2e-no-space-resource-');
 const { GROUP, HOST_PATH, ROOMS } = ORG;
 // Both hosts are permitted. These scenarios cover rule-host resolution,
 // not hidden-rule rejection; every application error remains a test failure.
-const RULES: Json[] = [{ zone: '*', conditions: { groups: [GROUP] },
-    rules: { hidden: false } }];
+const RULES: Json[] = [
+    { zone: '*', conditions: { groups: [GROUP] }, rules: { hidden: false } },
+];
 const BASE: Settings = {
     ...ORG.BASE,
     'app.events.can_book_for_others': true,
     'app.events.hide_attendees': true,
 };
 
-
 for (const index of [0, 1]) {
-    test('events.no_space_resource selects synthetic fallback room ' + index,
+    test(
+        'events.no_space_resource selects synthetic fallback room ' + index,
         async ({ isolated: { page, audit } }) => {
             const room = ROOMS[index];
-            const confirm = await openStrictMeeting(page, audit, {
-                'app.events.no_space_resource': room.id,
-                'app.events.force_current_user_for_booking_rules': false,
-            }, { org: ORG, base: BASE, bearer: fakeBearer('zone-settings'), rules: RULES, selected: false });
+            const confirm = await openStrictMeeting(
+                page,
+                audit,
+                {
+                    'app.events.no_space_resource': room.id,
+                    'app.events.force_current_user_for_booking_rules': false,
+                },
+                {
+                    org: ORG,
+                    base: BASE,
+                    bearer: fakeBearer('zone-settings'),
+                    rules: RULES,
+                    selected: false,
+                },
+            );
             const before = await formSnapshot(page);
             expect(before.raw.resources).toEqual([]);
             await armMeetingSubmission(page, audit, ORG, room.id);
@@ -69,9 +81,11 @@ for (const index of [0, 1]) {
             expect(audit.submission?.bodies).toEqual([]);
             await modal.locator('button[name="accept"]').click();
             const body = await expectSimulatedSuccess(page, audit);
-            expect((body.resources as Json[]).map((r) => r.id)).toEqual([room.id]);
+            expect((body.resources as Json[]).map((r) => r.id)).toEqual([
+                room.id,
+            ]);
             expect(body.system_id).toBe(room.id);
             expect(audit.fixtures[HOST_PATH] ?? 0).toBe(0);
-        });
+        },
+    );
 }
-

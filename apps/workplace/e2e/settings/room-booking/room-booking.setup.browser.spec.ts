@@ -21,26 +21,37 @@
 // Runs in the settings-browser project (no backend).
 import { expect } from '../../../../../e2e/support/fixtures';
 import {
-    meetingTest as test,
     openSubmissionMeeting,
     submitMeeting,
+    meetingTest as test,
 } from '../support/settings-harness';
 
 const SCENARIOS = [
-    { label: '15 sends a 15 minute setup time', setup: 15 as number | null, expected: 15 },
-    { label: 'unset falls back to no setup time', setup: null as number | null, expected: 0 },
+    {
+        label: '15 sends a 15 minute setup time',
+        setup: 15 as number | null,
+        expected: 15,
+    },
+    {
+        label: 'unset falls back to no setup time',
+        setup: null as number | null,
+        expected: 0,
+    },
 ];
 
 for (const scenario of SCENARIOS) {
-    test('events.setup ' + scenario.label, async ({ meeting: { page, audit } }) => {
-        const confirm = await openSubmissionMeeting(page, audit, {
-            'app.events.setup': scenario.setup,
-            'app.events.breakdown': 0,
-            'app.events.overflow': {},
-        });
-        const body = await submitMeeting(page, audit, confirm);
-        // CalendarEvent.toJSON drops empty fields, so 0 may be sent as absent.
-        expect(body.setup_time ?? 0).toBe(scenario.expected);
-        expect(body.breakdown_time ?? 0).toBe(0);
-    });
+    test(
+        'events.setup ' + scenario.label,
+        async ({ meeting: { page, audit } }) => {
+            const confirm = await openSubmissionMeeting(page, audit, {
+                'app.events.setup': scenario.setup,
+                'app.events.breakdown': 0,
+                'app.events.overflow': {},
+            });
+            const body = await submitMeeting(page, audit, confirm);
+            // CalendarEvent.toJSON drops empty fields, so 0 may be sent as absent.
+            expect(body.setup_time ?? 0).toBe(scenario.expected);
+            expect(body.breakdown_time ?? 0).toBe(0);
+        },
+    );
 }

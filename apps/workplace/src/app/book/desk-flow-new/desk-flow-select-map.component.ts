@@ -47,9 +47,12 @@ import {
     template: `
         @if (levels()?.length) {
             <div
-                class="absolute top-2 right-2 left-2 z-10 rounded border border-base-300 bg-base-100 p-2 shadow"
+                class="border-base-300 bg-base-100 absolute top-2 right-2 left-2 z-10 rounded border p-2 shadow"
             >
-                <mat-form-field appearance="outline" class="no-subscript w-full">
+                <mat-form-field
+                    appearance="outline"
+                    class="no-subscript w-full"
+                >
                     <mat-select
                         name="location"
                         [ngModel]="level()"
@@ -69,7 +72,9 @@ import {
                                             <span class="opacity-0"> - </span>
                                         </div>
                                     }
-                                    <div>{{ lvl.display_name || lvl.name }}</div>
+                                    <div>
+                                        {{ lvl.display_name || lvl.name }}
+                                    </div>
                                 </div>
                             </mat-option>
                         }
@@ -90,13 +95,13 @@ import {
         </div>
         @if (selected_desk()) {
             <div
-                class="absolute bottom-4 left-4 right-16 z-10 flex items-center rounded-lg border border-success bg-base-100 p-2 shadow-lg"
+                class="border-success bg-base-100 absolute right-16 bottom-4 left-4 z-10 flex items-center rounded-lg border p-2 shadow-lg"
             >
                 <div
-                    class="relative mr-2 flex h-12 w-12 min-w-[3rem] items-center justify-center overflow-hidden rounded-lg bg-base-200"
+                    class="bg-base-200 relative mr-2 flex h-12 w-12 min-w-[3rem] items-center justify-center overflow-hidden rounded-lg"
                 >
                     <icon
-                        class="absolute left-0 top-0 rounded-full bg-base-200 text-success"
+                        class="bg-base-200 text-success absolute top-0 left-0 rounded-full"
                         >task_alt</icon
                     >
                     @if (selected_desk().images?.length) {
@@ -131,7 +136,7 @@ import {
                         </p>
                     </div>
                 </div>
-                <div class="ml-2 text-xs font-medium text-success">
+                <div class="text-success ml-2 text-xs font-medium">
                     {{ 'COMMON.SELECTED' | translate }}
                 </div>
             </div>
@@ -173,7 +178,8 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
     private _selectedItem = (s) => () => this.item_selected.emit(s);
     public readonly setOptions = (o) => this._booking_form.setOptions(o);
     public readonly level = signal<BuildingLevel>(null);
-    public readonly available_resources = this._booking_form.available_resources;
+    public readonly available_resources =
+        this._booking_form.available_resources;
     public readonly form_value = this._booking_form.model;
 
     // Keep the active desk visible even if it falls outside the current
@@ -285,8 +291,7 @@ export class DeskFlowSelectMapComponent extends AsyncHandler implements OnInit {
         );
         return level_list
             .filter(
-                (lvl) =>
-                    !lvl.tags.includes('parking') && level_ids.has(lvl.id),
+                (lvl) => !lvl.tags.includes('parking') && level_ids.has(lvl.id),
             )
             .sort(
                 (a, b) =>

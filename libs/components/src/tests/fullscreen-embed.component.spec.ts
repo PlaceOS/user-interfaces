@@ -1,5 +1,5 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent } from 'ng-mocks';
 
 import { FullscreenEmbedComponent } from '../lib/fullscreen-embed.component';
@@ -26,8 +26,6 @@ describe('FullscreenEmbedComponent', () => {
         spectator.detectChanges();
         const iframe = spectator.query('iframe');
         expect(iframe).toExist();
-        expect(iframe.getAttribute('src')).toBe(
-            'https://embed.example/portal',
-        );
+        expect(iframe.getAttribute('src')).toBe('https://embed.example/portal');
     });
 });

@@ -10,8 +10,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import {
-    BookingAsset,
     bookedResourceList,
+    BookingAsset,
     BookingFormService,
     loadLockerResources,
 } from '@placeos/bookings';
@@ -31,8 +31,8 @@ import { showMetadata } from '@placeos/ts-client';
 import { addMinutes, getUnixTime } from 'date-fns';
 import { LandingStateService } from '../landing/landing-state.service';
 import {
-    AvailableTab,
     availableNowTabs,
+    AvailableTab,
     landingFeatures,
 } from './landing-features';
 
@@ -118,7 +118,9 @@ const TAB_DETAILS: Record<
                                 btn
                                 matRipple
                                 name="available-level"
-                                [routerLink]="has_explore() ? ['/explore'] : null"
+                                [routerLink]="
+                                    has_explore() ? ['/explore'] : null
+                                "
                                 [queryParams]="{ zone: lvl.id }"
                                 class="inverse h-14 w-full space-x-4 text-left"
                             >

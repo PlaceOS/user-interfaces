@@ -17,7 +17,11 @@ test.describe.configure({ timeout: 120_000 });
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
-async function openLockerPicker(page: Page, audit: Audit, available_period: number) {
+async function openLockerPicker(
+    page: Page,
+    audit: Audit,
+    available_period: number,
+) {
     const fixture = await prepareBooking(page, audit, {
         ...LOCKER,
         'app.lockers.available_period': available_period,
@@ -47,22 +51,22 @@ async function openLockerPicker(page: Page, audit: Audit, available_period: numb
     return filters;
 }
 
-test(
-    'lockers.available_period 2 disables days past the configured window',
-    async ({ staffPage, audit }) => {
-        const filters = await openLockerPicker(staffPage, audit, 2);
-        expect(await dayEnabled(staffPage, filters, 2)).toBe(true);
-        expect(await dayEnabled(staffPage, filters, 3)).toBe(false);
-    },
-);
+test('lockers.available_period 2 disables days past the configured window', async ({
+    staffPage,
+    audit,
+}) => {
+    const filters = await openLockerPicker(staffPage, audit, 2);
+    expect(await dayEnabled(staffPage, filters, 2)).toBe(true);
+    expect(await dayEnabled(staffPage, filters, 3)).toBe(false);
+});
 
 // The filter's last selectable day is endOfDay(today + available_period)
 // (locker-filters.component.ts); the default when unset is 90.
-test(
-    'lockers.available_period 10 allows the tenth day and disables the eleventh',
-    async ({ staffPage, audit }) => {
-        const filters = await openLockerPicker(staffPage, audit, 10);
-        expect(await dayEnabled(staffPage, filters, 10)).toBe(true);
-        expect(await dayEnabled(staffPage, filters, 11)).toBe(false);
-    },
-);
+test('lockers.available_period 10 allows the tenth day and disables the eleventh', async ({
+    staffPage,
+    audit,
+}) => {
+    const filters = await openLockerPicker(staffPage, audit, 10);
+    expect(await dayEnabled(staffPage, filters, 10)).toBe(true);
+    expect(await dayEnabled(staffPage, filters, 11)).toBe(false);
+});

@@ -22,10 +22,13 @@
  * between the offer and the confirm, and the backend then answers 409. That
  * refusal is correct, so the test asks for another desk, up to three times.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { STAFF_API, deleteBooking } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    SHOW_QUICK_BOOK,
+    useSettings,
+} from '../../../../e2e/support/home/home.settings';
 import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
-import { SHOW_QUICK_BOOK, useSettings } from '../../../../e2e/support/home/home.settings';
 
 const DAY = 86_400;
 
@@ -47,9 +50,20 @@ test.describe('home page — quick book', () => {
 
         let booking_id: number | undefined;
         try {
-            let created: { id: number; booking_type: string; asset_id: string; booking_start: number } | undefined;
+            let created:
+                | {
+                      id: number;
+                      booking_type: string;
+                      asset_id: string;
+                      booking_start: number;
+                  }
+                | undefined;
             let last = '';
-            for (let attempt = 1; attempt <= MAX_ATTEMPTS && !created; attempt++) {
+            for (
+                let attempt = 1;
+                attempt <= MAX_ATTEMPTS && !created;
+                attempt++
+            ) {
                 await home.autoAssignDesk.click();
                 // The confirm control is disabled while the modal looks for a desk.
                 await expect(
@@ -71,8 +85,11 @@ test.describe('home page — quick book', () => {
                 const body = await response.text();
                 if (response.status() === 409) {
                     last = body.slice(0, 300);
-                    console.warn(`  ! the offered desk was taken (attempt ${attempt}/${MAX_ATTEMPTS})`);
-                    if (await home.autoAssignModal.isVisible()) await home.autoAssignCancel.click();
+                    console.warn(
+                        `  ! the offered desk was taken (attempt ${attempt}/${MAX_ATTEMPTS})`,
+                    );
+                    if (await home.autoAssignModal.isVisible())
+                        await home.autoAssignCancel.click();
                     await expect(home.autoAssignModal).toHaveCount(0);
                     continue;
                 }
@@ -94,7 +111,10 @@ test.describe('home page — quick book', () => {
                 created.booking_type,
                 'the action must book a DESK, whatever resource it picked',
             ).toBe('desk');
-            expect(created.asset_id, 'and it must name the desk it booked').toBeTruthy();
+            expect(
+                created.asset_id,
+                'and it must name the desk it booked',
+            ).toBeTruthy();
             expect(
                 Number(created.booking_start),
                 'the booking should be for today, not for some default in the past',

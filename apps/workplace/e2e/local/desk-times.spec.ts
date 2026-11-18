@@ -21,22 +21,25 @@
  * Settings are `app.bookings.*` for desks, not `app.events.*` — the meeting form
  * reads the other family. Getting that wrong changes nothing and looks right.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     DESK_SLOTS,
     dayBoundsOn,
     hhmm,
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
-import { LIMITED_HOURS, useSettings } from '../../../../e2e/support/desk/desk.settings';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import {
+    LIMITED_HOURS,
+    useSettings,
+} from '../../../../e2e/support/desk/desk.settings';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const MINUTES = 60;
 
@@ -126,7 +129,10 @@ test.describe('desk booking times', () => {
         // the form offers up to eight hours, which is what makes this
         // meaningful.
         const lengths = await form.durationOptions();
-        expect(lengths.length, 'the form should offer some lengths').toBeGreaterThan(0);
+        expect(
+            lengths.length,
+            'the form should offer some lengths',
+        ).toBeGreaterThan(0);
         expect(
             Math.max(...lengths),
             `no length beyond the ${max} minute cap may be offered, got ` +
@@ -136,7 +142,10 @@ test.describe('desk booking times', () => {
         // Start times: nothing outside the bookable hours. Compared as minutes
         // past midnight rather than as strings, so 9:00 and 09:00 cannot differ.
         const times = await form.startTimeOptions();
-        expect(times.length, 'the form should offer some start times').toBeGreaterThan(0);
+        expect(
+            times.length,
+            'the form should offer some start times',
+        ).toBeGreaterThan(0);
         const minutes = times.map((t) => {
             const [h, m] = t.split(':').map(Number);
             return h * 60 + m;

@@ -9,12 +9,16 @@
  * Bookings are made through the API: the subject here is the schedule, and the
  * booking flows have their own specs.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
-import { deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
+import {
+    deleteBooking,
+    releaseAsset,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
 import { isLive } from '../../../../e2e/support/bookings/bookings.api';
 import { ScheduleViewsPage } from '../../../../e2e/support/bookings/schedule-views.page';
 import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 /** A local day as a unix-second window. `0` is today. */
 function dayBounds(offset: number) {
@@ -62,7 +66,9 @@ test.describe('your bookings — the day, week and list views', () => {
         try {
             // No `view` parameter: the page opens on the day view.
             await schedule.openView();
-            await expect(schedule.dayBooking(title)).toBeVisible({ timeout: 30_000 });
+            await expect(schedule.dayBooking(title)).toBeVisible({
+                timeout: 30_000,
+            });
             await expect(schedule.weekView).toHaveCount(0);
 
             await schedule.viewLink('week').click();
@@ -88,7 +94,13 @@ test.describe('your bookings — the day, week and list views', () => {
         const tomorrow_title = uniqueTitle('E2E Views Tomorrow');
         const schedule = new ScheduleViewsPage(staffPage);
 
-        await releaseAsset(staffApi, 'desk', desk.id, dayBounds(0).from, dayBounds(1).to);
+        await releaseAsset(
+            staffApi,
+            'desk',
+            desk.id,
+            dayBounds(0).from,
+            dayBounds(1).to,
+        );
         // The booking of today is the control. Without it "tomorrow's booking
         // is not shown" also passes on a view that has not loaded.
         const today = await createDeskBookingViaApi(staffApi, {
@@ -104,18 +116,24 @@ test.describe('your bookings — the day, week and list views', () => {
 
         try {
             await schedule.openView('day');
-            await expect(schedule.dayBooking(today_title)).toBeVisible({ timeout: 30_000 });
+            await expect(schedule.dayBooking(today_title)).toBeVisible({
+                timeout: 30_000,
+            });
             await expect(
                 schedule.dayBooking(tomorrow_title),
                 'a booking of tomorrow is not on the view of today',
             ).toHaveCount(0);
 
             await schedule.nextDate.click();
-            await expect(schedule.dayBooking(tomorrow_title)).toBeVisible({ timeout: 20_000 });
+            await expect(schedule.dayBooking(tomorrow_title)).toBeVisible({
+                timeout: 20_000,
+            });
             await expect(schedule.dayBooking(today_title)).toHaveCount(0);
 
             await schedule.today.click();
-            await expect(schedule.dayBooking(today_title)).toBeVisible({ timeout: 20_000 });
+            await expect(schedule.dayBooking(today_title)).toBeVisible({
+                timeout: 20_000,
+            });
             await expect(schedule.dayBooking(tomorrow_title)).toHaveCount(0);
         } finally {
             await deleteBooking(staffApi, today.id);
@@ -144,17 +162,22 @@ test.describe('your bookings — the day, week and list views', () => {
             await schedule.openView('day');
             await schedule.dayBooking(title).click();
             const modal = staffPage.locator('booking-details-modal');
-            await expect(modal, 'the details are those of the booking').toContainText(title);
+            await expect(
+                modal,
+                'the details are those of the booking',
+            ).toContainText(title);
 
             await schedule.openOverflowMenu(modal);
             const cancel = await schedule.menuAction('delete');
-            if (!cancel) throw new Error('the booking menu offers no cancel action');
+            if (!cancel)
+                throw new Error('the booking menu offers no cancel action');
             await cancel.click();
             await schedule.acceptConfirm();
 
             await expect
                 .poll(live, {
-                    message: 'the booking is deleted on the backend, not only on the view',
+                    message:
+                        'the booking is deleted on the backend, not only on the view',
                     timeout: 20_000,
                 })
                 .toBe(false);
@@ -182,7 +205,9 @@ test.describe('your bookings — the day, week and list views', () => {
 
         try {
             await schedule.openView('day');
-            await expect(schedule.dayBooking(title)).toBeVisible({ timeout: 30_000 });
+            await expect(schedule.dayBooking(title)).toBeVisible({
+                timeout: 30_000,
+            });
 
             await schedule.setShown('desk', false);
             await expect(schedule.dayBooking(title)).toHaveCount(0);

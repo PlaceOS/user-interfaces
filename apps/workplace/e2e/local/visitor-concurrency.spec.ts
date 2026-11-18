@@ -100,18 +100,22 @@
  * `e2e/support/repro/reg09-concurrent-bookings.ts` and `vis-b6-burst.ts`
  * remain the record.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { STAFF_API, deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
 import {
-    VISITOR_SLOTS,
-    visitorFor,
-} from '../../../../e2e/support/visitor/visitor.env';
+    STAFF_API,
+    deleteBooking,
+    uniqueTitle,
+    zonesWithTag,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     deleteGuest,
     releaseGroupContainers,
     releaseVisitor,
 } from '../../../../e2e/support/visitor/visitor.api';
-import { zonesWithTag } from '../../../../e2e/support/api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -133,10 +137,14 @@ test.describe('concurrent visitor writes', () => {
     test.fixme('VIS-28: every accepted write is stored, and every refused one leaves nothing', async ({
         staffApi,
     }) => {
-        const me = await (await staffApi.get('/api/engine/v2/users/current')).json();
+        const me = await (
+            await staffApi.get('/api/engine/v2/users/current')
+        ).json();
         const zones = (
             await Promise.all(
-                ['org', 'building', 'level'].map((tag) => zonesWithTag(staffApi, tag)),
+                ['org', 'building', 'level'].map((tag) =>
+                    zonesWithTag(staffApi, tag),
+                ),
             )
         )
             .flat()
@@ -151,7 +159,12 @@ test.describe('concurrent visitor writes', () => {
         // Clean first: a leftover booking on one of these addresses would make
         // "a row exists" true for the wrong reason.
         for (const visitor of visitors) {
-            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            await releaseVisitor(
+                staffApi,
+                visitor.email,
+                window_from(),
+                window_to(),
+            );
             await deleteGuest(staffApi, visitor.email);
         }
 
@@ -186,7 +199,12 @@ test.describe('concurrent visitor writes', () => {
                         /* a non-JSON error body is itself the evidence */
                     }
                     if (typeof id === 'number') created.push(id);
-                    return { status: res.status(), id, email: visitor.email, body };
+                    return {
+                        status: res.status(),
+                        id,
+                        email: visitor.email,
+                        body,
+                    };
                 }),
             );
 
@@ -215,7 +233,9 @@ test.describe('concurrent visitor writes', () => {
                     `a ${attempt.status} response carried no booking id: ` +
                         `${attempt.body.slice(0, 200)}`,
                 ).toBeTruthy();
-                const read = await staffApi.get(`${STAFF_API}/bookings/${attempt.id}`);
+                const read = await staffApi.get(
+                    `${STAFF_API}/bookings/${attempt.id}`,
+                );
                 if (!read.ok()) phantoms.push(attempt);
             }
             expect(
@@ -245,10 +265,14 @@ test.describe('concurrent visitor writes', () => {
                 });
                 if (!res.ok()) continue;
                 const rows = await res.json();
-                const list = (Array.isArray(rows) ? rows : (rows.results ?? [])) as Array<
-                    Record<string, any>
-                >;
-                if (list.some((row) => row.asset_id === attempt.email && !row.deleted)) {
+                const list = (
+                    Array.isArray(rows) ? rows : (rows.results ?? [])
+                ) as Array<Record<string, any>>;
+                if (
+                    list.some(
+                        (row) => row.asset_id === attempt.email && !row.deleted,
+                    )
+                ) {
                     ghosts.push(attempt.email);
                 }
             }
@@ -278,10 +302,14 @@ test.describe('concurrent visitor writes', () => {
     test.fixme('VIS-28b: a group container is never left holding fewer members than were written', async ({
         staffApi,
     }) => {
-        const me = await (await staffApi.get('/api/engine/v2/users/current')).json();
+        const me = await (
+            await staffApi.get('/api/engine/v2/users/current')
+        ).json();
         const zones = (
             await Promise.all(
-                ['org', 'building', 'level'].map((tag) => zonesWithTag(staffApi, tag)),
+                ['org', 'building', 'level'].map((tag) =>
+                    zonesWithTag(staffApi, tag),
+                ),
             )
         )
             .flat()
@@ -295,7 +323,12 @@ test.describe('concurrent visitor writes', () => {
         const start = Math.floor(Date.now() / 1000) + 45 * DAY;
 
         for (const visitor of visitors) {
-            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            await releaseVisitor(
+                staffApi,
+                visitor.email,
+                window_from(),
+                window_to(),
+            );
             await deleteGuest(staffApi, visitor.email);
         }
 
@@ -342,7 +375,9 @@ test.describe('concurrent visitor writes', () => {
                             title: uniqueTitle('E2E Burst Member'),
                             zones,
                             parent_id: container.id,
-                            attendees: [{ name: visitor.name, email: visitor.email }],
+                            attendees: [
+                                { name: visitor.name, email: visitor.email },
+                            ],
                         },
                     });
                     const body = await res.text();
@@ -353,7 +388,12 @@ test.describe('concurrent visitor writes', () => {
                         /* the body is the evidence */
                     }
                     if (typeof id === 'number') created.push(id);
-                    return { ok: res.ok(), status: res.status(), id, email: visitor.email };
+                    return {
+                        ok: res.ok(),
+                        status: res.status(),
+                        id,
+                        email: visitor.email,
+                    };
                 }),
             );
 
@@ -369,7 +409,9 @@ test.describe('concurrent visitor writes', () => {
             // worse than one that failed: it becomes an invisible invite that no
             // group screen will ever show or cancel.
             for (const result of written) {
-                const read = await staffApi.get(`${STAFF_API}/bookings/${result.id}`);
+                const read = await staffApi.get(
+                    `${STAFF_API}/bookings/${result.id}`,
+                );
                 expect(
                     read.ok(),
                     `member ${result.email} answered ${result.status} with id ` +
@@ -396,11 +438,13 @@ test.describe('concurrent visitor writes', () => {
             });
             expect(listed.ok()).toBe(true);
             const rows = await listed.json();
-            const list = (Array.isArray(rows) ? rows : (rows.results ?? [])) as Array<
-                Record<string, any>
-            >;
+            const list = (
+                Array.isArray(rows) ? rows : (rows.results ?? [])
+            ) as Array<Record<string, any>>;
             const attached = list.filter(
-                (row) => String(row.parent_id ?? '') === String(container.id) && !row.deleted,
+                (row) =>
+                    String(row.parent_id ?? '') === String(container.id) &&
+                    !row.deleted,
             );
             expect(
                 attached.length,

@@ -29,13 +29,13 @@
  * other spec in both suites. The plan flagged that as a decision rather than a
  * detail and it is still open — see the Questions tab of the workbook.
  */
+import { zonesWithTag } from '../../../../e2e/support/api';
 import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import {
     columnIndex,
     readTable,
     waitForAnyRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
-import { zonesWithTag } from '../../../../e2e/support/api';
 import { REGION_NAME } from '../../../../e2e/support/org/org.seed';
 
 const ZONE_ROUTE = '/#/zone-management';
@@ -43,7 +43,10 @@ const ZONE_ROUTE = '/#/zone-management';
 /** Switch tab and wait until the grid is the one with [column]. */
 async function openTab(page: any, name: RegExp, column: string) {
     const tab = page.getByRole('tab', { name }).first();
-    await expect(tab, `no "${name}" tab on the zone management page`).toBeVisible({
+    await expect(
+        tab,
+        `no "${name}" tab on the zone management page`,
+    ).toBeVisible({
         timeout: 30_000,
     });
     await tab.click();
@@ -125,7 +128,10 @@ test.describe('concierge zone management', () => {
     }) => {
         const regions = await zonesWithTag(adminApi, 'region');
         const region = regions.find((z) => z.name === REGION_NAME);
-        expect(region, `the stack should seed the region "${REGION_NAME}"`).toBeTruthy();
+        expect(
+            region,
+            `the stack should seed the region "${REGION_NAME}"`,
+        ).toBeTruthy();
         const buildings = (await zonesWithTag(adminApi, 'building')).filter(
             (b) => b.parent_id === region!.id,
         );
@@ -144,7 +150,10 @@ test.describe('concierge zone management', () => {
         const row = snapshot.rows.find((cells) =>
             cells[columnIndex(snapshot, 'display_name')].includes(REGION_NAME),
         );
-        expect(row, `the Regions tab should list "${REGION_NAME}"`).toBeTruthy();
+        expect(
+            row,
+            `the Regions tab should list "${REGION_NAME}"`,
+        ).toBeTruthy();
         expect(
             row![columnIndex(snapshot, 'building_count')],
             `"${REGION_NAME}" should report ${buildings.length} building(s)`,

@@ -44,12 +44,7 @@ import { NewSurveyService } from './new-survey.service';
                 <a
                     icon
                     matRipple
-                    [routerLink]="[
-                        '/surveys',
-                        'list',
-
-                        survey()?.building_id,
-                    ]"
+                    [routerLink]="['/surveys', 'list', survey()?.building_id]"
                     [attr.aria-label]="'COMMON.BACK' | translate"
                 >
                     <icon class="flex">arrow_back</icon>

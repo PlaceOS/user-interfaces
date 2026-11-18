@@ -13,14 +13,17 @@
  * that form is a known defect (ROOM-B8), so carrying this through to a booking
  * would fail for a reason that has nothing to do with this shortcut.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { WORKERS, staffEmail } from '../../../../e2e/support/env';
 import { uniqueTitle } from '../../../../e2e/support/api';
+import { WORKERS, staffEmail } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { setContacts } from '../../../../e2e/support/home/home.api';
 import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 test.describe('home page — meeting with a colleague', () => {
     test('the shortcut opens the meeting form with that colleague invited', async ({
@@ -29,12 +32,17 @@ test.describe('home page — meeting with a colleague', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have a colleague');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have a colleague',
+        );
         const colleague = staffEmail(theirs);
         const room = await roomForWorker(mine);
         const title = uniqueTitle('E2E Home Meeting With');
 
-        await setContacts(staffApi, [{ email: colleague, name: colleague.split('@')[0] }]);
+        await setContacts(staffApi, [
+            { email: colleague, name: colleague.split('@')[0] },
+        ]);
         // The room list reads free rooms from the bookings in this mode. The
         // default mode asks the calendar, which this stack does not have.
         await useSettings(staffPage, ROOM_BASE_SETTINGS);
@@ -77,14 +85,17 @@ test.describe('home page — meeting with a colleague', () => {
             await flow.selectRoom(room.name);
             await flow.continue.click();
 
-            const chips = flow.options.locator('a-user-list-field mat-chip-row[user]');
+            const chips = flow.options.locator(
+                'a-user-list-field mat-chip-row[user]',
+            );
             await expect(
                 chips,
                 `the meeting form should open with ${colleague} already invited — an ` +
                     `empty attendee list means the shortcut lost the person it was ` +
                     `started from`,
             ).toHaveCount(1, { timeout: 30_000 });
-            const flat = (value: string) => value.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const flat = (value: string) =>
+                value.toLowerCase().replace(/[^a-z0-9]/g, '');
             const label = await chips.first().innerText();
             expect(
                 flat(label),

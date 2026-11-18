@@ -3,8 +3,8 @@ import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { of } from 'rxjs';
 
-import { LockersComponent } from '../../app/lockers/lockers.component';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
+import { LockersComponent } from '../../app/lockers/lockers.component';
 
 describe('LockersComponent', () => {
     let spectator: Spectator<LockersComponent>;

@@ -15,11 +15,11 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     Building,
-    OrganisationService,
     getInvalidSignalFields,
     i18n,
     notifyError,
     notifySuccess,
+    OrganisationService,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import { addZone, authority, updateZone } from '@placeos/ts-client';
@@ -31,7 +31,10 @@ import { TimezoneFieldComponent } from '../ui/timezone-field.component';
         <form building>
             @if (region_list().length) {
                 <div class="flex flex-col">
-                    <label for="building-form-region" id="building-form-region-label">
+                    <label
+                        for="building-form-region"
+                        id="building-form-region-label"
+                    >
                         {{ 'RESOURCE.REGION' | translate }}
                     </label>
                     <mat-form-field appearance="outline">
@@ -40,52 +43,49 @@ import { TimezoneFieldComponent } from '../ui/timezone-field.component';
                             [formField]="form.parent_id"
                             [placeholder]="'COMMON.REGION_SELECT' | translate"
                         >
-                                <mat-option [value]="default_parent">
-                                    {{ 'COMMON.NONE' | translate }}
+                            <mat-option [value]="default_parent">
+                                {{ 'COMMON.NONE' | translate }}
+                            </mat-option>
+                            @for (region of region_list(); track region.id) {
+                                <mat-option [value]="region.id">
+                                    {{ region.display_name || region.name }}
                                 </mat-option>
-                                @for (
-                                    region of region_list();
-                                    track region.id
-                                ) {
-                                    <mat-option [value]="region.id">
-                                        {{ region.display_name || region.name }}
-                                    </mat-option>
-                                }
-                            </mat-select>
-                        </mat-form-field>
-                    </div>
-                }
-                <div class="flex flex-col">
-                    <label for="building-form-display-name"
-                        >{{ 'FORM.DISPLAY_NAME' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            id="building-form-display-name"
-                            matInput
-                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
-                            [formField]="form.display_name"
-                        />
+                            }
+                        </mat-select>
                     </mat-form-field>
                 </div>
-                <timezone-field
-                    field_id="building-form-display-name-2"
-                    [field]="form.timezone"
-                />
-                <div class="flex flex-col">
-                    <label for="building-form-address">
-                        {{ 'COMMON.LOCATION' | translate }}
-                    </label>
-                    <mat-form-field appearance="outline">
-                        <input
-                            id="building-form-address"
-                            matInput
-                            [placeholder]="'COMMON.LOCATION' | translate"
-                            [formField]="form.location"
-                        />
-                    </mat-form-field>
-                </div>
-            </form>
+            }
+            <div class="flex flex-col">
+                <label for="building-form-display-name"
+                    >{{ 'FORM.DISPLAY_NAME' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <input
+                        id="building-form-display-name"
+                        matInput
+                        [placeholder]="'FORM.DISPLAY_NAME' | translate"
+                        [formField]="form.display_name"
+                    />
+                </mat-form-field>
+            </div>
+            <timezone-field
+                field_id="building-form-display-name-2"
+                [field]="form.timezone"
+            />
+            <div class="flex flex-col">
+                <label for="building-form-address">
+                    {{ 'COMMON.LOCATION' | translate }}
+                </label>
+                <mat-form-field appearance="outline">
+                    <input
+                        id="building-form-address"
+                        matInput
+                        [placeholder]="'COMMON.LOCATION' | translate"
+                        [formField]="form.location"
+                    />
+                </mat-form-field>
+            </div>
+        </form>
     `,
     styles: [``],
     imports: [

@@ -1,7 +1,7 @@
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { of } from 'rxjs';
 import { inject, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
+import { of } from 'rxjs';
 
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { SettingsService } from '@placeos/common';

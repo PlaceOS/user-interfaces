@@ -43,10 +43,10 @@
  * browser-free burst reproduces it without any form at all).
  */
 import { APIRequestContext, Page, expect } from '@playwright/test';
-import { InviteVisitorForm } from './invite-form.page';
-import { VisitorIdentity } from './visitor.env';
 import { deleteBooking, isReg09, readBack } from '../api';
+import { InviteVisitorForm } from './invite-form.page';
 import { VisitorBooking } from './visitor.api';
+import { VisitorIdentity } from './visitor.env';
 
 /** How long the form's values must hold steady before we trust them. */
 const SETTLE_MS = 1_000;
@@ -94,7 +94,13 @@ function collectBookingPosts(page: Page, methods: string[] = ['POST']) {
                 .catch(() => '<body unavailable>')
                 .then(
                     (body) =>
-                        void posts.push({ call, status: r.status(), body, request, headers }),
+                        void posts.push({
+                            call,
+                            status: r.status(),
+                            body,
+                            request,
+                            headers,
+                        }),
                 ),
         );
     };
@@ -118,11 +124,14 @@ function collectBookingPosts(page: Page, methods: string[] = ['POST']) {
                     `\n      resp=${p.body.slice(0, 220)}`
                 );
             })
-            .join('\n    | ') || `(no booking ${methods.join('/')} was made at all)`;
+            .join('\n    | ') ||
+        `(no booking ${methods.join('/')} was made at all)`;
 
     return {
-        okCount: () => posts.filter((p) => p.status >= 200 && p.status < 300).length,
-        refusedCount: () => posts.filter((p) => p.status < 200 || p.status >= 300).length,
+        okCount: () =>
+            posts.filter((p) => p.status >= 200 && p.status < 300).length,
+        refusedCount: () =>
+            posts.filter((p) => p.status < 200 || p.status >= 300).length,
         /** Ids of everything that really got created, for cleaning up a partial group. */
         createdIds: () =>
             posts
@@ -163,7 +172,10 @@ function collectBookingPosts(page: Page, methods: string[] = ['POST']) {
  * for a beat closes most of that gap; the retry in `submitWhenAccepted` closes
  * the rest.
  */
-async function fillAndSettle(page: Page, fill: () => Promise<void>): Promise<void> {
+async function fillAndSettle(
+    page: Page,
+    fill: () => Promise<void>,
+): Promise<void> {
     await expect(async () => {
         await fill();
         await page.waitForTimeout(SETTLE_MS);
@@ -193,7 +205,9 @@ async function reachedSuccess(
 ): Promise<boolean> {
     await expect
         .poll(
-            async () => (await form.successPanel.isVisible()) || writes.refusedCount() > 0,
+            async () =>
+                (await form.successPanel.isVisible()) ||
+                writes.refusedCount() > 0,
             { timeout: OUTCOME_MS },
         )
         .toBe(true)
@@ -344,7 +358,8 @@ export async function inviteVisitorViaUI(
         // Host next: choosing one can reset parts of the form, so anything
         // typed before it would be lost. It comes after the mode, because the
         // mode toggle puts the host back to the signed-in user.
-        if (options.host) await form.chooseHost(options.host.email, options.host.name);
+        if (options.host)
+            await form.chooseHost(options.host.email, options.host.name);
         await form.visitorName.fill(visitor.name);
         await form.visitorEmail.fill(visitor.email);
         await form.company.fill(visitor.company);
@@ -353,7 +368,8 @@ export async function inviteVisitorViaUI(
         // lengths are on offer, so setting them the other way round can leave a
         // duration that no longer exists.
         if (options.startTime) await form.setStartTime(options.startTime);
-        if (options.duration !== undefined) await form.setDuration(options.duration);
+        if (options.duration !== undefined)
+            await form.setDuration(options.duration);
         await form.reason.fill(reason);
         if (options.passNumber) await form.passNumber.fill(options.passNumber);
         if (options.allDay !== undefined) {
@@ -373,7 +389,10 @@ export async function inviteVisitorViaUI(
     await submitWhenAccepted(page, api, form, posts, fill, 'the invite');
 
     const bookings = createdBookings(await posts.stop());
-    expect(bookings, 'a single-visitor invite creates exactly one booking').toHaveLength(1);
+    expect(
+        bookings,
+        'a single-visitor invite creates exactly one booking',
+    ).toHaveLength(1);
     return bookings[0];
 }
 
@@ -413,7 +432,8 @@ export async function inviteVisitorsViaUI(
     const fill = async () => {
         // Mode first, then host — see `inviteVisitorViaUI`.
         await form.useGroupMode();
-        if (options.host) await form.chooseHost(options.host.email, options.host.name);
+        if (options.host)
+            await form.chooseHost(options.host.email, options.host.name);
         for (const visitor of visitors) {
             // "Already added?" has to go through `chipIndexFor`: a chip shows
             // only the part before the @, so a `hasText` on the full address
@@ -425,10 +445,12 @@ export async function inviteVisitorsViaUI(
             if (already) continue;
             await form.addVisitorChip(visitor.email);
         }
-        for (const visitor of removing) await form.removeVisitorChip(visitor.email);
+        for (const visitor of removing)
+            await form.removeVisitorChip(visitor.email);
         if (options.date !== undefined) await form.setDate(options.date);
         if (options.startTime) await form.setStartTime(options.startTime);
-        if (options.duration !== undefined) await form.setDuration(options.duration);
+        if (options.duration !== undefined)
+            await form.setDuration(options.duration);
         await form.reason.fill(reason);
         expect(await form.chips.count()).toBe(expected.length);
         expect(await form.reason.inputValue()).toBe(reason);
@@ -490,7 +512,8 @@ export async function saveEditViaUI(
 
         last = writes.describe();
         const refused = seen.filter((w) => w.status < 200 || w.status >= 300);
-        if (!refused.length || !refused.every((w) => isReg09(w.status, w.body))) break;
+        if (!refused.length || !refused.every((w) => isReg09(w.status, w.body)))
+            break;
         if (attempt === MAX_ATTEMPTS) break;
         console.warn(
             `  ! REG-09: ${what} was refused — doing the edit again ` +

@@ -12,10 +12,6 @@
  * here would leak quietly rather than fail loudly.
  */
 import { request } from '@playwright/test';
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { BACKEND_URL, WORKERS, roleFor } from '../../../../e2e/support/env';
-import { mintToken } from '../../../../e2e/support/auth';
-import { APP_URL } from '../../../../e2e/support/env';
 import {
     STAFF_API,
     deleteBooking,
@@ -23,9 +19,16 @@ import {
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { mintToken } from '../../../../e2e/support/auth';
 import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
-import { deskFor } from '../../../../e2e/support/env';
-
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    deskFor,
+    roleFor,
+} from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 // Window comfortably wider than any booking these specs create. Keep it that
@@ -35,12 +38,17 @@ const from = () => Math.floor(Date.now() / 1000) - 3 * DAY;
 const to = () => Math.floor(Date.now() / 1000) + 3 * DAY;
 
 test.describe('booking visibility between users', () => {
-    test('another user cannot see or delete your booking', async ({ staffApi }, testInfo) => {
+    test('another user cannot see or delete your booking', async ({
+        staffApi,
+    }, testInfo) => {
         const mine = testInfo.parallelIndex;
         // A genuinely different seeded user. With one worker there is nobody else
         // to compare against, so the spec would be meaningless.
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const desk = deskFor(mine);
         const title = uniqueTitle('E2E Scoping');
@@ -71,16 +79,21 @@ test.describe('booking visibility between users', () => {
         const other = await request.newContext({
             baseURL: BACKEND_URL,
             ignoreHTTPSErrors: true,
-            extraHTTPHeaders: { Authorization: `Bearer ${other_mint.accessToken}` },
+            extraHTTPHeaders: {
+                Authorization: `Bearer ${other_mint.accessToken}`,
+            },
         });
 
         try {
             // Sanity: the two identities really are different, or everything below
             // would pass for the wrong reason.
-            const them = await (await other.get('/api/engine/v2/users/current')).json();
-            expect(them.email, 'the second user must be a different person').not.toBe(
-                booking.user_email,
-            );
+            const them = await (
+                await other.get('/api/engine/v2/users/current')
+            ).json();
+            expect(
+                them.email,
+                'the second user must be a different person',
+            ).not.toBe(booking.user_email);
 
             // The privacy boundary.
             const their_view = await listBookings(other, 'desk', from(), to());
@@ -91,7 +104,9 @@ test.describe('booking visibility between users', () => {
 
             // And they cannot remove it. A 2xx here would mean anyone can cancel
             // anyone's desk, which is worse than merely being able to see it.
-            const their_delete = await other.delete(`${STAFF_API}/bookings/${booking.id}`);
+            const their_delete = await other.delete(
+                `${STAFF_API}/bookings/${booking.id}`,
+            );
             expect(
                 their_delete.status(),
                 `another user must not be able to delete your booking ` +
@@ -99,7 +114,12 @@ test.describe('booking visibility between users', () => {
             ).toBeGreaterThanOrEqual(400);
 
             // Still there afterwards, from the owner's point of view.
-            const still_mine = await listBookings(staffApi, 'desk', from(), to());
+            const still_mine = await listBookings(
+                staffApi,
+                'desk',
+                from(),
+                to(),
+            );
             expect(
                 still_mine.map((b) => b.id),
                 'the booking should survive the other user attempting to delete it',
@@ -110,7 +130,9 @@ test.describe('booking visibility between users', () => {
         }
     });
 
-    test('you can see your own booking in the listing', async ({ staffApi }, testInfo) => {
+    test('you can see your own booking in the listing', async ({
+        staffApi,
+    }, testInfo) => {
         // The control for the test above. Without it, "they cannot see it" would
         // also pass if nobody could see anything.
         const desk = deskFor(testInfo.parallelIndex);

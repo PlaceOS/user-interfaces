@@ -100,7 +100,9 @@ export class YourBookingsPage {
 
     /** Is a type currently being shown? Read from the checkbox, not the class. */
     async isShown(type: ScheduleType): Promise<boolean> {
-        const checkbox = this.typeFilter(type).locator('input[type="checkbox"]');
+        const checkbox = this.typeFilter(type).locator(
+            'input[type="checkbox"]',
+        );
         if (!(await checkbox.count())) return false;
         return checkbox.isChecked().catch(() => false);
     }
@@ -222,14 +224,19 @@ export class YourBookingsPage {
             'the confirmation dialog did not open, so there was nothing to accept',
         ).toBeVisible({ timeout: 15_000 });
         await accept.click();
-        await expect(accept, 'the confirmation dialog did not close').toBeHidden({
+        await expect(
+            accept,
+            'the confirmation dialog did not close',
+        ).toBeHidden({
             timeout: 15_000,
         });
     }
 
     /** The card for a specific booking, matched on the id at the end of its href. */
     card(bookingId: number): Locator {
-        return this.page.locator(`a[name="view-booking-details"][href$="booking=${bookingId}"]`);
+        return this.page.locator(
+            `a[name="view-booking-details"][href$="booking=${bookingId}"]`,
+        );
     }
 
     /**
@@ -273,7 +280,7 @@ export class YourBookingsPage {
     /** What to check when a card is missing. Type-specific. */
     protected get missingCardHint(): string {
         return (
-            'Check the day being shown is the booking\'s own day (`showDayOf` ' +
+            "Check the day being shown is the booking's own day (`showDayOf` " +
             'moves it), that the visitor filter is on, and that the list is not ' +
             'dominated by leftovers from earlier runs.'
         );
@@ -291,7 +298,9 @@ export class YourBookingsPage {
             // distinguish "wrong day", "filter off" and "the list is so full of
             // old bookings that this one is paged out".
             const rendered = await this.renderedBookingIds();
-            const showing = await this.page.locator('schedule-list-view h3').allInnerTexts();
+            const showing = await this.page
+                .locator('schedule-list-view h3')
+                .allInnerTexts();
             throw new Error(
                 `no card for booking ${bookingId} on the list view of /your-bookings, ` +
                     `which is showing ${JSON.stringify(showing.map((t) => t.trim()))}. ` +
@@ -312,7 +321,9 @@ export class YourBookingsPage {
                 clicks += 1;
             }
             await expect(modal).toBeVisible({ timeout: 5_000 });
-        }, `the details modal of booking ${bookingId} did not open`).toPass({ timeout: 30_000 });
+        }, `the details modal of booking ${bookingId} did not open`).toPass({
+            timeout: 30_000,
+        });
         if (clicks > 1) {
             const description =
                 `the card of booking ${bookingId} was clicked ${clicks} times before ` +
@@ -368,11 +379,14 @@ export class YourBookingsPage {
      * duller and it works.
      */
     async menuAction(icon: string): Promise<Locator | null> {
-        const items = this.page.locator('.cdk-overlay-container button[mat-menu-item]');
+        const items = this.page.locator(
+            '.cdk-overlay-container button[mat-menu-item]',
+        );
         const count = await items.count();
         for (let i = 0; i < count; i++) {
             const item = items.nth(i);
-            const label = (await item.locator('icon').first().textContent()) ?? '';
+            const label =
+                (await item.locator('icon').first().textContent()) ?? '';
             if (label.trim() === icon) return item;
         }
         return null;
@@ -383,14 +397,19 @@ export class YourBookingsPage {
         // The decline button is the footer button that is NOT `accept`. Its
         // label is translated, so it cannot be matched on text.
         const decline = this.page
-            .locator('.cdk-overlay-container footer button:not([name="accept"])')
+            .locator(
+                '.cdk-overlay-container footer button:not([name="accept"])',
+            )
             .first();
         await expect(
             decline,
             'the confirmation dialog did not open, so there was nothing to dismiss',
         ).toBeVisible({ timeout: 15_000 });
         await decline.click();
-        await expect(decline, 'the confirmation dialog did not close').toBeHidden({
+        await expect(
+            decline,
+            'the confirmation dialog did not close',
+        ).toBeHidden({
             timeout: 15_000,
         });
     }
@@ -462,7 +481,9 @@ export class YourBookingsPage {
             const items = await this.page
                 .locator('.cdk-overlay-container button[mat-menu-item]')
                 .evaluateAll((els) =>
-                    els.map((e) => (e.textContent ?? '').replace(/\s+/g, ' ').trim()),
+                    els.map((e) =>
+                        (e.textContent ?? '').replace(/\s+/g, ' ').trim(),
+                    ),
                 );
             throw new Error(
                 `no Edit action in the booking menu. The menu contains ` +

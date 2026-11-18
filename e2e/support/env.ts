@@ -16,9 +16,12 @@
  */
 
 // Must be first: loads .env into process.env before any var below is read.
-import './load-env';
 import * as path from 'path';
-import { CALENDAR_USER_EMAIL, CALENDAR_USER_PASSWORD } from './calendar/calendar.env';
+import {
+    CALENDAR_USER_EMAIL,
+    CALENDAR_USER_PASSWORD,
+} from './calendar/calendar.env';
+import './load-env';
 
 /**
  * Auth artifacts are resolved against this file, not the cwd — Nx, Playwright
@@ -29,10 +32,17 @@ import { CALENDAR_USER_EMAIL, CALENDAR_USER_PASSWORD } from './calendar/calendar
 export const AUTH_DIR = path.resolve(__dirname, '..', '.auth');
 
 /** The only hosts this suite may ever touch. */
-const LOCAL_HOSTS = ['localhost', '127.0.0.1', '::1', '[::1]', 'host.docker.internal'];
+const LOCAL_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '::1',
+    '[::1]',
+    'host.docker.internal',
+];
 
 /** The PlaceOS stack under test. */
-export const BACKEND_URL = process.env.E2E_BACKEND_URL ?? 'https://localhost:8443';
+export const BACKEND_URL =
+    process.env.E2E_BACKEND_URL ?? 'https://localhost:8443';
 
 /** Where the SPA is served (the Angular dev server). */
 export const APP_URL = process.env.E2E_APP_URL ?? 'http://localhost:4214';
@@ -49,7 +59,9 @@ export const WORKERS = Number(process.env.E2E_WORKERS ?? 4);
  * How long Playwright waits for the Workplace dev server to answer, in
  * milliseconds (the config's webServer.timeout). Default 180000.
  */
-export const WEBSERVER_TIMEOUT_MS = Number(process.env.E2E_WEBSERVER_TIMEOUT_MS ?? 180_000);
+export const WEBSERVER_TIMEOUT_MS = Number(
+    process.env.E2E_WEBSERVER_TIMEOUT_MS ?? 180_000,
+);
 if (!Number.isFinite(WEBSERVER_TIMEOUT_MS) || WEBSERVER_TIMEOUT_MS <= 0) {
     throw new Error(
         `E2E_WEBSERVER_TIMEOUT_MS must be a positive number of milliseconds, got '${process.env.E2E_WEBSERVER_TIMEOUT_MS}'.`,
@@ -94,7 +106,8 @@ export interface Role {
 
 const ADMIN_EMAIL = process.env.E2E_ADMIN_EMAIL ?? 'support@place.tech';
 const ADMIN_PASSWORD = process.env.E2E_ADMIN_PASSWORD ?? 'development';
-const STAFF_PASSWORD = process.env.E2E_STAFF_PASSWORD ?? 'e2e-staff-development';
+const STAFF_PASSWORD =
+    process.env.E2E_STAFF_PASSWORD ?? 'e2e-staff-development';
 
 /** Per-worker non-admin address. Seeded by seed.ts for 0..WORKERS-1. */
 export function staffEmail(workerIndex: number): string {
@@ -109,7 +122,10 @@ export const DESK_PREFIX = 'e2e-desk-';
  * each worker its own removes the only real contention in a parallel run.
  */
 export function deskFor(workerIndex: number): { id: string; name: string } {
-    return { id: `${DESK_PREFIX}${workerIndex}`, name: `E2E Desk ${workerIndex}` };
+    return {
+        id: `${DESK_PREFIX}${workerIndex}`,
+        name: `E2E Desk ${workerIndex}`,
+    };
 }
 
 /** Asset-id prefix of the scoping desks. seed.ts creates `${SCOPING_DESK_PREFIX}0..WORKERS-1`. */
@@ -121,7 +137,10 @@ export const SCOPING_DESK_PREFIX = 'e2e-scoping-desk-';
  * `home-upcoming.spec.ts` books it as the second desk of this worker's own
  * user. No other spec may book it.
  */
-export function scopingDeskFor(workerIndex: number): { id: string; name: string } {
+export function scopingDeskFor(workerIndex: number): {
+    id: string;
+    name: string;
+} {
     return {
         id: `${SCOPING_DESK_PREFIX}${workerIndex}`,
         name: `E2E Scoping Desk ${workerIndex}`,
@@ -154,7 +173,10 @@ export function roleFor(name: RoleName, workerIndex = 0): Role {
             email: CALENDAR_USER_EMAIL,
             password: CALENDAR_USER_PASSWORD,
             storagePath: path.join(AUTH_DIR, `calendar-${workerIndex}.json`),
-            tokenPath: path.join(AUTH_DIR, `calendar-${workerIndex}.token.json`),
+            tokenPath: path.join(
+                AUTH_DIR,
+                `calendar-${workerIndex}.token.json`,
+            ),
         };
     }
     return {

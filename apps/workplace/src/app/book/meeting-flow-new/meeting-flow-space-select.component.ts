@@ -73,9 +73,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                     (click)="filters_open.set(false)"
                 ></div>
             }
-            <div
-                class="relative flex w-full overflow-hidden p-2 sm:space-x-2"
-            >
+            <div class="relative flex w-full overflow-hidden p-2 sm:space-x-2">
                 <!-- Filters Sidebar - Desktop -->
                 <div
                     class="hidden sm:sticky sm:top-0 sm:block sm:w-[20rem] sm:max-w-[20rem]"
@@ -85,7 +83,10 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             {{ 'COMMON.FILTERS' | translate }}
                         </h3>
                     </div>
-                    <div cdkScrollable class="flex flex-col overflow-y-auto p-4">
+                    <div
+                        cdkScrollable
+                        class="flex flex-col overflow-y-auto p-4"
+                    >
                         <label for="location">{{
                             'COMMON.LOCATION' | translate
                         }}</label>
@@ -97,8 +98,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                     (ngModelChange)="setRegion($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        'COMMON.REGION_ANY'
-                                            | translate
+                                        'COMMON.REGION_ANY' | translate
                                     "
                                 >
                                     @for (reg of regions(); track reg) {
@@ -109,7 +109,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 </mat-select>
                             </mat-form-field>
                         }
-                        @if (!use_region() && (buildings())?.length > 1) {
+                        @if (!use_region() && buildings()?.length > 1) {
                             <mat-form-field appearance="outline" class="w-full">
                                 <mat-select
                                     name="building"
@@ -117,8 +117,8 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                     (ngModelChange)="setBuilding($event)"
                                     [ngModelOptions]="{ standalone: true }"
                                     [placeholder]="
-                                        (building())?.display_name ||
-                                        (building())?.name
+                                        building()?.display_name ||
+                                        building()?.name
                                     "
                                 >
                                     @for (bld of buildings(); track bld) {
@@ -183,7 +183,10 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 (ngModelChange)="setCapacity($event)"
                                 [ngModelOptions]="{ standalone: true }"
                             >
-                                @for (opt of capacity_options; track opt.value) {
+                                @for (
+                                    opt of capacity_options;
+                                    track opt.value
+                                ) {
                                     <mat-option [value]="opt.value">
                                         {{ opt.label | translate }}
                                     </mat-option>
@@ -210,7 +213,10 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                     class="flex-1"
                                     [ngModel]="field('date')"
                                     (ngModelChange)="
-                                        model.update((m) => ({ ...m, date: $event }))
+                                        model.update((m) => ({
+                                            ...m,
+                                            date: $event,
+                                        }))
                                     "
                                     [ngModelOptions]="{ standalone: true }"
                                     [disabled]="form.date().disabled()"
@@ -270,7 +276,9 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             <settings-toggle
                                 class="mb-4"
                                 [ngModel]="filters()?.show_fav"
-                                (ngModelChange)="setFilters({ show_fav: $event })"
+                                (ngModelChange)="
+                                    setFilters({ show_fav: $event })
+                                "
                                 [ngModelOptions]="{ standalone: true }"
                                 >{{
                                     'COMMON.FAVOURITES_ONLY' | translate
@@ -280,7 +288,9 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                         @if (view() === 'list') {
                             @if (features()?.length) {
                                 <h2 class="text-lg font-medium">
-                                    {{ 'CALENDAR_EVENT.FACILITIES' | translate }}
+                                    {{
+                                        'CALENDAR_EVENT.FACILITIES' | translate
+                                    }}
                                 </h2>
                                 <div class="mb-4 flex flex-col space-y-2">
                                     @for (feat of features(); track feat) {
@@ -288,10 +298,13 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                             <settings-toggle
                                                 class="w-full"
                                                 [label]="
-                                                    feature_display()[feat] || feat
+                                                    feature_display()[feat] ||
+                                                    feat
                                                 "
                                                 [ngModel]="
-                                                    filters()?.features?.includes(feat)
+                                                    filters()?.features?.includes(
+                                                        feat
+                                                    )
                                                 "
                                                 (ngModelChange)="
                                                     toggleFeature(feat, $event)
@@ -314,8 +327,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             filters
                             class="border-base-300 bg-base-100 flex flex-1 flex-wrap rounded-lg border p-2"
                         >
-                            @let feature_list =
-                                filters()?.features || [];
+                            @let feature_list = filters()?.features || [];
                             @let zones = options()?.zones || [];
                             @let capacity = filters()?.capacity || -1;
                             @let event = model();
@@ -472,17 +484,14 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                     <label for="location">{{
                         'COMMON.LOCATION' | translate
                     }}</label>
-                    @if (use_region() && (regions())?.length) {
+                    @if (use_region() && regions()?.length) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="region"
                                 [ngModel]="region"
                                 (ngModelChange)="setRegion($event)"
                                 [ngModelOptions]="{ standalone: true }"
-                                [placeholder]="
-                                    'COMMON.REGION_ANY'
-                                        | translate
-                                "
+                                [placeholder]="'COMMON.REGION_ANY' | translate"
                             >
                                 @for (reg of regions(); track reg) {
                                     <mat-option [value]="reg">
@@ -492,7 +501,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                             </mat-select>
                         </mat-form-field>
                     }
-                    @if (!use_region() && (buildings())?.length > 1) {
+                    @if (!use_region() && buildings()?.length > 1) {
                         <mat-form-field appearance="outline" class="w-full">
                             <mat-select
                                 name="building"
@@ -500,8 +509,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 (ngModelChange)="setBuilding($event)"
                                 [ngModelOptions]="{ standalone: true }"
                                 [placeholder]="
-                                    (building())?.display_name ||
-                                    (building())?.name
+                                    building()?.display_name || building()?.name
                                 "
                             >
                                 @for (bld of buildings(); track bld) {
@@ -582,7 +590,10 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                 class="flex-1"
                                 [ngModel]="field('date')"
                                 (ngModelChange)="
-                                    model.update((m) => ({ ...m, date: $event }))
+                                    model.update((m) => ({
+                                        ...m,
+                                        date: $event,
+                                    }))
                                 "
                                 [ngModelOptions]="{ standalone: true }"
                                 [disabled]="form.date().disabled()"
@@ -657,14 +668,20 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                                     @if (!hide_features().includes(feat)) {
                                         <settings-toggle
                                             class="w-full"
-                                            [label]="feature_display()[feat] || feat"
+                                            [label]="
+                                                feature_display()[feat] || feat
+                                            "
                                             [ngModel]="
-                                                filters()?.features?.includes(feat)
+                                                filters()?.features?.includes(
+                                                    feat
+                                                )
                                             "
                                             (ngModelChange)="
                                                 toggleFeature(feat, $event)
                                             "
-                                            [ngModelOptions]="{ standalone: true }"
+                                            [ngModelOptions]="{
+                                                standalone: true,
+                                            }"
                                         ></settings-toggle>
                                     }
                                 }

@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
-import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MatDialogRef } from '@angular/material/dialog';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-import { RoleManagementModalComponent } from '../../app/staff/role-management-modal.component';
 import { EmergencyContactsService } from '../../app/staff/emergency-contacts.service';
+import { RoleManagementModalComponent } from '../../app/staff/role-management-modal.component';
 
 describe('RoleManagementModalComponent', () => {
     let spectator: Spectator<RoleManagementModalComponent>;

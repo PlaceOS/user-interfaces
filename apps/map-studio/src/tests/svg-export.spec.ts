@@ -89,10 +89,16 @@ describe('validateObjects', () => {
         const messages = validateObjects([
             object({ id: 'a', svg_id: 'dupe', label: 'A' }),
             object({ id: 'b', svg_id: 'dupe', label: 'B' }),
-            { ...object({ id: 'c', svg_id: 'c' }), label: '', geometry: {} as never },
+            {
+                ...object({ id: 'c', svg_id: 'c' }),
+                label: '',
+                geometry: {} as never,
+            },
         ]).map((issue) => issue.message);
 
-        expect(messages.filter((m) => m.includes('has no label'))).toHaveLength(1);
+        expect(messages.filter((m) => m.includes('has no label'))).toHaveLength(
+            1,
+        );
         expect(
             messages.filter((m) => m.includes('has empty geometry')),
         ).toHaveLength(1);

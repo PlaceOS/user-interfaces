@@ -73,9 +73,9 @@ test.describe('Explore / Map', () => {
         await expect(page.locator('app-explore')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        await expect(page.getByRole('button', { name: 'Clear Pin' })).toBeVisible(
-            { timeout: LOAD_TIMEOUT },
-        );
+        await expect(
+            page.getByRole('button', { name: 'Clear Pin' }),
+        ).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
     test('US-045: map controls and legend render availability context', async ({

@@ -12,7 +12,9 @@ test.describe('Error & access states', () => {
         await page.goto('/#/unauthorised?mock=true');
         // Not the host element: its only child is `absolute inset-0`, so the
         // host has no box and Playwright reports it as hidden.
-        await expect(page.locator('app-unauthorised [unauthorised]')).toBeVisible({
+        await expect(
+            page.locator('app-unauthorised [unauthorised]'),
+        ).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
     });

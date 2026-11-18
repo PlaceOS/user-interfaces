@@ -11,8 +11,8 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import {
     type Debug,
     organisationRoutes,
-    PRESETS,
     prepareSettings,
+    PRESETS,
     REQUEST,
     type Settings,
     test,
@@ -98,7 +98,11 @@ async function prepare(page: Page, overrides: Settings) {
         ],
         levels: LEVELS,
         metadata: false,
-        clearSession: ['PLACEOS.booking_form', 'PLACEOS.booking_form_options', 'PLACEOS.booking_form_filters'],
+        clearSession: [
+            'PLACEOS.booking_form',
+            'PLACEOS.booking_form_options',
+            'PLACEOS.booking_form_filters',
+        ],
     });
     const fixture = await prepareSettings(page, overrides, {
         base: BASE,
@@ -118,91 +122,92 @@ const preferToggle = (page: Page) =>
         .locator('parking-request-form-details settings-toggle')
         .filter({ hasText: 'Prefer booked location first' });
 
-test(
-    'parking.hidden_buildings empty lists every building with parking levels',
-    async ({ staffPage }) => {
-        const root = await prepare(staffPage, {
-            'app.parking.hidden_buildings': [],
-            'app.parking.hide_prefer_toggle': true,
-        });
-        await expect(
-            root.getByText('E2E Parking Building A', { exact: true }),
-        ).toBeVisible();
-        await expect(
-            root.getByText('E2E Parking Building B', { exact: true }),
-        ).toBeVisible();
-        await expect(
-            root.getByText('E2E Parking Building C', { exact: true }),
-        ).toBeVisible();
-    },
-);
+test('parking.hidden_buildings empty lists every building with parking levels', async ({
+    staffPage,
+}) => {
+    const root = await prepare(staffPage, {
+        'app.parking.hidden_buildings': [],
+        'app.parking.hide_prefer_toggle': true,
+    });
+    await expect(
+        root.getByText('E2E Parking Building A', { exact: true }),
+    ).toBeVisible();
+    await expect(
+        root.getByText('E2E Parking Building B', { exact: true }),
+    ).toBeVisible();
+    await expect(
+        root.getByText('E2E Parking Building C', { exact: true }),
+    ).toBeVisible();
+});
 
-test(
-    'parking.hidden_buildings removes the listed building from the options',
-    async ({ staffPage }) => {
-        const root = await prepare(staffPage, {
-            'app.parking.hidden_buildings': [BUILDING_A],
-            'app.parking.hide_prefer_toggle': true,
-        });
-        await expect(
-            root.getByText('E2E Parking Building A', { exact: true }),
-        ).toHaveCount(0);
-        await expect(
-            root.getByText('E2E Parking Building B', { exact: true }),
-        ).toBeVisible();
-        await expect(
-            root.getByText('E2E Parking Building C', { exact: true }),
-        ).toBeVisible();
-        // default_building is A, which is now hidden. The form's effect moves
-        // the active building to the first listed building (B).
-        await expect.poll(() => staffPage.evaluate(() =>
-            (window as Debug).app?.org?.building?.id), { message: 'active building' }).toBe(BUILDING_B);
-        const locations = root
-            .getByRole('radiogroup', { name: 'Location Preference', exact: true })
-            .getByRole('radio');
-        await expect(locations).toHaveCount(2);
-        await expect(locations.filter({ hasText: 'E2E Parking Building B' }))
-            .toHaveAttribute('aria-checked', 'true');
-        await expect(locations.filter({ hasText: 'E2E Parking Building C' }))
-            .toHaveAttribute('aria-checked', 'false');
-    },
-);
+test('parking.hidden_buildings removes the listed building from the options', async ({
+    staffPage,
+}) => {
+    const root = await prepare(staffPage, {
+        'app.parking.hidden_buildings': [BUILDING_A],
+        'app.parking.hide_prefer_toggle': true,
+    });
+    await expect(
+        root.getByText('E2E Parking Building A', { exact: true }),
+    ).toHaveCount(0);
+    await expect(
+        root.getByText('E2E Parking Building B', { exact: true }),
+    ).toBeVisible();
+    await expect(
+        root.getByText('E2E Parking Building C', { exact: true }),
+    ).toBeVisible();
+    // default_building is A, which is now hidden. The form's effect moves
+    // the active building to the first listed building (B).
+    await expect
+        .poll(
+            () =>
+                staffPage.evaluate(
+                    () => (window as Debug).app?.org?.building?.id,
+                ),
+            { message: 'active building' },
+        )
+        .toBe(BUILDING_B);
+    const locations = root
+        .getByRole('radiogroup', { name: 'Location Preference', exact: true })
+        .getByRole('radio');
+    await expect(locations).toHaveCount(2);
+    await expect(
+        locations.filter({ hasText: 'E2E Parking Building B' }),
+    ).toHaveAttribute('aria-checked', 'true');
+    await expect(
+        locations.filter({ hasText: 'E2E Parking Building C' }),
+    ).toHaveAttribute('aria-checked', 'false');
+});
 
-test(
-    'parking.hide_prefer_toggle false shows the location preference toggle',
-    async ({ staffPage }) => {
-        const root = await prepare(staffPage, {
-            'app.parking.hide_prefer_toggle': false,
-        });
-        await expect(
-            root.getByText('E2E Parking Building A', { exact: true }),
-        ).toBeVisible();
-        await expect(
-            root.getByText('E2E Parking Building B', { exact: true }),
-        ).toBeVisible();
-        await expect(preferToggle(staffPage)).toHaveCount(1);
-        await expect(preferToggle(staffPage)).toBeVisible();
-        await expect(
-            staffPage.locator('parking-request-success'),
-        ).toHaveCount(0);
-    },
-);
+test('parking.hide_prefer_toggle false shows the location preference toggle', async ({
+    staffPage,
+}) => {
+    const root = await prepare(staffPage, {
+        'app.parking.hide_prefer_toggle': false,
+    });
+    await expect(
+        root.getByText('E2E Parking Building A', { exact: true }),
+    ).toBeVisible();
+    await expect(
+        root.getByText('E2E Parking Building B', { exact: true }),
+    ).toBeVisible();
+    await expect(preferToggle(staffPage)).toHaveCount(1);
+    await expect(preferToggle(staffPage)).toBeVisible();
+    await expect(staffPage.locator('parking-request-success')).toHaveCount(0);
+});
 
-test(
-    'parking.hide_prefer_toggle true removes the location preference toggle',
-    async ({ staffPage }) => {
-        const root = await prepare(staffPage, {
-            'app.parking.hide_prefer_toggle': true,
-        });
-        await expect(
-            root.getByText('E2E Parking Building A', { exact: true }),
-        ).toBeVisible();
-        await expect(
-            root.getByText('E2E Parking Building B', { exact: true }),
-        ).toBeVisible();
-        await expect(preferToggle(staffPage)).toHaveCount(0);
-        await expect(
-            staffPage.locator('parking-request-success'),
-        ).toHaveCount(0);
-    },
-);
+test('parking.hide_prefer_toggle true removes the location preference toggle', async ({
+    staffPage,
+}) => {
+    const root = await prepare(staffPage, {
+        'app.parking.hide_prefer_toggle': true,
+    });
+    await expect(
+        root.getByText('E2E Parking Building A', { exact: true }),
+    ).toBeVisible();
+    await expect(
+        root.getByText('E2E Parking Building B', { exact: true }),
+    ).toBeVisible();
+    await expect(preferToggle(staffPage)).toHaveCount(0);
+    await expect(staffPage.locator('parking-request-success')).toHaveCount(0);
+});

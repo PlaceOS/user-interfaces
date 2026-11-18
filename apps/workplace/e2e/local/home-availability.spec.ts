@@ -26,7 +26,7 @@
  * The count is shared by all workers, so the test asserts that the tab lists
  * a level, not an exact number.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { LandingNewPage } from '../../../../e2e/support/home/landing-new.page';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 
@@ -46,7 +46,9 @@ test.describe('home page — room availability', () => {
         // Each row has the icon of its tab, which keeps a row of the Desks
         // tab from passing while the panel changes tab.
         const level = home.availableLevels
-            .filter({ has: staffPage.locator('icon', { hasText: 'meeting_room' }) })
+            .filter({
+                has: staffPage.locator('icon', { hasText: 'meeting_room' }),
+            })
             .first();
         await expect(
             level,

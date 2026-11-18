@@ -52,7 +52,9 @@ const MAX_HOST_ATTEMPTS = 3;
 
 /** A pattern that matches an element whose whole text is `text`. */
 function wholeText(text: string): RegExp {
-    return new RegExp(`^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`);
+    return new RegExp(
+        `^\\s*${text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*$`,
+    );
 }
 
 export class MeetingFlow {
@@ -94,7 +96,9 @@ export class MeetingFlow {
 
     /** The inline error of the title. Shows when a search is refused for no title. */
     get titleError(): Locator {
-        return this.details.locator('mat-form-field:has(input[name$=".title"]) mat-error');
+        return this.details.locator(
+            'mat-form-field:has(input[name$=".title"]) mat-error',
+        );
     }
 
     get dateButton(): Locator {
@@ -171,9 +175,14 @@ export class MeetingFlow {
                 '`app.events.allow_all_day` is set',
         ).toHaveCount(1, { timeout: 10_000 });
         if ((await this.allDay.isChecked()) !== want) {
-            await this.details.locator('mat-checkbox:has(input[name$=".all_day"])').click();
+            await this.details
+                .locator('mat-checkbox:has(input[name$=".all_day"])')
+                .click();
         }
-        const check = expect(this.allDay, `All Day should be ${want ? 'on' : 'off'}`);
+        const check = expect(
+            this.allDay,
+            `All Day should be ${want ? 'on' : 'off'}`,
+        );
         await (want ? check.toBeChecked() : check.not.toBeChecked());
     }
 
@@ -222,7 +231,10 @@ export class MeetingFlow {
             els.map((el) => el.getAttribute('data-time') ?? ''),
         );
         await this.page.keyboard.press('Escape');
-        await expect(options.first(), 'the start-time menu stayed open').toBeHidden({
+        await expect(
+            options.first(),
+            'the start-time menu stayed open',
+        ).toBeHidden({
             timeout: 10_000,
         });
         return values.filter(Boolean);
@@ -237,9 +249,11 @@ export class MeetingFlow {
             els.map((el) => Number(el.getAttribute('data-duration'))),
         );
         await this.page.keyboard.press('Escape');
-        await expect(options.first(), 'the length menu stayed open').toBeHidden({
-            timeout: 10_000,
-        });
+        await expect(options.first(), 'the length menu stayed open').toBeHidden(
+            {
+                timeout: 10_000,
+            },
+        );
         return values.filter((v) => Number.isFinite(v));
     }
 
@@ -289,7 +303,9 @@ export class MeetingFlow {
         throw new Error(
             `no host option for ${email} after ${MAX_HOST_ATTEMPTS} tries. The panel ` +
                 `offered ${offered.length}: ${JSON.stringify(
-                    offered.map((t) => t.replace(/\s+/g, ' ').trim()).slice(0, 8),
+                    offered
+                        .map((t) => t.replace(/\s+/g, ' ').trim())
+                        .slice(0, 8),
                 )}. With \`app.basic_user_search\` the field searches the PlaceOS ` +
                 `user list, where seed.ts creates one staff user per worker.`,
         );
@@ -333,9 +349,9 @@ export class MeetingFlow {
 
     /** The toggle of one room feature. The feature name is test data. */
     featureToggle(feature: string): Locator {
-        return this.filters
-            .locator('settings-toggle')
-            .filter({ has: this.page.locator('div', { hasText: wholeText(feature) }) });
+        return this.filters.locator('settings-toggle').filter({
+            has: this.page.locator('div', { hasText: wholeText(feature) }),
+        });
     }
 
     /** The rooms the list offers on the current page. */
@@ -367,7 +383,9 @@ export class MeetingFlow {
     private listPageButton(icon: string): Locator {
         return this.roomSelect
             .locator('meeting-flow-space-list button[icon]')
-            .filter({ has: this.page.locator('icon', { hasText: wholeText(icon) }) });
+            .filter({
+                has: this.page.locator('icon', { hasText: wholeText(icon) }),
+            });
     }
 
     get nextListPage(): Locator {
@@ -401,12 +419,19 @@ export class MeetingFlow {
 
     /** Set a filter toggle to a state. Reads the real state first. */
     async setToggle(toggle: Locator, want: boolean): Promise<void> {
-        await expect(toggle, 'the filter toggle is not in the filter column').toHaveCount(1, {
+        await expect(
+            toggle,
+            'the filter toggle is not in the filter column',
+        ).toHaveCount(1, {
             timeout: 10_000,
         });
         const box = toggle.locator('input[type="checkbox"]');
-        if ((await box.isChecked()) !== want) await toggle.locator('button').first().click();
-        const check = expect(box, `the filter toggle should be ${want ? 'on' : 'off'}`);
+        if ((await box.isChecked()) !== want)
+            await toggle.locator('button').first().click();
+        const check = expect(
+            box,
+            `the filter toggle should be ${want ? 'on' : 'off'}`,
+        );
         await (want ? check.toBeChecked() : check.not.toBeChecked());
     }
 
@@ -422,8 +447,11 @@ export class MeetingFlow {
      */
     private async turnListPage(button: Locator): Promise<boolean> {
         // `count` first: `isEnabled` waits for a button that is not rendered.
-        if (!(await button.count()) || !(await button.isEnabled())) return false;
-        const first = (await this.roomNames.first().innerText({ timeout: 2_000 })).trim();
+        if (!(await button.count()) || !(await button.isEnabled()))
+            return false;
+        const first = (
+            await this.roomNames.first().innerText({ timeout: 2_000 })
+        ).trim();
         await button.click({ timeout: 2_000 });
         await expect(
             this.roomNames.first(),
@@ -450,7 +478,9 @@ export class MeetingFlow {
         await this.showFirstListPage();
         const names: string[] = [];
         for (let page = 1; page <= MAX_LIST_PAGES; page++) {
-            names.push(...(await this.roomNames.allInnerTexts()).map((t) => t.trim()));
+            names.push(
+                ...(await this.roomNames.allInnerTexts()).map((t) => t.trim()),
+            );
             if (!(await this.showNextListPage())) break;
         }
         await this.showFirstListPage();
@@ -518,7 +548,9 @@ export class MeetingFlow {
         // Say what IS on offer. "Not found" cannot tell apart a room that was
         // never seeded, one on the wrong zone, and one that the list leaves
         // out because it is not free at the chosen time.
-        const offered = await this.offeredRoomNames().catch(() => [] as string[]);
+        const offered = await this.offeredRoomNames().catch(
+            () => [] as string[],
+        );
         throw new Error(
             `room "${name}" could not be used in the room list. The list offers ` +
                 `${offered.length}: ${JSON.stringify(offered)}. Check the room is ` +
@@ -543,8 +575,12 @@ export class MeetingFlow {
         await this.onRoom(name, async (item) => {
             const select = item.locator('button[name="select-space"]');
             const selected = select.locator('icon', { hasText: 'task_alt' });
-            if (!(await selected.isVisible())) await select.click({ timeout: 2_000 });
-            await expect(selected, `room "${name}" should show as selected`).toBeVisible({
+            if (!(await selected.isVisible()))
+                await select.click({ timeout: 2_000 });
+            await expect(
+                selected,
+                `room "${name}" should show as selected`,
+            ).toBeVisible({
                 timeout: 2_000,
             });
         });
@@ -568,12 +604,16 @@ export class MeetingFlow {
      * number of rooms does not change, so only the name shows the swap.
      */
     async chosenRoomNames(): Promise<string[]> {
-        const names = this.options.locator('icon:has-text("room_preferences") + div');
+        const names = this.options.locator(
+            'icon:has-text("room_preferences") + div',
+        );
         return (await names.allInnerTexts()).map((t) => t.trim());
     }
 
     get attendeeEntry(): Locator {
-        return this.options.locator('a-user-list-field input[name="user_email"]');
+        return this.options.locator(
+            'a-user-list-field input[name="user_email"]',
+        );
     }
 
     get attendeeChips(): Locator {
@@ -705,10 +745,15 @@ export class MeetingFlow {
         await item.first().click();
 
         const add = this.page.locator('button[name="toggle-catering"]');
-        await expect(add, 'the item details did not open').toBeVisible({ timeout: 10_000 });
+        await expect(add, 'the item details did not open').toBeVisible({
+            timeout: 10_000,
+        });
         await add.click();
         const done = this.page.locator('button[name="catering-return"]');
-        await expect(done, 'the catering modal has no confirm button').toBeVisible({
+        await expect(
+            done,
+            'the catering modal has no confirm button',
+        ).toBeVisible({
             timeout: 10_000,
         });
         await done.click();
@@ -740,7 +785,9 @@ export class MeetingFlow {
      * (`validateAssetRequestsForResource`).
      */
     assetGroup(type_name: string): Locator {
-        return this.assetModal.locator('asset-list li[asset]').filter({ hasText: type_name });
+        return this.assetModal
+            .locator('asset-list li[asset]')
+            .filter({ hasText: type_name });
     }
 
     /**
@@ -763,7 +810,10 @@ export class MeetingFlow {
         ).toBeVisible({ timeout: 20_000 });
         // The field has one `btn` button in each of its two states.
         await this.assetField.locator('button[btn]').click();
-        await expect(this.assetModal, 'the asset modal did not open').toBeVisible({
+        await expect(
+            this.assetModal,
+            'the asset modal did not open',
+        ).toBeVisible({
             timeout: 20_000,
         });
         return this.assetModal;
@@ -811,7 +861,10 @@ export class MeetingFlow {
                 .then(() => true)
                 .catch(() => false);
             if (!found) {
-                const offered = await modal.locator('asset-list').innerText().catch(() => '');
+                const offered = await modal
+                    .locator('asset-list')
+                    .innerText()
+                    .catch(() => '');
                 throw new Error(
                     `no requestable asset group called "${type_name}". The modal shows: ` +
                         `${JSON.stringify(offered.replace(/\n+/g, ' | ').slice(0, 300))}. ` +
@@ -823,7 +876,10 @@ export class MeetingFlow {
             await group.locator('button[select]').click();
 
             const toggle = modal.locator('button[name="toggle-asset"]');
-            await expect(toggle, 'the asset details pane did not open').toBeEnabled({
+            await expect(
+                toggle,
+                'the asset details pane did not open',
+            ).toBeEnabled({
                 timeout: 15_000,
             });
             await toggle.click();
@@ -849,7 +905,9 @@ export class MeetingFlow {
                 `the asset modal returned no request for "${type_name}" on attempt ` +
                 `${attempt}/${MAX_ASSET_ATTEMPTS}`;
             test.info().annotations.push({ type: 'NEW-F5', description });
-            console.warn(`  ! NEW-F5: ${description} — see \`addAssetRequest\``);
+            console.warn(
+                `  ! NEW-F5: ${description} — see \`addAssetRequest\``,
+            );
         }
         throw new Error(
             `"${type_name}" was requested ${MAX_ASSET_ATTEMPTS} times and the last step ` +
@@ -864,9 +922,9 @@ export class MeetingFlow {
      * matches nothing while the flow is sending.
      */
     get confirm(): Locator {
-        return this.options
-            .locator('button[btn]')
-            .filter({ has: this.page.locator('icon', { hasText: 'task_alt' }) });
+        return this.options.locator('button[btn]').filter({
+            has: this.page.locator('icon', { hasText: 'task_alt' }),
+        });
     }
 
     // ---------------------------------------------------------------- success

@@ -1,7 +1,10 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     OrganisationService,
     setCurrentUser,

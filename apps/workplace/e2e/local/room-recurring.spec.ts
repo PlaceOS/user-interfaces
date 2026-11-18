@@ -64,23 +64,27 @@
  * `app.events.allow_recurrence` (ROOM_RECURRENCE_MODE) or the control is not
  * rendered. The details step also hides it for meetings longer than 24 hours.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { STAFF_API, deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
+import { fromZonedTime } from 'date-fns-tz';
+import {
+    STAFF_API,
+    deleteBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import {
     ROOM_SLOTS_3,
     THIRD_DAY,
     slotFor,
 } from '../../../../e2e/support/room/room.env';
+import { setDate } from '../../../../e2e/support/room/room.flows';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { releaseRoom } from '../../../../e2e/support/room/room.api';
 import {
     ROOM_BASE_SETTINGS,
     ROOM_RECURRENCE_MODE,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
-import { setDate } from '../../../../e2e/support/room/room.flows';
-import { fromZonedTime } from 'date-fns-tz';
 
 const DAY = 86_400;
 
@@ -94,7 +98,10 @@ function dayBounds(days_ahead: number) {
 }
 
 /** Room bookings on one local day. */
-function roomBookingsOn(api: Parameters<typeof deleteBooking>[0], days_ahead: number) {
+function roomBookingsOn(
+    api: Parameters<typeof deleteBooking>[0],
+    days_ahead: number,
+) {
     return roomBookingsIn(api, dayBounds(days_ahead));
 }
 
@@ -264,9 +271,13 @@ test.describe('recurring room bookings', () => {
 
             // 3. And the later instances must exist, a week apart.
             for (const week of [1, 2]) {
-                const rows = await roomBookingsOn(staffApi, THIRD_DAY + week * 7);
+                const rows = await roomBookingsOn(
+                    staffApi,
+                    THIRD_DAY + week * 7,
+                );
                 expect(
-                    rows.filter((booking) => booking.asset_id === room.id).length,
+                    rows.filter((booking) => booking.asset_id === room.id)
+                        .length,
                     `a weekly meeting must also be held ${week} week(s) later. ` +
                         `Without this a "recurring" booking is a single meeting`,
                 ).toBeGreaterThan(0);
@@ -363,7 +374,10 @@ test.describe('recurring room bookings', () => {
             // The same day, one and two weeks on: present. This is the behaviour
             // the app's own booking never gets.
             for (const week of [0, 1, 2]) {
-                const rows = await roomBookingsIn(staffApi, sydneyDay(week * 7));
+                const rows = await roomBookingsIn(
+                    staffApi,
+                    sydneyDay(week * 7),
+                );
                 expect(
                     rows.some((booking) => booking.id === id),
                     `a weekly recurrence must be returned for week ${week}. If this ` +

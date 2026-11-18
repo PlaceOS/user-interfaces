@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { i18n, SettingsService } from '@placeos/common';
 import { FooterMenuComponent } from '../components/footer-menu.component';
 import { TopbarComponent } from '../components/topbar.component';

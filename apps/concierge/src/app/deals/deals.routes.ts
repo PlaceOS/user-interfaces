@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { DealsComponent } from './deals.component';
 import { DealsListComponent } from './deals-list.component';
 import { DealsManageComponent } from './deals-manage.component';
+import { DealsComponent } from './deals.component';
 
 export const ROUTES: Routes = [
     {

@@ -90,8 +90,9 @@ describe('RoomBookingHistoryModalComponent', () => {
         expect(ts_client.get).toHaveBeenCalledWith(
             expect.stringContaining('system_ids=sys-1'),
         );
-        expect(
-            spectator.component.histories()['e1'].map((c) => c.id),
-        ).toEqual(['c2', 'c1']);
+        expect(spectator.component.histories()['e1'].map((c) => c.id)).toEqual([
+            'c2',
+            'c1',
+        ]);
     });
 });

@@ -322,7 +322,10 @@ export class MapEditorCanvasComponent implements AfterViewInit {
             this.annotations_visible.set(true);
             const [x, y] = this._mapPoint(event);
             const kind = this.annotation_tool() as
-                'ellipse' | 'box' | 'path' | 'arrow';
+                | 'ellipse'
+                | 'box'
+                | 'path'
+                | 'arrow';
             this._mark.set({
                 n: 0,
                 kind,

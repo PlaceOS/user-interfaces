@@ -1,4 +1,4 @@
-import { Component, computed, inject, signal, OnInit } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { BookingFormService } from '@placeos/bookings';
@@ -16,7 +16,10 @@ import { TranslatePipe } from '@placeos/components';
                     {{ copy().title | translate: { type: asset_type() } }}
                 </h2>
                 <div class="py-4">
-                    <img src="assets/icons/not-found.svg" class="h-32 sm:h-64" />
+                    <img
+                        src="assets/icons/not-found.svg"
+                        class="h-32 sm:h-64"
+                    />
                 </div>
                 <p class="max-w-lg text-center">
                     {{ copy().message | translate }}
@@ -109,9 +112,7 @@ export class CodeFlowErrorComponent extends AsyncHandler implements OnInit {
             'route.query',
             this._route.queryParamMap.subscribe((params) => {
                 this.type.set(params.get('type') || 'other');
-                this.asset_type.set(
-                    params.get('asset_type') || 'resource',
-                );
+                this.asset_type.set(params.get('asset_type') || 'resource');
                 this.asset_id.set(params.get('asset_id'));
             }),
         );

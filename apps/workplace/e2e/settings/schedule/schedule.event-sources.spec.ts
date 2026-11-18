@@ -85,7 +85,10 @@ async function prepare(page: Page, source: 'api' | 'driver') {
             'app.schedule.event_sources',
         ],
     });
-    return { events: () => events_requests, deskBookings: () => desk_booking_requests };
+    return {
+        events: () => events_requests,
+        deskBookings: () => desk_booking_requests,
+    };
 }
 
 type ScheduleSourceState = { sources: string[]; query_ready: boolean };

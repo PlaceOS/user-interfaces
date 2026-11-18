@@ -1,4 +1,7 @@
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { PlaceOS_Service, UploadsService } from '@placeos/common';
 import {
     ChatComponent,

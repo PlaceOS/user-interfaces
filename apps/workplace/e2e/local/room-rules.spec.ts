@@ -25,13 +25,16 @@
  * page (`offeredRoomNames`).
  */
 import { uniqueTitle } from '../../../../e2e/support/api';
-import { test, expect } from '../../../../e2e/support/fixtures';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import {
     roomForWorker,
     setRoomBookingRules,
 } from '../../../../e2e/support/room/room.seed';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
-import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 test.describe('zone booking rules', () => {
     test('a room hidden by a booking rule is not offered, and the others still are', async ({

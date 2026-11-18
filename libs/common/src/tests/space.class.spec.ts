@@ -51,9 +51,7 @@ describe('Space', () => {
             expect(space.inUseAt(start, 30)).toBe(false);
             expect(space.inUseAt(start + 1000, 60)).toBe(false);
             const free = new Space({
-                availability: [
-                    { date: start, duration: 60, status: 'free' },
-                ],
+                availability: [{ date: start, duration: 60, status: 'free' }],
             });
             expect(free.inUseAt(start, 60)).toBe(false);
         });

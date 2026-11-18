@@ -12,8 +12,8 @@ import {
     type DebugWindow,
     getOnly,
     organisationRoutes,
-    PRESETS,
     prepareSettings,
+    PRESETS,
     REQUEST,
     type Settings,
     test,
@@ -100,53 +100,65 @@ async function prepare(page: Page, enabled: boolean) {
         buildings: BUILDINGS,
         levels: LEVELS,
         metadata: false,
-        clearSession: ['PLACEOS.booking_form', 'PLACEOS.booking_form_options', 'PLACEOS.booking_form_filters'],
+        clearSession: [
+            'PLACEOS.booking_form',
+            'PLACEOS.booking_form_options',
+            'PLACEOS.booking_form_filters',
+        ],
         locale: 'en-AU',
     });
-    const fixture = await prepareSettings(page, { 'app.parking.default_location_from_desk_booking': enabled }, {
-        base: BASE,
-        hidden: 'e2e-request-parking-desk',
-        landingRooms: false,
-        identity: false,
-        locale: null,
-        bookings: { types: ['parking'] },
-        routes: () =>
-            getOnly(
-                page,
-                (url) =>
-                    url.pathname === '/api/staff/v1/bookings' &&
-                    url.searchParams.get('type') === 'desk',
-                (url) => {
-                    desk_requests += 1;
-                    const email = url.searchParams.get('email') ?? '';
-                    const start =
-                        Number(url.searchParams.get('period_start') ?? 0) * 1000;
-                    const date = start + 10 * 3600 * 1000;
-                    return [
-                        {
-                            id: 'e2e-request-parking-desk-booking',
-                            booking_type: 'desk',
-                            user_email: email,
-                            user_name: 'Prepared Parking Desk User',
-                            booked_by_name: 'Prepared Parking Desk User',
-                            asset_id: 'e2e-request-parking-desk',
-                            asset_name: 'Prepared Parking Desk',
-                            date,
-                            date_end: date + 3600 * 1000,
-                            duration: 60,
-                            status: 'approved',
-                            zones: [LEVEL_B, BUILDING_B],
-                            zone_id: LEVEL_B,
-                            extension_data: {},
-                        },
-                    ];
-                },
-            ),
-    });
+    const fixture = await prepareSettings(
+        page,
+        { 'app.parking.default_location_from_desk_booking': enabled },
+        {
+            base: BASE,
+            hidden: 'e2e-request-parking-desk',
+            landingRooms: false,
+            identity: false,
+            locale: null,
+            bookings: { types: ['parking'] },
+            routes: () =>
+                getOnly(
+                    page,
+                    (url) =>
+                        url.pathname === '/api/staff/v1/bookings' &&
+                        url.searchParams.get('type') === 'desk',
+                    (url) => {
+                        desk_requests += 1;
+                        const email = url.searchParams.get('email') ?? '';
+                        const start =
+                            Number(url.searchParams.get('period_start') ?? 0) *
+                            1000;
+                        const date = start + 10 * 3600 * 1000;
+                        return [
+                            {
+                                id: 'e2e-request-parking-desk-booking',
+                                booking_type: 'desk',
+                                user_email: email,
+                                user_name: 'Prepared Parking Desk User',
+                                booked_by_name: 'Prepared Parking Desk User',
+                                asset_id: 'e2e-request-parking-desk',
+                                asset_name: 'Prepared Parking Desk',
+                                date,
+                                date_end: date + 3600 * 1000,
+                                duration: 60,
+                                status: 'approved',
+                                zones: [LEVEL_B, BUILDING_B],
+                                zone_id: LEVEL_B,
+                                extension_data: {},
+                            },
+                        ];
+                    },
+                ),
+        },
+    );
     await page.goto('/#/book/parking-request/form');
     await fixture.ready({
         loading: false,
-        keys: ['app.features', 'app.parking.default_location_from_desk_booking'],
+        keys: [
+            'app.features',
+            'app.parking.default_location_from_desk_booking',
+        ],
     });
     const root = page.locator('parking-request-form-details');
     await expect(root).toBeVisible();
@@ -199,18 +211,23 @@ for (const scenario of SCENARIOS) {
     test(`parking.default_location_from_desk_booking ${scenario.enabled} ${scenario.title}`, async ({
         staffPage,
     }) => {
-        const { root, deskRequests } = await prepare(staffPage, scenario.enabled);
+        const { root, deskRequests } = await prepare(
+            staffPage,
+            scenario.enabled,
+        );
         // Anchor: the form has applied its preset shift with all buildings, so
         // the desk-lookup effect has its final inputs. Only then is the type=desk
         // GET count meaningful: sent for true, never for false.
         await expect
             .poll(() => formState(staffPage), {
-                message: 'parking request form initialised (preset shift, 3 buildings)',
+                message:
+                    'parking request form initialised (preset shift, 3 buildings)',
             })
             .toEqual({ shift: 'e2e-day', buildings: 3 });
         await expect
             .poll(() => deskRequests() > 0, {
-                message: 'desk booking lookup (type=desk GET) sent only when enabled',
+                message:
+                    'desk booking lookup (type=desk GET) sent only when enabled',
             })
             .toBe(scenario.enabled);
         // Location preference rows: one radio per building inside the radiogroup
@@ -218,7 +235,10 @@ for (const scenario of SCENARIOS) {
         // The form also has a "Request Type" radiogroup, so scope by its name.
         // aria-checked marks the active building (building()?.id === bld.id).
         const rows = root
-            .getByRole('radiogroup', { name: 'Location Preference', exact: true })
+            .getByRole('radiogroup', {
+                name: 'Location Preference',
+                exact: true,
+            })
             .getByRole('radio');
         await expect(rows).toHaveCount(3);
         const row_a = rows.filter({ hasText: 'E2E Parking Building A' });
@@ -240,8 +260,9 @@ for (const scenario of SCENARIOS) {
         );
         await expect(staffPage).toHaveURL(/#\/book\/parking-request\/form$/);
         // Re-checked after the view settled: still no desk lookup for false.
-        expect(deskRequests() > 0, 'desk booking lookup sent only when enabled').toBe(
-            scenario.enabled,
-        );
+        expect(
+            deskRequests() > 0,
+            'desk booking lookup sent only when enabled',
+        ).toBe(scenario.enabled);
     });
 }

@@ -1,5 +1,8 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { settingSignal } from '@placeos/common';
 import { LandingQuickActionsComponent } from '../../app/landing-new/landing-quick-actions.component';
 

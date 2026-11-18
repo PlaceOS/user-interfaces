@@ -3,9 +3,9 @@ import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { Booking, OrganisationService, SettingsService } from '@placeos/common';
+import { mockComponent } from '@placeos/common/tests';
 import { InteractiveMapComponent } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
-import { mockComponent } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
@@ -77,11 +77,7 @@ describe('DeskFlowSelectMapComponent', () => {
             MockProvider(OrganisationService, {
                 active_region: signal(null) as any,
                 active_building: signal({ id: 'bld-1' }) as any,
-                levelsForRegion: vi.fn(() => [
-                    level_1,
-                    parking_level,
-                    level_2,
-                ]),
+                levelsForRegion: vi.fn(() => [level_1, parking_level, level_2]),
                 levelsForBuilding: vi.fn(() => [
                     level_1,
                     parking_level,

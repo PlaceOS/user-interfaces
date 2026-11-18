@@ -28,15 +28,18 @@
  * visitor data as collateral.
  */
 import { uniqueTitle } from '../../../../e2e/support/api';
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
 import {
     FAVOURITE_ROOMS_KEY,
     readUserSettings,
     setFavouriteSpaces,
 } from '../../../../e2e/support/room/room.api';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
-import { MeetingFlow } from '../../../../e2e/support/room/meeting-flow.page';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 test.describe('favourite rooms', () => {
     test('a room marked as a favourite is saved and can be filtered to', async ({

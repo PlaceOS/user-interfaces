@@ -16,8 +16,14 @@
  * Expected after a fix: the second returns 409, as desks do.
  */
 import { APIRequestContext } from '@playwright/test';
+import {
+    ENGINE_API,
+    STAFF_API,
+    apiFor,
+    deleteBooking,
+    zonesWithTag,
+} from '../api';
 import { BACKEND_URL, assertLocalOnly } from '../env';
-import { ENGINE_API, STAFF_API, apiFor, deleteBooking, zonesWithTag } from '../api';
 import { deleteGuest } from '../visitor/visitor.api';
 
 const VISITOR = 'vis-b1-repro@example.com';
@@ -42,7 +48,9 @@ async function main() {
     try {
         const me = await (await api.get(`${ENGINE_API}/users/current`)).json();
         const zones = (
-            await Promise.all(['org', 'building', 'level'].map((t) => zonesWithTag(api, t)))
+            await Promise.all(
+                ['org', 'building', 'level'].map((t) => zonesWithTag(api, t)),
+            )
         )
             .flat()
             .map((z) => z.id);
@@ -63,7 +71,9 @@ async function main() {
         };
 
         for (const attempt of [1, 2]) {
-            const res = await api.post(`${STAFF_API}/bookings`, { data: payload });
+            const res = await api.post(`${STAFF_API}/bookings`, {
+                data: payload,
+            });
             const body = await res.text();
             console.log(`  attempt ${attempt}: HTTP ${res.status()}`);
             if (res.ok()) created.push(JSON.parse(body).id);

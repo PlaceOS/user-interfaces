@@ -112,7 +112,11 @@ describe('VisitorStateService', () => {
         const building = { id: 'bld-1' } as any;
         const first = (spectator.service as any)._load(building, {});
         await (spectator.service as any)._load(building, {});
-        resolveFirst({ data: [new Booking({ id: 'old' })], total: 1, next: null });
+        resolveFirst({
+            data: [new Booking({ id: 'old' })],
+            total: 1,
+            next: null,
+        });
         await first;
 
         expect(spectator.service.bookings().map((_) => _.id)).toEqual(['new']);

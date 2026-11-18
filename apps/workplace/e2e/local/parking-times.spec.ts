@@ -11,13 +11,14 @@
  * simply ABSENT rather than refused — which is why this asserts on the options
  * OFFERED rather than trying to book something out of range.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 import {
     PARKING_SLOTS,
     dayBoundsOn,
@@ -30,7 +31,6 @@ import {
     PARKING_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/parking/parking.settings';
-import { ParkingForm } from '../../../../e2e/support/parking/parking-form.page';
 
 const MINUTES = 60;
 
@@ -83,7 +83,10 @@ test.describe('parking booking times', () => {
                 form.confirmAndSend(),
             ]);
             const body = await response.text();
-            expect(response.status(), `the booking POST failed: ${body}`).toBeLessThan(300);
+            expect(
+                response.status(),
+                `the booking POST failed: ${body}`,
+            ).toBeLessThan(300);
             booking_id = JSON.parse(body).id;
 
             const stored = await getBooking(staffApi, booking_id!);
@@ -91,9 +94,10 @@ test.describe('parking booking times', () => {
                 new Date(stored.booking_start * 1000).toDateString(),
                 'the booking must land on the day that was picked',
             ).toBe(new Date(slot.date_ms).toDateString());
-            expect(hhmm(stored.booking_start), 'and start when it was told to').toBe(
-                hhmm(slot.start),
-            );
+            expect(
+                hhmm(stored.booking_start),
+                'and start when it was told to',
+            ).toBe(hhmm(slot.start));
             expect(
                 (stored.booking_end - stored.booking_start) / MINUTES,
                 'and last as long as was picked — a space held for the wrong window is ' +
@@ -112,7 +116,10 @@ test.describe('parking booking times', () => {
         const max = LIMITED_HOURS['app.bookings.max_duration'];
         const hours = LIMITED_HOURS['app.bookings.bookable_hours'];
 
-        await useSettings(staffPage, { ...PARKING_BASE_SETTINGS, ...LIMITED_HOURS });
+        await useSettings(staffPage, {
+            ...PARKING_BASE_SETTINGS,
+            ...LIMITED_HOURS,
+        });
 
         const form = new ParkingForm(staffPage);
         await form.open();
@@ -122,7 +129,10 @@ test.describe('parking booking times', () => {
         }).toPass({ timeout: 45_000 });
 
         const lengths = await form.durationOptions();
-        expect(lengths.length, 'the form should offer some lengths').toBeGreaterThan(0);
+        expect(
+            lengths.length,
+            'the form should offer some lengths',
+        ).toBeGreaterThan(0);
         expect(
             Math.max(...lengths),
             `no length beyond the ${max} minute cap may be offered, got ` +
@@ -130,7 +140,10 @@ test.describe('parking booking times', () => {
         ).toBeLessThanOrEqual(max);
 
         const times = await form.startTimeOptions();
-        expect(times.length, 'the form should offer some start times').toBeGreaterThan(0);
+        expect(
+            times.length,
+            'the form should offer some start times',
+        ).toBeGreaterThan(0);
         const minutes = times.map((t) => {
             const [h, m] = t.split(':').map(Number);
             return h * 60 + m;

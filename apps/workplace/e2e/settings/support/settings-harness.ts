@@ -9,9 +9,9 @@ import type {
     TestInfo,
     WebSocketRoute,
 } from '@playwright/test';
-import { request as pwRequest, test as playwrightTest } from '@playwright/test';
-import { createHash } from 'node:crypto';
+import { test as playwrightTest, request as pwRequest } from '@playwright/test';
 import * as fs from 'fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { mintForWorker } from '../../../../../e2e/support/api';
 import { clientId, redirectUriFor } from '../../../../../e2e/support/auth';
@@ -92,7 +92,10 @@ export type AuditHttp = 'guard' | 'strict' | 'local-only';
 export type AuditSockets = 'close-control' | 'block-all';
 
 /** How many times the named getOnly fixture has answered. */
-export function fixtureHits(audit: { fixtures: Record<string, number> }, name: string) {
+export function fixtureHits(
+    audit: { fixtures: Record<string, number> },
+    name: string,
+) {
     return audit.fixtures[name] ?? 0;
 }
 
@@ -458,7 +461,11 @@ export type HiddenCategory = 'catering' | 'desks' | 'parking' | 'lockers';
 export const HIDDEN_TYPE_NAMES: Record<HiddenCategory, string[]> = {
     catering: [],
     desks: ['_DESKS_'],
-    parking: ['_PARKING_SPACES_', '_PARKING_USERS_', '_PARKING_FLEET_VEHICLES_'],
+    parking: [
+        '_PARKING_SPACES_',
+        '_PARKING_USERS_',
+        '_PARKING_FLEET_VEHICLES_',
+    ],
     lockers: ['_LOCKER_BANKS_', '_LOCKERS_'],
 };
 
@@ -490,7 +497,8 @@ export function hiddenAssets(ids: HiddenAssetIds = 'e2e-settings') {
                   order: undefined,
               }
             : ids;
-    const order = spec.order ?? (['catering', 'desks', 'parking', 'lockers'] as const);
+    const order =
+        spec.order ?? (['catering', 'desks', 'parking', 'lockers'] as const);
     const categories = order.map((category) => ({
         id: spec.category(category),
         name: '_' + category.toUpperCase() + '_',
@@ -498,15 +506,22 @@ export function hiddenAssets(ids: HiddenAssetIds = 'e2e-settings') {
     }));
     /** Type names by category id. */
     const types: Record<string, string[]> = Object.fromEntries(
-        order.map((category) => [spec.category(category), HIDDEN_TYPE_NAMES[category]]),
-    );
-    /** Type rows by category id, as GET /asset_types returns them less brand and category_id. */
-    const type_rows: Record<string, { id: string; name: string }[]> = Object.fromEntries(
         order.map((category) => [
             spec.category(category),
-            HIDDEN_TYPE_NAMES[category].map((name) => ({ id: spec.type(name), name })),
+            HIDDEN_TYPE_NAMES[category],
         ]),
     );
+    /** Type rows by category id, as GET /asset_types returns them less brand and category_id. */
+    const type_rows: Record<string, { id: string; name: string }[]> =
+        Object.fromEntries(
+            order.map((category) => [
+                spec.category(category),
+                HIDDEN_TYPE_NAMES[category].map((name) => ({
+                    id: spec.type(name),
+                    name,
+                })),
+            ]),
+        );
     const type_ids = Object.values(type_rows)
         .flat()
         .map((row) => row.id);
@@ -582,9 +597,12 @@ export async function hiddenAssetRoutes(
         (url) =>
             url.pathname === '/api/engine/v2/asset_types' &&
             (!limit || url.searchParams.get('limit') === '500') &&
-            Object.hasOwn(catalogue.type_rows, url.searchParams.get('category_id') ?? ''),
+            Object.hasOwn(
+                catalogue.type_rows,
+                url.searchParams.get('category_id') ?? '',
+            ),
         (url) => {
-            const category_id = (url.searchParams.get('category_id') ?? '');
+            const category_id = url.searchParams.get('category_id') ?? '';
             return catalogue.type_rows[category_id].map((row) => ({
                 ...row,
                 category_id,
@@ -597,7 +615,9 @@ export async function hiddenAssetRoutes(
         options.assetMatch ??
             ((url) =>
                 url.pathname === '/api/engine/v2/assets' &&
-                catalogue.type_ids.includes(url.searchParams.get('type_id') ?? '')),
+                catalogue.type_ids.includes(
+                    url.searchParams.get('type_id') ?? '',
+                )),
         options.assets ?? (() => []),
     );
 }
@@ -784,7 +804,8 @@ export async function armBookingPost(
     const state: ArmedBookingPost = { bodies: [], completed: false };
     await page.route(
         (url) =>
-            ORIGINS.has(url.origin) && url.pathname === '/api/staff/v1/bookings',
+            ORIGINS.has(url.origin) &&
+            url.pathname === '/api/staff/v1/bookings',
         async (route: Route) => {
             const request = route.request();
             const url = new URL(request.url());
@@ -962,7 +983,9 @@ export async function lockerInventory(page: Page, audit: Audit) {
         async (route: Route) => {
             if (route.request().method() !== 'GET') return route.fallback();
             if (gate.held)
-                await new Promise<void>((resolve) => gate.waiting.push(resolve));
+                await new Promise<void>((resolve) =>
+                    gate.waiting.push(resolve),
+                );
             try {
                 await route.fulfill({ json: [] });
                 gate.served += 1;
@@ -989,15 +1012,20 @@ export async function lockerInventory(page: Page, audit: Audit) {
 }
 
 /** Lockers loaded by the open picker's list or map view, read-only. */
-export function pickerLockerCount(page: Page, selector: 'locker-bank-list' | 'locker-map') {
-    return page.locator('locker-select-modal ' + selector).evaluate((element) => {
-        const view = (window as DebugWindow).ng?.getComponent(element) as
-            | { _lockers?: () => unknown[]; lockers?: () => unknown[] }
-            | undefined;
-        const lockers = view?._lockers ?? view?.lockers;
-        if (!lockers) throw new Error('the locker picker is unavailable');
-        return lockers.call(view).length;
-    });
+export function pickerLockerCount(
+    page: Page,
+    selector: 'locker-bank-list' | 'locker-map',
+) {
+    return page
+        .locator('locker-select-modal ' + selector)
+        .evaluate((element) => {
+            const view = (window as DebugWindow).ng?.getComponent(element) as
+                | { _lockers?: () => unknown[]; lockers?: () => unknown[] }
+                | undefined;
+            const lockers = view?._lockers ?? view?.lockers;
+            if (!lockers) throw new Error('the locker picker is unavailable');
+            return lockers.call(view).length;
+        });
 }
 
 export async function durationMenu(
@@ -1340,7 +1368,9 @@ export async function prepareSettings(
         assetMatch: type_prefix
             ? (url) =>
                   url.pathname === '/api/engine/v2/assets' &&
-                  (url.searchParams.get('type_id') ?? '').startsWith(type_prefix)
+                  (url.searchParams.get('type_id') ?? '').startsWith(
+                      type_prefix,
+                  )
             : undefined,
         assets: options.hiddenAssets,
     });
@@ -1373,7 +1403,7 @@ export async function prepareSettings(
                 bookings.types.includes(url.searchParams.get('type') ?? ''),
             (url) =>
                 bookings.rows
-                    ? bookings.rows((url.searchParams.get('type') ?? ''))
+                    ? bookings.rows(url.searchParams.get('type') ?? '')
                     : [],
         );
     if (options.booked)
@@ -1406,7 +1436,8 @@ export async function prepareSettings(
         /** Identity GETs answered with the replaced groups. */
         identityHits: () => identity_hits,
         ready: async (ready: boolean | ReadyOptions = {}) => {
-            const opts = typeof ready === 'boolean' ? { bootstrap: ready } : ready;
+            const opts =
+                typeof ready === 'boolean' ? { bootstrap: ready } : ready;
             if (opts.loading ?? true)
                 await expect(page.locator('global-loading')).toHaveCount(1);
             await expect(page.locator('global-loading [loader]')).toHaveCount(
@@ -1431,7 +1462,8 @@ export async function prepareSettings(
             if ((opts.bootstrap ?? options.bootstrap ?? false) && audit)
                 await expect
                     .poll(() => audit.fixtures['hidden categories'] ?? 0, {
-                        message: 'hidden-category bootstrap served by the fixture',
+                        message:
+                            'hidden-category bootstrap served by the fixture',
                     })
                     .toBeGreaterThan(0);
         },
@@ -1534,7 +1566,9 @@ export async function openDesk(
     const details = page.locator('desk-flow-new desk-flow-details');
     await expect(details.locator('input[name$=".title"]')).toBeEditable();
     if (options.dateReady ?? true)
-        await expect(details.locator('date-field button').first()).toBeEnabled();
+        await expect(
+            details.locator('date-field button').first(),
+        ).toBeEnabled();
     return { details, fixture };
 }
 
@@ -1759,7 +1793,10 @@ export function pixel(page: Page, x: number, y: number) {
                 polygon.isPointInFill(new DOMPoint(point.x, point.y)),
             );
             const fill = hit?.getAttribute('fill') || '';
-            const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(fill);
+            const match =
+                /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(
+                    fill,
+                );
             return match
                 ? match.slice(1).map((hex) => parseInt(hex, 16))
                 : [0, 0, 0, 0];
@@ -1834,11 +1871,9 @@ export async function roomView(
     await expect(root).toBeVisible();
     if (view === 2)
         await expect(
-            root
-                .locator('button')
-                .filter({
-                    has: page.locator('icon', { hasText: /^\s*task_alt\s*$/ }),
-                }),
+            root.locator('button').filter({
+                has: page.locator('icon', { hasText: /^\s*task_alt\s*$/ }),
+            }),
         ).toHaveCount(1);
     else await expect(root.locator('input[name$=".title"]')).toBeEditable();
     await expect
@@ -1872,13 +1907,18 @@ export type StubBootstrapOptions = {
  * Uncounted browser GETs for the shell's hidden asset bootstrap and the bare
  * calendar list, so the bootstrap never writes.
  */
-export async function stubBootstrap(page: Page, options: StubBootstrapOptions = {}) {
+export async function stubBootstrap(
+    page: Page,
+    options: StubBootstrapOptions = {},
+) {
     const prefix = options.prefix ?? 'landing-readonly';
     await hiddenAssetRoutes(page, hiddenAssets(prefix), {
         limit: options.limit ?? true,
         assetMatch: (url) =>
             url.pathname === '/api/engine/v2/assets' &&
-            (url.searchParams.get('type_id') ?? '').startsWith(prefix + '-type-'),
+            (url.searchParams.get('type_id') ?? '').startsWith(
+                prefix + '-type-',
+            ),
     });
     await getOnly(
         page,
@@ -1915,12 +1955,17 @@ export async function stubBootstrap(page: Page, options: StubBootstrapOptions = 
             /^\/api\/engine\/v2\/metadata\/[^/]+$/.test(url.pathname) &&
             url.searchParams.get('name') === 'room_booking_rules' &&
             [...url.searchParams.keys()].length === 1,
-        () => ({ room_booking_rules: { name: 'room_booking_rules', details: [] } }),
+        () => ({
+            room_booking_rules: { name: 'room_booking_rules', details: [] },
+        }),
     );
 }
 
 /** A synthetic level row for `organisationRoutes`. */
-export type OrganisationLevel = Record<string, unknown> & { id: string; parent_id: string };
+export type OrganisationLevel = Record<string, unknown> & {
+    id: string;
+    parent_id: string;
+};
 
 /** Options for `organisationRoutes`. */
 export type OrganisationRoutes = {
@@ -1960,7 +2005,10 @@ export type OrganisationRoutes = {
  * organisation and identity. Clears the cached organisation, region and
  * building first so the app reads these lists.
  */
-export async function organisationRoutes(page: Page, options: OrganisationRoutes) {
+export async function organisationRoutes(
+    page: Page,
+    options: OrganisationRoutes,
+) {
     await page.addInitScript(
         ({ session, locale }) => {
             for (const key of Object.keys(localStorage)) {
@@ -2039,7 +2087,9 @@ export async function organisationRoutes(page: Page, options: OrganisationRoutes
                         id,
                         {
                             id,
-                            name: decodeURIComponent(url.pathname.split('/')[5]),
+                            name: decodeURIComponent(
+                                url.pathname.split('/')[5],
+                            ),
                             details: {},
                         },
                     ]),
@@ -2059,7 +2109,7 @@ export async function organisationRoutes(page: Page, options: OrganisationRoutes
                 url.pathname.length > single.length &&
                 !!url.searchParams.get('name'),
             (url) => {
-                const name = (url.searchParams.get('name') ?? '');
+                const name = url.searchParams.get('name') ?? '';
                 return {
                     [name]: {
                         id: url.pathname.split('/')[5],
@@ -2076,9 +2126,10 @@ export async function organisationRoutes(page: Page, options: OrganisationRoutes
         await serve(
             'synthetic desk metadata',
             (url) => {
-                const match = /^\/api\/engine\/v2\/metadata\/([^/]+)\/children$/.exec(
-                    url.pathname,
-                );
+                const match =
+                    /^\/api\/engine\/v2\/metadata\/([^/]+)\/children$/.exec(
+                        url.pathname,
+                    );
                 return (
                     !!match &&
                     buildings.includes(match[1]) &&
@@ -2087,7 +2138,10 @@ export async function organisationRoutes(page: Page, options: OrganisationRoutes
             },
             (url) =>
                 options.levels
-                    .filter((level) => level.parent_id === url.pathname.split('/')[5])
+                    .filter(
+                        (level) =>
+                            level.parent_id === url.pathname.split('/')[5],
+                    )
                     .map((level) => ({
                         zone: level,
                         metadata: {
@@ -2190,12 +2244,17 @@ export async function lockerForm(
     overrides: Settings,
     base: Settings = LOCKER,
 ) {
-    const fixture = await prepareBooking(page, audit, { ...base, ...overrides });
+    const fixture = await prepareBooking(page, audit, {
+        ...base,
+        ...overrides,
+    });
     await page.goto('/#/book/locker/form');
     await fixture.ready();
     const root = page.locator('new-locker-form-details');
     await expect(root).toBeVisible();
-    await expect(page.locator('button[name="open-locker-confirm"]')).toBeVisible();
+    await expect(
+        page.locator('button[name="open-locker-confirm"]'),
+    ).toBeVisible();
     return root;
 }
 
@@ -2423,7 +2482,8 @@ export async function protectNetwork(
             READ_METHODS.includes(request.method()) &&
             ['/auth', '/login'].some(
                 (path) =>
-                    url.pathname === path || url.pathname.startsWith(path + '/'),
+                    url.pathname === path ||
+                    url.pathname.startsWith(path + '/'),
             )
         ) {
             audit.api.push(request.method() + ' ' + url.pathname);
@@ -2631,7 +2691,10 @@ export function watchStaffId(page: Page): Promise<string> {
 /** The clock and Intl time zone landingSafetyTest expects. */
 export const LANDING_TIMEZONE = 'Etc/UTC';
 
-const landingMonitors = new WeakMap<LandingAudit, (context: BrowserContext) => Promise<void>>();
+const landingMonitors = new WeakMap<
+    LandingAudit,
+    (context: BrowserContext) => Promise<void>
+>();
 
 export type LandingAttempt = { url: string; classification: string };
 /** What landingSafetyTest records for one test. */
@@ -2667,148 +2730,263 @@ export function landingSafetyTest(
 ) {
     const catalogue = hiddenAssets(hidden);
     return readOnlyTest.extend<{
-    safetyAudit: LandingAudit;
-    isolated: { open(overrides: Settings): Promise<Page> };
-}>({
-    safetyAudit: [async ({ staffPage }, use, info) => {
-        const contexts: BrowserContext[] = [];
-        const closing: Promise<void>[] = [];
-        const audit: LandingAudit = {
-            websocket_attempts: [], blocked_control_attempts: [], tooling_websockets: [],
-            page_errors: [], app_errors: [], monitoring_errors: [], blocked_api_requests: [], staff_identities: [],
-            observe(context) {
-                contexts.push(context);
-                const observePage = (page: Page) => {
-                    page.on('pageerror', (error) => audit.page_errors.push({ name: error.name, message: error.message, stack: error.stack }));
-                    page.on('console', (message) => {
-                        if (isAppError(message)) audit.app_errors.push(message.text().slice(0, 500));
+        safetyAudit: LandingAudit;
+        isolated: { open(overrides: Settings): Promise<Page> };
+    }>({
+        safetyAudit: [
+            async ({ staffPage }, use, info) => {
+                const contexts: BrowserContext[] = [];
+                const closing: Promise<void>[] = [];
+                const audit: LandingAudit = {
+                    websocket_attempts: [],
+                    blocked_control_attempts: [],
+                    tooling_websockets: [],
+                    page_errors: [],
+                    app_errors: [],
+                    monitoring_errors: [],
+                    blocked_api_requests: [],
+                    staff_identities: [],
+                    observe(context) {
+                        contexts.push(context);
+                        const observePage = (page: Page) => {
+                            page.on('pageerror', (error) =>
+                                audit.page_errors.push({
+                                    name: error.name,
+                                    message: error.message,
+                                    stack: error.stack,
+                                }),
+                            );
+                            page.on('console', (message) => {
+                                if (isAppError(message))
+                                    audit.app_errors.push(
+                                        message.text().slice(0, 500),
+                                    );
+                            });
+                        };
+                        for (const page of context.pages()) observePage(page);
+                        context.on('page', observePage);
+                    },
+                };
+                const monitor = async (context: BrowserContext) => {
+                    audit.observe(context);
+                    await context.routeWebSocket('**/*', (socket) => {
+                        try {
+                            const url = new URL(socket.url());
+                            const tooling = isDevServerSocket(url);
+                            const control = isLocalControlSocket(url);
+                            const href = redact(url);
+                            if (tooling) {
+                                audit.tooling_websockets.push({
+                                    url: href,
+                                    classification:
+                                        'dev-server live reload; mocked and held open, never connected',
+                                });
+                                return;
+                            }
+                            if (control) {
+                                audit.blocked_control_attempts.push({
+                                    url: href,
+                                    classification:
+                                        'known Workplace shell initialization; intercepted and closed before server connection',
+                                });
+                            } else {
+                                audit.websocket_attempts.push({
+                                    url: href,
+                                    classification:
+                                        'UNEXPECTED socket; these presentation scenarios are HTTP-only',
+                                });
+                            }
+                        } catch (error) {
+                            audit.monitoring_errors.push(
+                                `WebSocket interception failed: ${String(error)}`,
+                            );
+                        }
+                        closing.push(
+                            socket.close().catch((error: unknown) => {
+                                audit.monitoring_errors.push(
+                                    `WebSocket close failed: ${String(error)}`,
+                                );
+                            }),
+                        );
                     });
                 };
-                for (const page of context.pages()) observePage(page);
-                context.on('page', observePage);
-            },
-        };
-        const monitor = async (context: BrowserContext) => {
-            audit.observe(context);
-            await context.routeWebSocket('**/*', (socket) => {
+                // Expose an async registration hook to isolated.open, before new pages
+                // or navigation. Audit data itself remains JSON serializable.
+                const registered = new Set<BrowserContext>();
+                audit.observe = ((observe) => (context: BrowserContext) => {
+                    if (!registered.has(context)) {
+                        registered.add(context);
+                        observe(context);
+                    }
+                })(audit.observe);
+                landingMonitors.set(audit, monitor);
                 try {
-                    const url = new URL(socket.url());
-                    const tooling = isDevServerSocket(url);
-                    const control = isLocalControlSocket(url);
-                    const href = redact(url);
-                    if (tooling) {
-                        audit.tooling_websockets.push({ url: href, classification: 'dev-server live reload; mocked and held open, never connected' });
-                        return;
+                    await monitor(staffPage.context());
+                    await use(audit);
+                } finally {
+                    for (const context of contexts) {
+                        try {
+                            await context.close();
+                        } catch (error) {
+                            audit.monitoring_errors.push(
+                                `Context close failed: ${String(error)}`,
+                            );
+                        }
                     }
-                    if (control) {
-                        audit.blocked_control_attempts.push({ url: href,
-                            classification: 'known Workplace shell initialization; intercepted and closed before server connection' });
+                    await Promise.all(closing);
+                    landingMonitors.delete(audit);
+                    try {
+                        await info.attach('settings-safety-audit', {
+                            body: Buffer.from(JSON.stringify(audit, null, 2)),
+                            contentType: 'application/json',
+                        });
+                    } finally {
+                        expect(
+                            {
+                                websocket_attempts: audit.websocket_attempts,
+                                page_errors: audit.page_errors,
+                                app_errors: audit.app_errors,
+                                monitoring_errors: audit.monitoring_errors,
+                                blocked_api_requests:
+                                    audit.blocked_api_requests,
+                            },
+                            'no unexpected socket, error or API mutation',
+                        ).toEqual({
+                            websocket_attempts: [],
+                            page_errors: [],
+                            app_errors: [],
+                            monitoring_errors: [],
+                            blocked_api_requests: [],
+                        });
+                        expect(
+                            audit.staff_identities.length,
+                            'each scenario must verify staff identity',
+                        ).toBeGreaterThan(0);
+                        for (const identity of audit.staff_identities) {
+                            expect(identity.email).toBe(
+                                staffEmail(info.parallelIndex).toLowerCase(),
+                            );
+                            expect(identity.privileged).toBe(false);
+                        }
+                    }
+                }
+            },
+            { auto: true, timeout: 30_000 },
+        ],
+        isolated: async ({ browser, staffPage, safetyAudit }, use, info) => {
+            assertLocalOnly(APP_URL, BACKEND_URL);
+            const auth = await staffPage.context().storageState();
+            let first = true;
+            await use({
+                open: async (overrides) => {
+                    let page: Page;
+                    if (first) {
+                        first = false;
+                        page = staffPage; // The shared parent guard observes identity and checks teardown.
                     } else {
-                        audit.websocket_attempts.push({ url: href, classification: 'UNEXPECTED socket; these presentation scenarios are HTTP-only' });
+                        const context = await browser.newContext({
+                            storageState: auth,
+                            baseURL: APP_URL,
+                            ignoreHTTPSErrors: true,
+                            timezoneId: LANDING_TIMEZONE,
+                            locale: 'en-AU',
+                            viewport: { width: 1440, height: 1100 },
+                            serviceWorkers: 'block',
+                        });
+                        await pauseBackground(context);
+                        await landingMonitors.get(safetyAudit)!(context);
+                        // Additional isolated contexts retain the legacy API guard;
+                        // the parent fixture guards the first page independently.
+                        await context.route('**/api/**', async (route) => {
+                            const request = route.request();
+                            const url = new URL(request.url());
+                            if (
+                                !['GET', 'HEAD', 'OPTIONS'].includes(
+                                    request.method(),
+                                ) ||
+                                ![
+                                    new URL(APP_URL).origin,
+                                    new URL(BACKEND_URL).origin,
+                                ].includes(url.origin)
+                            ) {
+                                safetyAudit.blocked_api_requests.push(
+                                    `${request.method()} ${url.pathname}`,
+                                );
+                                await route.abort('blockedbyclient');
+                            } else await route.continue();
+                        });
+                        page = await context.newPage();
                     }
-                } catch (error) {
-                    audit.monitoring_errors.push(`WebSocket interception failed: ${String(error)}`);
-                }
-                closing.push(socket.close().catch((error: unknown) => {
-                    audit.monitoring_errors.push(`WebSocket close failed: ${String(error)}`);
-                }));
+                    await page.setViewportSize({ width: 1440, height: 1100 });
+                    const observed = page
+                        .waitForResponse(
+                            (response) =>
+                                response.request().method() === 'GET' &&
+                                new URL(response.url()).pathname ===
+                                    '/api/engine/v2/users/current',
+                        )
+                        .then(
+                            (response) => ({ response }),
+                            (error: unknown) => ({ error }),
+                        );
+                    await hiddenAssetRoutes(page, catalogue, {
+                        limit: false,
+                        assetMatch: (url) =>
+                            url.pathname === '/api/engine/v2/assets' &&
+                            (url.searchParams.get('type_id') ?? '').startsWith(
+                                catalogue.typeId(''),
+                            ),
+                    });
+                    const settings = { ...base, ...overrides };
+                    await useSettings(page, settings);
+                    await page.addInitScript(() =>
+                        localStorage.setItem('APP.locale', 'en-AU'),
+                    );
+                    await page.goto('/#/landing');
+                    const result = await observed;
+                    if ('error' in result) throw result.error;
+                    expect(
+                        result.response.ok(),
+                        'the app must load the signed-in staff user',
+                    ).toBe(true);
+                    const user = await result.response.json();
+                    const identity = {
+                        email: user.email?.toLowerCase() ?? '',
+                        privileged: !!(user.sys_admin || user.support),
+                    };
+                    safetyAudit.staff_identities.push(identity);
+                    expect(identity.email).toBe(
+                        staffEmail(info.parallelIndex).toLowerCase(),
+                    );
+                    expect(
+                        identity.privileged,
+                        'staff-only scenario',
+                    ).toBeFalsy();
+                    expect(new URL(page.url()).origin).toBe(
+                        new URL(APP_URL).origin,
+                    );
+                    expect(
+                        await page.evaluate(() =>
+                            new Date().getTimezoneOffset(),
+                        ),
+                    ).toBe(0);
+                    expect(['UTC', LANDING_TIMEZONE]).toContain(
+                        await page.evaluate(
+                            () =>
+                                Intl.DateTimeFormat().resolvedOptions()
+                                    .timeZone,
+                        ),
+                    );
+                    const stored = await page.evaluate(() =>
+                        localStorage.getItem('PLACEOS.setting_overrides'),
+                    );
+                    expect(JSON.parse(stored ?? 'null')).toEqual(settings);
+                    await expect(page.locator('topbar')).toBeVisible();
+                    return page;
+                },
             });
-        };
-        // Expose an async registration hook to isolated.open, before new pages
-        // or navigation. Audit data itself remains JSON serializable.
-        const registered = new Set<BrowserContext>();
-        audit.observe = ((observe) => (context: BrowserContext) => {
-            if (!registered.has(context)) { registered.add(context); observe(context); }
-        })(audit.observe);
-        landingMonitors.set(audit, monitor);
-        try {
-            await monitor(staffPage.context());
-            await use(audit);
-        } finally {
-            for (const context of contexts) {
-                try { await context.close(); }
-                catch (error) { audit.monitoring_errors.push(`Context close failed: ${String(error)}`); }
-            }
-            await Promise.all(closing);
-            landingMonitors.delete(audit);
-            try {
-                await info.attach('settings-safety-audit', {
-                    body: Buffer.from(JSON.stringify(audit, null, 2)), contentType: 'application/json',
-                });
-            } finally {
-                expect({ websocket_attempts: audit.websocket_attempts, page_errors: audit.page_errors,
-                    app_errors: audit.app_errors, monitoring_errors: audit.monitoring_errors,
-                    blocked_api_requests: audit.blocked_api_requests }, 'no unexpected socket, error or API mutation').toEqual({
-                    websocket_attempts: [], page_errors: [], app_errors: [], monitoring_errors: [], blocked_api_requests: [],
-                });
-                expect(audit.staff_identities.length, 'each scenario must verify staff identity').toBeGreaterThan(0);
-                for (const identity of audit.staff_identities) {
-                    expect(identity.email).toBe(staffEmail(info.parallelIndex).toLowerCase());
-                    expect(identity.privileged).toBe(false);
-                }
-            }
-        }
-    }, { auto: true, timeout: 30_000 }],
-    isolated: async ({ browser, staffPage, safetyAudit }, use, info) => {
-        assertLocalOnly(APP_URL, BACKEND_URL);
-        const auth = await staffPage.context().storageState();
-        let first = true;
-        await use({ open: async (overrides) => {
-            let page: Page;
-            if (first) {
-                first = false;
-                page = staffPage; // The shared parent guard observes identity and checks teardown.
-            } else {
-                const context = await browser.newContext({ storageState: auth, baseURL: APP_URL,
-                    ignoreHTTPSErrors: true, timezoneId: LANDING_TIMEZONE, locale: 'en-AU',
-                    viewport: { width: 1440, height: 1100 }, serviceWorkers: 'block' });
-                await pauseBackground(context);
-                await landingMonitors.get(safetyAudit)!(context);
-                // Additional isolated contexts retain the legacy API guard;
-                // the parent fixture guards the first page independently.
-                await context.route('**/api/**', async (route) => {
-                    const request = route.request();
-                    const url = new URL(request.url());
-                    if (!['GET', 'HEAD', 'OPTIONS'].includes(request.method()) ||
-                        ![new URL(APP_URL).origin, new URL(BACKEND_URL).origin].includes(url.origin)) {
-                        safetyAudit.blocked_api_requests.push(`${request.method()} ${url.pathname}`);
-                        await route.abort('blockedbyclient');
-                    } else await route.continue();
-                });
-                page = await context.newPage();
-            }
-            await page.setViewportSize({ width: 1440, height: 1100 });
-            const observed = page.waitForResponse((response) => response.request().method() === 'GET' &&
-                new URL(response.url()).pathname === '/api/engine/v2/users/current')
-                .then((response) => ({ response }), (error: unknown) => ({ error }));
-            await hiddenAssetRoutes(page, catalogue, {
-                limit: false,
-                assetMatch: (url) =>
-                    url.pathname === '/api/engine/v2/assets' &&
-                    (url.searchParams.get('type_id') ?? '').startsWith(catalogue.typeId('')),
-            });
-            const settings = { ...base, ...overrides };
-            await useSettings(page, settings);
-            await page.addInitScript(() => localStorage.setItem('APP.locale', 'en-AU'));
-            await page.goto('/#/landing');
-            const result = await observed;
-            if ('error' in result) throw result.error;
-            expect(result.response.ok(), 'the app must load the signed-in staff user').toBe(true);
-            const user = await result.response.json();
-            const identity = { email: user.email?.toLowerCase() ?? '', privileged: !!(user.sys_admin || user.support) };
-            safetyAudit.staff_identities.push(identity);
-            expect(identity.email).toBe(staffEmail(info.parallelIndex).toLowerCase());
-            expect(identity.privileged, 'staff-only scenario').toBeFalsy();
-            expect(new URL(page.url()).origin).toBe(new URL(APP_URL).origin);
-            expect(await page.evaluate(() => new Date().getTimezoneOffset())).toBe(0);
-            expect(['UTC', LANDING_TIMEZONE]).toContain(await page.evaluate(() => Intl.DateTimeFormat().resolvedOptions().timeZone));
-            const stored = await page.evaluate(() => localStorage.getItem('PLACEOS.setting_overrides'));
-            expect(JSON.parse(stored ?? 'null')).toEqual(settings);
-            await expect(page.locator('topbar')).toBeVisible();
-            return page;
-        } });
-    },
-});
+        },
+    });
 }
 
 // ---------------------------------------------------------------------------
@@ -2871,7 +3049,9 @@ export async function settingsStaffToken(workerIndex: number): Promise<string> {
                 : null;
             if (user?.email?.toLowerCase() === email.toLowerCase()) {
                 if (user.sys_admin || user.support) {
-                    throw new Error(`${email} is admin/support; staff-only scenario.`);
+                    throw new Error(
+                        `${email} is admin/support; staff-only scenario.`,
+                    );
                 }
                 return token;
             }
@@ -2921,7 +3101,9 @@ export const guardedStaffTest = staffTokenTest.extend<{
     // readOnlyTest never requests it.
     adminStorageState: [
         async () => {
-            throw new Error('Admin auth is not allowed in this read-only spec.');
+            throw new Error(
+                'Admin auth is not allowed in this read-only spec.',
+            );
         },
         { scope: 'worker' },
     ],
@@ -3039,7 +3221,9 @@ export function migrationAuditFor(
                         );
                         page.on('console', (message) => {
                             if (isAppError(message))
-                                audit.app_errors.push(message.text().slice(0, 500));
+                                audit.app_errors.push(
+                                    message.text().slice(0, 500),
+                                );
                         });
                         page.on('response', (response) => {
                             const url = new URL(response.url());
@@ -3087,12 +3271,19 @@ export function migrationAuditFor(
                         await context.route('**/*', async (route) => {
                             const request = route.request();
                             const url = new URL(request.url());
-                            const read = READ_METHODS.includes(request.method());
+                            const read = READ_METHODS.includes(
+                                request.method(),
+                            );
                             const api = url.pathname.startsWith('/api/');
                             const provider =
-                                url.pathname.startsWith('/api/staff/v1/calendars') ||
+                                url.pathname.startsWith(
+                                    '/api/staff/v1/calendars',
+                                ) ||
                                 url.pathname.startsWith('/api/staff/v1/events');
-                            if (read && (!api || (origins.has(url.origin) && !provider))) {
+                            if (
+                                read &&
+                                (!api || (origins.has(url.origin) && !provider))
+                            ) {
                                 await route.fallback();
                             } else {
                                 audit.blocked_api_requests.push(
@@ -3101,33 +3292,34 @@ export function migrationAuditFor(
                                 await route.abort('blockedbyclient');
                             }
                         });
-                    else await context.route('**/api/**', async (route) => {
-                        const request = route.request();
-                        const url = new URL(request.url());
-                        const read = ['GET', 'HEAD', 'OPTIONS'].includes(
-                            request.method(),
-                        );
-                        // findBookingClashes is a source-supported availability query,
-                        // not booking creation (libs/bookings/src/lib/bookings.fn.ts).
-                        const clash =
-                            allow_clash &&
-                            request.method() === 'POST' &&
-                            url.pathname ===
-                                '/api/staff/v1/bookings/clashing-assets';
-                        if (origins.has(url.origin) && (read || clash)) {
-                            if (clash)
-                                audit.readonly_queries.push({
-                                    method: 'POST',
-                                    path: url.pathname,
-                                });
-                            await route.continue();
-                        } else {
-                            audit.blocked_api_requests.push(
-                                `${request.method()} ${url.origin}${url.pathname}`,
+                    else
+                        await context.route('**/api/**', async (route) => {
+                            const request = route.request();
+                            const url = new URL(request.url());
+                            const read = ['GET', 'HEAD', 'OPTIONS'].includes(
+                                request.method(),
                             );
-                            await route.abort('blockedbyclient');
-                        }
-                    });
+                            // findBookingClashes is a source-supported availability query,
+                            // not booking creation (libs/bookings/src/lib/bookings.fn.ts).
+                            const clash =
+                                allow_clash &&
+                                request.method() === 'POST' &&
+                                url.pathname ===
+                                    '/api/staff/v1/bookings/clashing-assets';
+                            if (origins.has(url.origin) && (read || clash)) {
+                                if (clash)
+                                    audit.readonly_queries.push({
+                                        method: 'POST',
+                                        path: url.pathname,
+                                    });
+                                await route.continue();
+                            } else {
+                                audit.blocked_api_requests.push(
+                                    `${request.method()} ${url.origin}${url.pathname}`,
+                                );
+                                await route.abort('blockedbyclient');
+                            }
+                        });
                     await context.routeWebSocket('**/*', (socket) => {
                         try {
                             const url = new URL(socket.url());
@@ -3211,7 +3403,8 @@ export function migrationAuditFor(
                                 page_errors: audit.page_errors,
                                 app_errors: audit.app_errors,
                                 monitoring_errors: audit.monitoring_errors,
-                                blocked_api_requests: audit.blocked_api_requests,
+                                blocked_api_requests:
+                                    audit.blocked_api_requests,
                             },
                             'migration safety audit must be clean',
                         ).toEqual({
@@ -3327,7 +3520,13 @@ export type ControlAudit = BrowserAudit & { connections: BrowserConnection[] };
 
 /** An empty ControlAudit. */
 export function controlAudit(): ControlAudit {
-    return { refused: [], errors: [], monitoring: [], fixtures: {}, connections: [] };
+    return {
+        refused: [],
+        errors: [],
+        monitoring: [],
+        fixtures: {},
+        connections: [],
+    };
 }
 
 const BROWSER_FIXTURES = new WeakMap<Page, GetFixture[]>();
@@ -3427,7 +3626,9 @@ export function browserOnlyTest<A extends BrowserAudit>(
                             return;
                         }
                         if (url.username || url.password || url.hash) {
-                            await refuse('credential-bearing or fragmented HTTP URL');
+                            await refuse(
+                                'credential-bearing or fragmented HTTP URL',
+                            );
                             return;
                         }
                         // index.html links Google Fonts; answer locally with empty CSS.
@@ -3436,18 +3637,24 @@ export function browserOnlyTest<A extends BrowserAudit>(
                             url.origin === 'https://fonts.googleapis.com' &&
                             url.pathname === '/css2'
                         ) {
-                            await route.fulfill({ contentType: 'text/css', body: '' });
+                            await route.fulfill({
+                                contentType: 'text/css',
+                                body: '',
+                            });
                             return;
                         }
                         if (url.origin !== BROWSER_APP.origin)
                             return refuse('external HTTP request');
                         if (req.method() !== 'GET') {
-                            if (!options.mutation) return refuse('non-GET HTTP request');
+                            if (!options.mutation)
+                                return refuse('non-GET HTTP request');
                             // Every mutation terminates in fulfill or abort.
                             await options.mutation(route, url, audit, refuse);
                             return;
                         }
-                        const fixture = page ? findBrowserFixture(page, url) : undefined;
+                        const fixture = page
+                            ? findBrowserFixture(page, url)
+                            : undefined;
                         if (fixture) {
                             audit.fixtures[url.pathname] =
                                 (audit.fixtures[url.pathname] ?? 0) + 1;
@@ -3456,7 +3663,10 @@ export function browserOnlyTest<A extends BrowserAudit>(
                                     contentType: fixture.contentType,
                                     body: String(fixture.body(url)),
                                 });
-                            else await route.fulfill({ json: fixture.body(url) });
+                            else
+                                await route.fulfill({
+                                    json: fixture.body(url),
+                                });
                             return;
                         }
                         // Fetch/XHR, auth, control, API and arbitrary navigations never
@@ -3477,14 +3687,18 @@ export function browserOnlyTest<A extends BrowserAudit>(
                         // Dev-server component modules (no file extension) are static GETs.
                         const vite =
                             req.resourceType() === 'script' &&
-                            ['/@vite/client', '/@angular/build', '/@ng/component'].includes(
-                                url.pathname,
-                            );
+                            [
+                                '/@vite/client',
+                                '/@angular/build',
+                                '/@ng/component',
+                            ].includes(url.pathname);
                         // LocaleService fetches assets/locale/<locale>.json and the app
                         // fetches its logo SVG.
                         const fetched =
                             req.resourceType() === 'fetch' &&
-                            /^\/assets\/[\w./-]+\.(?:json|svg)$/.test(url.pathname) &&
+                            /^\/assets\/[\w./-]+\.(?:json|svg)$/.test(
+                                url.pathname,
+                            ) &&
                             !url.pathname.includes('..');
                         // The build does not copy the Material Symbols fonts to /assets
                         // (dev server 404s), so serve the package's own file.
@@ -3494,7 +3708,9 @@ export function browserOnlyTest<A extends BrowserAudit>(
                             );
                         if (symbols) {
                             await route.fulfill({
-                                path: require.resolve('material-symbols/' + symbols[1]),
+                                path: require.resolve(
+                                    'material-symbols/' + symbols[1],
+                                ),
                                 contentType: 'font/woff2',
                             });
                             return;
@@ -3503,7 +3719,10 @@ export function browserOnlyTest<A extends BrowserAudit>(
                             return refuse('unmatched frontend GET');
                         if (!options.fetchAssets) return route.continue();
                         const response = await route.fetch({ maxRedirects: 0 });
-                        if (response.status() >= 300 && response.status() < 400) {
+                        if (
+                            response.status() >= 300 &&
+                            response.status() < 400
+                        ) {
                             await refuse('frontend redirect');
                             return;
                         }
@@ -3514,10 +3733,13 @@ export function browserOnlyTest<A extends BrowserAudit>(
                         // causes it, not the app.
                         if (stopping && closedByTeardown(error)) return;
                         audit.monitoring.push('HTTP handler failed');
-                        await route.abort('blockedbyclient').catch((abortError: unknown) => {
-                            if (stopping && closedByTeardown(abortError)) return;
-                            audit.monitoring.push('HTTP abort failed');
-                        });
+                        await route
+                            .abort('blockedbyclient')
+                            .catch((abortError: unknown) => {
+                                if (stopping && closedByTeardown(abortError))
+                                    return;
+                                audit.monitoring.push('HTTP abort failed');
+                            });
                     });
                     pending.add(task);
                     void task.finally(() => pending.delete(task));
@@ -3536,7 +3758,8 @@ export function browserOnlyTest<A extends BrowserAudit>(
                         audit.errors.push('uncaught page error');
                     });
                     opened.on('console', (message) => {
-                        if (message.type() === 'error') audit.errors.push('console error');
+                        if (message.type() === 'error')
+                            audit.errors.push('console error');
                     });
                     opened.on('requestfailed', () => {
                         if (!stopping) audit.errors.push('request failed');
@@ -3546,7 +3769,8 @@ export function browserOnlyTest<A extends BrowserAudit>(
                             audit.errors.push('HTTP failure or redirect');
                     });
                     opened.on('crash', () => audit.errors.push('page crash'));
-                    if (page && opened !== page) audit.refused.push('unexpected extra page');
+                    if (page && opened !== page)
+                        audit.refused.push('unexpected extra page');
                 });
                 page = await context.newPage();
                 startBrowserFixtures(page);
@@ -3571,7 +3795,8 @@ export function browserOnlyTest<A extends BrowserAudit>(
                     ]);
                     clearTimeout(timer);
                 }
-                if (pending.size) audit.monitoring.push('pending tasks did not settle');
+                if (pending.size)
+                    audit.monitoring.push('pending tasks did not settle');
                 try {
                     await info.attach('settings-safety-audit', {
                         body: Buffer.from(JSON.stringify(audit, null, 2)),
@@ -3621,8 +3846,13 @@ function viteSocket(url: URL) {
  */
 function viteForwardedConsole(message: string | Buffer) {
     try {
-        const frame = JSON.parse(String(message)) as { type?: unknown; event?: unknown };
-        return frame?.type === 'custom' && frame.event === 'vite:forward-console';
+        const frame = JSON.parse(String(message)) as {
+            type?: unknown;
+            event?: unknown;
+        };
+        return (
+            frame?.type === 'custom' && frame.event === 'vite:forward-console'
+        );
     } catch {
         return false;
     }
@@ -3718,13 +3948,21 @@ export function controlSocket<A extends ControlAudit>(
             (params.length === 1 &&
                 params[0] === 'bearer_token' &&
                 url.searchParams.get('bearer_token') === options.bearer);
-        if (!localSocket(url) || url.pathname !== CONTROL_PATH || !valid_query) {
+        if (
+            !localSocket(url) ||
+            url.pathname !== CONTROL_PATH ||
+            !valid_query
+        ) {
             audit.refused.push('unexpected WebSocket endpoint');
             void close();
             return;
         }
         // State is connection-local. A reconnect replays each newly bound value.
-        const connection: BrowserConnection = { binds: [], delivered: [], unbinds: [] };
+        const connection: BrowserConnection = {
+            binds: [],
+            delivered: [],
+            unbinds: [],
+        };
         const connection_number = audit.connections.push(connection);
         const bound = new Set<string>();
         const ids = new Set<number>();
@@ -3742,7 +3980,11 @@ export function controlSocket<A extends ControlAudit>(
                     reason = 'invalid control JSON';
                     throw new Error();
                 }
-                if (!request || typeof request !== 'object' || Array.isArray(request)) {
+                if (
+                    !request ||
+                    typeof request !== 'object' ||
+                    Array.isArray(request)
+                ) {
                     reason = 'invalid control request structure';
                     throw new Error();
                 }
@@ -3800,8 +4042,15 @@ export function controlSocket<A extends ControlAudit>(
                         throw new Error();
                     }
                     connection.unbinds.push(binding_key);
-                    reason = 'control acknowledgement construction or send failed';
-                    socket.send(JSON.stringify({ id: valid.id, type: 'success', value: null }));
+                    reason =
+                        'control acknowledgement construction or send failed';
+                    socket.send(
+                        JSON.stringify({
+                            id: valid.id,
+                            type: 'success',
+                            value: null,
+                        }),
+                    );
                     return;
                 }
                 // Known-tuple rebinds are idempotent: ts-client can queue its initial
@@ -3809,7 +4058,13 @@ export function controlSocket<A extends ControlAudit>(
                 bound.add(binding_key);
                 connection.binds.push(binding_key);
                 reason = 'control acknowledgement construction or send failed';
-                socket.send(JSON.stringify({ id: valid.id, type: 'success', value: null }));
+                socket.send(
+                    JSON.stringify({
+                        id: valid.id,
+                        type: 'success',
+                        value: null,
+                    }),
+                );
                 reason = 'unexpected control handler exception';
                 const notify = (value: unknown) =>
                     socket.send(
@@ -3830,7 +4085,9 @@ export function controlSocket<A extends ControlAudit>(
                 connection.delivered.push(binding_key);
             } catch {
                 // Never retain raw frames, arguments, URLs, cookies or credentials.
-                audit.refused.push(`control connection ${connection_number}: ${reason}`);
+                audit.refused.push(
+                    `control connection ${connection_number}: ${reason}`,
+                );
                 void close();
             }
         });
@@ -3894,7 +4151,10 @@ export function syntheticOrg(
         }
         const keys = entries.filter(
             ([key]) =>
-                !(url.pathname === '/api/engine/v2/zones' && key === 'authority_id'),
+                !(
+                    url.pathname === '/api/engine/v2/zones' &&
+                    key === 'authority_id'
+                ),
         );
         return (
             keys.length === Object.keys(expected).length &&
@@ -4024,7 +4284,8 @@ export async function syntheticOrgGets(
                         {
                             details:
                                 options.bindings &&
-                                url.pathname === '/api/engine/v2/metadata/bindings/bulk' &&
+                                url.pathname ===
+                                    '/api/engine/v2/metadata/bindings/bulk' &&
                                 id === org.BUILDING
                                     ? options.bindings
                                     : {},
@@ -4192,17 +4453,20 @@ export async function syntheticOrgGets(
                 limit: '500',
             }),
         (url) =>
-            org.HIDDEN_TYPES[url.searchParams.get('category_id')!].map((name) => ({
-                id: org.PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
+            org.HIDDEN_TYPES[url.searchParams.get('category_id')!].map(
+                (name) => ({
+                    id: org.PREFIX + 'type-' + name,
+                    name,
+                    category_id: url.searchParams.get('category_id'),
+                    brand: 'PlaceOS',
+                }),
+            ),
     );
     await browserGet(
         page,
         (url) =>
-            url.pathname === '/api/engine/v2/assets' && org.hiddenAssetQuery(url),
+            url.pathname === '/api/engine/v2/assets' &&
+            org.hiddenAssetQuery(url),
         () => [],
     );
     await browserGet(
@@ -4292,7 +4556,7 @@ export async function syntheticOrgRoutes(
                 BULK_METADATA.includes(match[1]) &&
                 url.searchParams.has('parent_ids') &&
                 hasParams(url, {
-                    parent_ids: (url.searchParams.get('parent_ids') ?? ''),
+                    parent_ids: url.searchParams.get('parent_ids') ?? '',
                 }) &&
                 ids.every((id) => org.ZONES.includes(id))
             );
@@ -4378,9 +4642,13 @@ export async function syntheticOrgRoutes(
         },
         (url) => {
             const id = url.pathname.split('/')[5];
-            const name = (url.searchParams.get('name') ?? '');
+            const name = url.searchParams.get('name') ?? '';
             return {
-                [name]: { id, name, details: options.zone_details?.(id, name) ?? {} },
+                [name]: {
+                    id,
+                    name,
+                    details: options.zone_details?.(id, name) ?? {},
+                },
             };
         },
     );
@@ -4400,7 +4668,7 @@ export async function syntheticOrgRoutes(
             const url = new URL(request.url());
             const id = decodeURIComponent(url.pathname.split('/')[5]);
             if (!id || id !== (await user_id)) return route.fallback();
-            const name = (url.searchParams.get('name') ?? '');
+            const name = url.searchParams.get('name') ?? '';
             await route.fulfill({
                 json: {
                     [name]: {
@@ -4443,21 +4711,24 @@ export async function syntheticOrgRoutes(
                 url.searchParams.get('category_id') ?? '',
             ) &&
             hasParams(url, {
-                category_id: (url.searchParams.get('category_id') ?? ''),
+                category_id: url.searchParams.get('category_id') ?? '',
                 limit: '500',
             }),
         (url) =>
-            org.HIDDEN_TYPES[(url.searchParams.get('category_id') ?? '')].map((name) => ({
-                id: org.PREFIX + 'type-' + name,
-                name,
-                category_id: url.searchParams.get('category_id'),
-                brand: 'PlaceOS',
-            })),
+            org.HIDDEN_TYPES[url.searchParams.get('category_id') ?? ''].map(
+                (name) => ({
+                    id: org.PREFIX + 'type-' + name,
+                    name,
+                    category_id: url.searchParams.get('category_id'),
+                    brand: 'PlaceOS',
+                }),
+            ),
     );
     await getOnly(
         page,
         (url) =>
-            url.pathname === '/api/engine/v2/assets' && org.hiddenAssetQuery(url),
+            url.pathname === '/api/engine/v2/assets' &&
+            org.hiddenAssetQuery(url),
         () => [],
     );
     await getOnly(
@@ -4507,8 +4778,14 @@ export async function browserSignIn(
             localStorage.clear();
             sessionStorage.clear();
             localStorage.setItem(cid + '_access_token', bearer);
-            localStorage.setItem(cid + '_expires_at', String(Date.now() + 60 * 60_000));
-            localStorage.setItem('PLACEOS.setting_overrides', JSON.stringify(settings));
+            localStorage.setItem(
+                cid + '_expires_at',
+                String(Date.now() + 60 * 60_000),
+            );
+            localStorage.setItem(
+                'PLACEOS.setting_overrides',
+                JSON.stringify(settings),
+            );
             localStorage.setItem('APP.locale', 'en-US');
             localStorage.setItem('PLACEOS.locale', 'en-US');
             localStorage.setItem('mock', 'false');
@@ -4587,15 +4864,29 @@ export function syntheticExplore(prefix: string) {
                     label_location: { x: 0.25, y: 0.25 },
                 },
                 geometry: {
-                    coordinates: [[0.1, 0.1], [0.4, 0.1], [0.4, 0.4], [0.1, 0.4]],
+                    coordinates: [
+                        [0.1, 0.1],
+                        [0.4, 0.1],
+                        [0.4, 0.4],
+                        [0.1, 0.4],
+                    ],
                 },
             },
             {
                 id: CONTROL,
                 map_id: CONTROL,
-                properties: { capacity: 10, hide_label: true, draw_polygon: true },
+                properties: {
+                    capacity: 10,
+                    hide_label: true,
+                    draw_polygon: true,
+                },
                 geometry: {
-                    coordinates: [[0.6, 0.6], [0.9, 0.6], [0.9, 0.9], [0.6, 0.9]],
+                    coordinates: [
+                        [0.6, 0.6],
+                        [0.9, 0.6],
+                        [0.9, 0.9],
+                        [0.6, 0.9],
+                    ],
                 },
             },
         ],
@@ -4630,8 +4921,12 @@ export function syntheticExplore(prefix: string) {
     const SVG =
         '<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">' +
         '<rect width="400" height="400" fill="#ffffff"/>' +
-        '<rect id="' + TARGET + '" x="40" y="40" width="120" height="120" fill="#aaaaaa"/>' +
-        '<rect id="' + CONTROL + '" x="240" y="240" width="120" height="120" fill="#aaaaaa"/></svg>';
+        '<rect id="' +
+        TARGET +
+        '" x="40" y="40" width="120" height="120" fill="#aaaaaa"/>' +
+        '<rect id="' +
+        CONTROL +
+        '" x="240" y="240" width="120" height="120" fill="#aaaaaa"/></svg>';
     const BASE: Settings = {
         'app.features': ['explore'],
         'app.default_building': org.BUILDING,
@@ -4782,7 +5077,9 @@ export async function openSyntheticExplore(
     await page.goto('/#/explore');
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     await expect(page.locator('explore-map-view')).toBeVisible();
     for (const [key, value] of Object.entries(settings)) {
         await expect
@@ -4796,7 +5093,9 @@ export async function openSyntheticExplore(
             )
             .toEqual(value);
     }
-    await expect.poll(() => audit.fixtures['/auth/authority'] ?? 0).toBeGreaterThan(0);
+    await expect
+        .poll(() => audit.fixtures['/auth/authority'] ?? 0)
+        .toBeGreaterThan(0);
     await expect
         .poll(() => audit.fixtures['/api/engine/v2/users/current'] ?? 0)
         .toBeGreaterThan(0);
@@ -4808,7 +5107,9 @@ export async function openSyntheticExplore(
     if (options.controls)
         await page.locator('explore-map-view button[toggle-controls]').click();
     const areas = options.controls
-        ? page.locator('explore-map-view settings-toggle').filter({ hasText: /Areas/ })
+        ? page
+              .locator('explore-map-view settings-toggle')
+              .filter({ hasText: /Areas/ })
         : page.locator('explore-map-view settings-toggle');
     await expect(areas).toHaveCount(1);
     await expect(areas.locator('input[type="checkbox"]')).not.toBeChecked();
@@ -4817,8 +5118,12 @@ export async function openSyntheticExplore(
     const canvas = page.locator('explore-map-view [map-canvas] svg');
     await expect(canvas).toHaveCount(1);
     await expect(canvas).toBeVisible();
-    await expect(page.locator('explore-map-view dynamic-map mat-spinner')).toHaveCount(0);
-    await expect.poll(() => audit.fixtures[explore.MAP_PATH] ?? 0).toBeGreaterThan(0);
+    await expect(
+        page.locator('explore-map-view dynamic-map mat-spinner'),
+    ).toHaveCount(0);
+    await expect
+        .poll(() => audit.fixtures[explore.MAP_PATH] ?? 0)
+        .toBeGreaterThan(0);
     await options.ready?.();
     // The always-drawn control (COLOUR at alpha 128) proves metadata, bindings,
     // status parsing, enabled Areas and polygon rendering have all completed.
@@ -4832,7 +5137,9 @@ export async function exploreRoomReady(
     room_values: Record<string, unknown>,
     explore: SyntheticExplore,
 ) {
-    const feature = page.locator('explore-map-view explore-space-info [customTooltip]');
+    const feature = page.locator(
+        'explore-map-view explore-space-info [customTooltip]',
+    );
     await expect(feature).toHaveCount(1);
     await expect(feature).toBeVisible();
     await expect
@@ -4846,10 +5153,13 @@ export async function exploreRoomReady(
     await expect
         .poll(() =>
             page.locator('explore-map-view').evaluate((element, shape) => {
-                const view = (window as DebugWindow).ng?.getComponent(element) as
+                const view = (window as DebugWindow).ng?.getComponent(
+                    element,
+                ) as
                     | { styles(): Record<string, { fill?: string }> }
                     | undefined;
-                if (!view) throw new Error('Read-only map component unavailable');
+                if (!view)
+                    throw new Error('Read-only map component unavailable');
                 return view.styles()['#' + shape]?.fill;
             }, explore.ROOM.map_id),
         )
@@ -4949,7 +5259,11 @@ export const meetingFormTest = browserOnlyTest<MeetingAudit>({
         // Only the first uncaught error containing the expected text is counted;
         // any other or repeated error still fails the audit.
         const expected = audit.expected_error;
-        if (expected && expected.seen === 0 && error.message.includes(expected.text)) {
+        if (
+            expected &&
+            expected.seen === 0 &&
+            error.message.includes(expected.text)
+        ) {
             expected.seen++;
             return true;
         }
@@ -5001,7 +5315,11 @@ export function syntheticMeetingOrg(prefix: string) {
         features: [],
         images: [],
         map_id: '',
-        level: { id: org.LEVEL, parent_id: org.BUILDING, name: 'Synthetic Level' },
+        level: {
+            id: org.LEVEL,
+            parent_id: org.BUILDING,
+            name: 'Synthetic Level',
+        },
         response_status: 'accepted',
         created_at: 1,
     }));
@@ -5109,8 +5427,9 @@ export async function meetingFormGets(
     await browserGet(
         page,
         (url) =>
-            ROOMS.some((room) => url.pathname === '/api/engine/v2/systems/' + room.id) &&
-            hasParams(url, {}),
+            ROOMS.some(
+                (room) => url.pathname === '/api/engine/v2/systems/' + room.id,
+            ) && hasParams(url, {}),
         (url) => ROOMS.find((room) => url.pathname.endsWith('/' + room.id))!,
     );
     if (options.delegate)
@@ -5264,9 +5583,17 @@ async function meetingGets(page: Page) {
                 url.searchParams.get('type') === 'room' &&
                 validPeriod(url) &&
                 new Set(keys).size === keys.length &&
-                ['type', 'period_start', 'period_end'].every((key) => keys.includes(key)) &&
+                ['type', 'period_start', 'period_end'].every((key) =>
+                    keys.includes(key),
+                ) &&
                 keys.every((key) =>
-                    ['type', 'period_start', 'period_end', 'zones', 'limit'].includes(key),
+                    [
+                        'type',
+                        'period_start',
+                        'period_end',
+                        'zones',
+                        'limit',
+                    ].includes(key),
                 )
             );
         },
@@ -5383,17 +5710,20 @@ export async function openSubmissionMeeting(
             };
         });
     await expect
-        .poll(async () => {
-            const { loading, raw } = await snapshot();
-            return {
-                loading,
-                title: raw.title,
-                host: raw.host,
-                creator: raw.creator,
-                resources: raw.resources.map((room) => room.id),
-                attendees: raw.attendees.map((user) => user.email),
-            };
-        }, { message: 'the prepared draft is loaded' })
+        .poll(
+            async () => {
+                const { loading, raw } = await snapshot();
+                return {
+                    loading,
+                    title: raw.title,
+                    host: raw.host,
+                    creator: raw.creator,
+                    resources: raw.resources.map((room) => room.id),
+                    attendees: raw.attendees.map((user) => user.email),
+                };
+            },
+            { message: 'the prepared draft is loaded' },
+        )
         .toEqual({
             loading: false,
             title: MEETING_TITLE,
@@ -5573,11 +5903,18 @@ export async function openStrictMeeting(
     await page.goto('/#/book/meeting/form?view=2');
     await expect(page.locator('global-loading')).toHaveCount(1);
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     await expect(page.locator('meeting-flow-options')).toBeVisible();
     for (const [key, value] of Object.entries(settings)) {
         await expect
-            .poll(() => page.evaluate((name) => (window as DebugWindow).setting?.(name), key))
+            .poll(() =>
+                page.evaluate(
+                    (name) => (window as DebugWindow).setting?.(name),
+                    key,
+                ),
+            )
             .toEqual(value);
     }
     await expect
@@ -5597,28 +5934,40 @@ export async function openStrictMeeting(
                 assets: [],
                 catering: [],
                 ...(options.guest ? {} : { attendees: [] }),
-                organiser: { id: host.id, email: host.email, groups: host.groups },
+                organiser: {
+                    id: host.id,
+                    email: host.email,
+                    groups: host.groups,
+                },
             },
         });
     await expect
-        .poll(async () => (await meetingFormSnapshot(page)).raw.resources.length)
+        .poll(
+            async () => (await meetingFormSnapshot(page)).raw.resources.length,
+        )
         .toBe(selected ? 1 : 0);
     if (options.guest) {
         await expect
             .poll(async () =>
-                (await meetingFormSnapshot(page)).raw.attendees.map((a) => a.email),
+                (await meetingFormSnapshot(page)).raw.attendees.map(
+                    (a) => a.email,
+                ),
             )
             .toEqual([org.GUEST.email]);
         // The rendered attendee chip proves the attendee list has drawn its rows.
         await expect(
             page
-                .locator('meeting-flow-options a-user-list-field mat-chip-row[user]')
+                .locator(
+                    'meeting-flow-options a-user-list-field mat-chip-row[user]',
+                )
                 .filter({ hasText: org.GUEST.name }),
         ).toBeVisible();
     }
     await expect
         .poll(async () =>
-            (await meetingFormSnapshot(page)).rooms.map((room) => room.id).sort(),
+            (await meetingFormSnapshot(page)).rooms
+                .map((room) => room.id)
+                .sort(),
         )
         .toEqual(org.ROOMS.map((room) => room.id).sort());
     await expect
@@ -5650,9 +5999,9 @@ export async function armMeetingSubmission(
     host: string = MEETING_USER.email,
 ) {
     const snapshot = await meetingFormSnapshot(page);
-    const room = (snapshot.raw.resources.length ? snapshot.raw.resources : snapshot.rooms).find(
-        (room) => room.id === room_id,
-    );
+    const room = (
+        snapshot.raw.resources.length ? snapshot.raw.resources : snapshot.rooms
+    ).find((room) => room.id === room_id);
     if (!room) throw new Error('Expected synthetic room is not loaded');
     const fixture_room = org.ROOMS.find((item) => item.id === room_id);
     if (!fixture_room) throw new Error('room_id is not one of org.ROOMS');
@@ -5675,7 +6024,10 @@ export async function armMeetingSubmission(
 }
 
 /** Wait for the armed POST and the success page; returns the one sent body. */
-export async function expectSimulatedSuccess(page: Page, audit: MeetingAudit): Promise<Json> {
+export async function expectSimulatedSuccess(
+    page: Page,
+    audit: MeetingAudit,
+): Promise<Json> {
     await expect.poll(() => audit.submission?.completed).toBe(true);
     expect(audit.submission?.bodies).toHaveLength(1);
     await expect(page).toHaveURL(/#\/book\/meeting\/success$/);
@@ -5704,7 +6056,8 @@ export async function submitGuestMeeting(
             body.title === MEETING_TITLE &&
             body.host === MEETING_USER.email &&
             Array.isArray(body.resources) &&
-            (body.resources as Json[]).map((r) => r.id).join() === org.ROOMS[0].id &&
+            (body.resources as Json[]).map((r) => r.id).join() ===
+                org.ROOMS[0].id &&
             Array.isArray(body.attendees) &&
             (body.attendees as Json[]).some((a) => a.email === org.GUEST.email),
         armed: true,
@@ -5720,10 +6073,14 @@ export async function submitGuestMeeting(
     expect(audit.refused, 'no extra mutation or socket attempt').toEqual([]);
     expect(audit.submission?.bodies).toHaveLength(1);
     const body: Json = audit.submission?.bodies[0] ?? {};
-    const guest = (body.attendees as Json[]).find((a) => a.email === org.GUEST.email);
+    const guest = (body.attendees as Json[]).find(
+        (a) => a.email === org.GUEST.email,
+    );
     if (!guest) throw new Error('org.GUEST is not in the sent attendees');
     expect(guest.extension_data ?? {}).not.toHaveProperty('international');
-    expect(guest.extension_data ?? {}).not.toHaveProperty('visitor_internal_or_external');
+    expect(guest.extension_data ?? {}).not.toHaveProperty(
+        'visitor_internal_or_external',
+    );
     return (body.extension_data ?? {}) as Json;
 }
 
@@ -5833,7 +6190,8 @@ export async function openZoneSensorExplore(
         ready: async () => {
             // Release live readings only after the matching room has been loaded.
             await exploreRoomReady(page, audit.room_values, ZS);
-            if (!audit.publish_areas) throw new Error('Synthetic area binding unavailable');
+            if (!audit.publish_areas)
+                throw new Error('Synthetic area binding unavailable');
             audit.publish_areas();
         },
     });

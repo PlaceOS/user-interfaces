@@ -13,7 +13,6 @@
  *
  * Asserted on the stored booking, not on the success screen.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     STAFF_API,
     currentUser,
@@ -21,6 +20,7 @@ import {
     getBooking,
     uniqueTitle,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     PARKING_BASE_SETTINGS,
     useSettings,
@@ -49,9 +49,13 @@ test.describe('parking requests', () => {
 
             // Fill what the form offers. Both fields are optional depending on
             // settings, so each is set only if it is there.
-            const title_input = staffPage.locator('input[name$=".title"]').first();
+            const title_input = staffPage
+                .locator('input[name$=".title"]')
+                .first();
             if (await title_input.count()) await title_input.fill(title);
-            const plate_input = staffPage.locator('input[name$=".plate_number"]').first();
+            const plate_input = staffPage
+                .locator('input[name$=".plate_number"]')
+                .first();
             if (await plate_input.count()) await plate_input.fill(plate);
             await staffPage.waitForTimeout(1_500);
 

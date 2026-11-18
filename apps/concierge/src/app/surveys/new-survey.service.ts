@@ -14,9 +14,9 @@ import {
     Survey,
     SurveyQuestion,
 } from '@placeos/ts-client';
+import { queryAllSurveyQuestions } from '../query-all-pages';
 import { confirmAction, errorText } from '../ui/modal-actions';
 import { QuestionModalComponent } from './question-modal.component';
-import { queryAllSurveyQuestions } from '../query-all-pages';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -77,8 +77,7 @@ export class NewSurveyService {
         return questions.filter(
             (q) =>
                 (!filters.type || q.type === filters.type) &&
-                (!filters.search_text ||
-                    q.title.includes(filters.search_text)),
+                (!filters.search_text || q.title.includes(filters.search_text)),
         );
     });
 

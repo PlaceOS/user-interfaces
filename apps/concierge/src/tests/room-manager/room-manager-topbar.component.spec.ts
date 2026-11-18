@@ -3,15 +3,18 @@ import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { of, timer } from 'rxjs';
 
+import { RoomManagementService } from '../../app/room-manager/room-management.service';
+import { RoomManagerTopbarComponent } from '../../app/room-manager/room-manager-topbar.component';
 import { BookingRulesModalComponent } from '../../app/ui/booking-rules-modal.component';
 import { SearchbarComponent } from '../../app/ui/searchbar.component';
-import { RoomManagerTopbarComponent } from '../../app/room-manager/room-manager-topbar.component';
-import { RoomManagementService } from '../../app/room-manager/room-management.service';
 
 describe('RoomManagerTopbarComponent', () => {
     let spectator: SpectatorRouting<RoomManagerTopbarComponent>;
@@ -37,7 +40,7 @@ describe('RoomManagerTopbarComponent', () => {
                 region: { id: 'region-1' },
             } as any),
             MockProvider(SettingsService, {
-                get: ((name: string) => settings_map[name]),
+                get: (name: string) => settings_map[name],
             }),
             MockProvider(MatDialog, {
                 open: vi.fn(() => ({ afterClosed: () => of() }) as any),

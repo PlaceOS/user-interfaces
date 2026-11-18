@@ -19,7 +19,10 @@
  * that are already green for no behavioural gain.
  */
 import { Locator, expect } from '@playwright/test';
-import { YourBookingsPage, type ScheduleType } from '../visitor/your-bookings.page';
+import {
+    YourBookingsPage,
+    type ScheduleType,
+} from '../visitor/your-bookings.page';
 
 /** The five type filters the schedule offers, by the name in their markup. */
 export type { ScheduleType } from '../visitor/your-bookings.page';
@@ -65,7 +68,10 @@ export class SchedulePage extends YourBookingsPage {
             if ((await this.isShown(type)) !== shown) {
                 // An explicit timeout, so a control that cannot be clicked says
                 // so in seconds rather than sitting until the test times out.
-                await toggle.locator('button').first().click({ timeout: 10_000 });
+                await toggle
+                    .locator('button')
+                    .first()
+                    .click({ timeout: 10_000 });
             }
             expect(
                 await this.isShown(type),
@@ -82,7 +88,13 @@ export class SchedulePage extends YourBookingsPage {
      * should not fail because lockers are switched off for this deployment.
      */
     async showOnly(types: ScheduleType[]): Promise<void> {
-        const all: ScheduleType[] = ['event', 'desk', 'parking', 'visitor', 'locker'];
+        const all: ScheduleType[] = [
+            'event',
+            'desk',
+            'parking',
+            'visitor',
+            'locker',
+        ];
         for (const type of all) {
             if (!(await this.filterToggle(type).count())) continue;
             await this.setShown(type, types.includes(type));
@@ -93,7 +105,9 @@ export class SchedulePage extends YourBookingsPage {
     filterChip(type: ScheduleType): Locator {
         // The chips keep the `-mobile` suffix at every screen size.
         return this.page
-            .locator(`button[name="schedule-remove-${type}-filter-mobile"]:visible`)
+            .locator(
+                `button[name="schedule-remove-${type}-filter-mobile"]:visible`,
+            )
             .first();
     }
 
@@ -222,7 +236,9 @@ export class SchedulePage extends YourBookingsPage {
             await this.waitForLoaded();
             const rendered = await this.renderedBookingIds();
             if (!rendered.includes(bookingId)) {
-                const backend = probe ? await probe().catch((e) => `probe failed: ${e}`) : 'not probed';
+                const backend = probe
+                    ? await probe().catch((e) => `probe failed: ${e}`)
+                    : 'not probed';
                 expect(
                     rendered,
                     `booking ${bookingId} is not on screen (attempt ${attempt}). ` +
@@ -239,9 +255,9 @@ export class SchedulePage extends YourBookingsPage {
 
     /** Wait for the schedule to stop loading, so a count is worth reading. */
     async waitForLoaded(timeout = 30_000): Promise<void> {
-        await expect(this.loadingBar, 'the schedule never stopped loading').toHaveCount(
-            0,
-            { timeout },
-        );
+        await expect(
+            this.loadingBar,
+            'the schedule never stopped loading',
+        ).toHaveCount(0, { timeout });
     }
 }

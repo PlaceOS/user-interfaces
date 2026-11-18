@@ -64,11 +64,7 @@ describe('pickAutoAllocatedResource', () => {
     });
 
     it('should group resources without a level together', () => {
-        const available = [
-            onLevel('a1', 'lvl-a'),
-            asset('x1'),
-            asset('x2'),
-        ];
+        const available = [onLevel('a1', 'lvl-a'), asset('x1'), asset('x2')];
         vi.spyOn(Math, 'random').mockReturnValue(0);
 
         expect(pickAutoAllocatedResource(available).id).toBe('x1');

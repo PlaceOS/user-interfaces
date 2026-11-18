@@ -44,7 +44,9 @@ test.describe('concierge catering', () => {
         ).json();
         const catering_types = (
             Array.isArray(types) ? types : (types.results ?? [])
-        ).filter((t: { name?: string }) => (t.name ?? '').startsWith('CATERING:'));
+        ).filter((t: { name?: string }) =>
+            (t.name ?? '').startsWith('CATERING:'),
+        );
 
         test.skip(
             catering_types.length === 0,
@@ -54,11 +56,17 @@ test.describe('concierge catering', () => {
         );
 
         const assets = await (
-            await adminApi.get('/api/engine/v2/assets', { params: { limit: '200' } })
+            await adminApi.get('/api/engine/v2/assets', {
+                params: { limit: '200' },
+            })
         ).json();
-        const type_ids = new Set(catering_types.map((t: { id: string }) => t.id));
-        const items = (Array.isArray(assets) ? assets : (assets.results ?? [])).filter(
-            (a: { asset_type_id?: string }) => type_ids.has(a.asset_type_id ?? ''),
+        const type_ids = new Set(
+            catering_types.map((t: { id: string }) => t.id),
+        );
+        const items = (
+            Array.isArray(assets) ? assets : (assets.results ?? [])
+        ).filter((a: { asset_type_id?: string }) =>
+            type_ids.has(a.asset_type_id ?? ''),
         );
 
         expect(

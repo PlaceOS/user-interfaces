@@ -77,4 +77,4 @@ export async function chooseRowAction(
     await chooseRowMenuItem(page, needle, field, option);
 }
 
-export { readTable, waitForRow, waitForAnyRow, columnIndex };
+export { columnIndex, readTable, waitForAnyRow, waitForRow };

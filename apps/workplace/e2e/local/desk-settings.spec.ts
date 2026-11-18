@@ -20,21 +20,24 @@
  * All Day toggle in the filters of `desk-flow-select`, which this spec uses,
  * shows with or without the setting.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
 import {
     DESK_SLOTS,
     dayBoundsOn,
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
-import { ALLOW_ALL_DAY, useSettings } from '../../../../e2e/support/desk/desk.settings';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import {
+    ALLOW_ALL_DAY,
+    useSettings,
+} from '../../../../e2e/support/desk/desk.settings';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const HOUR = 3600;
 
@@ -64,7 +67,10 @@ test.describe('desk booking settings', () => {
 
             // Read the form back before the click. Confirm saves at once.
             await expect(form.title).toHaveValue(title);
-            await expect(form.allDayInput, 'the All Day toggle should be on').toBeChecked();
+            await expect(
+                form.allDayInput,
+                'the All Day toggle should be on',
+            ).toBeChecked();
             await expect(form.chosenDeskNames).toHaveText([desk.name]);
 
             const [response] = await Promise.all([

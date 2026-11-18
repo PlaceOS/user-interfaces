@@ -1,22 +1,22 @@
 import { Page } from '@playwright/test';
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
     getBooking,
     releaseAsset,
 } from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { LockerForm } from '../../../../e2e/support/locker/locker-form.page';
 import {
     lockerForWorker,
     lockerSlot,
     lockerWindow,
 } from '../../../../e2e/support/locker/locker.api';
+import { LockerFixture } from '../../../../e2e/support/locker/locker.seed';
 import {
     LOCKER_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/locker/locker.settings';
-import { LockerFixture } from '../../../../e2e/support/locker/locker.seed';
-import { LockerForm } from '../../../../e2e/support/locker/locker-form.page';
 
 async function createLockerBooking(
     page: Page,

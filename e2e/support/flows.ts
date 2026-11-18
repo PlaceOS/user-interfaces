@@ -58,9 +58,10 @@ export async function bookDeskViaUI(
     // the last point at which a lost edit is visible.
     await expect(form.title).toHaveValue(title);
     await expect(form.allDayInput).toBeChecked();
-    await expect(form.chosenDeskNames, 'the desk to book is the one selected').toHaveText([
-        deskName,
-    ]);
+    await expect(
+        form.chosenDeskNames,
+        'the desk to book is the one selected',
+    ).toHaveText([deskName]);
 
     const [response] = await Promise.all([
         page
@@ -73,7 +74,9 @@ export async function bookDeskViaUI(
             .catch(async () => {
                 // The flow refuses a form that is not valid with a notice and
                 // sends nothing. Say so, rather than reporting a bare timeout.
-                const notices = await page.locator('mat-snack-bar-container').allInnerTexts();
+                const notices = await page
+                    .locator('mat-snack-bar-container')
+                    .allInnerTexts();
                 throw new Error(
                     'Confirm sent no POST /bookings — the flow refused the form ' +
                         '(check the desk selection and the date/time fields). ' +
@@ -90,7 +93,10 @@ export async function bookDeskViaUI(
     // found" flake instead of the assertion you wrote.
     const status = response.status();
     const body = await response.text().catch(() => '<body unavailable>');
-    expect(response.ok(), `POST /bookings should succeed, got ${status}: ${body}`).toBeTruthy();
+    expect(
+        response.ok(),
+        `POST /bookings should succeed, got ${status}: ${body}`,
+    ).toBeTruthy();
     const created = JSON.parse(body);
     return {
         id: created.id,

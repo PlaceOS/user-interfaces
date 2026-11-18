@@ -16,7 +16,6 @@
  * Both are API-only on purpose: the subject is the backend's rules, and driving
  * a form would only add ways to fail.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
 import {
     STAFF_API,
@@ -27,6 +26,13 @@ import {
     uniqueTitle,
     zonesWithTag,
 } from '../../../../e2e/support/api';
+import { mintToken } from '../../../../e2e/support/auth';
+import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import {
+    DESK_SLOTS,
+    dayBoundsOn,
+    slotOn,
+} from '../../../../e2e/support/desk/desk.env';
 import {
     APP_URL,
     BACKEND_URL,
@@ -34,14 +40,17 @@ import {
     deskFor,
     roleFor,
 } from '../../../../e2e/support/env';
-import { mintToken } from '../../../../e2e/support/auth';
-import { DESK_SLOTS, dayBoundsOn, slotOn } from '../../../../e2e/support/desk/desk.env';
-import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 /** An API context signed in as a DIFFERENT seeded user. */
 async function apiAsOtherUser(workerIndex: number) {
     const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        APP_URL,
+        role.email,
+        role.password,
+    );
     return request.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -58,7 +67,9 @@ test.describe('desk booking API rules', () => {
         const me = await currentUser(staffApi);
         const zones = (
             await Promise.all(
-                ['org', 'building', 'level'].map((t) => zonesWithTag(staffApi, t)),
+                ['org', 'building', 'level'].map((t) =>
+                    zonesWithTag(staffApi, t),
+                ),
             )
         )
             .flat()
@@ -98,7 +109,9 @@ test.describe('desk booking API rules', () => {
         const created: number[] = [];
         try {
             for (const { name, data } of cases) {
-                const res = await staffApi.post(`${STAFF_API}/bookings`, { data });
+                const res = await staffApi.post(`${STAFF_API}/bookings`, {
+                    data,
+                });
                 const body = await res.text();
                 if (res.ok()) {
                     // Accepting it is a finding rather than a crash, and this
@@ -129,7 +142,10 @@ test.describe('desk booking API rules', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const desk = deskFor(mine);
         // 9-10, then extended to 9-12. The extension is the point.
@@ -153,9 +169,15 @@ test.describe('desk booking API rules', () => {
 
             // Extend it by two hours.
             const extended_end = first.start + 3 * 3600;
-            const patch = await staffApi.patch(`${STAFF_API}/bookings/${booking_id}`, {
-                data: { booking_start: first.start, booking_end: extended_end },
-            });
+            const patch = await staffApi.patch(
+                `${STAFF_API}/bookings/${booking_id}`,
+                {
+                    data: {
+                        booking_start: first.start,
+                        booking_end: extended_end,
+                    },
+                },
+            );
             expect(
                 patch.status(),
                 `extending the booking failed: ${await patch.text()}`,

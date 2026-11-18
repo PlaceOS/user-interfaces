@@ -34,31 +34,51 @@ import { expect } from '../../../../../e2e/support/fixtures';
 import {
     MEETING_ROOMS,
     MEETING_USER,
-    meetingTest as test,
     openSubmissionMeeting,
     submitMeeting,
+    meetingTest as test,
 } from '../support/settings-harness';
 
 const APPROVER_GROUPS = ['placeos_support'];
 
 const SCENARIOS = [
-    { label: 'true saves an approver\'s room booking as approved', no_approval: true, approved: true, status: 'approved' },
-    { label: 'false leaves an approver\'s room booking tentative', no_approval: false, approved: false, status: 'tentative' },
+    {
+        label: "true saves an approver's room booking as approved",
+        no_approval: true,
+        approved: true,
+        status: 'approved',
+    },
+    {
+        label: "false leaves an approver's room booking tentative",
+        no_approval: false,
+        approved: false,
+        status: 'tentative',
+    },
 ];
 
 for (const scenario of SCENARIOS) {
-    test('bookings.no_approval ' + scenario.label, async ({ meeting: { page, audit } }) => {
-        const confirm = await openSubmissionMeeting(page, audit, {
-            'app.events.use_bookings': true,
-            'app.bookings.no_approval': scenario.no_approval,
-        }, { groups: APPROVER_GROUPS });
-        const body = await submitMeeting(page, audit, confirm, { native: true });
+    test(
+        'bookings.no_approval ' + scenario.label,
+        async ({ meeting: { page, audit } }) => {
+            const confirm = await openSubmissionMeeting(
+                page,
+                audit,
+                {
+                    'app.events.use_bookings': true,
+                    'app.bookings.no_approval': scenario.no_approval,
+                },
+                { groups: APPROVER_GROUPS },
+            );
+            const body = await submitMeeting(page, audit, confirm, {
+                native: true,
+            });
 
-        expect(body.booking_type).toBe('room');
-        expect(body.asset_id).toBe(MEETING_ROOMS[0].id);
-        expect(body.user_email).toBe(MEETING_USER.email);
-        // removeEmptyFields may drop a false flag, so absent means false.
-        expect(body.approved ?? false).toBe(scenario.approved);
-        expect(body.status).toBe(scenario.status);
-    });
+            expect(body.booking_type).toBe('room');
+            expect(body.asset_id).toBe(MEETING_ROOMS[0].id);
+            expect(body.user_email).toBe(MEETING_USER.email);
+            // removeEmptyFields may drop a false flag, so absent means false.
+            expect(body.approved ?? false).toBe(scenario.approved);
+            expect(body.status).toBe(scenario.status);
+        },
+    );
 }

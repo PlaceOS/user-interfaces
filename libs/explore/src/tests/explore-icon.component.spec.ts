@@ -42,7 +42,10 @@ describe('ExploreIconComponent', () => {
             providers: [
                 {
                     provide: MAP_FEATURE_DATA,
-                    useValue: { color: 'rgb(255, 0, 0)', text_color: 'rgb(0, 0, 0)' },
+                    useValue: {
+                        color: 'rgb(255, 0, 0)',
+                        text_color: 'rgb(0, 0, 0)',
+                    },
                 },
             ],
         });

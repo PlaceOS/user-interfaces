@@ -10,16 +10,18 @@ import { AutoAssignedDeskModalComponent } from '../desk-flow/auto-assigned-desk-
     selector: 'desk-flow-auto-assign',
     template: `
         <div
-            class="bg-grad relative mx-auto w-full max-w-full space-y-2 rounded-xl border border-base-300 p-4 text-white shadow"
+            class="bg-grad border-base-300 relative mx-auto w-full max-w-full space-y-2 rounded-xl border p-4 text-white shadow"
         >
             <div class="flex items-center justify-between pb-2">
                 <div
                     class="relative overflow-hidden rounded px-2 py-1 text-sm capitalize"
                 >
                     <div
-                        class="absolute inset-0 bg-brand-content opacity-20"
+                        class="bg-brand-content absolute inset-0 opacity-20"
                     ></div>
-                    <div>{{ 'BOOKINGS.DESK_AUTO_ASSIGN_LABEL' | translate }}</div>
+                    <div>
+                        {{ 'BOOKINGS.DESK_AUTO_ASSIGN_LABEL' | translate }}
+                    </div>
                 </div>
                 <div class="flex items-center space-x-2">
                     <icon>auto_awesome</icon>

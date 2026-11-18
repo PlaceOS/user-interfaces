@@ -39,11 +39,12 @@
  * staff user, so the first test already proves the second. Recorded rather than
  * quietly dropped.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
+import { getBooking } from '../../../../e2e/support/api';
 import {
     cleanUpBookings,
     createBookingFor,
 } from '../../../../e2e/support/concierge/concierge.api';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 import {
     chooseRowMenuItem,
     columnIndex,
@@ -52,7 +53,6 @@ import {
     rowCell,
     waitForRow,
 } from '../../../../e2e/support/concierge/simple-table.page';
-import { getBooking } from '../../../../e2e/support/api';
 import { roleFor } from '../../../../e2e/support/env';
 
 const VISITORS_ROUTE = '/#/book/visitors';
@@ -172,7 +172,10 @@ test.describe('concierge visitors', () => {
             .poll(
                 async () => {
                     const after = await getBooking(adminApi, booking.id);
-                    return { approved: after.approved, rejected: after.rejected };
+                    return {
+                        approved: after.approved,
+                        rejected: after.rejected,
+                    };
                 },
                 {
                     message:
@@ -230,25 +233,42 @@ test.describe('concierge visitors', () => {
 
         await adminPage.goto(VISITORS_ROUTE);
         await waitForRow(adminPage, visitor.email);
-        await chooseRowMenuItem(adminPage, visitor.email, 'actions', 'Check-in Guest');
+        await chooseRowMenuItem(
+            adminPage,
+            visitor.email,
+            'actions',
+            'Check-in Guest',
+        );
         await expect
-            .poll(async () => (await getBooking(adminApi, booking.id)).checked_in, {
-                message: 'the visitor has to be checked IN before checking out means anything',
-                timeout: 20_000,
-            })
+            .poll(
+                async () => (await getBooking(adminApi, booking.id)).checked_in,
+                {
+                    message:
+                        'the visitor has to be checked IN before checking out means anything',
+                    timeout: 20_000,
+                },
+            )
             .toBe(true);
 
         // Now out again. The menu item only appears once they are in, which is
         // itself the app refusing to check out somebody who never arrived.
-        await chooseRowMenuItem(adminPage, visitor.email, 'actions', 'Check-out Guest');
+        await chooseRowMenuItem(
+            adminPage,
+            visitor.email,
+            'actions',
+            'Check-out Guest',
+        );
         await expect
-            .poll(async () => (await getBooking(adminApi, booking.id)).checked_in, {
-                message:
-                    'checking a guest out at the front desk must reach the backend. ' +
-                    'A visitor left checked in is counted as on-site, which is what ' +
-                    'the contact-tracing report is built from',
-                timeout: 20_000,
-            })
+            .poll(
+                async () => (await getBooking(adminApi, booking.id)).checked_in,
+                {
+                    message:
+                        'checking a guest out at the front desk must reach the backend. ' +
+                        'A visitor left checked in is counted as on-site, which is what ' +
+                        'the contact-tracing report is built from',
+                    timeout: 20_000,
+                },
+            )
             .toBe(false);
 
         // And it must not be offered again. `checked_in` is already false, so a
@@ -267,10 +287,7 @@ test.describe('concierge visitors', () => {
             columnIndex(snapshot, 'actions'),
             width,
         );
-        await actions
-            .locator('button, [matripple]')
-            .first()
-            .click();
+        await actions.locator('button, [matripple]').first().click();
         const menu = adminPage.locator('.mat-mdc-menu-panel, [role="menu"]');
         await expect(menu, 'the actions menu did not open').toBeVisible({
             timeout: 15_000,
@@ -279,7 +296,7 @@ test.describe('concierge visitors', () => {
             menu.getByText('Check-out Guest', { exact: false }),
             'a visitor who is already checked out must not be offered check-out ' +
                 'again. If it is still there, the menu is built from something other ' +
-                'than the booking\'s actual state',
+                "than the booking's actual state",
         ).toHaveCount(0);
     });
 
@@ -298,7 +315,10 @@ test.describe('concierge visitors', () => {
         await waitForRow(adminPage, second.visitor.email);
 
         const search = adminPage.locator('searchbar input').first();
-        await expect(search, 'the visitor listing has no search box').toBeVisible({
+        await expect(
+            search,
+            'the visitor listing has no search box',
+        ).toBeVisible({
             timeout: 20_000,
         });
         await search.fill(first.visitor.email);
@@ -309,8 +329,12 @@ test.describe('concierge visitors', () => {
                     const snapshot = await readTable(adminPage);
                     const flat = snapshot.rows.map((r) => r.join(' '));
                     return {
-                        kept: flat.filter((r) => r.includes(first.visitor.email)).length,
-                        other: flat.filter((r) => r.includes(second.visitor.email)).length,
+                        kept: flat.filter((r) =>
+                            r.includes(first.visitor.email),
+                        ).length,
+                        other: flat.filter((r) =>
+                            r.includes(second.visitor.email),
+                        ).length,
                     };
                 },
                 {

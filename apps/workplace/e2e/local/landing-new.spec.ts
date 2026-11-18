@@ -11,12 +11,15 @@
  * its type. So each test clears every booking this worker's user has today
  * before it starts (`clearToday`).
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deskFor } from '../../../../e2e/support/env';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
 import { isLive } from '../../../../e2e/support/bookings/bookings.api';
-import { createDeskBookingViaApi, setFavouriteDesks } from '../../../../e2e/support/desk/desk.api';
 import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import {
+    createDeskBookingViaApi,
+    setFavouriteDesks,
+} from '../../../../e2e/support/desk/desk.api';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     clearToday,
     inProgressSlot,
@@ -44,11 +47,16 @@ test.describe('home page — the new landing', () => {
 
         try {
             await landing.open();
-            await expect(landing.upcomingTitle).toHaveText(title, { timeout: 30_000 });
+            await expect(landing.upcomingTitle).toHaveText(title, {
+                timeout: 30_000,
+            });
             await landing.upcomingEdit.click();
 
             await expect(staffPage).toHaveURL(/#\/book\/desk\/form/);
-            await expect(flow.title, 'the form holds the booking, not a new one').toHaveValue(title);
+            await expect(
+                flow.title,
+                'the form holds the booking, not a new one',
+            ).toHaveValue(title);
             await expect(
                 flow.desk(desk.name).locator('icon', { hasText: 'task_alt' }),
                 'the desk of the booking shows as selected',
@@ -77,19 +85,26 @@ test.describe('home page — the new landing', () => {
 
         try {
             await landing.open();
-            await expect(landing.upcomingTitle).toHaveText(title, { timeout: 30_000 });
-            expect(await live(), 'precondition: the booking is live').toBe(true);
+            await expect(landing.upcomingTitle).toHaveText(title, {
+                timeout: 30_000,
+            });
+            expect(await live(), 'precondition: the booking is live').toBe(
+                true,
+            );
 
             await landing.upcomingDelete.click();
             await landing.acceptConfirm();
 
             await expect
                 .poll(live, {
-                    message: 'the booking is deleted on the backend, not only on the card',
+                    message:
+                        'the booking is deleted on the backend, not only on the card',
                     timeout: 20_000,
                 })
                 .toBe(false);
-            await expect(landing.clearStateDeskLink).toBeVisible({ timeout: 20_000 });
+            await expect(landing.clearStateDeskLink).toBeVisible({
+                timeout: 20_000,
+            });
         } finally {
             if (await live()) await deleteBooking(staffApi, created.id);
         }
@@ -102,22 +117,30 @@ test.describe('home page — the new landing', () => {
         const desk = deskFor(testInfo.parallelIndex);
         const landing = new LandingNewPage(staffPage);
         const flow = new DeskFlow(staffPage);
-        const before: unknown = (await readUserSettings(staffApi)).favourite_desks;
+        const before: unknown = (await readUserSettings(staffApi))
+            .favourite_desks;
 
         await setFavouriteDesks(staffApi, [desk.id]);
 
         try {
             await landing.open();
-            await expect(landing.favourites).toContainText(desk.name, { timeout: 30_000 });
+            await expect(landing.favourites).toContainText(desk.name, {
+                timeout: 30_000,
+            });
             await landing.bookFavourite(desk.name).click();
 
-            await expect(staffPage).toHaveURL(/#\/book\/desk\/form\?.*asset_id=/);
+            await expect(staffPage).toHaveURL(
+                /#\/book\/desk\/form\?.*asset_id=/,
+            );
             await expect(
                 flow.desk(desk.name).locator('icon', { hasText: 'task_alt' }),
                 'the favourite desk shows as selected in the flow',
             ).toBeVisible({ timeout: 20_000 });
         } finally {
-            await setFavouriteDesks(staffApi, Array.isArray(before) ? before : []);
+            await setFavouriteDesks(
+                staffApi,
+                Array.isArray(before) ? before : [],
+            );
         }
     });
 
@@ -147,7 +170,9 @@ test.describe('home page — the new landing', () => {
 
         try {
             await staffPage.reload();
-            await expect(landing.deskWeekBooking(day)).toBeVisible({ timeout: 30_000 });
+            await expect(landing.deskWeekBooking(day)).toBeVisible({
+                timeout: 30_000,
+            });
             await expect(landing.deskWeekBook(day)).toHaveCount(0);
 
             await landing.deskWeekBooking(day).click();
@@ -159,5 +184,4 @@ test.describe('home page — the new landing', () => {
             await deleteBooking(staffApi, created.id);
         }
     });
-
 });

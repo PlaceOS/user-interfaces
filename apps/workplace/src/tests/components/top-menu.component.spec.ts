@@ -6,9 +6,9 @@ import {
 
 describe('topMenuFeatureForUrl', () => {
     it('leaves the meeting flow open, so Explore bookings reach success', () => {
-        expect(
-            topMenuFeatureForUrl('/book/meeting/success', '/landing'),
-        ).toBe('');
+        expect(topMenuFeatureForUrl('/book/meeting/success', '/landing')).toBe(
+            '',
+        );
     });
 
     it('reports home for the default page', () => {

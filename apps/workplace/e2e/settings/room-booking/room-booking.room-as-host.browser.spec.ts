@@ -30,9 +30,9 @@ import {
     MEETING_USER,
     meetingGet,
     meetingPersonPath,
-    meetingTest as test,
     openSubmissionMeeting,
     submitMeeting,
+    meetingTest as test,
 } from '../support/settings-harness';
 
 const ROOM = MEETING_ROOMS[0];
@@ -64,30 +64,63 @@ const SCENARIOS = [
 ];
 
 for (const scenario of SCENARIOS) {
-    test('events.room_as_host ' + scenario.label, async ({ meeting: { page, audit } }) => {
-        // Rules-host lookups (UserPipe), served locally for either possible host.
-        meetingGet(page, (url) => url.pathname === ROOM_PATH && !url.search, () => ({
-            id: ROOM.id, name: ROOM.name, email: ROOM.email, groups: [], department: '',
-        }));
-        meetingGet(page, (url) => url.pathname === FORCED_PATH && !url.search, () => FORCED);
-        const confirm = await openSubmissionMeeting(page, audit, {
-            'app.events.room_as_host': true,
-            'app.events.force_host': scenario.force_host,
-        });
-        expect(audit.fixtures[ROOM_PATH] ?? 0, 'no room lookup before Confirm').toBe(0);
-        expect(audit.fixtures[FORCED_PATH] ?? 0, 'no forced-host lookup before Confirm').toBe(0);
-        const body = await submitMeeting(page, audit, confirm);
-        const ext = (body.extension_data ?? {}) as Record<string, unknown>;
-        const attendees = (body.attendees as { email?: string }[]).map((a) => a.email);
+    test(
+        'events.room_as_host ' + scenario.label,
+        async ({ meeting: { page, audit } }) => {
+            // Rules-host lookups (UserPipe), served locally for either possible host.
+            meetingGet(
+                page,
+                (url) => url.pathname === ROOM_PATH && !url.search,
+                () => ({
+                    id: ROOM.id,
+                    name: ROOM.name,
+                    email: ROOM.email,
+                    groups: [],
+                    department: '',
+                }),
+            );
+            meetingGet(
+                page,
+                (url) => url.pathname === FORCED_PATH && !url.search,
+                () => FORCED,
+            );
+            const confirm = await openSubmissionMeeting(page, audit, {
+                'app.events.room_as_host': true,
+                'app.events.force_host': scenario.force_host,
+            });
+            expect(
+                audit.fixtures[ROOM_PATH] ?? 0,
+                'no room lookup before Confirm',
+            ).toBe(0);
+            expect(
+                audit.fixtures[FORCED_PATH] ?? 0,
+                'no forced-host lookup before Confirm',
+            ).toBe(0);
+            const body = await submitMeeting(page, audit, confirm);
+            const ext = (body.extension_data ?? {}) as Record<string, unknown>;
+            const attendees = (body.attendees as { email?: string }[]).map(
+                (a) => a.email,
+            );
 
-        expect(body.host).toBe(scenario.host);
-        expect(body.creator).toBe(MEETING_USER.email);
-        expect(body).not.toHaveProperty('organiser');
-        expect(ext.host_override).toBe(MEETING_USER.email);
-        // postForm adds the form's organiser (the signed-in user) to the attendees.
-        expect(attendees).toEqual(expect.arrayContaining([MEETING_GUEST.email, MEETING_USER.email]));
-        expect(audit.fixtures[ROOM_PATH] ?? 0, 'rules-host lookups for Room A').toBe(scenario.room_lookups);
-        expect(audit.fixtures[FORCED_PATH] ?? 0, 'rules-host lookups for the forced host')
-            .toBe(scenario.forced_lookups);
-    });
+            expect(body.host).toBe(scenario.host);
+            expect(body.creator).toBe(MEETING_USER.email);
+            expect(body).not.toHaveProperty('organiser');
+            expect(ext.host_override).toBe(MEETING_USER.email);
+            // postForm adds the form's organiser (the signed-in user) to the attendees.
+            expect(attendees).toEqual(
+                expect.arrayContaining([
+                    MEETING_GUEST.email,
+                    MEETING_USER.email,
+                ]),
+            );
+            expect(
+                audit.fixtures[ROOM_PATH] ?? 0,
+                'rules-host lookups for Room A',
+            ).toBe(scenario.room_lookups);
+            expect(
+                audit.fixtures[FORCED_PATH] ?? 0,
+                'rules-host lookups for the forced host',
+            ).toBe(scenario.forced_lookups);
+        },
+    );
 }

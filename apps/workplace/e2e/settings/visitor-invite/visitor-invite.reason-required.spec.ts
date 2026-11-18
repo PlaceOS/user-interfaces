@@ -11,9 +11,14 @@
 // read-only guard aborts and fails any write, so a send cannot go unnoticed.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import type { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
 import { expect } from '../../../../../e2e/support/fixtures';
-import { type DebugWindow, test, untouchedVisitor, visitor } from '../support/settings-harness';
+import type { InviteVisitorForm } from '../../../../../e2e/support/visitor/invite-form.page';
+import {
+    type DebugWindow,
+    test,
+    untouchedVisitor,
+    visitor,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
@@ -24,10 +29,13 @@ test.use({ readOnlyTimezone: 'Etc/UTC' });
  */
 function reasonValid(form: InviteVisitorForm) {
     return form.root.locator('visitor-flow-details').evaluate((element) => {
-        const details = (window as DebugWindow).ng?.getComponent(element) as {
-            form?: { title?: () => { valid(): boolean } };
-        } | undefined;
-        if (!details?.form?.title) throw new Error('the visitor booking form is unavailable');
+        const details = (window as DebugWindow).ng?.getComponent(element) as
+            | {
+                  form?: { title?: () => { valid(): boolean } };
+              }
+            | undefined;
+        if (!details?.form?.title)
+            throw new Error('the visitor booking form is unavailable');
         return details.form.title().valid();
     });
 }
@@ -37,9 +45,12 @@ function reasonValid(form: InviteVisitorForm) {
  * plural: the en-AU text (the harness locale and the app default).
  */
 function reasonRequiredMessage() {
-    const locale = JSON.parse(readFileSync(
-        join(__dirname, '../../../../../shared/assets/locale/en-AU.json'), 'utf8',
-    )) as { BOOKINGS?: Record<string, unknown> };
+    const locale = JSON.parse(
+        readFileSync(
+            join(__dirname, '../../../../../shared/assets/locale/en-AU.json'),
+            'utf8',
+        ),
+    ) as { BOOKINGS?: Record<string, unknown> };
     const text = locale.BOOKINGS?.VISITOR_REASON_REQUIRED;
     if (typeof text !== 'string' || !text.trim()) {
         throw new Error('BOOKINGS.VISITOR_REASON_REQUIRED has no en-AU text');
@@ -48,26 +59,38 @@ function reasonRequiredMessage() {
 }
 
 for (const enabled of [false, true]) {
-    test('visitors.reason_required ' + enabled + ' changes the unsent reason validation',
+    test(
+        'visitors.reason_required ' +
+            enabled +
+            ' changes the unsent reason validation',
         async ({ staffPage, audit }) => {
-            const form = await visitor(staffPage, audit, { 'app.visitors.reason_required': enabled });
+            const form = await visitor(staffPage, audit, {
+                'app.visitors.reason_required': enabled,
+            });
             await expect(form.reason).toHaveValue(enabled ? '' : 'Visit');
-            await expect(form.root.locator('label[for="reason"] span')).toHaveCount(enabled ? 1 : 0);
+            await expect(
+                form.root.locator('label[for="reason"] span'),
+            ).toHaveCount(enabled ? 1 : 0);
             // A blank reason (whitespace only) is invalid only when the setting is true.
             await form.reason.fill(' ');
             await form.reason.press('Tab');
-            await expect.poll(() => reasonValid(form), { message: 'reason validity after a blank reason' })
+            await expect
+                .poll(() => reasonValid(form), {
+                    message: 'reason validity after a blank reason',
+                })
                 .toBe(!enabled);
             if (enabled) {
                 // Confirm must stop before any save and say why. No write can
                 // happen unnoticed: the parent guard aborts it and fails the test.
                 await form.sendButton.click();
-                await expect(staffPage.locator('mat-snack-bar-container'))
-                    .toContainText(reasonRequiredMessage());
+                await expect(
+                    staffPage.locator('mat-snack-bar-container'),
+                ).toContainText(reasonRequiredMessage());
                 await expect(staffPage).toHaveURL(/#\/book\/visitor\/form/);
                 await expect(form.reason).toHaveValue(' ');
                 expect(await reasonValid(form)).toBe(false);
             }
             await untouchedVisitor(form);
-        });
+        },
+    );
 }

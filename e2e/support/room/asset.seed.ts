@@ -63,10 +63,14 @@ async function listAll(
         params: { limit: '500', ...params },
     });
     if (!res.ok()) {
-        throw new Error(`list ${path} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `list ${path} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
-    return (Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])) as any[];
+    return (
+        Array.isArray(body) ? body : (body?.data ?? body?.results ?? [])
+    ) as any[];
 }
 
 async function create(
@@ -121,7 +125,8 @@ export async function ensureEquipment(): Promise<EquipmentCatalogue> {
                 // REQUIRED — an asset type without `brand` is a 422 "should not
                 // be nil". Same trap as the catering seeder.
                 brand: 'E2E',
-                description: 'Requestable equipment owned by the e2e suite. Safe to delete.',
+                description:
+                    'Requestable equipment owned by the e2e suite. Safe to delete.',
             }));
 
         const existing = await listAll(admin, 'assets', {

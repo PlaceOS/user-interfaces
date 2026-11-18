@@ -227,7 +227,9 @@ type VisitorFormType = 'single' | 'group';
                                     | translate
                             "
                         />
-                        <mat-error>{{ 'COMMON.REQUIRED' | translate }}</mat-error>
+                        <mat-error>{{
+                            'COMMON.REQUIRED' | translate
+                        }}</mat-error>
                     </mat-form-field>
                 </div>
             </div>

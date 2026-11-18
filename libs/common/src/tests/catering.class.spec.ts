@@ -1,9 +1,6 @@
 import { set } from 'date-fns';
 
-import {
-    CateringItem,
-    CateringOrder,
-} from '../lib/types/catering.class';
+import { CateringItem, CateringOrder } from '../lib/types/catering.class';
 
 describe('CateringItem', () => {
     it('should create with sensible defaults', () => {
@@ -29,10 +26,7 @@ describe('CateringItem', () => {
 
     it('should prefer active options for the option list', () => {
         const item = new CateringItem({
-            options: [
-                { id: 'opt-1', active: true },
-                { id: 'opt-2' },
-            ] as any,
+            options: [{ id: 'opt-1', active: true }, { id: 'opt-2' }] as any,
         });
         expect(item.option_list.map((_) => _.id)).toEqual(['opt-1']);
     });

@@ -71,21 +71,19 @@ describe('report utilities', () => {
         it('should use timestamps for all day bookings with actual start and end times', () => {
             const date = new Date('2026-04-06T08:00:00').valueOf();
             expect(
-                reportBookingDuration(
-                    {
-                        all_day: true,
-                        date,
-                        date_end: new Date('2026-04-06T18:00:00').valueOf(),
-                        duration: 24 * 60,
-                    },
-                ),
+                reportBookingDuration({
+                    all_day: true,
+                    date,
+                    date_end: new Date('2026-04-06T18:00:00').valueOf(),
+                    duration: 24 * 60,
+                }),
             ).toBe(600);
         });
 
         it('should preserve stored duration when timestamps are unavailable', () => {
-            expect(
-                reportBookingDuration({ duration: 24 * 60 } as any),
-            ).toBe(24 * 60);
+            expect(reportBookingDuration({ duration: 24 * 60 } as any)).toBe(
+                24 * 60,
+            );
         });
 
         it('should preserve normal booking duration', () => {
@@ -195,10 +193,7 @@ describe('report utilities', () => {
         it('should calculate booked time against room availability', () => {
             expect(
                 reportBookedTimeUtilisationPercent(
-                    [
-                        { duration: 60 } as any,
-                        { duration: 120 } as any,
-                    ],
+                    [{ duration: 60 } as any, { duration: 120 } as any],
                     3,
                     480,
                 ),
@@ -213,9 +208,7 @@ describe('report utilities', () => {
                         {
                             all_day: true,
                             date,
-                            date_end: new Date(
-                                '2026-04-06T18:00:00',
-                            ).valueOf(),
+                            date_end: new Date('2026-04-06T18:00:00').valueOf(),
                             duration: 24 * 60,
                         } as any,
                     ],

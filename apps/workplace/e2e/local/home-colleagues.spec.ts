@@ -26,8 +26,8 @@
  *
  * The `contacts` document is this worker's own, so it is written whole.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     CONTACTS_DOC,
     readContacts,
@@ -42,7 +42,10 @@ test.describe('home page — colleagues', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have somebody to add');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have somebody to add',
+        );
         const colleague = staffEmail(theirs);
 
         await setContacts(staffApi, []);
@@ -76,10 +79,15 @@ test.describe('home page — colleagues', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have somebody to remove');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have somebody to remove',
+        );
         const colleague = staffEmail(theirs);
 
-        await setContacts(staffApi, [{ email: colleague, name: colleague.split('@')[0] }]);
+        await setContacts(staffApi, [
+            { email: colleague, name: colleague.split('@')[0] },
+        ]);
 
         try {
             const home = new LandingNewPage(staffPage);
@@ -89,7 +97,10 @@ test.describe('home page — colleagues', () => {
                 'the seeded colleague should be listed on the home page',
             ).toBeVisible({ timeout: 20_000 });
 
-            const remove = await home.colleagueAction(colleague, 'person_remove');
+            const remove = await home.colleagueAction(
+                colleague,
+                'person_remove',
+            );
             await remove.click();
             // The remove asks for confirmation first.
             await home.acceptConfirm();

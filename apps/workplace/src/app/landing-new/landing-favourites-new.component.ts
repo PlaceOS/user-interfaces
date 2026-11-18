@@ -46,7 +46,7 @@ export interface FavoriteEntry {
     selector: 'landing-favourites-new',
     template: `
         <div
-            class="flex flex-col rounded-lg border border-base-300 bg-base-100 p-4"
+            class="border-base-300 bg-base-100 flex flex-col rounded-lg border p-4"
         >
             <div class="mb-2">
                 <h3 class="text-lg font-medium">
@@ -69,17 +69,17 @@ export interface FavoriteEntry {
                 >
                     @for (item of favourites(); track item.id) {
                         <div
-                            class="relative flex h-[8.5rem] flex-col space-y-2 rounded border border-base-300 bg-base-100 p-2"
+                            class="border-base-300 bg-base-100 relative flex h-[8.5rem] flex-col space-y-2 rounded border p-2"
                         >
                             <div class="flex space-x-2">
                                 <div
-                                    class="relative flex h-16 w-16 items-center justify-center overflow-hidden rounded bg-base-300"
+                                    class="bg-base-300 relative flex h-16 w-16 items-center justify-center overflow-hidden rounded"
                                 >
                                     @if (item.images?.length) {
                                         <img
                                             auth
                                             alt=""
-                                            class="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+                                            class="absolute top-1/2 left-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
                                             [source]="item.images[0]"
                                         />
                                     } @else {
@@ -132,7 +132,7 @@ export interface FavoriteEntry {
                                     icon
                                     matRipple
                                     name="remove-favourite"
-                                    class="absolute right-1 top-1"
+                                    class="absolute top-1 right-1"
                                     [matTooltip]="
                                         'APP.WORKPLACE.FAVOURITES_REMOVE'
                                             | translate
@@ -161,13 +161,13 @@ export interface FavoriteEntry {
             } @else if (loading()) {
                 <div
                     favourites-loading
-                    class="flex min-h-64 w-full flex-1 items-center justify-center rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex min-h-64 w-full flex-1 items-center justify-center rounded-xl p-8"
                 >
                     <mat-spinner [diameter]="32"></mat-spinner>
                 </div>
             } @else {
                 <div
-                    class="flex min-h-64 w-full flex-1 flex-col items-center justify-center space-y-2 rounded-xl bg-base-200 p-8"
+                    class="bg-base-200 flex min-h-64 w-full flex-1 flex-col items-center justify-center space-y-2 rounded-xl p-8"
                 >
                     <img src="assets/icons/no-favourites.svg" alt="" />
                     <p class="text-center text-sm opacity-60">

@@ -33,15 +33,23 @@ export interface RoomEvent {
     event_start: number;
     event_end: number;
     system?: { id: string; name?: string };
-    attendees?: { email: string; resource?: boolean; response_status?: string }[];
+    attendees?: {
+        email: string;
+        resource?: boolean;
+        response_status?: string;
+    }[];
     [k: string]: unknown;
 }
 
 /** `GET /systems` answers with a bare array (see `room.seed.ts`). */
 async function listSystems(api: APIRequestContext): Promise<any[]> {
-    const res = await api.get(`${ENGINE_API}/systems`, { params: { limit: '500' } });
+    const res = await api.get(`${ENGINE_API}/systems`, {
+        params: { limit: '500' },
+    });
     if (!res.ok()) {
-        throw new Error(`list systems failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `list systems failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body?.results ?? []);
@@ -51,14 +59,24 @@ async function listSystems(api: APIRequestContext): Promise<any[]> {
  * The room system whose email is the tenant's room mailbox, on the building
  * and level zones like the native rooms. Found or created. Needs ADMIN.
  */
-export async function ensureCalendarRoom(api: APIRequestContext): Promise<CalendarRoom> {
+export async function ensureCalendarRoom(
+    api: APIRequestContext,
+): Promise<CalendarRoom> {
     const [building] = await zonesWithTag(api, 'building');
     const [level] = await zonesWithTag(api, 'level');
-    if (!building?.id) throw new Error('no building zone: the stack is not seeded');
+    if (!building?.id)
+        throw new Error('no building zone: the stack is not seeded');
     const email = CALENDAR_ROOM_EMAIL.toLowerCase();
-    const found = (await listSystems(api)).find((s) => `${s.email}`.toLowerCase() === email);
+    const found = (await listSystems(api)).find(
+        (s) => `${s.email}`.toLowerCase() === email,
+    );
     if (found) {
-        return { id: found.id, name: found.name, email, building_id: building.id };
+        return {
+            id: found.id,
+            name: found.name,
+            email,
+            building_id: building.id,
+        };
     }
     const res = await api.post(`${ENGINE_API}/systems`, {
         data: {
@@ -73,9 +91,16 @@ export async function ensureCalendarRoom(api: APIRequestContext): Promise<Calend
         },
     });
     if (!res.ok()) {
-        throw new Error(`create ${CALENDAR_ROOM_NAME} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `create ${CALENDAR_ROOM_NAME} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
-    return { id: (await res.json()).id, name: CALENDAR_ROOM_NAME, email, building_id: building.id };
+    return {
+        id: (await res.json()).id,
+        name: CALENDAR_ROOM_NAME,
+        email,
+        building_id: building.id,
+    };
 }
 
 /**
@@ -108,10 +133,16 @@ export async function listZoneEvents(
     to: number,
 ): Promise<RoomEvent[]> {
     const res = await api.get(`${STAFF_API}/events`, {
-        params: { zone_ids: zone_id, period_start: String(from), period_end: String(to) },
+        params: {
+            zone_ids: zone_id,
+            period_start: String(from),
+            period_end: String(to),
+        },
     });
     if (res.status() !== 200 && res.status() !== 206) {
-        throw new Error(`GET /events failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /events failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body?.results ?? []);
@@ -125,10 +156,16 @@ export async function listRoomEvents(
     to: number,
 ): Promise<RoomEvent[]> {
     const res = await api.get(`${STAFF_API}/events`, {
-        params: { system_ids: room.id, period_start: String(from), period_end: String(to) },
+        params: {
+            system_ids: room.id,
+            period_start: String(from),
+            period_end: String(to),
+        },
     });
     if (res.status() !== 200 && res.status() !== 206) {
-        throw new Error(`GET /events failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `GET /events failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return Array.isArray(body) ? body : (body?.results ?? []);
@@ -180,7 +217,9 @@ export async function deleteRoomEvent(
         params: { system_id: room.id },
     });
     if (!res.ok() && res.status() !== 404) {
-        throw new Error(`delete event ${event_id} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `delete event ${event_id} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
 }
 

@@ -31,7 +31,9 @@ describe('PublicEventsListComponent', () => {
         expect(fixture.nativeElement.textContent).toContain(
             'No public events are available right now.',
         );
-        expect(fixture.nativeElement.querySelectorAll('article').length).toBe(0);
+        expect(fixture.nativeElement.querySelectorAll('article').length).toBe(
+            0,
+        );
     });
 
     it('shows the loading text instead of the list while loading', () => {
@@ -42,7 +44,9 @@ describe('PublicEventsListComponent', () => {
         expect(fixture.nativeElement.textContent).toContain(
             'Loading public events...',
         );
-        expect(fixture.nativeElement.querySelectorAll('article').length).toBe(0);
+        expect(fixture.nativeElement.querySelectorAll('article').length).toBe(
+            0,
+        );
     });
 
     it('renders a card per event with title, location and stripped description', () => {

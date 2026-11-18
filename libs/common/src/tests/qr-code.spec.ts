@@ -4,9 +4,7 @@ describe('generateQRCode', () => {
     it('should generate an SVG data URL', () => {
         const url = generateQRCode('https://place.technology');
         expect(url.startsWith('data:image/svg+xml,')).toBe(true);
-        const svg = decodeURIComponent(
-            url.replace('data:image/svg+xml,', ''),
-        );
+        const svg = decodeURIComponent(url.replace('data:image/svg+xml,', ''));
         expect(svg).toContain('<svg');
         expect(svg).toContain('<path');
     });

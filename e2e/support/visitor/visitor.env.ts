@@ -45,7 +45,12 @@ export const VISITOR_SLOTS = {
     /** visitor-duplicate.spec.ts — the guard for VIS-B1 */
     duplicate: { same: 23 },
     /** visitor-group-clash.spec.ts — the guard for VIS-B9 */
-    group_clash: { morning_a: 24, morning_b: 25, afternoon_a: 26, afternoon_b: 27 },
+    group_clash: {
+        morning_a: 24,
+        morning_b: 25,
+        afternoon_a: 26,
+        afternoon_b: 27,
+    },
     /** visitor-edit.spec.ts, the group-time test added later */
     group_time: { memberA: 28, memberB: 29 },
     /** visitor-times.spec.ts */

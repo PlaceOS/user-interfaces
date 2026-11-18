@@ -66,9 +66,9 @@ test.describe('Schedule / Your Bookings', () => {
         await expect(page.locator('schedule-filter-card')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        await expect(page.locator('[name="schedule-apply-filter"]')).toBeVisible(
-            { timeout: LOAD_TIMEOUT },
-        );
+        await expect(
+            page.locator('[name="schedule-apply-filter"]'),
+        ).toBeVisible({ timeout: LOAD_TIMEOUT });
     });
 
     test('US-033/036: schedule view includes booking count and status-capable cards', async ({

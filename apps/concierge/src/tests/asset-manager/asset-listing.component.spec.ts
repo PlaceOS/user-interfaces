@@ -1,9 +1,12 @@
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetListingComponent } from '../../app/asset-manager/asset-listing.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetManagerTopbarComponent } from '../../app/asset-manager/asset-manager-topbar.component';
 
 describe('AssetListingComponent', () => {
@@ -33,7 +36,9 @@ describe('AssetListingComponent', () => {
     });
 
     it('should fall back to purchase-orders when no other match', () => {
-        spectator.component.current_url.set('/book/assets/list/purchase-orders');
+        spectator.component.current_url.set(
+            '/book/assets/list/purchase-orders',
+        );
         expect(spectator.component.active()).toBe('purchase-orders');
     });
 

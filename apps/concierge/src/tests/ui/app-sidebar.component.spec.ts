@@ -146,9 +146,9 @@ describe('ApplicationSidebarComponent', () => {
         spectator.detectChanges();
 
         expect(spectator.element).toHaveClass('rail');
-        expect(
-            localStorage.getItem('PLACEOS.concierge.sidebar_rail'),
-        ).toBe('true');
+        expect(localStorage.getItem('PLACEOS.concierge.sidebar_rail')).toBe(
+            'true',
+        );
         spectator.component.toggleRail();
     });
 

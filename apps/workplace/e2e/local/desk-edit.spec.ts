@@ -27,14 +27,15 @@
  * its OWN day (`dayFor`) — otherwise two workers would clash on it and the
  * failure would read as a backend refusal.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     deleteBooking,
     getBooking,
     releaseAsset,
     uniqueTitle,
 } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
+import { DeskSchedulePage } from '../../../../e2e/support/desk/desk-schedule.page';
+import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
 import {
     DESK_SLOTS,
     altDesk,
@@ -43,9 +44,8 @@ import {
     hourFor,
     slotOn,
 } from '../../../../e2e/support/desk/desk.env';
-import { DeskFlow } from '../../../../e2e/support/desk/desk-flow.page';
-import { DeskSchedulePage } from '../../../../e2e/support/desk/desk-schedule.page';
-import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 test.describe('editing a desk booking', () => {
     test('a new start time chosen on the form is the one stored', async ({
@@ -85,7 +85,10 @@ test.describe('editing a desk booking', () => {
                 form.chosenDesks,
                 'the edit form should open with the booked desk already selected',
             ).toHaveCount(1, { timeout: 30_000 });
-            await expect(form.title, 'and with the title of the booking').toHaveValue(title);
+            await expect(
+                form.title,
+                'and with the title of the booking',
+            ).toHaveValue(title);
 
             // Only the time changes. Confirm saves at once, with the values
             // the form holds at the click.
@@ -101,9 +104,10 @@ test.describe('editing a desk booking', () => {
             }).toPass({ timeout: 45_000 });
 
             const updated = await getBooking(staffApi, booking_id);
-            expect(updated.asset_id, 'moving the time must not change the desk').toBe(
-                desk.id,
-            );
+            expect(
+                updated.asset_id,
+                'moving the time must not change the desk',
+            ).toBe(desk.id);
             expect(
                 updated.deleted,
                 'an edit must UPDATE the booking, not delete and replace it — a new row ' +

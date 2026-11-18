@@ -23,17 +23,17 @@
 import {
     APIRequestContext,
     Page,
-    request as pwRequest,
     test as base,
+    request as pwRequest,
 } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
-import { AUTH_DIR, BACKEND_URL, RoleName, roleFor } from '../env';
 import { ENGINE_API } from '../api';
 import { buildStorageState, mintToken } from '../auth';
+import { calendarBacked } from '../calendar/calendar.api';
+import { AUTH_DIR, BACKEND_URL, RoleName, roleFor } from '../env';
 import { CONCIERGE_URL, assertConciergeLocal } from './concierge.env';
 import { ensureConciergeOAuthApp } from './concierge.seed';
-import { calendarBacked } from '../calendar/calendar.api';
 
 interface ConciergeWorkerFixtures {
     /** storageState path for the admin identity, bound to the CONCIERGE origin. */
@@ -81,7 +81,12 @@ async function mintForConcierge(role: RoleName, workerIndex: number) {
     // `concierge.seed.ts`. Idempotent, so calling it per mint is cheap.
     await ensureConciergeOAuthApp();
     const r = roleFor(role, workerIndex);
-    const mint = await mintToken(BACKEND_URL, CONCIERGE_URL, r.email, r.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        CONCIERGE_URL,
+        r.email,
+        r.password,
+    );
 
     // Same check the workplace fixtures make, and for the same reason: a token
     // that parses but is rejected downstream is a failure mode that has caused
@@ -99,7 +104,10 @@ async function mintForConcierge(role: RoleName, workerIndex: number) {
             );
         }
         const user = await res.json();
-        if ((role === 'admin' || role === 'calendar') && !(user.sys_admin || user.support)) {
+        if (
+            (role === 'admin' || role === 'calendar') &&
+            !(user.sys_admin || user.support)
+        ) {
             throw new Error(
                 `${r.email} is NOT an admin, and the concierge specs assume admin ` +
                     `rights for the management pages. Re-run e2e/support/seed.ts.`,
@@ -137,112 +145,126 @@ async function apiWithToken(token: string): Promise<APIRequestContext> {
     });
 }
 
-export const test = base.extend<ConciergeTestFixtures, ConciergeWorkerFixtures>({
-    // Every concierge test is signed in as the admin unless it opts out with
-    // `test.use({ storageState: undefined })` — which the access specs do.
-    storageState: ({ conciergeAdminState }, use) => use(conciergeAdminState),
-    baseURL: ({}, use) => use(CONCIERGE_URL),
+export const test = base.extend<ConciergeTestFixtures, ConciergeWorkerFixtures>(
+    {
+        // Every concierge test is signed in as the admin unless it opts out with
+        // `test.use({ storageState: undefined })` — which the access specs do.
+        storageState: ({ conciergeAdminState }, use) =>
+            use(conciergeAdminState),
+        baseURL: ({}, use) => use(CONCIERGE_URL),
 
-    conciergeAdminState: [
-        async ({}, use) => {
-            const { state_path } = await mintForConcierge(
-                'admin',
-                test.info().parallelIndex,
-            );
-            await use(state_path);
+        conciergeAdminState: [
+            async ({}, use) => {
+                const { state_path } = await mintForConcierge(
+                    'admin',
+                    test.info().parallelIndex,
+                );
+                await use(state_path);
+            },
+            { scope: 'worker' },
+        ],
+
+        conciergeAdminToken: [
+            async ({}, use) => {
+                const { token } = await mintForConcierge(
+                    'admin',
+                    test.info().parallelIndex,
+                );
+                await use(token);
+            },
+            { scope: 'worker' },
+        ],
+
+        conciergeStaffToken: [
+            async ({}, use) => {
+                const { token } = await mintForConcierge(
+                    'staff',
+                    test.info().parallelIndex,
+                );
+                await use(token);
+            },
+            { scope: 'worker' },
+        ],
+
+        conciergeStaffState: [
+            async ({}, use) => {
+                const { state_path } = await mintForConcierge(
+                    'staff',
+                    test.info().parallelIndex,
+                );
+                await use(state_path);
+            },
+            { scope: 'worker' },
+        ],
+
+        conciergeCalendarBacked: [
+            async ({ conciergeAdminToken }, use) => {
+                const api = await apiWithToken(conciergeAdminToken);
+                try {
+                    await use(await calendarBacked(api));
+                } finally {
+                    await api.dispose();
+                }
+            },
+            { scope: 'worker' },
+        ],
+        conciergeCalendarState: [
+            async ({ conciergeCalendarBacked }, use) => {
+                if (!conciergeCalendarBacked) return use('');
+                const { state_path } = await mintForConcierge(
+                    'calendar',
+                    test.info().parallelIndex,
+                );
+                await use(state_path);
+            },
+            { scope: 'worker' },
+        ],
+        conciergeCalendarToken: [
+            async ({ conciergeCalendarBacked }, use) => {
+                if (!conciergeCalendarBacked) return use('');
+                const { token } = await mintForConcierge(
+                    'calendar',
+                    test.info().parallelIndex,
+                );
+                await use(token);
+            },
+            { scope: 'worker' },
+        ],
+        adminPage: async ({ page }, use) => {
+            await use(page);
         },
-        { scope: 'worker' },
-    ],
-
-    conciergeAdminToken: [
-        async ({}, use) => {
-            const { token } = await mintForConcierge('admin', test.info().parallelIndex);
-            await use(token);
+        calendarPage: async ({ browser, conciergeCalendarState }, use) => {
+            if (!conciergeCalendarState)
+                return use(undefined as unknown as Page);
+            const context = await browser.newContext({
+                storageState: conciergeCalendarState,
+                ignoreHTTPSErrors: true,
+                baseURL: CONCIERGE_URL,
+            });
+            const page = await context.newPage();
+            await use(page);
+            await context.close();
         },
-        { scope: 'worker' },
-    ],
-
-    conciergeStaffToken: [
-        async ({}, use) => {
-            const { token } = await mintForConcierge('staff', test.info().parallelIndex);
-            await use(token);
+        calendarApi: async ({ conciergeCalendarToken }, use) => {
+            if (!conciergeCalendarToken)
+                return use(undefined as unknown as APIRequestContext);
+            const api = await apiWithToken(conciergeCalendarToken);
+            await use(api);
+            await api.dispose();
         },
-        { scope: 'worker' },
-    ],
 
-    conciergeStaffState: [
-        async ({}, use) => {
-            const { state_path } = await mintForConcierge(
-                'staff',
-                test.info().parallelIndex,
-            );
-            await use(state_path);
-        },
-        { scope: 'worker' },
-    ],
-
-    conciergeCalendarBacked: [
-        async ({ conciergeAdminToken }, use) => {
+        adminApi: async ({ conciergeAdminToken }, use) => {
             const api = await apiWithToken(conciergeAdminToken);
-            try {
-                await use(await calendarBacked(api));
-            } finally {
-                await api.dispose();
-            }
+            await use(api);
+            await api.dispose();
         },
-        { scope: 'worker' },
-    ],
-    conciergeCalendarState: [
-        async ({ conciergeCalendarBacked }, use) => {
-            if (!conciergeCalendarBacked) return use('');
-            const { state_path } = await mintForConcierge(
-                'calendar',
-                test.info().parallelIndex,
-            );
-            await use(state_path);
-        },
-        { scope: 'worker' },
-    ],
-    conciergeCalendarToken: [
-        async ({ conciergeCalendarBacked }, use) => {
-            if (!conciergeCalendarBacked) return use('');
-            const { token } = await mintForConcierge('calendar', test.info().parallelIndex);
-            await use(token);
-        },
-        { scope: 'worker' },
-    ],
-    adminPage: async ({ page }, use) => {
-        await use(page);
-    },
-    calendarPage: async ({ browser, conciergeCalendarState }, use) => {
-        if (!conciergeCalendarState) return use(undefined as unknown as Page);
-        const context = await browser.newContext({
-            storageState: conciergeCalendarState,
-            ignoreHTTPSErrors: true,
-            baseURL: CONCIERGE_URL,
-        });
-        const page = await context.newPage();
-        await use(page);
-        await context.close();
-    },
-    calendarApi: async ({ conciergeCalendarToken }, use) => {
-        if (!conciergeCalendarToken) return use(undefined as unknown as APIRequestContext);
-        const api = await apiWithToken(conciergeCalendarToken);
-        await use(api);
-        await api.dispose();
-    },
 
-    adminApi: async ({ conciergeAdminToken }, use) => {
-        const api = await apiWithToken(conciergeAdminToken);
-        await use(api);
-        await api.dispose();
+        staffApi: async ({ conciergeStaffToken }, use) => {
+            const api = await apiWithToken(conciergeStaffToken);
+            await use(api);
+            await api.dispose();
+        },
     },
-
-    staffApi: async ({ conciergeStaffToken }, use) => {
-        const api = await apiWithToken(conciergeStaffToken);
-        await use(api);
-        await api.dispose();
-    },
-});
+);
 
 export { expect } from '@playwright/test';

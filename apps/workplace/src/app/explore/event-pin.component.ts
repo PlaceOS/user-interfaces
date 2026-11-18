@@ -57,7 +57,7 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
                 </g>
             </svg>
             <div
-                class="absolute left-0 top-0 flex h-[52px] w-full items-center justify-center"
+                class="absolute top-0 left-0 flex h-[52px] w-full items-center justify-center"
             >
                 <icon class="text-2xl" [style.color]="icon_color">
                     calendar_month

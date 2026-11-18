@@ -1,13 +1,16 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { createRoutingFactory, SpectatorRouting } from '@ngneat/spectator/vitest';
+import {
+    createRoutingFactory,
+    SpectatorRouting,
+} from '@ngneat/spectator/vitest';
 import {
     AuthenticatedImageDirective,
     IconComponent,
     SimpleTableComponent,
 } from '@placeos/components';
-import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 import { addMonths } from 'date-fns';
+import { MockComponent, MockDirective, MockProvider } from 'ng-mocks';
 
 import { DealsListComponent } from '../../app/deals/deals-list.component';
 import { DealsService } from '../../app/deals/deals.service';

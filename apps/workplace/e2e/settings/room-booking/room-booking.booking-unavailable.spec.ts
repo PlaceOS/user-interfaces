@@ -6,9 +6,14 @@ import type { Page } from '@playwright/test';
 import { staffEmail as migrationStaffEmail } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { MeetingFlow } from '../../../../../e2e/support/room/meeting-flow.page';
-import { ROOM_BOOKINGS_MODE } from '../../../../../e2e/support/room/room.settings';
-import { useSettings } from '../../../../../e2e/support/room/room.settings';
-import { READ_ONLY_SETTINGS, readOnlyTest as readOnlyBase } from '../../local/wpa-settings-readonly-legacy.fixture';
+import {
+    ROOM_BOOKINGS_MODE,
+    useSettings,
+} from '../../../../../e2e/support/room/room.settings';
+import {
+    READ_ONLY_SETTINGS,
+    readOnlyTest as readOnlyBase,
+} from '../../local/wpa-settings-readonly-legacy.fixture';
 import {
     type DebugWindow,
     type MigrationAudit,
@@ -22,7 +27,6 @@ const readOnlyTest = readOnlyBase.extend<{ migrationAudit: MigrationAudit }>(
 );
 // Keep the shared staff-only context and API guard; use UTC for the local seed.
 readOnlyTest.use({ storageState: undefined, readOnlyTimezone: 'Etc/UTC' });
-
 
 interface OptionsComponent {
     form(): { valid(): boolean };
@@ -85,13 +89,20 @@ const BASE_SETTINGS: Settings = {
     'app.events.custom_duration_options': [],
 };
 
-
 async function expectSettings(page: Page, settings: Settings) {
     for (const [key, value] of Object.entries(settings)) {
-        await expect.poll(() => page.evaluate((key) =>
-            (window as DebugWindow).setting?.(key), key), {
-            message: `effective setting ${key} must equal ${JSON.stringify(value)}`,
-        }).toEqual(value);
+        await expect
+            .poll(
+                () =>
+                    page.evaluate(
+                        (key) => (window as DebugWindow).setting?.(key),
+                        key,
+                    ),
+                {
+                    message: `effective setting ${key} must equal ${JSON.stringify(value)}`,
+                },
+            )
+            .toEqual(value);
     }
 }
 
@@ -104,73 +115,145 @@ const TITLE = 'E2E read-only booking-unavailable validation';
 async function openOptions(page: Page, overrides: Settings, email: string) {
     const settings = { ...BASE_SETTINGS, ...overrides };
     await page.setViewportSize({ width: 1440, height: 1100 });
-    await stubBootstrap(page, { prefix: 'no-standalone', limit: false, meeting: true });
+    await stubBootstrap(page, {
+        prefix: 'no-standalone',
+        limit: false,
+        meeting: true,
+    });
     await useSettings(page, settings);
-    await page.addInitScript(({ email, title }) => {
-        const date = new Date();
-        date.setUTCDate(date.getUTCDate() + 1);
-        date.setUTCHours(10, 0, 0, 0);
-        localStorage.setItem('APP.locale', 'en-AU');
-        sessionStorage.removeItem('PLACEOS.event');
-        sessionStorage.setItem('PLACEOS.event_form', JSON.stringify({
-            id: '', title, host: email, organiser: { email },
-            date: date.valueOf(), date_end: date.valueOf() + 3_600_000, duration: 60,
-            all_day: false, recurring: false, recurrence: null,
-            resources: [], attendees: [], assets: [], catering: [], meeting_provider: null,
-        }));
-    }, { email, title: TITLE });
+    await page.addInitScript(
+        ({ email, title }) => {
+            const date = new Date();
+            date.setUTCDate(date.getUTCDate() + 1);
+            date.setUTCHours(10, 0, 0, 0);
+            localStorage.setItem('APP.locale', 'en-AU');
+            sessionStorage.removeItem('PLACEOS.event');
+            sessionStorage.setItem(
+                'PLACEOS.event_form',
+                JSON.stringify({
+                    id: '',
+                    title,
+                    host: email,
+                    organiser: { email },
+                    date: date.valueOf(),
+                    date_end: date.valueOf() + 3_600_000,
+                    duration: 60,
+                    all_day: false,
+                    recurring: false,
+                    recurrence: null,
+                    resources: [],
+                    attendees: [],
+                    assets: [],
+                    catering: [],
+                    meeting_provider: null,
+                }),
+            );
+        },
+        { email, title: TITLE },
+    );
     const flow = new MeetingFlow(page);
     await page.goto('/#/book/meeting/form?view=2');
     await expect(flow.options).toBeVisible();
     await expect(page.locator('global-loading [loader]')).toHaveCount(0);
-    await expect(page.locator('global-loading [initialisation-error]')).toHaveCount(0);
+    await expect(
+        page.locator('global-loading [initialisation-error]'),
+    ).toHaveCount(0);
     await expectSettings(page, settings);
     return { flow, settings };
 }
 
-async function expectValidRoomlessForm(flow: MeetingFlow, email: string, unavailable: boolean) {
-    await expect.poll(() => flow.options.evaluate((element) => {
-        const component = (window as DebugWindow).ng?.getComponent(element) as OptionsComponent | undefined;
-        if (!component) return null;
-        const value = component.form_value();
-        return {
-            valid: component.form().valid(), id: value.id, title: value.title,
-            host: value.host, future: value.date > Date.now(), rooms: value.resources.length,
-            no_standalone: component.no_standalone(), strict_capacity: component.strict_capacity_check(),
-            booking_unavailable: component.booking_unavailable(), loading: component.loading(),
-        };
-    }), { message: 'a valid unsaved roomless form must reach the booking_unavailable branch' }).toEqual({
-        valid: true, id: '', title: TITLE, host: email, future: true, rooms: 0,
-        no_standalone: false, strict_capacity: false, booking_unavailable: unavailable, loading: false,
-    });
+async function expectValidRoomlessForm(
+    flow: MeetingFlow,
+    email: string,
+    unavailable: boolean,
+) {
+    await expect
+        .poll(
+            () =>
+                flow.options.evaluate((element) => {
+                    const component = (window as DebugWindow).ng?.getComponent(
+                        element,
+                    ) as OptionsComponent | undefined;
+                    if (!component) return null;
+                    const value = component.form_value();
+                    return {
+                        valid: component.form().valid(),
+                        id: value.id,
+                        title: value.title,
+                        host: value.host,
+                        future: value.date > Date.now(),
+                        rooms: value.resources.length,
+                        no_standalone: component.no_standalone(),
+                        strict_capacity: component.strict_capacity_check(),
+                        booking_unavailable: component.booking_unavailable(),
+                        loading: component.loading(),
+                    };
+                }),
+            {
+                message:
+                    'a valid unsaved roomless form must reach the booking_unavailable branch',
+            },
+        )
+        .toEqual({
+            valid: true,
+            id: '',
+            title: TITLE,
+            host: email,
+            future: true,
+            rooms: 0,
+            no_standalone: false,
+            strict_capacity: false,
+            booking_unavailable: unavailable,
+            loading: false,
+        });
 }
 
-async function expectCleanForm(page: Page, flow: MeetingFlow, settings: Settings, audit: MigrationAudit) {
+async function expectCleanForm(
+    page: Page,
+    flow: MeetingFlow,
+    settings: Settings,
+    audit: MigrationAudit,
+) {
     await expect(page.locator('confirm-modal')).toHaveCount(0);
     await expect(page.locator('event-link-modal')).toHaveCount(0);
     await expect(page).toHaveURL(/#\/book\/meeting\/form\?view=2$/);
     await expect(flow.options).toBeVisible();
     await expect(flow.success).toHaveCount(0);
     await expectSettings(page, settings);
-    expect(audit.blocked_api_requests, 'no write or provider request may be attempted').toEqual([]);
+    expect(
+        audit.blocked_api_requests,
+        'no write or provider request may be attempted',
+    ).toEqual([]);
 }
 
-readOnlyTest('room settings: booking_unavailable true opens the calendar-link dialog instead of the confirm screen',
+readOnlyTest(
+    'room settings: booking_unavailable true opens the calendar-link dialog instead of the confirm screen',
     async ({ staffPage, migrationAudit }, info) => {
         const email = migrationStaffEmail(info.parallelIndex);
-        const { flow, settings } = await openOptions(staffPage, {
-            'app.events.booking_unavailable': true,
-            // Checked before booking_unavailable in confirmBooking; pinned off so it cannot pre-empt.
-            'app.events.no_standalone': false,
-        }, email);
+        const { flow, settings } = await openOptions(
+            staffPage,
+            {
+                'app.events.booking_unavailable': true,
+                // Checked before booking_unavailable in confirmBooking; pinned off so it cannot pre-empt.
+                'app.events.no_standalone': false,
+            },
+            email,
+        );
         await expectValidRoomlessForm(flow, email, true);
         await expect(flow.confirm).toBeEnabled();
         await flow.confirm.click();
         const links = staffPage.locator('event-link-modal');
         await expect(links).toHaveCount(1);
         await expect(links).toBeVisible();
-        await expect(staffPage.locator('confirm-modal'), 'the standalone confirmation must not open').toHaveCount(0);
-        await expect(staffPage.locator('mat-snack-bar-container').filter({ hasText: ROOM_REQUIRED })).toHaveCount(0);
+        await expect(
+            staffPage.locator('confirm-modal'),
+            'the standalone confirmation must not open',
+        ).toHaveCount(0);
+        await expect(
+            staffPage
+                .locator('mat-snack-bar-container')
+                .filter({ hasText: ROOM_REQUIRED }),
+        ).toHaveCount(0);
         await expect(flow.success).toHaveCount(0);
         // Close with the icon only. The calendar links open external sites and
         // are never clicked; unactioned, the dialog closes without navigating.
@@ -179,15 +262,21 @@ readOnlyTest('room settings: booking_unavailable true opens the calendar-link di
         await close.click();
         await expect(links).toHaveCount(0);
         await expectCleanForm(staffPage, flow, settings, migrationAudit);
-    });
+    },
+);
 
-readOnlyTest('room settings: with no_standalone and booking_unavailable false, Confirm opens the ordinary confirm screen',
+readOnlyTest(
+    'room settings: with no_standalone and booking_unavailable false, Confirm opens the ordinary confirm screen',
     async ({ staffPage, migrationAudit }, info) => {
         const email = migrationStaffEmail(info.parallelIndex);
-        const { flow, settings } = await openOptions(staffPage, {
-            'app.events.no_standalone': false,
-            'app.events.booking_unavailable': false,
-        }, email);
+        const { flow, settings } = await openOptions(
+            staffPage,
+            {
+                'app.events.no_standalone': false,
+                'app.events.booking_unavailable': false,
+            },
+            email,
+        );
         await expectValidRoomlessForm(flow, email, false);
         await expect(flow.confirm).toBeEnabled();
         await flow.confirm.click();
@@ -196,11 +285,19 @@ readOnlyTest('room settings: with no_standalone and booking_unavailable false, C
         const confirm = staffPage.locator('confirm-modal');
         await expect(confirm).toHaveCount(1);
         await expect(confirm.locator('header h2')).toHaveText(STANDALONE_TITLE);
-        await expect(confirm.locator('button[name="accept"]'), 'the confirm screen must be reachable without a room').toBeVisible();
-        await expect(staffPage.locator('mat-snack-bar-container').filter({ hasText: ROOM_REQUIRED })).toHaveCount(0);
+        await expect(
+            confirm.locator('button[name="accept"]'),
+            'the confirm screen must be reachable without a room',
+        ).toBeVisible();
+        await expect(
+            staffPage
+                .locator('mat-snack-bar-container')
+                .filter({ hasText: ROOM_REQUIRED }),
+        ).toHaveCount(0);
         await expect(staffPage.locator('event-link-modal')).toHaveCount(0);
         // Never send: cancel instead of accept, so postForm is never reached.
         await confirm.locator('footer button[mat-dialog-close]').click();
         await expect(confirm).toHaveCount(0);
         await expectCleanForm(staffPage, flow, settings, migrationAudit);
-    });
+    },
+);

@@ -7,10 +7,7 @@ import {
 } from '../../../../../e2e/support/env';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import {
-    type Audit,
-    test,
-} from '../support/settings-harness';
+import { type Audit, test } from '../support/settings-harness';
 
 // Setting: users.show_avatars (docs/settings/workplace.md).
 // Coverage: 1 unique setting, 2 scenarios.

@@ -1,4 +1,8 @@
-import { createEnvironmentInjector, EnvironmentInjector, signal } from '@angular/core';
+import {
+    createEnvironmentInjector,
+    EnvironmentInjector,
+    signal,
+} from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
 import { ResourceDemand } from '../../app/ui/resource-demand';

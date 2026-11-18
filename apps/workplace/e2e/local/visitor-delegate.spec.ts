@@ -29,7 +29,6 @@
  * worker delete every booking their user has today (`clearToday` in
  * `home.api.ts`). A later day keeps the two apart.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     STAFF_API,
     currentUser,
@@ -40,14 +39,21 @@ import {
 } from '../../../../e2e/support/api';
 import { pauseBackground } from '../../../../e2e/support/background';
 import { WORKERS, roleFor, staffEmail } from '../../../../e2e/support/env';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
-import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    deleteGuest,
+    releaseVisitor,
+} from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 import {
     BOOK_FOR_ANYONE,
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
 
 const DAY = 86_400;
@@ -84,22 +90,36 @@ test.describe('visitor invite on behalf of another host', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const host = hostFor(mine);
-        test.skip(host.index === mine, 'needs at least two workers for a second identity');
+        test.skip(
+            host.index === mine,
+            'needs at least two workers for a second identity',
+        );
 
         const visitor = visitorFor(mine, VISITOR_SLOTS.delegate.single);
         const reason = uniqueTitle('E2E Delegate Visit');
         const visit_day = visitDay();
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, DELEGATE_MODE);
 
         try {
             const me = await currentUser(staffApi);
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
-                host: { email: host.email, name: host.name },
-                date: visit_day,
-            });
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+                {
+                    host: { email: host.email, name: host.name },
+                    date: visit_day,
+                },
+            );
             booking_id = created.id;
 
             const stored = await getBooking(staffApi, booking_id);
@@ -107,17 +127,21 @@ test.describe('visitor invite on behalf of another host', () => {
                 new Date(stored.booking_start * 1000).toDateString(),
                 'the invite is on the later day, clear of the home specs of the host',
             ).toBe(new Date(visit_day).toDateString());
-            expect(stored.user_email, 'the chosen host owns the booking').toBe(host.email);
-            expect(stored.booked_by_email, 'and we are recorded as the booker').toBe(
-                me.email,
+            expect(stored.user_email, 'the chosen host owns the booking').toBe(
+                host.email,
             );
+            expect(
+                stored.booked_by_email,
+                'and we are recorded as the booker',
+            ).toBe(me.email);
             expect(
                 stored.user_email,
                 'host and booker must actually differ, or this proves nothing',
             ).not.toBe(stored.booked_by_email);
-            expect(stored.asset_id, 'the visitor is unchanged by delegating').toBe(
-                visitor.email,
-            );
+            expect(
+                stored.asset_id,
+                'the visitor is unchanged by delegating',
+            ).toBe(visitor.email);
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
             await deleteGuest(staffApi, visitor.email);
@@ -131,21 +155,35 @@ test.describe('visitor invite on behalf of another host', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const host = hostFor(mine);
-        test.skip(host.index === mine, 'needs at least two workers for a second identity');
+        test.skip(
+            host.index === mine,
+            'needs at least two workers for a second identity',
+        );
 
         const visitor = visitorFor(mine, VISITOR_SLOTS.delegate.groupA);
         const reason = uniqueTitle('E2E Delegate View');
         const visit_day = visitDay();
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, DELEGATE_MODE);
 
         try {
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
-                host: { email: host.email, name: host.name },
-                date: visit_day,
-            });
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+                {
+                    host: { email: host.email, name: host.name },
+                    date: visit_day,
+                },
+            );
             booking_id = created.id;
 
             // --- the BOOKER's view -------------------------------------------
@@ -214,16 +252,21 @@ test.describe('visitor invite on behalf of another host', () => {
                 'a plain listing is caller-scoped, so the BOOKER does not see it',
             ).not.toContain(booking_id);
 
-            const booker_included = await staffApi.get(`${STAFF_API}/bookings`, {
-                params: {
-                    type: 'visitor',
-                    period_start: String(window_from()),
-                    period_end: String(window_to()),
-                    include_booked_by: 'true',
+            const booker_included = await staffApi.get(
+                `${STAFF_API}/bookings`,
+                {
+                    params: {
+                        type: 'visitor',
+                        period_start: String(window_from()),
+                        period_end: String(window_to()),
+                        include_booked_by: 'true',
+                    },
                 },
-            });
+            );
             expect(
-                ((await booker_included.json()) as { id: number }[]).map((b) => b.id),
+                ((await booker_included.json()) as { id: number }[]).map(
+                    (b) => b.id,
+                ),
                 'with include_booked_by=true they do — this is what the schedule sends',
             ).toContain(booking_id);
         } finally {

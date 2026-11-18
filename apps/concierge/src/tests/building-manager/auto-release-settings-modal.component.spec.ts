@@ -4,9 +4,9 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SettingsService, setNotifyOutlet } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
+import { setNotifyOutlet, SettingsService } from '@placeos/common';
 import { getHours, getMinutes } from 'date-fns';
+import { MockProvider } from 'ng-mocks';
 import { stringify as stringifyYaml } from 'yaml';
 
 import { AutoReleaseSettingsModalComponent } from '../../app/building-manager/auto-release-settings-modal.component';
@@ -73,7 +73,9 @@ describe('AutoReleaseSettingsModalComponent', () => {
         spectator.component.toggleCustom('desk', false);
 
         expect(spectator.component.setting('custom')).not.toContain('desk');
-        expect('desk_time_before' in spectator.component.settings()).toBe(false);
+        expect('desk_time_before' in spectator.component.settings()).toBe(
+            false,
+        );
         expect('desk_time_after' in spectator.component.settings()).toBe(false);
     });
 
@@ -93,9 +95,7 @@ describe('AutoReleaseSettingsModalComponent', () => {
         spectator.component.setSetting('default_work_preferences', [
             {
                 day_of_week: 1,
-                blocks: [
-                    { start_time: 9, end_time: 17, location: 'office' },
-                ],
+                blocks: [{ start_time: 9, end_time: 17, location: 'office' }],
             },
         ]);
         const prefs = spectator.component.default_work_preferences();

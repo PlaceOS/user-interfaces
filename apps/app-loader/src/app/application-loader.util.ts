@@ -31,7 +31,9 @@ export function buildLauncherApplications(
 ): LauncherApplication[] {
     return (applications || [])
         .filter((app) => isSupportedRedirectUri(app?.redirect_uri))
-        .filter((app) => !isSelfReference(app?.redirect_uri, options.current_uri))
+        .filter(
+            (app) => !isSelfReference(app?.redirect_uri, options.current_uri),
+        )
         .filter((app) => isVisibleToUser(app, options))
         .sort((lhs, rhs) =>
             (lhs.name || nameFromUri(lhs.redirect_uri || '')).localeCompare(
@@ -92,7 +94,10 @@ export function redirectPath(uri: string) {
     }
 }
 
-export function isSelfReference(redirect_uri?: string, current_uri = location.href) {
+export function isSelfReference(
+    redirect_uri?: string,
+    current_uri = location.href,
+) {
     if (!redirect_uri || !current_uri) return false;
     return redirectPath(redirect_uri) === redirectPath(current_uri);
 }
@@ -119,7 +124,8 @@ function isVisibleToUser(
     const user_groups = options.user_groups || [];
     return matching_rules.some(
         (rule) =>
-            !rule.groups?.length || rule.groups.some((group) => user_groups.includes(group)),
+            !rule.groups?.length ||
+            rule.groups.some((group) => user_groups.includes(group)),
     );
 }
 

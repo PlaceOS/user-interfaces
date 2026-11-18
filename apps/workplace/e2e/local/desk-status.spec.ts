@@ -33,11 +33,16 @@
  *    workers therefore fit inside the one-hour check-in gate without overlapping
  *    each other.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { STAFF_API, deleteBooking, releaseAsset, uniqueTitle } from '../../../../e2e/support/api';
-import { altDesk } from '../../../../e2e/support/desk/desk.env';
-import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import {
+    STAFF_API,
+    deleteBooking,
+    releaseAsset,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
 import { DeskSchedulePage } from '../../../../e2e/support/desk/desk-schedule.page';
+import { createDeskBookingViaApi } from '../../../../e2e/support/desk/desk.api';
+import { altDesk } from '../../../../e2e/support/desk/desk.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 test.describe('desk booking status on the card', () => {
     test('the checked-in badge appears only once the booking is checked in', async ({

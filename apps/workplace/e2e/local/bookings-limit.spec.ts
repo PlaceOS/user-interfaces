@@ -143,7 +143,9 @@ test.describe('your bookings — high cancelled history', () => {
             ).toBeGreaterThan(0);
             // Across every page: the listing is not ordered by id, so the live
             // row can be on any of them.
-            const listed = new Set(matching.flatMap((response) => response.ids));
+            const listed = new Set(
+                matching.flatMap((response) => response.ids),
+            );
             expect(
                 [...listed],
                 'the active booking must be returned by the listing Your Bookings uses',

@@ -1,6 +1,4 @@
-import type { Mock } from 'vitest';
 import { signal } from '@angular/core';
-import { of } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import {
     createRoutingFactory,
@@ -11,6 +9,8 @@ import {
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { of } from 'rxjs';
+import type { Mock } from 'vitest';
 
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { AlertNotificationService } from '../app/push-notification.service';
@@ -177,7 +177,12 @@ describe('SidebarComponent', () => {
     });
 
     it('should report notifications active only when enabled with a severity on', () => {
-        const none = { critical: false, high: false, medium: false, low: false };
+        const none = {
+            critical: false,
+            high: false,
+            medium: false,
+            low: false,
+        };
         const active = (enabled: boolean, config: typeof none) => {
             push.enabled.set(enabled);
             push.config.set(config);

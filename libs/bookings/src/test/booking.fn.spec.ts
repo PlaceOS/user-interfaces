@@ -5,10 +5,10 @@ import {
     CateringItem,
     CateringOrder,
     setCurrentUser,
+    SettingsService,
     Space,
     StaffUser,
     User,
-    SettingsService,
     VERSION,
 } from '@placeos/common';
 import { fromZonedTime } from 'date-fns-tz';
@@ -813,7 +813,9 @@ describe('[Booking API]', () => {
         });
 
         it('should update only one occurrence when the query targets an instance', async () => {
-            const spy = vi.spyOn(ts_client, 'patch').mockResolvedValue({} as never);
+            const spy = vi
+                .spyOn(ts_client, 'patch')
+                .mockResolvedValue({} as never);
 
             await saveBooking(
                 new Booking({
@@ -931,7 +933,9 @@ describe('[Booking API]', () => {
                 other('rejected', at(9, 30), { rejected: true }),
                 other('own-child', at(9, 30), { parent_id: 'series' }),
             ] as never);
-            const post = vi.spyOn(ts_client, 'post').mockResolvedValue({} as never);
+            const post = vi
+                .spyOn(ts_client, 'post')
+                .mockResolvedValue({} as never);
             const series = new Booking({
                 id: 'series',
                 booking_start: at(9),

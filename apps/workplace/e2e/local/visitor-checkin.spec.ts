@@ -25,7 +25,7 @@
  * crossed midnight between creating the booking and loading the page, and it
  * quietly skipped the check-in coverage every evening.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
+import type { APIRequestContext } from '@playwright/test';
 import {
     currentUser,
     deleteBooking,
@@ -33,7 +33,7 @@ import {
     uniqueTitle,
     zonesWithTag,
 } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import {
     checkInViaApi,
     createBookingViaApi,
@@ -41,11 +41,14 @@ import {
     releaseVisitor,
 } from '../../../../e2e/support/visitor/visitor.api';
 import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import {
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
 import { YourBookingsPage } from '../../../../e2e/support/visitor/your-bookings.page';
-import type { APIRequestContext } from '@playwright/test';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -73,7 +76,9 @@ async function inviteAt(
 ) {
     const me = await currentUser(api);
     const zones = (
-        await Promise.all(['org', 'building', 'level'].map((t) => zonesWithTag(api, t)))
+        await Promise.all(
+            ['org', 'building', 'level'].map((t) => zonesWithTag(api, t)),
+        )
     )
         .flat()
         .map((z) => z.id);
@@ -98,16 +103,27 @@ test.describe('visitor check-in', () => {
     test('a visitor can book an overlapping visit after checking out early', async ({
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.checkin.earlyCheckout);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.checkin.earlyCheckout,
+        );
         const ids: number[] = [];
         // Already started, but still inside the check-in window. No clock waits
         // are needed, and the original scheduled end leaves room for visit two.
         const start = Math.floor(Date.now() / 1000) - 10 * 60;
 
         try {
-            await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+            await releaseVisitor(
+                staffApi,
+                visitor.email,
+                window_from(),
+                window_to(),
+            );
             const first = await inviteAt(
-                staffApi, visitor, uniqueTitle('E2E Visit Early Checkout'), start,
+                staffApi,
+                visitor,
+                uniqueTitle('E2E Visit Early Checkout'),
+                start,
             );
             ids.push(first.id);
             const original = await getBooking(staffApi, first.id);
@@ -116,14 +132,20 @@ test.describe('visitor check-in', () => {
             expect(original.booking_end).toBe(start + 3600);
 
             const check_in = await checkInViaApi(staffApi, first.id);
-            expect(check_in.status, `check-in: HTTP ${check_in.status} ${check_in.body}`)
-                .toBeGreaterThanOrEqual(200);
+            expect(
+                check_in.status,
+                `check-in: HTTP ${check_in.status} ${check_in.body}`,
+            ).toBeGreaterThanOrEqual(200);
             expect(check_in.status, check_in.body).toBeLessThan(300);
-            expect((await getBooking(staffApi, first.id)).checked_in).toBe(true);
+            expect((await getBooking(staffApi, first.id)).checked_in).toBe(
+                true,
+            );
 
             const check_out = await checkInViaApi(staffApi, first.id, false);
-            expect(check_out.status, `check-out: HTTP ${check_out.status} ${check_out.body}`)
-                .toBeGreaterThanOrEqual(200);
+            expect(
+                check_out.status,
+                `check-out: HTTP ${check_out.status} ${check_out.body}`,
+            ).toBeGreaterThanOrEqual(200);
             expect(check_out.status, check_out.body).toBeLessThan(300);
             const completed = await getBooking(staffApi, first.id);
             expect(completed.checked_in).toBeFalsy();
@@ -132,13 +154,16 @@ test.describe('visitor check-in', () => {
             expect(checked_out_at).toBeGreaterThan(0);
             expect(checked_out_at).toBeLessThan(original.booking_end);
 
-            const second_start = Math.max(
-                checked_out_at, Math.floor(Date.now() / 1000),
-            ) + 10 * 60;
+            const second_start =
+                Math.max(checked_out_at, Math.floor(Date.now() / 1000)) +
+                10 * 60;
             expect(second_start).toBeGreaterThan(checked_out_at);
             expect(second_start).toBeLessThan(original.booking_end);
             const second = await inviteAt(
-                staffApi, visitor, uniqueTitle('E2E Visit After Checkout'), second_start,
+                staffApi,
+                visitor,
+                uniqueTitle('E2E Visit After Checkout'),
+                second_start,
             );
             ids.push(second.id);
 
@@ -162,7 +187,10 @@ test.describe('visitor check-in', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.checkin.checkIn);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.checkin.checkIn,
+        );
         const title = uniqueTitle('E2E Visit CheckIn');
         // Must satisfy BOTH gates, which are different sizes and easy to
         // conflate:
@@ -178,7 +206,12 @@ test.describe('visitor check-in', () => {
         // booking's own day below.
         const start = Math.floor(Date.now() / 1000) + 10 * 60;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
         const booking = await inviteAt(staffApi, visitor, title, start);
@@ -205,7 +238,9 @@ test.describe('visitor check-in', () => {
 
             // Assert on the stored record, not on the button turning green.
             await expect(async () => {
-                expect((await getBooking(staffApi, booking.id)).checked_in).toBe(true);
+                expect(
+                    (await getBooking(staffApi, booking.id)).checked_in,
+                ).toBe(true);
             }).toPass({ timeout: 20_000 });
 
             // ...and back out again. This is the SAME button — the app flips it
@@ -240,14 +275,22 @@ test.describe('visitor check-in', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.checkin.tooEarly);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.checkin.tooEarly,
+        );
         const title = uniqueTitle('E2E Visit Too Early');
         // A fixed hour tomorrow, not "3 hours from now": the gates are the
         // subject here, and 10am tomorrow is outside both of them at every hour
         // of the day, so the test behaves the same at 09:00 and at 23:59.
         const start = tomorrowAt(10);
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
         const booking = await inviteAt(staffApi, visitor, title, start);

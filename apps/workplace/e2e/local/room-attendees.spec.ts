@@ -12,7 +12,6 @@
  * times all live under that key. Asserting on a top-level `attendees` field
  * finds an empty array on a booking that is perfectly correct.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     currentUser,
     deleteBooking,
@@ -20,11 +19,18 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    releaseRoom,
+    type RoomBooking,
+} from '../../../../e2e/support/room/room.api';
 import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { releaseRoom, type RoomBooking } from '../../../../e2e/support/room/room.api';
-import { ROOM_BASE_SETTINGS, useSettings } from '../../../../e2e/support/room/room.settings';
 import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import {
+    ROOM_BASE_SETTINGS,
+    useSettings,
+} from '../../../../e2e/support/room/room.settings';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -32,7 +38,9 @@ const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 /** Every attendee address on a stored booking, lower-cased. */
 function attendeeEmails(booking: RoomBooking): string[] {
-    const list = (booking.extension_data?.attendees ?? []) as { email?: string }[];
+    const list = (booking.extension_data?.attendees ?? []) as {
+        email?: string;
+    }[];
     return list.map((a) => `${a.email ?? ''}`.toLowerCase()).filter(Boolean);
 }
 
@@ -43,7 +51,10 @@ test.describe('room booking attendees', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers for a second address');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers for a second address',
+        );
 
         const room = await roomForWorker(mine);
         const slot = slotFor(ROOM_SLOTS.attendees.stored);
@@ -56,13 +67,22 @@ test.describe('room booking attendees', () => {
 
         try {
             const me = await currentUser(staffApi);
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                attendees: [guest],
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    attendees: [guest],
+                },
+            );
             booking_id = created.id;
 
-            const stored = (await getBooking(staffApi, booking_id)) as RoomBooking;
+            const stored = (await getBooking(
+                staffApi,
+                booking_id,
+            )) as RoomBooking;
             const emails = attendeeEmails(stored);
             expect(
                 emails,
@@ -93,7 +113,10 @@ test.describe('room booking attendees', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers for a second address');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers for a second address',
+        );
 
         const room = await roomForWorker(mine);
         const slot = slotFor(ROOM_SLOTS.attendees.removed);
@@ -109,14 +132,23 @@ test.describe('room booking attendees', () => {
             // Added and then taken off again — the everyday version of this is
             // picking the wrong colleague out of a lookup. Both the add and the
             // correction happen on the last step, before Confirm.
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                attendees: [dropped],
-                removeAttendees: [dropped],
-            });
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    attendees: [dropped],
+                    removeAttendees: [dropped],
+                },
+            );
             booking_id = created.id;
 
-            const stored = (await getBooking(staffApi, booking_id)) as RoomBooking;
+            const stored = (await getBooking(
+                staffApi,
+                booking_id,
+            )) as RoomBooking;
             const emails = attendeeEmails(stored);
             expect(
                 emails,

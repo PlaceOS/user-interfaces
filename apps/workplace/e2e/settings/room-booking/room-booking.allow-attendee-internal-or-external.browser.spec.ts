@@ -33,21 +33,22 @@
 import { expect, type Page } from '@playwright/test';
 import {
     fakeBearer,
-    type Json,
     meetingFormSnapshot as formSnapshot,
-    meetingFormTest as test,
+    type Json,
     openStrictMeeting,
     type Settings,
     submitGuestMeeting,
     syntheticMeetingOrg,
+    meetingFormTest as test,
 } from '../support/settings-harness';
 
 const ORG = syntheticMeetingOrg('e2e-attendee-type-');
 const { GROUP, GUEST } = ORG;
 // Both hosts are permitted. These scenarios cover rule-host resolution,
 // not hidden-rule rejection; every application error remains a test failure.
-const RULES: Json[] = [{ zone: '*', conditions: { groups: [GROUP] },
-    rules: { hidden: false } }];
+const RULES: Json[] = [
+    { zone: '*', conditions: { groups: [GROUP] }, rules: { hidden: false } },
+];
 const BASE: Settings = {
     ...ORG.BASE,
     'app.events.can_book_for_others': true,
@@ -56,43 +57,80 @@ const BASE: Settings = {
     'app.events.allow_attendee_internal_or_external': false,
 };
 
-const OPEN = { org: ORG, base: BASE, bearer: fakeBearer('attendee-flags'), rules: RULES, guest: true };
+const OPEN = {
+    org: ORG,
+    base: BASE,
+    bearer: fakeBearer('attendee-flags'),
+    rules: RULES,
+    guest: true,
+};
 
 /** The per-attendee type row (block label BOOKINGS.VISITOR_INTERNAL_OR_EXTERNAL). */
-const typeRow = (page: Page) => page.locator('meeting-flow-options a-user-list-field div')
-    .filter({ has: page.locator('span', { hasText: GUEST.name }) })
-    .filter({ has: page.locator('mat-radio-group') });
+const typeRow = (page: Page) =>
+    page
+        .locator('meeting-flow-options a-user-list-field div')
+        .filter({ has: page.locator('span', { hasText: GUEST.name }) })
+        .filter({ has: page.locator('mat-radio-group') });
 
-test('events.allow_attendee_internal_or_external=true marks the attendee external in the saved event',
-    async ({ isolated: { page, audit } }) => {
-        const confirm = await openStrictMeeting(page, audit,
-            { 'app.events.allow_attendee_internal_or_external': true }, OPEN);
-        await expect(page.locator('meeting-flow-options a-user-list-field label',
-            { hasText: 'Internal or external' })).toBeVisible();
-        const row = typeRow(page).last();
-        await expect(row).toBeVisible();
-        const internal = row.locator('mat-radio-button').filter({ hasText: 'Internal' });
-        const external = row.locator('mat-radio-button').filter({ hasText: 'External' });
-        await expect(row.locator('mat-radio-button')).toHaveCount(2);
-        // toVisitorInternalOrExternal defaults an unset type to 'internal'.
-        await expect(internal.locator('input[type="radio"]')).toBeChecked();
-        await expect(external.locator('input[type="radio"]')).not.toBeChecked();
-        await external.locator('input[type="radio"]').check();
-        await expect(external.locator('input[type="radio"]')).toBeChecked();
-        await expect.poll(async () => (await formSnapshot(page)).raw.attendees
-            .map((a) => (a.extension_data as Json | undefined)?.visitor_internal_or_external))
-            .toEqual(['external']);
-        const ext = await submitGuestMeeting(page, audit, confirm, ORG);
-        expect(ext.attendee_flags).toEqual({ [GUEST.email]: { visitor_internal_or_external: 'external' } });
+test('events.allow_attendee_internal_or_external=true marks the attendee external in the saved event', async ({
+    isolated: { page, audit },
+}) => {
+    const confirm = await openStrictMeeting(
+        page,
+        audit,
+        { 'app.events.allow_attendee_internal_or_external': true },
+        OPEN,
+    );
+    await expect(
+        page.locator('meeting-flow-options a-user-list-field label', {
+            hasText: 'Internal or external',
+        }),
+    ).toBeVisible();
+    const row = typeRow(page).last();
+    await expect(row).toBeVisible();
+    const internal = row
+        .locator('mat-radio-button')
+        .filter({ hasText: 'Internal' });
+    const external = row
+        .locator('mat-radio-button')
+        .filter({ hasText: 'External' });
+    await expect(row.locator('mat-radio-button')).toHaveCount(2);
+    // toVisitorInternalOrExternal defaults an unset type to 'internal'.
+    await expect(internal.locator('input[type="radio"]')).toBeChecked();
+    await expect(external.locator('input[type="radio"]')).not.toBeChecked();
+    await external.locator('input[type="radio"]').check();
+    await expect(external.locator('input[type="radio"]')).toBeChecked();
+    await expect
+        .poll(async () =>
+            (await formSnapshot(page)).raw.attendees.map(
+                (a) =>
+                    (a.extension_data as Json | undefined)
+                        ?.visitor_internal_or_external,
+            ),
+        )
+        .toEqual(['external']);
+    const ext = await submitGuestMeeting(page, audit, confirm, ORG);
+    expect(ext.attendee_flags).toEqual({
+        [GUEST.email]: { visitor_internal_or_external: 'external' },
     });
+});
 
-test('events.allow_attendee_internal_or_external=false hides the type block and saves no flags',
-    async ({ isolated: { page, audit } }) => {
-        const confirm = await openStrictMeeting(page, audit,
-            { 'app.events.allow_attendee_internal_or_external': false }, OPEN);
-        // openStrictMeeting has proven the attendee chip is rendered.
-        await expect(page.locator('meeting-flow-options')).not.toContainText('Internal or external');
-        await expect(page.locator('meeting-flow-options a-user-list-field mat-radio-group')).toHaveCount(0);
-        const ext = await submitGuestMeeting(page, audit, confirm, ORG);
-        expect(ext).not.toHaveProperty('attendee_flags');
-    });
+test('events.allow_attendee_internal_or_external=false hides the type block and saves no flags', async ({
+    isolated: { page, audit },
+}) => {
+    const confirm = await openStrictMeeting(
+        page,
+        audit,
+        { 'app.events.allow_attendee_internal_or_external': false },
+        OPEN,
+    );
+    // openStrictMeeting has proven the attendee chip is rendered.
+    await expect(page.locator('meeting-flow-options')).not.toContainText(
+        'Internal or external',
+    );
+    await expect(
+        page.locator('meeting-flow-options a-user-list-field mat-radio-group'),
+    ).toHaveCount(0);
+    const ext = await submitGuestMeeting(page, audit, confirm, ORG);
+    expect(ext).not.toHaveProperty('attendee_flags');
+});

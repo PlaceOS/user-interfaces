@@ -55,10 +55,15 @@ const BASE: Settings = {
     'app.events.use_bookings': true,
     'app.booking_qr_path': '/#/explore?space={{id}}',
     'app.events.allow_all_day': false,
-    'app.events.has_assets': false, 'app.events.can_book_for_others': false,
-    'app.events.bookable_hours': null, 'app.events.booking_unavailable': false,
-    'app.explore.colors': { 'zone-free': COLOUR,
-        'space-free': ROOM_FILL, 'space-busy': ROOM_FILL },
+    'app.events.has_assets': false,
+    'app.events.can_book_for_others': false,
+    'app.events.bookable_hours': null,
+    'app.events.booking_unavailable': false,
+    'app.explore.colors': {
+        'zone-free': COLOUR,
+        'space-free': ROOM_FILL,
+        'space-busy': ROOM_FILL,
+    },
 };
 
 type Audit = ControlAudit & { room_values: Record<string, unknown> };
@@ -77,36 +82,74 @@ async function openExplore(page: Page, audit: Audit, override: Settings) {
         rooms: [ROOM],
         // EventFormService.newForm() starts its native availability loader even
         // when the selected dialog is the QR variant. No Save is ever clicked.
-        gets: () => browserGet(page, (url) => {
-            const period_start = url.searchParams.get('period_start') ?? '';
-            const period_end = url.searchParams.get('period_end') ?? '';
-            return url.pathname === '/api/staff/v1/bookings' && validPeriod(url) &&
-                hasParams(url, { type: 'room', period_start, period_end });
-        }, () => {
-            audit.fixtures['native room availability'] =
-                (audit.fixtures['native room availability'] ?? 0) + 1;
-            return [];
-        }),
+        gets: () =>
+            browserGet(
+                page,
+                (url) => {
+                    const period_start =
+                        url.searchParams.get('period_start') ?? '';
+                    const period_end = url.searchParams.get('period_end') ?? '';
+                    return (
+                        url.pathname === '/api/staff/v1/bookings' &&
+                        validPeriod(url) &&
+                        hasParams(url, {
+                            type: 'room',
+                            period_start,
+                            period_end,
+                        })
+                    );
+                },
+                () => {
+                    audit.fixtures['native room availability'] =
+                        (audit.fixtures['native room availability'] ?? 0) + 1;
+                    return [];
+                },
+            ),
         delivered: exploreBindings(EXPLORE, LIVE, audit.room_values),
     });
 }
 
 for (const enabled of [true, false]) {
-    test('explore.show_booking_qr=' + enabled + ' opens only the selected room dialog',
+    test(
+        'explore.show_booking_qr=' +
+            enabled +
+            ' opens only the selected room dialog',
         async ({ isolated: { page, audit } }) => {
-            await openExplore(page, audit, { 'app.explore.show_booking_qr': enabled });
-            const feature = await exploreRoomReady(page, audit.room_values, EXPLORE);
-            await expect.poll(async () => (await roomState(page)).events).toHaveLength(0);
+            await openExplore(page, audit, {
+                'app.explore.show_booking_qr': enabled,
+            });
+            const feature = await exploreRoomReady(
+                page,
+                audit.room_values,
+                EXPLORE,
+            );
+            await expect
+                .poll(async () => (await roomState(page)).events)
+                .toHaveLength(0);
             // The renderer must have installed this exact room's actions before
             // clicking it; a visible room alone does not prove action readiness.
-            await expect.poll(() => page.locator('explore-map-view').evaluate((element, id) => {
-                const view = (window as DebugWindow).ng?.getComponent(element) as {
-                    actions(): { id: string; action: string }[];
-                } | undefined;
-                if (!view) throw new Error('Read-only map actions unavailable');
-                return view.actions().filter((action) => action.id === id)
-                    .map((action) => action.action).sort();
-            }, ROOM.map_id)).toEqual(['mousedown', 'mouseup', 'touchend', 'touchstart']);
+            await expect
+                .poll(() =>
+                    page.locator('explore-map-view').evaluate((element, id) => {
+                        const view = (window as DebugWindow).ng?.getComponent(
+                            element,
+                        ) as
+                            | {
+                                  actions(): { id: string; action: string }[];
+                              }
+                            | undefined;
+                        if (!view)
+                            throw new Error(
+                                'Read-only map actions unavailable',
+                            );
+                        return view
+                            .actions()
+                            .filter((action) => action.id === id)
+                            .map((action) => action.action)
+                            .sort();
+                    }, ROOM.map_id),
+                )
+                .toEqual(['mousedown', 'mouseup', 'touchend', 'touchstart']);
             await expect(page.locator('mat-dialog-container')).toHaveCount(0);
             // Down/up is shorter than the source's 300 ms panning threshold.
             await feature.click({ position: { x: 10, y: 10 }, delay: 30 });
@@ -121,25 +164,41 @@ for (const enabled of [true, false]) {
                 const image = qr_dialog.locator('main img');
                 await expect(image).toHaveCount(1);
                 await expect(image).toBeVisible();
-                await expect(image).toHaveAttribute('src', /^data:image\/svg\+xml,/);
-                await expect.poll(() => image.evaluate((element) => {
-                    const image = element as HTMLImageElement;
-                    return image.complete && image.naturalWidth > 0 && image.naturalHeight > 0;
-                })).toBe(true);
+                await expect(image).toHaveAttribute(
+                    'src',
+                    /^data:image\/svg\+xml,/,
+                );
+                await expect
+                    .poll(() =>
+                        image.evaluate((element) => {
+                            const image = element as HTMLImageElement;
+                            return (
+                                image.complete &&
+                                image.naturalWidth > 0 &&
+                                image.naturalHeight > 0
+                            );
+                        }),
+                    )
+                    .toBe(true);
                 await expect(booking_dialog).toHaveCount(0);
             } else {
                 await expect(booking_dialog).toBeVisible();
                 await expect(booking_dialog.locator('[load]')).toHaveCount(0);
-                await expect(booking_dialog.locator('input#title')).toBeEditable();
-                await expect(booking_dialog.locator('[name="space"]')).toHaveText(ROOM.name);
+                await expect(
+                    booking_dialog.locator('input#title'),
+                ).toBeEditable();
+                await expect(
+                    booking_dialog.locator('[name="space"]'),
+                ).toHaveText(ROOM.name);
                 await expect(qr_dialog).toHaveCount(0);
             }
-            await expect.poll(() => audit.fixtures['native room availability'] ?? 0)
+            await expect
+                .poll(() => audit.fixtures['native room availability'] ?? 0)
                 .toBeGreaterThan(0);
             await page.keyboard.press('Escape');
             await expect(dialog).toHaveCount(0);
             await expect(page).toHaveURL(/#\/explore$/);
             await expect(page.locator('explore-map-view')).toBeVisible();
-        });
+        },
+    );
 }
-

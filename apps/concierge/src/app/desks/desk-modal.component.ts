@@ -172,7 +172,8 @@ export interface DeskModalData {
                                     </mat-error>
                                 </mat-form-field>
                                 <button
-                                    icon default
+                                    icon
+                                    default
                                     matRipple
                                     class="text-xl"
                                     [matTooltip]="
@@ -201,7 +202,9 @@ export interface DeskModalData {
                             class="flex-1"
                         ></a-user-search-field>
                         <button
-                            icon default error
+                            icon
+                            default
+                            error
                             matRipple
                             class="text-xl"
                             [matTooltip]="

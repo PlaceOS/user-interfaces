@@ -19,9 +19,9 @@
  * look for the calendar identity, a local admin whose address is one of the
  * tenant's mailboxes.
  */
-import { expect, test } from '../../../../e2e/support/concierge/fixtures';
-import { CALENDAR_USER_EMAIL } from '../../../../e2e/support/calendar/calendar.env';
 import { listBookings } from '../../../../e2e/support/api';
+import { CALENDAR_USER_EMAIL } from '../../../../e2e/support/calendar/calendar.env';
+import { expect, test } from '../../../../e2e/support/concierge/fixtures';
 
 const STAFF_ROUTE = '/#/users/staff';
 const DIRECTORY_ENDPOINT = '/api/staff/v1/people';
@@ -123,25 +123,24 @@ test.describe('concierge staff directory', () => {
      *
      * The directory call now has a `catch`, which is what this verifies.
      */
-    test(
-        'CON-B2: the staff page handles a failing directory call without an unhandled rejection',
-        async ({ adminPage }) => {
-            const crashes: string[] = [];
-            adminPage.on('pageerror', (error) => crashes.push(error.message));
-            await adminPage.goto(STAFF_ROUTE);
-            await expect(adminPage.locator('staff-listings')).toBeAttached({
-                timeout: 45_000,
-            });
-            // Long enough for the directory call to fail and the rejection to
-            // surface, which is the whole point.
-            await adminPage.waitForTimeout(8_000);
-            expect(
-                crashes,
-                'a failing directory call should be handled, not left to surface as ' +
-                    'an uncaught "Response". The day view manages this (CON-DAY-08)',
-            ).toEqual([]);
-        },
-    );
+    test('CON-B2: the staff page handles a failing directory call without an unhandled rejection', async ({
+        adminPage,
+    }) => {
+        const crashes: string[] = [];
+        adminPage.on('pageerror', (error) => crashes.push(error.message));
+        await adminPage.goto(STAFF_ROUTE);
+        await expect(adminPage.locator('staff-listings')).toBeAttached({
+            timeout: 45_000,
+        });
+        // Long enough for the directory call to fail and the rejection to
+        // surface, which is the whole point.
+        await adminPage.waitForTimeout(8_000);
+        expect(
+            crashes,
+            'a failing directory call should be handled, not left to surface as ' +
+                'an uncaught "Response". The day view manages this (CON-DAY-08)',
+        ).toEqual([]);
+    });
 
     /**
      * CON-STAFF-01 / 02 — the directory, against the Microsoft 365 tenant.
@@ -166,7 +165,10 @@ test.describe('concierge staff directory', () => {
 
         const email = CALENDAR_USER_EMAIL;
         const row = (page) =>
-            page.locator('staff-details').filter({ hasText: new RegExp(email, 'i') }).first();
+            page
+                .locator('staff-details')
+                .filter({ hasText: new RegExp(email, 'i') })
+                .first();
 
         test('CON-STAFF-01: the staff list shows the directory, and search narrows it', async ({
             adminPage,
@@ -177,11 +179,17 @@ test.describe('concierge staff directory', () => {
                 `${email} should be listed: it is a user in the tenant the stack is backed by`,
             ).toBeVisible({ timeout: 45_000 });
             const all = await adminPage.locator('staff-details').count();
-            expect(all, 'the directory has more than the one user').toBeGreaterThan(1);
+            expect(
+                all,
+                'the directory has more than the one user',
+            ).toBeGreaterThan(1);
 
             const search = adminPage.locator('searchbar input').first();
             await search.fill(email.split('@')[0]);
-            await expect(row(adminPage), 'searching by name keeps the match').toBeVisible({
+            await expect(
+                row(adminPage),
+                'searching by name keeps the match',
+            ).toBeVisible({
                 timeout: 15_000,
             });
             await expect
@@ -204,11 +212,17 @@ test.describe('concierge staff directory', () => {
             adminPage,
             adminApi,
         }) => {
-            const day_start = Math.floor(new Date().setUTCHours(0, 0, 0, 0) / 1000);
+            const day_start = Math.floor(
+                new Date().setUTCHours(0, 0, 0, 0) / 1000,
+            );
             const day_end = day_start + 86_400;
             const mine = async () =>
-                (await listBookings(adminApi, 'staff', day_start, day_end)).filter(
-                    (b) => `${b.asset_id}`.toLowerCase() === email.toLowerCase() && !b.deleted,
+                (
+                    await listBookings(adminApi, 'staff', day_start, day_end)
+                ).filter(
+                    (b) =>
+                        `${b.asset_id}`.toLowerCase() === email.toLowerCase() &&
+                        !b.deleted,
                 );
             // Start clean: a check-in left by an earlier run would read as this one.
             for (const stale of await mine()) {
@@ -222,10 +236,14 @@ test.describe('concierge staff directory', () => {
 
             let booking;
             await expect
-                .poll(async () => (booking = (await mine())[0]) && booking.checked_in, {
-                    message: `checking ${email} in from the directory must store a checked-in staff booking`,
-                    timeout: 20_000,
-                })
+                .poll(
+                    async () =>
+                        (booking = (await mine())[0]) && booking.checked_in,
+                    {
+                        message: `checking ${email} in from the directory must store a checked-in staff booking`,
+                        timeout: 20_000,
+                    },
+                )
                 .toBe(true);
             try {
                 await expect(
@@ -242,9 +260,15 @@ test.describe('concierge staff directory', () => {
                     .poll(
                         async () => {
                             const now = (await mine())[0];
-                            return now ? now.booking_end <= Math.floor(Date.now() / 1000) + 60 : true;
+                            return now
+                                ? now.booking_end <=
+                                      Math.floor(Date.now() / 1000) + 60
+                                : true;
                         },
-                        { message: 'checking out must end the booking now', timeout: 20_000 },
+                        {
+                            message: 'checking out must end the booking now',
+                            timeout: 20_000,
+                        },
                     )
                     .toBe(true);
             } finally {

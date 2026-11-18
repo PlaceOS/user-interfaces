@@ -21,38 +21,65 @@ import { expect } from '@playwright/test';
 import {
     type DebugWindow,
     openZoneSensorExplore,
-    ZONE_SENSOR_TARGET,
     zoneSensorTest as test,
+    ZONE_SENSOR_TARGET,
 } from '../support/settings-harness';
 
 for (const enabled of [true, false]) {
-    test('explore.show_zone_sensor_info=' + enabled + ' controls the room sensor tooltip',
+    test(
+        'explore.show_zone_sensor_info=' +
+            enabled +
+            ' controls the room sensor tooltip',
         async ({ zones: { page, audit } }) => {
             // Waits for the room, then turns Sensors on through the UI.
-            await openZoneSensorExplore(page, audit, { 'app.explore.show_zone_sensor_info': enabled });
+            await openZoneSensorExplore(page, audit, {
+                'app.explore.show_zone_sensor_info': enabled,
+            });
             // Metadata/live processing, room matching and the enabled overlay
             // are proven before a negative assertion about its sensor feature.
-            await expect.poll(() => page.locator('explore-map-view').evaluate((element, id) => {
-                const view = (window as DebugWindow).ng?.getComponent(element) as {
-                    features(): { track_id?: string }[];
-                } | undefined;
-                if (!view) throw new Error('Read-only map features unavailable');
-                return view.features().some((feature) => feature.track_id === 'sensors:' + id);
-            }, ZONE_SENSOR_TARGET)).toBe(enabled);
-            const sensor_button = page.locator('explore-map-view explore-sensor-info button');
+            await expect
+                .poll(() =>
+                    page.locator('explore-map-view').evaluate((element, id) => {
+                        const view = (window as DebugWindow).ng?.getComponent(
+                            element,
+                        ) as
+                            | {
+                                  features(): { track_id?: string }[];
+                              }
+                            | undefined;
+                        if (!view)
+                            throw new Error(
+                                'Read-only map features unavailable',
+                            );
+                        return view
+                            .features()
+                            .some(
+                                (feature) =>
+                                    feature.track_id === 'sensors:' + id,
+                            );
+                    }, ZONE_SENSOR_TARGET),
+                )
+                .toBe(enabled);
+            const sensor_button = page.locator(
+                'explore-map-view explore-sensor-info button',
+            );
             await expect(sensor_button).toHaveCount(enabled ? 1 : 0);
             await expect(page.locator('mat-dialog-container')).toHaveCount(0);
             if (enabled) {
                 await expect(sensor_button).toBeVisible();
                 await sensor_button.click();
-                const tooltip = page.locator('.cdk-overlay-container [custom-tooltip] > div');
+                const tooltip = page.locator(
+                    '.cdk-overlay-container [custom-tooltip] > div',
+                );
                 await expect(tooltip).toHaveCount(1);
                 await expect(tooltip).toBeVisible();
                 await expect(tooltip).toContainText('23˚C');
                 await expect(tooltip).toContainText('45%');
-                await expect(page.locator('mat-dialog-container')).toHaveCount(0);
+                await expect(page.locator('mat-dialog-container')).toHaveCount(
+                    0,
+                );
                 await page.keyboard.press('Escape');
             }
-        });
+        },
+    );
 }
-

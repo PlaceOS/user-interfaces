@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -6,7 +6,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { LocationStatus, USER_LOCATIONS } from './common';
+import { USER_LOCATIONS } from './common';
 import {
     TeamScheduleFilters,
     TeamScheduleService,

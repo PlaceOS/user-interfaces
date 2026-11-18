@@ -13,7 +13,6 @@
  * The new meeting flow picks the colleague from the host search that
  * `events.can_book_for_anyone` renders (PPT-2873). See `BOOK_FOR_ANYONE`.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import {
     apiFor,
     currentUser,
@@ -22,15 +21,20 @@ import {
     uniqueTitle,
 } from '../../../../e2e/support/api';
 import { WORKERS, staffEmail } from '../../../../e2e/support/env';
-import { ROOM_SLOTS_2, SECOND_DAY, slotFor } from '../../../../e2e/support/room/room.env';
-import { roomForWorker } from '../../../../e2e/support/room/room.seed';
+import { expect, test } from '../../../../e2e/support/fixtures';
 import { releaseRoom } from '../../../../e2e/support/room/room.api';
+import {
+    ROOM_SLOTS_2,
+    SECOND_DAY,
+    slotFor,
+} from '../../../../e2e/support/room/room.env';
+import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
+import { roomForWorker } from '../../../../e2e/support/room/room.seed';
 import {
     BOOK_FOR_ANYONE,
     ROOM_BASE_SETTINGS,
     useSettings,
 } from '../../../../e2e/support/room/room.settings';
-import { bookRoomViaUI } from '../../../../e2e/support/room/room.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -43,7 +47,10 @@ test.describe('booking a room for a colleague', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const room = await roomForWorker(mine);
         const colleague = staffEmail(theirs);
@@ -52,16 +59,27 @@ test.describe('booking a room for a colleague', () => {
         let booking_id: number | undefined;
 
         await releaseRoom(staffApi, room.id, window_from(), window_to());
-        await useSettings(staffPage, { ...ROOM_BASE_SETTINGS, ...BOOK_FOR_ANYONE });
+        await useSettings(staffPage, {
+            ...ROOM_BASE_SETTINGS,
+            ...BOOK_FOR_ANYONE,
+        });
 
         try {
             const me = await currentUser(staffApi);
             const their_api = await apiFor('staff', theirs);
-            const them = await currentUser(their_api).finally(() => their_api.dispose());
-            const created = await bookRoomViaUI(staffPage, staffApi, room, title, {
-                date: slot.date_ms,
-                host: colleague,
-            });
+            const them = await currentUser(their_api).finally(() =>
+                their_api.dispose(),
+            );
+            const created = await bookRoomViaUI(
+                staffPage,
+                staffApi,
+                room,
+                title,
+                {
+                    date: slot.date_ms,
+                    host: colleague,
+                },
+            );
             booking_id = created.id;
 
             const stored = await getBooking(staffApi, booking_id!);

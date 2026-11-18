@@ -37,7 +37,9 @@ export async function createBookingViaApi(
 ): Promise<Booking> {
     const me = await currentUser(api);
     const zones = (
-        await Promise.all(['org', 'building', 'level'].map((t) => zonesWithTag(api, t)))
+        await Promise.all(
+            ['org', 'building', 'level'].map((t) => zonesWithTag(api, t)),
+        )
     )
         .flat()
         .map((z) => z.id);
@@ -76,10 +78,14 @@ export async function createBookingViaApi(
                     `that two spec files are not sharing a slot (see HOME_SLOTS).`,
             );
         }
-        console.warn(`  ! concurrent-write failure on attempt ${attempt}/4 — ${last}`);
+        console.warn(
+            `  ! concurrent-write failure on attempt ${attempt}/4 — ${last}`,
+        );
         await new Promise((r) => setTimeout(r, 400 * attempt));
     }
-    throw new Error(`create ${options.type} booking still failing after 4 attempts. Last: ${last}`);
+    throw new Error(
+        `create ${options.type} booking still failing after 4 attempts. Last: ${last}`,
+    );
 }
 
 /** The signed-in user's own settings blob. */
@@ -91,7 +97,9 @@ export async function readUserSettings(
         params: { name: 'settings' },
     });
     if (!res.ok()) {
-        throw new Error(`read user settings failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `read user settings failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     return body?.settings?.details ?? {};
@@ -119,7 +127,9 @@ export async function setUserSetting(
         },
     });
     if (!res.ok()) {
-        throw new Error(`write ${key} failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `write ${key} failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
 }
 
@@ -150,7 +160,9 @@ export async function readContacts(
         params: { name: CONTACTS_DOC },
     });
     if (!res.ok()) {
-        throw new Error(`read contacts failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `read contacts failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
     const body = await res.json();
     const details = body?.[CONTACTS_DOC]?.details;
@@ -176,7 +188,9 @@ export async function setContacts(
         },
     });
     if (!res.ok()) {
-        throw new Error(`write contacts failed: HTTP ${res.status()} ${await res.text()}`);
+        throw new Error(
+            `write contacts failed: HTTP ${res.status()} ${await res.text()}`,
+        );
     }
 }
 
@@ -193,7 +207,10 @@ export function todayBounds() {
 
 /** Is this moment still today, locally? The home page shows today and nothing else. */
 export function stillToday(unix_seconds: number): boolean {
-    return new Date(unix_seconds * 1000).toDateString() === new Date().toDateString();
+    return (
+        new Date(unix_seconds * 1000).toDateString() ===
+        new Date().toDateString()
+    );
 }
 
 /**

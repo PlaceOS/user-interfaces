@@ -14,17 +14,27 @@
  * "a long visit is rejected" would be testing something the form never lets you
  * attempt.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, getBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { VISITOR_SLOTS, visitorFor } from '../../../../e2e/support/visitor/visitor.env';
-import { deleteGuest, releaseVisitor } from '../../../../e2e/support/visitor/visitor.api';
+import {
+    deleteBooking,
+    getBooking,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
+import {
+    deleteGuest,
+    releaseVisitor,
+} from '../../../../e2e/support/visitor/visitor.api';
+import {
+    VISITOR_SLOTS,
+    visitorFor,
+} from '../../../../e2e/support/visitor/visitor.env';
+import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 import {
     LIMITED_HOURS,
     SINGLE_VISITOR_MODE,
     useSettings,
 } from '../../../../e2e/support/visitor/visitor.settings';
-import { InviteVisitorForm } from '../../../../e2e/support/visitor/invite-form.page';
-import { inviteVisitorViaUI } from '../../../../e2e/support/visitor/visitor.flows';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -44,11 +54,19 @@ test.describe('visitor invite times', () => {
         staffPage,
         staffApi,
     }, testInfo) => {
-        const visitor = visitorFor(testInfo.parallelIndex, VISITOR_SLOTS.times.chosen);
+        const visitor = visitorFor(
+            testInfo.parallelIndex,
+            VISITOR_SLOTS.times.chosen,
+        );
         const reason = uniqueTitle('E2E Visit Times');
         let booking_id: number | undefined;
 
-        await releaseVisitor(staffApi, visitor.email, window_from(), window_to());
+        await releaseVisitor(
+            staffApi,
+            visitor.email,
+            window_from(),
+            window_to(),
+        );
         await useSettings(staffPage, SINGLE_VISITOR_MODE);
 
         try {
@@ -68,14 +86,21 @@ test.describe('visitor invite times', () => {
             // already selected, so choosing it would prove nothing.
             const chosen_time = times[1];
             const lengths = await form.durationOptions();
-            const chosen_length = lengths.find((m) => m >= 90) ?? lengths[lengths.length - 1];
+            const chosen_length =
+                lengths.find((m) => m >= 90) ?? lengths[lengths.length - 1];
 
             // Set through the flow rather than here, so a REG-09 retry re-picks
             // them instead of falling back to the defaults.
-            const created = await inviteVisitorViaUI(staffPage, staffApi, visitor, reason, {
-                startTime: chosen_time,
-                duration: chosen_length,
-            });
+            const created = await inviteVisitorViaUI(
+                staffPage,
+                staffApi,
+                visitor,
+                reason,
+                {
+                    startTime: chosen_time,
+                    duration: chosen_length,
+                },
+            );
             booking_id = created.id;
 
             const stored = await getBooking(staffApi, booking_id);
@@ -99,7 +124,10 @@ test.describe('visitor invite times', () => {
     test('a maximum length and bookable hours limit what can be chosen', async ({
         staffPage,
     }) => {
-        await useSettings(staffPage, { ...SINGLE_VISITOR_MODE, ...LIMITED_HOURS });
+        await useSettings(staffPage, {
+            ...SINGLE_VISITOR_MODE,
+            ...LIMITED_HOURS,
+        });
 
         const form = new InviteVisitorForm(staffPage);
         await form.open();

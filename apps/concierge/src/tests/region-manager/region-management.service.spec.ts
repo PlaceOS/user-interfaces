@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { NEVER, of } from 'rxjs';
 
@@ -86,7 +89,9 @@ describe('RegionManagementService', () => {
     });
 
     it('should add the returned zone after editing a region', () => {
-        dialog_open.mockReturnValue({ afterClosed: () => of({ id: 'new-region' }) });
+        dialog_open.mockReturnValue({
+            afterClosed: () => of({ id: 'new-region' }),
+        });
         spectator.service.editRegion();
         expect(org.addZone).toHaveBeenCalledWith({ id: 'new-region' });
     });
@@ -94,7 +99,10 @@ describe('RegionManagementService', () => {
     it('should remove the region when the confirmation is accepted', async () => {
         const close = confirmRef('done');
 
-        await spectator.service.removeRegion({ id: 'r1', name: 'North Region' } as any);
+        await spectator.service.removeRegion({
+            id: 'r1',
+            name: 'North Region',
+        } as any);
 
         expect(ts_client.removeZone).toHaveBeenCalledWith('r1');
         expect(org.removeZone).toHaveBeenCalledWith(
@@ -111,7 +119,10 @@ describe('RegionManagementService', () => {
     it('should abort removal when the confirmation is cancelled', async () => {
         const close = confirmRef('cancel');
 
-        await spectator.service.removeRegion({ id: 'r1', name: 'North Region' } as any);
+        await spectator.service.removeRegion({
+            id: 'r1',
+            name: 'North Region',
+        } as any);
 
         expect(ts_client.removeZone).not.toHaveBeenCalled();
         expect(org.removeZone).not.toHaveBeenCalled();

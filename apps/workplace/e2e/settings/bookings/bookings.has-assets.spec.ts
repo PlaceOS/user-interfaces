@@ -10,7 +10,11 @@
 import type { Page } from '@playwright/test';
 import { expect } from '../../../../../e2e/support/fixtures';
 import { READ_ONLY_SETTINGS } from '../../local/wpa-settings-readonly-legacy.fixture';
-import { prepareSettings, type Settings, test } from '../support/settings-harness';
+import {
+    prepareSettings,
+    type Settings,
+    test,
+} from '../support/settings-harness';
 
 test.use({ readOnlyTimezone: 'Etc/UTC' });
 
@@ -74,7 +78,11 @@ async function prepare(page: Page, desks: boolean | null, generic: boolean) {
     await page.goto('/#/book/desk/form');
     await fixture.ready({
         loading: false,
-        keys: ['app.features', 'app.desks.has_assets', 'app.bookings.has_assets'],
+        keys: [
+            'app.features',
+            'app.desks.has_assets',
+            'app.bookings.has_assets',
+        ],
     });
     const details = page.locator('desk-flow-new desk-flow-details');
     await expect(details.locator('input[name$=".title"]')).toBeEditable();

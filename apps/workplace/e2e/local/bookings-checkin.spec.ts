@@ -27,15 +27,15 @@
  * occupied after the person has left, which is worse for a colleague looking for
  * a seat than never checking in at all.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { deleteBooking, uniqueTitle } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
 import {
     createBookingViaApi,
     readBooking,
     releaseFor,
 } from '../../../../e2e/support/bookings/bookings.api';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const MINUTE = 60;
 const DAY = 86_400;
@@ -99,9 +99,10 @@ test.describe('your bookings — checking in', () => {
 
             // Now back out. Same control — the app flips it rather than
             // rendering a second button.
-            await expect(control, 'the control should still be there to check out').toBeVisible(
-                { timeout: 10_000 },
-            );
+            await expect(
+                control,
+                'the control should still be there to check out',
+            ).toBeVisible({ timeout: 10_000 });
             await control.click();
             // Some types confirm the check-out; accept it if a dialog appears,
             // and carry on if it does not.
@@ -125,7 +126,13 @@ test.describe('your bookings — checking in', () => {
             }).toPass({ timeout: 30_000 });
         } finally {
             if (booking_id != null) await deleteBooking(staffApi, booking_id);
-            await releaseFor(staffApi, 'desk', desk.id, window_from(), window_to());
+            await releaseFor(
+                staffApi,
+                'desk',
+                desk.id,
+                window_from(),
+                window_to(),
+            );
         }
     });
 });

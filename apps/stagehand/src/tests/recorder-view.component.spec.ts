@@ -1,7 +1,4 @@
-import {
-    createComponentFactory,
-    Spectator,
-} from '@ngneat/spectator/vitest';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 

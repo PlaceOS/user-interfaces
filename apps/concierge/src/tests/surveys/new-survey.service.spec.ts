@@ -1,5 +1,8 @@
 import { MatDialog } from '@angular/material/dialog';
-import { createServiceFactory, SpectatorService } from '@ngneat/spectator/vitest';
+import {
+    createServiceFactory,
+    SpectatorService,
+} from '@ngneat/spectator/vitest';
 import { setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';

@@ -49,20 +49,20 @@ export function tableOf(page: Page, host = 'simple-table'): Locator {
 }
 
 /** Wait until the listing has rendered its header row. */
-export async function waitForTable(page: Page, host = 'simple-table'): Promise<void> {
+export async function waitForTable(
+    page: Page,
+    host = 'simple-table',
+): Promise<void> {
     await expect(
         tableOf(page, host),
         `the ${host} listing never rendered. Check the page's own loading state ` +
             `before assuming the data is missing`,
     ).toBeVisible({ timeout: 45_000 });
     await expect
-        .poll(
-            async () => tableOf(page, host).locator('[header]').count(),
-            {
-                message: `${host} rendered no column headers`,
-                timeout: 30_000,
-            },
-        )
+        .poll(async () => tableOf(page, host).locator('[header]').count(), {
+            message: `${host} rendered no column headers`,
+            timeout: 30_000,
+        })
         .toBeGreaterThan(0);
 }
 
@@ -112,14 +112,16 @@ export async function readTable(
                 rows.push(
                     body_cells
                         .slice(i, i + width)
-                        .map((el) => (el.innerText || '').trim().replace(/\n+/g, '~')),
+                        .map((el) =>
+                            (el.innerText || '').trim().replace(/\n+/g, '~'),
+                        ),
                 );
             }
         }
         return {
             column_ids: header_cells.map((el) => el.id),
-            headers: header_cells.map((el) =>
-                (el.innerText || '').trim().split('\n')[0],
+            headers: header_cells.map(
+                (el) => (el.innerText || '').trim().split('\n')[0],
             ),
             rows,
         };
@@ -295,9 +297,7 @@ export async function rowCell(
             .locator(':scope > [role=cell]:not([row-selector])')
             .nth(column);
     }
-    return table
-        .locator(':scope > *:not([header])')
-        .nth(row * width + column);
+    return table.locator(':scope > *:not([header])').nth(row * width + column);
 }
 
 /**
@@ -335,7 +335,9 @@ export async function chooseRowMenuItem(
 ): Promise<void> {
     const snapshot = await readTable(page, host);
     const width = snapshot.column_ids.length;
-    const row = snapshot.rows.findIndex((r) => r.some((c) => c.includes(needle)));
+    const row = snapshot.rows.findIndex((r) =>
+        r.some((c) => c.includes(needle)),
+    );
     if (row < 0) {
         throw new Error(
             `"${needle}" is not in the ${host} listing, so "${option}" cannot be ` +
@@ -384,7 +386,9 @@ export async function confirmDialog(
     options: { accept?: string; required?: boolean } = {},
 ): Promise<void> {
     const accept = options.accept ?? 'Accept';
-    const dialog = page.locator('mat-dialog-container, [role="dialog"]').first();
+    const dialog = page
+        .locator('mat-dialog-container, [role="dialog"]')
+        .first();
     if (options.required) {
         await expect(
             dialog,
@@ -393,7 +397,10 @@ export async function confirmDialog(
     } else if (!(await dialog.isVisible().catch(() => false))) {
         return;
     }
-    await dialog.getByRole('button', { name: accept, exact: false }).first().click();
+    await dialog
+        .getByRole('button', { name: accept, exact: false })
+        .first()
+        .click();
     await expect(
         dialog,
         'the confirmation dialog never closed after accepting',

@@ -4,8 +4,8 @@ import { OrganisationService } from '@placeos/common';
 import { SpacePipe } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
-import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetLocationModalComponent } from '../../app/asset-manager/asset-location-modal.component';
+import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 describe('AssetLocationModalComponent', () => {
     let spectator: Spectator<AssetLocationModalComponent>;

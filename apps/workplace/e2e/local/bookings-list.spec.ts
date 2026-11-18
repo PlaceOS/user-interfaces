@@ -42,21 +42,25 @@
  * So these tests assert on WHICH bookings are listed, against what the backend
  * says is live, and never on how many cards are on screen.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
-import { deleteBooking, listBookings, uniqueTitle } from '../../../../e2e/support/api';
-import { deskFor } from '../../../../e2e/support/env';
+import {
+    deleteBooking,
+    listBookings,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
+import {
+    createBookingViaApi,
+    deleteGuestByEmail,
+    releaseFor,
+} from '../../../../e2e/support/bookings/bookings.api';
 import {
     SCHEDULE_DAYS,
     dayBoundsOn,
     scheduleVisitorFor,
     slotOn,
 } from '../../../../e2e/support/bookings/bookings.env';
-import {
-    createBookingViaApi,
-    deleteGuestByEmail,
-    releaseFor,
-} from '../../../../e2e/support/bookings/bookings.api';
 import { SchedulePage } from '../../../../e2e/support/bookings/schedule.page';
+import { deskFor } from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
 
 const DAY = 86_400;
 
@@ -250,7 +254,9 @@ test.describe('your bookings — the listing', () => {
 
         // Every request whose window touches the day on screen, however wide.
         const { from: day_start, to: day_end } = dayBoundsOn(day);
-        const for_day = asked.filter((a) => a.from < day_end && a.to > day_start);
+        const for_day = asked.filter(
+            (a) => a.from < day_end && a.to > day_start,
+        );
         expect(
             for_day.length,
             `the page should request the day being shown; it asked for ` +

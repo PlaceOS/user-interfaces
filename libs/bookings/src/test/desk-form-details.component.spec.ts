@@ -2,8 +2,8 @@ import { NO_ERRORS_SCHEMA, signal, SimpleChange } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { MockProvider } from 'ng-mocks';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+import { MockProvider } from 'ng-mocks';
 import { BookingFormService } from '../lib/booking-form.service';
 import { NewDeskFormDetailsComponent } from '../lib/desk-form-details.component';
 

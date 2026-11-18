@@ -27,7 +27,12 @@ export interface AuthRequest {
 
 export interface LoginResult {
     /** The token-endpoint response the browser actually received. */
-    token: { access_token?: string; refresh_token?: string; scope?: string; expires_in?: number };
+    token: {
+        access_token?: string;
+        refresh_token?: string;
+        scope?: string;
+        expires_in?: number;
+    };
     /**
      * Every `/auth/*` request the browser made during the login, in order.
      *
@@ -88,7 +93,9 @@ export async function loginViaUI(page: Page, role: Role): Promise<LoginResult> {
     await page.getByRole('button', { name: /log ?in/i }).click();
 
     // ...and back into the app, authenticated.
-    await page.waitForURL(new RegExp(escapeRe(new URL(APP_URL).host)), { timeout: 30_000 });
+    await page.waitForURL(new RegExp(escapeRe(new URL(APP_URL).host)), {
+        timeout: 30_000,
+    });
     await expect(page.locator('topbar')).toBeVisible({ timeout: 30_000 });
 
     return { token, requests };

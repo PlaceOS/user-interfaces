@@ -17,14 +17,28 @@
  * is. A UI that merely does not display someone else's booking proves nothing
  * about whether the data is reachable.
  */
-import { test, expect } from '../../../../e2e/support/fixtures';
 import { request } from '@playwright/test';
-import { STAFF_API, deleteBooking, getBooking, listBookings, uniqueTitle } from '../../../../e2e/support/api';
-import { APP_URL, BACKEND_URL, WORKERS, roleFor } from '../../../../e2e/support/env';
+import {
+    STAFF_API,
+    deleteBooking,
+    getBooking,
+    listBookings,
+    uniqueTitle,
+} from '../../../../e2e/support/api';
 import { mintToken } from '../../../../e2e/support/auth';
+import {
+    APP_URL,
+    BACKEND_URL,
+    WORKERS,
+    roleFor,
+} from '../../../../e2e/support/env';
+import { expect, test } from '../../../../e2e/support/fixtures';
+import {
+    createRoomBookingViaApi,
+    releaseRoom,
+} from '../../../../e2e/support/room/room.api';
 import { ROOM_SLOTS, slotFor } from '../../../../e2e/support/room/room.env';
 import { roomForWorker } from '../../../../e2e/support/room/room.seed';
-import { createRoomBookingViaApi, releaseRoom } from '../../../../e2e/support/room/room.api';
 
 const DAY = 86_400;
 const window_from = () => Math.floor(Date.now() / 1000) - 2 * DAY;
@@ -32,7 +46,12 @@ const window_to = () => Math.floor(Date.now() / 1000) + 7 * DAY;
 
 async function apiAsOtherUser(workerIndex: number) {
     const role = roleFor('staff', workerIndex);
-    const mint = await mintToken(BACKEND_URL, APP_URL, role.email, role.password);
+    const mint = await mintToken(
+        BACKEND_URL,
+        APP_URL,
+        role.email,
+        role.password,
+    );
     return request.newContext({
         baseURL: BACKEND_URL,
         ignoreHTTPSErrors: true,
@@ -46,7 +65,10 @@ test.describe('room booking visibility between users', () => {
     }, testInfo) => {
         const mine = testInfo.parallelIndex;
         const theirs = (mine + 1) % WORKERS;
-        test.skip(theirs === mine, 'needs at least two workers to have two distinct users');
+        test.skip(
+            theirs === mine,
+            'needs at least two workers to have two distinct users',
+        );
 
         const room = await roomForWorker(mine);
         const slot = slotFor(ROOM_SLOTS.scoping.own);
@@ -66,14 +88,21 @@ test.describe('room booking visibility between users', () => {
             booking_id = created.id;
 
             // Their listing must not contain it.
-            const their_list = await listBookings(other, 'room', window_from(), window_to());
+            const their_list = await listBookings(
+                other,
+                'room',
+                window_from(),
+                window_to(),
+            );
             expect(
                 their_list.map((b) => b.id),
                 "another user's room listing must not contain your booking",
             ).not.toContain(booking_id);
 
             // ...and a direct delete must be refused, not quietly succeed.
-            const attempt = await other.delete(`${STAFF_API}/bookings/${booking_id}`);
+            const attempt = await other.delete(
+                `${STAFF_API}/bookings/${booking_id}`,
+            );
             expect(
                 attempt.status(),
                 `deleting somebody else's room booking must be rejected, got ` +
@@ -112,7 +141,12 @@ test.describe('room booking visibility between users', () => {
 
             // The control for the test above. Without it, a backend that showed
             // NOBODY their bookings would pass as watertight security.
-            const my_list = await listBookings(staffApi, 'room', window_from(), window_to());
+            const my_list = await listBookings(
+                staffApi,
+                'room',
+                window_from(),
+                window_to(),
+            );
             expect(
                 my_list.map((b) => b.id),
                 'you must be able to see your own room booking',

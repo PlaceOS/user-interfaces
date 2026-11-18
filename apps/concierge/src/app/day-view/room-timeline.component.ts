@@ -6,10 +6,10 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     AsyncHandler,
     CalendarEvent,
+    HashMap,
     OrganisationService,
     SettingsService,
     getTimezoneOffsetString,
-    HashMap,
     notifyError,
     notifyInfo,
     notifySuccess,

@@ -1,7 +1,7 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { SettingsService, setNotifyOutlet } from '@placeos/common';
+import { setNotifyOutlet, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import { RoomListComponent } from '../../app/room-manager/room-list.component';

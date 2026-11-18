@@ -39,6 +39,14 @@ import {
 } from '@placeos/common';
 import { isMock } from '@placeos/ts-client';
 import {
+    addDays,
+    addMinutes,
+    endOfDay,
+    getUnixTime,
+    startOfDay,
+    startOfWeek,
+} from 'date-fns';
+import {
     loadUploadPreview,
     UNKNOWN_UPLOAD_TYPE,
 } from 'libs/components/src/lib/authenticated-image';
@@ -48,14 +56,6 @@ import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
 import { UserSearchFieldComponent } from 'libs/form-fields/src/lib/user-search-field.component';
-import {
-    addDays,
-    addMinutes,
-    endOfDay,
-    getUnixTime,
-    startOfDay,
-    startOfWeek,
-} from 'date-fns';
 import { BookingForm, BookingFormValue } from './booking-form.model';
 import { bookedResourceList, queryBookings } from './bookings.fn';
 import { ParkingService } from './parking.service';

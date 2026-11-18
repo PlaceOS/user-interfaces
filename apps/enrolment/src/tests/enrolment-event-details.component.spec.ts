@@ -10,9 +10,7 @@ describe('EnrolmentEventDetailsComponent', () => {
 
     const createComponent = createComponentFactory({
         component: EnrolmentEventDetailsComponent,
-        providers: [
-            { provide: EnrolmentStateService, useValue: { event } },
-        ],
+        providers: [{ provide: EnrolmentStateService, useValue: { event } }],
         detectChanges: false,
     });
 

@@ -1,10 +1,5 @@
 import { CdkTrapFocus } from '@angular/cdk/a11y';
-import {
-    Component,
-    inject,
-    OnInit,
-    signal,
-} from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { form, FormField, required } from '@angular/forms/signals';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -16,12 +11,12 @@ import {
     i18n,
     notifyError,
 } from '@placeos/common';
-import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 import {
     IconComponent,
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
 import { DashboardsService } from './dashboards.service';
 
 @Component({
@@ -45,7 +40,10 @@ import { DashboardsService } from './dashboards.service';
                 <header
                     class="bg-base-200 sticky top-0 z-10 mx-auto flex h-14 w-full max-w-156 items-center justify-between rounded-sm border-none px-4 py-2"
                 >
-                    <h2 id="dashboard-editor-title" class="text-xl font-medium capitalize">
+                    <h2
+                        id="dashboard-editor-title"
+                        class="text-xl font-medium capitalize"
+                    >
                         {{
                             (model().id
                                 ? 'APP.STAGEHAND.DASHBOARD_EDIT'
@@ -169,10 +167,7 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
         if (!this.form().valid()) {
             return notifyError(
                 i18n('FORM.INVALID_FIELDS', {
-                    field_list: getInvalidSignalFields(
-                        this.form,
-                        this.model,
-                    ),
+                    field_list: getInvalidSignalFields(this.form, this.model),
                 }),
             );
         }

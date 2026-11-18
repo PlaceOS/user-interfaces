@@ -1,6 +1,6 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { ShortURL, setNotifyOutlet } from '@placeos/common';
+import { setNotifyOutlet, ShortURL } from '@placeos/common';
 
 import * as ts_client from '@placeos/ts-client';
 import { ShortUrlModalComponent } from '../../app/url-management/url-modal.component';

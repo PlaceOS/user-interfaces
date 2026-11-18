@@ -54,9 +54,9 @@ test.describe('Navigation', () => {
         page,
     }) => {
         // routerLinkActive applies an `active` class to the current route's link.
-        await expect(
-            page.locator('top-menu a.active').first(),
-        ).toBeVisible({ timeout: LOAD_TIMEOUT });
+        await expect(page.locator('top-menu a.active').first()).toBeVisible({
+            timeout: LOAD_TIMEOUT,
+        });
     });
 
     test('US-002: footer menu is present for small-screen navigation', async ({
@@ -94,9 +94,11 @@ test.describe('Navigation', () => {
         await expect(page.locator('embedded-url')).toBeVisible({
             timeout: LOAD_TIMEOUT,
         });
-        await expect(page.getByRole('heading', {
-            name: 'Embedded page unavailable',
-        })).toBeVisible();
+        await expect(
+            page.getByRole('heading', {
+                name: 'Embedded page unavailable',
+            }),
+        ).toBeVisible();
         await expect(page.locator('topbar')).toBeVisible();
         await expect(page.locator('footer-menu')).toBeAttached();
     });

@@ -8,8 +8,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     Booking,
     OrganisationService,
-    SettingsService,
     settingSignal,
+    SettingsService,
 } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
 import { addDays, endOfDay } from 'date-fns';

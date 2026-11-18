@@ -10,7 +10,9 @@ describe('MapShowElementComponent', () => {
 
     it('should mark itself as hovered when the feature data flags it', () => {
         const spectator: Spectator<MapShowElementComponent> = createComponent({
-            providers: [{ provide: MAP_FEATURE_DATA, useValue: { hover: true } }],
+            providers: [
+                { provide: MAP_FEATURE_DATA, useValue: { hover: true } },
+            ],
         });
         expect(spectator.component.hover()).toBe(true);
         expect(spectator.query('.border-warning')).toBeTruthy();
