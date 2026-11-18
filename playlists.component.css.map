@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["playlists.component.ts"],
+  "sourcesContent": ["\n            playlist-items.file-drop-over {\n                outline: 2px dashed var(--color-primary);\n                outline-offset: -4px;\n                background-color: color-mix(\n                    in srgb,\n                    var(--color-primary) 10%,\n                    transparent\n                );\n            }\n        "],
+  "mappings": ";AACY,cAAA,CAAA;AACI,WAAA,IAAA,OAAA,IAAA;AACA,kBAAA;AACA,oBAAA;AAKJ;",
+  "names": []
+}
