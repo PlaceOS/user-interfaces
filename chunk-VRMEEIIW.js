@@ -5399,12 +5399,16 @@ var _LocaleService = class _LocaleService {
       this._locale_mappings[locale] = cached;
       this._changes.update((value) => value + 1);
     }
-    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-    if (!resp.ok) {
+    let locale_data;
+    try {
+      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+      if (!resp.ok)
+        throw resp;
+      locale_data = await resp.json();
+    } catch (error) {
       delete this._load_promises[locale];
-      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+      return console.error(`Failed to load locale file for "${locale}".`, error);
     }
-    const locale_data = await resp.json();
     const base_locale_values = removeNesting(locale_data);
     const override_locale_values = removeNesting(await this._loadOverrides(locale));
     this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -6416,15 +6420,15 @@ var HotkeysService = _HotkeysService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "8cd0366",
-  "hash": "8cd0366",
+  "raw": "fead63b",
+  "hash": "fead63b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8cd0366",
+  "suffix": "fead63b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043705720
+  "time": 1795043936971
 };
 
 // libs/common/src/lib/settings.ts
@@ -8652,5 +8656,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=64adc3ee-9612-5234-aad8-9a286cc30676
-//# sourceMappingURL=chunk-ZDWNIUVY.js.map
+//# debugId=e281365b-4659-51e4-a373-0357d37d5480
+//# sourceMappingURL=chunk-VRMEEIIW.js.map

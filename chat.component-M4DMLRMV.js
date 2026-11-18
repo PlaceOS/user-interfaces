@@ -1,10 +1,10 @@
 import "./chunk-UYCOOCLJ.js";
 import {
   TranslatePipe
-} from "./chunk-AXFBY3YD.js";
+} from "./chunk-27UIOWIJ.js";
 import {
   OrganisationService
-} from "./chunk-3X7KHNH5.js";
+} from "./chunk-IONHKRRS.js";
 import {
   AsyncHandler,
   J,
@@ -21,7 +21,7 @@ import {
   notifyError,
   randomString,
   settingSignal
-} from "./chunk-ZDWNIUVY.js";
+} from "./chunk-VRMEEIIW.js";
 import {
   IconComponent
 } from "./chunk-ECEYXSP4.js";
@@ -3260,4 +3260,4 @@ export {
   ChatComponent
 };
 //# debugId=2ccde384-1258-5f13-9221-8bcc9f9a5d68
-//# sourceMappingURL=chat.component-HVBZQXEG.js.map
+//# sourceMappingURL=chat.component-M4DMLRMV.js.map

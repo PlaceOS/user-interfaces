@@ -35,10 +35,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-LNPOM2HT.js";
+} from "./chunk-R334OVB6.js";
 import {
   AnnounceDirective
-} from "./chunk-GNALENS6.js";
+} from "./chunk-P42S7IRH.js";
 import {
   FormField,
   disabled,
@@ -49,12 +49,12 @@ import {
 } from "./chunk-KUCFMP5P.js";
 import {
   TranslatePipe
-} from "./chunk-AXFBY3YD.js";
+} from "./chunk-27UIOWIJ.js";
 import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-3X7KHNH5.js";
+} from "./chunk-IONHKRRS.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -153,7 +153,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-ZDWNIUVY.js";
+} from "./chunk-VRMEEIIW.js";
 import {
   IconComponent,
   SafePipe
@@ -11093,7 +11093,6 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       await this.makeBooking(booking, force_api);
     } catch (e) {
       notifyError(`Error creating meeting. ${e}`);
-      throw e;
     } finally {
       details.close();
       this.clearTimeout("reset_view");
@@ -11348,5 +11347,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=d249b551-f482-5bc9-ace2-d8579254e919
-//# sourceMappingURL=chunk-IE2D6O4D.js.map
+//# debugId=81b1f8e2-2817-50d4-aaae-1f6463d468cf
+//# sourceMappingURL=chunk-EMHKE5JT.js.map
