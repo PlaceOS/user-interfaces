@@ -38,6 +38,11 @@
                         "output": "/assets",
                         "glob": "*worker.js"
                     },
+                    {
+                        "glob": "service-worker.js",
+                        "input": "shared/",
+                        "output": "/"
+                    },
                     "apps/concierge/src/manifest.webmanifest"
                 ],
                 "styles": [

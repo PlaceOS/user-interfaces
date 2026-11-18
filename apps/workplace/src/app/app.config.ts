@@ -38,7 +38,8 @@ export const appConfig: ApplicationConfig = {
             withRouterConfig({ paramsInheritanceStrategy: 'always' }),
             withNavigationErrorHandler((e) => reloadOnChunkLoadError(e.error)),
         ),
-        provideServiceWorker('ngsw-worker.js', {
+        // Wraps ngsw-worker.js so video and audio skip it, see the script
+        provideServiceWorker('service-worker.js', {
             enabled: environment.production && environment.service_worker,
         }),
         {
