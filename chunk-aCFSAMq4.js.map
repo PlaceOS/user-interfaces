@@ -1,0 +1,1 @@
+{"version":3,"file":"chunk-aCFSAMq4.js","names":["mocksInit","log"],"sources":["../libs/mocks/src/empty.ts"],"sourcesContent":["import { log } from '@placeos/common';\n\nexport function mocksInit() {\n    log('MOCKS', 'No mocks available in production');\n}\n"],"mappings":"qEAEM,SAAUA,GAAS,CACrBC,GAAI,QAAS,kCAAkC,CACnD","debugId":"4c0c9495-023b-5959-82ca-6e3b179761c3"}
