@@ -88,6 +88,16 @@ iOS simulator app output:
 
 GitHub Actions workflow: `.github/workflows/mobile.yml`
 
+CI builds the mobile applications for these events:
+
+- A push to an `rc/**` branch that changes a mobile application builds all mobile applications.
+- A `mobile/v<version>` tag, for example `mobile/v2611.1`, builds all mobile applications.
+- A `mobile/<app>/v<version>` tag, for example `mobile/control/v2611.1`, builds only that application.
+- The commit of a mobile tag must be on `develop` or on a `hotfix/*` branch. Mobile tags do not release web applications, and web release tags do not build mobile applications.
+- A manual run builds all mobile applications.
+
+`tools/capacitor/apps.json` lists the mobile applications.
+
 Artifacts uploaded by CI:
 
 - `<app>-android-debug`

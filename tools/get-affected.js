@@ -22,13 +22,29 @@ function getFolders(root) {
         .map((dirent) => dirent.name);
 }
 
+// Returns the applications that a release tag deploys. A `v<version>` tag
+// releases all applications. An `<app>/v<version>` tag releases only that
+// application. A tag that names an unknown application fails, so that a
+// misspelled name cannot release all applications.
+function releaseApps(tag, apps) {
+    const [name, ...version] = tag.split('/');
+    if (version.length === 0) return apps;
+    if (!apps.includes(name)) {
+        throw new Error(`Release tag names unknown application "${name}"`);
+    }
+    return [name];
+}
+
 function commands(target) {
-    const release = ref.includes('release') || ref.includes('-prod');
     const apps = getFolders('apps');
     const libs = getFolders('libs');
-    if (release) {
-        const array = target === 'build' ? [apps] : [apps, libs];
-        return array.flat();
+    if (ref.startsWith('refs/tags/')) {
+        const released = releaseApps(ref.slice('refs/tags/'.length), apps);
+        return target === 'build' ? released : [...released, ...libs];
+    }
+    // `pull-request.yml` builds `custom/*-prod` branches for production.
+    if (ref.startsWith('refs/heads/custom/') && ref.endsWith('-prod')) {
+        return target === 'build' ? apps : [...apps, ...libs];
     }
     const raw_result = execFileSync(
         'bunx',

@@ -119,10 +119,9 @@ Github actions have been setup for creating build artifacts and deploying them t
 
 Each application has a seperate branch dedicated to each of it's build types.
 
-Commits to the branch `develop` will produce development builds that are committed to the branches `build/<project>/dev`  
-Commits to the branch `release/**` will produce development builds that are committed to the branches `build/<project>/uat`.
-You should have only one `release` branch at a time and it should be kept inline with develop rather than worked on directly.  
-Commits to the branch `master` will produce a production build that is commited to the branch `build/<project>/prod`
+See [`.github/workflows/build.yml`](./.github/workflows/build.yml) for the branches that CI builds and deploys.
+
+Tags create production releases. A `v<version>` tag releases all applications, and an `<app>/v<version>` tag (for example `workplace/v2611.1`) releases one application. `mobile/v<version>` and `mobile/<app>/v<version>` tags build the [mobile apps](./docs/mobile-builds.md) in the same way. Tag only commits on `develop` or a `hotfix/*` branch. See [the release workflow](./docs/release-workflow.md).
 
 ## Available Frontends
 
