@@ -5,14 +5,14 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-PJNTU6CI.js";
+} from "./chunk-3GCSO6F4.js";
 import "./chunk-RZU5UVP7.js";
 import {
   deviceId
 } from "./chunk-GLALPF4J.js";
 import {
   TranslatePipe
-} from "./chunk-4CHLB7M2.js";
+} from "./chunk-RU42B52D.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -28,7 +28,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-DU764GJO.js";
+} from "./chunk-QLC2ZVYW.js";
 import {
   AsyncHandler,
   Bp,
@@ -67,7 +67,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-HF6TEJ7J.js";
+} from "./chunk-GL3EDMPV.js";
 import "./chunk-SFUFVX22.js";
 import {
   IconComponent,
@@ -9418,7 +9418,8 @@ function seedHistory() {
     [6, "Parking space", 2e3, "refunded"],
     [9, "Meeting room", 7500, "succeeded"],
     [14, "Hot desk", 1500, "partially_refunded"],
-    [20, "Parking space", 2e3, "failed"]
+    [20, "Parking space", 2e3, "failed"],
+    [2, "AV technician", 16e3, "pending"]
   ];
   return history.map(([days, name, amount, status], index) => {
     const user = users[index % users.length];
@@ -9558,13 +9559,25 @@ var PaymentsModule = class {
   }
   $get_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "pending" && now2() - payment.created_at >= HOSTED_PAY_DELAY) {
+    if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
         payment_method: { type: "card", brand: "visa", last4: "4242" }
       });
     }
     return findPayment(this._payments, id);
+  }
+  $get_payment_link(id, return_url) {
+    const payment = findPayment(this._payments, id);
+    if (!["pending", "requires_action"].includes(payment.status)) {
+      throw `Payment is ${payment.status}`;
+    }
+    updatePayment(this._payments, id, { status: "pending" });
+    return {
+      id: `cs-${randomString(8)}`,
+      url: return_url,
+      expires_at: now2() + 30 * 60
+    };
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
@@ -10597,11 +10610,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-ZN2BLGWF.js").then((m) => m.ChatComponent)
+  import("./chat.component-HPKINYTV.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-7JZOW5JC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-T5WEMYVW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10662,9 +10675,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-ZN2BLGWF.js").then((m) => m.ChatComponent),
+    import("./chat.component-HPKINYTV.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-7JZOW5JC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-T5WEMYVW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10704,7 +10717,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-KUCX5HWK.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-2CVRWXRX.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -10743,5 +10756,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=d2c1678b-3661-5518-afcb-8bca7f52a592
+//# debugId=660d673f-5872-5992-b74a-bfc435b0d820
 //# sourceMappingURL=main.js.map
