@@ -1,0 +1,3 @@
+var e=`PLACEOS.DEVICE_ID`;var t=``;function o(){let r=crypto.getRandomValues(new Uint8Array(6));return`DEV-${Array.from(r,n=>n.toString(16).padStart(2,`0`)).join(``).toUpperCase()}`}function a(){if(t)return t;try{t=localStorage.getItem(e)||``}catch{}if(!t){t=o();try{localStorage.setItem(e,t)}catch{}}return t}export{a as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="6c633a36-77b6-59d9-9fbb-3c143d142744")}catch(e){}}();
+//# debugId=6c633a36-77b6-59d9-9fbb-3c143d142744
