@@ -7,7 +7,7 @@ import {
 } from "./chunk-L6EPZ6WJ.js";
 import {
   CustomTooltipComponent
-} from "./chunk-SNCGO3PX.js";
+} from "./chunk-DRFGJQGQ.js";
 import "./chunk-DGG56DZA.js";
 import {
   Clipboard,
@@ -20,12 +20,12 @@ import {
   OrganisationService,
   SelectControlValueAccessor,
   ɵNgSelectMultipleOption
-} from "./chunk-RN2QVIMA.js";
+} from "./chunk-MVVQC2CN.js";
 import {
   DEFAULT_SETTINGS,
   IconComponent,
   SettingsService
-} from "./chunk-W2VRBEG3.js";
+} from "./chunk-SBHIAZL2.js";
 import "./chunk-NSE4C5J5.js";
 import "./chunk-NHAWYO2J.js";
 import {
@@ -1245,4 +1245,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=5899cb84-6c63-5943-befb-b0dd433a7754
-//# sourceMappingURL=settings-debug-panel.component-5JU6HTU4.js.map
+//# sourceMappingURL=settings-debug-panel.component-2TGXBLYU.js.map

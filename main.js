@@ -3,11 +3,11 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-4UWX2XG6.js";
-import "./chunk-JSWLWOEV.js";
+} from "./chunk-BRDH5WWU.js";
+import "./chunk-NAP6A4TW.js";
 import {
   TranslatePipe
-} from "./chunk-MYB6NVOP.js";
+} from "./chunk-2QNHWHC6.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -27,7 +27,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-RN2QVIMA.js";
+} from "./chunk-MVVQC2CN.js";
 import {
   AsyncHandler,
   Bp,
@@ -63,7 +63,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-W2VRBEG3.js";
+} from "./chunk-SBHIAZL2.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -749,7 +749,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-AJQMYA5K.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-OLR76UCS.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -877,7 +877,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-AJQMYA5K.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-OLR76UCS.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9338,7 +9338,8 @@ function seedHistory() {
     [6, "Parking space", 2e3, "refunded"],
     [9, "Meeting room", 7500, "succeeded"],
     [14, "Hot desk", 1500, "partially_refunded"],
-    [20, "Parking space", 2e3, "failed"]
+    [20, "Parking space", 2e3, "failed"],
+    [2, "AV technician", 16e3, "pending"]
   ];
   return history.map(([days, name, amount, status], index) => {
     const user = users[index % users.length];
@@ -9478,13 +9479,25 @@ var PaymentsModule = class {
   }
   $get_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "pending" && now2() - payment.created_at >= HOSTED_PAY_DELAY) {
+    if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
         payment_method: { type: "card", brand: "visa", last4: "4242" }
       });
     }
     return findPayment(this._payments, id);
+  }
+  $get_payment_link(id, return_url) {
+    const payment = findPayment(this._payments, id);
+    if (!["pending", "requires_action"].includes(payment.status)) {
+      throw `Payment is ${payment.status}`;
+    }
+    updatePayment(this._payments, id, { status: "pending" });
+    return {
+      id: `cs-${randomString(8)}`,
+      url: return_url,
+      expires_at: now2() + 30 * 60
+    };
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
@@ -10517,11 +10530,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-5WAVKMSK.js").then((m) => m.ChatComponent)
+  import("./chat.component-NKH7LQ5E.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-RCH6T37O.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7JF45BNN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10580,9 +10593,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-5WAVKMSK.js").then((m) => m.ChatComponent),
+    import("./chat.component-NKH7LQ5E.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-RCH6T37O.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7JF45BNN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10627,22 +10640,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-PHCJVTZC.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-C5X6252F.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-5DBVUXAX.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-EHCOWDUE.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-VMJMEQUC.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-HK4CXVFR.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-LFQ5SI3G.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-PIZV22CR.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10668,5 +10681,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=52f59a11-b604-59c9-8473-5732ae6dbc8d
+//# debugId=d7e405cb-a1ed-5d9a-8615-63b699c521e7
 //# sourceMappingURL=main.js.map
