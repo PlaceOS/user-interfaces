@@ -6402,15 +6402,15 @@ var HotkeysService = _HotkeysService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "a6df197",
-  "hash": "a6df197",
+  "raw": "4b5cf31",
+  "hash": "4b5cf31",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "a6df197",
+  "suffix": "4b5cf31",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795011758153
+  "time": 1795011901009
 };
 
 // libs/common/src/lib/settings.ts
@@ -8639,5 +8639,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=83ba8508-1881-56fd-af1c-a6dc7a0516e1
-//# sourceMappingURL=chunk-PENRKMX6.js.map
+//# debugId=45ed2b8d-3c20-5093-ac9d-1594c3f39c90
+//# sourceMappingURL=chunk-GVAHGXIL.js.map

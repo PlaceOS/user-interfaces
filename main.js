@@ -4,23 +4,23 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-6NV2JAIN.js";
+} from "./chunk-EW3ZIGBE.js";
 import {
   subMinutes
-} from "./chunk-TNEDAWZZ.js";
+} from "./chunk-KET3UMTF.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-L6VDE7BF.js";
+} from "./chunk-4RQNIW62.js";
 import {
   AnnounceDirective
-} from "./chunk-6UOT6UGB.js";
+} from "./chunk-RHLADO3F.js";
 import "./chunk-KUCFMP5P.js";
 import "./chunk-GLALPF4J.js";
 import {
   TranslatePipe
-} from "./chunk-DR2EKNJR.js";
+} from "./chunk-MTRTNDA3.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-AFYKOL5T.js";
+} from "./chunk-4NTIWKTC.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-PENRKMX6.js";
+} from "./chunk-GVAHGXIL.js";
 import {
   IconComponent
 } from "./chunk-ECEYXSP4.js";
@@ -10705,11 +10705,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-CU66FT6Z.js").then((m) => m.ChatComponent)
+  import("./chat.component-S7D3WW7R.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-BYHJ3MAQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-YEGR7KKF.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10770,9 +10770,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-CU66FT6Z.js").then((m) => m.ChatComponent),
+    import("./chat.component-S7D3WW7R.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-BYHJ3MAQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-YEGR7KKF.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10815,22 +10815,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-OVOHHT2P.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-U2BF6GF7.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-RWA4O4VH.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-HTLRX42X.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-DS6EQAWI.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-RVB4WVAW.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-VULWESUR.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-CPEXF7UG.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
