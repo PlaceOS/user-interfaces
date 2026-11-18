@@ -39,6 +39,7 @@ Some items do not work fully in mock mode:
 - File uploads are not mocked. They go to the network, which is the development proxy when you use `nx serve`.
 - Map AI shows as not available.
 - The `public` and `map-studio` applications have no mock mode.
+- The payment driver is off. To turn it on, set the `PLACEOS.mock_payments` local storage key to `true`. See [Payments](payments.md#mock-mode).
 
 When you add a mock endpoint, import `registerMockEndpoint` from `libs/mocks/src/lib/session.ts`, not from `@placeos/ts-client`. Call `persist` (or `persistById` for a large generated list) for each dataset that a write request changes.
 

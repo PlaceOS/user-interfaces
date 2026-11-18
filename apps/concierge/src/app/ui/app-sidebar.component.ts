@@ -24,6 +24,7 @@ import {
     UserAvatarComponent,
     UserControlsSidebarComponent,
 } from '@placeos/components';
+import { PaymentsService } from '@placeos/payments';
 
 import { KeyboardShortcutsService } from './keyboard-shortcuts.service';
 
@@ -61,6 +62,9 @@ interface CustomReport {
 
 /** ID of the group that also lists the custom reports */
 const REPORTS_GROUP = 'reports';
+
+/** ID of the group that shows only when the building has a payment driver */
+const PAYMENTS_GROUP = 'payments';
 
 /** Groups that are admin in addition to the `app.admin_group` setting */
 const ADMIN_GROUPS = ['placeos_admin', 'placeos_support'];
@@ -281,6 +285,32 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 name: 'APP.CONCIERGE.MENU_SURVEYS',
                 route: ['/surveys'],
                 icon: 'add_reaction',
+            },
+        ],
+    },
+    {
+        id: PAYMENTS_GROUP,
+        name: 'APP.CONCIERGE.MENU_PAYMENTS',
+        children: [
+            {
+                id: 'payments',
+                name: 'APP.CONCIERGE.MENU_PAYMENT_LIST',
+                route: ['/payments/list'],
+                icon: 'payments',
+            },
+            {
+                id: 'payment-invoices',
+                alt_features: ['payments'],
+                name: 'APP.CONCIERGE.MENU_PAYMENT_INVOICES',
+                route: ['/payments/invoices'],
+                icon: 'receipt_long',
+            },
+            {
+                id: 'payment-products',
+                alt_features: ['payments'],
+                name: 'APP.CONCIERGE.MENU_PAYMENT_PRODUCTS',
+                route: ['/payments/products'],
+                icon: 'sell',
             },
         ],
     },
@@ -553,6 +583,7 @@ export class ApplicationSidebarComponent
     private _org = inject(OrganisationService);
     private _element_ref = inject<ElementRef<HTMLElement>>(ElementRef);
     private _shortcuts = inject(KeyboardShortcutsService);
+    private _payments = inject(PaymentsService);
 
     public readonly collapsed = collapsed_groups;
     /** Whether the sidebar shows icons only */
@@ -591,6 +622,9 @@ export class ApplicationSidebarComponent
         if (!this._org.initialised()) return [];
         return SIDEBAR_GROUPS.flatMap((group) => {
             if (group.admin_only && !this._is_admin()) return [];
+            if (group.id === PAYMENTS_GROUP && !this._payments.is_enabled()) {
+                return [];
+            }
             const children = group.children.filter((_) => this._canView(_));
             // Custom reports have no feature to turn them on
             if (group.id === REPORTS_GROUP) {

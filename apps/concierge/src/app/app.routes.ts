@@ -189,6 +189,14 @@ export const routes: Routes = [
         canLoad: [AuthorisedUserGuard],
     },
     {
+        path: 'payments',
+        title: 'Payments',
+        loadChildren: () =>
+            import('./payments/payments.routes').then((m) => m.ROUTES),
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+    },
+    {
         path: 'remote-setup',
         title: 'Remote Setup',
         loadComponent: () =>

@@ -15,6 +15,7 @@ import {
     AsyncHandler,
     BookingRuleset,
     CalendarEvent,
+    CateringOrder,
     currentUser,
     currentUserCanApprove,
     currentUserIsLoaded,
@@ -28,6 +29,7 @@ import {
     getInvalidSignalFields,
     i18n,
     isEmptyUser,
+    notifyError,
     notifyWarn,
     onFieldChange,
     sameDayInTimezone,
@@ -53,6 +55,12 @@ import {
 } from 'libs/bookings/src/lib/bookings.fn';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { requestSpacesForZone } from 'libs/events/src/lib/space.utilities';
+import {
+    bookingLineItems,
+    cateringLineItems,
+} from 'libs/payments/src/lib/payment-line-items';
+import type { Payment } from 'libs/payments/src/lib/payment.types';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { CalendarService } from './calendar.service';
 import {
@@ -119,6 +127,7 @@ export class EventFormService extends AsyncHandler {
     private _org = inject(OrganisationService);
     private _settings = inject(SettingsService);
     private _external_catering = inject(ExternalCateringService);
+    private _payments = inject(PaymentsService);
     private _router = inject(Router);
     private _assets = inject(AssetStateService);
     private _calendar = inject(CalendarService);
@@ -898,6 +907,7 @@ export class EventFormService extends AsyncHandler {
             throw e;
         };
         this.addLoadingTag(Tags.PostBooking);
+        let payment: Payment | null = null;
         try {
             const event = this._event();
             const space_list = this._model().resources || [];
@@ -1077,6 +1087,12 @@ export class EventFormService extends AsyncHandler {
             if (Object.keys(attendee_flags).length)
                 ext.attendee_flags = attendee_flags;
             const value = this._model();
+            if (!event.id) {
+                payment = await this._takePayment(
+                    spaces.filter((_) => !isIgnored(_)),
+                    all_day_period,
+                );
+            }
             let created_event = await this._performBooking(
                 new CalendarEvent({
                     ...(this._model() as any),
@@ -1251,6 +1267,17 @@ export class EventFormService extends AsyncHandler {
                     );
                 }
             }
+            if (payment) {
+                await this._payments
+                    .capture(payment, { type: 'event', id: created_event.id })
+                    .catch((e) =>
+                        notifyError(
+                            i18n('PAYMENTS.CAPTURE_FAILED', {
+                                error: errorMessage(e) || e,
+                            }),
+                        ),
+                    );
+            }
             this.clearForm();
             sessionStorage.setItem(
                 'PLACEOS.last_modified_event',
@@ -1259,10 +1286,48 @@ export class EventFormService extends AsyncHandler {
             this.last_success.set(created_event);
             return created_event;
         } catch (e) {
+            // Release the payment, as the new event is not saved
+            if (payment) await this._payments.cancel(payment).catch(() => null);
             this.removeLoadingTag(Tags.PostBooking);
             if (isPermissionError(e)) this._clearSavedHostChange();
             throw e;
         }
+    }
+
+    /**
+     * Ask the user to pay for the rooms and catering of a new event when
+     * payments are enabled. Resolves `null` when the event has no price.
+     * Throws when the user cancels. External catering is not charged, as the
+     * driver cannot price it.
+     */
+    private async _takePayment(
+        rooms: Space[],
+        period: { date: number; duration: number },
+    ): Promise<Payment | null> {
+        if (!this._payments.enabled) return null;
+        const catering = this._external_catering.enabled
+            ? []
+            : (this._model().catering || []).map((_) => new CateringOrder(_));
+        const result = await this._payments.checkout({
+            description: this._model().title || i18n('PAYMENTS.ROOM_BOOKING'),
+            items: [
+                ...bookingLineItems({
+                    type: 'room',
+                    date: period.date,
+                    duration: period.duration,
+                    resources: rooms.map((room) => ({
+                        id: room.id,
+                        name: room.display_name || room.name,
+                        zone_id: room.level?.id,
+                    })),
+                }),
+                ...cateringLineItems(catering, this._org.building?.id || ''),
+            ],
+        });
+        if (result.status === 'cancelled') {
+            throw i18n('PAYMENTS.PAYMENT_CANCELLED');
+        }
+        return result.status === 'paid' ? result.payment : null;
     }
 
     private _clearSavedHostChange() {

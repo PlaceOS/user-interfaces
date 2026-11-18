@@ -75,6 +75,14 @@ export const routes: Routes = [
             import('./deals/deals.routes').then((m) => m.ROUTES),
     },
     {
+        path: 'payments',
+        title: 'Payments',
+        canActivate: [AuthorisedUserGuard],
+        canLoad: [AuthorisedUserGuard],
+        loadChildren: () =>
+            import('./payments/payments.routes').then((m) => m.ROUTES),
+    },
+    {
         path: 'landing',
         title: 'Home',
         canMatch: [legacyFlowsGuard],

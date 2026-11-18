@@ -8,6 +8,7 @@ import {
     StaffUser,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
+import { PaymentsService } from '@placeos/payments';
 import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ApplicationSidebarComponent } from '../../app/ui/app-sidebar.component';
@@ -19,6 +20,9 @@ vi.hoisted(() =>
 
 @Component({ template: '' })
 class BlankComponent {}
+
+/** Whether the building has a payment driver */
+const payments_enabled = signal(false);
 
 describe('ApplicationSidebarComponent', () => {
     let spectator: Spectator<ApplicationSidebarComponent>;
@@ -43,6 +47,7 @@ describe('ApplicationSidebarComponent', () => {
                 initialised: signal(true),
                 waitUntilInitialised: () => Promise.resolve(),
             }),
+            MockProvider(PaymentsService, { is_enabled: payments_enabled }),
         ],
     });
 
@@ -56,6 +61,7 @@ describe('ApplicationSidebarComponent', () => {
         setCurrentUser(new StaffUser({ id: 'user-1', groups }));
 
     beforeEach(() => {
+        payments_enabled.set(false);
         app_settings = { 'app.features': ['events'] };
         setGroups([]);
         spectator = createComponent();
@@ -85,6 +91,15 @@ describe('ApplicationSidebarComponent', () => {
             'bookings:desks',
             'other:events',
             'reports:desk-report',
+        ]);
+    });
+
+    it('should show the payment links only when the building has a payment driver', () => {
+        app_settings['app.features'] = ['payments'];
+        expect(shown()).toEqual([]);
+        payments_enabled.set(true);
+        expect(shown()).toEqual([
+            'payments:payments,payment-invoices,payment-products',
         ]);
     });
 
