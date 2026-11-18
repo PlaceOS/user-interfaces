@@ -5224,7 +5224,7 @@ var _LocaleService = class _LocaleService {
       return {};
     try {
       const metadata = await _c(this.zone_id, `locale_${locale}`);
-      return metadata.details || {};
+      return metadata.details;
     } catch (error) {
       console.error(`Failed to load locale overrides for "${locale}".`, error);
       return {};
@@ -5659,15 +5659,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "fead63b",
-  "hash": "fead63b",
+  "raw": "2480874",
+  "hash": "2480874",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fead63b",
+  "suffix": "2480874",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043939115
+  "time": 1795044836558
 };
 
 // libs/common/src/lib/placeos.ts
@@ -7764,5 +7764,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=364f2b33-eb40-57c6-8cba-0fcc7ed15bcf
-//# sourceMappingURL=chunk-CTCHZSCI.js.map
+//# debugId=c8cab00b-055a-5e8a-85f7-c5ff09eb2605
+//# sourceMappingURL=chunk-UCNPORQH.js.map
