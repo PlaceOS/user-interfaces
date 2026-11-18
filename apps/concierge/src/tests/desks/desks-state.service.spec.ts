@@ -1102,9 +1102,11 @@ describe('DesksStateService', () => {
             duration: 60,
         });
         // ts-client rejects with the HTTP response; the helper reads its body
-        vi.mocked(ts_client_mod.post).mockRejectedValueOnce({
-            json: async () => ({ error: 'Desk is locked' }),
-        });
+        vi.mocked(ts_client_mod.post).mockRejectedValueOnce(
+            new Response(JSON.stringify({ error: 'Desk is locked' }), {
+                status: 423,
+            }),
+        );
 
         await expect(spectator.service.checkinDesk(booking)).rejects.toBe(
             'Desk is locked',

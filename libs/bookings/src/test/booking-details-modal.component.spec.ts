@@ -436,9 +436,11 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should keep the booking and report the error when check-in fails', async () => {
-        vi.mocked(ts_client.post).mockRejectedValue({
-            json: async () => ({ error: 'Desk is not available' }),
-        });
+        vi.mocked(ts_client.post).mockRejectedValue(
+            new Response(JSON.stringify({ error: 'Desk is not available' }), {
+                status: 409,
+            }),
+        );
 
         await expect(spectator.component.toggleCheckedIn()).rejects.toBe(
             'Desk is not available',
