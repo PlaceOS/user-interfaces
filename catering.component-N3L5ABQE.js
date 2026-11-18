@@ -20,7 +20,7 @@ import {
 } from "./chunk-NVPCML6C.js";
 import {
   CustomTooltipComponent
-} from "./chunk-XZ6I66UW.js";
+} from "./chunk-RR6C3DQI.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -45,7 +45,7 @@ import {
   orderLocation,
   requestSpacesForZone,
   subDays
-} from "./chunk-PGWYDXKK.js";
+} from "./chunk-6OJMLSBS.js";
 import {
   FORM_FIELD,
   FormField,
@@ -54,13 +54,13 @@ import {
 } from "./chunk-RZU5UVP7.js";
 import {
   TranslatePipe
-} from "./chunk-XQ2NS2W4.js";
+} from "./chunk-OA4B67R5.js";
 import {
   Clipboard,
   OrganisationService,
   PushNotificationService,
   toQueryString
-} from "./chunk-P5VBBXK7.js";
+} from "./chunk-YQSV5GWG.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -146,7 +146,7 @@ import {
   up,
   user_group_names,
   warnOrThrowProtectedError
-} from "./chunk-LPTTX4V5.js";
+} from "./chunk-U5QMYKRZ.js";
 import {
   DefaultValueAccessor,
   FormGroupDirective,
@@ -22784,4 +22784,4 @@ export {
   CateringComponent
 };
 //# debugId=1ed9905f-7b42-51ad-b1dc-2b83a3cc3843
-//# sourceMappingURL=catering.component-Z6XEZDVV.js.map
+//# sourceMappingURL=catering.component-N3L5ABQE.js.map

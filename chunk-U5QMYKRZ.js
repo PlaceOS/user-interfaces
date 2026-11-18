@@ -5343,12 +5343,16 @@ var LocaleService = class _LocaleService {
       this._locale_mappings[locale] = cached;
       this._changes.update((value) => value + 1);
     }
-    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-    if (!resp.ok) {
+    let locale_data;
+    try {
+      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+      if (!resp.ok)
+        throw resp;
+      locale_data = await resp.json();
+    } catch (error) {
       delete this._load_promises[locale];
-      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+      return console.error(`Failed to load locale file for "${locale}".`, error);
     }
-    const locale_data = await resp.json();
     const base_locale_values = removeNesting(locale_data);
     const override_locale_values = removeNesting(await this._loadOverrides(locale));
     this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -6044,15 +6048,15 @@ function isEmptyUser(user) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "8cd0366",
-  "hash": "8cd0366",
+  "raw": "fead63b",
+  "hash": "fead63b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8cd0366",
+  "suffix": "fead63b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043701728
+  "time": 1795044013060
 };
 
 // libs/common/src/lib/placeos.ts
@@ -8040,5 +8044,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=8a9287d5-d005-5da9-bd4b-4ee7aad38919
-//# sourceMappingURL=chunk-LPTTX4V5.js.map
+//# debugId=1b9b9b0f-31bd-58ae-b4cb-1f90d9ec1bae
+//# sourceMappingURL=chunk-U5QMYKRZ.js.map
