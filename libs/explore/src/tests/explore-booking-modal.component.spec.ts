@@ -1,13 +1,16 @@
 import { inject, Injector, signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import {
     createRoutingFactory,
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { MockProvider, ngMocks } from 'ng-mocks';
+import { Subject } from 'rxjs';
 
 import { SettingsService } from '@placeos/common';
+import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { generateEventForm } from 'libs/events/src/lib/event-form';
 import { EventFormService } from 'libs/events/src/lib/event-form.service';
 
@@ -63,6 +66,7 @@ describe('ExploreBookingModalComponent', () => {
         MockProvider(SettingsService, { get: vi.fn(), app_name });
 
     beforeEach(() => vi.clearAllMocks());
+    afterEach(() => setNotifyOutlet(null, true));
 
     it('should display selected space', () => {
         open();
@@ -91,12 +95,19 @@ describe('ExploreBookingModalComponent', () => {
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalled();
     });
 
-    it('should keep the modal open when the booking fails', async () => {
+    it('should show the error and keep the modal open when the booking fails', async () => {
+        const notify_open = vi.fn((_msg: string) => ({
+            onAction: () => new Subject<void>(),
+        }));
+        setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
         open();
         const form = spectator.inject(EventFormService);
-        vi.mocked(form.postForm).mockRejectedValueOnce('Conflict');
-        await expect(spectator.component.save()).rejects.toBe('Conflict');
+        const reason = 'Room 1 is not available at the selected time';
+        vi.mocked(form.postForm).mockRejectedValueOnce(reason);
+        await expect(spectator.component.save()).resolves.toBeUndefined();
+        expect(notify_open.mock.lastCall?.[0]).toBe(reason);
         expect(spectator.inject(MatDialogRef).close).not.toHaveBeenCalled();
+        expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
     });
 
     it('should close without a new form when no space is given', () => {

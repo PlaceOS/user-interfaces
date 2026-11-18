@@ -460,8 +460,9 @@ export class PanelStateService extends AsyncHandler {
         try {
             await this.makeBooking(booking, force_api);
         } catch (e) {
+            // Views call this without a handler, so show the error and do
+            // not reject. Availability conflicts are expected here.
             notifyError(`Error creating meeting. ${e}`);
-            throw e;
         } finally {
             details.close();
             this.clearTimeout('reset_view');
