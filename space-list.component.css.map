@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["space-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n            }\n\n            mat-form-field {\n                width: 48rem;\n                max-width: calc(100% - 2rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA;AACI,SAAA;AACA,aAAA,KAAA,KAAA,EAAA;AACJ;",
+  "names": []
+}
