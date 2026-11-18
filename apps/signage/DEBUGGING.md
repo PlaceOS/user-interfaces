@@ -90,6 +90,7 @@ makes the display request use `?preview=true`.
 | Template or plugin bands missing   | A failed template, plugin or background load tries again after 15 s, doubling to 5 min. Look for `Unable to load template`                                                  |
 | Plugin cut short, or held long     | A play-through plugin advances on `finished`, or after a limit. Look for `did not report finished in time` in the console                                                   |
 | Blank screen, no `window.signage`  | The application did not start. Look for `Application failed to start` in the console; it reloads with a backoff                                                             |
+| Browser crashes on load (Sony TV)  | Sony crashes on Angular's `media="print"` stylesheet swap. Keep `inlineCritical` off in `project.json` and check `index.html` loads `styles-*.css` with a plain `<link>`    |
 | Media always streams               | `media_cache.too_large` — the file does not fit in `limit_bytes`; see [Media cache storage](#media-cache-storage)                                                           |
 
 ## Recovery watchdog
