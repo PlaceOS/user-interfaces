@@ -1,1 +1,0 @@
-{"version":3,"file":"chunk-DL8PjnTZ.js","names":["mocksInit","log"],"sources":["../libs/mocks/src/empty.ts"],"sourcesContent":["import { log } from '@placeos/common';\n\nexport function mocksInit() {\n    log('MOCKS', 'No mocks available in production');\n}\n"],"mappings":"qEAEM,SAAUA,GAAS,CACrBC,GAAI,QAAS,kCAAkC,CACnD","debugId":"d79eb38e-c8cd-56d5-85dd-db1a90c4e512"}
