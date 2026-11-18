@@ -49,7 +49,11 @@
             },
             "configurations": {
                 "staging": {
-                    "optimization": true,
+                    "optimization": {
+                        "scripts": true,
+                        "styles": { "minify": true, "inlineCritical": false },
+                        "fonts": true
+                    },
                     "fileReplacements": [
                         {
                             "replace": "apps/signage/src/environments/environment.ts",
@@ -81,7 +85,11 @@
                             "with": "libs/common/src/lib/sentry-rates.prod.ts"
                         }
                     ],
-                    "optimization": true,
+                    "optimization": {
+                        "scripts": true,
+                        "styles": { "minify": true, "inlineCritical": false },
+                        "fonts": true
+                    },
                     "outputHashing": "all",
                     "sourceMap": {
                         "scripts": true,
