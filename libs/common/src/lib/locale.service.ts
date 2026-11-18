@@ -202,12 +202,9 @@ export class LocaleService {
                 error,
             );
         }
-        const locale_override_data = this.zone_id
-            ? await showMetadata(this.zone_id, `locale_${locale}`)
-            : { details: {} };
         const base_locale_values = removeNesting(locale_data);
         const override_locale_values = removeNesting(
-            locale_override_data.details,
+            await this._loadOverrides(locale),
         );
         this._locale_mappings[locale] = {
             ...base_locale_values,
@@ -227,6 +224,27 @@ export class LocaleService {
         this._loaded_locales[locale] = true;
         this._changes.update((value) => value + 1);
         delete this._load_promises[locale];
+    }
+
+    /**
+     * Zone metadata values that replace the locale file values.
+     * Returns no values when the request fails, so the locale file still loads.
+     */
+    private async _loadOverrides(locale: string) {
+        if (!this.zone_id) return {};
+        try {
+            const metadata = await showMetadata(
+                this.zone_id,
+                `locale_${locale}`,
+            );
+            return metadata.details || {};
+        } catch (error) {
+            console.error(
+                `Failed to load locale overrides for "${locale}".`,
+                error,
+            );
+            return {};
+        }
     }
 
     /** Mappings stored by the last load of the locale, if still usable */
