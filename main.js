@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-6HLUS3XU.js";
-import "./chunk-4CEBPI3U.js";
+} from "./chunk-TEISEQQU.js";
+import "./chunk-OXKAN7LX.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-OLKA7PAT.js";
+} from "./chunk-NCX3B7FB.js";
 import "./chunk-FA46AMLA.js";
 import {
   TranslatePipe
-} from "./chunk-RH64OU5F.js";
+} from "./chunk-IHEQJIVK.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -28,7 +28,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-5ON3F2KO.js";
+} from "./chunk-N653AC5T.js";
 import "./chunk-5YZYH22M.js";
 import "./chunk-GLALPF4J.js";
 import {
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-2MN2VAFF.js";
+} from "./chunk-ZDIKF4WK.js";
 import {
   IconComponent
 } from "./chunk-3ES5YZ5E.js";
@@ -9528,7 +9528,8 @@ function seedHistory() {
     [6, "Parking space", 2e3, "refunded"],
     [9, "Meeting room", 7500, "succeeded"],
     [14, "Hot desk", 1500, "partially_refunded"],
-    [20, "Parking space", 2e3, "failed"]
+    [20, "Parking space", 2e3, "failed"],
+    [2, "AV technician", 16e3, "pending"]
   ];
   return history.map(([days, name, amount, status], index) => {
     const user = users[index % users.length];
@@ -9668,13 +9669,25 @@ var PaymentsModule = class {
   }
   $get_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "pending" && now2() - payment.created_at >= HOSTED_PAY_DELAY) {
+    if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
         payment_method: { type: "card", brand: "visa", last4: "4242" }
       });
     }
     return findPayment(this._payments, id);
+  }
+  $get_payment_link(id, return_url) {
+    const payment = findPayment(this._payments, id);
+    if (!["pending", "requires_action"].includes(payment.status)) {
+      throw `Payment is ${payment.status}`;
+    }
+    updatePayment(this._payments, id, { status: "pending" });
+    return {
+      id: `cs-${randomString(8)}`,
+      url: return_url,
+      expires_at: now2() + 30 * 60
+    };
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
@@ -10730,7 +10743,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-5UTQO6QW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-QLGZRKUL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10772,7 +10785,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-5UTQO6QW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-QLGZRKUL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10841,22 +10854,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-X7XI7QJU.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-Z6DANKZA.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-4K5OGQKK.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-E7XUY23T.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-TETETT24.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-IFIIBEBJ.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-KDE72XNZ.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-WBS3GUAR.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10884,5 +10897,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=5a181a95-e95c-5c5a-b54c-ff195180f2e5
+//# debugId=ca75a1ce-21c9-5425-b5d7-1b64f6379f9a
 //# sourceMappingURL=main.js.map
