@@ -5603,15 +5603,15 @@ var LocaleService = class _LocaleService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "a6df197",
-  "hash": "a6df197",
+  "raw": "4b5cf31",
+  "hash": "4b5cf31",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "a6df197",
+  "suffix": "4b5cf31",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795011826172
+  "time": 1795011845067
 };
 
 // libs/common/src/lib/settings.ts
@@ -6937,5 +6937,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=a6fa761a-822d-5cf5-9c51-9ff58ead9390
-//# sourceMappingURL=chunk-CDXBVD7Z.js.map
+//# debugId=ec652c03-0f48-564d-9b50-ba2c5ba68a0a
+//# sourceMappingURL=chunk-I64X6P4B.js.map
