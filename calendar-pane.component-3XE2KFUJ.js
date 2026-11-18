@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-N2TJRSBY.js";
+} from "./chunk-DMSUZ5QQ.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-NOE4CUYE.js";
 import {
   CustomTooltipComponent
-} from "./chunk-3I3SS2DX.js";
+} from "./chunk-C7EXJCHK.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-TUCX6CAY.js";
+} from "./chunk-2Z7DWG4U.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-D3OPVGHZ.js";
+} from "./chunk-HTM4NCP3.js";
 import {
   TranslatePipe
-} from "./chunk-WD2B4JIE.js";
+} from "./chunk-QKT7KVI4.js";
 import {
   AbstractControl,
   Booking,
@@ -88,7 +88,7 @@ import {
   toBookingRecurrence,
   toQueryString,
   ɵNgNoValidate
-} from "./chunk-ANAGPRNO.js";
+} from "./chunk-K42NECO3.js";
 import {
   $,
   AssetRequest,
@@ -188,7 +188,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-ZUGXVDIM.js";
+} from "./chunk-FARBVLVC.js";
 import "./chunk-WAJLQ4NS.js";
 import {
   BasePortalOutlet,
@@ -21699,11 +21699,17 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     }));
     setTimeout(() => this._min_loading.set(false), 500);
   }
+  /**
+   * Save the booking. On failure, show the error and keep the modal open.
+   * The template calls this without a handler, so it must not reject.
+   */
   async save() {
-    await this._event_form.postForm().catch((_) => {
-      notifyError(_);
-      throw _;
-    });
+    try {
+      await this._event_form.postForm();
+    } catch (e) {
+      notifyError(e);
+      return;
+    }
     if (this._settings.app_name.toLowerCase().includes("workplace")) {
       this._router.navigate(["/book", "meeting", "success"]);
     } else {
@@ -27388,5 +27394,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=339ab9c5-76ce-5eba-b339-9cc8e7750af5
-//# sourceMappingURL=calendar-pane.component-J6SW33M7.js.map
+//# debugId=3c496ca7-114c-5f41-8aee-b565bc61121b
+//# sourceMappingURL=calendar-pane.component-3XE2KFUJ.js.map
