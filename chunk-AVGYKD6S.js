@@ -5413,12 +5413,16 @@ var LocaleService = class _LocaleService {
       this._locale_mappings[locale] = cached;
       this._changes.update((value) => value + 1);
     }
-    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-    if (!resp.ok) {
+    let locale_data;
+    try {
+      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+      if (!resp.ok)
+        throw resp;
+      locale_data = await resp.json();
+    } catch (error) {
       delete this._load_promises[locale];
-      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+      return console.error(`Failed to load locale file for "${locale}".`, error);
     }
-    const locale_data = await resp.json();
     const base_locale_values = removeNesting(locale_data);
     const override_locale_values = removeNesting(await this._loadOverrides(locale));
     this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -6887,15 +6891,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "8cd0366",
-  "hash": "8cd0366",
+  "raw": "fead63b",
+  "hash": "fead63b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8cd0366",
+  "suffix": "fead63b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043748545
+  "time": 1795043947289
 };
 
 // libs/common/src/lib/settings.ts
@@ -9478,5 +9482,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=10aa9b81-5459-5780-a05a-e96a75bbf3e3
-//# sourceMappingURL=chunk-NJOBU6LA.js.map
+//# debugId=c7f6a668-5d70-5488-a019-0e028efaf2d4
+//# sourceMappingURL=chunk-AVGYKD6S.js.map

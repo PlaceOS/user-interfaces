@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-2QP72XZX.js";
+} from "./chunk-HESQN6FR.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-SZLKDBV2.js";
+} from "./chunk-R2TARPLZ.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -32,7 +32,7 @@ import {
 } from "./chunk-KBZBMALB.js";
 import {
   CustomTooltipComponent
-} from "./chunk-SQJTN4U3.js";
+} from "./chunk-3PGVW4FU.js";
 import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
@@ -48,7 +48,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-BPBGI3IU.js";
+} from "./chunk-IF5X7TNO.js";
 import {
   FormField,
   disabled,
@@ -56,10 +56,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-6326JVRQ.js";
+} from "./chunk-QDFSRP2U.js";
 import {
   TranslatePipe
-} from "./chunk-YZTNCMGA.js";
+} from "./chunk-ZUZ7PHTJ.js";
 import {
   AbstractControl,
   Booking,
@@ -93,7 +93,7 @@ import {
   toBookingRecurrence,
   toQueryString,
   ɵNgNoValidate
-} from "./chunk-4QN6H6FQ.js";
+} from "./chunk-7UVWUNAH.js";
 import {
   $,
   AssetRequest,
@@ -192,7 +192,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-NJOBU6LA.js";
+} from "./chunk-AVGYKD6S.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -16552,11 +16552,17 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     }));
     setTimeout(() => this._min_loading.set(false), 500);
   }
+  /**
+   * Save the booking. On failure, show the error and keep the modal open.
+   * The template calls this without a handler, so it must not reject.
+   */
   async save() {
-    await this._event_form.postForm().catch((_) => {
-      notifyError(_);
-      throw _;
-    });
+    try {
+      await this._event_form.postForm();
+    } catch (e) {
+      notifyError(e);
+      return;
+    }
     if (this._settings.app_name.toLowerCase().includes("workplace")) {
       this._router.navigate(["/book", "meeting", "success"]);
     } else {
@@ -19302,5 +19308,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=13c9bb25-a80e-5182-ab55-6e39867b3db3
-//# sourceMappingURL=chunk-LE2Y7R7O.js.map
+//# debugId=5304e38e-cbe5-5371-9088-5f1f4a592d58
+//# sourceMappingURL=chunk-46GB4MVS.js.map
