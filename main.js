@@ -4,23 +4,23 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-SU5YR773.js";
+} from "./chunk-6NV2JAIN.js";
 import {
   subMinutes
-} from "./chunk-QBYTU5BK.js";
+} from "./chunk-TNEDAWZZ.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-EYNPWJNT.js";
+} from "./chunk-L6VDE7BF.js";
 import {
   AnnounceDirective
-} from "./chunk-AOFA6NUX.js";
+} from "./chunk-6UOT6UGB.js";
 import "./chunk-KUCFMP5P.js";
 import "./chunk-GLALPF4J.js";
 import {
   TranslatePipe
-} from "./chunk-CS675A67.js";
+} from "./chunk-DR2EKNJR.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-AL55K2JF.js";
+} from "./chunk-AFYKOL5T.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-HIJU6L5N.js";
+} from "./chunk-PENRKMX6.js";
 import {
   IconComponent
 } from "./chunk-ECEYXSP4.js";
@@ -9502,7 +9502,8 @@ function seedHistory() {
     [6, "Parking space", 2e3, "refunded"],
     [9, "Meeting room", 7500, "succeeded"],
     [14, "Hot desk", 1500, "partially_refunded"],
-    [20, "Parking space", 2e3, "failed"]
+    [20, "Parking space", 2e3, "failed"],
+    [2, "AV technician", 16e3, "pending"]
   ];
   return history.map(([days, name, amount, status], index) => {
     const user = users[index % users.length];
@@ -9642,13 +9643,25 @@ var PaymentsModule = class {
   }
   $get_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "pending" && now2() - payment.created_at >= HOSTED_PAY_DELAY) {
+    if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
         payment_method: { type: "card", brand: "visa", last4: "4242" }
       });
     }
     return findPayment(this._payments, id);
+  }
+  $get_payment_link(id, return_url) {
+    const payment = findPayment(this._payments, id);
+    if (!["pending", "requires_action"].includes(payment.status)) {
+      throw `Payment is ${payment.status}`;
+    }
+    updatePayment(this._payments, id, { status: "pending" });
+    return {
+      id: `cs-${randomString(8)}`,
+      url: return_url,
+      expires_at: now2() + 30 * 60
+    };
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
@@ -10692,11 +10705,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-3FJWMV5K.js").then((m) => m.ChatComponent)
+  import("./chat.component-CU66FT6Z.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-ZMDMAKHU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-BYHJ3MAQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10757,9 +10770,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-3FJWMV5K.js").then((m) => m.ChatComponent),
+    import("./chat.component-CU66FT6Z.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-ZMDMAKHU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-BYHJ3MAQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10802,22 +10815,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-DBQMG77A.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-OVOHHT2P.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-J32RJ3HJ.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-RWA4O4VH.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-ZVJEHRIS.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-DS6EQAWI.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-DYY7OKQM.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-VULWESUR.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10849,5 +10862,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=3cb2b194-ff73-55bf-9c58-4dd2e917d9c0
+//# debugId=fcd83a58-f77c-5a84-a237-c54a6ac41bf7
 //# sourceMappingURL=main.js.map
