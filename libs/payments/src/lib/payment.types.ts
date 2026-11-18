@@ -278,6 +278,12 @@ export interface PaymentDriver {
     get_payment(id: string): Payment;
     /** Take an authorized payment and link it to what it paid for */
     capture_payment(id: string, reference: PaymentReference): Payment;
+    /**
+     * New link to the hosted page of a payment that is `pending` or
+     * `requires_action`, e.g. after the user closed the page. The payment ID
+     * stays the same. Fails for payments in other states.
+     */
+    get_payment_link(id: string, return_url: string): HostedSession;
     /** Cancel a payment that is not taken yet. Refunds a taken payment */
     cancel_payment(id: string): Payment;
     list_payments(query: PaymentQuery): PaymentPage<Payment>;

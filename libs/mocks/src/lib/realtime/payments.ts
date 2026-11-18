@@ -193,6 +193,7 @@ function seedHistory(): Payment[] {
         [9, 'Meeting room', 7500, 'succeeded'],
         [14, 'Hot desk', 1500, 'partially_refunded'],
         [20, 'Parking space', 2000, 'failed'],
+        [2, 'AV technician', 16000, 'pending'],
     ];
     return history.map(([days, name, amount, status], index) => {
         const user = users[index % users.length];
@@ -351,9 +352,10 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
 
     $get_payment(id: string): Payment {
         const payment = findPayment(this._payments, id);
+        // Counts from the last link to the hosted page
         if (
             payment.status === 'pending' &&
-            now() - payment.created_at >= HOSTED_PAY_DELAY
+            now() - payment.updated_at >= HOSTED_PAY_DELAY
         ) {
             updatePayment(this._payments, id, {
                 status: 'authorized',
@@ -361,6 +363,19 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
             });
         }
         return findPayment(this._payments, id);
+    }
+
+    $get_payment_link(id: string, return_url: string): HostedSession {
+        const payment = findPayment(this._payments, id);
+        if (!['pending', 'requires_action'].includes(payment.status)) {
+            throw `Payment is ${payment.status}`;
+        }
+        updatePayment(this._payments, id, { status: 'pending' });
+        return {
+            id: `cs-${randomString(8)}`,
+            url: return_url,
+            expires_at: now() + 30 * 60,
+        };
     }
 
     $capture_payment(id: string, reference: PaymentReference): Payment {

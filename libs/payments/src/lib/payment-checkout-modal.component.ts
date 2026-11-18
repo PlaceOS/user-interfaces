@@ -18,10 +18,17 @@ import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { PaymentAmountPipe, unitKey } from './payment-amount.pipe';
 import { Payment, PaymentMethod, PaymentQuote } from './payment.types';
 
-/** The user closed the hosted page or cancelled before the payment completed */
+/** The user cancelled, or the wait timed out, before the payment completed. The payment is cancelled */
 export class CheckoutCancelledError extends Error {
     constructor() {
         super('Payment cancelled');
+    }
+}
+
+/** The user closed the hosted page before the payment completed. The payment is still open */
+export class PaymentWindowClosedError extends Error {
+    constructor(public readonly payment_id: string) {
+        super('Payment window closed');
     }
 }
 
@@ -36,13 +43,20 @@ export interface PayOptions {
     on_url?: (url: string) => void;
 }
 
+export type ResumeOptions = Pick<PayOptions, 'window' | 'signal' | 'on_url'>;
+
 export interface PaymentCheckoutData {
     quote: PaymentQuote;
     description: string;
     methods: PaymentMethod[];
     can_save_method: boolean;
     pay: (options: PayOptions) => Promise<Payment>;
+    /** Open the hosted page again for an open payment */
+    resume: (payment_id: string, options: ResumeOptions) => Promise<Payment>;
+    cancel: (payment_id: string) => Promise<unknown>;
 }
+
+type CheckoutView = 'review' | 'processing' | 'closed';
 
 /** Value of the new payment method option */
 const NEW_METHOD = '';
@@ -61,7 +75,7 @@ const NEW_METHOD = '';
                 {{ 'PAYMENTS.CHECKOUT_TITLE' | translate }}
             </h2>
         </header>
-        @if (!processing()) {
+        @if (view() === 'review') {
             <main class="w-md max-w-[85vw] space-y-4 p-4">
                 <p class="text-sm opacity-70">{{ data.description }}</p>
                 <ul class="divide-base-200 divide-y text-sm">
@@ -178,6 +192,26 @@ const NEW_METHOD = '';
                     }}
                 </button>
             </footer>
+        } @else if (view() === 'closed') {
+            <main
+                class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-8 text-center"
+            >
+                <icon class="text-5xl opacity-60">tab_close</icon>
+                <p announce>{{ 'PAYMENTS.WINDOW_CLOSED' | translate }}</p>
+                <button btn matRipple name="reopen" (click)="reopen()">
+                    {{ 'PAYMENTS.REOPEN_PAYMENT_PAGE' | translate }}
+                    <icon class="ml-2 text-xl">open_in_new</icon>
+                </button>
+                <button
+                    btn
+                    matRipple
+                    name="cancel-payment"
+                    class="clear"
+                    (click)="cancelPayment()"
+                >
+                    {{ 'PAYMENTS.CANCEL_PAYMENT' | translate }}
+                </button>
+            </main>
         } @else {
             <main
                 class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-8 text-center"
@@ -227,6 +261,8 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
             MatDialogRef,
         );
     private _abort?: AbortController;
+    /** Payment that is open after the user closed the hosted page */
+    private _open_payment_id = '';
 
     public readonly data = inject<PaymentCheckoutData>(MAT_DIALOG_DATA);
     public readonly new_method = NEW_METHOD;
@@ -237,38 +273,37 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
             NEW_METHOD,
     );
     public readonly save_method = signal(false);
-    public readonly processing = signal(false);
+    public readonly view = signal<CheckoutView>('review');
     public readonly hosted_url = signal('');
     public readonly error = signal('');
 
     public async pay() {
         const method_id = this.method_id() || undefined;
         // Open the window in the click handler, or the browser blocks it
-        const window_ref = method_id
-            ? null
-            : window.open('', 'placeos-payment', 'popup,width=520,height=760');
-        this._abort = new AbortController();
-        this.error.set('');
-        this.hosted_url.set('');
-        this.processing.set(true);
-        try {
-            const payment = await this.data.pay({
+        const window_ref = method_id ? null : openPaymentWindow();
+        await this._run(window_ref, (options) =>
+            this.data.pay({
+                ...options,
                 method_id,
                 save_method: !method_id && this.save_method(),
-                window: window_ref,
-                signal: this._abort.signal,
-                on_url: (url) => this.hosted_url.set(url),
-            });
-            this._ref.close(payment);
-        } catch (e) {
-            window_ref?.close();
-            this.processing.set(false);
-            if (!(e instanceof CheckoutCancelledError)) {
-                this.error.set(
-                    errorMessage(e) || i18n('PAYMENTS.PAYMENT_FAILED'),
-                );
-            }
-        }
+            }),
+        );
+    }
+
+    /** Open the hosted page again with a new link from the driver */
+    public async reopen() {
+        const id = this._open_payment_id;
+        if (!id) return;
+        const window_ref = openPaymentWindow();
+        await this._run(window_ref, (options) => this.data.resume(id, options));
+    }
+
+    /** Cancel the open payment and go back to the review */
+    public async cancelPayment() {
+        const id = this._open_payment_id;
+        this._open_payment_id = '';
+        this.view.set('review');
+        if (id) await this.data.cancel(id).catch(() => null);
     }
 
     /** Stop waiting for the hosted page. The service cancels the payment */
@@ -282,5 +317,48 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
 
     public ngOnDestroy() {
         this._abort?.abort();
+        // Do not leave an open payment when the modal goes away
+        if (this._open_payment_id) {
+            this.data.cancel(this._open_payment_id).catch(() => null);
+        }
     }
+
+    /** Wait for a payment, then close with it or show what went wrong */
+    private async _run(
+        window_ref: Window | null,
+        action: (options: ResumeOptions) => Promise<Payment>,
+    ) {
+        this._abort = new AbortController();
+        this.error.set('');
+        this.hosted_url.set('');
+        this.view.set('processing');
+        try {
+            const payment = await action({
+                window: window_ref,
+                signal: this._abort.signal,
+                on_url: (url) => this.hosted_url.set(url),
+            });
+            this._open_payment_id = '';
+            this._ref.close(payment);
+        } catch (e) {
+            window_ref?.close();
+            if (e instanceof PaymentWindowClosedError) {
+                this._open_payment_id = e.payment_id;
+                this.view.set('closed');
+                return;
+            }
+            this._open_payment_id = '';
+            this.view.set('review');
+            if (!(e instanceof CheckoutCancelledError)) {
+                this.error.set(
+                    errorMessage(e) || i18n('PAYMENTS.PAYMENT_FAILED'),
+                );
+            }
+        }
+    }
+}
+
+/** Empty window for a hosted page. `null` when the browser blocks it */
+export function openPaymentWindow() {
+    return window.open('', 'placeos-payment', 'popup,width=520,height=760');
 }

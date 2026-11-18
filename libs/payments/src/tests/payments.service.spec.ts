@@ -6,7 +6,10 @@ import { of } from 'rxjs';
 
 import { Building, OrganisationService } from '@placeos/common';
 
-import { CheckoutCancelledError } from '../lib/payment-checkout-modal.component';
+import {
+    CheckoutCancelledError,
+    PaymentWindowClosedError,
+} from '../lib/payment-checkout-modal.component';
 import type { Payment, PaymentQuote } from '../lib/payment.types';
 import { PaymentsService } from '../lib/payments.service';
 
@@ -133,19 +136,64 @@ describe('PaymentsService', () => {
         await expect(done).resolves.toEqual(payment('authorized'));
     });
 
-    it('cancels the payment when the user closes the hosted page', async () => {
+    it('keeps the payment open when the user closes the hosted page', async () => {
         vi.useFakeTimers();
         driver.get_payment = () => payment('pending');
         driver.cancel_payment = vi.fn(() => payment('cancelled'));
-        const window_ref = { closed: true } as Window;
         const done = spectator.service.waitForPayment('pay-1', {
-            window: window_ref,
+            window: { closed: true } as Window,
+        });
+        const result = expect(done).rejects.toEqual(
+            new PaymentWindowClosedError('pay-1'),
+        );
+        await vi.advanceTimersByTimeAsync(10_000);
+        await result;
+        expect(driver.cancel_payment).not.toHaveBeenCalled();
+    });
+
+    it('cancels the payment when the user stops waiting', async () => {
+        vi.useFakeTimers();
+        driver.get_payment = () => payment('pending');
+        driver.cancel_payment = vi.fn(() => payment('cancelled'));
+        const abort = new AbortController();
+        const done = spectator.service.waitForPayment('pay-1', {
+            signal: abort.signal,
         });
         const result = expect(done).rejects.toBeInstanceOf(
             CheckoutCancelledError,
         );
-        await vi.advanceTimersByTimeAsync(10_000);
+        abort.abort();
+        await vi.advanceTimersByTimeAsync(5_000);
         await result;
         expect(driver.cancel_payment).toHaveBeenCalledWith('pay-1');
+    });
+
+    it('completes an open payment on a new link and captures it for its reference', async () => {
+        vi.useFakeTimers();
+        const reference = { type: 'booking' as const, id: 'booking-1' };
+        const window_ref = { closed: false, location: { href: '' } };
+        driver.get_payment_link = vi.fn(() => ({
+            id: 'cs-1',
+            url: 'https://pay.example.com/cs-1',
+            expires_at: 0,
+        }));
+        driver.get_payment = () => payment('authorized');
+        driver.capture_payment = vi.fn(() => payment('succeeded'));
+        const done = spectator.service.completePayment(
+            { ...payment('pending'), reference },
+            window_ref as unknown as Window,
+        );
+        await vi.advanceTimersByTimeAsync(5_000);
+        await expect(done).resolves.toEqual(payment('succeeded'));
+        expect(window_ref.location.href).toBe('https://pay.example.com/cs-1');
+        expect(driver.capture_payment).toHaveBeenCalledWith('pay-1', reference);
+    });
+
+    it('does not complete a payment without a reference', async () => {
+        driver.get_payment_link = vi.fn();
+        await expect(
+            spectator.service.completePayment(payment('pending'), null),
+        ).rejects.toBe('PAYMENTS.NO_REFERENCE');
+        expect(driver.get_payment_link).not.toHaveBeenCalled();
     });
 });
