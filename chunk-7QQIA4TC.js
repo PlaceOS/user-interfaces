@@ -5545,12 +5545,16 @@ var LocaleService = class _LocaleService {
       this._locale_mappings[locale] = cached;
       this._changes.update((value) => value + 1);
     }
-    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-    if (!resp.ok) {
+    let locale_data;
+    try {
+      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+      if (!resp.ok)
+        throw resp;
+      locale_data = await resp.json();
+    } catch (error) {
       delete this._load_promises[locale];
-      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+      return console.error(`Failed to load locale file for "${locale}".`, error);
     }
-    const locale_data = await resp.json();
     const base_locale_values = removeNesting(locale_data);
     const override_locale_values = removeNesting(await this._loadOverrides(locale));
     this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
@@ -5617,15 +5621,15 @@ var LocaleService = class _LocaleService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "8cd0366",
-  "hash": "8cd0366",
+  "raw": "fead63b",
+  "hash": "fead63b",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "8cd0366",
+  "suffix": "fead63b",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043709890
+  "time": 1795043959335
 };
 
 // libs/common/src/lib/settings.ts
@@ -6951,5 +6955,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=53977451-ca9c-5aac-b160-27e264e59f12
-//# sourceMappingURL=chunk-D2JFYNZZ.js.map
+//# debugId=9331ec59-b45f-5e10-bc19-49473588a7e6
+//# sourceMappingURL=chunk-7QQIA4TC.js.map
