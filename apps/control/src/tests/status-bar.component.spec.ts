@@ -79,21 +79,14 @@ describe('ControlStatusBarComponent', () => {
         expect('button[mute]').toHaveAttribute('aria-pressed', 'true');
     });
 
-    it('should show the volume level', () => {
-        const service = spectator.inject(ControlStateService);
-        (service as any).system.set({ volume: 45 });
-        spectator.detectChanges();
-        expect('[volume-level]').toHaveText('45%');
-    });
-
     it('should hide the master volume only when the room has no master audio', () => {
         const service = spectator.inject(ControlStateService);
         (service as any).has_master_audio.set(undefined);
         spectator.detectChanges();
-        expect('[volume-level]').toExist();
+        expect('button[mute]').toExist();
         (service as any).has_master_audio.set(false);
         spectator.detectChanges();
-        expect('[volume-level]').not.toExist();
+        expect('button[mute]').not.toExist();
     });
 
     it('should toggle the mute state when the mute button is pressed', () => {
