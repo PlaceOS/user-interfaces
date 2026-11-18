@@ -113,6 +113,8 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import { validateAssetRequestsForResource } from 'libs/assets/src/lib/assets.fn';
 import { findDeskByLegacyId } from 'libs/assets/src/lib/desk-assets.fn';
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
+import { bookingLineItems } from 'libs/payments/src/lib/payment-line-items';
+import type { Payment } from 'libs/payments/src/lib/payment.types';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 const BOOKING_TYPES = ['desk', 'parking', 'locker', 'catering'];
@@ -222,6 +224,15 @@ function knownBookingType(
 function isCrossTypeEdit(booking: Booking, type: BookingType) {
     const booking_type = knownBookingType(booking?.booking_type);
     return !!booking?.id && !!booking_type && booking_type !== type;
+}
+
+/** Resource fields of the form value that a payment line item needs */
+interface BookedResource {
+    id?: string;
+    name?: string;
+    display_name?: string;
+    zone_id?: string;
+    zone?: { id?: string };
 }
 
 @Injectable({
@@ -1426,7 +1437,8 @@ export class BookingFormService extends AsyncHandler {
             effective_timezone,
             ignore_check,
         );
-        if (!(await this._takePayment(value))) return;
+        const payment = await this._takePayment(value, booking, all_day_period);
+        if (payment === false) return;
         const selected_zones = [
             ...(value?.zones || []),
             ...(value.booking_asset?.zones || []),
@@ -1480,7 +1492,12 @@ export class BookingFormService extends AsyncHandler {
                 zones,
             }).toJSON(),
             q,
-        ).catch((e) => this._saveFailure(e));
+        ).catch(async (e) => {
+            // Release the payment, as nothing was booked
+            if (payment) await this._payments.cancel(payment).catch(() => null);
+            return this._saveFailure(e);
+        });
+        if (payment) await this._capturePayment(payment, result);
         if (value.assets?.length || booking.extension_data.assets?.length) {
             await this._saveAssetRequests(result, value, booking, zones);
         }
@@ -1572,24 +1589,53 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /**
-     * Take payment for the booking when payments are enabled and store the
-     * receipt on `value`. Resolves `false` when the payment does not succeed.
+     * Ask the user to pay for a new booking when payments are enabled, and
+     * store the payment ID on `value`. Resolves `false` when the user
+     * cancels, and `null` when the booking has no price. Changes to saved
+     * bookings are not charged.
      */
-    private async _takePayment(value: Record<string, any>) {
-        if (!this._payments.enabled) return true;
-        const receipt = await this._payments.makePayment({
-            type: this._options().type,
-            resource_name: value.asset_name,
-            date: value.date,
-            duration: value.duration,
-            all_day: value.all_day,
+    private async _takePayment(
+        value: Record<string, any>,
+        booking: Booking,
+        period: { date: number; duration: number },
+    ): Promise<Payment | null | false> {
+        if (booking.id || !this._payments.enabled) return null;
+        const resources: BookedResource[] = value.resources?.length
+            ? value.resources
+            : [{ id: value.asset_id, name: value.asset_name }];
+        const result = await this._payments.checkout({
+            description: value.asset_name || value.title || '',
+            items: bookingLineItems({
+                type: value.booking_type || this._options().type,
+                date: period.date,
+                duration: period.duration,
+                resources: resources.map((resource) => ({
+                    id: resource?.id,
+                    name: resource?.name || resource?.display_name,
+                    zone_id: resource?.zone_id || resource?.zone?.id,
+                })),
+            }),
         });
-        if (!receipt?.success) return false;
+        if (result.status === 'cancelled') return false;
+        if (result.status === 'free') return null;
         value.extension_data = {
-            invoice: receipt,
-            invoice_id: receipt.invoice_id,
+            ...value.extension_data,
+            payment_id: result.payment.id,
         };
-        return true;
+        return result.payment;
+    }
+
+    /** Take the authorized payment and link it to the saved booking */
+    private async _capturePayment(payment: Payment, booking: Booking) {
+        await this._payments
+            .capture(payment, { type: 'booking', id: booking.id })
+            .catch((e) =>
+                notifyError(
+                    i18n('PAYMENTS.CAPTURE_FAILED', {
+                        error: errorMessage(e) || e,
+                    }),
+                ),
+            );
     }
 
     /** Org, region, building and level zones of the first selected resource.

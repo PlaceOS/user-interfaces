@@ -1,193 +1,276 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { computed, inject, Injectable, resource } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
+import { errorMessage, i18n, OrganisationService } from '@placeos/common';
 import {
-    OrganisationService,
-    SettingsService,
-    currentUser,
-} from '@placeos/common';
-import { PaymentCardDetails } from './card-input-field.component';
-import { PaymentData, PaymentModalComponent } from './payment-modal.component';
-import { StripeCard } from './stripe.types';
+    CheckoutCancelledError,
+    PaymentCheckoutData,
+    PaymentCheckoutModalComponent,
+} from './payment-checkout-modal.component';
+import {
+    FINAL_PAYMENT_STATES,
+    Payment,
+    PaymentCapability,
+    PaymentDriver,
+    PaymentDriverMethod,
+    PaymentLineItemRequest,
+    PaymentQuote,
+    PaymentReference,
+} from './payment.types';
 
-export interface PaymentDetails {
-    type: string; // Resource Type
-    resource_name: string;
-    date: number;
-    duration: number;
-    all_day: boolean;
+/** Zone binding of the payment driver. Set `mod` on the binding to use another module name */
+export const PAYMENT_BINDING = 'payments';
+export const PAYMENT_MODULE = 'Payments';
+
+/** Time between checks of a payment while the user pays on the hosted page */
+const POLL_INTERVAL_MS = 2_000;
+/** Upper bound of checks for one payment. 450 checks are 15 minutes */
+const MAX_POLLS = 450;
+
+/** Result of a checkout */
+export type CheckoutResult =
+    /** Nothing to pay. The items have no price */
+    | { status: 'free' }
+    /** The user cancelled the payment */
+    | { status: 'cancelled' }
+    /** Payment is authorized or taken. Call `capture` after the booking saves */
+    | { status: 'paid'; payment: Payment };
+
+export interface CheckoutDetails {
+    items: PaymentLineItemRequest[];
+    /** What the payment is for, e.g. the name of the booked desk */
+    description: string;
 }
 
-export interface PaymentResult {
-    success: boolean;
-    state: 'processing' | 'pending' | 'approved';
-    invoice_id: string;
-    amount: number;
-    created_at: number;
-    updated_at: number;
+/** Options to wait for the result of a payment */
+interface WaitOptions {
+    /** Hosted payment window. The wait ends early when the user closes it */
+    window?: Window | null;
+    /** Stops the wait, e.g. when the user cancels in the app */
+    signal?: AbortSignal;
 }
 
-const STRIPE_MODULE = 'Payment';
-
+/**
+ * Typed access to the payment driver of the active building, and the
+ * checkout flow that bookings and events use. All methods throw when no
+ * payment driver is bound, so check `enabled` first.
+ */
 @Injectable({
     providedIn: 'root',
 })
 export class PaymentsService {
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
 
-    private _loading = signal('');
-    private _active_card = signal('');
-
-    public readonly loading = this._loading.asReadonly();
-
-    constructor() {
-        this.loadPaymentSources();
+    /** Whether the active building or the organisation has a payment driver */
+    public get enabled(): boolean {
+        return !!this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE);
     }
 
-    public get enabled() {
-        if (!this._org.module) return false;
-        return !!this._org.module('payments', STRIPE_MODULE);
+    /** `enabled` as a signal that updates when the active building changes */
+    public readonly is_enabled = computed(() => {
+        this._org.active_building();
+        return this._org.initialised() && this.enabled;
+    });
+
+    private readonly _config = resource({
+        params: () =>
+            this.is_enabled()
+                ? { building: this._org.active_building()?.id }
+                : undefined,
+        loader: () => this.call('get_config'),
+    });
+
+    /** Settings of the driver for the current user. `null` until it loads */
+    public readonly config = computed(() =>
+        this._config.hasValue() ? this._config.value() : null,
+    );
+
+    /** Message of the error when the driver settings fail to load */
+    public readonly config_error = computed(() => {
+        const error = this._config.error();
+        return error ? errorMessage(error) || `${error}` : '';
+    });
+
+    /** Whether the current user can manage the payments of all users */
+    public readonly privileged = computed(() => !!this.config()?.privileged);
+
+    /** Currency of the driver, else the currency of the building */
+    public readonly currency = computed(
+        () => this.config()?.currency || this._org.currency_code,
+    );
+
+    /** Whether the driver supports the optional feature */
+    public hasCapability(capability: PaymentCapability) {
+        return !!this.config()?.capabilities?.includes(capability);
     }
 
-    public async makePayment(
-        details: PaymentDetails,
-    ): Promise<PaymentResult | undefined> {
-        if (!this._org.module('payments', STRIPE_MODULE))
-            throw 'Payments not enabled';
-        const [cost, period] = await this._getCostOfProduct(
-            details?.type,
-        ).catch(() => [0, 60] as [number, number]);
-        console.log('Cost:', cost, period);
-        if (cost <= 0) return;
-        let customer_id = this._settings.get('STRIPE_Customer_ID');
-        if (!customer_id) customer_id = await this._newCustomerID();
-        this._settings.saveUserSetting('STRIPE_Customer_ID', customer_id);
-        const amount = cost * (details.duration / period);
-        let result: PaymentResult | undefined;
-        const makePayment = async (card?: PaymentCardDetails) => {
-            result = await this._processPayment(
-                amount,
-                customer_id,
-                card,
-            ).catch((e) => {
-                this._loading.set('');
-                throw e;
-            });
-        };
-        const data: PaymentData = {
-            ...details,
-            has_payment_method: !!this._active_card(),
-            rate: `$${(cost / 100).toFixed(2)} per hour`,
-            amount,
-            makePayment,
-            loading: this.loading,
-        };
-        const ref = this._dialog.open(PaymentModalComponent, { data });
-        await new Promise((resolve) =>
-            ref.afterClosed().subscribe(() => resolve(null)),
-        );
-        return result;
+    /** Call a method of the payment driver with type checked arguments */
+    public async call<M extends PaymentDriverMethod>(
+        method: M,
+        ...args: Parameters<PaymentDriver[M]>
+    ): Promise<ReturnType<PaymentDriver[M]>> {
+        const mod = this._org.module(PAYMENT_BINDING, PAYMENT_MODULE);
+        if (!mod) throw i18n('PAYMENTS.NOT_ENABLED');
+        return mod.execute<ReturnType<PaymentDriver[M]>>(method, args);
     }
 
-    private async _addPaymentMethod(card: PaymentCardDetails): Promise<string> {
-        const mod = this._org.module('payments', STRIPE_MODULE);
-        if (!mod) throw 'Unable to load module';
-        const payment_method = await mod.execute('add_payment_method', [
-            'card',
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            card,
-        ]);
-        return payment_method.id || payment_method;
-    }
-
-    private async _getCostOfProduct(type: string) {
-        const price: [number, number] = [0, 60];
-        const mod = this._org.module('payments', STRIPE_MODULE);
-        if (!mod) return price;
-        const product_list = await mod.execute('get_product_prices', [
-            null,
-            null,
-            type,
-        ]);
-        if (!product_list.length) return price;
-        return product_list;
-    }
-
-    private async _processPayment(
-        amount: number,
-        customer_id: string,
-        card_details?: PaymentCardDetails,
-    ): Promise<PaymentResult> {
-        this._loading.set('Checking payment method...');
-        console.log('Getting payment method...');
-        const source = card_details
-            ? await this._addPaymentMethod(card_details)
-            : this._active_card();
-        if (!source) throw 'No payment source selected';
-        this._loading.set('Processing payment...');
-        console.log('Processing payment...');
-        const mod = this._org.module('payments', STRIPE_MODULE);
-        if (!mod) throw 'Unable to load module';
-        const id = await mod.execute<string>('create_payment_intent', [
-            amount,
-            this._org.building.currency || 'USD',
-            null,
-            null,
-            customer_id,
-            null,
-            null,
-            null,
-            currentUser()?.email,
-        ]);
-        if (!id) throw 'Failed to create payment';
-        console.log('Confirming payment...');
-        await mod.execute('confirm_payment_intent', [id, source]);
-        this._loading.set('');
-        return {
-            success: true,
-            state: 'approved',
-            invoice_id: id,
-            amount: amount,
-            created_at: Date.now(),
-            updated_at: Date.now(),
-        };
-    }
-
-    private async _newCustomerID() {
-        const mod = this._org.module('payments', STRIPE_MODULE);
-        if (!mod) throw 'Unable to load module';
-        const user = currentUser();
-        const id = await mod.execute<string>('create_customer', [
-            0,
-            null,
-            null,
-            null,
-            `${user.id}|${user.name}|FromPlaceOS`,
-            user.email,
-        ]);
-        return id;
-    }
-
-    private async loadPaymentSources() {
-        if (!this._org.module) return;
-        const mod = this._org.module('payments', STRIPE_MODULE);
-        const list = mod
-            ? await mod
-                  .execute<StripeCard[]>('list_payment_methods', ['card'])
-                  .catch(() => [])
+    /**
+     * Show the price of the items and ask the user to pay. Resolves when the
+     * payment is authorized, the user cancels or the items are free.
+     * Rejects when the driver fails.
+     */
+    public async checkout(details: CheckoutDetails): Promise<CheckoutResult> {
+        if (!details.items.length) return { status: 'free' };
+        const quote = await this.call('quote', details.items);
+        if (quote.total <= 0) return { status: 'free' };
+        const methods = this.hasCapability('saved_methods')
+            ? await this.call('list_payment_methods').catch(() => [])
             : [];
-        if (list[0]) this._active_card.set(list[0].id);
+        const data: PaymentCheckoutData = {
+            quote,
+            description: details.description,
+            methods,
+            can_save_method: this.hasCapability('saved_methods'),
+            pay: (options) => this._pay(details, quote, options),
+        };
+        const ref = this._dialog.open<
+            PaymentCheckoutModalComponent,
+            PaymentCheckoutData,
+            Payment | undefined
+        >(PaymentCheckoutModalComponent, { data, disableClose: true });
+        const payment = await new Promise<Payment | undefined>((resolve) =>
+            ref.afterClosed().subscribe((result) => resolve(result)),
+        );
+        return payment ? { status: 'paid', payment } : { status: 'cancelled' };
+    }
+
+    /** Take an authorized payment and link it to the saved booking or event */
+    public capture(payment: Payment, reference: PaymentReference) {
+        return this.call('capture_payment', payment.id, reference);
+    }
+
+    /** Release or refund a payment, e.g. when the booking fails to save */
+    public cancel(payment: Payment) {
+        return this.call('cancel_payment', payment.id);
+    }
+
+    /**
+     * Open the hosted page to add a payment method. Resolves when the user
+     * closes the page.
+     */
+    public async addPaymentMethod(window_ref = this.openWindow()) {
+        const session = await this.call(
+            'create_setup_session',
+            completeUrl('setup'),
+        ).catch((e) => {
+            window_ref?.close();
+            throw e;
+        });
+        if (window_ref) window_ref.location.href = session.url;
+        else window.open(session.url, '_blank', 'noopener');
+        await waitForClose(window_ref);
+    }
+
+    /**
+     * Open an empty window for a hosted page. Call it in a click handler, so
+     * the browser does not block it. `null` when the browser blocks it.
+     */
+    public openWindow() {
+        return window.open('', 'placeos-payment', 'popup,width=520,height=760');
+    }
+
+    /**
+     * Wait for a payment to reach a final or authorized state. Throws
+     * `CheckoutCancelledError` when the user closes the hosted page or
+     * cancels before the payment completes.
+     */
+    public async waitForPayment(
+        id: string,
+        { window: window_ref, signal }: WaitOptions = {},
+    ): Promise<Payment> {
+        let closed_checks = 0;
+        for (let i = 0; i < MAX_POLLS; i++) {
+            if (signal?.aborted) break;
+            const payment = await this.call('get_payment', id);
+            if (isComplete(payment)) return payment;
+            // Check again after the window closes, as the provider can be
+            // slow to update the payment.
+            if (window_ref?.closed && ++closed_checks > 2) break;
+            await delay(POLL_INTERVAL_MS, signal);
+        }
+        await this.call('cancel_payment', id).catch(() => null);
+        throw new CheckoutCancelledError();
+    }
+
+    private async _pay(
+        details: CheckoutDetails,
+        quote: PaymentQuote,
+        options: {
+            method_id?: string;
+            save_method?: boolean;
+            window?: Window | null;
+            signal?: AbortSignal;
+            on_url?: (url: string) => void;
+        },
+    ) {
+        const session = await this.call('create_checkout', {
+            items: details.items,
+            expected_total: quote.total,
+            description: details.description,
+            payment_method_id: options.method_id,
+            save_method: options.save_method,
+            return_url: completeUrl('success'),
+            cancel_url: completeUrl('cancel'),
+        }).catch((e) => {
+            options.window?.close();
+            throw e;
+        });
+        if (session.url) {
+            if (options.window) options.window.location.href = session.url;
+            options.on_url?.(session.url);
+        } else options.window?.close();
+        const payment = await this.waitForPayment(session.payment_id, {
+            window: options.window,
+            signal: options.signal,
+        });
+        if (payment.status === 'failed' || payment.status === 'cancelled') {
+            throw i18n('PAYMENTS.PAYMENT_FAILED');
+        }
+        return payment;
+    }
+}
+
+/** Whether the payment can no longer change without action from the app */
+function isComplete(payment: Payment) {
+    return (
+        payment.status === 'authorized' ||
+        FINAL_PAYMENT_STATES.includes(payment.status)
+    );
+}
+
+/** Page that the hosted payment page opens when it is done */
+function completeUrl(state: 'success' | 'cancel' | 'setup') {
+    const url = new URL('assets/payment-complete.html', document.baseURI);
+    url.searchParams.set('state', state);
+    return url.href;
+}
+
+/** Resolve after `ms`, or early when the signal aborts */
+function delay(ms: number, signal?: AbortSignal) {
+    return new Promise<void>((resolve) => {
+        const timer = setTimeout(resolve, ms);
+        signal?.addEventListener('abort', () => {
+            clearTimeout(timer);
+            resolve();
+        });
+    });
+}
+
+/** Resolve when the window closes. Checks for 30 minutes at most */
+async function waitForClose(window_ref: Window | null) {
+    if (!window_ref) return;
+    for (let i = 0; i < 1_800 && !window_ref.closed; i++) {
+        await delay(1_000);
     }
 }

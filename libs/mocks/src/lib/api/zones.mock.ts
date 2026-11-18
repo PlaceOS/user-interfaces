@@ -218,7 +218,10 @@ export function registerMockZones() {
                         location_services: system_id,
                         contact_tracing: system_id,
                         lockers: system_id,
-                        // payments: system_id,
+                        // Opt in, so that mock booking flows do not ask for payment
+                        ...(mockPaymentsEnabled()
+                            ? { payments: system_id }
+                            : {}),
                     },
                 },
             };
@@ -460,4 +463,13 @@ export function registerMockZones() {
             );
         },
     });
+}
+
+/** Whether the mock payment driver is on. Set `PLACEOS.mock_payments` to `true` in local storage */
+function mockPaymentsEnabled() {
+    try {
+        return localStorage.getItem('PLACEOS.mock_payments') === 'true';
+    } catch {
+        return false;
+    }
 }
