@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/common/src/lib/device-id.ts"
+  ],
+  "sourcesContent": [
+    "/** Local storage key that holds the ID of this device */\nconst DEVICE_ID_KEY = 'PLACEOS.DEVICE_ID';\n\nlet _device_id = '';\n\n/** New device ID: `DEV-` and 12 uppercase hex characters, such as `DEV-3F9A0C12B7E4` */\nfunction newDeviceId() {\n    const bytes = crypto.getRandomValues(new Uint8Array(6));\n    const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, '0'));\n    return `DEV-${hex.join('').toUpperCase()}`;\n}\n\n/**\n * ID of this device. The ID is made on first use and kept in local storage,\n * so it stays the same across reloads. A device keeps an ID that it already\n * has, also if the ID has an older format. Remote logging and remote setup\n * use it to find the device.\n */\nexport function deviceId(): string {\n    if (_device_id) return _device_id;\n    try {\n        _device_id = localStorage.getItem(DEVICE_ID_KEY) || '';\n    } catch {\n        // Storage can be blocked. The ID then lasts until the page reloads.\n    }\n    if (!_device_id) {\n        _device_id = newDeviceId();\n        try {\n            localStorage.setItem(DEVICE_ID_KEY, _device_id);\n        } catch {\n            // Ignore quota and privacy-mode failures.\n        }\n    }\n    return _device_id;\n}\n"
+  ],
+  "mappings": ";AACA,IAAM,gBAAgB;AAEtB,IAAI,aAAa;AAGjB,SAAS,cAAW;AAChB,QAAM,QAAQ,OAAO,gBAAgB,IAAI,WAAW,CAAC,CAAC;AACtD,QAAM,MAAM,MAAM,KAAK,OAAO,CAAC,MAAM,EAAE,SAAS,EAAE,EAAE,SAAS,GAAG,GAAG,CAAC;AACpE,SAAO,OAAO,IAAI,KAAK,EAAE,EAAE,YAAW,CAAE;AAC5C;AAQM,SAAU,WAAQ;AACpB,MAAI;AAAY,WAAO;AACvB,MAAI;AACA,iBAAa,aAAa,QAAQ,aAAa,KAAK;EACxD,QAAQ;EAER;AACA,MAAI,CAAC,YAAY;AACb,iBAAa,YAAW;AACxB,QAAI;AACA,mBAAa,QAAQ,eAAe,UAAU;IAClD,QAAQ;IAER;EACJ;AACA,SAAO;AACX;",
+  "names": [],
+  "debugId": "fffc4ca5-8e5e-5f3e-8999-eeb700105c33"
+}
