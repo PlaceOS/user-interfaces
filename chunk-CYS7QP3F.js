@@ -5447,7 +5447,7 @@ var LocaleService = class _LocaleService {
       return {};
     try {
       const metadata = await _c(this.zone_id, `locale_${locale}`);
-      return metadata.details || {};
+      return metadata.details;
     } catch (error) {
       console.error(`Failed to load locale overrides for "${locale}".`, error);
       return {};
@@ -6891,15 +6891,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "fead63b",
-  "hash": "fead63b",
+  "raw": "2480874",
+  "hash": "2480874",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fead63b",
+  "suffix": "2480874",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043947289
+  "time": 1795044796277
 };
 
 // libs/common/src/lib/settings.ts
@@ -9482,5 +9482,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=c7f6a668-5d70-5488-a019-0e028efaf2d4
-//# sourceMappingURL=chunk-AVGYKD6S.js.map
+//# debugId=93a24aab-3c19-52b8-934c-c26fea2f5fcd
+//# sourceMappingURL=chunk-CYS7QP3F.js.map
