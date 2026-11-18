@@ -1,0 +1,106 @@
+{
+    "SIGNAGE_MANAGER": {
+        "IMAGE_GEN_ADD_WORDS_LAYER_HINT": "The image is generated without any text, then you type the headline over it. This keeps the words sharp and spelled correctly.",
+        "IMAGE_GEN_ALIGN_CENTRE": "Center",
+        "IMAGE_GEN_NO_LOGO_YET": "No logo saved for this organization yet.",
+        "IMAGE_GEN_NO_LOGO_ADMIN": "No logo saved for this organization yet. An administrator can add one on the branding page.",
+        "IMAGE_GEN_NO_LOGO_LOCKED": "No logo saved for this organization yet. Branding changes are turned off.",
+        "IMAGE_GEN_NO_ORG_ZONE": "This domain has no organization zone, so a logo cannot be saved",
+        "IMAGE_GEN_STYLE_REFERENCE_HINT": "Attach one picture to set the look and feel. Its colors, mood and composition guide the artwork without appearing in it.",
+        "IMAGE_GEN_TEXT_ANY_COLOUR": "Pick any color",
+        "IMAGE_GEN_USE_BRANDING_HINT": "The organization's colors, font and tone shape the image, and its palette is offered for the words. Turn it off for a poster that is not meant to look like us.",
+        "BRAND_ADD_COLOUR": "Add a color",
+        "BRAND_COLOURS": "Brand colors",
+        "BRAND_COLOUR_INVALID": "A brand color must be a hex value like #0E6E52.",
+        "BRAND_HINT": "Used whenever artwork is generated for this organization, so posters come back in your colors rather than the model's.",
+        "BRAND_LOGO_HINT": "Upload one and the other version is made from it, keeping your colors. Replace either with your own file whenever you have one.",
+        "BRAND_READ_ONLY": "Branding is set for the whole organization, so only an administrator can change it.",
+        "BRAND_ORGANISATION": "Organization name",
+        "BRAND_REMOVE_COLOUR": "Remove this color",
+        "DOCUMENT_IMPORT_BACKGROUND_COLOUR": "Background color",
+        "DOCUMENT_IMPORT_BACKGROUND_CUSTOM": "Custom color",
+        "SVC_MEDIA_UPLOAD_CANCELLED": "Media upload was canceled."
+    },
+    "COMMON": {
+        "FAVOURITES": "Favorites",
+        "FAVOURITES_ONLY": "Favorites Only",
+        "FAVOURITES_ADD": "Add to favorites",
+        "FAVOURITES_REMOVE": "Remove from favorites",
+        "TYPE_CANCELLED": "Canceled",
+        "ORGANISATION": "Organization"
+    },
+    "EXPLORE": {
+        "ZOOM_RESET": "Reset zoom & center",
+        "MAPSINDOORS_INIT_FAILED": "Failed to initialize map view."
+    },
+    "BOOKINGS": {
+        "DESK_AUTO_ASSIGN_INFO": "We always try to book a desk in your home neighborhood. If it is full, we find a desk near it.",
+        "DESK_NEIGHBOURHOOD": "Neighborhood"
+    },
+    "CALENDAR_EVENT": {
+        "SPACE_FAVOURITE": "Favorite {{ name }}"
+    },
+    "CATERING": {
+        "STATUS_CANCELLED": "Canceled",
+        "ALERT_CANCELLED": "{{ count }} order(s) canceled."
+    },
+    "APP": {
+        "WORKPLACE": {
+            "FAVOURITES_COUNT": "{{ count }} favorites",
+            "FAVOURITES_COUNT_1": "{{ count }} favorite",
+            "FAVOURITES_REMOVE": "Remove favorite",
+            "FAVOURITES_EMPTY": "No favorites",
+            "FAVOURITES_SHOW": "Show only favorites",
+            "SCHEDULE_REMOVE_SUCCESS": "Successfully canceled booking.",
+            "SCHEDULE_REMOVE_LOADING": "Canceling booking...",
+            "SCHEDULE_REMOVE_SERIES_SUCCESS": "Successfully canceled booking series.",
+            "SCHEDULE_REMOVE_SERIES_LOADING": "Canceling booking series...",
+            "COLLEAGUES_ADD_FAVORITE": "Add to Favorites",
+            "COLLEAGUES_REMOVE_FAVORITE": "Remove from Favorites",
+            "AUTO_RELEASE_MSG": "You have indicated you are not in the office. Your booking for \"<i>{{ name }}</i>\" at {{ start }} will be canceled at {{ end }}.<br/><br/>Do you wish to keep this booking?",
+            "AUTO_RELEASE_PARKING_MSG": "You have indicated you are not in the office. Your reservation for \"<i>{{ name }}</i>\" at {{ start }} will be canceled at {{ end }}.<br/><br/>Do you wish to keep this reservation?"
+        },
+        "CONCIERGE": {
+            "BOOKING_REMOVE_SUCCESS": "Successfully canceled booking.",
+            "BOOKING_REMOVE_LOADING": "Canceling booking...",
+            "DESKS_BOOKING_DELETE_LOADING": "Canceling desk booking...",
+            "DESKS_BOOKING_DELETE_SUCCESS": "Successfully canceled desk booking.",
+            "DESKS_BOOKING_DELETE_SERIES_LOADING": "Canceling desk booking series...",
+            "BOOKING_DELETED": "Canceled",
+            "BOOKING_STATUS_DELETED": "Canceled",
+            "MAPS_NO_LEVEL": "That level does not exist in this organization.",
+            "ROOMS_HISTORY_ACTION_CANCEL": "Canceled",
+            "ROOMS_HISTORY_ACTION_DELETE": "Canceled",
+            "PARKING_CAR_COLOUR": "Car Color",
+            "REPORTS_CANCELLED": "Canceled",
+            "REPORTS_DAILY_HEADER": "Daily Utilization",
+            "REPORTS_UTILISATION": "Utilization",
+            "REPORTS_BOOKED_TIME_UTILISATION": "Booked Time Utilization",
+            "REPORTS_ROOMS_UTIL_HEADER": "Rooms Utilization",
+            "REPORTS_ROOMS_HOST_HEADER": "Meeting Organizers",
+            "REPORTS_LEVEL_UTIL_HEADER": "Level Utilization",
+            "REPORTS_LOCKERS_UTIL_HEADER": "Lockers Utilization"
+        },
+        "SIGNAGE": {
+            "BOOTSTRAP_LOADING": "Initializing application..."
+        }
+    },
+    "MAP_EDITOR": {
+        "AI": {
+            "QUOTA_DOMAIN_NOTE": "{count} left this month for the organization",
+            "QUOTA_DOMAIN_EXHAUSTED": "This organization has used this month's allowance of AI edits.",
+            "COMPOSER_PLACEHOLDER": "Describe the change, for example \"recolor Meeting 1.01 light blue\" or \"add six desks along the north wall labeled 1.031 to 1.036\"",
+            "UNTICKED_NOTE": "Unchecked; check to apply it",
+            "OUTCOMES": {
+                "CANCELLED": "Canceled"
+            },
+            "STATES": {
+                "NOT_CONFIGURED": "No AI provider is configured for this organization.",
+                "MAP_CHANGED": "The map changed since this was proposed; changes whose elements are gone are unchecked.",
+                "CANCELLED": "Canceled.",
+                "NOTHING_ACCEPTED": "Nothing is checked, so nothing has been applied."
+            }
+        },
+        "RECOLOUR_LABEL": "Recolor"
+    }
+}

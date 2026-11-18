@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore-booking-modal.component.ts"],
+  "sourcesContent": ["\n            header {\n                max-width: calc(100vw + 100%);\n            }\n\n            [load] {\n                width: 32rem;\n                max-width: calc(100vw - 2rem);\n            }\n        "],
+  "mappings": ";AACY;AACI,aAAA,KAAA,MAAA,EAAA;AACJ;AAEA,CAAA;AACI,SAAA;AACA,aAAA,KAAA,MAAA,EAAA;AACJ;",
+  "names": []
+}
