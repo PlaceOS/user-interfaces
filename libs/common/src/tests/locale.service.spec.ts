@@ -107,6 +107,25 @@ describe('LocaleService', () => {
         expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
     });
 
+    it('should keep cached mappings and load again after a network failure', async () => {
+        storeLocale('fr-FR', { 'COMMON.HELLO': 'Bonjour' });
+        (global as any).fetch = vi.fn(async () => {
+            throw new TypeError('Load failed');
+        });
+        spectator.service.setLocale('fr-FR');
+        await flush();
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
+
+        (global as any).fetch = vi.fn(async () => ({
+            ok: true,
+            json: async () => ({ COMMON: { HELLO: 'Salut' } }),
+        }));
+        spectator.service.setLocale('fr-FR');
+        await spectator.service.loaded();
+        expect(global.fetch).toHaveBeenCalledWith('assets/locale/fr-FR.json');
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Salut');
+    });
+
     it('should fetch locale mappings when not cached', async () => {
         (global as any).fetch = vi.fn(async () => ({
             ok: true,
