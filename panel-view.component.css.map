@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["panel-view.component.ts"],
+  "sourcesContent": ["\n            [splash] {\n                animation: crossfade 10s linear;\n                animation-iteration-count: infinite;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,aAAA,UAAA,IAAA;AACA,6BAAA;AACJ;",
+  "names": []
+}
