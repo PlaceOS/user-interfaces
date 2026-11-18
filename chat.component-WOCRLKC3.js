@@ -1,7 +1,7 @@
 import "./chunk-KDUJLNKF.js";
 import {
   TranslatePipe
-} from "./chunk-ZITQLTAL.js";
+} from "./chunk-LMCAARPJ.js";
 import {
   IconComponent
 } from "./chunk-IZCLOVZ4.js";
@@ -11,7 +11,7 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-FTFVKODA.js";
+} from "./chunk-FXNCQWWO.js";
 import {
   AsyncHandler,
   J,
@@ -28,7 +28,7 @@ import {
   notifyError,
   randomString,
   settingSignal
-} from "./chunk-IRBVKVAK.js";
+} from "./chunk-BNJZUR3W.js";
 import "./chunk-LBBA5C7V.js";
 import {
   MatRipple,
@@ -3255,4 +3255,4 @@ export {
   ChatComponent
 };
 //# debugId=67159238-01d9-5ed8-b9c3-da83241c2a19
-//# sourceMappingURL=chat.component-5FW7KMEP.js.map
+//# sourceMappingURL=chat.component-WOCRLKC3.js.map

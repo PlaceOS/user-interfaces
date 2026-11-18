@@ -6329,7 +6329,7 @@ var LocaleService = class _LocaleService {
       return {};
     try {
       const metadata = await _c(this.zone_id, `locale_${locale}`);
-      return metadata.details || {};
+      return metadata.details;
     } catch (error) {
       console.error(`Failed to load locale overrides for "${locale}".`, error);
       return {};
@@ -6860,15 +6860,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "fead63b",
-  "hash": "fead63b",
+  "raw": "2480874",
+  "hash": "2480874",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fead63b",
+  "suffix": "2480874",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043913239
+  "time": 1795044788178
 };
 
 // libs/common/src/lib/settings.ts
@@ -9328,5 +9328,5 @@ export {
   deviceId,
   RemoteLoggingService
 };
-//# debugId=0cfa5266-51ac-53e1-a5a6-45aaf8ce845a
-//# sourceMappingURL=chunk-IRBVKVAK.js.map
+//# debugId=61105772-cce7-5521-8c3e-ae9d9d3590d9
+//# sourceMappingURL=chunk-BNJZUR3W.js.map
