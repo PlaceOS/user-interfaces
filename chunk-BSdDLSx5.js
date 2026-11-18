@@ -1,0 +1,3 @@
+import{Ui as ot,Wr as bn,Xn as Pi,Yi as re,da as v,fi as gi}from"./main-W665ZVD7.js";function y(r,o){let e=v(r,o?.in).getDay();return e===0||e===6}function _(r,o,e){let[i,n]=bn(e?.in,r,o);if(!Pi(i)||!Pi(n))return NaN;let m=gi(i,n),d=m<0?-1:1,l=Math.trunc(m/7),a=l*5,t=ot(n,l*7);for(;!re(i,t);)a+=y(t,e)?0:d,t=ot(t,d);return a===0?0:a}export{_ as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="3f468cc1-793a-5fda-8b00-ce719c0693e4")}catch(e){}}();
+//# debugId=3f468cc1-793a-5fda-8b00-ce719c0693e4

@@ -1,0 +1,3 @@
+import{Nn as _t}from"./chunk-B9HQ5Rvv.js";import{Vi as og}from"./main-W665ZVD7.js";var p=(()=>{class r{transform(t,e=!1){let i=og({hours:Math.floor(t/60),minutes:t%60});return e&&(i=i.replace(/ hours?\b/,`h`).replace(/ minutes?\b/,`m`)),i}static{this.ɵfac=function(e){return new(e||r)}}static{this.ɵpipe=_t({name:`duration`,type:r,pure:!0})}}return r})();export{p as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="a89f8fa5-3867-5cb8-abf3-f0ca76ef179c")}catch(e){}}();
+//# debugId=a89f8fa5-3867-5cb8-abf3-f0ca76ef179c

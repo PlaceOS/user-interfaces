@@ -1,0 +1,3 @@
+import{Bi as y,Nn as _t}from"./chunk-B9HQ5Rvv.js";import{k as Pe}from"./main-W665ZVD7.js";var u=(()=>{class i{constructor(){this._org=y(Pe)}transform(r){return this._org.buildings.find(t=>r instanceof Array?r.includes(t.id):t.id===r)}static{this.ɵfac=function(t){return new(t||i)}}static{this.ɵpipe=_t({name:`building`,type:i,pure:!0})}}return i})();export{u as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="f9c1bd42-35a2-56f7-b038-1099ca39cdbe")}catch(e){}}();
+//# debugId=f9c1bd42-35a2-56f7-b038-1099ca39cdbe
