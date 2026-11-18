@@ -5579,7 +5579,7 @@ var LocaleService = class _LocaleService {
       return {};
     try {
       const metadata = await _c(this.zone_id, `locale_${locale}`);
-      return metadata.details || {};
+      return metadata.details;
     } catch (error) {
       console.error(`Failed to load locale overrides for "${locale}".`, error);
       return {};
@@ -5621,15 +5621,15 @@ var LocaleService = class _LocaleService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "fead63b",
-  "hash": "fead63b",
+  "raw": "2480874",
+  "hash": "2480874",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "fead63b",
+  "suffix": "2480874",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795043959335
+  "time": 1795044794109
 };
 
 // libs/common/src/lib/settings.ts
@@ -6955,5 +6955,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=9331ec59-b45f-5e10-bc19-49473588a7e6
-//# sourceMappingURL=chunk-7QQIA4TC.js.map
+//# debugId=f2bedde7-012d-575c-b467-f2ee48cfc92e
+//# sourceMappingURL=chunk-FCI6GU7D.js.map
