@@ -4,8 +4,12 @@ import { MatDialog } from '@angular/material/dialog';
 import { errorMessage, i18n, OrganisationService } from '@placeos/common';
 import {
     CheckoutCancelledError,
+    openPaymentWindow,
     PaymentCheckoutData,
     PaymentCheckoutModalComponent,
+    PaymentWindowClosedError,
+    PayOptions,
+    ResumeOptions,
 } from './payment-checkout-modal.component';
 import {
     FINAL_PAYMENT_STATES,
@@ -133,6 +137,8 @@ export class PaymentsService {
             methods,
             can_save_method: this.hasCapability('saved_methods'),
             pay: (options) => this._pay(details, quote, options),
+            resume: (id, options) => this._resume(id, options),
+            cancel: (id) => this.call('cancel_payment', id),
         };
         const ref = this._dialog.open<
             PaymentCheckoutModalComponent,
@@ -177,13 +183,39 @@ export class PaymentsService {
      * the browser does not block it. `null` when the browser blocks it.
      */
     public openWindow() {
-        return window.open('', 'placeos-payment', 'popup,width=520,height=760');
+        return openPaymentWindow();
+    }
+
+    /**
+     * Complete an open payment of the user on a new link to the hosted page,
+     * then take it for its reference. Only use it for a payment with a
+     * `reference`, so that the user does not pay for nothing. Resolves with
+     * the latest payment, also when the user closes the page first.
+     */
+    public async completePayment(
+        payment: Payment,
+        window_ref: Window | null = this.openWindow(),
+    ): Promise<Payment> {
+        const reference = payment.reference;
+        if (!reference) throw i18n('PAYMENTS.NO_REFERENCE');
+        const result = await this._resume(payment.id, {
+            window: window_ref,
+        }).catch((e) => {
+            if (e instanceof PaymentWindowClosedError) {
+                return this.call('get_payment', payment.id);
+            }
+            throw e;
+        });
+        return result.status === 'authorized'
+            ? this.capture(result, reference)
+            : result;
     }
 
     /**
      * Wait for a payment to reach a final or authorized state. Throws
-     * `CheckoutCancelledError` when the user closes the hosted page or
-     * cancels before the payment completes.
+     * `PaymentWindowClosedError` when the user closes the hosted page first,
+     * and leaves the payment open. Throws `CheckoutCancelledError` and
+     * cancels the payment when the signal aborts or the wait times out.
      */
     public async waitForPayment(
         id: string,
@@ -196,7 +228,9 @@ export class PaymentsService {
             if (isComplete(payment)) return payment;
             // Check again after the window closes, as the provider can be
             // slow to update the payment.
-            if (window_ref?.closed && ++closed_checks > 2) break;
+            if (window_ref?.closed && ++closed_checks > 2) {
+                throw new PaymentWindowClosedError(id);
+            }
             await delay(POLL_INTERVAL_MS, signal);
         }
         await this.call('cancel_payment', id).catch(() => null);
@@ -206,13 +240,7 @@ export class PaymentsService {
     private async _pay(
         details: CheckoutDetails,
         quote: PaymentQuote,
-        options: {
-            method_id?: string;
-            save_method?: boolean;
-            window?: Window | null;
-            signal?: AbortSignal;
-            on_url?: (url: string) => void;
-        },
+        options: PayOptions,
     ) {
         const session = await this.call('create_checkout', {
             items: details.items,
@@ -226,11 +254,33 @@ export class PaymentsService {
             options.window?.close();
             throw e;
         });
-        if (session.url) {
-            if (options.window) options.window.location.href = session.url;
-            options.on_url?.(session.url);
+        return this._waitOnHostedPage(session.payment_id, session.url, options);
+    }
+
+    /** Get a new link to the hosted page of an open payment and wait for it */
+    private async _resume(id: string, options: ResumeOptions) {
+        const session = await this.call(
+            'get_payment_link',
+            id,
+            completeUrl('success'),
+        ).catch((e) => {
+            options.window?.close();
+            throw e;
+        });
+        return this._waitOnHostedPage(id, session.url, options);
+    }
+
+    /** Show the hosted page when there is one, then wait for the payment */
+    private async _waitOnHostedPage(
+        id: string,
+        url: string | undefined,
+        options: ResumeOptions,
+    ) {
+        if (url) {
+            if (options.window) options.window.location.href = url;
+            options.on_url?.(url);
         } else options.window?.close();
-        const payment = await this.waitForPayment(session.payment_id, {
+        const payment = await this.waitForPayment(id, {
             window: options.window,
             signal: options.signal,
         });

@@ -65,4 +65,18 @@ describe('Mock payments module', () => {
             ]),
         ).toThrow();
     });
+
+    it('gives a new link only for an open payment', () => {
+        const mod = createModule();
+        const page = mod.call('list_payments', [{ status: 'pending' }]);
+        const open = page.items[0];
+        expect(
+            mod.call('get_payment_link', [open.id, 'https://app/done']).url,
+        ).toBe('https://app/done');
+        const paid = mod.call('list_payments', [{ status: 'succeeded' }])
+            .items[0];
+        expect(() =>
+            mod.call('get_payment_link', [paid.id, 'https://app/done']),
+        ).toThrow();
+    });
 });

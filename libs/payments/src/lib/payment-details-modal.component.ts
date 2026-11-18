@@ -338,6 +338,17 @@ type DetailsView = 'details' | 'invoice' | 'refund';
                     <footer
                         class="bg-base-200 sticky bottom-0 m-2 flex flex-wrap gap-2 rounded-sm p-2"
                     >
+                        @if (can_complete()) {
+                            <button
+                                btn
+                                matRipple
+                                name="complete-payment"
+                                class="flex-1"
+                                (click)="complete()"
+                            >
+                                {{ 'PAYMENTS.COMPLETE_PAYMENT' | translate }}
+                            </button>
+                        }
                         @if (payment().receipt_url) {
                             <a
                                 btn
@@ -454,6 +465,19 @@ export class PaymentDetailsModalComponent implements OnInit {
             this.privileged() && (status === 'requested' || status === 'draft')
         );
     });
+    /**
+     * Whether the user can finish an open payment of their own. Only for a
+     * payment with a reference, so that the payment pays for something.
+     */
+    public readonly can_complete = computed(() => {
+        const payment = this.payment();
+        return (
+            payment.user_email === currentUser()?.email &&
+            !!payment.reference &&
+            (payment.status === 'pending' ||
+                payment.status === 'requires_action')
+        );
+    });
     public readonly can_refund = computed(
         () =>
             this.privileged() &&
@@ -515,6 +539,20 @@ export class PaymentDetailsModalComponent implements OnInit {
                 await this._payments.call('send_invoice', invoice.id, null),
             );
             notifySuccess(i18n('PAYMENTS.INVOICE_SENT'));
+        });
+    }
+
+    /** Pay an open payment on a new link to the hosted page */
+    public async complete() {
+        // Open the window in the click handler, or the browser blocks it
+        const window_ref = this._payments.openWindow();
+        await this._run('PAYMENTS.COMPLETING_PAYMENT', async () => {
+            this.payment.set(
+                await this._payments.completePayment(
+                    this.payment(),
+                    window_ref,
+                ),
+            );
         });
     }
 
