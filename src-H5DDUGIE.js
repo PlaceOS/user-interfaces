@@ -4,10 +4,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-EAM4ESS4.js";
+} from "./chunk-B6YY5PUT.js";
 import {
   toQueryString
-} from "./chunk-JGLQMI4F.js";
+} from "./chunk-M4JOUBWX.js";
 import "./chunk-GLALPF4J.js";
 import {
   Bp,
@@ -29,7 +29,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-KINLLCH4.js";
+} from "./chunk-CDXBVD7Z.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-BHPAVDM2.js";
 import {
@@ -8135,7 +8135,8 @@ function seedHistory() {
     [6, "Parking space", 2e3, "refunded"],
     [9, "Meeting room", 7500, "succeeded"],
     [14, "Hot desk", 1500, "partially_refunded"],
-    [20, "Parking space", 2e3, "failed"]
+    [20, "Parking space", 2e3, "failed"],
+    [2, "AV technician", 16e3, "pending"]
   ];
   return history.map(([days, name, amount, status], index) => {
     const user = users[index % users.length];
@@ -8275,13 +8276,25 @@ var PaymentsModule = class {
   }
   $get_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "pending" && now2() - payment.created_at >= HOSTED_PAY_DELAY) {
+    if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
         payment_method: { type: "card", brand: "visa", last4: "4242" }
       });
     }
     return findPayment(this._payments, id);
+  }
+  $get_payment_link(id, return_url) {
+    const payment = findPayment(this._payments, id);
+    if (!["pending", "requires_action"].includes(payment.status)) {
+      throw `Payment is ${payment.status}`;
+    }
+    updatePayment(this._payments, id, { status: "pending" });
+    return {
+      id: `cs-${randomString(8)}`,
+      url: return_url,
+      expires_at: now2() + 30 * 60
+    };
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
@@ -9313,5 +9326,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=a558b44a-b02a-5608-be77-20e2c9cba804
-//# sourceMappingURL=src-JJVNZUQA.js.map
+//# debugId=bb1cea43-d1a3-58e5-9cad-16ab634c92e3
+//# sourceMappingURL=src-H5DDUGIE.js.map
