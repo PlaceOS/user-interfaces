@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/signage/src/environments/settings.schema.json"
+  ],
+  "sourcesContent": [
+    "{\n    \"type\": \"object\",\n    \"description\": \"Customisable settings for the signage app\",\n    \"properties\": {\n        \"name\": {\n            \"type\": \"string\",\n            \"description\": \"Application name for the PlaceOS API client. If the URL pathname is empty, the app also uses this name to make the settings metadata key\"\n        },\n        \"short_name\": {\n            \"type\": \"string\",\n            \"description\": \"Prefix for console log messages. The app also uses it as the API client application name if `name` is not set\"\n        },\n        \"default_animation_time\": {\n            \"type\": \"number\",\n            \"description\": \"Duration in milliseconds of the media player's transition animation between playlist items. Defaults to `1000`. If the value is `0` or not set, the player uses `3000`\"\n        },\n        \"remote_setup_url\": {\n            \"type\": \"string\",\n            \"description\": \"Address of the remote setup flow that the setup QR code opens. The device adds `?device=<id>` to the address. Defaults to `https://<PlaceOS domain>/signage-manager/#/remote-setup`.\"\n        },\n        \"templates_enabled\": {\n            \"type\": \"boolean\",\n            \"description\": \"Whether template selection is available during signage bootstrap. Defaults to `true`.\"\n        }\n    }\n}\n"
+  ],
+  "mappings": ";;;AACI,WAAQ;AACR,kBAAe;AACf,iBAAc;AAAA,EACV,MAAQ;AAAA,IACJ,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,YAAc;AAAA,IACV,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,wBAA0B;AAAA,IACtB,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,kBAAoB;AAAA,IAChB,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AAAA,EACA,mBAAqB;AAAA,IACjB,MAAQ;AAAA,IACR,aAAe;AAAA,EACnB;AACJ;AAxBJ;AAAA,EACI;AAAA,EACA;AAAA,EACA;AAsBJ;",
+  "names": [],
+  "debugId": "963855cd-23a7-5a17-b5a1-a79b55ca6650"
+}
