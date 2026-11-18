@@ -1,1 +1,0 @@
-import{t as So}from"./main-3DBY2KG2.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
