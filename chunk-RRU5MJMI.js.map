@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/workplace/src/app/book/booking-invalid-fields.ts"
+  ],
+  "sourcesContent": [
+    "import { Signal } from '@angular/core';\nimport { BookingForm } from '@placeos/bookings';\nimport { getInvalidSignalFields, i18n, notifyError } from '@placeos/common';\n\n/** Locale keys for the labels of booking form fields */\nconst FIELD_LABELS: Record<string, string> = {\n    date: 'FORM.DATE',\n    duration: 'FORM.DURATION',\n    title: 'FORM.TITLE',\n    user: 'FORM.HOST',\n    notes: 'FORM.NOTES',\n    plate_number: 'BOOKINGS.PARKING_PLATE_NUMBER',\n    space_restrictions: 'BOOKINGS.PARKING_SPACE_RESTRICTIONS_TITLE',\n};\n\n/**\n * Mark the booking form as touched so that inline errors show, then show\n * a message that lists the labels of the invalid fields.\n * `resource_key` is the locale key for the label of the booked resource.\n */\nexport function notifyInvalidBookingFields(\n    form: BookingForm,\n    model: Signal<object>,\n    resource_key: string,\n) {\n    form().markAsTouched();\n    const labels: Record<string, string> = {};\n    const keys = {\n        ...FIELD_LABELS,\n        asset_id: resource_key,\n        resources: resource_key,\n    };\n    for (const field in keys) labels[field] = i18n(keys[field]);\n    const fields = getInvalidSignalFields(form, model, labels);\n    notifyError(\n        i18n('FORM.INVALID_FIELDS', {\n            field_list: [...new Set(fields)].join(', '),\n        }),\n    );\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;AAKA,IAAM,eAAuC;EACzC,MAAM;EACN,UAAU;EACV,OAAO;EACP,MAAM;EACN,OAAO;EACP,cAAc;EACd,oBAAoB;;AAQlB,SAAU,2BACZ,MACA,OACA,cAAoB;AAEpB,OAAI,EAAG,cAAa;AACpB,QAAM,SAAiC,CAAA;AACvC,QAAM,OAAO,iCACN,eADM;IAET,UAAU;IACV,WAAW;;AAEf,aAAW,SAAS;AAAM,WAAO,KAAK,IAAI,KAAK,KAAK,KAAK,CAAC;AAC1D,QAAM,SAAS,uBAAuB,MAAM,OAAO,MAAM;AACzD,cACI,KAAK,uBAAuB;IACxB,YAAY,CAAC,GAAG,IAAI,IAAI,MAAM,CAAC,EAAE,KAAK,IAAI;GAC7C,CAAC;AAEV;",
+  "names": [],
+  "debugId": "2d2ed6ac-266d-5f5b-9b59-fb581838200c"
+}
