@@ -262,11 +262,17 @@ export class ExploreBookingModalComponent implements OnInit {
         setTimeout(() => this._min_loading.set(false), 500);
     }
 
+    /**
+     * Save the booking. On failure, show the error and keep the modal open.
+     * The template calls this without a handler, so it must not reject.
+     */
     public async save() {
-        await this._event_form.postForm().catch((_) => {
-            notifyError(_);
-            throw _;
-        });
+        try {
+            await this._event_form.postForm();
+        } catch (e) {
+            notifyError(e);
+            return;
+        }
         if (this._settings.app_name.toLowerCase().includes('workplace')) {
             this._router.navigate(['/book', 'meeting', 'success']);
         } else {

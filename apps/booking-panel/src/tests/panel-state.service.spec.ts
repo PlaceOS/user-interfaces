@@ -201,14 +201,13 @@ describe('PanelStateService', () => {
             expect(close).toHaveBeenCalledOnce();
         });
 
-        it('shows an error, closes the modal and rejects when saving fails', async () => {
-            event_form.postForm.mockRejectedValue('Server error');
-            await expect(submitBooking(NOW, false, true)).rejects.toBe(
-                'Server error',
-            );
-            expect(messages()).toContain(
-                'Error creating meeting. Server error',
-            );
+        it('shows an error and closes the modal without rejecting when saving fails', async () => {
+            const reason = 'Room 1 is not available at the selected time';
+            event_form.postForm.mockRejectedValue(reason);
+            await expect(
+                submitBooking(NOW, false, true),
+            ).resolves.toBeUndefined();
+            expect(messages()).toContain(`Error creating meeting. ${reason}`);
             expect(event_form.clearForm).toHaveBeenCalledOnce();
             expect(close).toHaveBeenCalledOnce();
         });
