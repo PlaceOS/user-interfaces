@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-VRAUSTHC.js";
+} from "./chunk-BM2IOD5W.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-2XUSGSAO.js";
+} from "./chunk-ZJNP4GXT.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-F6WCTKVQ.js";
+} from "./chunk-2S3A4FTN.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-CJ3K3MNC.js";
+} from "./chunk-E2DQBC7C.js";
 import {
   TranslatePipe
-} from "./chunk-QJHVRA73.js";
+} from "./chunk-LDG4WGDI.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-CITNY4I5.js";
+} from "./chunk-3343O4FF.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-MZO4GIOQ.js";
+} from "./chunk-FNZJL46K.js";
 import "./chunk-ARRIYDBO.js";
 import {
   BasePortalOutlet,
@@ -15607,16 +15607,56 @@ function PaymentCheckoutModalComponent_Conditional_4_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind2(25, 19, "PAYMENTS.PAY_AMOUNT", \u0275\u0275pureFunction1(22, _c013, \u0275\u0275pipeBind2(24, 16, ctx_r2.data.quote.total, ctx_r2.data.quote.currency))), " ");
   }
 }
-function PaymentCheckoutModalComponent_Conditional_5_Conditional_2_Template(rf, ctx) {
+function PaymentCheckoutModalComponent_Conditional_5_Template(rf, ctx) {
+  if (rf & 1) {
+    const _r7 = \u0275\u0275getCurrentView();
+    \u0275\u0275elementStart(0, "main", 2)(1, "icon", 24);
+    \u0275\u0275text(2, "tab_close");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(3, "p", 25);
+    \u0275\u0275text(4);
+    \u0275\u0275pipe(5, "translate");
+    \u0275\u0275elementEnd();
+    \u0275\u0275elementStart(6, "button", 26);
+    \u0275\u0275listener("click", function PaymentCheckoutModalComponent_Conditional_5_Template_button_click_6_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.reopen());
+    });
+    \u0275\u0275text(7);
+    \u0275\u0275pipe(8, "translate");
+    \u0275\u0275elementStart(9, "icon", 27);
+    \u0275\u0275text(10, "open_in_new");
+    \u0275\u0275elementEnd()();
+    \u0275\u0275elementStart(11, "button", 28);
+    \u0275\u0275listener("click", function PaymentCheckoutModalComponent_Conditional_5_Template_button_click_11_listener() {
+      \u0275\u0275restoreView(_r7);
+      const ctx_r2 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r2.cancelPayment());
+    });
+    \u0275\u0275text(12);
+    \u0275\u0275pipe(13, "translate");
+    \u0275\u0275elementEnd()();
+  }
+  if (rf & 2) {
+    \u0275\u0275advance(4);
+    \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(5, 3, "PAYMENTS.WINDOW_CLOSED"));
+    \u0275\u0275advance(3);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(8, 5, "PAYMENTS.REOPEN_PAYMENT_PAGE"), " ");
+    \u0275\u0275advance(5);
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(13, 7, "PAYMENTS.CANCEL_PAYMENT"), " ");
+  }
+}
+function PaymentCheckoutModalComponent_Conditional_6_Conditional_2_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 25);
     \u0275\u0275text(1);
     \u0275\u0275pipe(2, "translate");
     \u0275\u0275elementEnd();
-    \u0275\u0275elementStart(3, "a", 27);
+    \u0275\u0275elementStart(3, "a", 31);
     \u0275\u0275text(4);
     \u0275\u0275pipe(5, "translate");
-    \u0275\u0275elementStart(6, "icon", 28);
+    \u0275\u0275elementStart(6, "icon", 27);
     \u0275\u0275text(7, "open_in_new");
     \u0275\u0275elementEnd()();
   }
@@ -15630,7 +15670,7 @@ function PaymentCheckoutModalComponent_Conditional_5_Conditional_2_Template(rf, 
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(5, 5, "PAYMENTS.OPEN_PAYMENT_PAGE"), " ");
   }
 }
-function PaymentCheckoutModalComponent_Conditional_5_Conditional_3_Template(rf, ctx) {
+function PaymentCheckoutModalComponent_Conditional_6_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275elementStart(0, "p", 25);
     \u0275\u0275text(1);
@@ -15642,15 +15682,15 @@ function PaymentCheckoutModalComponent_Conditional_5_Conditional_3_Template(rf, 
     \u0275\u0275textInterpolate(\u0275\u0275pipeBind1(2, 1, "PAYMENTS.PROCESSING"));
   }
 }
-function PaymentCheckoutModalComponent_Conditional_5_Template(rf, ctx) {
+function PaymentCheckoutModalComponent_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
-    const _r7 = \u0275\u0275getCurrentView();
+    const _r8 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "main", 2);
-    \u0275\u0275element(1, "mat-spinner", 24);
-    \u0275\u0275conditionalCreate(2, PaymentCheckoutModalComponent_Conditional_5_Conditional_2_Template, 8, 7)(3, PaymentCheckoutModalComponent_Conditional_5_Conditional_3_Template, 3, 3, "p", 25);
-    \u0275\u0275elementStart(4, "button", 26);
-    \u0275\u0275listener("click", function PaymentCheckoutModalComponent_Conditional_5_Template_button_click_4_listener() {
-      \u0275\u0275restoreView(_r7);
+    \u0275\u0275element(1, "mat-spinner", 29);
+    \u0275\u0275conditionalCreate(2, PaymentCheckoutModalComponent_Conditional_6_Conditional_2_Template, 8, 7)(3, PaymentCheckoutModalComponent_Conditional_6_Conditional_3_Template, 3, 3, "p", 25);
+    \u0275\u0275elementStart(4, "button", 30);
+    \u0275\u0275listener("click", function PaymentCheckoutModalComponent_Conditional_6_Template_button_click_4_listener() {
+      \u0275\u0275restoreView(_r8);
       const ctx_r2 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r2.stop());
     });
@@ -15671,10 +15711,17 @@ var CheckoutCancelledError = class extends Error {
     super("Payment cancelled");
   }
 };
+var PaymentWindowClosedError = class extends Error {
+  constructor(payment_id) {
+    super("Payment window closed");
+    this.payment_id = payment_id;
+  }
+};
 var NEW_METHOD = "";
 var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
   constructor() {
     this._ref = inject(MatDialogRef);
+    this._open_payment_id = "";
     this.data = inject(MAT_DIALOG_DATA);
     this.new_method = NEW_METHOD;
     this.unit_key = unitKey;
@@ -15692,9 +15739,9 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
         []
       )
     );
-    this.processing = signal(
-      false,
-      ...ngDevMode ? [{ debugName: "processing" }] : (
+    this.view = signal(
+      "review",
+      ...ngDevMode ? [{ debugName: "view" }] : (
         /* istanbul ignore next */
         []
       )
@@ -15716,27 +15763,27 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
   }
   async pay() {
     const method_id = this.method_id() || void 0;
-    const window_ref = method_id ? null : window.open("", "placeos-payment", "popup,width=520,height=760");
-    this._abort = new AbortController();
-    this.error.set("");
-    this.hosted_url.set("");
-    this.processing.set(true);
-    try {
-      const payment = await this.data.pay({
-        method_id,
-        save_method: !method_id && this.save_method(),
-        window: window_ref,
-        signal: this._abort.signal,
-        on_url: (url) => this.hosted_url.set(url)
-      });
-      this._ref.close(payment);
-    } catch (e) {
-      window_ref?.close();
-      this.processing.set(false);
-      if (!(e instanceof CheckoutCancelledError)) {
-        this.error.set(errorMessage(e) || i18n("PAYMENTS.PAYMENT_FAILED"));
-      }
-    }
+    const window_ref = method_id ? null : openPaymentWindow();
+    await this._run(window_ref, (options) => this.data.pay(__spreadProps(__spreadValues({}, options), {
+      method_id,
+      save_method: !method_id && this.save_method()
+    })));
+  }
+  /** Open the hosted page again with a new link from the driver */
+  async reopen() {
+    const id = this._open_payment_id;
+    if (!id)
+      return;
+    const window_ref = openPaymentWindow();
+    await this._run(window_ref, (options) => this.data.resume(id, options));
+  }
+  /** Cancel the open payment and go back to the review */
+  async cancelPayment() {
+    const id = this._open_payment_id;
+    this._open_payment_id = "";
+    this.view.set("review");
+    if (id)
+      await this.data.cancel(id).catch(() => null);
   }
   /** Stop waiting for the hosted page. The service cancels the payment */
   stop() {
@@ -15747,6 +15794,37 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
   }
   ngOnDestroy() {
     this._abort?.abort();
+    if (this._open_payment_id) {
+      this.data.cancel(this._open_payment_id).catch(() => null);
+    }
+  }
+  /** Wait for a payment, then close with it or show what went wrong */
+  async _run(window_ref, action) {
+    this._abort = new AbortController();
+    this.error.set("");
+    this.hosted_url.set("");
+    this.view.set("processing");
+    try {
+      const payment = await action({
+        window: window_ref,
+        signal: this._abort.signal,
+        on_url: (url) => this.hosted_url.set(url)
+      });
+      this._open_payment_id = "";
+      this._ref.close(payment);
+    } catch (e) {
+      window_ref?.close();
+      if (e instanceof PaymentWindowClosedError) {
+        this._open_payment_id = e.payment_id;
+        this.view.set("closed");
+        return;
+      }
+      this._open_payment_id = "";
+      this.view.set("review");
+      if (!(e instanceof CheckoutCancelledError)) {
+        this.error.set(errorMessage(e) || i18n("PAYMENTS.PAYMENT_FAILED"));
+      }
+    }
   }
   static {
     this.\u0275fac = function PaymentCheckoutModalComponent_Factory(__ngFactoryType__) {
@@ -15754,19 +15832,19 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PaymentCheckoutModalComponent, selectors: [["payment-checkout-modal"]], decls: 6, vars: 4, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "min-w-[20rem]", "items-center", "rounded-sm", "p-2"], ["mat-dialog-title", "", 1, "px-2", "text-xl", "font-medium"], [1, "flex", "w-md", "max-w-[85vw]", "flex-col", "items-center", "space-y-4", "p-8", "text-center"], [1, "w-md", "max-w-[85vw]", "space-y-4", "p-4"], [1, "text-sm", "opacity-70"], [1, "divide-base-200", "divide-y", "text-sm"], [1, "flex", "items-center", "gap-2", "py-2"], [1, "border-base-200", "space-y-1", "border-t", "pt-2", "text-sm"], [1, "flex", "justify-between", "text-base", "font-medium"], ["total", ""], [3, "ngModel"], ["announce", "", 1, "bg-error/10", "text-error", "rounded-sm", "p-2", "text-sm"], [1, "bg-base-200", "sticky", "bottom-0", "m-2", "flex", "items-center", "gap-2", "rounded-sm", "p-2"], ["btn", "", "matRipple", "", 1, "inverse", "bg-base-100", "flex-1", 3, "click"], ["btn", "", "matRipple", "", "name", "pay", 1, "flex-1", 3, "click"], [1, "min-w-0", "flex-1"], [1, "truncate", "font-medium"], [1, "text-xs", "opacity-70"], [1, "flex", "justify-between"], [1, "mb-1", "text-sm", "font-medium"], [1, "flex", "flex-col", 3, "ngModelChange", "ngModel"], [3, "value"], [1, "capitalize"], [3, "ngModelChange", "ngModel"], ["diameter", "32", "aria-hidden", "true"], ["announce", ""], ["btn", "", "matRipple", "", 1, "clear", 3, "click"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener", 1, "inverse", 3, "href"], [1, "ml-2", "text-xl"]], template: function PaymentCheckoutModalComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _PaymentCheckoutModalComponent, selectors: [["payment-checkout-modal"]], decls: 7, vars: 4, consts: [[1, "bg-base-200", "sticky", "top-0", "z-10", "m-2", "flex", "h-14", "w-[calc(100%-1rem)]", "min-w-[20rem]", "items-center", "rounded-sm", "p-2"], ["mat-dialog-title", "", 1, "px-2", "text-xl", "font-medium"], [1, "flex", "w-md", "max-w-[85vw]", "flex-col", "items-center", "space-y-4", "p-8", "text-center"], [1, "w-md", "max-w-[85vw]", "space-y-4", "p-4"], [1, "text-sm", "opacity-70"], [1, "divide-base-200", "divide-y", "text-sm"], [1, "flex", "items-center", "gap-2", "py-2"], [1, "border-base-200", "space-y-1", "border-t", "pt-2", "text-sm"], [1, "flex", "justify-between", "text-base", "font-medium"], ["total", ""], [3, "ngModel"], ["announce", "", 1, "bg-error/10", "text-error", "rounded-sm", "p-2", "text-sm"], [1, "bg-base-200", "sticky", "bottom-0", "m-2", "flex", "items-center", "gap-2", "rounded-sm", "p-2"], ["btn", "", "matRipple", "", 1, "inverse", "bg-base-100", "flex-1", 3, "click"], ["btn", "", "matRipple", "", "name", "pay", 1, "flex-1", 3, "click"], [1, "min-w-0", "flex-1"], [1, "truncate", "font-medium"], [1, "text-xs", "opacity-70"], [1, "flex", "justify-between"], [1, "mb-1", "text-sm", "font-medium"], [1, "flex", "flex-col", 3, "ngModelChange", "ngModel"], [3, "value"], [1, "capitalize"], [3, "ngModelChange", "ngModel"], [1, "text-5xl", "opacity-60"], ["announce", ""], ["btn", "", "matRipple", "", "name", "reopen", 3, "click"], [1, "ml-2", "text-xl"], ["btn", "", "matRipple", "", "name", "cancel-payment", 1, "clear", 3, "click"], ["diameter", "32", "aria-hidden", "true"], ["btn", "", "matRipple", "", 1, "clear", 3, "click"], ["btn", "", "matRipple", "", "target", "_blank", "rel", "noopener", 1, "inverse", 3, "href"]], template: function PaymentCheckoutModalComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "header", 0)(1, "h2", 1);
         \u0275\u0275text(2);
         \u0275\u0275pipe(3, "translate");
         \u0275\u0275elementEnd()();
-        \u0275\u0275conditionalCreate(4, PaymentCheckoutModalComponent_Conditional_4_Template, 26, 24)(5, PaymentCheckoutModalComponent_Conditional_5_Template, 7, 4, "main", 2);
+        \u0275\u0275conditionalCreate(4, PaymentCheckoutModalComponent_Conditional_4_Template, 26, 24)(5, PaymentCheckoutModalComponent_Conditional_5_Template, 14, 9, "main", 2)(6, PaymentCheckoutModalComponent_Conditional_6_Template, 7, 4, "main", 2);
       }
       if (rf & 2) {
         \u0275\u0275advance(2);
         \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(3, 2, "PAYMENTS.CHECKOUT_TITLE"), " ");
         \u0275\u0275advance(2);
-        \u0275\u0275conditional(!ctx.processing() ? 4 : 5);
+        \u0275\u0275conditional(ctx.view() === "review" ? 4 : ctx.view() === "closed" ? 5 : 6);
       }
     }, dependencies: [
       AnnounceDirective,
@@ -15801,7 +15879,7 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
                 {{ 'PAYMENTS.CHECKOUT_TITLE' | translate }}
             </h2>
         </header>
-        @if (!processing()) {
+        @if (view() === 'review') {
             <main class="w-md max-w-[85vw] space-y-4 p-4">
                 <p class="text-sm opacity-70">{{ data.description }}</p>
                 <ul class="divide-base-200 divide-y text-sm">
@@ -15918,6 +15996,26 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
                     }}
                 </button>
             </footer>
+        } @else if (view() === 'closed') {
+            <main
+                class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-8 text-center"
+            >
+                <icon class="text-5xl opacity-60">tab_close</icon>
+                <p announce>{{ 'PAYMENTS.WINDOW_CLOSED' | translate }}</p>
+                <button btn matRipple name="reopen" (click)="reopen()">
+                    {{ 'PAYMENTS.REOPEN_PAYMENT_PAGE' | translate }}
+                    <icon class="ml-2 text-xl">open_in_new</icon>
+                </button>
+                <button
+                    btn
+                    matRipple
+                    name="cancel-payment"
+                    class="clear"
+                    (click)="cancelPayment()"
+                >
+                    {{ 'PAYMENTS.CANCEL_PAYMENT' | translate }}
+                </button>
+            </main>
         } @else {
             <main
                 class="flex w-md max-w-[85vw] flex-col items-center space-y-4 p-8 text-center"
@@ -15961,8 +16059,11 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
   }], null, null);
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PaymentCheckoutModalComponent, { className: "PaymentCheckoutModalComponent", filePath: "libs/payments/src/lib/payment-checkout-modal.component.ts", lineNumber: 224 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(PaymentCheckoutModalComponent, { className: "PaymentCheckoutModalComponent", filePath: "libs/payments/src/lib/payment-checkout-modal.component.ts", lineNumber: 258 });
 })();
+function openPaymentWindow() {
+  return window.open("", "placeos-payment", "popup,width=520,height=760");
+}
 
 // libs/payments/src/lib/payment.types.ts
 var FINAL_PAYMENT_STATES = [
@@ -16063,7 +16164,9 @@ var PaymentsService = class _PaymentsService {
       description: details.description,
       methods,
       can_save_method: this.hasCapability("saved_methods"),
-      pay: (options) => this._pay(details, quote, options)
+      pay: (options) => this._pay(details, quote, options),
+      resume: (id, options) => this._resume(id, options),
+      cancel: (id) => this.call("cancel_payment", id)
     };
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
@@ -16097,12 +16200,33 @@ var PaymentsService = class _PaymentsService {
    * the browser does not block it. `null` when the browser blocks it.
    */
   openWindow() {
-    return window.open("", "placeos-payment", "popup,width=520,height=760");
+    return openPaymentWindow();
+  }
+  /**
+   * Complete an open payment of the user on a new link to the hosted page,
+   * then take it for its reference. Only use it for a payment with a
+   * `reference`, so that the user does not pay for nothing. Resolves with
+   * the latest payment, also when the user closes the page first.
+   */
+  async completePayment(payment, window_ref = this.openWindow()) {
+    const reference = payment.reference;
+    if (!reference)
+      throw i18n("PAYMENTS.NO_REFERENCE");
+    const result = await this._resume(payment.id, {
+      window: window_ref
+    }).catch((e) => {
+      if (e instanceof PaymentWindowClosedError) {
+        return this.call("get_payment", payment.id);
+      }
+      throw e;
+    });
+    return result.status === "authorized" ? this.capture(result, reference) : result;
   }
   /**
    * Wait for a payment to reach a final or authorized state. Throws
-   * `CheckoutCancelledError` when the user closes the hosted page or
-   * cancels before the payment completes.
+   * `PaymentWindowClosedError` when the user closes the hosted page first,
+   * and leaves the payment open. Throws `CheckoutCancelledError` and
+   * cancels the payment when the signal aborts or the wait times out.
    */
   async waitForPayment(id, { window: window_ref, signal: signal2 } = {}) {
     let closed_checks = 0;
@@ -16112,8 +16236,9 @@ var PaymentsService = class _PaymentsService {
       const payment = await this.call("get_payment", id);
       if (isComplete(payment))
         return payment;
-      if (window_ref?.closed && ++closed_checks > 2)
-        break;
+      if (window_ref?.closed && ++closed_checks > 2) {
+        throw new PaymentWindowClosedError(id);
+      }
       await delay2(POLL_INTERVAL_MS, signal2);
     }
     await this.call("cancel_payment", id).catch(() => null);
@@ -16132,13 +16257,25 @@ var PaymentsService = class _PaymentsService {
       options.window?.close();
       throw e;
     });
-    if (session.url) {
+    return this._waitOnHostedPage(session.payment_id, session.url, options);
+  }
+  /** Get a new link to the hosted page of an open payment and wait for it */
+  async _resume(id, options) {
+    const session = await this.call("get_payment_link", id, completeUrl("success")).catch((e) => {
+      options.window?.close();
+      throw e;
+    });
+    return this._waitOnHostedPage(id, session.url, options);
+  }
+  /** Show the hosted page when there is one, then wait for the payment */
+  async _waitOnHostedPage(id, url, options) {
+    if (url) {
       if (options.window)
-        options.window.location.href = session.url;
-      options.on_url?.(session.url);
+        options.window.location.href = url;
+      options.on_url?.(url);
     } else
       options.window?.close();
-    const payment = await this.waitForPayment(session.payment_id, {
+    const payment = await this.waitForPayment(id, {
       window: options.window,
       signal: options.signal
     });
@@ -27404,5 +27541,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=66fd26e2-d96c-5043-ba78-ce674e0de085
-//# sourceMappingURL=calendar-pane.component-LWB6ZU2E.js.map
+//# debugId=e827bcb5-8d45-5e73-8e81-7c7f63af565c
+//# sourceMappingURL=calendar-pane.component-Z3K6RSAF.js.map

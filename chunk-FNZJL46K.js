@@ -6883,15 +6883,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "0f91b1e",
-  "hash": "0f91b1e",
+  "raw": "a6df197",
+  "hash": "a6df197",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "0f91b1e",
+  "suffix": "a6df197",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795011078571
+  "time": 1795011749761
 };
 
 // libs/common/src/lib/placeos.ts
@@ -9407,5 +9407,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=c92d35f2-04f4-5172-9151-28a1c2257d47
-//# sourceMappingURL=chunk-MZO4GIOQ.js.map
+//# debugId=e3992579-4ebe-53cb-90c6-dcbccc833960
+//# sourceMappingURL=chunk-FNZJL46K.js.map
