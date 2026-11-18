@@ -237,7 +237,7 @@ export class LocaleService {
                 this.zone_id,
                 `locale_${locale}`,
             );
-            return metadata.details || {};
+            return metadata.details;
         } catch (error) {
             console.error(
                 `Failed to load locale overrides for "${locale}".`,
