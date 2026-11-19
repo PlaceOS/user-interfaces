@@ -3415,6 +3415,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[calc\(100vh-12rem\)\] {
   height: calc(100vh - 12rem);
 }
+#placeos .h-fit {
+  height: fit-content;
+}
 #placeos .h-full {
   height: 100%;
 }
@@ -3453,6 +3456,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-h-\[1\.25em\] {
   max-height: 1.25em;
+}
+#placeos .max-h-\[32rem\] {
+  max-height: 32rem;
 }
 #placeos .max-h-\[50vh\] {
   max-height: 50vh;
@@ -4344,6 +4350,9 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-space-x-reverse: 0;
   margin-inline-start: calc(0.5em * var(--tw-space-x-reverse));
   margin-inline-end: calc(0.5em * calc(1 - var(--tw-space-x-reverse)));
+}
+#placeos .gap-y-1 {
+  row-gap: calc(var(--spacing) * 1);
 }
 #placeos .gap-y-2 {
   row-gap: calc(var(--spacing) * 2);
@@ -6274,8 +6283,18 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
+  #placeos .lg\:w-80 {
+    width: calc(var(--spacing) * 80);
+  }
+}
+@media (width >= 64rem) {
   #placeos .lg\:grid-cols-4 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+@media (width >= 64rem) {
+  #placeos .lg\:flex-row {
+    flex-direction: row;
   }
 }
 @media (width >= 80rem) {
