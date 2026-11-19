@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 20.0.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 768 683.9" style="enable-background:new 0 0 768 683.9;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:none;stroke:#5D5E5E;stroke-width:29;stroke-miterlimit:10;}
+	.st1{fill:#5D5E5E;stroke:#5E5F5F;stroke-width:4;stroke-miterlimit:10;}
+</style>
+<title>kiosk Map</title>
+<g id="wayfinding-rm-20">
+	<g id="screen">
+		<path class="st0" d="M137.4,305.8L137.4,305.8v-74.7h474.9v77.7h-6L137.4,305.8L137.4,305.8z"/>
+		<rect x="218" y="183.4" class="st0" width="298.7" height="39.8"/>
+		<rect x="137.4" y="231.1" class="st0" width="469" height="77.7"/>
+	</g>
+	<g id="location">
+		<path class="st1" d="M373.3,443.1c-26.9,0-50.8,20.9-50.8,50.8c0,26.9,20.9,50.8,50.8,50.8s50.8-20.9,50.8-50.8
+			S400.2,443.1,373.3,443.1z M373.3,535.7c-23.9,0-41.8-17.9-41.8-41.8s17.9-41.8,41.8-41.8s41.8,17.9,41.8,41.8
+			S397.2,535.7,373.3,535.7z"/>
+		<path class="st1" d="M373.3,592.5c53.8,0,98.6-44.8,98.6-98.6c0-56.8-50.8-116.5-86.6-158.3c0,0-6-6-12-6l0,0c-6,0-12,6-12,6
+			c-35.8,41.8-86.6,101.6-86.6,158.3C274.8,547.7,319.5,592.5,373.3,592.5z M373.3,344.5L373.3,344.5
+			c32.9,35.8,83.7,92.6,83.7,146.4c0,44.8-35.8,83.6-83.6,83.6c-44.8,0-83.6-35.8-83.6-83.6C289.7,437.1,343.5,380.4,373.3,344.5z"
+			/>
+	</g>
+</g>
+</svg>
