@@ -27,7 +27,7 @@ import {
   queryDeskAssetsInZone,
   searchStaff,
   showStaff
-} from "./chunk-VSUSNRDN.js";
+} from "./chunk-H3BU4SQT.js";
 import {
   MatMenu,
   MatMenuContent,
@@ -40,8 +40,8 @@ import {
   MatCheckboxModule,
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-DU6HKNUD.js";
-import "./chunk-IYONA3IE.js";
+} from "./chunk-IQMEITKR.js";
+import "./chunk-GMODDPNV.js";
 import {
   MatError,
   MatFormFieldModule
@@ -49,18 +49,18 @@ import {
 import "./chunk-L6EPZ6WJ.js";
 import {
   CustomTooltipComponent
-} from "./chunk-OYDV6A2L.js";
+} from "./chunk-JBACJD6B.js";
 import {
   MatOption,
   _MatInternalFormField
 } from "./chunk-DGG56DZA.js";
 import {
   SpacePipe
-} from "./chunk-W4IJIK5N.js";
-import "./chunk-I7UEH2SM.js";
+} from "./chunk-FZYJFOMV.js";
+import "./chunk-MNO2N5TL.js";
 import {
   TranslatePipe
-} from "./chunk-DS254XOG.js";
+} from "./chunk-ZAVOAP3X.js";
 import {
   Booking,
   DefaultValueAccessor,
@@ -86,7 +86,7 @@ import {
   provideValueAccessor,
   rulesForResource,
   toQueryString
-} from "./chunk-U5JZVI6H.js";
+} from "./chunk-MV2QGRCK.js";
 import {
   AsyncHandler,
   CalendarEvent,
@@ -145,7 +145,7 @@ import {
   toDate,
   toZonedTime,
   user_group_names
-} from "./chunk-GFOSOQH2.js";
+} from "./chunk-QETTROIX.js";
 import "./chunk-NSE4C5J5.js";
 import "./chunk-NHAWYO2J.js";
 import {
@@ -1301,7 +1301,7 @@ function TimeFieldComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275classProp("opacity-30", ctx_r2.disabled() || ctx_r2.no_options());
     \u0275\u0275advance();
     \u0275\u0275property("value", ctx_r2.time())("disabled", ctx_r2.disabled() || ctx_r2.no_options());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 10, "FORM.TIME"))("aria-invalid", !!ctx_r2.time_entry_error());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 10, "COMMON.TIME"))("aria-invalid", !!ctx_r2.time_entry_error());
     \u0275\u0275advance(3);
     \u0275\u0275property("disabled", ctx_r2.disabled() || ctx_r2.no_options())("matMenuTriggerFor", menu_r4);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 12, "FORM.TIME_CHOOSE"));
@@ -1884,7 +1884,7 @@ var TimeFieldComponent = class _TimeFieldComponent extends AsyncHandler {
                     #time_input
                     type="time"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
-                    [attr.aria-label]="'FORM.TIME' | translate"
+                    [attr.aria-label]="'COMMON.TIME' | translate"
                     [value]="time()"
                     [disabled]="disabled() || no_options()"
                     [attr.aria-invalid]="!!time_entry_error()"
@@ -3591,13 +3591,15 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
     const asset_id = desk.id || desk.map_id;
     const resource2 = __spreadProps(__spreadValues({}, desk), { id: asset_id });
     if (this._statuses[d_id]?.() !== "free") {
-      return notifyError(i18n("EXPLORE.DESK_AVAILABLE_ERROR", {
+      return notifyError(i18n("EXPLORE.UNAVAILABLE_ERROR", {
         name: desk.name || "Desk"
       }));
     }
     const user_groups = currentUser()?.groups || [];
     if (desk.groups?.length && !desk.groups.find((_) => user_groups.includes(_))) {
-      return notifyError(i18n("EXPLORE.DESK_GROUP_ERROR", { name: desk.name || "Desk" }));
+      return notifyError(i18n("EXPLORE.NOT_ALLOWED_ERROR", {
+        name: desk.name || "Desk"
+      }));
     }
     this._bookings.newForm("desk");
     this._bookings.setOptions({ type: "desk" });
@@ -3647,7 +3649,7 @@ var ExploreDesksService = class _ExploreDesksService extends AsyncHandler {
       }
     }, restrictions)?.hidden;
     if (is_restricted) {
-      return notifyError(i18n("EXPLORE.DESK_RESTRICTION_ERROR", {
+      return notifyError(i18n("EXPLORE.NOT_ALLOWED_ERROR", {
         name: desk.name || "Desk"
       }));
     }
@@ -6746,5 +6748,5 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
 export {
   ExploreComponent
 };
-//# debugId=289a2963-836e-52e7-bd9f-690b1b744f90
-//# sourceMappingURL=explore.route-BQBWV5VE.js.map
+//# debugId=e1dafee3-fa89-55c3-9d6e-f83a818d8faa
+//# sourceMappingURL=explore.route-HVVNE6KY.js.map
