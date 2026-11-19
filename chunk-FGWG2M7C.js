@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-ER6JXNJB.js";
+} from "./chunk-JTKRVAEN.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-JPMLVUYG.js";
+} from "./chunk-ALLFEIMD.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -32,7 +32,7 @@ import {
 } from "./chunk-KBZBMALB.js";
 import {
   CustomTooltipComponent
-} from "./chunk-DQVPHO2L.js";
+} from "./chunk-UXIKMAHF.js";
 import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
@@ -48,7 +48,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-RMX5Q2LR.js";
+} from "./chunk-UIATK6V3.js";
 import {
   FormField,
   disabled,
@@ -56,10 +56,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-HBH5BF53.js";
+} from "./chunk-ZVIWM4TO.js";
 import {
   TranslatePipe
-} from "./chunk-7DK7OXBM.js";
+} from "./chunk-XL5VZJB6.js";
 import {
   AbstractControl,
   Booking,
@@ -93,7 +93,7 @@ import {
   toBookingRecurrence,
   toQueryString,
   ɵNgNoValidate
-} from "./chunk-2M6SIP4C.js";
+} from "./chunk-YK7TPW64.js";
 import {
   $,
   AssetRequest,
@@ -192,7 +192,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-CYS7QP3F.js";
+} from "./chunk-BBCRJBDN.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -13454,7 +13454,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
-            throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
+            throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
           await requests();
         } catch (e) {
           await this._removeBookingAfterError(!event.id, created_event, true, e);
@@ -13577,7 +13577,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         calendar: this._model().host || currentUser()?.email,
         system_id: event.resources[0].id
       } : {}));
-      throw e?.status === 409 ? i18n("CALENDAR_EVENT.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
+      throw e?.status === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
     } else if (assets) {
       throw i18n("CALENDAR_EVENT.ASSETS_PARTIAL_ERROR", {
         error: errorMessage(e) || e
@@ -17895,13 +17895,13 @@ var ExploreParkingService = class _ExploreParkingService extends AsyncHandler {
       return i18n("EXPLORE.PARKING_EXISTING_ERROR");
     }
     if (status !== "free") {
-      return i18n("EXPLORE.PARKING_AVAILABLE_ERROR", {
+      return i18n("EXPLORE.UNAVAILABLE_ERROR", {
         name: space.name || "Parking Space"
       });
     }
     const user_groups = currentUser()?.groups || [];
     if (space.place_groups?.length && !space.place_groups.find((_) => user_groups.includes(_))) {
-      return i18n("EXPLORE.PARKING_GROUP_ERROR", { name: space.name });
+      return i18n("EXPLORE.NOT_ALLOWED_ERROR", { name: space.name });
     }
     return null;
   }
@@ -19308,5 +19308,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=5304e38e-cbe5-5371-9088-5f1f4a592d58
-//# sourceMappingURL=chunk-W5DCIEZK.js.map
+//# debugId=4368e2d4-2f2b-558b-82d4-0e7b172ea37a
+//# sourceMappingURL=chunk-FGWG2M7C.js.map
