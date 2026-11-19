@@ -3,25 +3,25 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-USTCXLQL.js";
+} from "./chunk-V5NMYFIA.js";
 import {
   generateMockSpace
-} from "./chunk-T5GNOLKX.js";
+} from "./chunk-VQ2IEKX5.js";
 import {
   MatDialog,
   setHours
-} from "./chunk-UIWJCZFU.js";
+} from "./chunk-E6Z6NVP3.js";
 import {
   AnnounceDirective,
   subDays
-} from "./chunk-EZF2WWIV.js";
+} from "./chunk-UT263Z7Y.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-A35P7UHX.js";
+} from "./chunk-CI76DDRW.js";
 import {
   TranslatePipe
-} from "./chunk-KAGPQZXX.js";
-import "./chunk-565FUVDX.js";
+} from "./chunk-S5OPNCV3.js";
+import "./chunk-XDVEHBMQ.js";
 import {
   IconComponent
 } from "./chunk-SUZPYCVY.js";
@@ -53,7 +53,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-UF4BXY26.js";
+} from "./chunk-UB6LIHMR.js";
 import {
   AsyncHandler,
   Bp,
@@ -89,7 +89,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-SWRNNVZG.js";
+} from "./chunk-MZQPZMUY.js";
 import "./chunk-PPXTKGZE.js";
 import {
   BidiModule,
@@ -786,7 +786,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-XGLP4F3B.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-BZZATWUC.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -914,7 +914,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-XGLP4F3B.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-BZZATWUC.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8119,6 +8119,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     const logs = deviceState(this, device_id).logs;
@@ -10477,11 +10483,11 @@ function returnToWelcomeWhenIdle() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-ASUSN7R4.js").then((m) => m.ChatComponent)
+  import("./chat.component-7KNCAPPV.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-4ZHVXM4Y.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-NCVWYQZ7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -10589,9 +10595,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-ASUSN7R4.js").then((m) => m.ChatComponent),
+    import("./chat.component-7KNCAPPV.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-4ZHVXM4Y.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-NCVWYQZ7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10653,33 +10659,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-D2V5MUZO.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-E5MYEPQN.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-YWO5LX4L.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-ZSEJCGJE.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-D5MR6CCZ.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-MS2QTJTL.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-HAM57THT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-Z6MLDHVB.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-G3TJGPR5.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-QOM5YE2F.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-IF4C6SQS.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-JRGFA5VH.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -10714,5 +10720,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=66b1fa94-96c4-5226-850a-123b0759ae99
+//# debugId=5d86e64c-db0f-5d09-bf5b-e0e8cdb6d325
 //# sourceMappingURL=main.js.map
