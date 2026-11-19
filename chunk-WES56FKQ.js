@@ -6420,15 +6420,15 @@ var HotkeysService = _HotkeysService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2480874",
-  "hash": "2480874",
+  "raw": "2b981c1",
+  "hash": "2b981c1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2480874",
+  "suffix": "2b981c1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795044779333
+  "time": 1795048044489
 };
 
 // libs/common/src/lib/settings.ts
@@ -6567,7 +6567,7 @@ var StaffUser = class extends User {
       case "ooo":
         return i18n("COMMON.WORK_HOURS_OUT");
       case "aol":
-        return i18n("COMMON.WORK_HOURS_LEAVE");
+        return i18n("COMMON.AOL");
       case "sick":
         return i18n("COMMON.WORK_HOURS_SICK");
       default:
@@ -8656,5 +8656,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=bfbe2932-f527-5da9-b97d-208d3e7ef201
-//# sourceMappingURL=chunk-SEDU63MT.js.map
+//# debugId=3bf00473-7489-5bc0-b3e3-e3af8b459bb4
+//# sourceMappingURL=chunk-WES56FKQ.js.map

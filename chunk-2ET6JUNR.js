@@ -35,10 +35,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-JEUZUYJM.js";
+} from "./chunk-2QUYEWZZ.js";
 import {
   AnnounceDirective
-} from "./chunk-2JDXBM43.js";
+} from "./chunk-OHE2C2XT.js";
 import {
   FormField,
   disabled,
@@ -49,12 +49,12 @@ import {
 } from "./chunk-KUCFMP5P.js";
 import {
   TranslatePipe
-} from "./chunk-E3HCPXJA.js";
+} from "./chunk-CSXX7OYB.js";
 import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-LVTFM3ZU.js";
+} from "./chunk-BAMKPVCI.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -153,7 +153,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-SEDU63MT.js";
+} from "./chunk-WES56FKQ.js";
 import {
   IconComponent,
   SafePipe
@@ -7494,7 +7494,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
-            throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
+            throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
           await requests();
         } catch (e) {
           await this._removeBookingAfterError(!event.id, created_event, true, e);
@@ -7619,7 +7619,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         calendar: this._model().host || ((_a = currentUser()) == null ? void 0 : _a.email),
         system_id: event.resources[0].id
       } : {}));
-      throw (e == null ? void 0 : e.status) === 409 ? i18n("CALENDAR_EVENT.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
+      throw (e == null ? void 0 : e.status) === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
     } else if (assets) {
       throw i18n("CALENDAR_EVENT.ASSETS_PARTIAL_ERROR", {
         error: errorMessage(e) || e
@@ -9347,7 +9347,7 @@ function TimeFieldComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275classProp("opacity-30", ctx_r2.disabled() || ctx_r2.no_options());
     \u0275\u0275advance();
     \u0275\u0275property("value", ctx_r2.time())("disabled", ctx_r2.disabled() || ctx_r2.no_options());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 10, "FORM.TIME"))("aria-invalid", !!ctx_r2.time_entry_error());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 10, "COMMON.TIME"))("aria-invalid", !!ctx_r2.time_entry_error());
     \u0275\u0275advance(3);
     \u0275\u0275property("disabled", ctx_r2.disabled() || ctx_r2.no_options())("matMenuTriggerFor", menu_r4);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 12, "FORM.TIME_CHOOSE"));
@@ -9930,7 +9930,7 @@ var TimeFieldComponent = _TimeFieldComponent;
                     #time_input
                     type="time"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
-                    [attr.aria-label]="'FORM.TIME' | translate"
+                    [attr.aria-label]="'COMMON.TIME' | translate"
                     [value]="time()"
                     [disabled]="disabled() || no_options()"
                     [attr.aria-invalid]="!!time_entry_error()"
@@ -11347,5 +11347,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=81b1f8e2-2817-50d4-aaae-1f6463d468cf
-//# sourceMappingURL=chunk-5EOFUAJQ.js.map
+//# debugId=b7d549f4-b703-5f82-a418-b90c5a6b764d
+//# sourceMappingURL=chunk-2ET6JUNR.js.map
