@@ -53,7 +53,7 @@ import {
   wi,
   withTimeout,
   ys
-} from "./chunk-Z2GIT5AO.js";
+} from "./chunk-MVVJEH4R.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -1837,6 +1837,27 @@ var CONSOLE_LEVEL = {
 function remoteDebugDeviceBinding(device_id) {
   return `device:${device_id}`;
 }
+function remoteDebugLogsBinding(device_id) {
+  return `logs:${device_id}`;
+}
+function remoteDebugResultsBinding(device_id) {
+  return `results:${device_id}`;
+}
+async function readRemoteDebugModule(org_id) {
+  if (!org_id)
+    return void 0;
+  const bindings = await _c(org_id, "bindings").then((_) => _?.details ?? {}).catch(() => null);
+  if (!bindings)
+    return void 0;
+  const binding = bindings[REMOTE_DEBUG_BINDING];
+  const { id, module } = typeof binding === "string" ? { id: binding } : binding ?? {};
+  if (typeof id !== "string" || !id)
+    return null;
+  return Jp(id, typeof module === "string" && module ? module : REMOTE_DEBUG_MODULE);
+}
+function remoteDebugOrgId(org) {
+  return org.organisation?.id || `${Mt()?.config?.["org_zone"] ?? ""}`;
+}
 function isRemoteLogRequest(value) {
   if (!value || typeof value !== "object")
     return false;
@@ -1925,16 +1946,14 @@ var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
    */
   async _loadBinding() {
     this.clearTimeout("binding");
-    const org_id = this._org.organisation?.id || `${Mt()?.config?.["org_zone"] ?? ""}`;
-    const bindings = org_id ? await _c(org_id, "bindings").then((_) => _?.details ?? {}).catch(() => null) : null;
-    if (!bindings) {
+    const org_id = remoteDebugOrgId(this._org);
+    const mod = await readRemoteDebugModule(org_id);
+    if (mod === void 0) {
       log(LOG_TAG, `Failed to read the bindings of "${org_id}"`);
       this.timeout("binding", () => this._loadBinding(), BINDING_RETRY_MS);
       return;
     }
-    const binding = bindings[REMOTE_DEBUG_BINDING];
-    const { id, module } = typeof binding === "string" ? { id: binding } : binding ?? {};
-    this._connect(typeof id === "string" && id ? Jp(id, typeof module === "string" && module ? module : REMOTE_DEBUG_MODULE) : null);
+    this._connect(mod);
   }
   /** Listen to the driver of the binding. `null` stops remote debugging */
   _connect(mod) {
@@ -3909,6 +3928,8 @@ export {
   REMOTE_DEBUG_MODULE,
   MAX_REMOTE_DEBUG_COMMANDS,
   remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   isRemoteLogRequest,
   isRemoteDebugCommand,
   getLoadingMessage,
@@ -3921,5 +3942,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=033ca5fe-861d-58db-af5c-d78cf1b3cbef
-//# sourceMappingURL=chunk-AX6YHNQ4.js.map
+//# debugId=28d60b9a-9c59-5631-b635-b1965b7b98d7
+//# sourceMappingURL=chunk-MULGUYIN.js.map

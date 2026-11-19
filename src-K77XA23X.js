@@ -4,15 +4,17 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-WWAAPH45.js";
+} from "./chunk-DZINMR2J.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
   isRemoteDebugCommand,
   isRemoteLogRequest,
   remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-AX6YHNQ4.js";
+} from "./chunk-MULGUYIN.js";
 import {
   Bp,
   Or,
@@ -33,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-Z2GIT5AO.js";
+} from "./chunk-MVVJEH4R.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -6831,19 +6833,9 @@ var MAX_DEVICES = 1e3;
 var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
 var MAX_DURATION_MS = 60 * 60 * 1e3;
 var COMMAND_TIMEOUT_MS = 15 * 60 * 1e3;
-var MAX_DEVICE_MEDIA = 3;
 function setBinding(mod, name, value) {
   mod.listen(name);
   mod[name] = value;
-}
-function remoteLogsViewBinding(device_id) {
-  return `logs:${device_id}`;
-}
-function remoteDebugMediaBinding(device_id) {
-  return `media:${device_id}`;
-}
-function remoteDebugResultsBinding(device_id) {
-  return `results:${device_id}`;
 }
 var RemoteDebugModule = class {
   /** Starts with the logs in `seed` */
@@ -6851,7 +6843,7 @@ var RemoteDebugModule = class {
     this.devices = {};
     this.timers = {};
     for (const view of seed) {
-      this[remoteLogsViewBinding(view.device.id)] = view;
+      this[remoteDebugLogsBinding(view.device.id)] = view;
       this.devices[view.device.id] = __spreadProps(__spreadValues({}, view.device), {
         last_seen: view.entries.at(-1)?.timestamp ?? 0
       });
@@ -6901,7 +6893,7 @@ var RemoteDebugModule = class {
     if (!isRemoteLogRequest(logs) || logs.id !== request_id)
       return;
     seen(this, device);
-    const name = remoteLogsViewBinding(device_id);
+    const name = remoteDebugLogsBinding(device_id);
     const view = this[name];
     const same_session = view?.device?.started_at === device.started_at;
     const old = same_session ? view.entries : [];
@@ -6921,40 +6913,26 @@ var RemoteDebugModule = class {
       return;
     seen(this, device);
     removeCommand(this, device_id, command_id);
-    if (command.type === "snapshot" || command.type === "animation") {
-      addMedia(this, device_id, command_id, result);
-    }
     const name = remoteDebugResultsBinding(device_id);
-    const results = this[name] ?? [];
-    setBinding(this, name, [
-      ...results,
+    const results = [
+      ...this[name] ?? [],
       {
         id: command.id,
         type: command.type,
         result,
         received_at: Date.now()
       }
-    ].slice(-MAX_DEVICE_RESULTS));
+    ];
+    for (const old of results.splice(0, results.length - MAX_DEVICE_RESULTS)) {
+      releaseMedia(old);
+    }
+    setBinding(this, name, results);
   }
 };
-function addMedia(mod, device_id, command_id, result) {
-  const media = result.data;
-  if (!result.ok || typeof media?.upload_id !== "string")
-    return;
-  const name = remoteDebugMediaBinding(device_id);
-  const list = [
-    ...mod[name] ?? [],
-    __spreadProps(__spreadValues({}, media), {
-      id: command_id,
-      url: media.upload_id,
-      received_at: Date.now()
-    })
-  ];
-  for (const old of list.splice(0, list.length - MAX_DEVICE_MEDIA)) {
-    if (old.url.startsWith("blob:"))
-      URL.revokeObjectURL(old.url);
-  }
-  setBinding(mod, name, list);
+function releaseMedia(entry) {
+  const upload_id = entry.result.data?.upload_id;
+  if (upload_id?.startsWith("blob:"))
+    URL.revokeObjectURL(upload_id);
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -6985,9 +6963,8 @@ function seen(mod, device) {
     [device.id]: __spreadProps(__spreadValues({}, device), { last_seen: Date.now() })
   })).sort((a, b) => b.last_seen - a.last_seen);
   for (const removed of list.splice(MAX_DEVICES)) {
-    setBinding(mod, remoteLogsViewBinding(removed.id), null);
+    setBinding(mod, remoteDebugLogsBinding(removed.id), null);
     setBinding(mod, remoteDebugResultsBinding(removed.id), null);
-    setBinding(mod, remoteDebugMediaBinding(removed.id), null);
   }
   mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
 }
@@ -9153,5 +9130,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=c528ae66-4159-55e7-9662-6e752c21f7a7
-//# sourceMappingURL=src-UKBITVY3.js.map
+//# debugId=ca7e2e31-1b34-560a-a3af-b88da3dbd24b
+//# sourceMappingURL=src-K77XA23X.js.map
