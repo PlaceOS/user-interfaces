@@ -1497,10 +1497,18 @@ export class BookingFormService extends AsyncHandler {
             if (payment) await this._payments.cancel(payment).catch(() => null);
             return this._saveFailure(e);
         });
-        if (payment) await this._capturePayment(payment, result);
         if (value.assets?.length || booking.extension_data.assets?.length) {
-            await this._saveAssetRequests(result, value, booking, zones);
+            // A failed request removes the new booking, so release the payment
+            await this._saveAssetRequests(result, value, booking, zones).catch(
+                async (e) => {
+                    if (payment) {
+                        await this._payments.cancel(payment).catch(() => null);
+                    }
+                    throw e;
+                },
+            );
         }
+        if (payment) await this._capturePayment(payment, result);
         this._loading.set('');
         const { booking_type } = value;
         if (reset_form) {
@@ -1592,14 +1600,16 @@ export class BookingFormService extends AsyncHandler {
      * Ask the user to pay for a new booking when payments are enabled, and
      * store the payment ID on `value`. Resolves `false` when the user
      * cancels, and `null` when the booking has no price. Changes to saved
-     * bookings are not charged.
+     * bookings and group bookings are not charged. A group booking saves one
+     * booking for each member, and has no combined checkout yet.
      */
     private async _takePayment(
         value: Record<string, any>,
         booking: Booking,
         period: { date: number; duration: number },
     ): Promise<Payment | null | false> {
-        if (booking.id || !this._payments.enabled) return null;
+        if (booking.id || this._options().group) return null;
+        if (!this._payments.can_checkout) return null;
         const resources: BookedResource[] = value.resources?.length
             ? value.resources
             : [{ id: value.asset_id, name: value.asset_name }];

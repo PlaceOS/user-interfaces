@@ -40,6 +40,8 @@ The driver decides who is privileged. It returns `privileged` in `get_config`. T
 
 The app never sees card numbers. The user pays on a page that the provider hosts.
 
+Only Workplace asks for payment. An app turns the checkout on when it provides the `PAYMENT_CHECKOUT` token with the value `true`. Booking panels, Concierge and the other apps do not provide it. Thus a shared device does not open a payment page, and staff who book for other users do not pay.
+
 1. The app makes line items from the booking. For a room, desk, parking space or locker, there is one item for each resource. For catering, there is one item for each menu item, with the selected options.
 2. The app calls `quote`. The driver finds the product of each item and calculates the price. When the total is `0`, the booking does not need payment.
 3. The app shows the line items and the total. The user selects a saved payment method or a new payment method.
@@ -47,17 +49,18 @@ The app never sees card numbers. The user pays on a page that the provider hosts
     - With a saved method, the driver charges the method. When the provider needs the user to confirm, for example with 3-D Secure, the driver returns a `url`.
     - With a new method, the driver returns the `url` of the hosted payment page. The app opens it in a popup window.
 5. The app calls `get_payment` every 2 seconds until the payment is `authorized` or in a final state.
-    - When the user closes the popup window first, the payment stays open. The user can select **Reopen payment page**, and the app calls `get_payment_link` to get a new link. The user can also select **Cancel payment**.
+    - When the user closes the popup window first, the payment stays open. The user can select **Reopen payment page**. The app calls `get_payment` first, because the provider can complete the payment after the window closes. When the payment is not complete, the app calls `get_payment_link` to get a new link. The user can also select **Cancel payment**.
     - When the user selects **Cancel payment**, or the check runs for 15 minutes, the app calls `cancel_payment`.
 6. The app saves the booking or the event.
     - When the save succeeds, the app calls `capture_payment` with a reference to the booking or the event.
     - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist.
+    - A booking with asset requests is captured after the asset requests save. When they fail, the app removes the booking and calls `cancel_payment`.
 
 The hosted page goes back to `assets/payment-complete.html` of the app. This page only closes the popup window. The app gets the result from the driver, not from the page.
 
-The payment details show **Complete payment** only for an open payment of the user that has a `reference`. A payment without a reference has no saved booking. If the user completed it, they would pay for nothing. After the payment completes, the app captures it for its reference. The driver must release open payments without a reference when the provider session expires.
+The payment details show **Complete payment** only for an open payment of the user that has a `reference`. A payment without a reference has no saved booking. If the user completed it, they would pay for nothing. After the payment completes, the app captures it for its reference. When the browser blocks the popup window, the app shows an error and does not call the driver. The driver must release open payments without a reference when the provider session expires.
 
-Changes to saved bookings and events are not charged. A recurring booking is charged as one booking. External catering is not charged, because the driver cannot get its prices.
+Changes to saved bookings and events are not charged. Group bookings are not charged, because the app saves one booking for each member and has no combined checkout. A recurring booking is charged as one booking. External catering is not charged, because the driver cannot get its prices.
 
 ## Driver contract
 

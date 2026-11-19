@@ -1304,7 +1304,7 @@ export class EventFormService extends AsyncHandler {
         rooms: Space[],
         period: { date: number; duration: number },
     ): Promise<Payment | null> {
-        if (!this._payments.enabled) return null;
+        if (!this._payments.can_checkout) return null;
         const catering = this._external_catering.enabled
             ? []
             : (this._model().catering || []).map((_) => new CateringOrder(_));

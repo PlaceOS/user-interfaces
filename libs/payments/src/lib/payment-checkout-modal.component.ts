@@ -347,7 +347,11 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
                 this.view.set('closed');
                 return;
             }
+            // A failed reopen must not leave a payment open behind the review,
+            // as the user can then pay again
+            const open_id = this._open_payment_id;
             this._open_payment_id = '';
+            if (open_id) this.data.cancel(open_id).catch(() => null);
             this.view.set('review');
             if (!(e instanceof CheckoutCancelledError)) {
                 this.error.set(
