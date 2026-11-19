@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["report-spaces-overall.component.ts"],
+  "sourcesContent": ["\n            h3 {\n                font-weight: 500;\n            }\n\n            p:not([simple]) {\n                font-size: 1.75rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,eAAA;AACJ;AAEA,CAAA,KAAA,CAAA;AACI,aAAA;AACJ;",
+  "names": []
+}

@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/concierge/src/app/visitors/visitor-flags.ts"
+  ],
+  "sourcesContent": [
+    "import { Booking, SettingsService } from '@placeos/common';\n\n/** Visitor flag that concierge lists can show as a column. */\nexport type VisitorFlag = 'international' | 'visitor_internal_or_external';\n\n/** Concierge settings that turn on each visitor flag. */\nconst FLAG_SETTINGS: Record<VisitorFlag, string[]> = {\n    international: [\n        'app.visitors.allow_international',\n        'app.events.allow_international',\n    ],\n    visitor_internal_or_external: [\n        'app.visitors.allow_visitor_internal_or_external',\n        'app.events.allow_attendee_internal_or_external',\n    ],\n};\n\n/**\n * Whether a concierge list should show the column for a visitor flag.\n * Workplace and the Outlook add-in set the flags with their own settings, so\n * the column also shows when a listed booking is flagged as international or\n * external, even when the concierge settings are off.\n */\nexport function showVisitorFlag(\n    settings: SettingsService,\n    bookings: Booking[],\n    flag: VisitorFlag,\n): boolean {\n    if (FLAG_SETTINGS[flag].some((key) => !!settings.get(key))) return true;\n    return (bookings || []).some((booking) =>\n        flag === 'international'\n            ? !!booking.extension_data?.international\n            : booking.extension_data?.visitor_internal_or_external ===\n              'external',\n    );\n}\n"
+  ],
+  "mappings": ";AAMA,IAAM,gBAA+C;EACjD,eAAe;IACX;IACA;;EAEJ,8BAA8B;IAC1B;IACA;;;AAUF,SAAU,gBACZ,UACA,UACA,MAAiB;AAEjB,MAAI,cAAc,IAAI,EAAE,KAAK,CAAC,QAAQ,CAAC,CAAC,SAAS,IAAI,GAAG,CAAC;AAAG,WAAO;AACnE,UAAQ,YAAY,CAAA,GAAI,KAAK,CAAC,YAC1B,SAAS,kBACH,CAAC,CAAC,QAAQ,gBAAgB,gBAC1B,QAAQ,gBAAgB,iCACxB,UAAU;AAExB;",
+  "names": [],
+  "debugId": "940517d4-914a-5e9b-bf3e-2cd558015c38"
+}
