@@ -5659,15 +5659,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2480874",
-  "hash": "2480874",
+  "raw": "2b981c1",
+  "hash": "2b981c1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2480874",
+  "suffix": "2b981c1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795044836558
+  "time": 1795048089937
 };
 
 // libs/common/src/lib/placeos.ts
@@ -6235,7 +6235,7 @@ var StaffUser = class extends User {
       case "ooo":
         return i18n("COMMON.WORK_HOURS_OUT");
       case "aol":
-        return i18n("COMMON.WORK_HOURS_LEAVE");
+        return i18n("COMMON.AOL");
       case "sick":
         return i18n("COMMON.WORK_HOURS_SICK");
       default:
@@ -7764,5 +7764,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=c8cab00b-055a-5e8a-85f7-c5ff09eb2605
-//# sourceMappingURL=chunk-UCNPORQH.js.map
+//# debugId=1e1ed438-b921-5606-9cc2-f8663963a422
+//# sourceMappingURL=chunk-Y5VNBTAT.js.map

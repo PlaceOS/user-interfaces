@@ -19,7 +19,7 @@ import {
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-H2Y4QDWR.js";
+} from "./chunk-VSTC34KD.js";
 import {
   MatOption,
   _MatInternalFormField
@@ -32,19 +32,19 @@ import {
 } from "./chunk-I6VY4MIR.js";
 import {
   SpacePipe
-} from "./chunk-4VLOP3MI.js";
+} from "./chunk-MVSZA6WC.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-D6WH7Q6Q.js";
+} from "./chunk-AQJFXK6S.js";
 import {
   TranslatePipe
-} from "./chunk-X6VMVXED.js";
+} from "./chunk-FJ5FQQZ4.js";
 import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-ZA6ULJ53.js";
+} from "./chunk-JXHWFCVD.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -84,7 +84,7 @@ import {
   themedLogo,
   unique,
   ys
-} from "./chunk-UCNPORQH.js";
+} from "./chunk-Y5VNBTAT.js";
 import {
   IconComponent
 } from "./chunk-3ES5YZ5E.js";
@@ -13571,7 +13571,7 @@ function ControlConnectingComponent_Conditional_5_Template(rf, ctx) {
     \u0275\u0275advance();
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(2, 3, "APP.CONTROL.CONNECTING_SLOW"), " ");
     \u0275\u0275advance(4);
-    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 5, "APP.CONTROL.RETRY"), " ");
+    \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(6, 5, "COMMON.RETRY"), " ");
     \u0275\u0275advance(2);
     \u0275\u0275conditional(ctx_r1.can_change_room ? 7 : -1);
   }
@@ -13644,7 +13644,7 @@ var ControlConnectingComponent = _ControlConnectingComponent;
                 </p>
                 <div animate.enter="motion-fade-in" class="flex space-x-2">
                     <button btn matRipple class="w-40" (click)="retry()">
-                        {{ 'APP.CONTROL.RETRY' | translate }}
+                        {{ 'COMMON.RETRY' | translate }}
                     </button>
                     @if (can_change_room) {
                         <button
@@ -13802,5 +13802,5 @@ export {
   ControlConnectingComponent,
   SplashComponent
 };
-//# debugId=657f5ccb-4383-5978-82ee-c7da14398f78
-//# sourceMappingURL=chunk-PYJHYKDJ.js.map
+//# debugId=76897e49-30fe-5696-90d7-a60042e0add7
+//# sourceMappingURL=chunk-HIPREBB2.js.map
