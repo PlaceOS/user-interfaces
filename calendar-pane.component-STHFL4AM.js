@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-62TIEIMC.js";
+} from "./chunk-OXDCAUM7.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-3T6P3P44.js";
+} from "./chunk-V4KIYT57.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-XFJ5O26I.js";
+} from "./chunk-GQULIEDK.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-5T73N6M4.js";
+} from "./chunk-F5TNGOVI.js";
 import {
   TranslatePipe
-} from "./chunk-MSUJTDQM.js";
+} from "./chunk-M3LZOOHA.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-AE277UH5.js";
+} from "./chunk-N72G3RFZ.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-2HYAC2AN.js";
+} from "./chunk-QFYBKOH4.js";
 import "./chunk-ARRIYDBO.js";
 import {
   BasePortalOutlet,
@@ -15819,7 +15819,10 @@ var PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
         this.view.set("closed");
         return;
       }
+      const open_id = this._open_payment_id;
       this._open_payment_id = "";
+      if (open_id)
+        this.data.cancel(open_id).catch(() => null);
       this.view.set("review");
       if (!(e instanceof CheckoutCancelledError)) {
         this.error.set(errorMessage(e) || i18n("PAYMENTS.PAYMENT_FAILED"));
@@ -16077,12 +16080,14 @@ var FINAL_PAYMENT_STATES = [
 // libs/payments/src/lib/payments.service.ts
 var PAYMENT_BINDING = "payments";
 var PAYMENT_MODULE = "Payments";
+var PAYMENT_CHECKOUT = new InjectionToken("PAYMENT_CHECKOUT", { factory: () => false });
 var POLL_INTERVAL_MS = 2e3;
 var MAX_POLLS = 450;
 var PaymentsService = class _PaymentsService {
   constructor() {
     this._org = inject(OrganisationService);
     this._dialog = inject(MatDialog);
+    this._checkout = inject(PAYMENT_CHECKOUT);
     this.is_enabled = computed(
       () => {
         this._org.active_building();
@@ -16135,6 +16140,10 @@ var PaymentsService = class _PaymentsService {
   /** Whether the active building or the organisation has a payment driver */
   get enabled() {
     return !!this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE);
+  }
+  /** Whether new bookings and events in this app take a payment */
+  get can_checkout() {
+    return this._checkout && this.enabled;
   }
   /** Whether the driver supports the optional feature */
   hasCapability(capability) {
@@ -16206,12 +16215,15 @@ var PaymentsService = class _PaymentsService {
    * Complete an open payment of the user on a new link to the hosted page,
    * then take it for its reference. Only use it for a payment with a
    * `reference`, so that the user does not pay for nothing. Resolves with
-   * the latest payment, also when the user closes the page first.
+   * the latest payment, also when the user closes the page first. Throws
+   * when the browser blocks the window, as the user cannot see the page.
    */
   async completePayment(payment, window_ref = this.openWindow()) {
     const reference = payment.reference;
     if (!reference)
       throw i18n("PAYMENTS.NO_REFERENCE");
+    if (!window_ref)
+      throw i18n("PAYMENTS.POPUP_BLOCKED");
     const result = await this._resume(payment.id, {
       window: window_ref
     }).catch((e) => {
@@ -16259,12 +16271,22 @@ var PaymentsService = class _PaymentsService {
     });
     return this._waitOnHostedPage(session.payment_id, session.url, options);
   }
-  /** Get a new link to the hosted page of an open payment and wait for it */
+  /**
+   * Get a new link to the hosted page of an open payment and wait for it.
+   * The provider can complete the payment after the user closes the page,
+   * so a payment that is already complete resolves with no new link.
+   */
   async _resume(id, options) {
-    const session = await this.call("get_payment_link", id, completeUrl("success")).catch((e) => {
+    const close = (e) => {
       options.window?.close();
       throw e;
-    });
+    };
+    const current = await this.call("get_payment", id).catch(close);
+    if (isComplete(current)) {
+      options.window?.close();
+      return paidOrThrow(current);
+    }
+    const session = await this.call("get_payment_link", id, completeUrl("success")).catch(close);
     return this._waitOnHostedPage(id, session.url, options);
   }
   /** Show the hosted page when there is one, then wait for the payment */
@@ -16279,10 +16301,7 @@ var PaymentsService = class _PaymentsService {
       window: options.window,
       signal: options.signal
     });
-    if (payment.status === "failed" || payment.status === "cancelled") {
-      throw i18n("PAYMENTS.PAYMENT_FAILED");
-    }
-    return payment;
+    return paidOrThrow(payment);
   }
   static {
     this.\u0275fac = function PaymentsService_Factory(__ngFactoryType__) {
@@ -16301,6 +16320,12 @@ var PaymentsService = class _PaymentsService {
     }]
   }], null, null);
 })();
+function paidOrThrow(payment) {
+  if (payment.status === "failed" || payment.status === "cancelled") {
+    throw i18n("PAYMENTS.PAYMENT_FAILED");
+  }
+  return payment;
+}
 function isComplete(payment) {
   return payment.status === "authorized" || FINAL_PAYMENT_STATES.includes(payment.status);
 }
@@ -17325,11 +17350,16 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
         await this._payments.cancel(payment).catch(() => null);
       return this._saveFailure(e);
     });
+    if (value.assets?.length || booking.extension_data.assets?.length) {
+      await this._saveAssetRequests(result, value, booking, zones).catch(async (e) => {
+        if (payment) {
+          await this._payments.cancel(payment).catch(() => null);
+        }
+        throw e;
+      });
+    }
     if (payment)
       await this._capturePayment(payment, result);
-    if (value.assets?.length || booking.extension_data.assets?.length) {
-      await this._saveAssetRequests(result, value, booking, zones);
-    }
     this._loading.set("");
     const { booking_type } = value;
     if (reset_form) {
@@ -17383,10 +17413,13 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
    * Ask the user to pay for a new booking when payments are enabled, and
    * store the payment ID on `value`. Resolves `false` when the user
    * cancels, and `null` when the booking has no price. Changes to saved
-   * bookings are not charged.
+   * bookings and group bookings are not charged. A group booking saves one
+   * booking for each member, and has no combined checkout yet.
    */
   async _takePayment(value, booking, period) {
-    if (booking.id || !this._payments.enabled)
+    if (booking.id || this._options().group)
+      return null;
+    if (!this._payments.can_checkout)
       return null;
     const resources = value.resources?.length ? value.resources : [{ id: value.asset_id, name: value.asset_name }];
     const result = await this._payments.checkout({
@@ -21295,7 +21328,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
-            throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
+            throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
           await requests();
         } catch (e) {
           await this._removeBookingAfterError(!event.id, created_event, true, e);
@@ -21326,7 +21359,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
    * driver cannot price it.
    */
   async _takePayment(rooms, period) {
-    if (!this._payments.enabled)
+    if (!this._payments.can_checkout)
       return null;
     const catering = this._external_catering.enabled ? [] : (this._model().catering || []).map((_) => new CateringOrder(_));
     const result = await this._payments.checkout({
@@ -21456,7 +21489,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         calendar: this._model().host || currentUser()?.email,
         system_id: event.resources[0].id
       } : {}));
-      throw e?.status === 409 ? i18n("CALENDAR_EVENT.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
+      throw e?.status === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
     } else if (assets) {
       throw i18n("CALENDAR_EVENT.ASSETS_PARTIAL_ERROR", {
         error: errorMessage(e) || e
@@ -21852,11 +21885,17 @@ var ExploreBookingModalComponent = class _ExploreBookingModalComponent {
     }));
     setTimeout(() => this._min_loading.set(false), 500);
   }
+  /**
+   * Save the booking. On failure, show the error and keep the modal open.
+   * The template calls this without a handler, so it must not reject.
+   */
   async save() {
-    await this._event_form.postForm().catch((_) => {
-      notifyError(_);
-      throw _;
-    });
+    try {
+      await this._event_form.postForm();
+    } catch (e) {
+      notifyError(e);
+      return;
+    }
     if (this._settings.app_name.toLowerCase().includes("workplace")) {
       this._router.navigate(["/book", "meeting", "success"]);
     } else {
@@ -27541,5 +27580,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=e827bcb5-8d45-5e73-8e81-7c7f63af565c
-//# sourceMappingURL=calendar-pane.component-7JUVRKSR.js.map
+//# debugId=4eb48cc1-4153-5c04-8a6f-ab1bf05475ec
+//# sourceMappingURL=calendar-pane.component-STHFL4AM.js.map
