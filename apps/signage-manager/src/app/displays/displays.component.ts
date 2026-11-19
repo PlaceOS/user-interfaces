@@ -19,10 +19,15 @@ import { selectRoutedItem } from './routed-selection.util';
 import { showSignageDisplay } from './signage-display';
 import { SignageDisplayService } from './signage-display.service';
 
-type DisplayTab = 'schedule' | 'templates' | 'playlists' | 'zones';
+type DisplayTab = 'schedule' | 'templates' | 'playlists' | 'zones' | 'admin';
 
 function parseDisplayTab(value: string | null): DisplayTab {
-    if (value === 'templates' || value === 'playlists' || value === 'zones') {
+    if (
+        value === 'templates' ||
+        value === 'playlists' ||
+        value === 'zones' ||
+        value === 'admin'
+    ) {
         return value;
     }
     return 'schedule';
@@ -182,11 +187,13 @@ export class DisplaysSectionComponent {
     public readonly tab = input<string | null>(null);
     public readonly signage_path = settingSignal('signage_path');
     public readonly templates_enabled = this._context.templates_enabled;
+    /** Whether the user can use the admin tab: admin and support users */
+    public readonly can_admin = this._context.can_manage_all_groups;
     private readonly _view_tab = routedTab(this.tab, (value) => {
         const tab = parseDisplayTab(value);
-        return tab === 'templates' && !this.templates_enabled()
-            ? 'schedule'
-            : tab;
+        if (tab === 'templates' && !this.templates_enabled()) return 'schedule';
+        if (tab === 'admin' && !this.can_admin()) return 'schedule';
+        return tab;
     });
     public readonly view_tab = this._view_tab.active;
     public readonly selected_display = this._display_service.selected_display;
@@ -237,6 +244,9 @@ export class DisplaysSectionComponent {
             count: this.zone_count(),
             count_loading: this.zone_count_loading(),
         },
+        ...(this.can_admin()
+            ? [{ id: 'admin' as const, label: 'SIGNAGE_MANAGER.NAV_ADMIN' }]
+            : []),
     ]);
     public readonly panel_link = computed(() => {
         const display = this.selected_display();

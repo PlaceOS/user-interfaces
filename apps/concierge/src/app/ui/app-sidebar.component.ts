@@ -217,12 +217,6 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 icon: 'link',
             },
             {
-                id: 'remote-setup',
-                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_SETUP',
-                route: ['/remote-setup'],
-                icon: 'qr_code_scanner',
-            },
-            {
                 id: 'email-templates',
                 name: 'APP.CONCIERGE.MENU_MANAGE_EMAILS',
                 route: ['/email-templates'],
@@ -233,6 +227,25 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 name: 'APP.CONCIERGE.MENU_MANAGE_DEALS',
                 route: ['/deals-n-offers'],
                 icon: 'local_offer',
+            },
+        ],
+    },
+    {
+        id: 'devices',
+        name: 'APP.CONCIERGE.MENU_DEVICES',
+        admin_only: true,
+        children: [
+            {
+                id: 'remote-setup',
+                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_SETUP',
+                route: ['/remote-setup'],
+                icon: 'qr_code_scanner',
+            },
+            {
+                id: 'remote-debug',
+                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_DEBUG',
+                route: ['/remote-debug'],
+                icon: 'bug_report',
             },
         ],
     },
@@ -496,6 +509,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 flex-direction: column;
                 height: 100%;
                 width: 16rem;
+                background-color: var(--base-100);
                 border-right: 1px solid var(--base-200);
                 /* Stays still on page changes (styles.css) */
                 view-transition-name: concierge-sidebar;
