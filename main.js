@@ -3,10 +3,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-6TZ3LPSN.js";
+} from "./chunk-XAS3JKH4.js";
 import {
   TranslatePipe
-} from "./chunk-FZ7C3463.js";
+} from "./chunk-RXJHAZIS.js";
 import "./chunk-73745V4N.js";
 import {
   LazySentryErrorHandler,
@@ -31,7 +31,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-ANXVZ5WS.js";
+} from "./chunk-WHACNEAV.js";
 import {
   AsyncHandler,
   Bp,
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-DAHQBCO2.js";
+} from "./chunk-CPBYOVRF.js";
 import "./chunk-FUB2AYYJ.js";
 import {
   IconComponent
@@ -8200,6 +8200,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     const logs = deviceState(this, device_id).logs;
@@ -10444,11 +10450,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-EDTTEDMO.js").then((m) => m.ChatComponent)
+  import("./chat.component-72XC4W22.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-WQ2YSGR5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MXSYCDDX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10508,9 +10514,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-EDTTEDMO.js").then((m) => m.ChatComponent),
+    import("./chat.component-72XC4W22.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-WQ2YSGR5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MXSYCDDX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10552,12 +10558,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-7OZY4AAU.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-EYEUFCQY.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-KT2XXFMG.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-UEVEJXCX.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10585,5 +10591,5 @@ if (environment.production) {
 }
 console.log("Production:", !!environment.production);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=a76e5757-cfed-561b-8b5d-9ee70d910baa
+//# debugId=bf2da31b-1229-55fc-a597-62a0732f2dbc
 //# sourceMappingURL=main.js.map
