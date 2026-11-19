@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-SNZIPAXC.js";
-import "./chunk-RS4CRNYV.js";
+} from "./chunk-5ZAH2YUW.js";
+import "./chunk-7AL23MLW.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-CG6JE5W7.js";
+} from "./chunk-WNY5HC3C.js";
 import "./chunk-M533ZSP3.js";
 import {
   TranslatePipe
-} from "./chunk-IPB4XAUI.js";
+} from "./chunk-23FKCPH5.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-DMSH4MAZ.js";
+} from "./chunk-QFQLYBLF.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-KCCDK7C4.js";
+} from "./chunk-CNLMC2EN.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -8274,6 +8274,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof (device == null ? void 0 : device.id) !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     var _a;
@@ -10544,7 +10550,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-GE5GEZDN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-XA2NYCHX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10586,7 +10592,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-GE5GEZDN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-XA2NYCHX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10655,22 +10661,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-JEMLA7JQ.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-Y3YZJX36.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-VAIC4YJX.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-JL3N2VIB.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-RLPZVEAM.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-S6ERUAO2.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-MPJC4QS6.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-WA2KWKCX.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10698,5 +10704,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=e6eb5c5f-4292-5ed1-8d20-898271317998
+//# debugId=46bc0750-f289-5069-b20c-dc349d0cee76
 //# sourceMappingURL=main.js.map
