@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-DZINMR2J.js";
+} from "./chunk-H4A47ZUE.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,7 +14,7 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-MULGUYIN.js";
+} from "./chunk-MIPUDCHO.js";
 import {
   Bp,
   Or,
@@ -35,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-MVVJEH4R.js";
+} from "./chunk-BWOABT36.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -6887,6 +6887,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     const logs = deviceState(this, device_id).logs;
@@ -9130,5 +9136,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=ca7e2e31-1b34-560a-a3af-b88da3dbd24b
-//# sourceMappingURL=src-K77XA23X.js.map
+//# debugId=72dba38f-e6db-5aac-99da-383bbbf50d98
+//# sourceMappingURL=src-3YWPB7QQ.js.map
