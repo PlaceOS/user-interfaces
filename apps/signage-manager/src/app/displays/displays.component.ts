@@ -146,7 +146,7 @@ function parseDisplayTab(value: string | null): DisplayTab {
                                 </a>
                             </div>
                             <section-tabs
-                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-hidden rounded-lg border"
+                                class="bg-base-100 border-base-300 mx-2 mt-2 flex overflow-x-auto rounded-lg border"
                                 id_prefix="display"
                                 [tabs]="tabs()"
                                 [active]="view_tab()"

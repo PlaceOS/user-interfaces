@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, signal } from '@angular/core';
+import { Component, computed, inject, Injector, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -89,7 +89,9 @@ export function filterRemoteDebugDevices(
                     <div
                         class="flex min-h-0 flex-1 flex-col gap-4 overflow-auto px-8 pb-8 lg:flex-row"
                     >
-                        <aside class="flex shrink-0 flex-col gap-2 lg:w-80">
+                        <aside
+                            class="flex shrink-0 flex-col gap-2 lg:min-h-0 lg:w-80"
+                        >
                             <form
                                 class="flex items-center gap-2"
                                 (ngSubmit)="open(query())"
@@ -126,7 +128,7 @@ export function filterRemoteDebugDevices(
                                 }
                             </p>
                             <ul
-                                class="bg-base-100 border-base-300 flex flex-col overflow-hidden rounded-lg border"
+                                class="bg-base-100 border-base-300 flex min-h-0 flex-col overflow-y-auto rounded-lg border"
                                 aria-label="Devices"
                             >
                                 @for (item of shown(); track item.id) {
@@ -231,17 +233,25 @@ export function filterRemoteDebugDevices(
     ],
 })
 export class RemoteDebugComponent {
-    private readonly _view = inject(RemoteDebugViewService);
+    private readonly _injector = inject(Injector);
     private readonly _router = inject(Router);
     private readonly _route = inject(ActivatedRoute);
+
+    public readonly allowed = computed(() =>
+        user_group_names().some((_) => DEBUG_GROUPS.includes(_)),
+    );
+    /** The viewer starts only for users who can use the page */
+    private readonly _view = computed(() =>
+        this.allowed() ? this._injector.get(RemoteDebugViewService) : null,
+    );
 
     /** Device ID from the `device` query parameter */
     public readonly device = toSignal(
         this._route.queryParamMap.pipe(map((_) => _.get('device') ?? '')),
         { initialValue: '' },
     );
-    public readonly state = this._view.state;
-    public readonly devices = this._view.devices;
+    public readonly state = computed(() => this._view()?.state() ?? 'loading');
+    public readonly devices = computed(() => this._view()?.devices() ?? []);
     /** Text that filters the list, or a device ID to open */
     public readonly query = signal('');
     public readonly matching = computed(() =>
@@ -252,9 +262,6 @@ export class RemoteDebugComponent {
     );
     public readonly online_count = computed(
         () => this.devices().filter((_) => this.isOnline(_)).length,
-    );
-    public readonly allowed = computed(() =>
-        user_group_names().some((_) => DEBUG_GROUPS.includes(_)),
     );
 
     public open(device_id: string) {
@@ -272,10 +279,13 @@ export class RemoteDebugComponent {
     }
 
     public isOnline(device: RemoteDebugSeenDevice) {
-        return isRemoteDebugDeviceOnline(device, this._view.now());
+        return isRemoteDebugDeviceOnline(
+            device,
+            this._view()?.now() ?? Date.now(),
+        );
     }
 
     public retry() {
-        void this._view.load();
+        void this._view()?.load();
     }
 }

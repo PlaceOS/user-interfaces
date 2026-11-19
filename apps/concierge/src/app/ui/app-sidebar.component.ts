@@ -39,6 +39,8 @@ interface SidebarLink {
     icon: string;
     /** Only show as active on the route itself, not on its child routes. Query params are ignored */
     exact?: boolean;
+    /** Only users in one of these groups see the link, also when they are admins */
+    groups?: readonly string[];
 }
 
 /** Collapsible group of links. Shows when one or more of its links show */
@@ -246,6 +248,8 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_DEBUG',
                 route: ['/remote-debug'],
                 icon: 'bug_report',
+                // The page is for PlaceOS admin and support users only
+                groups: ['placeos_admin', 'placeos_support'],
             },
         ],
     },
@@ -622,6 +626,10 @@ export class ApplicationSidebarComponent
 
     /** Whether one of the features of the link is on for the current user */
     private _canView(link: SidebarLink): boolean {
+        const groups = link.groups;
+        if (groups && !user_group_names().some((_) => groups.includes(_))) {
+            return false;
+        }
         return [link.id, ...(link.alt_features || [])].some((_) =>
             this._hasFeature(_),
         );
