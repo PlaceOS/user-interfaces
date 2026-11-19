@@ -5,10 +5,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-GTSKFE52.js";
+} from "./chunk-JV37ZQLF.js";
 import {
   TranslatePipe
-} from "./chunk-URSZ2XIW.js";
+} from "./chunk-K4DGKAZX.js";
 import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
@@ -28,11 +28,13 @@ import {
   needsNativeDomain,
   provideServiceWorker,
   remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-OSI3ZFCK.js";
+} from "./chunk-GDBUNKWB.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +72,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-ZA2NCHE2.js";
+} from "./chunk-MKFS7AH7.js";
 import "./chunk-C6AMB2L4.js";
 import {
   IconComponent,
@@ -8112,19 +8114,9 @@ var MAX_DEVICES = 1e3;
 var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
 var MAX_DURATION_MS = 60 * 60 * 1e3;
 var COMMAND_TIMEOUT_MS = 15 * 60 * 1e3;
-var MAX_DEVICE_MEDIA = 3;
 function setBinding(mod, name, value) {
   mod.listen(name);
   mod[name] = value;
-}
-function remoteLogsViewBinding(device_id) {
-  return `logs:${device_id}`;
-}
-function remoteDebugMediaBinding(device_id) {
-  return `media:${device_id}`;
-}
-function remoteDebugResultsBinding(device_id) {
-  return `results:${device_id}`;
 }
 var RemoteDebugModule = class {
   /** Starts with the logs in `seed` */
@@ -8132,7 +8124,7 @@ var RemoteDebugModule = class {
     this.devices = {};
     this.timers = {};
     for (const view of seed) {
-      this[remoteLogsViewBinding(view.device.id)] = view;
+      this[remoteDebugLogsBinding(view.device.id)] = view;
       this.devices[view.device.id] = __spreadProps(__spreadValues({}, view.device), {
         last_seen: view.entries.at(-1)?.timestamp ?? 0
       });
@@ -8182,7 +8174,7 @@ var RemoteDebugModule = class {
     if (!isRemoteLogRequest(logs) || logs.id !== request_id)
       return;
     seen(this, device);
-    const name = remoteLogsViewBinding(device_id);
+    const name = remoteDebugLogsBinding(device_id);
     const view = this[name];
     const same_session = view?.device?.started_at === device.started_at;
     const old = same_session ? view.entries : [];
@@ -8202,40 +8194,26 @@ var RemoteDebugModule = class {
       return;
     seen(this, device);
     removeCommand(this, device_id, command_id);
-    if (command.type === "snapshot" || command.type === "animation") {
-      addMedia(this, device_id, command_id, result);
-    }
     const name = remoteDebugResultsBinding(device_id);
-    const results = this[name] ?? [];
-    setBinding(this, name, [
-      ...results,
+    const results = [
+      ...this[name] ?? [],
       {
         id: command.id,
         type: command.type,
         result,
         received_at: Date.now()
       }
-    ].slice(-MAX_DEVICE_RESULTS));
+    ];
+    for (const old of results.splice(0, results.length - MAX_DEVICE_RESULTS)) {
+      releaseMedia(old);
+    }
+    setBinding(this, name, results);
   }
 };
-function addMedia(mod, device_id, command_id, result) {
-  const media = result.data;
-  if (!result.ok || typeof media?.upload_id !== "string")
-    return;
-  const name = remoteDebugMediaBinding(device_id);
-  const list = [
-    ...mod[name] ?? [],
-    __spreadProps(__spreadValues({}, media), {
-      id: command_id,
-      url: media.upload_id,
-      received_at: Date.now()
-    })
-  ];
-  for (const old of list.splice(0, list.length - MAX_DEVICE_MEDIA)) {
-    if (old.url.startsWith("blob:"))
-      URL.revokeObjectURL(old.url);
-  }
-  setBinding(mod, name, list);
+function releaseMedia(entry) {
+  const upload_id = entry.result.data?.upload_id;
+  if (upload_id?.startsWith("blob:"))
+    URL.revokeObjectURL(upload_id);
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -8266,9 +8244,8 @@ function seen(mod, device) {
     [device.id]: __spreadProps(__spreadValues({}, device), { last_seen: Date.now() })
   })).sort((a, b) => b.last_seen - a.last_seen);
   for (const removed of list.splice(MAX_DEVICES)) {
-    setBinding(mod, remoteLogsViewBinding(removed.id), null);
+    setBinding(mod, remoteDebugLogsBinding(removed.id), null);
     setBinding(mod, remoteDebugResultsBinding(removed.id), null);
-    setBinding(mod, remoteDebugMediaBinding(removed.id), null);
   }
   mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
 }
@@ -10435,11 +10412,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-XBNAZTLV.js").then((m) => m.ChatComponent)
+  import("./chat.component-WUKJ5JHG.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-2SH2BWWQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-WCRXHIUM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10500,9 +10477,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-XBNAZTLV.js").then((m) => m.ChatComponent),
+    import("./chat.component-WUKJ5JHG.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-2SH2BWWQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-WCRXHIUM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10542,7 +10519,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-VPPZXA37.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-EIYUVBSG.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -10581,5 +10558,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=f2bd2a0e-ff37-575b-bf34-6895339dc9e0
+//# debugId=59a95536-0947-5725-837e-7a9554dd1de0
 //# sourceMappingURL=main.js.map
