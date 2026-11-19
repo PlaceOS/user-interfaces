@@ -7,12 +7,12 @@ import {
 } from "./chunk-RBO6FLUE.js";
 import {
   CustomTooltipComponent
-} from "./chunk-24CSJVDU.js";
+} from "./chunk-RQHOO2DK.js";
 import "./chunk-UDJWO5W2.js";
 import {
   Clipboard,
   OrganisationService
-} from "./chunk-7D4QF2MP.js";
+} from "./chunk-2CD4KJOT.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -26,7 +26,7 @@ import {
 import {
   DEFAULT_SETTINGS,
   SettingsService
-} from "./chunk-WPUKK2JQ.js";
+} from "./chunk-QVX7ZW46.js";
 import {
   IconComponent
 } from "./chunk-3ES5YZ5E.js";
@@ -1253,4 +1253,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=404f8c16-83a9-55cf-922e-c468a0f082b1
-//# sourceMappingURL=settings-debug-panel.component-NQGAPKRJ.js.map
+//# sourceMappingURL=settings-debug-panel.component-2LJVD3UB.js.map
