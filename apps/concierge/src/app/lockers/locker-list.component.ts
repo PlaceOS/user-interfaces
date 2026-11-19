@@ -407,7 +407,7 @@ export class LockerListComponent extends AsyncHandler {
             notifySuccess(
                 i18n(
                     type
-                        ? 'APP.CONCIERGE.LOCKERS_COPIED_USER'
+                        ? 'APP.CONCIERGE.COPIED_USER'
                         : 'APP.CONCIERGE.LOCKERS_COPIED_ID',
                 ),
             );

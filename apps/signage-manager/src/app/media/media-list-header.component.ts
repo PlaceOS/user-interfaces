@@ -121,7 +121,7 @@ import { SignageMediaService } from './signage-media.service';
                     </button>
                 }
                 <div class="px-4 pt-2 text-xs font-medium opacity-60">
-                    {{ 'SIGNAGE_MANAGER.MEDIA_FILTER_TYPE' | translate }}
+                    {{ 'COMMON.TYPE' | translate }}
                 </div>
                 @for (type of type_filters; track type) {
                     <button
@@ -457,7 +457,7 @@ export class MediaListHeaderComponent {
     public readonly sort_labels: Record<MediaSort, string> = {
         newest: 'SIGNAGE_MANAGER.MEDIA_SORT_NEWEST',
         oldest: 'SIGNAGE_MANAGER.MEDIA_SORT_OLDEST',
-        name: 'SIGNAGE_MANAGER.MEDIA_SORT_NAME',
+        name: 'FORM.NAME',
         expiry: 'SIGNAGE_MANAGER.MEDIA_SORT_EXPIRY',
     };
     // Same labels as the type badge on media cards

@@ -206,7 +206,7 @@ function uploadErrorMessage(error: unknown) {
                 >
                     {{
                         (done_count() || error_count()
-                            ? 'SIGNAGE_MANAGER.BULK_UPLOAD_CLOSE'
+                            ? 'COMMON.CLOSE'
                             : 'COMMON.CANCEL'
                         ) | translate
                     }}

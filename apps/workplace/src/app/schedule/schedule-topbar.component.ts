@@ -33,8 +33,8 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                         class="inverse min-h-11 min-w-11 p-0"
                         [attr.aria-label]="
                             (view() === 'week'
-                                ? 'APP.WORKPLACE.DESK_WEEK_PREVIOUS'
-                                : 'APP.WORKPLACE.SCHEDULE_PREVIOUS_DAY'
+                                ? 'COMMON.PREVIOUS_WEEK'
+                                : 'COMMON.PREVIOUS_DAY'
                             ) | translate
                         "
                         (click)="previousDate()"
@@ -47,8 +47,8 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                         class="inverse min-h-11 min-w-11 p-0"
                         [attr.aria-label]="
                             (view() === 'week'
-                                ? 'APP.WORKPLACE.DESK_WEEK_NEXT'
-                                : 'APP.WORKPLACE.SCHEDULE_NEXT_DAY'
+                                ? 'COMMON.NEXT_WEEK'
+                                : 'COMMON.NEXT_DAY'
                             ) | translate
                         "
                         (click)="nextDate()"
@@ -61,9 +61,7 @@ import { addDays, isSameDay, subDays } from 'date-fns';
                     btn
                     matRipple
                     class="inverse min-h-11 min-w-11 p-0 sm:hidden"
-                    [attr.aria-label]="
-                        'APP.WORKPLACE.SCHEDULE_SELECT_DATE' | translate
-                    "
+                    [attr.aria-label]="'COMMON.SELECT_DATE' | translate"
                     [matMenuTriggerFor]="date_range_menu"
                 >
                     <icon class="text-2xl">calendar_month</icon>

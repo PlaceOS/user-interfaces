@@ -94,11 +94,9 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             icon
                             matRipple
                             class="hover:bg-base-200 h-12 w-12 rounded-lg"
-                            [matTooltip]="
-                                'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
-                            "
+                            [matTooltip]="'COMMON.PREVIOUS_WEEK' | translate"
                             [attr.aria-label]="
-                                'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
+                                'COMMON.PREVIOUS_WEEK' | translate
                             "
                             [disabled]="!can_go_previous_week()"
                             (click)="previousWeek()"
@@ -109,12 +107,8 @@ type WeekdayIndex = 0 | 1 | 2 | 3 | 4 | 5 | 6;
                             icon
                             matRipple
                             class="hover:bg-base-200 h-12 w-12 rounded-lg"
-                            [matTooltip]="
-                                'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
-                            "
-                            [attr.aria-label]="
-                                'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
-                            "
+                            [matTooltip]="'COMMON.NEXT_WEEK' | translate"
+                            [attr.aria-label]="'COMMON.NEXT_WEEK' | translate"
                             [disabled]="!can_go_next_week()"
                             (click)="nextWeek()"
                         >

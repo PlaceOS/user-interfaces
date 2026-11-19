@@ -1240,8 +1240,7 @@ export class EventFormService extends AsyncHandler {
                         assets,
                         changed_spaces.length > 0 || has_time_changed,
                     );
-                    if (!requests)
-                        throw i18n('CALENDAR_EVENT.ASSETS_INVALID_ERROR');
+                    if (!requests) throw i18n('BOOKINGS.ASSETS_INVALID_ERROR');
                     await requests();
                 } catch (e) {
                     await this._removeBookingAfterError(
@@ -1477,7 +1476,7 @@ export class EventFormService extends AsyncHandler {
                           : {},
                   ));
             throw e?.status === 409
-                ? i18n('CALENDAR_EVENT.ASSETS_CLASH_ERROR')
+                ? i18n('BOOKINGS.ASSETS_CLASH_ERROR')
                 : i18n('CALENDAR_EVENT.ASSETS_ERROR');
         } else if (assets) {
             throw i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR', {

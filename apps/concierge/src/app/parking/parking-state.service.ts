@@ -1267,7 +1267,7 @@ export class ParkingStateService extends AsyncHandler {
     public async removeBooking(booking: Booking) {
         const details = await openConfirmModal(
             {
-                title: i18n('APP.CONCIERGE.BOOKING_REMOVE_TITLE'),
+                title: i18n('BOOKINGS.ACTION_DELETE'),
                 content: i18n('APP.CONCIERGE.BOOKING_REMOVE_MSG', {
                     name:
                         booking.asset_name ||
@@ -1281,13 +1281,13 @@ export class ParkingStateService extends AsyncHandler {
             this._dialog,
         );
         if (details?.reason !== 'done') return;
-        details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
+        details.loading(i18n('BOOKINGS.REMOVE_LOADING'));
         const query = booking.instance
             ? { instance: true, start_time: booking.instance }
             : {};
         await removeBookingApi(booking.id, query).catch((e) => {
             notifyError(
-                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', {
+                i18n('BOOKINGS.REMOVE_ERROR', {
                     error: errorText(e),
                 }),
             );
@@ -1295,7 +1295,7 @@ export class ParkingStateService extends AsyncHandler {
             throw e;
         });
         details.close();
-        notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
+        notifySuccess(i18n('BOOKINGS.REMOVE_SUCCESS'));
         this._reloadResources();
     }
 

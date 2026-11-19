@@ -166,7 +166,7 @@ import { LandingStateService } from '../landing/landing-state.service';
                             {{
                                 (search_term
                                     ? 'APP.WORKPLACE.COLLEAGUE_SEARCH_MIN_LENGTH'
-                                    : 'APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                    : 'COMMON.SELECT_USER_EMPTY'
                                 ) | translate
                             }}
                         </p>

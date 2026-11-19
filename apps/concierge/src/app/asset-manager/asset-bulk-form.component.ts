@@ -78,16 +78,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                 </div>
                 <div class="flex flex-1 flex-col space-y-2">
                     <label for="asset-bulk-form-identifier">{{
-                        'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
+                        'FORM.DISPLAY_NAME' | translate
                     }}</label>
                     <mat-form-field appearance="outline">
                         <input
                             id="asset-bulk-form-identifier"
                             matInput
-                            [placeholder]="
-                                'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
-                                    | translate
-                            "
+                            [placeholder]="'FORM.DISPLAY_NAME' | translate"
                             [formField]="form.identifier"
                         />
                         <mat-error>
@@ -191,9 +188,7 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                     this.loading.set('');
                 }
                 if (params.get('group_id')) {
-                    this.loading.set(
-                        i18n('APP.CONCIERGE.ASSETS_BULK_PRODUCT_LOADING'),
-                    );
+                    this.loading.set(i18n('APP.CONCIERGE.ASSETS_ITEM_LOADING'));
                     const product = await showAssetType(
                         params.get('group_id'),
                     ).catch(() => null);

@@ -994,13 +994,13 @@ export class TemplateLayoutListComponent {
     public xLabel(position: SignageTemplateLayoutPosition) {
         return position === 'floating'
             ? 'SIGNAGE_MANAGER.TEMPLATE_X_POS'
-            : 'SIGNAGE_MANAGER.TEMPLATE_PANEL_WIDTH';
+            : 'COMMON.WIDTH';
     }
 
     public yLabel(position: SignageTemplateLayoutPosition) {
         return position === 'floating'
             ? 'SIGNAGE_MANAGER.TEMPLATE_Y_POS'
-            : 'SIGNAGE_MANAGER.TEMPLATE_PANEL_HEIGHT';
+            : 'COMMON.HEIGHT';
     }
 
     public setAxis(

@@ -428,7 +428,7 @@ export class ExploreParkingService extends AsyncHandler {
             return i18n('EXPLORE.PARKING_EXISTING_ERROR');
         }
         if (status !== 'free') {
-            return i18n('EXPLORE.PARKING_AVAILABLE_ERROR', {
+            return i18n('EXPLORE.UNAVAILABLE_ERROR', {
                 name: space.name || 'Parking Space',
             });
         }
@@ -438,7 +438,7 @@ export class ExploreParkingService extends AsyncHandler {
             space.place_groups?.length &&
             !space.place_groups.find((_) => user_groups.includes(_))
         ) {
-            return i18n('EXPLORE.PARKING_GROUP_ERROR', { name: space.name });
+            return i18n('EXPLORE.NOT_ALLOWED_ERROR', { name: space.name });
         }
         return null;
     }

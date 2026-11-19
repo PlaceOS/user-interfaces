@@ -260,7 +260,7 @@ import {
                         </div>
                         <div class="flex flex-1 flex-col">
                             <label for="phone">{{
-                                'BOOKINGS.VISITOR_PHONE' | translate
+                                'FORM.PHONE' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input

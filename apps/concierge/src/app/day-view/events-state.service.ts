@@ -539,8 +539,8 @@ export class EventsStateService extends AsyncHandler {
             {
                 title: i18n(
                     series
-                        ? 'APP.CONCIERGE.BOOKING_REMOVE_SERIES_TITLE'
-                        : 'APP.CONCIERGE.BOOKING_REMOVE_TITLE',
+                        ? 'BOOKINGS.REMOVE_SERIES_TITLE'
+                        : 'BOOKINGS.ACTION_DELETE',
                 ),
                 content: i18n(
                     series
@@ -554,7 +554,7 @@ export class EventsStateService extends AsyncHandler {
             this._dialog,
         );
         if (details.reason !== 'done') return false;
-        details.loading(i18n('APP.CONCIERGE.BOOKING_REMOVE_LOADING'));
+        details.loading(i18n('BOOKINGS.REMOVE_LOADING'));
         this.remove(event);
         await declineEvent(
             series ? event.recurring_event_id || event.id : event.id,
@@ -564,13 +564,11 @@ export class EventsStateService extends AsyncHandler {
             },
         ).catch((e) => {
             this.restore(event);
-            notifyError(
-                i18n('APP.CONCIERGE.BOOKING_REMOVE_ERROR', { error: e }),
-            );
+            notifyError(i18n('BOOKINGS.REMOVE_ERROR', { error: e }));
             details.close();
             throw e;
         });
-        notifySuccess(i18n('APP.CONCIERGE.BOOKING_REMOVE_SUCCESS'));
+        notifySuccess(i18n('BOOKINGS.REMOVE_SUCCESS'));
         this._dialog.closeAll();
         return true;
     }

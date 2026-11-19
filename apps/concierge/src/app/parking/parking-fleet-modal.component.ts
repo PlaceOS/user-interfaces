@@ -31,7 +31,7 @@ import { ParkingFleetVehicle } from './parking-state.service';
                     {{
                         (id()
                             ? 'APP.CONCIERGE.PARKING_FLEET_EDIT'
-                            : 'APP.CONCIERGE.PARKING_FLEET_NEW'
+                            : 'APP.CONCIERGE.PARKING_FLEET_ADD'
                         ) | translate
                     }}
                 </h2>

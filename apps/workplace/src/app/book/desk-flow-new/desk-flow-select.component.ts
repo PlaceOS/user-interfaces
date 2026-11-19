@@ -185,7 +185,7 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         }
                         @if (!field('all_day') && allow_time_changes()) {
                             <label for="date">{{
-                                'FORM.TIME' | translate
+                                'COMMON.TIME' | translate
                             }}</label>
                             <div class="flex space-x-2">
                                 <time-field
@@ -477,7 +477,9 @@ import { DeskFlowSelectMapComponent } from './desk-flow-select-map.component';
                         >
                     }
                     @if (!field('all_day') && allow_time_changes()) {
-                        <label for="date">{{ 'FORM.TIME' | translate }}</label>
+                        <label for="date">{{
+                            'COMMON.TIME' | translate
+                        }}</label>
                         <div class="flex space-x-2">
                             <time-field
                                 class="flex-1"

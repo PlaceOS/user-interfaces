@@ -166,7 +166,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     <mat-select
                         [ngModel]="building()?.id"
                         (ngModelChange)="setBuilding($event)"
-                        [placeholder]="'COMMON.BUILDINGS_ALL' | translate"
+                        [placeholder]="'COMMON.BUILDING_ALL' | translate"
                     >
                         @for (bld of buildings(); track bld) {
                             <mat-option [value]="bld.id">

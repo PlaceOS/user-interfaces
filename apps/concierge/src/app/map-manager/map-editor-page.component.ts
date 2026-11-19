@@ -190,7 +190,7 @@ function localised(
                     [disabled]="!dirty() || !!saving()"
                     (click)="save()"
                 >
-                    {{ saving() || ('APP.CONCIERGE.MAPS_SAVE' | translate) }}
+                    {{ saving() || ('COMMON.SAVE' | translate) }}
                 </button>
             </div>
         </header>
@@ -347,7 +347,7 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
         const session = this.session();
         const level = this.level();
         if (!session || !level || !session.dirty() || this.saving()) return;
-        this.saving.set(i18n('APP.CONCIERGE.MAPS_SAVING'));
+        this.saving.set(i18n('COMMON.SAVING'));
         try {
             const current_map_id = await this._manager
                 .currentMapId(level.id)

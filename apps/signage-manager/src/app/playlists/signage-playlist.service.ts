@@ -275,9 +275,7 @@ export class SignagePlaylistService {
             {
                 title: i18n('SIGNAGE_MANAGER.SVC_TAKEOVER_CONFLICT_TITLE'),
                 content: this._takeoverConflictContent(conflicts, playlist.id),
-                confirm_text: i18n(
-                    'SIGNAGE_MANAGER.SVC_TAKEOVER_CONFLICT_CONFIRM',
-                ),
+                confirm_text: i18n('COMMON.CONTINUE'),
                 icon: { content: 'warning' },
             },
             this._dialog,
@@ -1007,7 +1005,7 @@ export class SignagePlaylistService {
             this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
-                content: i18n('SIGNAGE_MANAGER.PLAYLIST_REVERT_CONFIRM', {
+                content: i18n('SIGNAGE_MANAGER.REVERT_CONFIRM', {
                     name: playlist.name,
                 }),
                 confirm_text: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),

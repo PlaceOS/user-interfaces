@@ -440,7 +440,7 @@ export class ScheduleTimelineComponent {
         const disabled = playlist.enabled ? '' : i18n('COMMON.DISABLED');
         const tooltip_source =
             show_source && block.source_label
-                ? i18n('SIGNAGE_MANAGER.TOOLTIP_SOURCE', {
+                ? i18n('COMMON.TOOLTIP_SOURCE', {
                       source:
                           block.source_type === 'display'
                               ? i18n('SIGNAGE_MANAGER.SOURCE_DISPLAY')

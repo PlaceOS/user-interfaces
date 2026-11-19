@@ -1119,7 +1119,7 @@ export class ScheduleStateService extends AsyncHandler {
                     this._ignore_cancel.push(booking.id);
                     continue;
                 }
-                result.loading(i18n('APP.WORKPLACE.AUTO_RELEASE_LOADING'));
+                result.loading(i18n('APP.WORKPLACE.CODE_CHECKING_IN'));
                 await setBookingCheckedIn(booking, true).catch(() =>
                     notifyError(i18n('BOOKINGS.CHECK_IN_ERROR')),
                 );
@@ -1214,8 +1214,8 @@ export class ScheduleStateService extends AsyncHandler {
             {
                 title: i18n(
                     remove_series
-                        ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_TITLE'
-                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_TITLE',
+                        ? 'BOOKINGS.REMOVE_SERIES_TITLE'
+                        : 'BOOKINGS.ACTION_DELETE',
                     { name: resource_name, time },
                 ),
                 content: i18n(
@@ -1249,7 +1249,7 @@ export class ScheduleStateService extends AsyncHandler {
             i18n(
                 remove_series
                     ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_LOADING'
-                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_LOADING',
+                    : 'BOOKINGS.REMOVE_LOADING',
             ),
         );
         const event = item instanceof CalendarEvent ? item : undefined;
@@ -1271,7 +1271,7 @@ export class ScheduleStateService extends AsyncHandler {
                 i18n(
                     remove_series
                         ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_ERROR'
-                        : 'APP.WORKPLACE.SCHEDULE_REMOVE_ERROR',
+                        : 'BOOKINGS.REMOVE_ERROR',
                     { error: await responseErrorMessage(e) },
                 ),
             );
@@ -1282,7 +1282,7 @@ export class ScheduleStateService extends AsyncHandler {
             i18n(
                 remove_series
                     ? 'APP.WORKPLACE.SCHEDULE_REMOVE_SERIES_SUCCESS'
-                    : 'APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS',
+                    : 'BOOKINGS.REMOVE_SUCCESS',
             ),
         );
         if (item instanceof CalendarEvent) this.removeItem(item);
@@ -1312,7 +1312,7 @@ export class ScheduleStateService extends AsyncHandler {
         );
         const resp = await openConfirmModal(
             {
-                title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
+                title: i18n('BOOKINGS.ACTION_END'),
                 content: i18n('APP.WORKPLACE.SCHEDULE_END_MSG', {
                     name: resource_name,
                     time,
@@ -1334,7 +1334,7 @@ export class ScheduleStateService extends AsyncHandler {
             throw e;
         });
         await promise;
-        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
+        notifySuccess(i18n('BOOKINGS.CHECK_OUT_SUCCESS'));
         this.triggerPoll();
         this._dialog.closeAll();
     }

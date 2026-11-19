@@ -144,6 +144,6 @@ export class ParkingUsersListComponent {
 
     public copyToClipboard(id: string) {
         const success = this._clipboard.copy(id);
-        if (success) notifySuccess(i18n('APP.CONCIERGE.PARKING_COPIED_USER'));
+        if (success) notifySuccess(i18n('APP.CONCIERGE.COPIED_USER'));
     }
 }

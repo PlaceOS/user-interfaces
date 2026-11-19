@@ -60,10 +60,7 @@ import { SpacePipe } from './space.pipe';
                         <p class="line-clamp-4">{{ raw_description() }}</p>
                         @if (!raw_description().trim()) {
                             <p class="opacity-30">
-                                {{
-                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
-                                        | translate
-                                }}
+                                {{ 'COMMON.NO_DESCRIPTION' | translate }}
                             </p>
                         }
                     </div>
@@ -155,10 +152,7 @@ import { SpacePipe } from './space.pipe';
                             <p class="line-clamp-3">{{ raw_description() }}</p>
                             @if (!raw_description().trim()) {
                                 <p class="opacity-30">
-                                    {{
-                                        'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
-                                            | translate
-                                    }}
+                                    {{ 'COMMON.NO_DESCRIPTION' | translate }}
                                 </p>
                             }
                         </div>

@@ -395,12 +395,12 @@ import {
                                                 isCancelledBooking(booking)
                                             "
                                             [matTooltip]="
-                                                'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
+                                                'BOOKINGS.ACTION_DELETE'
                                                     | translate
                                             "
                                             (click)="removeBooking(booking)"
                                             [attr.aria-label]="
-                                                'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
+                                                'BOOKINGS.ACTION_DELETE'
                                                     | translate
                                             "
                                         >

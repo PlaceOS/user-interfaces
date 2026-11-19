@@ -120,7 +120,7 @@ import { EventFormService, SpacePipe } from '@placeos/events';
                         class="w-full max-w-lg"
                         [routerLink]="['/']"
                     >
-                        {{ 'APP.WORKPLACE.MEETING_FINISHED' | translate }}
+                        {{ 'APP.WORKPLACE.BOOKING_FINISHED' | translate }}
                     </a>
                 </footer>
             </div>

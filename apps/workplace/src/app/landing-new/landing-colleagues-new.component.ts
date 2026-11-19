@@ -198,7 +198,7 @@ import { landingFeatures } from './landing-features';
                                         >
                                         <div>
                                             {{
-                                                'APP.WORKPLACE.COLLEAGUES_REMOVE'
+                                                'APP.WORKPLACE.COLLEAGUE_REMOVE'
                                                     | translate
                                             }}
                                         </div>
@@ -336,7 +336,7 @@ export class LandingColleaguesNewComponent {
     public async removeColleague(user: User) {
         const resp = await openConfirmModal(
             {
-                title: i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_TITLE'),
+                title: i18n('APP.WORKPLACE.COLLEAGUE_REMOVE'),
                 content: i18n('APP.WORKPLACE.COLLEAGUES_REMOVE_MSG', {
                     name: user.name,
                 }),

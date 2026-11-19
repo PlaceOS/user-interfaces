@@ -271,7 +271,7 @@ export class ParkingSpaceListComponent extends AsyncHandler {
             notifySuccess(
                 i18n(
                     type
-                        ? 'APP.CONCIERGE.PARKING_COPIED_USER'
+                        ? 'APP.CONCIERGE.COPIED_USER'
                         : 'APP.CONCIERGE.PARKING_COPIED_ID',
                 ),
             );

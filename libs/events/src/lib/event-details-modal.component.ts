@@ -585,7 +585,7 @@ const EMPTY_ACTIONS: { id: string; name: string; icon: string }[] = [];
                                         <div class="flex-1 text-left">
                                             <div class="text-sm">
                                                 {{
-                                                    'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                    'BOOKINGS.ASSETS_REQUESTED_FOR'
                                                         | translate
                                                             : {
                                                                   time:
