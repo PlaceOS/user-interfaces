@@ -148,6 +148,12 @@ export class RemoteDebugModule {
         return command.id;
     }
 
+    /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+    $register(this: MockModule & RemoteDebugModule, device: RemoteDebugDevice) {
+        if (typeof device?.id !== 'string' || !device.id) return;
+        seen(this, device);
+    }
+
     /** Add entries from a device. Ignores calls for a request that is not active */
     $post_logs(
         this: MockModule & RemoteDebugModule,

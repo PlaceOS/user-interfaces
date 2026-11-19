@@ -86,7 +86,7 @@ Most app logs use `log()` from `libs/common/src/lib/general.ts`. These logs show
 
 Admin and support users can debug devices from two places. Both show the logs of a device, start and stop live logs at a level, load older entries, download the logs, send commands, and show the results, including snapshots and animations. The text of the views is in English, the same as the other debugging tools.
 
-- **Concierge, Remote Debugging.** Add `remote-debug` to the Concierge `features` setting to show the link in the admin part of the sidebar. The page lists the devices that called the driver. You can also open any device ID, for example from the setup screen of the device. The device ID is in the `device` query parameter, so you can share a link to a device.
+- **Concierge, Remote Debugging.** Add `remote-debug` to the Concierge `features` setting to show the link in the admin part of the sidebar. The page lists the devices of the driver, with a green dot for the devices that are online. Type in the field to filter the list by ID, app or address. The list shows 100 devices maximum. You can also open any device ID, for example from the setup screen of the device. The device ID is in the `device` query parameter, so you can share a link to a device.
 - **Signage Manager, display Admin tab.** The tab shows for admin and support users. It lists the devices that show the display: devices that remote setup set up with the display, and devices that the driver saw on the player route of the display. You can also open another device ID.
 
 The shared parts are `RemoteDebugPanelComponent` and `RemoteDebugViewService` in `libs/components`.
@@ -147,10 +147,11 @@ type RemoteDebugCommand =
 
 ### Methods that the device calls
 
-| Method                                                  | Description                                                                                            |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `post_logs(device_id, request_id, entries, device)`     | Add the entries to the logs of the request. Ignore the call if `request_id` is not the active request. |
-| `command_result(device_id, command_id, result, device)` | Keep the result of the command and remove the command from `commands`.                                 |
+| Method                                                  | Description                                                                                                     |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `post_logs(device_id, request_id, entries, device)`     | Add the entries to the logs of the request. Ignore the call if `request_id` is not the active request.          |
+| `command_result(device_id, command_id, result, device)` | Keep the result of the command and remove the command from `commands`.                                          |
+| `register(device)`                                      | Fixed devices only. Add or update the device in `devices` and set its `last_seen`. See [Call load](#call-load). |
 
 ```ts
 interface RemoteLogEntry {
@@ -282,7 +283,7 @@ The driver shows what it gets in these bindings:
 
 | Binding        | Type                                                               | Description                                                                                             |
 | -------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `devices`      | `Record<string, RemoteDebugDevice & { last_seen: number }>`        | Devices that called the driver, by device ID.                                                           |
+| `devices`      | `Record<string, RemoteDebugDevice & { last_seen: number }>`        | Devices that registered or called the driver, by device ID.                                             |
 | `logs:<id>`    | `{ device: RemoteDebugDevice \| null; entries: RemoteLogEntry[] }` | Entries ordered by `seq`, oldest first.                                                                 |
 | `results:<id>` | `{ id; type; result: RemoteDebugResult; received_at }[]`           | Last command results, oldest first. A `snapshot` or `animation` result holds the upload ID of its file. |
 
@@ -318,7 +319,8 @@ Each request also sends new entries while it is active. Keep the entries ordered
 - Ignore entries that have a `seq` that the driver has already for the same `started_at`. A device sends a failed batch again, and a batch can arrive after a timeout.
 - Only let users who can debug devices set requests and send commands. `reload`, `clear_cache` and `navigate` change what a device shows. Any device that can sign in can call `post_logs` and `command_result`.
 - Snapshots and animations show what is on the screen, for example names and meeting titles. The uploads need the `support` permission to read. Remove them after a time limit. A device can finish an upload after its command timed out, so the driver does not get that upload ID. Also find old uploads by their file name, which starts with `remote-debug-`.
-- Keep a limit on the data for each device, for example the last 5,000 entries, the last 50 results and the last 3 files. Keep 1,000 devices maximum.
+- Keep a limit on the data for each device, for example the last 5,000 entries and the last 50 results. Keep 1,000 devices maximum. When there are more, remove the devices with the oldest `last_seen` first.
+- Set `last_seen` on each call from the device: `register`, `post_logs` and `command_result`. Remove stale devices, for example after 7 days.
 
 ### Mock driver
 
@@ -338,6 +340,10 @@ window.open(app.remote_debug[`media:${id}`].at(-1).url);
 
 ### Call load
 
-A device calls the driver only while it has an active request or a new command. A device without these does not call the driver. Thus a restart of many devices does not cause calls to the driver.
+A device that is not fixed, such as a staff browser, calls the driver only while it has an active request or a new command.
+
+A fixed device also calls `register` so that the admin views list it. A fixed device is signed in with an API key, or was set up as a fixed device, for example from its bootstrap screen (ts-client `isFixedDevice()`). The first call is after a random wait of 60 seconds maximum, so that devices that start together, for example after a power cut, spread their calls. Then the device calls `register` one time each 15 minutes. For 1,000 fixed devices, this is approximately one call each second.
+
+The admin views show a device as online when it called the driver in the last 35 minutes: two heartbeats and 5 minutes.
 
 While a request is active, a device makes one `post_logs` call each second maximum. One call has 100 entries maximum, so a call is approximately 200 KB maximum.

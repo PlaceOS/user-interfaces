@@ -48,6 +48,7 @@ describe('RemoteDebugPanelComponent', () => {
                     useValue: {
                         module: signal(mod),
                         devices: signal([]),
+                        now: signal(Date.now()),
                         call,
                     },
                 },

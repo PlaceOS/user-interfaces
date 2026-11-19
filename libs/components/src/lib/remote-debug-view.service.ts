@@ -39,6 +39,8 @@ export class RemoteDebugViewService extends AsyncHandler {
     /** Module of the driver. `null` until the state is `ready` */
     public readonly module = this._module.asReadonly();
     public readonly state = this._state.asReadonly();
+    /** Current time, updated each minute, for the online state of devices */
+    public readonly now = signal(Date.now());
     /** Devices that called the driver, last seen first */
     public readonly devices = computed(() =>
         Object.values(this._devices()).sort(
@@ -48,6 +50,7 @@ export class RemoteDebugViewService extends AsyncHandler {
 
     constructor() {
         super();
+        this.interval('now', () => this.now.set(Date.now()), 60 * 1000);
         effect(() => {
             if (!this._org.initialised()) return;
             untracked(() => this.load());
