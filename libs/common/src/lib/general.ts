@@ -54,9 +54,23 @@ declare global {
 }
 
 let _app_name = 'APP';
+let _debug_logging = false;
 
 export function setAppName(name: string) {
     _app_name = name;
+}
+
+/** Short name of the application, as set by `setAppName` */
+export function appName() {
+    return _app_name;
+}
+
+/**
+ * Print `log` lines also when `window.debug` is off. Remote logs turn this
+ * on while a request at the `debug` level is active.
+ */
+export function setDebugLogging(enabled: boolean) {
+    _debug_logging = enabled;
 }
 
 /**
@@ -76,7 +90,7 @@ export function log(
     app_name: string = _app_name,
 ) {
     if (window.jest) return;
-    if (window.debug || force) {
+    if (window.debug || force || _debug_logging) {
         const colors: string[] = [
             'color: #E91E63',
             'color: #3F51B5',

@@ -1,5 +1,6 @@
 export * from './lib/booking-rules';
 export * from './lib/common';
+export * from './lib/console-history.service';
 export * from './lib/currency-options';
 export * from './lib/device-id';
 export * from './lib/external-catering.service';
@@ -16,7 +17,7 @@ export * from './lib/org/organisation.service';
 export * from './lib/placeos.service';
 export * from './lib/public-mode';
 export * from './lib/recurrence';
-export * from './lib/remote-logging.service';
+export * from './lib/remote-debug';
 export * from './lib/remote-setup';
 export * from './lib/sentry';
 export * from './lib/settings-title-strategy.service';
