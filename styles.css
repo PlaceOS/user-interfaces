@@ -3296,6 +3296,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-\[calc\(100vh-9rem\)\] {
   height: calc(100vh - 9rem);
 }
+#placeos .h-fit {
+  height: fit-content;
+}
 #placeos .h-full {
   height: 100%;
 }
@@ -3322,6 +3325,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .max-h-\[1\.25em\] {
   max-height: 1.25em;
+}
+#placeos .max-h-\[32rem\] {
+  max-height: 32rem;
 }
 #placeos .max-h-\[60vh\] {
   max-height: 60vh;
@@ -3998,6 +4004,9 @@ input:where([type=button], [type=reset], [type=submit]),
   margin-inline-start: calc(0.5em * var(--tw-space-x-reverse));
   margin-inline-end: calc(0.5em * calc(1 - var(--tw-space-x-reverse)));
 }
+#placeos .gap-y-1 {
+  row-gap: calc(var(--spacing) * 1);
+}
 #placeos .gap-y-2 {
   row-gap: calc(var(--spacing) * 2);
 }
@@ -4538,6 +4547,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .py-4 {
   padding-block: calc(var(--spacing) * 4);
 }
+#placeos .py-6 {
+  padding-block: calc(var(--spacing) * 6);
+}
 #placeos .py-16 {
   padding-block: calc(var(--spacing) * 16);
 }
@@ -4761,6 +4773,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .tracking-wider {
   --tw-tracking: var(--tracking-wider);
   letter-spacing: var(--tracking-wider);
+}
+#placeos .break-words {
+  overflow-wrap: break-word;
 }
 #placeos .wrap-break-word {
   overflow-wrap: break-word;
