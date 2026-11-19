@@ -6283,6 +6283,11 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 64rem) {
+  #placeos .lg\:min-h-0 {
+    min-height: calc(var(--spacing) * 0);
+  }
+}
+@media (width >= 64rem) {
   #placeos .lg\:w-80 {
     width: calc(var(--spacing) * 80);
   }
