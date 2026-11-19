@@ -33,7 +33,12 @@
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
                     },
-                    "apps/signage/src/manifest.webmanifest"
+                    "apps/signage/src/manifest.webmanifest",
+                    {
+                        "input": "node_modules/ts-md5/dist/",
+                        "output": "/assets",
+                        "glob": "*worker.js"
+                    }
                 ],
                 "styles": [
                     "./node_modules/@angular/material/prebuilt-themes/indigo-pink.css",
