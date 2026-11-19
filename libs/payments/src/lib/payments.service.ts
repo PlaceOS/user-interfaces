@@ -42,6 +42,21 @@ export const PAYMENT_CHECKOUT = new InjectionToken<boolean>(
     { factory: () => false },
 );
 
+/** Hosts that can take payments over plain HTTP, for local development */
+const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
+
+/**
+ * Whether the page can take payments. Payments need a secure context
+ * (HTTPS), so that no other party can change the payment pages. Local hosts
+ * are excluded, so that local development works over HTTP.
+ */
+export function isPaymentContext({
+    isSecureContext,
+    location,
+}: Pick<Window, 'isSecureContext' | 'location'> = window) {
+    return isSecureContext || LOCAL_HOSTS.has(location.hostname);
+}
+
 /** Time between checks of a payment while the user pays on the hosted page */
 const POLL_INTERVAL_MS = 2_000;
 /** Upper bound of checks for one payment. 450 checks are 15 minutes */
@@ -82,10 +97,14 @@ export class PaymentsService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
     private _checkout = inject(PAYMENT_CHECKOUT);
+    private _secure = isPaymentContext();
 
-    /** Whether the active building or the organisation has a payment driver */
+    /**
+     * Whether the active building or the organisation has a payment driver,
+     * and the page is in a secure context or on a local host
+     */
     public get enabled(): boolean {
-        return !!this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE);
+        return !!this._module;
     }
 
     /** Whether new bookings and events in this app take a payment */
@@ -126,6 +145,12 @@ export class PaymentsService {
         () => this.config()?.currency || this._org.currency_code,
     );
 
+    /** Payment driver module. `null` without a driver or a secure context */
+    private get _module() {
+        if (!this._secure) return null;
+        return this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE) ?? null;
+    }
+
     /** Whether the driver supports the optional feature */
     public hasCapability(capability: PaymentCapability) {
         return !!this.config()?.capabilities?.includes(capability);
@@ -136,7 +161,7 @@ export class PaymentsService {
         method: M,
         ...args: Parameters<PaymentDriver[M]>
     ): Promise<ReturnType<PaymentDriver[M]>> {
-        const mod = this._org.module(PAYMENT_BINDING, PAYMENT_MODULE);
+        const mod = this._module;
         if (!mod) throw i18n('PAYMENTS.NOT_ENABLED');
         return mod.execute<ReturnType<PaymentDriver[M]>>(method, args);
     }

@@ -11,7 +11,7 @@ import {
     PaymentWindowClosedError,
 } from '../lib/payment-checkout-modal.component';
 import type { Payment, PaymentQuote } from '../lib/payment.types';
-import { PaymentsService } from '../lib/payments.service';
+import { isPaymentContext, PaymentsService } from '../lib/payments.service';
 
 const QUOTE: PaymentQuote = {
     currency: 'AUD',
@@ -75,6 +75,20 @@ describe('PaymentsService', () => {
         await expect(spectator.service.call('get_config')).rejects.toBe(
             'PAYMENTS.NOT_ENABLED',
         );
+    });
+
+    it('takes payments only in a secure context or on a local host', () => {
+        const page = (isSecureContext: boolean, hostname: string) =>
+            isPaymentContext({
+                isSecureContext,
+                location: { hostname } as Location,
+            });
+        expect(page(true, 'placeos.example.com')).toBe(true);
+        expect(page(false, 'placeos.example.com')).toBe(false);
+        expect(page(false, '192.168.1.20')).toBe(false);
+        expect(page(false, 'localhost')).toBe(true);
+        expect(page(false, '127.0.0.1')).toBe(true);
+        expect(page(false, '[::1]')).toBe(true);
     });
 
     it('passes the arguments to the driver in order', async () => {
