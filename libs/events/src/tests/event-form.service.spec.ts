@@ -20,6 +20,8 @@ import {
 import { of, Subject, throwError } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
+import type { Payment } from 'libs/payments/src/lib/payment.types';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
 import * as ts_client from '@placeos/ts-client';
 import { CalendarService } from '../lib/calendar.service';
@@ -329,6 +331,49 @@ describe('EventFormService', () => {
             );
         },
     );
+
+    it('should link a new event to its payment and capture the payment', async () => {
+        const payment = { id: 'pay-1', status: 'authorized' } as Payment;
+        vi.spyOn(
+            service as unknown as { _takePayment: () => Promise<Payment> },
+            '_takePayment',
+        ).mockResolvedValue(payment);
+        const capture = vi
+            .spyOn(TestBed.inject(PaymentsService), 'capture')
+            .mockResolvedValue(payment);
+        const perform_booking_spy = vi
+            .spyOn(
+                service as unknown as {
+                    _performBooking: (
+                        event: CalendarEvent,
+                    ) => Promise<CalendarEvent>;
+                },
+                '_performBooking',
+            )
+            .mockImplementation(
+                async (event) => new CalendarEvent({ ...event, id: 'event-1' }),
+            );
+        vi.mocked<(url: string) => Promise<unknown>>(
+            ts_client.get,
+        ).mockResolvedValue([]);
+        service.newForm();
+        service.model.update((model) => ({
+            ...model,
+            title: 'Paid meeting',
+            date: new Date(2028, 5, 16, 16).valueOf(),
+            duration: 60,
+        }));
+
+        await service.postForm(true);
+
+        expect(
+            perform_booking_spy.mock.calls[0][0].extension_data.payment_id,
+        ).toBe('pay-1');
+        expect(capture).toHaveBeenCalledWith(payment, {
+            type: 'event',
+            id: 'event-1',
+        });
+    });
 
     it('should remove the visitor booking when the last visitor leaves an event', async () => {
         vi.spyOn(

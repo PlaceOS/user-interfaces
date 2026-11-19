@@ -1093,6 +1093,9 @@ export class EventFormService extends AsyncHandler {
                     all_day_period,
                 );
             }
+            // Keep the link to the payment, also when the event changes later
+            const payment_id = payment?.id || event.extension_data?.payment_id;
+            if (payment_id) ext.payment_id = payment_id;
             let created_event = await this._performBooking(
                 new CalendarEvent({
                     ...(this._model() as any),

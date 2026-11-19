@@ -33,6 +33,7 @@ Source:
 | Concierge | Privileged users | Find the payments of all users by user, status and period. Refund a payment.                  |
 | Concierge | Privileged users | Send requested invoices. Make an invoice for products and services and send it to a user.     |
 | Concierge | Privileged users | Add, change, archive and restore products and services.                                       |
+| Concierge | All users        | See which room, desk, parking and locker bookings have a payment, and open the payment.       |
 
 The driver decides who is privileged. It returns `privileged` in `get_config`. The Concierge pages show a "no access" message to users who are not privileged. The driver must also refuse the privileged methods for these users. The `feature_groups` setting can hide the Concierge links from other user groups, but it is not a security control.
 
@@ -52,6 +53,7 @@ Only Workplace asks for payment. An app turns the checkout on when it provides t
     - When the user closes the popup window first, the payment stays open. The user can select **Reopen payment page**. The app calls `get_payment` first, because the provider can complete the payment after the window closes. When the payment is not complete, the app calls `get_payment_link` to get a new link. The user can also select **Cancel payment**.
     - When the user selects **Cancel payment**, or the check runs for 15 minutes, the app calls `cancel_payment`.
 6. The app saves the booking or the event.
+    - The app stores the payment ID in `extension_data.payment_id` of the booking or the event. An edit keeps it.
     - When the save succeeds, the app calls `capture_payment` with a reference to the booking or the event.
     - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist.
     - A booking with asset requests is captured after the asset requests save. When they fail, the app removes the booking and calls `cancel_payment`.
@@ -170,4 +172,10 @@ The mock driver does not run by default, so that the mock booking flows do not a
 localStorage.setItem('PLACEOS.mock_payments', 'true');
 ```
 
-In mock mode, the current user is privileged. A hosted page counts as paid after 4 seconds. A saved card is authorized immediately.
+In mock mode, the current user is privileged. A hosted page counts as paid after 4 seconds. A saved card is authorized immediately. Every third mock desk, parking, locker and room booking links to a paid payment.
+
+## Booking lists
+
+The Concierge room, desk, parking and locker booking lists show a **Payment** column when the building has a payment driver. A booking with `extension_data.payment_id` shows a payment icon. Select the icon to load the payment with `get_payment` and open its details. Privileged users can refund it there.
+
+The lists do not load the payments of the rows. One request for each row would make a long list slow and could go over the rate limit of the provider. Thus the icon shows that a payment exists, not its status.

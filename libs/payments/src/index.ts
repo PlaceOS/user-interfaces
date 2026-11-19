@@ -1,3 +1,4 @@
+export * from './lib/booking-payment.component';
 export * from './lib/payment-amount.pipe';
 export * from './lib/payment-checkout-modal.component';
 export * from './lib/payment-details-modal.component';

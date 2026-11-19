@@ -23,6 +23,7 @@ import type {
 
 import { HashMap, randomString } from '@placeos/common';
 import { MOCK_MENU } from '../api/catering.data';
+import { linkedPaymentReference } from '../api/payments.data';
 import { ACTIVE_USER } from '../api/users.data';
 
 /** Mock methods have a `$` prefix. The type keeps the mock in sync with the driver contract */
@@ -157,6 +158,42 @@ function newPayment(data: Partial<Payment>): Payment {
 function findPayment(payments: Payment[], id: string) {
     const payment = payments.find((_) => _.id === id);
     if (!payment) throw 'Payment not found';
+    return payment;
+}
+
+/**
+ * Paid payment for a mock booking or event that links to it. Made on the
+ * first read, so that the payment list starts with the seeded history.
+ */
+function linkedPayment(payments: Payment[], id: string) {
+    const reference = linkedPaymentReference(id);
+    if (!reference) return findPayment(payments, id);
+    const existing = payments.find((_) => _.id === id);
+    if (existing) return existing;
+    const amount = reference.type === 'event' ? 5000 : 2000;
+    const name = reference.type === 'event' ? 'Meeting room' : 'Booking';
+    const payment = newPayment({
+        id,
+        status: 'succeeded',
+        amount,
+        description: name,
+        items: [
+            {
+                product_id: '',
+                resource_type: reference.type === 'event' ? 'room' : 'desk',
+                resource_id: '',
+                name,
+                description: '',
+                unit: 'booking',
+                quantity: 1,
+                unit_amount: amount,
+                amount,
+            },
+        ],
+        reference,
+        payment_method: { type: 'card', brand: 'visa', last4: '4242' },
+    });
+    payments.push(payment);
     return payment;
 }
 
@@ -351,7 +388,7 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
     }
 
     $get_payment(id: string): Payment {
-        const payment = findPayment(this._payments, id);
+        const payment = linkedPayment(this._payments, id);
         // Counts from the last link to the hosted page
         if (
             payment.status === 'pending' &&
