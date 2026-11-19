@@ -36,10 +36,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-O22UAECN.js";
+} from "./chunk-OXWWOTF3.js";
 import {
   AnnounceDirective
-} from "./chunk-WIJ3T5UQ.js";
+} from "./chunk-PBFD34HT.js";
 import {
   FormField,
   disabled,
@@ -50,12 +50,12 @@ import {
 } from "./chunk-KUCFMP5P.js";
 import {
   TranslatePipe
-} from "./chunk-GJSN4ABF.js";
+} from "./chunk-STDV4P4T.js";
 import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-GV6NXR2Z.js";
+} from "./chunk-7YOJS5DC.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -155,7 +155,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-VPW6KIQG.js";
+} from "./chunk-MLIHSKTI.js";
 import {
   IconComponent,
   SafePipe
@@ -9062,7 +9062,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
   cancelPostForm() {
   }
   async postForm(force = false, ignore_space_check = [], ignore_owner = false, force_calendar = false) {
-    var _a, _b, _c3, _d, _e, _f, _g, _h, _i, _j, _k, _l;
+    var _a, _b, _c3, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m;
     await currentUserLoaded();
     const notify_new_attendees_only = this.notify_new_attendees_only() && this.can_notify_new_attendees_only();
     if (isEmptyUser({ email: this._model().host })) {
@@ -9177,6 +9177,9 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       if (!event.id) {
         payment = await this._takePayment(spaces.filter((_) => !isIgnored(_)), all_day_period);
       }
+      const payment_id = (payment == null ? void 0 : payment.id) || ((_e = event.extension_data) == null ? void 0 : _e.payment_id);
+      if (payment_id)
+        ext.payment_id = payment_id;
       let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
@@ -9211,13 +9214,13 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       if (failed_resources.length) {
         notifyWarn(i18n(failed_resources.length > 1 ? "CALENDAR_EVENT.SPACES_UNAVAILABLE" : "CALENDAR_EVENT.SPACE_UNAVAILABLE", { spaces: spaceNames(failed_resources) }));
       }
-      const domain = (((_e = currentUser()) == null ? void 0 : _e.email) || "@").split("@")[1];
+      const domain = (((_f = currentUser()) == null ? void 0 : _f.email) || "@").split("@")[1];
       const visitors = this._model().attendees.filter((user) => user.is_external && user.email !== event.host && !user.email.includes(domain) && user.visit_expected);
       if (visitors.length || event.id) {
         await createBookingsForEvent(created_event, "visitor", visitors).catch((e) => this._removeBookingAfterError(!event.id, created_event, false, e));
       }
       const is_new_booking = !event.id;
-      if ((_f = this._model().catering) == null ? void 0 : _f.length) {
+      if ((_g = this._model().catering) == null ? void 0 : _g.length) {
         let submit_catering = null;
         if (this._external_catering.enabled) {
           if (is_new_booking) {
@@ -9246,13 +9249,13 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
             duration: all_day_period.duration,
             host: value.host,
             all_day: value.all_day,
-            location_name: ((_g = spaces[0]) == null ? void 0 : _g.display_name) || ((_h = spaces[0]) == null ? void 0 : _h.name) || "",
-            location_id: ((_i = spaces[0]) == null ? void 0 : _i.id) || "",
+            location_name: ((_h = spaces[0]) == null ? void 0 : _h.display_name) || ((_i = spaces[0]) == null ? void 0 : _i.name) || "",
+            location_id: ((_j = spaces[0]) == null ? void 0 : _j.id) || "",
             zones: unique([
               this._org.organisation.id,
-              (_j = this._org.region) == null ? void 0 : _j.id,
-              (_k = this._org.building) == null ? void 0 : _k.id,
-              ...((_l = spaces[0]) == null ? void 0 : _l.zones) || []
+              (_k = this._org.region) == null ? void 0 : _k.id,
+              (_l = this._org.building) == null ? void 0 : _l.id,
+              ...((_m = spaces[0]) == null ? void 0 : _m.zones) || []
             ]).filter((_) => !!_),
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
@@ -13152,5 +13155,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=ba31c547-1a4b-5c61-9672-7329c7ebafa9
-//# sourceMappingURL=chunk-UU2YS7GF.js.map
+//# debugId=0c9e60c6-24e7-5add-b380-5933baa6d2fb
+//# sourceMappingURL=chunk-VZPWE3TK.js.map

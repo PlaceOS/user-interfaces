@@ -4,23 +4,23 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-P6YNBWYM.js";
+} from "./chunk-4KUWEAYO.js";
 import {
   subMinutes
-} from "./chunk-2YZF7ZSZ.js";
+} from "./chunk-735IFPKX.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-O22UAECN.js";
+} from "./chunk-OXWWOTF3.js";
 import {
   AnnounceDirective
-} from "./chunk-WIJ3T5UQ.js";
+} from "./chunk-PBFD34HT.js";
 import "./chunk-KUCFMP5P.js";
 import "./chunk-GLALPF4J.js";
 import {
   TranslatePipe
-} from "./chunk-GJSN4ABF.js";
+} from "./chunk-STDV4P4T.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-GV6NXR2Z.js";
+} from "./chunk-7YOJS5DC.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-VPW6KIQG.js";
+} from "./chunk-MLIHSKTI.js";
 import {
   IconComponent
 } from "./chunk-ECEYXSP4.js";
@@ -4249,6 +4249,28 @@ function mockEventCatering(event) {
   });
 }
 
+// libs/mocks/src/lib/api/payments.data.ts
+var LINKED_PREFIX = "pay-linked";
+function mockPaymentsEnabled() {
+  try {
+    return localStorage.getItem("PLACEOS.mock_payments") === "true";
+  } catch {
+    return false;
+  }
+}
+function mockLinkedPaymentId(type, id, index) {
+  if (index % 3 !== 0 || !mockPaymentsEnabled())
+    return void 0;
+  return `${LINKED_PREFIX}:${type}:${id}`;
+}
+function linkedPaymentReference(id) {
+  const [prefix, type, ...ref] = id.split(":");
+  if (prefix !== LINKED_PREFIX || type !== "booking" && type !== "event") {
+    return null;
+  }
+  return { type, id: ref.join(":") };
+}
+
 // libs/mocks/src/lib/api/spaces.data.ts
 var ROOM_FEATURES = {
   "Meeting Room": [
@@ -4961,6 +4983,9 @@ var MOCK_EVENTS = (() => {
       return false;
     seen.add(event.id);
     event.extension_data.catering = mockEventCatering(event);
+    const payment_id = mockLinkedPaymentId("event", event.id, seen.size);
+    if (payment_id)
+      event.extension_data.payment_id = payment_id;
     return true;
   });
   return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
@@ -5130,6 +5155,14 @@ var MOCK_BOOKINGS = (() => {
       plate_number: "CANCELLED"
     });
     bookings.push(booking);
+  }
+  const paid_types = ["desk", "parking", "locker"];
+  for (const booking of bookings) {
+    if (!paid_types.includes(booking.booking_type))
+      continue;
+    const payment_id = mockLinkedPaymentId("booking", booking.id, booking.id);
+    if (payment_id)
+      booking.extension_data.payment_id = payment_id;
   }
   return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
@@ -9476,6 +9509,39 @@ function findPayment(payments, id) {
     throw "Payment not found";
   return payment;
 }
+function linkedPayment(payments, id) {
+  const reference = linkedPaymentReference(id);
+  if (!reference)
+    return findPayment(payments, id);
+  const existing = payments.find((_) => _.id === id);
+  if (existing)
+    return existing;
+  const amount = reference.type === "event" ? 5e3 : 2e3;
+  const name = reference.type === "event" ? "Meeting room" : "Booking";
+  const payment = newPayment({
+    id,
+    status: "succeeded",
+    amount,
+    description: name,
+    items: [
+      {
+        product_id: "",
+        resource_type: reference.type === "event" ? "room" : "desk",
+        resource_id: "",
+        name,
+        description: "",
+        unit: "booking",
+        quantity: 1,
+        unit_amount: amount,
+        amount
+      }
+    ],
+    reference,
+    payment_method: { type: "card", brand: "visa", last4: "4242" }
+  });
+  payments.push(payment);
+  return payment;
+}
 function updatePayment(payments, id, changes) {
   const payment = findPayment(payments, id);
   Object.assign(payment, changes, { updated_at: now2() });
@@ -9642,7 +9708,7 @@ var PaymentsModule = class {
     };
   }
   $get_payment(id) {
-    const payment = findPayment(this._payments, id);
+    const payment = linkedPayment(this._payments, id);
     if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
@@ -10676,13 +10742,6 @@ function registerMockZones() {
     }
   });
 }
-function mockPaymentsEnabled() {
-  try {
-    return localStorage.getItem("PLACEOS.mock_payments") === "true";
-  } catch {
-    return false;
-  }
-}
 
 // libs/mocks/src/index.ts
 function mocksInit() {
@@ -10705,11 +10764,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-EUCSCZMJ.js").then((m) => m.ChatComponent)
+  import("./chat.component-IMYYRHJB.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-XKY2VOWX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-FVNJFFVK.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10770,9 +10829,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-EUCSCZMJ.js").then((m) => m.ChatComponent),
+    import("./chat.component-IMYYRHJB.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-XKY2VOWX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-FVNJFFVK.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10815,22 +10874,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-PJHWND2S.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-DLIFNQS4.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-N3CXX6W5.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-OAVASAAN.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-DIBQ73J3.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-O3AABMPH.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-5BQNSA3C.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-63HNCKQU.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10862,5 +10921,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=fcd83a58-f77c-5a84-a237-c54a6ac41bf7
+//# debugId=a44eaf83-bccc-5010-b4d7-8039069d0346
 //# sourceMappingURL=main.js.map
