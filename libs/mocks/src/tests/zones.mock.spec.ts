@@ -9,6 +9,7 @@ import {
     MOCK_REGIONS,
 } from '../lib/api/zone.data';
 import { registerMockZones } from '../lib/api/zones.mock';
+import { REMOTE_DEBUG_MOCK_SYSTEM } from '../lib/realtime/remote-debug';
 import { endpoint } from './endpoints';
 
 vi.mock('@placeos/ts-client');
@@ -253,7 +254,10 @@ describe('registerMockZones', () => {
                 route_params: { id: 'zone-any' },
                 query_params: { name: 'bindings' },
             });
-            const system_ids = new Set(MOCK_SPACES.map((s) => s.id));
+            const system_ids = new Set([
+                ...MOCK_SPACES.map((s) => s.id),
+                REMOTE_DEBUG_MOCK_SYSTEM,
+            ]);
             const missing = Object.entries(bindings.details)
                 .filter(([, sys]) => !system_ids.has(sys))
                 .map(([name, sys]) => `${name} -> ${sys}`);
