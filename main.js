@@ -5,10 +5,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-JV37ZQLF.js";
+} from "./chunk-AYWLYGGA.js";
 import {
   TranslatePipe
-} from "./chunk-K4DGKAZX.js";
+} from "./chunk-UJF5K2JT.js";
 import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
@@ -34,7 +34,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-GDBUNKWB.js";
+} from "./chunk-PMVSYV4Q.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-MKFS7AH7.js";
+} from "./chunk-2CXOBEVW.js";
 import "./chunk-C6AMB2L4.js";
 import {
   IconComponent,
@@ -8168,6 +8168,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     const logs = deviceState(this, device_id).logs;
@@ -10412,11 +10418,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-WUKJ5JHG.js").then((m) => m.ChatComponent)
+  import("./chat.component-AMMDQR53.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-WCRXHIUM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-6X3EL3BN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10477,9 +10483,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-WUKJ5JHG.js").then((m) => m.ChatComponent),
+    import("./chat.component-AMMDQR53.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-WCRXHIUM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-6X3EL3BN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10519,7 +10525,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-EIYUVBSG.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-V2O6XKQP.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -10558,5 +10564,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=59a95536-0947-5725-837e-7a9554dd1de0
+//# debugId=eca2759f-f391-50e2-b1f6-908f099e5fdd
 //# sourceMappingURL=main.js.map
