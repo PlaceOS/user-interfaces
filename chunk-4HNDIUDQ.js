@@ -104,7 +104,7 @@ import {
   withTimeout,
   xi,
   ys
-} from "./chunk-M4B3ST2F.js";
+} from "./chunk-KPM25PJB.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -1706,10 +1706,11 @@ var ANIMATION_FPS = { default: 2, max: 5 };
 var SEND_INTERVAL_MS = 1e3;
 var CALL_TIMEOUT_MS = 30 * 1e3;
 var BINDING_RETRY_MS = 60 * 1e3;
+var REGISTER_SPREAD_MS = 60 * 1e3;
 var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
 var MAX_DURATION_MS = 60 * 60 * 1e3;
 var LOG_TAG = "RemoteDebug";
-var OWN_CALL_LINE = /^\[PlaceOS\]\[WS\] \[EXEC\]\([^)]*\) [^,]*, [^,]*, (post_logs|command_result)\b/;
+var OWN_CALL_LINE = /^\[PlaceOS\]\[WS\] \[EXEC\]\([^)]*\) [^,]*, [^,]*, (post_logs|command_result|register)\b/;
 var CONSOLE_LEVEL = {
   debug: "debug",
   log: "info",
@@ -1720,6 +1721,8 @@ var CONSOLE_LEVEL = {
 function remoteDebugDeviceBinding(device_id) {
   return `device:${device_id}`;
 }
+var REMOTE_DEBUG_HEARTBEAT_MS = 15 * 60 * 1e3;
+var REMOTE_DEBUG_ONLINE_MS = 2 * REMOTE_DEBUG_HEARTBEAT_MS + 5 * 60 * 1e3;
 function remoteDebugLogsBinding(device_id) {
   return `logs:${device_id}`;
 }
@@ -1845,6 +1848,8 @@ var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
       return;
     this._endRequest();
     this.unsub("state");
+    this.clearTimeout("register");
+    this.clearInterval("register");
     this._module = mod;
     this._module_key = key;
     this._commands = [];
@@ -1855,6 +1860,27 @@ var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
     this._startCapture();
     log(LOG_TAG, `Listening for debug requests for ${this.device_id}`);
     this.subscription("state", mod.variable(remoteDebugDeviceBinding(this.device_id)).bindThenSubscribe((value) => this._applyState(value)));
+    if (ys())
+      this._startRegister();
+  }
+  /**
+   * Register a fixed device with the driver, so the admin views list it
+   * before it gets a request. The first call is after a random wait of
+   * `REGISTER_SPREAD_MS` maximum, then one call each
+   * `REMOTE_DEBUG_HEARTBEAT_MS`. Devices that are not fixed, such as
+   * staff browsers, do not register.
+   */
+  _startRegister() {
+    this.timeout("register", () => {
+      this._register();
+      this.interval("register", () => this._register(), REMOTE_DEBUG_HEARTBEAT_MS);
+    }, Math.random() * REGISTER_SPREAD_MS);
+  }
+  _register() {
+    const mod = this._module;
+    if (!mod)
+      return;
+    this._call(mod, "register", [this._deviceDetails()]).catch((error) => log(LOG_TAG, "Failed to register", error, "warn"));
   }
   _applyState(value) {
     const state = value && typeof value === "object" ? value : {};
@@ -9324,7 +9350,7 @@ var REMOTE_SETUP_MODULE = "RemoteSetup";
 var REMOTE_SETUP_CLEAR_LIST = "clear_list";
 var REMOTE_SETUP_CLEAR_SYSTEMS = "clear_systems";
 var HEARTBEAT_MS = 15 * 60 * 1e3;
-var REGISTER_SPREAD_MS = 10 * 1e3;
+var REGISTER_SPREAD_MS2 = 10 * 1e3;
 var LAST_COMMAND_KEY = "PLACEOS.remote_setup.last_command";
 var CLEAR_STATE_KEY = "PLACEOS.remote_setup.clear_systems";
 var MAX_HANDLED_CLEARS = 20;
@@ -9460,7 +9486,7 @@ var RemoteSetupService = class _RemoteSetupService extends AsyncHandler {
     this.timeout("register", () => {
       this._register();
       this.interval("heartbeat", () => this._register(), HEARTBEAT_MS);
-    }, Math.random() * REGISTER_SPREAD_MS);
+    }, Math.random() * REGISTER_SPREAD_MS2);
   }
   _stopRegister() {
     this.clearTimeout("register");
@@ -9956,5 +9982,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=f77733f0-e3c9-5f04-8f42-1fd959d33844
-//# sourceMappingURL=chunk-PQL5G6DD.js.map
+//# debugId=9f14fc9a-1e6f-50fd-8955-caff080afda7
+//# sourceMappingURL=chunk-4HNDIUDQ.js.map

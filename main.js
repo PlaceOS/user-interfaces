@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-AU4T4Z4G.js";
-import "./chunk-JBS6PPKW.js";
+} from "./chunk-7LLKM43P.js";
+import "./chunk-VMTV6J4Z.js";
 import {
   TranslatePipe
-} from "./chunk-CRTBQTVH.js";
+} from "./chunk-3GXX5JIG.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   OrganisationService,
@@ -37,7 +37,7 @@ import {
   serviceWorkerUpdate,
   setupCache,
   toQueryString
-} from "./chunk-PQL5G6DD.js";
+} from "./chunk-4HNDIUDQ.js";
 import {
   AsyncHandler,
   Bp,
@@ -85,7 +85,7 @@ import {
   waitForCurrentUser,
   wi,
   withTimeout
-} from "./chunk-M4B3ST2F.js";
+} from "./chunk-KPM25PJB.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -560,7 +560,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-3USHA2ZY.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-3Z4QZ4PW.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -688,7 +688,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-3USHA2ZY.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-3Z4QZ4PW.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -7893,6 +7893,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     const logs = deviceState(this, device_id).logs;
@@ -10176,7 +10182,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-YXA57NND.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-YX5IQVX6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10386,7 +10392,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-YXA57NND.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-YX5IQVX6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10424,7 +10430,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-7YAU266Y.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-DJE2FFTV.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10449,5 +10455,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=c9821d81-5e75-5668-a50b-2ace8b39b4e3
+//# debugId=86ea1b46-7740-579a-ba8d-ca22a0780618
 //# sourceMappingURL=main.js.map
