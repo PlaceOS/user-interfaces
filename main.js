@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-ZR5SZOTU.js";
-import "./chunk-EBKJQVAS.js";
+} from "./chunk-SNZIPAXC.js";
+import "./chunk-RS4CRNYV.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-KQL4K2WY.js";
+} from "./chunk-CG6JE5W7.js";
 import "./chunk-M533ZSP3.js";
 import {
   TranslatePipe
-} from "./chunk-U6UDN5ML.js";
+} from "./chunk-IPB4XAUI.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -30,11 +30,13 @@ import {
   needsNativeDomain,
   provideServiceWorker,
   remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-4D3E55LF.js";
+} from "./chunk-DMSH4MAZ.js";
 import {
   AsyncHandler,
   Bp,
@@ -68,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-26ZPFA7P.js";
+} from "./chunk-KCCDK7C4.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -8217,19 +8219,9 @@ var MAX_DEVICES = 1e3;
 var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
 var MAX_DURATION_MS = 60 * 60 * 1e3;
 var COMMAND_TIMEOUT_MS = 15 * 60 * 1e3;
-var MAX_DEVICE_MEDIA = 3;
 function setBinding(mod, name, value) {
   mod.listen(name);
   mod[name] = value;
-}
-function remoteLogsViewBinding(device_id) {
-  return `logs:${device_id}`;
-}
-function remoteDebugMediaBinding(device_id) {
-  return `media:${device_id}`;
-}
-function remoteDebugResultsBinding(device_id) {
-  return `results:${device_id}`;
 }
 var RemoteDebugModule = class {
   /** Starts with the logs in `seed` */
@@ -8238,7 +8230,7 @@ var RemoteDebugModule = class {
     this.devices = {};
     this.timers = {};
     for (const view of seed) {
-      this[remoteLogsViewBinding(view.device.id)] = view;
+      this[remoteDebugLogsBinding(view.device.id)] = view;
       this.devices[view.device.id] = __spreadProps(__spreadValues({}, view.device), {
         last_seen: ((_a = view.entries.at(-1)) == null ? void 0 : _a.timestamp) ?? 0
       });
@@ -8289,7 +8281,7 @@ var RemoteDebugModule = class {
     if (!isRemoteLogRequest(logs) || logs.id !== request_id)
       return;
     seen(this, device);
-    const name = remoteLogsViewBinding(device_id);
+    const name = remoteDebugLogsBinding(device_id);
     const view = this[name];
     const same_session = ((_a = view == null ? void 0 : view.device) == null ? void 0 : _a.started_at) === device.started_at;
     const old = same_session ? view.entries : [];
@@ -8309,40 +8301,27 @@ var RemoteDebugModule = class {
       return;
     seen(this, device);
     removeCommand(this, device_id, command_id);
-    if (command.type === "snapshot" || command.type === "animation") {
-      addMedia(this, device_id, command_id, result);
-    }
     const name = remoteDebugResultsBinding(device_id);
-    const results = this[name] ?? [];
-    setBinding(this, name, [
-      ...results,
+    const results = [
+      ...this[name] ?? [],
       {
         id: command.id,
         type: command.type,
         result,
         received_at: Date.now()
       }
-    ].slice(-MAX_DEVICE_RESULTS));
+    ];
+    for (const old of results.splice(0, results.length - MAX_DEVICE_RESULTS)) {
+      releaseMedia(old);
+    }
+    setBinding(this, name, results);
   }
 };
-function addMedia(mod, device_id, command_id, result) {
-  const media = result.data;
-  if (!result.ok || typeof (media == null ? void 0 : media.upload_id) !== "string")
-    return;
-  const name = remoteDebugMediaBinding(device_id);
-  const list = [
-    ...mod[name] ?? [],
-    __spreadProps(__spreadValues({}, media), {
-      id: command_id,
-      url: media.upload_id,
-      received_at: Date.now()
-    })
-  ];
-  for (const old of list.splice(0, list.length - MAX_DEVICE_MEDIA)) {
-    if (old.url.startsWith("blob:"))
-      URL.revokeObjectURL(old.url);
-  }
-  setBinding(mod, name, list);
+function releaseMedia(entry) {
+  var _a;
+  const upload_id = (_a = entry.result.data) == null ? void 0 : _a.upload_id;
+  if (upload_id == null ? void 0 : upload_id.startsWith("blob:"))
+    URL.revokeObjectURL(upload_id);
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -8373,9 +8352,8 @@ function seen(mod, device) {
     [device.id]: __spreadProps(__spreadValues({}, device), { last_seen: Date.now() })
   })).sort((a, b) => b.last_seen - a.last_seen);
   for (const removed of list.splice(MAX_DEVICES)) {
-    setBinding(mod, remoteLogsViewBinding(removed.id), null);
+    setBinding(mod, remoteDebugLogsBinding(removed.id), null);
     setBinding(mod, remoteDebugResultsBinding(removed.id), null);
-    setBinding(mod, remoteDebugMediaBinding(removed.id), null);
   }
   mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
 }
@@ -10566,7 +10544,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-3Q2QR6V2.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-GE5GEZDN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10608,7 +10586,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-3Q2QR6V2.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-GE5GEZDN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10677,22 +10655,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-7EIAM2U4.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-JEMLA7JQ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-XHB7VSN2.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-VAIC4YJX.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-Y5Q37PA3.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-RLPZVEAM.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-BOC7SXHZ.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-MPJC4QS6.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10720,5 +10698,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=8e4cf168-d997-50ff-8531-216aa08ef6f4
+//# debugId=e6eb5c5f-4292-5ed1-8d20-898271317998
 //# sourceMappingURL=main.js.map
