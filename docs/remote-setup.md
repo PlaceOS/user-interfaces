@@ -45,7 +45,7 @@ The default uses the PlaceOS domain, not the address of the page. Thus the QR co
 
 ## Device ID
 
-Each device makes a random ID the first time that it starts. The ID is `DEV-` and 12 uppercase hexadecimal characters, such as `DEV-3F9A0C12B7E4`. A device that already has an ID in an older format keeps that ID. The device keeps the ID in local storage under `PLACEOS.DEVICE_ID`. Remote logging uses the same ID. The setup screen shows the ID below the QR code, so that a person can also type it in the setup flow. The setup flow ignores the case of a typed ID.
+Each device makes a random ID the first time that it starts. The ID is `DEV-` and 12 uppercase hexadecimal characters, such as `DEV-3F9A0C12B7E4`. A device that already has an ID in an older format keeps that ID. The device keeps the ID in local storage under `PLACEOS.DEVICE_ID`. [Remote debugging](remote-debug.md) uses the same ID. The setup screen shows the ID below the QR code, so that a person can also type it in the setup flow. The setup flow ignores the case of a typed ID.
 
 If the app data is cleared, the device makes a new ID.
 

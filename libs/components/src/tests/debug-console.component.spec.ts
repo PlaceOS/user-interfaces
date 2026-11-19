@@ -1,12 +1,12 @@
 import { WritableSignal, signal } from '@angular/core';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
-import { OrganisationService, SettingsService } from '@placeos/common';
-import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
+import { SettingsService } from '@placeos/common';
 import {
     ClientEvent,
-    RemoteLoggingService,
-} from 'libs/common/src/lib/remote-logging.service';
+    ConsoleHistoryService,
+} from 'libs/common/src/lib/console-history.service';
+import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { DebugConsoleComponent } from '../lib/debug-console.component';
 
 describe('DebugConsoleComponent', () => {
@@ -14,14 +14,8 @@ describe('DebugConsoleComponent', () => {
 
     let hotkey_callback: () => void;
     const history = signal<ClientEvent[]>([]);
-    const org_mock = {
-        initialised: signal(true),
-        active_building: signal(null),
-        binding: vi.fn(() => 'sys-1'),
-    };
     const logging_mock = {
         history: history.asReadonly(),
-        setSystem: vi.fn(),
     };
     let setting_signals: Record<string, WritableSignal<unknown>> = {};
     const settings_mock = {
@@ -45,8 +39,7 @@ describe('DebugConsoleComponent', () => {
     const createComponent = createComponentFactory({
         component: DebugConsoleComponent,
         providers: [
-            { provide: OrganisationService, useValue: org_mock },
-            { provide: RemoteLoggingService, useValue: logging_mock },
+            { provide: ConsoleHistoryService, useValue: logging_mock },
             { provide: SettingsService, useValue: settings_mock },
             {
                 provide: HotkeysService,
@@ -64,16 +57,10 @@ describe('DebugConsoleComponent', () => {
         vi.clearAllMocks();
         setting_signals = {};
         history.set([]);
-        org_mock.initialised.set(true);
         spectator = createComponent();
     });
 
     afterEach(() => vi.useRealTimers());
-
-    it('should bind the remote logger to the configured system', () => {
-        expect(org_mock.binding).toHaveBeenCalledWith('remote_logger');
-        expect(logging_mock.setSystem).toHaveBeenCalledWith('sys-1');
-    });
 
     it('should limit displayed logs to the configured amount', () => {
         history.set([
