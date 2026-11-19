@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["playlist-list.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n            }\n\n            /* currentColor shows on the selected playlist too */\n            .file-drop-over {\n                outline: 2px dashed currentColor;\n                outline-offset: -4px;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACJ;AAGA,CAAA;AACI,WAAA,IAAA,OAAA;AACA,kBAAA;AACJ;",
+  "names": []
+}
