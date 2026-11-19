@@ -581,7 +581,6 @@ export class RemoteDebugService extends AsyncHandler {
         this._endRequest();
         this.unsub('state');
         this.clearTimeout('register');
-        this.clearInterval('register');
         this._module = mod;
         this._module_key = key;
         this._commands = [];
@@ -610,23 +609,32 @@ export class RemoteDebugService extends AsyncHandler {
     private _startRegister() {
         this.timeout(
             'register',
-            () => {
-                this._register();
-                this.interval(
-                    'register',
-                    () => this._register(),
-                    REMOTE_DEBUG_HEARTBEAT_MS,
-                );
-            },
+            () => this._register(),
             Math.random() * REGISTER_SPREAD_MS,
         );
     }
 
+    /**
+     * Register, then wait for the next heartbeat. ts-client keeps calls that
+     * are made while the websocket is down and sends them all when it
+     * reconnects, so a device that is not connected does not call. It tries
+     * again after a new random wait, so devices that reconnect together
+     * spread their calls.
+     */
     private _register() {
         const mod = this._module;
         if (!mod) return;
+        if (!is_connected()) {
+            this._startRegister();
+            return;
+        }
         this._call(mod, 'register', [this._deviceDetails()]).catch((error) =>
             log(LOG_TAG, 'Failed to register', error, 'warn'),
+        );
+        this.timeout(
+            'register',
+            () => this._register(),
+            REMOTE_DEBUG_HEARTBEAT_MS,
         );
     }
 
@@ -716,7 +724,14 @@ export class RemoteDebugService extends AsyncHandler {
      */
     private _isOwnCallLine(message: string) {
         if (!message.startsWith('[PlaceOS][WS] [')) return false;
-        if (OWN_CALL_LINE.test(message)) return true;
+        // Another driver can have a method of the same name, such as RemoteSetup
+        // `register`, so the line must name this module: `sys, Module_1, method`
+        const mod = this._module;
+        if (mod && OWN_CALL_LINE.test(message)) {
+            return message.includes(
+                `) ${mod.system.id}, ${mod.name}_${mod.index}, `,
+            );
+        }
         return this._calls > 0 && message.startsWith('[PlaceOS][WS] [SUCCESS]');
     }
 
