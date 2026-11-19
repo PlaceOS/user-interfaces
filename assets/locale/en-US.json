@@ -35,7 +35,9 @@
     },
     "BOOKINGS": {
         "DESK_AUTO_ASSIGN_INFO": "We always try to book a desk in your home neighborhood. If it is full, we find a desk near it.",
-        "DESK_NEIGHBOURHOOD": "Neighborhood"
+        "DESK_NEIGHBOURHOOD": "Neighborhood",
+        "REMOVE_SUCCESS": "Successfully canceled booking.",
+        "REMOVE_LOADING": "Canceling booking..."
     },
     "CALENDAR_EVENT": {
         "SPACE_FAVOURITE": "Favorite {{ name }}"
@@ -51,8 +53,6 @@
             "FAVOURITES_REMOVE": "Remove favorite",
             "FAVOURITES_EMPTY": "No favorites",
             "FAVOURITES_SHOW": "Show only favorites",
-            "SCHEDULE_REMOVE_SUCCESS": "Successfully canceled booking.",
-            "SCHEDULE_REMOVE_LOADING": "Canceling booking...",
             "SCHEDULE_REMOVE_SERIES_SUCCESS": "Successfully canceled booking series.",
             "SCHEDULE_REMOVE_SERIES_LOADING": "Canceling booking series...",
             "COLLEAGUES_ADD_FAVORITE": "Add to Favorites",
@@ -61,8 +61,6 @@
             "AUTO_RELEASE_PARKING_MSG": "You have indicated you are not in the office. Your reservation for \"<i>{{ name }}</i>\" at {{ start }} will be canceled at {{ end }}.<br/><br/>Do you wish to keep this reservation?"
         },
         "CONCIERGE": {
-            "BOOKING_REMOVE_SUCCESS": "Successfully canceled booking.",
-            "BOOKING_REMOVE_LOADING": "Canceling booking...",
             "DESKS_BOOKING_DELETE_LOADING": "Canceling desk booking...",
             "DESKS_BOOKING_DELETE_SUCCESS": "Successfully canceled desk booking.",
             "DESKS_BOOKING_DELETE_SERIES_LOADING": "Canceling desk booking series...",
