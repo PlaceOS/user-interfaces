@@ -5,14 +5,14 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-JDQJHZ7L.js";
+} from "./chunk-MEJ35FIM.js";
 import "./chunk-RZU5UVP7.js";
 import {
   deviceId
 } from "./chunk-GLALPF4J.js";
 import {
   TranslatePipe
-} from "./chunk-R5G5SS2M.js";
+} from "./chunk-4HYV364D.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -28,7 +28,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-RLMEIGAN.js";
+} from "./chunk-SMI6U2M6.js";
 import {
   AsyncHandler,
   Bp,
@@ -67,7 +67,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-SGBF4SJR.js";
+} from "./chunk-FQQWIEO6.js";
 import "./chunk-SFUFVX22.js";
 import {
   IconComponent,
@@ -4240,6 +4240,28 @@ function mockEventCatering(event) {
   });
 }
 
+// libs/mocks/src/lib/api/payments.data.ts
+var LINKED_PREFIX = "pay-linked";
+function mockPaymentsEnabled() {
+  try {
+    return localStorage.getItem("PLACEOS.mock_payments") === "true";
+  } catch {
+    return false;
+  }
+}
+function mockLinkedPaymentId(type, id, index) {
+  if (index % 3 !== 0 || !mockPaymentsEnabled())
+    return void 0;
+  return `${LINKED_PREFIX}:${type}:${id}`;
+}
+function linkedPaymentReference(id) {
+  const [prefix, type, ...ref] = id.split(":");
+  if (prefix !== LINKED_PREFIX || type !== "booking" && type !== "event") {
+    return null;
+  }
+  return { type, id: ref.join(":") };
+}
+
 // libs/mocks/src/lib/api/spaces.data.ts
 var ROOM_FEATURES = {
   "Meeting Room": [
@@ -4947,6 +4969,9 @@ var MOCK_EVENTS = (() => {
       return false;
     seen.add(event.id);
     event.extension_data.catering = mockEventCatering(event);
+    const payment_id = mockLinkedPaymentId("event", event.id, seen.size);
+    if (payment_id)
+      event.extension_data.payment_id = payment_id;
     return true;
   });
   return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
@@ -5115,6 +5140,14 @@ var MOCK_BOOKINGS = (() => {
       plate_number: "CANCELLED"
     });
     bookings.push(booking);
+  }
+  const paid_types = ["desk", "parking", "locker"];
+  for (const booking of bookings) {
+    if (!paid_types.includes(booking.booking_type))
+      continue;
+    const payment_id = mockLinkedPaymentId("booking", booking.id, booking.id);
+    if (payment_id)
+      booking.extension_data.payment_id = payment_id;
   }
   return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
@@ -9392,6 +9425,39 @@ function findPayment(payments, id) {
     throw "Payment not found";
   return payment;
 }
+function linkedPayment(payments, id) {
+  const reference = linkedPaymentReference(id);
+  if (!reference)
+    return findPayment(payments, id);
+  const existing = payments.find((_) => _.id === id);
+  if (existing)
+    return existing;
+  const amount = reference.type === "event" ? 5e3 : 2e3;
+  const name = reference.type === "event" ? "Meeting room" : "Booking";
+  const payment = newPayment({
+    id,
+    status: "succeeded",
+    amount,
+    description: name,
+    items: [
+      {
+        product_id: "",
+        resource_type: reference.type === "event" ? "room" : "desk",
+        resource_id: "",
+        name,
+        description: "",
+        unit: "booking",
+        quantity: 1,
+        unit_amount: amount,
+        amount
+      }
+    ],
+    reference,
+    payment_method: { type: "card", brand: "visa", last4: "4242" }
+  });
+  payments.push(payment);
+  return payment;
+}
 function updatePayment(payments, id, changes) {
   const payment = findPayment(payments, id);
   Object.assign(payment, changes, { updated_at: now2() });
@@ -9558,7 +9624,7 @@ var PaymentsModule = class {
     };
   }
   $get_payment(id) {
-    const payment = findPayment(this._payments, id);
+    const payment = linkedPayment(this._payments, id);
     if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
@@ -10581,13 +10647,6 @@ function registerMockZones() {
     }
   });
 }
-function mockPaymentsEnabled() {
-  try {
-    return localStorage.getItem("PLACEOS.mock_payments") === "true";
-  } catch {
-    return false;
-  }
-}
 
 // libs/mocks/src/index.ts
 function mocksInit() {
@@ -10610,11 +10669,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-IXPWRYBW.js").then((m) => m.ChatComponent)
+  import("./chat.component-CBJ3ULV4.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-AXXYETGL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-DCRE452M.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10675,9 +10734,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-IXPWRYBW.js").then((m) => m.ChatComponent),
+    import("./chat.component-CBJ3ULV4.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-AXXYETGL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-DCRE452M.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10717,7 +10776,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-PKIPQEML.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-RS2YA2EA.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -10756,5 +10815,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=660d673f-5872-5992-b74a-bfc435b0d820
+//# debugId=98b41275-92ed-5607-8508-36e902502f1c
 //# sourceMappingURL=main.js.map
