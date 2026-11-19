@@ -77,8 +77,185 @@ describe('RemoteDebugPanelComponent', () => {
         expect(lines()).toHaveLength(1);
     });
 
+    it('should page back through the entries, then ask the device for older ones', async () => {
+        emit('logs:DEV-1', {
+            device: null,
+            entries: Array.from({ length: 600 }, (_, i) => ({
+                seq: i + 101,
+                timestamp: i,
+                level: 'info',
+                source: 'console',
+                message: `line ${i + 101}`,
+            })),
+        });
+        const shown = () => spectator.component.shown_entries();
+        expect([shown()[0].seq, shown().at(-1)?.seq]).toEqual([700, 201]);
+
+        await spectator.component.loadOlder();
+        expect([shown()[0].seq, shown().at(-1)?.seq]).toEqual([200, 101]);
+        expect(call).not.toHaveBeenCalled();
+
+        await spectator.component.loadOlder();
+        expect(call).toHaveBeenCalledWith('request_logs', [
+            'DEV-1',
+            'info',
+            { history: 1000, before: 101 },
+        ]);
+        // The page stays until older entries arrive
+        expect([shown()[0].seq, shown().at(-1)?.seq]).toEqual([200, 101]);
+
+        emit('logs:DEV-1', {
+            device: null,
+            entries: Array.from({ length: 700 }, (_, i) => ({
+                seq: i + 1,
+                timestamp: i,
+                level: 'info',
+                source: 'console',
+                message: `line ${i + 1}`,
+            })),
+        });
+        expect([shown()[0].seq, shown().at(-1)?.seq]).toEqual([100, 1]);
+    });
+
+    it('should keep the page when the driver drops the older entries', async () => {
+        const entry = (seq: number, message: string) => ({
+            seq,
+            timestamp: seq,
+            level: 'info' as const,
+            source: 'console' as const,
+            message,
+        });
+        const view = (seqs: [number, string][]) => ({
+            device: null,
+            entries: seqs.map(([seq, message]) => entry(seq, message)),
+        });
+        emit(
+            'logs:DEV-1',
+            view([
+                [5, 'Failed'],
+                [6, 'line 6'],
+                [7, 'line 7'],
+            ]),
+        );
+        spectator.component.filter.set('line');
+        const shown = () =>
+            spectator.component.shown_entries().map((_) => _.seq);
+
+        await spectator.component.loadOlder();
+        expect(call).toHaveBeenCalledWith('request_logs', [
+            'DEV-1',
+            'info',
+            { history: 1000, before: 5 },
+        ]);
+        // A full driver keeps its newest entries, so no older entry arrives
+        emit(
+            'logs:DEV-1',
+            view([
+                [6, 'line 6'],
+                [7, 'line 7'],
+                [8, 'line 8'],
+            ]),
+        );
+        expect(shown()).toEqual([8, 7, 6]);
+    });
+
+    it('should send log requests to the driver in the order they were made', async () => {
+        emit('device:DEV-1', { logs: { id: 'req-1', level: 'info' } });
+        const sent: string[] = [];
+        let release = () => {};
+        // Each call stays open until the test releases it
+        call.mockImplementation((method: string, args: unknown[]) => {
+            sent.push(method === 'set_level' ? `${method} ${args[1]}` : method);
+            return new Promise((resolve) => (release = () => resolve(null)));
+        });
+        const settle = () => new Promise((resolve) => setTimeout(resolve));
+
+        // A level change, then Load older, a stop and a new request
+        const all = Promise.all([
+            spectator.component.setLevel('debug'),
+            spectator.component.stopLogs(),
+            spectator.component.startLogs(),
+        ]);
+        await settle();
+        // The next call waits until the running call finishes
+        expect(sent).toEqual(['set_level debug']);
+        release();
+        await settle();
+        expect(sent).toEqual(['set_level debug', 'stop_logs']);
+        release();
+        await settle();
+        release();
+        await all;
+
+        expect(sent).toEqual(['set_level debug', 'stop_logs', 'request_logs']);
+        // The new request uses the level that the user selected
+        expect(call).toHaveBeenLastCalledWith('request_logs', [
+            'DEV-1',
+            'debug',
+            { history: 1000 },
+        ]);
+    });
+
+    it('should show the newest entries again when the user selects Newest', async () => {
+        const entry = (seq: number) => ({
+            seq,
+            timestamp: seq,
+            level: 'info' as const,
+            source: 'console' as const,
+            message: `line ${seq}`,
+        });
+        emit('logs:DEV-1', { device: null, entries: [5, 6, 7].map(entry) });
+        await spectator.component.loadOlder();
+        expect(call).toHaveBeenCalledWith('request_logs', [
+            'DEV-1',
+            'info',
+            { history: 1000, before: 5 },
+        ]);
+        spectator.component.showNewest();
+
+        // Older entries that arrive later do not move the page
+        emit('logs:DEV-1', { device: null, entries: [4, 5, 6, 7].map(entry) });
+
+        expect(spectator.component.older_than()).toBeNull();
+    });
+
+    it('should not send a level change for a device without live logs', async () => {
+        await spectator.component.setLevel('debug');
+
+        expect(call).not.toHaveBeenCalled();
+    });
+
+    it('should send quick level changes one at a time, in order', async () => {
+        emit('device:DEV-1', { logs: { id: 'req-1', level: 'info' } });
+        const levels: string[] = [];
+        // Like ts-client, a call with the same arguments as a running call joins it
+        const running = new Map<string, Promise<null>>();
+        call.mockImplementation((method: string, args: unknown[]) => {
+            const key = JSON.stringify([method, args]);
+            const joined = running.get(key);
+            if (joined) return joined;
+            if (method === 'set_level') levels.push(args[1] as string);
+            const result = new Promise<null>((resolve) =>
+                setTimeout(() => resolve(null)),
+            ).finally(() => running.delete(key));
+            running.set(key, result);
+            return result;
+        });
+
+        await Promise.all(
+            (['debug', 'warn', 'debug'] as const).map((_) =>
+                spectator.component.setLevel(_),
+            ),
+        );
+
+        expect(levels).toEqual(['debug', 'warn', 'debug']);
+    });
+
     it('should start and stop live logs at the selected level', async () => {
+        // Log request calls run in a queue, so they start after a microtask
+        const settle = () => new Promise((resolve) => setTimeout(resolve));
         spectator.click('[start-logs]');
+        await settle();
         expect(call).toHaveBeenCalledWith('request_logs', [
             'DEV-1',
             'info',
@@ -90,6 +267,7 @@ describe('RemoteDebugPanelComponent', () => {
         expect(call).toHaveBeenCalledWith('set_level', ['DEV-1', 'debug']);
 
         spectator.click('[stop-logs]');
+        await settle();
         expect(call).toHaveBeenCalledWith('stop_logs', ['DEV-1']);
     });
 

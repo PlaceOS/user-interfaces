@@ -328,14 +328,16 @@ In mock mode, the `remote_debug` binding of each zone points to the mock system 
 
 The app in mock mode is also a device of the mock. A request or a command for the ID of the app shows the result in `logs:<id>` and `results:<id>`. The mock keeps the last 50 results for each device. Uploads are not mocked, so in mock mode the device does not upload: the upload ID is a `blob:` URL of the file in the page.
 
-There is no viewer yet. In mock mode, the browser console has the mock module as `app.remote_debug`. For example:
+Use the [Admin views](#admin-views) in mock mode. The browser console also has the mock module as `app.remote_debug`, for example to add fixed devices for the views to list:
 
 ```js
 const id = localStorage.getItem('PLACEOS.DEVICE_ID');
 app.remote_debug.call('send_command', [id, 'snapshot']);
 // After the result arrives, open the file in a new tab
-window.open(app.remote_debug[`media:${id}`].at(-1).url);
-// Chrome opens a `blob:` URL in a new tab. It does not open a `data:` URL
+const last = app.remote_debug[`results:${id}`].at(-1);
+window.open(last.result.data.upload_id);
+// A device for the views to list
+app.remote_debug.call('register', [{ id: 'DEV-3F9A0C12B7E4', app: 'Signage', version: '1', build: 'a', url: 'https://placeos.test/signage/#/signage/sys-1', user_agent: '', started_at: Date.now() }]);
 ```
 
 ### Call load

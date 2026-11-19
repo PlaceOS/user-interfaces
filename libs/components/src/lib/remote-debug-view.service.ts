@@ -81,22 +81,22 @@ export class RemoteDebugViewService extends AsyncHandler {
 
     /**
      * Call a method of the driver for the people who debug, such as
-     * `request_logs` or `send_command`. Shows an error and resolves `null`
-     * when the call fails.
+     * `request_logs` or `send_command`. Resolves the result of the driver.
+     * Shows an error and resolves `undefined` when the call fails.
      */
     public async call<T = unknown>(
         method: string,
         args: unknown[],
-    ): Promise<T | null> {
+    ): Promise<T | undefined> {
         const mod = this._module();
-        if (!mod) return null;
+        if (!mod) return undefined;
         try {
             return await mod.execute<T>(method, args);
         } catch (error) {
             notifyError(
                 `Remote debugging failed: ${(error as Error)?.message || error}`,
             );
-            return null;
+            return undefined;
         }
     }
 }

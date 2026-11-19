@@ -17,9 +17,11 @@ import { MatSelectModule } from '@angular/material/select';
 
 import {
     AsyncHandler,
+    downloadFile,
     isRemoteDebugCommand,
     isRemoteDebugDeviceOnline,
     isRemoteLogRequest,
+    notifyError,
     notifySuccess,
     REMOTE_LOG_LEVELS,
     RemoteDebugCommandOptions,
@@ -175,11 +177,23 @@ const LEVEL_CLASSES: Record<RemoteLogLevel, string> = {
                         matRipple
                         type="button"
                         class="inverse"
-                        [disabled]="!entries().length"
+                        [disabled]="!can_load_older()"
                         (click)="loadOlder()"
                     >
                         Load older
                     </button>
+                    @if (older_than() !== null) {
+                        <button
+                            btn
+                            matRipple
+                            newest
+                            type="button"
+                            class="inverse"
+                            (click)="showNewest()"
+                        >
+                            Newest
+                        </button>
+                    }
                     <button
                         icon
                         matRipple
@@ -197,6 +211,9 @@ const LEVEL_CLASSES: Record<RemoteLogLevel, string> = {
                     }
                     Showing {{ shown_entries().length }} of
                     {{ entries().length }} entries, newest first.
+                    @if (older_than() !== null) {
+                        Older than entry {{ older_than() }}.
+                    }
                 </p>
                 <ol
                     class="border-base-300 max-h-[32rem] overflow-auto border-t font-mono text-xs"
@@ -465,13 +482,28 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         (this._state().commands ?? []).filter(isRemoteDebugCommand),
     );
     public readonly entries = computed(() => this._logs()?.entries ?? []);
+    /** Show only entries with a lower `seq`. `null` shows the newest entries */
+    public readonly older_than = signal<number | null>(null);
+    /**
+     * Log request calls (start, stop, level, older entries) run one at a
+     * time, so they reach the driver in the order the user made them.
+     * ts-client also joins a call with the same arguments while it runs,
+     * which would drop the last of quick changes such as debug, warn, debug
+     */
+    private _requests: Promise<unknown> = Promise.resolve();
+    /** `seq` that a request for older entries asked for. The page moves when older entries arrive */
+    private _older_wanted: number | null = null;
+    /** ID of the log request in the binding, to find a new request */
+    private _request_id = '';
     public readonly shown_entries = computed(() => {
         const filter = this.filter().trim().toLowerCase();
+        const older_than = this.older_than() ?? Infinity;
         const list: RemoteLogEntry[] = [];
         const entries = this.entries();
         // Newest first, so the loop stops after the shown entries
         for (let i = entries.length - 1; i >= 0; i--) {
             const entry = entries[i];
+            if (entry.seq >= older_than) continue;
             if (filter && !entry.message.toLowerCase().includes(filter)) {
                 continue;
             }
@@ -514,34 +546,110 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
 
     /** Start a log request at the selected level, with the buffered entries */
     public async startLogs() {
-        await this._view.call('request_logs', [
-            this.device_id(),
-            this.level(),
-            { history: LOG_HISTORY },
-        ]);
+        // Live entries are newer than any page, so show the newest entries
+        this.older_than.set(null);
+        this._older_wanted = null;
+        const device_id = this.device_id();
+        // The level is read when the call runs, so a level that the user
+        // selects while calls wait is used
+        await this._queue(() =>
+            this._view.call('request_logs', [
+                device_id,
+                this.level(),
+                { history: LOG_HISTORY },
+            ]),
+        );
     }
 
     public async stopLogs() {
-        await this._view.call('stop_logs', [this.device_id()]);
+        const device_id = this.device_id();
+        await this._queue(() => this._view.call('stop_logs', [device_id]));
     }
 
     /** Select a level. An active request changes its level */
+    /** Select a level. An active request at another level changes its level */
     public async setLevel(level: RemoteLogLevel) {
         this.level.set(level);
-        if (this.request()) {
-            await this._view.call('set_level', [this.device_id(), level]);
-        }
+        // The binding can still show an older level, so always send it. The
+        // device ignores a level that does not change
+        if (!this.request()) return;
+        const device_id = this.device_id();
+        await this._queue(() =>
+            this._view.call('set_level', [device_id, level]),
+        );
     }
 
     /** New request for the entries before the oldest entry that the driver has */
+    /**
+     * Show older entries. When the driver has more entries than the panel
+     * shows, show the page before the oldest shown entry. Otherwise ask the
+     * device for the entries before the oldest entry of the driver.
+     */
     public async loadOlder() {
         const oldest = this.entries()[0];
         if (!oldest) return;
-        await this._view.call('request_logs', [
-            this.device_id(),
-            this.request()?.level ?? this.level(),
-            { history: LOG_HISTORY, before: oldest.seq },
-        ]);
+        const oldest_shown = this.shown_entries().at(-1);
+        if (oldest_shown && this._canPageLocally()) {
+            this.older_than.set(oldest_shown.seq);
+            return;
+        }
+        // The device has no entries before the first one
+        if (oldest.seq <= 1) return;
+        // The page stays until older entries arrive. A driver with a full
+        // store can drop them, and the page must not go blank
+        this._older_wanted = oldest.seq;
+        const device_id = this.device_id();
+        await this._queue(() =>
+            this._view.call('request_logs', [
+                device_id,
+                this.level(),
+                { history: LOG_HISTORY, before: oldest.seq },
+            ]),
+        );
+    }
+
+    /** Whether the panel or the device can have entries older than the page */
+    public readonly can_load_older = computed(() => {
+        const oldest = this.entries()[0];
+        return !!oldest && (oldest.seq > 1 || this._canPageLocally());
+    });
+
+    /**
+     * Whether the panel has older matching entries than the shown page. Only
+     * a full page can have them. Otherwise the page shows all entries before
+     * the cursor that match the filter
+     */
+    private _canPageLocally() {
+        const shown = this.shown_entries();
+        const oldest_shown = shown.at(-1);
+        return (
+            !!oldest_shown &&
+            shown.length >= MAX_SHOWN_ENTRIES &&
+            this._hasMatchBefore(oldest_shown.seq)
+        );
+    }
+
+    /** Show the newest entries, also when older entries are on the way */
+    public showNewest() {
+        this.older_than.set(null);
+        this._older_wanted = null;
+    }
+
+    /** Run a log request call after the calls before it */
+    private _queue<T>(call: () => Promise<T>): Promise<T> {
+        const next = this._requests.then(call);
+        this._requests = next.catch(() => undefined);
+        return next;
+    }
+
+    /** Whether an entry before `seq` matches the filter */
+    private _hasMatchBefore(seq: number) {
+        const filter = this.filter().trim().toLowerCase();
+        return this.entries().some(
+            (_) =>
+                _.seq < seq &&
+                (!filter || _.message.toLowerCase().includes(filter)),
+        );
     }
 
     /** Save the log entries as a text file */
@@ -552,37 +660,40 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
                     `${new Date(_.timestamp).toISOString()} ${_.level.toUpperCase()} ${_.message}`,
             )
             .join('\n');
-        const url = URL.createObjectURL(
-            new Blob([text], { type: 'text/plain' }),
-        );
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${this.device_id()}-logs.txt`;
-        link.click();
-        URL.revokeObjectURL(url);
+        downloadFile(`${this.device_id()}-logs.txt`, text);
     }
 
     public async send(
         type: RemoteDebugCommandType,
         options: RemoteDebugCommandOptions = {},
+        device_id = this.device_id(),
     ) {
         const id = await this._view.call<string | null>('send_command', [
-            this.device_id(),
+            device_id,
             type,
             options,
         ]);
-        if (id) notifySuccess(`Sent ${type} to ${this.device_id()}`);
+        // `undefined` is a failed call, which the view service already shows
+        if (id === undefined) return;
+        if (id) notifySuccess(`Sent ${type} to ${device_id}`);
+        else {
+            notifyError(
+                `The driver did not take the ${type} command. The device can have 20 waiting commands maximum.`,
+            );
+        }
     }
 
     /** Reload the app on the device, after the user confirms */
     public async reload(type: 'reload' | 'clear_cache') {
+        // The device can change while the dialog is open, so keep the one it names
+        const device_id = this.device_id();
         const result = await openConfirmModal(
             {
                 title: type === 'reload' ? 'Reload app' : 'Clear cache',
                 content:
                     type === 'reload'
-                        ? `Reload the app on ${this.device_id()}?`
-                        : `Remove the app caches on ${this.device_id()} and reload it? The device must be online to load the app again.`,
+                        ? `Reload the app on ${device_id}?`
+                        : `Remove the app caches on ${device_id} and reload it? The device must be online to load the app again.`,
                 icon: { type: 'icon', content: 'restart_alt' },
                 destructive: true,
             },
@@ -590,7 +701,7 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.close();
-        await this.send(type);
+        await this.send(type, {}, device_id);
     }
 
     public async sendSettings() {
@@ -625,17 +736,29 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         this._state.set({});
         this._logs.set(null);
         this._results.set([]);
+        this.older_than.set(null);
+        this._older_wanted = null;
+        this._request_id = '';
         const mod = this._view.module();
         if (!connected || !mod || !device_id) return;
         this.subscription(
             'state',
             mod
                 .variable<unknown>(remoteDebugDeviceBinding(device_id))
-                .bindThenSubscribe((value) =>
-                    this._state.set(
-                        value && typeof value === 'object' ? value : {},
-                    ),
-                ),
+                .bindThenSubscribe((value) => {
+                    const state: RemoteDebugDeviceState =
+                        value && typeof value === 'object' ? value : {};
+                    // A new request sets the selected level. Later binding
+                    // values can be older than a level that the user selects
+                    const logs = isRemoteLogRequest(state.logs)
+                        ? state.logs
+                        : null;
+                    if (logs && logs.id !== this._request_id) {
+                        this.level.set(logs.level);
+                    }
+                    this._request_id = logs?.id ?? '';
+                    this._state.set(state);
+                }),
         );
         this.subscription(
             'logs',
@@ -643,7 +766,22 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
                 .variable<RemoteLogsView | null>(
                     remoteDebugLogsBinding(device_id),
                 )
-                .bindThenSubscribe((value) => this._logs.set(value ?? null)),
+                .bindThenSubscribe((value) => {
+                    // A reloaded device starts its `seq` again, so the cursor no longer applies
+                    const started_at = value?.device?.started_at;
+                    if (started_at !== this._logs()?.device?.started_at) {
+                        this.older_than.set(null);
+                        this._older_wanted = null;
+                    }
+                    this._logs.set(value ?? null);
+                    // Show the older entries when they arrive
+                    // Only when an older entry matches the filter, so the page does not go blank
+                    const wanted = this._older_wanted;
+                    if (wanted !== null && this._hasMatchBefore(wanted)) {
+                        this.older_than.set(wanted);
+                        this._older_wanted = null;
+                    }
+                }),
         );
         this.subscription(
             'results',

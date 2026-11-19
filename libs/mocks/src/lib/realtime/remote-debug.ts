@@ -220,9 +220,12 @@ export class RemoteDebugModule {
  * the page. Release the file of a result that the mock no longer keeps.
  */
 function releaseMedia(entry: RemoteDebugCommandResult) {
+    if (entry.type !== 'snapshot' && entry.type !== 'animation') return;
     const upload_id = (entry.result.data as RemoteDebugMedia | undefined)
         ?.upload_id;
-    if (upload_id?.startsWith('blob:')) URL.revokeObjectURL(upload_id);
+    if (typeof upload_id === 'string' && upload_id.startsWith('blob:')) {
+        URL.revokeObjectURL(upload_id);
+    }
 }
 
 /** Clear the log request of a device when its duration ends. See the driver requirements */
@@ -336,8 +339,8 @@ export function createRemoteDebugSystem() {
     const system = registerSystem(REMOTE_DEBUG_MOCK_SYSTEM, {
         [REMOTE_DEBUG_MODULE]: [mod],
     });
-    // Console handle, as there is no viewer yet. For example:
-    // app.remote_debug.call('send_command', ['<device id>', 'snapshot'])
+    // Console handle, for example to register devices for the admin views.
+    // See the mock driver section of docs/remote-debug.md
     const registered = system?.[REMOTE_DEBUG_MODULE]?.[0];
     if (registered) {
         window.app ??= {};

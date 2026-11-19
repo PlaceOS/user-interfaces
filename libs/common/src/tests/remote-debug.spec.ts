@@ -29,6 +29,8 @@ function fakeModule() {
     );
     const mod = {
         id: 'RemoteDebug_1',
+        name: 'RemoteDebug',
+        index: 1,
         system: { id: 'sys-debug' },
         execute,
         variable: vi.fn((_name: string) => ({
@@ -188,6 +190,7 @@ describe('RemoteDebugService', () => {
 
     it('should register a fixed device, then each 15 minutes', async () => {
         vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
+        vi.mocked(ts_client.is_connected).mockReturnValue(true);
         const registers = () =>
             driver.execute.mock.calls.filter(([m]) => m === 'register');
         await connect();
@@ -201,6 +204,22 @@ describe('RemoteDebugService', () => {
         await vi.advanceTimersByTimeAsync(15 * 60_000);
 
         expect(registers()).toHaveLength(2);
+    });
+
+    it('should not register while the websocket is down', async () => {
+        vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
+        vi.mocked(ts_client.is_connected).mockReturnValue(false);
+        await connect();
+        await vi.advanceTimersByTimeAsync(5 * 60_000);
+        expect(driver.execute).not.toHaveBeenCalled();
+
+        // After the reconnect, the next try is in a random wait of 1 minute maximum
+        vi.mocked(ts_client.is_connected).mockReturnValue(true);
+        await vi.advanceTimersByTimeAsync(60_000);
+
+        expect(
+            driver.execute.mock.calls.filter(([m]) => m === 'register'),
+        ).toHaveLength(1);
     });
 
     it('should not register a device that is not fixed', async () => {
