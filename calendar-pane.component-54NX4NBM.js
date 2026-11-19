@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-HUQQUJHK.js";
+} from "./chunk-5M56OVGF.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-NOE4CUYE.js";
 import {
   CustomTooltipComponent
-} from "./chunk-4MNZWW5I.js";
+} from "./chunk-NZMKTLV5.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-OXXMPYFU.js";
+} from "./chunk-EQYLMZHV.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-P565ISSQ.js";
+} from "./chunk-GMI6BLIU.js";
 import {
   TranslatePipe
-} from "./chunk-T6RF73ZL.js";
+} from "./chunk-CDKFQU6F.js";
 import {
   AbstractControl,
   Booking,
@@ -88,7 +88,7 @@ import {
   toBookingRecurrence,
   toQueryString,
   ɵNgNoValidate
-} from "./chunk-Z7JTVEUA.js";
+} from "./chunk-IT65BMZL.js";
 import {
   $,
   AssetRequest,
@@ -188,7 +188,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-E2FRAEUC.js";
+} from "./chunk-RRQHPMHA.js";
 import "./chunk-WAJLQ4NS.js";
 import {
   BasePortalOutlet,
@@ -21180,7 +21180,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
-            throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
+            throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
           await requests();
         } catch (e) {
           await this._removeBookingAfterError(!event.id, created_event, true, e);
@@ -21303,7 +21303,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         calendar: this._model().host || currentUser()?.email,
         system_id: event.resources[0].id
       } : {}));
-      throw e?.status === 409 ? i18n("CALENDAR_EVENT.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
+      throw e?.status === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
     } else if (assets) {
       throw i18n("CALENDAR_EVENT.ASSETS_PARTIAL_ERROR", {
         error: errorMessage(e) || e
@@ -27394,5 +27394,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=3c496ca7-114c-5f41-8aee-b565bc61121b
-//# sourceMappingURL=calendar-pane.component-6YFQL2B7.js.map
+//# debugId=34e8adff-deef-52f3-9ed1-d7ba3d4b1512
+//# sourceMappingURL=calendar-pane.component-54NX4NBM.js.map
