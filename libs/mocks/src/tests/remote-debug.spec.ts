@@ -1,7 +1,9 @@
 import {
+    RemoteDebugCommandResult,
     RemoteDebugDevice,
     RemoteDebugDeviceState,
     RemoteLogEntry,
+    RemoteLogsView,
 } from '@placeos/common';
 import { mockSystem } from '@placeos/ts-client';
 
@@ -9,8 +11,6 @@ import {
     createRemoteDebugSystem,
     MockRemoteDebugModule,
     REMOTE_DEBUG_MOCK_SYSTEM,
-    RemoteDebugCommandResult,
-    RemoteLogsView,
 } from '../lib/realtime/remote-debug';
 
 describe('mock RemoteDebug driver', () => {
@@ -119,38 +119,6 @@ describe('mock RemoteDebug driver', () => {
                 id: command_id,
                 type: 'settings',
                 result,
-                received_at: expect.any(Number),
-            },
-        ]);
-    });
-
-    it('should keep the upload of a snapshot', () => {
-        const id = mod.call('send_command', [
-            device_id,
-            'snapshot',
-            { width: 800 },
-        ]);
-        const media = {
-            mime: 'image/png',
-            width: 800,
-            height: 450,
-            frames: 1,
-            duration: 0,
-            bytes: 5,
-            upload_id: 'blob:http://localhost/1',
-        };
-        mod.call('command_result', [
-            device_id,
-            id,
-            { ok: true, data: media },
-            device,
-        ]);
-
-        expect(mod[`media:${device_id}`]).toEqual([
-            {
-                ...media,
-                id,
-                url: 'blob:http://localhost/1',
                 received_at: expect.any(Number),
             },
         ]);

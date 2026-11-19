@@ -82,6 +82,15 @@ When `window.debug` is on, ts-client logs each driver call. The device does not 
 
 Most app logs use `log()` from `libs/common/src/lib/general.ts`. These logs show only when `window.debug` is on. While a request at the `debug` level is active, the device shows these logs also when `window.debug` is off.
 
+## Admin views
+
+Admin and support users can debug devices from two places. Both show the logs of a device, start and stop live logs at a level, load older entries, download the logs, send commands, and show the results, including snapshots and animations. The text of the views is in English, the same as the other debugging tools.
+
+- **Concierge, Remote Debugging.** Add `remote-debug` to the Concierge `features` setting to show the link in the admin part of the sidebar. The page lists the devices that called the driver. You can also open any device ID, for example from the setup screen of the device. The device ID is in the `device` query parameter, so you can share a link to a device.
+- **Signage Manager, display Admin tab.** The tab shows for admin and support users. It lists the devices that show the display: devices that remote setup set up with the display, and devices that the driver saw on the player route of the display. You can also open another device ID.
+
+The shared parts are `RemoteDebugPanelComponent` and `RemoteDebugViewService` in `libs/components`.
+
 ## Driver interface
 
 The driver is not part of this repository. The apps expect this interface. The type definitions are in `libs/common/src/lib/remote-debug.ts`.
@@ -258,9 +267,9 @@ What the capture cannot show:
 
 Timing: in Chrome on a desktop computer, a 1,280 pixel snapshot of the Control setup screen takes about 0.4 seconds and is about 20 KB. A 4 second animation at 3 frames each second and 640 pixels is about 90 KB as WebP or GIF. Slower devices take longer for each frame.
 
-### Methods for the people who debug
+### Methods and bindings for the admin views
 
-The apps do not call these methods. The driver needs them for the people who debug devices. For example:
+Devices do not use these methods and bindings. The admin views (see [Admin views](#admin-views)) use them. The types are in `libs/common/src/lib/remote-debug.ts`.
 
 | Method                                    | Description                                                                                                                                       |
 | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -269,14 +278,13 @@ The apps do not call these methods. The driver needs them for the people who deb
 | `stop_logs(device_id)`                    | Set `logs` in `device:<device_id>` to `null`.                                                                                                     |
 | `send_command(device_id, type, options)`  | Add a command with a new, unique ID to `commands`. Returns the command ID. `options` holds the command fields, such as `keys`, `path` or `width`. |
 
-The driver can show what it gets in bindings, for example:
+The driver shows what it gets in these bindings:
 
-| Binding        | Type                                                               | Description                                                        |
-| -------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------ |
-| `devices`      | `Record<string, RemoteDebugDevice & { last_seen: number }>`        | Devices that called the driver, by device ID.                      |
-| `logs:<id>`    | `{ device: RemoteDebugDevice \| null; entries: RemoteLogEntry[] }` | Entries ordered by `seq`, oldest first.                            |
-| `results:<id>` | `{ id; type; result: RemoteDebugResult; received_at }[]`           | Last command results, oldest first.                                |
-| `media:<id>`   | `(RemoteDebugMedia & { id; url; received_at })[]`                  | Last snapshots and animations. `url` is the address of the upload. |
+| Binding        | Type                                                               | Description                                                                                             |
+| -------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `devices`      | `Record<string, RemoteDebugDevice & { last_seen: number }>`        | Devices that called the driver, by device ID.                                                           |
+| `logs:<id>`    | `{ device: RemoteDebugDevice \| null; entries: RemoteLogEntry[] }` | Entries ordered by `seq`, oldest first.                                                                 |
+| `results:<id>` | `{ id; type; result: RemoteDebugResult; received_at }[]`           | Last command results, oldest first. A `snapshot` or `animation` result holds the upload ID of its file. |
 
 ### How a device applies the binding
 
@@ -316,7 +324,7 @@ Each request also sends new entries while it is active. Keep the entries ordered
 
 In mock mode, the `remote_debug` binding of each zone points to the mock system `sys-remote-debug`. The mock is in `libs/mocks/src/lib/realtime/remote-debug.ts`. It has all the methods and bindings in this section. The mock devices `DEV-MOCK0001` and `DEV-MOCK0002` have seeded logs.
 
-The app in mock mode is also a device of the mock. A request or a command for the ID of the app shows the result in `logs:<id>`, `results:<id>` and `media:<id>`. The mock keeps the last 3 files for each device. Uploads are not mocked, so in mock mode the device does not upload: the upload ID is a `blob:` URL of the file in the page.
+The app in mock mode is also a device of the mock. A request or a command for the ID of the app shows the result in `logs:<id>` and `results:<id>`. The mock keeps the last 50 results for each device. Uploads are not mocked, so in mock mode the device does not upload: the upload ID is a `blob:` URL of the file in the page.
 
 There is no viewer yet. In mock mode, the browser console has the mock module as `app.remote_debug`. For example:
 

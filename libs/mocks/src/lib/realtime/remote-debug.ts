@@ -5,15 +5,22 @@ import {
     randomString,
     REMOTE_DEBUG_MODULE,
     RemoteDebugCommand,
+    RemoteDebugCommandOptions,
+    RemoteDebugCommandResult,
     RemoteDebugCommandType,
     RemoteDebugDevice,
     remoteDebugDeviceBinding,
     RemoteDebugDeviceState,
+    remoteDebugLogsBinding,
     RemoteDebugMedia,
     RemoteDebugResult,
+    remoteDebugResultsBinding,
+    RemoteDebugSeenDevice,
     RemoteLogEntry,
     RemoteLogLevel,
     RemoteLogRequest,
+    RemoteLogRequestOptions,
+    RemoteLogsView,
 } from '@placeos/common';
 import { registerSystem } from '@placeos/ts-client';
 
@@ -29,58 +36,6 @@ const DEFAULT_DURATION_MS = 15 * 60 * 1000;
 const MAX_DURATION_MS = 60 * 60 * 1000;
 /** Time before the mock removes a command that the device did not run */
 const COMMAND_TIMEOUT_MS = 15 * 60 * 1000;
-/** Most images and animations that the mock keeps for each device */
-const MAX_DEVICE_MEDIA = 3;
-
-/** Device that called the driver, in the `devices` binding */
-export interface RemoteDebugSeenDevice extends RemoteDebugDevice {
-    /** Unix epoch in milliseconds of the last call from the device */
-    last_seen: number;
-}
-
-/** Logs that the driver has for a device, in the `logs:<id>` binding */
-export interface RemoteLogsView {
-    /** Details from the last `post_logs` call. `null` before the first call */
-    device: RemoteDebugDevice | null;
-    /** Entries ordered by `seq`, oldest first */
-    entries: RemoteLogEntry[];
-}
-
-/** Result that the driver has for a command, in the `results:<id>` binding */
-export interface RemoteDebugCommandResult {
-    id: string;
-    type: RemoteDebugCommandType;
-    result: RemoteDebugResult;
-    received_at: number;
-}
-
-/** Options of `request_logs` */
-export type RemoteLogRequestOptions = Pick<
-    RemoteLogRequest,
-    'history' | 'before' | 'duration'
->;
-
-/**
- * Options of `send_command`. `keys` for `settings`, `path` for `navigate`,
- * `width` for `snapshot`, and all but `keys` and `path` for `animation`
- */
-export interface RemoteDebugCommandOptions {
-    keys?: string[];
-    path?: string;
-    width?: number;
-    duration?: number;
-    fps?: number;
-    format?: 'webp' | 'gif';
-}
-
-/** Image or animation that the driver has for a device, in the `media:<id>` binding */
-export interface RemoteDebugMediaView extends RemoteDebugMedia {
-    /** ID of the command */
-    id: string;
-    /** Address of the file. In mock mode, the device uploads to a `blob:` URL in the page */
-    url: string;
-    received_at: number;
-}
 
 /** Binding access of a mock module. Methods run with the module as `this` */
 interface MockModule {
@@ -99,21 +54,6 @@ export type MockRemoteDebugModule = MockModule &
 function setBinding(mod: MockModule, name: string, value: unknown) {
     mod.listen(name);
     mod[name] = value;
-}
-
-/** Name of the binding with the logs that the driver has for a device */
-export function remoteLogsViewBinding(device_id: string) {
-    return `logs:${device_id}`;
-}
-
-/** Name of the binding with the images and animations that the driver has for a device */
-export function remoteDebugMediaBinding(device_id: string) {
-    return `media:${device_id}`;
-}
-
-/** Name of the binding with the command results that the driver has for a device */
-export function remoteDebugResultsBinding(device_id: string) {
-    return `results:${device_id}`;
 }
 
 /**
@@ -137,7 +77,7 @@ export class RemoteDebugModule {
     /** Starts with the logs in `seed` */
     constructor(seed: (RemoteLogsView & { device: RemoteDebugDevice })[] = []) {
         for (const view of seed) {
-            this[remoteLogsViewBinding(view.device.id)] = view;
+            this[remoteDebugLogsBinding(view.device.id)] = view;
             this.devices[view.device.id] = {
                 ...view.device,
                 last_seen: view.entries.at(-1)?.timestamp ?? 0,
@@ -219,7 +159,7 @@ export class RemoteDebugModule {
         const logs = deviceState(this, device_id).logs;
         if (!isRemoteLogRequest(logs) || logs.id !== request_id) return;
         seen(this, device);
-        const name = remoteLogsViewBinding(device_id);
+        const name = remoteDebugLogsBinding(device_id);
         const view = this[name] as RemoteLogsView | undefined;
         // A new `started_at` shows that the app reloaded and `seq` started again
         const same_session = view?.device?.started_at === device.started_at;
@@ -249,54 +189,34 @@ export class RemoteDebugModule {
         if (!command) return;
         seen(this, device);
         removeCommand(this, device_id, command_id);
-        if (command.type === 'snapshot' || command.type === 'animation') {
-            addMedia(this, device_id, command_id, result);
-        }
         const name = remoteDebugResultsBinding(device_id);
-        const results = (this[name] as RemoteDebugCommandResult[]) ?? [];
-        setBinding(
-            this,
-            name,
-            [
-                ...results,
-                {
-                    id: command.id,
-                    type: command.type,
-                    result,
-                    received_at: Date.now(),
-                },
-            ].slice(-MAX_DEVICE_RESULTS),
-        );
+        const results = [
+            ...((this[name] as RemoteDebugCommandResult[] | null) ?? []),
+            {
+                id: command.id,
+                type: command.type,
+                result,
+                received_at: Date.now(),
+            },
+        ];
+        for (const old of results.splice(
+            0,
+            results.length - MAX_DEVICE_RESULTS,
+        )) {
+            releaseMedia(old);
+        }
+        setBinding(this, name, results);
     }
 }
 
 /**
- * Keep the upload of a `snapshot` or `animation` result in the `media:<id>`
- * binding. In mock mode the upload ID is a `blob:` URL in the page, so the
- * mock releases the files that it no longer keeps.
+ * In mock mode the upload ID of a snapshot or animation is a `blob:` URL in
+ * the page. Release the file of a result that the mock no longer keeps.
  */
-function addMedia(
-    mod: MockModule & RemoteDebugModule,
-    device_id: string,
-    command_id: string,
-    result: RemoteDebugResult,
-) {
-    const media = result.data as RemoteDebugMedia | undefined;
-    if (!result.ok || typeof media?.upload_id !== 'string') return;
-    const name = remoteDebugMediaBinding(device_id);
-    const list = [
-        ...((mod[name] as RemoteDebugMediaView[] | null) ?? []),
-        {
-            ...media,
-            id: command_id,
-            url: media.upload_id,
-            received_at: Date.now(),
-        },
-    ];
-    for (const old of list.splice(0, list.length - MAX_DEVICE_MEDIA)) {
-        if (old.url.startsWith('blob:')) URL.revokeObjectURL(old.url);
-    }
-    setBinding(mod, name, list);
+function releaseMedia(entry: RemoteDebugCommandResult) {
+    const upload_id = (entry.result.data as RemoteDebugMedia | undefined)
+        ?.upload_id;
+    if (upload_id?.startsWith('blob:')) URL.revokeObjectURL(upload_id);
 }
 
 /** Clear the log request of a device when its duration ends. See the driver requirements */
@@ -358,9 +278,8 @@ function seen(mod: MockModule & RemoteDebugModule, device: RemoteDebugDevice) {
         [device.id]: { ...device, last_seen: Date.now() },
     }).sort((a, b) => b.last_seen - a.last_seen);
     for (const removed of list.splice(MAX_DEVICES)) {
-        setBinding(mod, remoteLogsViewBinding(removed.id), null);
+        setBinding(mod, remoteDebugLogsBinding(removed.id), null);
         setBinding(mod, remoteDebugResultsBinding(removed.id), null);
-        setBinding(mod, remoteDebugMediaBinding(removed.id), null);
     }
     mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
 }
