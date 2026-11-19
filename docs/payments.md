@@ -2,6 +2,8 @@
 
 The apps can take payments for bookings and catering. A PlaceOS payment driver does the work with the payment provider. The apps use the driver only when the building or the organisation has a `payments` binding. Without the binding, the apps do not show payment pages and bookings do not ask for payment.
 
+Payments need a secure context (HTTPS). When the page is not in a secure context, payments are disabled, as if there is no binding. Local hosts (`localhost`, `127.0.0.1` and `[::1]`) are excluded, so local development over HTTP works.
+
 The first driver uses Stripe. The driver interface is generic, so you can make a driver for a different provider. The interface does not use provider names or provider objects.
 
 Source:
