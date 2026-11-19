@@ -5399,15 +5399,18 @@ var _LocaleService = class _LocaleService {
       this._locale_mappings[locale] = cached;
       this._changes.update((value) => value + 1);
     }
-    const resp = await fetch(`${this.locale_folder}/${locale}.json`);
-    if (!resp.ok) {
+    let locale_data;
+    try {
+      const resp = await fetch(`${this.locale_folder}/${locale}.json`);
+      if (!resp.ok)
+        throw resp;
+      locale_data = await resp.json();
+    } catch (error) {
       delete this._load_promises[locale];
-      return console.error(`Failed to loaded locale file for "${locale}".`, resp);
+      return console.error(`Failed to load locale file for "${locale}".`, error);
     }
-    const locale_data = await resp.json();
-    const locale_override_data = this.zone_id ? await _c(this.zone_id, `locale_${locale}`) : { details: {} };
     const base_locale_values = removeNesting(locale_data);
-    const override_locale_values = removeNesting(locale_override_data.details);
+    const override_locale_values = removeNesting(await this._loadOverrides(locale));
     this._locale_mappings[locale] = __spreadValues(__spreadValues({}, base_locale_values), override_locale_values);
     if (!window.debug) {
       const store = {
@@ -5420,6 +5423,21 @@ var _LocaleService = class _LocaleService {
     this._loaded_locales[locale] = true;
     this._changes.update((value) => value + 1);
     delete this._load_promises[locale];
+  }
+  /**
+   * Zone metadata values that replace the locale file values.
+   * Returns no values when the request fails, so the locale file still loads.
+   */
+  async _loadOverrides(locale) {
+    if (!this.zone_id)
+      return {};
+    try {
+      const metadata = await _c(this.zone_id, `locale_${locale}`);
+      return metadata.details;
+    } catch (error) {
+      console.error(`Failed to load locale overrides for "${locale}".`, error);
+      return {};
+    }
   }
   /** Mappings stored by the last load of the locale, if still usable */
   _cachedMappings(locale) {
@@ -6402,15 +6420,15 @@ var HotkeysService = _HotkeysService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "4b5cf31",
-  "hash": "4b5cf31",
+  "raw": "a6a1f44",
+  "hash": "a6a1f44",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "4b5cf31",
+  "suffix": "a6a1f44",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795011901009
+  "time": 1795050411054
 };
 
 // libs/common/src/lib/settings.ts
@@ -6549,7 +6567,7 @@ var StaffUser = class extends User {
       case "ooo":
         return i18n("COMMON.WORK_HOURS_OUT");
       case "aol":
-        return i18n("COMMON.WORK_HOURS_LEAVE");
+        return i18n("COMMON.AOL");
       case "sick":
         return i18n("COMMON.WORK_HOURS_SICK");
       default:
@@ -8639,5 +8657,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=45ed2b8d-3c20-5093-ac9d-1594c3f39c90
-//# sourceMappingURL=chunk-GVAHGXIL.js.map
+//# debugId=173d2e35-d630-58c5-9aaa-85763d7e671f
+//# sourceMappingURL=chunk-VPW6KIQG.js.map

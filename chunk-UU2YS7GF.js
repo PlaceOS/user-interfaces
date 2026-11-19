@@ -36,10 +36,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-4RQNIW62.js";
+} from "./chunk-O22UAECN.js";
 import {
   AnnounceDirective
-} from "./chunk-RHLADO3F.js";
+} from "./chunk-WIJ3T5UQ.js";
 import {
   FormField,
   disabled,
@@ -50,12 +50,12 @@ import {
 } from "./chunk-KUCFMP5P.js";
 import {
   TranslatePipe
-} from "./chunk-MTRTNDA3.js";
+} from "./chunk-GJSN4ABF.js";
 import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-4NTIWKTC.js";
+} from "./chunk-GV6NXR2Z.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -155,7 +155,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-GVAHGXIL.js";
+} from "./chunk-VPW6KIQG.js";
 import {
   IconComponent,
   SafePipe
@@ -6914,7 +6914,10 @@ var _PaymentCheckoutModalComponent = class _PaymentCheckoutModalComponent {
         this.view.set("closed");
         return;
       }
+      const open_id = this._open_payment_id;
       this._open_payment_id = "";
+      if (open_id)
+        this.data.cancel(open_id).catch(() => null);
       this.view.set("review");
       if (!(e instanceof CheckoutCancelledError)) {
         this.error.set(errorMessage(e) || i18n("PAYMENTS.PAYMENT_FAILED"));
@@ -7169,12 +7172,14 @@ var FINAL_PAYMENT_STATES = [
 // libs/payments/src/lib/payments.service.ts
 var PAYMENT_BINDING = "payments";
 var PAYMENT_MODULE = "Payments";
+var PAYMENT_CHECKOUT = new InjectionToken("PAYMENT_CHECKOUT", { factory: () => false });
 var POLL_INTERVAL_MS = 2e3;
 var MAX_POLLS = 450;
 var _PaymentsService = class _PaymentsService {
   constructor() {
     this._org = inject(OrganisationService);
     this._dialog = inject(MatDialog);
+    this._checkout = inject(PAYMENT_CHECKOUT);
     this.is_enabled = computed(
       () => {
         this._org.active_building();
@@ -7237,6 +7242,10 @@ var _PaymentsService = class _PaymentsService {
   get enabled() {
     var _a, _b;
     return !!((_b = (_a = this._org).module) == null ? void 0 : _b.call(_a, PAYMENT_BINDING, PAYMENT_MODULE));
+  }
+  /** Whether new bookings and events in this app take a payment */
+  get can_checkout() {
+    return this._checkout && this.enabled;
   }
   /** Whether the driver supports the optional feature */
   hasCapability(capability) {
@@ -7309,12 +7318,15 @@ var _PaymentsService = class _PaymentsService {
    * Complete an open payment of the user on a new link to the hosted page,
    * then take it for its reference. Only use it for a payment with a
    * `reference`, so that the user does not pay for nothing. Resolves with
-   * the latest payment, also when the user closes the page first.
+   * the latest payment, also when the user closes the page first. Throws
+   * when the browser blocks the window, as the user cannot see the page.
    */
   async completePayment(payment, window_ref = this.openWindow()) {
     const reference = payment.reference;
     if (!reference)
       throw i18n("PAYMENTS.NO_REFERENCE");
+    if (!window_ref)
+      throw i18n("PAYMENTS.POPUP_BLOCKED");
     const result = await this._resume(payment.id, {
       window: window_ref
     }).catch((e) => {
@@ -7363,13 +7375,24 @@ var _PaymentsService = class _PaymentsService {
     });
     return this._waitOnHostedPage(session.payment_id, session.url, options);
   }
-  /** Get a new link to the hosted page of an open payment and wait for it */
+  /**
+   * Get a new link to the hosted page of an open payment and wait for it.
+   * The provider can complete the payment after the user closes the page,
+   * so a payment that is already complete resolves with no new link.
+   */
   async _resume(id, options) {
-    const session = await this.call("get_payment_link", id, completeUrl("success")).catch((e) => {
-      var _a;
-      (_a = options.window) == null ? void 0 : _a.close();
+    var _a;
+    const close = (e) => {
+      var _a2;
+      (_a2 = options.window) == null ? void 0 : _a2.close();
       throw e;
-    });
+    };
+    const current = await this.call("get_payment", id).catch(close);
+    if (isComplete(current)) {
+      (_a = options.window) == null ? void 0 : _a.close();
+      return paidOrThrow(current);
+    }
+    const session = await this.call("get_payment_link", id, completeUrl("success")).catch(close);
     return this._waitOnHostedPage(id, session.url, options);
   }
   /** Show the hosted page when there is one, then wait for the payment */
@@ -7385,10 +7408,7 @@ var _PaymentsService = class _PaymentsService {
       window: options.window,
       signal: options.signal
     });
-    if (payment.status === "failed" || payment.status === "cancelled") {
-      throw i18n("PAYMENTS.PAYMENT_FAILED");
-    }
-    return payment;
+    return paidOrThrow(payment);
   }
 };
 _PaymentsService.\u0275fac = function PaymentsService_Factory(__ngFactoryType__) {
@@ -7404,6 +7424,12 @@ var PaymentsService = _PaymentsService;
     }]
   }], null, null);
 })();
+function paidOrThrow(payment) {
+  if (payment.status === "failed" || payment.status === "cancelled") {
+    throw i18n("PAYMENTS.PAYMENT_FAILED");
+  }
+  return payment;
+}
 function isComplete(payment) {
   return payment.status === "authorized" || FINAL_PAYMENT_STATES.includes(payment.status);
 }
@@ -9231,7 +9257,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
             reset_state: has_time_changed
           }, assets, changed_spaces.length > 0 || has_time_changed);
           if (!requests)
-            throw i18n("CALENDAR_EVENT.ASSETS_INVALID_ERROR");
+            throw i18n("BOOKINGS.ASSETS_INVALID_ERROR");
           await requests();
         } catch (e) {
           await this._removeBookingAfterError(!event.id, created_event, true, e);
@@ -9263,7 +9289,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
    */
   async _takePayment(rooms, period) {
     var _a;
-    if (!this._payments.enabled)
+    if (!this._payments.can_checkout)
       return null;
     const catering = this._external_catering.enabled ? [] : (this._model().catering || []).map((_) => new CateringOrder(_));
     const result = await this._payments.checkout({
@@ -9398,7 +9424,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
         calendar: this._model().host || ((_a = currentUser()) == null ? void 0 : _a.email),
         system_id: event.resources[0].id
       } : {}));
-      throw (e == null ? void 0 : e.status) === 409 ? i18n("CALENDAR_EVENT.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
+      throw (e == null ? void 0 : e.status) === 409 ? i18n("BOOKINGS.ASSETS_CLASH_ERROR") : i18n("CALENDAR_EVENT.ASSETS_ERROR");
     } else if (assets) {
       throw i18n("CALENDAR_EVENT.ASSETS_PARTIAL_ERROR", {
         error: errorMessage(e) || e
@@ -11126,7 +11152,7 @@ function TimeFieldComponent_Conditional_0_Template(rf, ctx) {
     \u0275\u0275classProp("opacity-30", ctx_r2.disabled() || ctx_r2.no_options());
     \u0275\u0275advance();
     \u0275\u0275property("value", ctx_r2.time())("disabled", ctx_r2.disabled() || ctx_r2.no_options());
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 10, "FORM.TIME"))("aria-invalid", !!ctx_r2.time_entry_error());
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 10, "COMMON.TIME"))("aria-invalid", !!ctx_r2.time_entry_error());
     \u0275\u0275advance(3);
     \u0275\u0275property("disabled", ctx_r2.disabled() || ctx_r2.no_options())("matMenuTriggerFor", menu_r4);
     \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 12, "FORM.TIME_CHOOSE"));
@@ -11709,7 +11735,7 @@ var TimeFieldComponent = _TimeFieldComponent;
                     #time_input
                     type="time"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
-                    [attr.aria-label]="'FORM.TIME' | translate"
+                    [attr.aria-label]="'COMMON.TIME' | translate"
                     [value]="time()"
                     [disabled]="disabled() || no_options()"
                     [attr.aria-invalid]="!!time_entry_error()"
@@ -12872,7 +12898,6 @@ var _PanelStateService = class _PanelStateService extends AsyncHandler {
       await this.makeBooking(booking, force_api);
     } catch (e) {
       notifyError(`Error creating meeting. ${e}`);
-      throw e;
     } finally {
       details.close();
       this.clearTimeout("reset_view");
@@ -13127,5 +13152,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=dadda02a-0acc-573c-b022-9087c8eb09ee
-//# sourceMappingURL=chunk-A7BUB7XV.js.map
+//# debugId=ba31c547-1a4b-5c61-9672-7329c7ebafa9
+//# sourceMappingURL=chunk-UU2YS7GF.js.map
