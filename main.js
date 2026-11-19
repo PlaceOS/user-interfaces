@@ -1,27 +1,27 @@
 import {
   generateMockSpace
-} from "./chunk-ALID7HTJ.js";
+} from "./chunk-VBHCXG6T.js";
 import {
   MatDialog,
   setHours
-} from "./chunk-LY6BDK7A.js";
+} from "./chunk-2AJXOSTZ.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-7Y7HO3Z3.js";
+} from "./chunk-UCEGZYNF.js";
 import {
   AnnounceDirective,
   subDays
-} from "./chunk-GRMDKQUN.js";
+} from "./chunk-XM52KKYJ.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-7OH4HN3Y.js";
-import "./chunk-EUUQWCT3.js";
+} from "./chunk-KBOOMMIF.js";
+import "./chunk-SMK2TP3Y.js";
 import {
   TranslatePipe
-} from "./chunk-7CWQJO5Q.js";
+} from "./chunk-L5D3FY4O.js";
 import {
   IconComponent
 } from "./chunk-V7GD6JRX.js";
@@ -45,7 +45,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-K7KQLNXC.js";
+} from "./chunk-QHSMO7GI.js";
 import {
   AsyncHandler,
   Bp,
@@ -82,7 +82,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-BVAEAZX3.js";
+} from "./chunk-4QUU5YLR.js";
 import "./chunk-SSYVESFM.js";
 import {
   BidiModule,
@@ -778,7 +778,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-QMOYX3QS.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-DGTAZOX3.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -906,7 +906,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-QMOYX3QS.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-DGTAZOX3.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -4189,6 +4189,28 @@ function mockEventCatering(event) {
   });
 }
 
+// libs/mocks/src/lib/api/payments.data.ts
+var LINKED_PREFIX = "pay-linked";
+function mockPaymentsEnabled() {
+  try {
+    return localStorage.getItem("PLACEOS.mock_payments") === "true";
+  } catch {
+    return false;
+  }
+}
+function mockLinkedPaymentId(type, id, index) {
+  if (index % 3 !== 0 || !mockPaymentsEnabled())
+    return void 0;
+  return `${LINKED_PREFIX}:${type}:${id}`;
+}
+function linkedPaymentReference(id) {
+  const [prefix, type, ...ref] = id.split(":");
+  if (prefix !== LINKED_PREFIX || type !== "booking" && type !== "event") {
+    return null;
+  }
+  return { type, id: ref.join(":") };
+}
+
 // libs/mocks/src/lib/api/spaces.data.ts
 var ROOM_FEATURES = {
   "Meeting Room": [
@@ -4896,6 +4918,9 @@ var MOCK_EVENTS = (() => {
       return false;
     seen.add(event.id);
     event.extension_data.catering = mockEventCatering(event);
+    const payment_id = mockLinkedPaymentId("event", event.id, seen.size);
+    if (payment_id)
+      event.extension_data.payment_id = payment_id;
     return true;
   });
   return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
@@ -5064,6 +5089,14 @@ var MOCK_BOOKINGS = (() => {
       plate_number: "CANCELLED"
     });
     bookings.push(booking);
+  }
+  const paid_types = ["desk", "parking", "locker"];
+  for (const booking of bookings) {
+    if (!paid_types.includes(booking.booking_type))
+      continue;
+    const payment_id = mockLinkedPaymentId("booking", booking.id, booking.id);
+    if (payment_id)
+      booking.extension_data.payment_id = payment_id;
   }
   return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
@@ -9341,6 +9374,39 @@ function findPayment(payments, id) {
     throw "Payment not found";
   return payment;
 }
+function linkedPayment(payments, id) {
+  const reference = linkedPaymentReference(id);
+  if (!reference)
+    return findPayment(payments, id);
+  const existing = payments.find((_) => _.id === id);
+  if (existing)
+    return existing;
+  const amount = reference.type === "event" ? 5e3 : 2e3;
+  const name = reference.type === "event" ? "Meeting room" : "Booking";
+  const payment = newPayment({
+    id,
+    status: "succeeded",
+    amount,
+    description: name,
+    items: [
+      {
+        product_id: "",
+        resource_type: reference.type === "event" ? "room" : "desk",
+        resource_id: "",
+        name,
+        description: "",
+        unit: "booking",
+        quantity: 1,
+        unit_amount: amount,
+        amount
+      }
+    ],
+    reference,
+    payment_method: { type: "card", brand: "visa", last4: "4242" }
+  });
+  payments.push(payment);
+  return payment;
+}
 function updatePayment(payments, id, changes) {
   const payment = findPayment(payments, id);
   Object.assign(payment, changes, { updated_at: now2() });
@@ -9507,7 +9573,7 @@ var PaymentsModule = class {
     };
   }
   $get_payment(id) {
-    const payment = findPayment(this._payments, id);
+    const payment = linkedPayment(this._payments, id);
     if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
@@ -10530,13 +10596,6 @@ function registerMockZones() {
     }
   });
 }
-function mockPaymentsEnabled() {
-  try {
-    return localStorage.getItem("PLACEOS.mock_payments") === "true";
-  } catch {
-    return false;
-  }
-}
 
 // libs/mocks/src/index.ts
 function mocksInit() {
@@ -10673,11 +10732,11 @@ function returnToWelcomeWhenIdle() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-PENMCMUK.js").then((m) => m.ChatComponent)
+  import("./chat.component-MGSBXHDF.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-PPC7IZG2.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-LSBZRWU3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -10785,9 +10844,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-PENMCMUK.js").then((m) => m.ChatComponent),
+    import("./chat.component-MGSBXHDF.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-PPC7IZG2.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-LSBZRWU3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10849,33 +10908,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-RA5DLK7C.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-WEC6AFLX.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-CZUBEJRI.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-IJXYBKV5.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-R4TKTQ3F.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-SXJSWCFM.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-IRTL2QUI.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-24PEFEER.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-HSYBOT3R.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-UFRK3QI4.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-HTYCMHA4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-LAOGK7SI.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -10910,5 +10969,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=fecf7c26-939d-57b2-8762-cecc667e491a
+//# debugId=c0d5f490-ad00-5d34-8172-e975f4e1d07f
 //# sourceMappingURL=main.js.map
