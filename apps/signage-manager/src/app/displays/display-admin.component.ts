@@ -1,9 +1,9 @@
 import {
     Component,
     computed,
-    effect,
     inject,
     input,
+    linkedSignal,
     signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -99,7 +99,7 @@ export function displayDeviceIds(
                             [class.bg-secondary]="id === selected()"
                             [class.text-secondary-content]="id === selected()"
                             [attr.aria-pressed]="id === selected()"
-                            (click)="selected.set(id)"
+                            (click)="pick(id)"
                         >
                             {{ id }}
                         </button>
@@ -170,8 +170,15 @@ export class DisplayAdminComponent extends AsyncHandler {
             this._setup_devices(),
         ),
     );
-    /** Device that the panel shows */
-    public readonly selected = signal('');
+    /** Device that the user picked. Another display clears it */
+    private readonly _picked = linkedSignal({
+        source: this.display_id,
+        computation: () => '',
+    });
+    /** Device that the panel shows: the picked device, else the newest device of the display */
+    public readonly selected = computed(
+        () => this._picked() || this.device_ids()[0] || '',
+    );
     public typed_id = '';
 
     constructor() {
@@ -196,22 +203,16 @@ export class DisplayAdminComponent extends AsyncHandler {
                     ),
             );
         }
-        // Show the newest device of the display when none is selected
-        effect(() => {
-            const ids = this.device_ids();
-            if (!this.selected() && ids.length) this.selected.set(ids[0]);
-        });
-        // Another display starts with its own devices
-        effect(() => {
-            this.display_id();
-            this.selected.set('');
-        });
+    }
+
+    public pick(device_id: string) {
+        this._picked.set(device_id);
     }
 
     public openTyped() {
         const id = this.typed_id.trim();
         if (!id) return;
-        this.selected.set(id);
+        this.pick(id);
         this.typed_id = '';
     }
 
