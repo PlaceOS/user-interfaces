@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-KJUHAGJG.js";
+} from "./chunk-4ZYE6UY6.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-4KR2C3QA.js";
+} from "./chunk-T533ONAS.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -32,7 +32,7 @@ import {
 } from "./chunk-L6EPZ6WJ.js";
 import {
   CustomTooltipComponent
-} from "./chunk-L7EJOVEW.js";
+} from "./chunk-OMJCEKAE.js";
 import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
@@ -48,7 +48,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-WCM3A57G.js";
+} from "./chunk-UKWPS5SY.js";
 import {
   FormField,
   disabled,
@@ -56,10 +56,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-VBDS3DJQ.js";
+} from "./chunk-2WHDBXFK.js";
 import {
   TranslatePipe
-} from "./chunk-TZ4BFRAU.js";
+} from "./chunk-LLPNASJQ.js";
 import {
   AbstractControl,
   Booking,
@@ -84,7 +84,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-3VFTIV7O.js";
+} from "./chunk-F7KGOLYM.js";
 import {
   $,
   AssetRequest,
@@ -182,7 +182,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-BHLQTKDR.js";
+} from "./chunk-P4RNOEBJ.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -9457,6 +9457,10 @@ var FINAL_PAYMENT_STATES = [
 var PAYMENT_BINDING = "payments";
 var PAYMENT_MODULE = "Payments";
 var PAYMENT_CHECKOUT = new InjectionToken("PAYMENT_CHECKOUT", { factory: () => false });
+var LOCAL_HOSTS = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "[::1]"]);
+function isPaymentContext({ isSecureContext, location: location2 } = window) {
+  return isSecureContext || LOCAL_HOSTS.has(location2.hostname);
+}
 var POLL_INTERVAL_MS = 2e3;
 var MAX_POLLS = 450;
 var PaymentsService = class _PaymentsService {
@@ -9464,6 +9468,7 @@ var PaymentsService = class _PaymentsService {
     this._org = inject(OrganisationService);
     this._dialog = inject(MatDialog);
     this._checkout = inject(PAYMENT_CHECKOUT);
+    this._secure = isPaymentContext();
     this.is_enabled = computed(
       () => {
         this._org.active_building();
@@ -9513,13 +9518,22 @@ var PaymentsService = class _PaymentsService {
       )
     );
   }
-  /** Whether the active building or the organisation has a payment driver */
+  /**
+   * Whether the active building or the organisation has a payment driver,
+   * and the page is in a secure context or on a local host
+   */
   get enabled() {
-    return !!this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE);
+    return !!this._module;
   }
   /** Whether new bookings and events in this app take a payment */
   get can_checkout() {
     return this._checkout && this.enabled;
+  }
+  /** Payment driver module. `null` without a driver or a secure context */
+  get _module() {
+    if (!this._secure)
+      return null;
+    return this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE) ?? null;
   }
   /** Whether the driver supports the optional feature */
   hasCapability(capability) {
@@ -9527,7 +9541,7 @@ var PaymentsService = class _PaymentsService {
   }
   /** Call a method of the payment driver with type checked arguments */
   async call(method, ...args) {
-    const mod = this._org.module(PAYMENT_BINDING, PAYMENT_MODULE);
+    const mod = this._module;
     if (!mod)
       throw i18n("PAYMENTS.NOT_ENABLED");
     return mod.execute(method, args);
@@ -19494,5 +19508,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=9d686c14-afdd-5ca3-ab6d-6ffea7978250
-//# sourceMappingURL=chunk-Q7KWLG3Y.js.map
+//# debugId=862b9c7e-8627-5d7d-8109-32ece2948dbf
+//# sourceMappingURL=chunk-5X3C2RHZ.js.map
