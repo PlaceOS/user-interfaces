@@ -12,6 +12,7 @@ import {
     TranslatePipe,
     ViewportVisibilityComponent,
 } from '@placeos/components';
+import { BookingPaymentComponent, PaymentsService } from '@placeos/payments';
 import { UserPipe } from '@placeos/users';
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
 import { bookingRowKey, selectedBookings } from '../ui/bulk-booking-actions';
@@ -85,6 +86,14 @@ import {
                         sortable: false,
                     },
                     {
+                        key: 'payment',
+                        name: 'PAYMENTS.PAYMENT' | translate,
+                        content: payment_template,
+                        size: '6rem',
+                        sortable: false,
+                        show: payments_enabled(),
+                    },
+                    {
                         key: 'actions',
                         name: ' ',
                         content: action_template,
@@ -104,6 +113,12 @@ import {
                 [can_select]="canChangeBooking"
                 [(selected)]="selected"
             ></simple-table>
+            <ng-template #payment_template let-row="row">
+                <booking-payment
+                    class="block px-4"
+                    [payment_id]="row.extension_data?.payment_id"
+                ></booking-payment>
+            </ng-template>
             <ng-template #date_template let-date="data">
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
@@ -448,11 +463,14 @@ import {
         BookingApprovalBarComponent,
         MatProgressSpinnerModule,
         ViewportVisibilityComponent,
+        BookingPaymentComponent,
     ],
 })
 export class DeskBookingsComponent implements OnInit {
     private _state = inject(DesksStateService);
     private _settings = inject(SettingsService);
+    /** Shows the payment column when the building has a payment driver */
+    public readonly payments_enabled = inject(PaymentsService).is_enabled;
 
     public loading = signal<string>('');
     public readonly filters = this._state.filters;

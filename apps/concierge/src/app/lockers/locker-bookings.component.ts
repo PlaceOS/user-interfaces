@@ -12,6 +12,7 @@ import {
     TranslatePipe,
     ViewportVisibilityComponent,
 } from '@placeos/components';
+import { BookingPaymentComponent, PaymentsService } from '@placeos/payments';
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
 import {
     bookingRowKey,
@@ -69,6 +70,14 @@ import { LockerStateService } from './locker-state.service';
                         content: status_template,
                         size: '11rem',
                     },
+                    {
+                        key: 'payment',
+                        name: 'PAYMENTS.PAYMENT' | translate,
+                        content: payment_template,
+                        size: '6rem',
+                        sortable: false,
+                        show: payments_enabled(),
+                    },
                 ]"
                 [sortable]="true"
                 [page_size]="100"
@@ -79,6 +88,12 @@ import { LockerStateService } from './locker-state.service';
                     ) | translate
                 "
             ></simple-table>
+            <ng-template #payment_template let-row="row">
+                <booking-payment
+                    class="block px-4"
+                    [payment_id]="row.extension_data?.payment_id"
+                ></booking-payment>
+            </ng-template>
             <ng-template #date_template let-date="data">
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
@@ -308,6 +323,7 @@ import { LockerStateService } from './locker-state.service';
         BookingApprovalBarComponent,
         MatProgressSpinnerModule,
         ViewportVisibilityComponent,
+        BookingPaymentComponent,
     ],
 })
 export class LockerBookingsComponent {
@@ -355,6 +371,8 @@ export class LockerBookingsComponent {
         if (done) this.selected.set([]);
     }
     private _settings = inject(SettingsService);
+    /** Shows the payment column when the building has a payment driver */
+    public readonly payments_enabled = inject(PaymentsService).is_enabled;
 
     public readonly loading = signal('');
     public readonly bookings_loading = computed(() =>

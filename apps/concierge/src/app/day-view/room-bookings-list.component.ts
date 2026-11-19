@@ -21,6 +21,7 @@ import {
     SetupBreakdownModalComponent,
 } from '@placeos/events';
 import { DateOptionsComponent } from '@placeos/form-fields';
+import { BookingPaymentComponent, PaymentsService } from '@placeos/payments';
 import { UserPipe } from '@placeos/users';
 import { EventsStateService } from './events-state.service';
 
@@ -87,6 +88,14 @@ import { EventsStateService } from './events-state.service';
                             sortable: false,
                         },
                         {
+                            key: 'payment',
+                            name: 'PAYMENTS.PAYMENT' | translate,
+                            content: payment_template,
+                            size: '6rem',
+                            sortable: false,
+                            show: payments_enabled(),
+                        },
+                        {
                             key: 'actions',
                             name: ' ',
                             content: action_template,
@@ -111,6 +120,12 @@ import { EventsStateService } from './events-state.service';
                     </p>
                 </div>
             }
+            <ng-template #payment_template let-row="row">
+                <booking-payment
+                    class="block px-4"
+                    [payment_id]="row.extension_data?.payment_id"
+                ></booking-payment>
+            </ng-template>
             <ng-template #date_template let-date="data">
                 <div
                     class="flex w-full flex-col items-center justify-center py-2"
@@ -316,6 +331,7 @@ import { EventsStateService } from './events-state.service';
         SimpleTableComponent,
         DateOptionsComponent,
         UserPipe,
+        BookingPaymentComponent,
     ],
 })
 export class RoomBookingsListComponent {
@@ -324,6 +340,8 @@ export class RoomBookingsListComponent {
     public readonly retryLoad = () => this._state.reload();
     private _settings = inject(SettingsService);
     private _dialog = inject(MatDialog);
+    /** Shows the payment column when the building has a payment driver */
+    public readonly payments_enabled = inject(PaymentsService).is_enabled;
 
     public readonly can_delete = settingSignal('events.allow_deleting', false);
     public readonly events = this._state.filtered;

@@ -6,6 +6,7 @@ import {
     registerMockEndpoint,
 } from '../session';
 import { MOCK_MENU } from './catering.data';
+import { mockPaymentsEnabled } from './payments.data';
 import { MOCK_SPACES } from './spaces.data';
 import { MOCK_STAFF } from './users.data';
 import {
@@ -463,13 +464,4 @@ export function registerMockZones() {
             );
         },
     });
-}
-
-/** Whether the mock payment driver is on. Set `PLACEOS.mock_payments` to `true` in local storage */
-function mockPaymentsEnabled() {
-    try {
-        return localStorage.getItem('PLACEOS.mock_payments') === 'true';
-    } catch {
-        return false;
-    }
 }

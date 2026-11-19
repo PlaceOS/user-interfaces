@@ -79,4 +79,15 @@ describe('Mock payments module', () => {
             mod.call('get_payment_link', [paid.id, 'https://app/done']),
         ).toThrow();
     });
+
+    it('makes the payment that a mock booking links to on the first read', () => {
+        const mod = createModule();
+        const payment = mod.call('get_payment', ['pay-linked:booking:42']);
+        expect(payment).toMatchObject({
+            id: 'pay-linked:booking:42',
+            status: 'succeeded',
+            reference: { type: 'booking', id: '42' },
+        });
+        expect(() => mod.call('get_payment', ['pay-unknown'])).toThrow();
+    });
 });
