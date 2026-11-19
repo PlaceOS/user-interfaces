@@ -132,6 +132,15 @@ describe('mock RemoteDebug driver', () => {
         expect(state()).toBeFalsy();
     });
 
+    it('should list a device that registers', () => {
+        mod.call('register', [device]);
+
+        expect(mod.devices[device_id]).toMatchObject({
+            app: 'control',
+            last_seen: expect.any(Number),
+        });
+    });
+
     it('should have seeded logs for the remote setup mock devices', () => {
         const seeded = mod['logs:DEV-MOCK0001'] as RemoteLogsView;
 

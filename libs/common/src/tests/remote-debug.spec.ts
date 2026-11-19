@@ -186,6 +186,31 @@ describe('RemoteDebugService', () => {
         );
     });
 
+    it('should register a fixed device, then each 15 minutes', async () => {
+        vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
+        const registers = () =>
+            driver.execute.mock.calls.filter(([m]) => m === 'register');
+        await connect();
+        // The first call is in a random wait of 1 minute maximum
+        await vi.advanceTimersByTimeAsync(60_000);
+        expect(registers()).toHaveLength(1);
+        expect(registers()[0][1]).toEqual([
+            expect.objectContaining({ id: deviceId() }),
+        ]);
+
+        await vi.advanceTimersByTimeAsync(15 * 60_000);
+
+        expect(registers()).toHaveLength(2);
+    });
+
+    it('should not register a device that is not fixed', async () => {
+        vi.mocked(ts_client.isFixedDevice).mockReturnValue(false);
+        await connect();
+        await vi.advanceTimersByTimeAsync(16 * 60_000);
+
+        expect(driver.execute).not.toHaveBeenCalled();
+    });
+
     it('should stop capture when the organisation has no binding', async () => {
         vi.mocked(ts_client.showMetadata).mockResolvedValue({
             details: {},

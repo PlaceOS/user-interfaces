@@ -11,6 +11,7 @@ import {
     authority,
     getModule,
     is_connected,
+    isFixedDevice,
     isMock,
     PlaceModuleBinding,
     showMetadata,
@@ -273,6 +274,8 @@ const SEND_INTERVAL_MS = 1000;
 const CALL_TIMEOUT_MS = 30 * 1000;
 /** Time before the device reads the zone bindings again after a failed read */
 const BINDING_RETRY_MS = 60 * 1000;
+/** Most time that a fixed device waits before it first registers, so devices that start together spread their calls */
+const REGISTER_SPREAD_MS = 60 * 1000;
 const DEFAULT_DURATION_MS = 15 * 60 * 1000;
 const MAX_DURATION_MS = 60 * 60 * 1000;
 /** Tag of the log lines of this service. The service does not capture its own lines */
@@ -280,7 +283,7 @@ const LOG_TAG = 'RemoteDebug';
 
 /** ts-client debug line of a `post_logs` or `command_result` call */
 const OWN_CALL_LINE =
-    /^\[PlaceOS\]\[WS\] \[EXEC\]\([^)]*\) [^,]*, [^,]*, (post_logs|command_result)\b/;
+    /^\[PlaceOS\]\[WS\] \[EXEC\]\([^)]*\) [^,]*, [^,]*, (post_logs|command_result|register)\b/;
 
 /** Level of the entries from a console method */
 const CONSOLE_LEVEL: Record<CapturedConsoleMethod, RemoteLogLevel> = {
@@ -303,6 +306,19 @@ export function remoteDebugDeviceBinding(device_id: string) {
 
 /** Driver binding with the devices that called the driver, by device ID */
 export const REMOTE_DEBUG_DEVICES = 'devices';
+/** Time between the `register` calls of a fixed device */
+export const REMOTE_DEBUG_HEARTBEAT_MS = 15 * 60 * 1000;
+/** A device is online when it called the driver in this time: two heartbeats and 5 minutes */
+export const REMOTE_DEBUG_ONLINE_MS =
+    2 * REMOTE_DEBUG_HEARTBEAT_MS + 5 * 60 * 1000;
+
+/** Whether a device called the driver recently, at `now` (Unix epoch in milliseconds) */
+export function isRemoteDebugDeviceOnline(
+    device: Pick<RemoteDebugSeenDevice, 'last_seen'>,
+    now: number,
+) {
+    return now - device.last_seen < REMOTE_DEBUG_ONLINE_MS;
+}
 
 /** Device that called the driver, in the `devices` binding */
 export interface RemoteDebugSeenDevice extends RemoteDebugDevice {
@@ -564,6 +580,8 @@ export class RemoteDebugService extends AsyncHandler {
         if (key === this._module_key) return;
         this._endRequest();
         this.unsub('state');
+        this.clearTimeout('register');
+        this.clearInterval('register');
         this._module = mod;
         this._module_key = key;
         this._commands = [];
@@ -578,6 +596,37 @@ export class RemoteDebugService extends AsyncHandler {
             mod
                 .variable<unknown>(remoteDebugDeviceBinding(this.device_id))
                 .bindThenSubscribe((value) => this._applyState(value)),
+        );
+        if (isFixedDevice()) this._startRegister();
+    }
+
+    /**
+     * Register a fixed device with the driver, so the admin views list it
+     * before it gets a request. The first call is after a random wait of
+     * `REGISTER_SPREAD_MS` maximum, then one call each
+     * `REMOTE_DEBUG_HEARTBEAT_MS`. Devices that are not fixed, such as
+     * staff browsers, do not register.
+     */
+    private _startRegister() {
+        this.timeout(
+            'register',
+            () => {
+                this._register();
+                this.interval(
+                    'register',
+                    () => this._register(),
+                    REMOTE_DEBUG_HEARTBEAT_MS,
+                );
+            },
+            Math.random() * REGISTER_SPREAD_MS,
+        );
+    }
+
+    private _register() {
+        const mod = this._module;
+        if (!mod) return;
+        this._call(mod, 'register', [this._deviceDetails()]).catch((error) =>
+            log(LOG_TAG, 'Failed to register', error, 'warn'),
         );
     }
 

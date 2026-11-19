@@ -18,6 +18,7 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
     isRemoteDebugCommand,
+    isRemoteDebugDeviceOnline,
     isRemoteLogRequest,
     notifySuccess,
     REMOTE_LOG_LEVELS,
@@ -74,6 +75,17 @@ const LEVEL_CLASSES: Record<RemoteLogLevel, string> = {
                 class="bg-base-100 border-base-300 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-lg border px-4 py-3"
             >
                 <h2 class="font-mono text-lg font-medium">{{ device_id() }}</h2>
+                @if (last_seen()) {
+                    <span
+                        class="rounded-full px-2 py-0.5 text-xs"
+                        [class.bg-success]="online()"
+                        [class.text-success-content]="online()"
+                        [class.bg-base-300]="!online()"
+                        online-state
+                    >
+                        {{ online() ? 'Online' : 'Offline' }}
+                    </span>
+                }
                 @if (device(); as info) {
                     <span class="text-sm opacity-70">{{ info.app }}</span>
                     <span class="text-sm opacity-70">
@@ -482,6 +494,13 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         () =>
             this._view.devices().find((_) => _.id === this.device_id())
                 ?.last_seen ?? 0,
+    );
+    /** Whether the device called the driver recently */
+    public readonly online = computed(() =>
+        isRemoteDebugDeviceOnline(
+            { last_seen: this.last_seen() },
+            this._view.now(),
+        ),
     );
 
     constructor() {

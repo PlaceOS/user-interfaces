@@ -1,12 +1,16 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ActivatedRoute, Router } from '@angular/router';
-import { user_group_names } from '@placeos/common';
+import {
+    isRemoteDebugDeviceOnline,
+    RemoteDebugSeenDevice,
+    user_group_names,
+} from '@placeos/common';
 import {
     IconComponent,
     RemoteDebugPanelComponent,
@@ -20,8 +24,24 @@ import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 
 /** User groups that can use remote debugging */
 const DEBUG_GROUPS = ['placeos_admin', 'placeos_support'];
+/** Most devices that the list shows. Use the filter to find others */
+const MAX_SHOWN_DEVICES = 100;
 /** Format of new device IDs. See `libs/common/src/lib/device-id.ts` */
 const DEVICE_ID_FORMAT = /^DEV-[0-9A-F]{12}$/i;
+
+/** Devices whose ID, app or address contains `query`, ignoring case */
+export function filterRemoteDebugDevices(
+    devices: readonly RemoteDebugSeenDevice[],
+    query: string,
+): RemoteDebugSeenDevice[] {
+    const text = query.trim().toLowerCase();
+    if (!text) return [...devices];
+    return devices.filter((_) =>
+        [_.id, _.app, _.url].some((value) =>
+            value.toLowerCase().includes(text),
+        ),
+    );
+}
 
 /**
  * Remote debugging of fixed devices, such as booking panels, control panels,
@@ -72,7 +92,7 @@ const DEVICE_ID_FORMAT = /^DEV-[0-9A-F]{12}$/i;
                         <aside class="flex shrink-0 flex-col gap-2 lg:w-80">
                             <form
                                 class="flex items-center gap-2"
-                                (ngSubmit)="open(device_input)"
+                                (ngSubmit)="open(query())"
                             >
                                 <mat-form-field
                                     appearance="outline"
@@ -82,25 +102,34 @@ const DEVICE_ID_FORMAT = /^DEV-[0-9A-F]{12}$/i;
                                     <input
                                         matInput
                                         name="device"
-                                        placeholder="Device ID"
-                                        aria-label="Device ID"
-                                        [(ngModel)]="device_input"
+                                        placeholder="Filter or enter a device ID"
+                                        aria-label="Filter or enter a device ID"
+                                        [ngModel]="query()"
+                                        (ngModelChange)="query.set($event)"
                                     />
                                 </mat-form-field>
                                 <button
                                     btn
                                     matRipple
                                     type="submit"
-                                    [disabled]="!device_input.trim()"
+                                    [disabled]="!query().trim()"
                                 >
                                     Open
                                 </button>
                             </form>
+                            <p class="text-xs opacity-70" device-count>
+                                {{ devices().length }} devices,
+                                {{ online_count() }} online.
+                                @if (shown().length < matching().length) {
+                                    Showing {{ shown().length }} of
+                                    {{ matching().length }}.
+                                }
+                            </p>
                             <ul
                                 class="bg-base-100 border-base-300 flex flex-col overflow-hidden rounded-lg border"
                                 aria-label="Devices"
                             >
-                                @for (item of devices(); track item.id) {
+                                @for (item of shown(); track item.id) {
                                     <li>
                                         <button
                                             matRipple
@@ -116,7 +145,24 @@ const DEVICE_ID_FORMAT = /^DEV-[0-9A-F]{12}$/i;
                                             "
                                             (click)="open(item.id)"
                                         >
-                                            <span class="font-mono">
+                                            <span
+                                                class="flex items-center gap-2 font-mono"
+                                            >
+                                                <span
+                                                    class="size-2 shrink-0 rounded-full"
+                                                    [class.bg-success]="
+                                                        isOnline(item)
+                                                    "
+                                                    [class.bg-base-300]="
+                                                        !isOnline(item)
+                                                    "
+                                                    [attr.aria-label]="
+                                                        isOnline(item)
+                                                            ? 'Online'
+                                                            : 'Offline'
+                                                    "
+                                                    role="img"
+                                                ></span>
                                                 {{ item.id }}
                                             </span>
                                             <span class="text-xs opacity-70">
@@ -130,10 +176,16 @@ const DEVICE_ID_FORMAT = /^DEV-[0-9A-F]{12}$/i;
                                     </li>
                                 } @empty {
                                     <li class="px-4 py-6 text-sm opacity-70">
-                                        No device has called the driver yet.
-                                        Enter a device ID to send it a request.
-                                        A device shows its ID on its setup
-                                        screen.
+                                        @if (query().trim()) {
+                                            No device matches. Select Open to
+                                            send a request to this ID.
+                                        } @else {
+                                            No device is known yet. Fixed
+                                            devices register when they start.
+                                            Enter a device ID to send it a
+                                            request. A device shows its ID on
+                                            its setup screen.
+                                        }
                                     </li>
                                 }
                             </ul>
@@ -190,10 +242,20 @@ export class RemoteDebugComponent {
     );
     public readonly state = this._view.state;
     public readonly devices = this._view.devices;
+    /** Text that filters the list, or a device ID to open */
+    public readonly query = signal('');
+    public readonly matching = computed(() =>
+        filterRemoteDebugDevices(this.devices(), this.query()),
+    );
+    public readonly shown = computed(() =>
+        this.matching().slice(0, MAX_SHOWN_DEVICES),
+    );
+    public readonly online_count = computed(
+        () => this.devices().filter((_) => this.isOnline(_)).length,
+    );
     public readonly allowed = computed(() =>
         user_group_names().some((_) => DEBUG_GROUPS.includes(_)),
     );
-    public device_input = '';
 
     public open(device_id: string) {
         const trimmed = device_id.trim();
@@ -202,11 +264,15 @@ export class RemoteDebugComponent {
             ? trimmed.toUpperCase()
             : trimmed;
         if (!id) return;
-        this.device_input = '';
+        this.query.set('');
         void this._router.navigate([], {
             queryParams: { device: id },
             queryParamsHandling: 'merge',
         });
+    }
+
+    public isOnline(device: RemoteDebugSeenDevice) {
+        return isRemoteDebugDeviceOnline(device, this._view.now());
     }
 
     public retry() {
