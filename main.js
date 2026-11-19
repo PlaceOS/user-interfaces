@@ -5,17 +5,17 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-53ZAJDNN.js";
+} from "./chunk-5MFFBYGH.js";
 import {
   STORE_DISPLAY_KEY,
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
 import {
   RemoteSetupService
-} from "./chunk-H4A47ZUE.js";
+} from "./chunk-32Z7G4NO.js";
 import {
   TranslatePipe
-} from "./chunk-YKXPV43S.js";
+} from "./chunk-DHSCOE2X.js";
 import "./chunk-3ONMCSGM.js";
 import {
   LazySentryErrorHandler,
@@ -33,7 +33,7 @@ import {
   serviceWorkerUpdate,
   setInitReloadHandler,
   setMocks
-} from "./chunk-MIPUDCHO.js";
+} from "./chunk-5PNKZ7W7.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -52,7 +52,7 @@ import {
   settingSignal,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-BWOABT36.js";
+} from "./chunk-BQ4RNXJI.js";
 import {
   IconComponent
 } from "./chunk-QQTV5HMC.js";
@@ -1441,7 +1441,7 @@ function signageRemoteSetup(router) {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-T2MOAK6X.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-PSNFO5BI.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1469,7 +1469,7 @@ var AppComponent = class _AppComponent {
     startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
     setNotifyFilter(() => isDebugMode());
     setInitReloadHandler(() => requestRecovery("init-error"));
-    setMocks(() => import("./src-3YWPB7QQ.js").then(({ mocksInit }) => mocksInit()));
+    setMocks(() => import("./src-4D2RS6TW.js").then(({ mocksInit }) => mocksInit()));
     this._placeos.init();
     this._remote_setup.start(signageRemoteSetup(this._router));
   }
@@ -1504,7 +1504,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-T2MOAK6X.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-PSNFO5BI.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1540,7 +1540,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-PISF6QM4.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-UGD7PIUX.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -1548,7 +1548,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-HFVHPNED.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-TFPEKAHD.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {

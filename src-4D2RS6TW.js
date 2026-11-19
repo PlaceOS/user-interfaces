@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-H4A47ZUE.js";
+} from "./chunk-32Z7G4NO.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,7 +14,7 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-MIPUDCHO.js";
+} from "./chunk-5PNKZ7W7.js";
 import {
   Bp,
   Or,
@@ -35,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-BWOABT36.js";
+} from "./chunk-BQ4RNXJI.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -6936,9 +6936,12 @@ var RemoteDebugModule = class {
   }
 };
 function releaseMedia(entry) {
+  if (entry.type !== "snapshot" && entry.type !== "animation")
+    return;
   const upload_id = entry.result.data?.upload_id;
-  if (upload_id?.startsWith("blob:"))
+  if (typeof upload_id === "string" && upload_id.startsWith("blob:")) {
     URL.revokeObjectURL(upload_id);
+  }
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -9136,5 +9139,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=72dba38f-e6db-5aac-99da-383bbbf50d98
-//# sourceMappingURL=src-3YWPB7QQ.js.map
+//# debugId=96abd67a-2b2c-56a1-bd04-418321a0d430
+//# sourceMappingURL=src-4D2RS6TW.js.map
