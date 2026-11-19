@@ -56,6 +56,10 @@ import { returnToWelcomeWhenIdle } from './inactivity-reset';
             <settings-debug-panel-launcher
                 [loadSchema]="load_settings_schema"
             />
+        } @error {
+            <!-- The launcher is optional. If its chunk fails to download
+                 (for example while offline), show nothing and do not
+                 report an uncaught NG0750 error. -->
         }
     `,
     styles: [
