@@ -5093,7 +5093,7 @@ var StaffUser = class extends User {
       case "ooo":
         return i18n("COMMON.WORK_HOURS_OUT");
       case "aol":
-        return i18n("COMMON.WORK_HOURS_LEAVE");
+        return i18n("COMMON.AOL");
       case "sick":
         return i18n("COMMON.WORK_HOURS_SICK");
       default:
@@ -5145,15 +5145,15 @@ function isEmptyUser(user) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2480874",
-  "hash": "2480874",
+  "raw": "2b981c1",
+  "hash": "2b981c1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2480874",
+  "suffix": "2b981c1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795044837973
+  "time": 1795047995046
 };
 
 // libs/common/src/lib/placeos.ts
@@ -6628,5 +6628,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=0874b060-5ecf-5b03-9d5e-7d9523ededb1
-//# sourceMappingURL=chunk-EY3WY2SU.js.map
+//# debugId=58d1b687-6269-54e1-ac62-cdfe9f24c15e
+//# sourceMappingURL=chunk-RS4566GF.js.map
