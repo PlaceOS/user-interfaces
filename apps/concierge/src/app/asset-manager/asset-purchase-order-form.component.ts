@@ -172,9 +172,7 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                             { key: 'name', name: 'FORM.NAME' | translate },
                             {
                                 key: 'identifier',
-                                name:
-                                    'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
-                                    | translate,
+                                name: 'FORM.DISPLAY_NAME' | translate,
                             },
                             {
                                 key: 'serial_number',

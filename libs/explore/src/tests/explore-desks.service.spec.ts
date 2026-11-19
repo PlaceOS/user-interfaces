@@ -224,8 +224,8 @@ describe('ExploreDesksService', () => {
             );
 
             expect(notify_open.mock.calls.map(([msg]) => msg)).toEqual([
-                'EXPLORE.DESK_AVAILABLE_ERROR',
-                'EXPLORE.DESK_GROUP_ERROR',
+                'EXPLORE.UNAVAILABLE_ERROR',
+                'EXPLORE.NOT_ALLOWED_ERROR',
             ]);
             expect(booking_service.newForm).not.toHaveBeenCalled();
         } finally {
@@ -489,7 +489,7 @@ describe('ExploreDesksService', () => {
 
         await internals()._bookDesk(DESK_1(), {});
 
-        expect(notified()).toEqual(['EXPLORE.DESK_RESTRICTION_ERROR']);
+        expect(notified()).toEqual(['EXPLORE.NOT_ALLOWED_ERROR']);
         expect(bookings.confirmPost).not.toHaveBeenCalled();
     });
 

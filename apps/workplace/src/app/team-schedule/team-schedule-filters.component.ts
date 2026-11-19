@@ -98,9 +98,7 @@ import {
                         btn
                         matRipple
                         class="inverse min-h-12 min-w-12 p-0"
-                        [attr.aria-label]="
-                            'APP.WORKPLACE.DESK_WEEK_PREVIOUS' | translate
-                        "
+                        [attr.aria-label]="'COMMON.PREVIOUS_WEEK' | translate"
                         (click)="previousWeek()"
                     >
                         <icon class="text-2xl">keyboard_arrow_left</icon>
@@ -109,9 +107,7 @@ import {
                         btn
                         matRipple
                         class="inverse min-h-12 min-w-12 p-0"
-                        [attr.aria-label]="
-                            'APP.WORKPLACE.DESK_WEEK_NEXT' | translate
-                        "
+                        [attr.aria-label]="'COMMON.NEXT_WEEK' | translate"
                         (click)="nextWeek()"
                     >
                         <icon class="text-2xl">keyboard_arrow_right</icon>

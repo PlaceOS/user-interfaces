@@ -614,7 +614,7 @@ export class SignageTemplateService {
             this._dialog,
             {
                 title: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),
-                content: i18n('SIGNAGE_MANAGER.TEMPLATE_REVERT_CONFIRM', {
+                content: i18n('SIGNAGE_MANAGER.REVERT_CONFIRM', {
                     name: previous_version.name,
                 }),
                 confirm_text: i18n('SIGNAGE_MANAGER.UNDO_CHANGES'),

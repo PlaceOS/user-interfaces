@@ -138,9 +138,7 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                                 icon
                                 type="button"
                                 matRipple
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.PREVIOUS_DAY' | translate
-                                "
+                                [matTooltip]="'COMMON.PREVIOUS_DAY' | translate"
                                 (click)="previousDay()"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.SHOW_PREVIOUS_DAY'
@@ -165,9 +163,7 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                                 icon
                                 type="button"
                                 matRipple
-                                [matTooltip]="
-                                    'SIGNAGE_MANAGER.NEXT_DAY' | translate
-                                "
+                                [matTooltip]="'COMMON.NEXT_DAY' | translate"
                                 (click)="nextDay()"
                                 [attr.aria-label]="
                                     'SIGNAGE_MANAGER.SHOW_NEXT_DAY' | translate

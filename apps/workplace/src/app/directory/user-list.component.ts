@@ -166,7 +166,7 @@ function nameGroup(name: string) {
                                     search_str?.length >= min_search_length
                                         ? ('APP.WORKPLACE.COLLEAGUE_SEARCH_NO_MATCH'
                                           | translate: { text: search_str })
-                                        : ('APP.WORKPLACE.COLLEAGUE_SEARCH_EMPTY'
+                                        : ('COMMON.SELECT_USER_EMPTY'
                                           | translate)
                                 }}
                             </div>

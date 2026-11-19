@@ -2,8 +2,11 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
+import * as ts_client from '@placeos/ts-client';
 
 import { LocaleService } from '../lib/locale.service';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('LocaleService', () => {
     let spectator: SpectatorService<LocaleService>;
@@ -173,6 +176,41 @@ describe('LocaleService', () => {
         await spectator.service.loaded();
         expect(spectator.service.get('COMMON.HELLO')).toBe('Bonjour');
         expect(spectator.service.get('COMMON.BYE')).toBe('Goodbye');
+    });
+
+    it('should apply zone overrides to the locale file', async () => {
+        (global as any).fetch = vi.fn(async () => ({
+            ok: true,
+            json: async () => ({ COMMON: { HELLO: 'Hello', BYE: 'Goodbye' } }),
+        }));
+        vi.mocked(ts_client.showMetadata).mockResolvedValue(
+            new ts_client.PlaceMetadata({
+                details: { COMMON: { HELLO: 'G’day' } },
+            }),
+        );
+        spectator.service.zone_id = 'zone-1';
+        spectator.service.setLocale('en-AU');
+        await spectator.service.loaded();
+        expect(ts_client.showMetadata).toHaveBeenCalledWith(
+            'zone-1',
+            'locale_en-AU',
+        );
+        expect(spectator.service.get('COMMON.HELLO')).toBe('G’day');
+        expect(spectator.service.get('COMMON.BYE')).toBe('Goodbye');
+    });
+
+    it('should load the locale file when zone overrides fail', async () => {
+        (global as any).fetch = vi.fn(async () => ({
+            ok: true,
+            json: async () => ({ COMMON: { HELLO: 'Hello' } }),
+        }));
+        vi.mocked(ts_client.showMetadata).mockRejectedValue(
+            new Error('offline'),
+        );
+        spectator.service.zone_id = 'zone-1';
+        spectator.service.setLocale('en-AU');
+        await spectator.service.loaded();
+        expect(spectator.service.get('COMMON.HELLO')).toBe('Hello');
     });
 
     it('should use the cached default locale before it loads', () => {

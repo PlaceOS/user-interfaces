@@ -44,7 +44,7 @@ export const USER_LOCATIONS: Record<
         bg_color: 'rgb(229, 231, 235)',
     },
     wfh: {
-        name: 'COMMON.LOCATION_WFH',
+        name: 'COMMON.WFH',
         icon: 'home',
         fg_color: 'rgb(37, 99, 235)',
         bg_color: 'rgb(219, 234, 254)',
@@ -68,7 +68,7 @@ export const USER_LOCATIONS: Record<
         bg_color: 'rgb(237, 233, 254)',
     },
     off_sick: {
-        name: 'COMMON.LOCATION_SICK',
+        name: 'COMMON.WORK_HOURS_SICK',
         icon: 'local_hospital',
         fg_color: 'rgb(220, 38, 38)',
         bg_color: 'rgb(254, 226, 226)',

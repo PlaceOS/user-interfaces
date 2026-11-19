@@ -378,7 +378,7 @@ import { SpacePipe } from '@placeos/events';
                                             >
                                                 <div class="text-sm">
                                                     {{
-                                                        'CALENDAR_EVENT.ASSETS_REQUESTED_FOR'
+                                                        'BOOKINGS.ASSETS_REQUESTED_FOR'
                                                             | translate
                                                                 : {
                                                                       time:

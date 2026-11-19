@@ -76,16 +76,13 @@ import { AssetManagerStateService } from './asset-manager-state.service';
                     </div>
                     <div class="flex flex-1 flex-col space-y-2">
                         <label for="asset-form-identifier">{{
-                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME' | translate
+                            'FORM.DISPLAY_NAME' | translate
                         }}</label>
                         <mat-form-field appearance="outline">
                             <input
                                 id="asset-form-identifier"
                                 matInput
-                                [placeholder]="
-                                    'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
-                                        | translate
-                                "
+                                [placeholder]="'FORM.DISPLAY_NAME' | translate"
                                 [formField]="form.identifier"
                             />
                             <mat-error>

@@ -472,10 +472,10 @@ describe('ExploreParkingService', () => {
         it('should check access, then existing bookings, then the space', () => {
             const parking = spectator.inject(ParkingService) as any;
             expect(bookingError(space, 'busy')).toBe(
-                'EXPLORE.PARKING_AVAILABLE_ERROR',
+                'EXPLORE.UNAVAILABLE_ERROR',
             );
             expect(bookingError({ ...space, place_groups: ['vip'] })).toBe(
-                'EXPLORE.PARKING_GROUP_ERROR',
+                'EXPLORE.NOT_ALLOWED_ERROR',
             );
             parking.booked_space.set({ id: 'p9' });
             expect(bookingError(space, 'busy')).toBe(

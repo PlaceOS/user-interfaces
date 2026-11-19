@@ -102,7 +102,7 @@ import {
                 </div>
             }
             <h3 class="mx-4 mt-4 pb-2 font-medium uppercase">
-                {{ 'APP.WORKPLACE.SCHEDULE_FILTERS' | translate }}
+                {{ 'COMMON.FILTERS' | translate }}
             </h3>
             <div class="h-1/2 flex-1 space-y-1 overflow-auto px-4">
                 @for (item of feature_list; track item.type) {

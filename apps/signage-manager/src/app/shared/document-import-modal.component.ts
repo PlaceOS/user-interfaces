@@ -331,10 +331,7 @@ const BACKGROUND_COLOURS: Record<
                         [disabled]="importing() || loading()"
                         (click)="selectAll(true)"
                     >
-                        {{
-                            'SIGNAGE_MANAGER.DOCUMENT_IMPORT_SELECT_ALL'
-                                | translate
-                        }}
+                        {{ 'COMMON.SELECT_ALL' | translate }}
                     </button>
                     <button
                         btn

@@ -33,7 +33,7 @@ const SLOW_CONNECT_MS = 30 * 1000;
                 </p>
                 <div animate.enter="motion-fade-in" class="flex space-x-2">
                     <button btn matRipple class="w-40" (click)="retry()">
-                        {{ 'APP.CONTROL.RETRY' | translate }}
+                        {{ 'COMMON.RETRY' | translate }}
                     </button>
                     @if (can_change_room) {
                         <button

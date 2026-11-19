@@ -206,7 +206,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                         }
                         @if (!field('all_day')) {
                             <label for="date">{{
-                                'FORM.TIME' | translate
+                                'COMMON.TIME' | translate
                             }}</label>
                             <div class="flex space-x-2">
                                 <time-field
@@ -584,7 +584,9 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                         >
                     }
                     @if (!field('all_day')) {
-                        <label for="date">{{ 'FORM.TIME' | translate }}</label>
+                        <label for="date">{{
+                            'COMMON.TIME' | translate
+                        }}</label>
                         <div class="flex space-x-2">
                             <time-field
                                 class="flex-1"

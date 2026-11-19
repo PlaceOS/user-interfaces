@@ -183,7 +183,7 @@ export class LandingUpcomingComponent
                 : item.asset_name || item.asset_id;
         const resp = await openConfirmModal(
             {
-                title: i18n('APP.WORKPLACE.SCHEDULE_REMOVE_TITLE'),
+                title: i18n('BOOKINGS.ACTION_DELETE'),
                 content: i18n('APP.WORKPLACE.SCHEDULE_REMOVE_MSG', {
                     name: resource_name,
                     time,
@@ -194,7 +194,7 @@ export class LandingUpcomingComponent
         );
 
         if (resp.reason !== 'done') return;
-        resp.loading(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_LOADING'));
+        resp.loading(i18n('BOOKINGS.REMOVE_LOADING'));
         // `instance` and `start_time` are only read for bookings
         const options = {
             calendar: this._settings.get('app.events.use_bookings')
@@ -217,14 +217,14 @@ export class LandingUpcomingComponent
                 : remove_result.toPromise()
         ).catch(async (e) => {
             notifyError(
-                i18n('APP.WORKPLACE.SCHEDULE_REMOVE_ERROR', {
+                i18n('BOOKINGS.REMOVE_ERROR', {
                     error: await responseErrorMessage(e),
                 }),
             );
             resp.close();
             throw e;
         });
-        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_REMOVE_SUCCESS'));
+        notifySuccess(i18n('BOOKINGS.REMOVE_SUCCESS'));
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();
     }
@@ -234,7 +234,7 @@ export class LandingUpcomingComponent
         const resource_name = item.asset_name || item.asset_id;
         const resp = await openConfirmModal(
             {
-                title: i18n('APP.WORKPLACE.SCHEDULE_END_TITLE'),
+                title: i18n('BOOKINGS.ACTION_END'),
                 content: i18n('APP.WORKPLACE.SCHEDULE_END_MSG', {
                     name: resource_name,
                     time,
@@ -255,7 +255,7 @@ export class LandingUpcomingComponent
             resp.close();
             throw e;
         });
-        notifySuccess(i18n('APP.WORKPLACE.SCHEDULE_END_SUCCESS'));
+        notifySuccess(i18n('BOOKINGS.CHECK_OUT_SUCCESS'));
         this._state.refreshUpcomingEvents();
         this._dialog.closeAll();
     }

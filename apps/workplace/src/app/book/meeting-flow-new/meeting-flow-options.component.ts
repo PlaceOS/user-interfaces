@@ -331,8 +331,7 @@ interface SpaceLocation {
                             <mat-select
                                 [formField]="form.catering_charge_code"
                                 [placeholder]="
-                                    'CALENDAR_EVENT.CATERING_CHARGE_CODE'
-                                        | translate
+                                    'CATERING.CHARGE_CODE' | translate
                                 "
                             >
                                 <input
@@ -406,7 +405,7 @@ interface SpaceLocation {
                 }
                 @if (!hide_notes()) {
                     <h3 class="mt-4 mb-2 flex items-center space-x-2 text-xl">
-                        {{ 'CALENDAR_EVENT.NOTES_HEADER' | translate }}
+                        {{ 'FORM.NOTES' | translate }}
                     </h3>
                     <rich-text-input
                         [formField]="form.body"

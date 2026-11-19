@@ -270,7 +270,7 @@ import { EventsStateService } from './events-state.service';
                                             >
                                             <div>
                                                 {{
-                                                    'APP.CONCIERGE.ROOMS_APPROVE_SERIES'
+                                                    'APP.CONCIERGE.APPROVE_SERIES'
                                                         | translate
                                                 }}
                                             </div>
@@ -288,7 +288,7 @@ import { EventsStateService } from './events-state.service';
                                             >
                                             <div>
                                                 {{
-                                                    'APP.CONCIERGE.ROOMS_REJECT_SERIES'
+                                                    'APP.CONCIERGE.REJECT_SERIES'
                                                         | translate
                                                 }}
                                             </div>

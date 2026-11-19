@@ -26,7 +26,7 @@ import { SignageDisplayService } from './signage-display.service';
                     icon
                     type="button"
                     matRipple
-                    [matTooltip]="'SIGNAGE_MANAGER.PREV_WEEK' | translate"
+                    [matTooltip]="'COMMON.PREVIOUS_WEEK' | translate"
                     (click)="previousWeek()"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.PREV_WEEK_ARIA' | translate
@@ -53,7 +53,7 @@ import { SignageDisplayService } from './signage-display.service';
                     icon
                     type="button"
                     matRipple
-                    [matTooltip]="'SIGNAGE_MANAGER.NEXT_WEEK' | translate"
+                    [matTooltip]="'COMMON.NEXT_WEEK' | translate"
                     (click)="nextWeek()"
                     [attr.aria-label]="
                         'SIGNAGE_MANAGER.NEXT_WEEK_ARIA' | translate

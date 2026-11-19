@@ -201,7 +201,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                     }"
                                 >
                                     {{
-                                        'APP.CONCIERGE.ASSETS_ITEM_ASSET_BULK_ADD'
+                                        'APP.CONCIERGE.ASSETS_BULK_ADD'
                                             | translate
                                     }}
                                 </a>
@@ -218,9 +218,7 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                     },
                                     {
                                         key: 'identifier',
-                                        name:
-                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_NAME'
-                                            | translate,
+                                        name: 'FORM.DISPLAY_NAME' | translate,
                                     },
                                     {
                                         key: 'serial_number',
@@ -260,11 +258,11 @@ import { confirmAction, errorText } from '../ui/modal-actions';
                                             group_id: item()?.id,
                                         }"
                                         [matTooltip]="
-                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
+                                            'APP.CONCIERGE.ASSETS_EDIT'
                                                 | translate
                                         "
                                         [attr.aria-label]="
-                                            'APP.CONCIERGE.ASSETS_ITEM_ASSET_EDIT'
+                                            'APP.CONCIERGE.ASSETS_EDIT'
                                                 | translate
                                         "
                                     >

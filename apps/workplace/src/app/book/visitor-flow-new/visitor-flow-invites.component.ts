@@ -161,7 +161,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                         </div>
                         <div class="flex flex-1 flex-col">
                             <label for="phone">{{
-                                'BOOKINGS.VISITOR_PHONE' | translate
+                                'FORM.PHONE' | translate
                             }}</label>
                             <mat-form-field appearance="outline" class="w-full">
                                 <input
@@ -192,7 +192,7 @@ import { UserListFieldComponent } from '@placeos/form-fields';
                 @if (allow_pass_number()) {
                     <div class="flex flex-col">
                         <label for="pass">{{
-                            'BOOKINGS.VISITOR_PASS' | translate
+                            'BOOKINGS.PASS_NUMBER' | translate
                         }}</label>
                         <mat-form-field appearance="outline" class="w-full">
                             <input

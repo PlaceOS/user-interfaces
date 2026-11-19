@@ -66,7 +66,7 @@ function toHourOfDay(value: unknown): number | null {
                     #time_input
                     type="time"
                     class="h-full min-w-0 flex-1 border-0 bg-transparent px-4"
-                    [attr.aria-label]="'FORM.TIME' | translate"
+                    [attr.aria-label]="'COMMON.TIME' | translate"
                     [value]="time()"
                     [disabled]="disabled() || no_options()"
                     [attr.aria-invalid]="!!time_entry_error()"

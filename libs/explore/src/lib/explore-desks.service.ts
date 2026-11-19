@@ -521,7 +521,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
         const resource = { ...desk, id: asset_id };
         if (this._statuses[d_id]?.() !== 'free') {
             return notifyError(
-                i18n('EXPLORE.DESK_AVAILABLE_ERROR', {
+                i18n('EXPLORE.UNAVAILABLE_ERROR', {
                     name: desk.name || 'Desk',
                 }),
             );
@@ -533,7 +533,9 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
             !desk.groups.find((_) => user_groups.includes(_))
         ) {
             return notifyError(
-                i18n('EXPLORE.DESK_GROUP_ERROR', { name: desk.name || 'Desk' }),
+                i18n('EXPLORE.NOT_ALLOWED_ERROR', {
+                    name: desk.name || 'Desk',
+                }),
             );
         }
         this._bookings.newForm('desk');
@@ -613,7 +615,7 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
 
         if (is_restricted) {
             return notifyError(
-                i18n('EXPLORE.DESK_RESTRICTION_ERROR', {
+                i18n('EXPLORE.NOT_ALLOWED_ERROR', {
                     name: desk.name || 'Desk',
                 }),
             );

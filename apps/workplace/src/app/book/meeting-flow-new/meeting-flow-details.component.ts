@@ -92,7 +92,7 @@ import { ROOM_CAPACITY_OPTIONS, roomCapacityFilters } from './room-capacity';
                         </div>
                         <div class="flex-1">
                             <label for="time" class="uppercase">{{
-                                'FORM.TIME' | translate
+                                'COMMON.TIME' | translate
                             }}</label>
                             <time-field
                                 name="time"

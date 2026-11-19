@@ -375,10 +375,7 @@ export function publicEventLink(
                         <span event-details [innerHTML]="body()"></span>
                         @if (!raw_description()) {
                             <span class="opacity-70">
-                                {{
-                                    'CALENDAR_EVENT.GROUP_NO_DESCRIPTION'
-                                        | translate
-                                }}
+                                {{ 'COMMON.NO_DESCRIPTION' | translate }}
                             </span>
                         }
                     </div>

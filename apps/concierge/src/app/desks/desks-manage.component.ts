@@ -179,12 +179,10 @@ import { DeskQrItem, DesksStateService } from './desks-state.service';
                         icon
                         default
                         matRipple
-                        [matTooltip]="
-                            'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
-                        "
+                        [matTooltip]="'APP.CONCIERGE.DESKS_EDIT' | translate"
                         (click)="editDesk(row)"
                         [attr.aria-label]="
-                            'APP.CONCIERGE.DESKS_ACTION_EDIT' | translate
+                            'APP.CONCIERGE.DESKS_EDIT' | translate
                         "
                     >
                         <icon>edit</icon>

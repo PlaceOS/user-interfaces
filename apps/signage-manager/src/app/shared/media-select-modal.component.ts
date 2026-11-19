@@ -30,7 +30,7 @@ export interface MediaSelectModalData {
         <picker-modal
             [heading]="heading"
             close_label="COMMON.CLOSE"
-            search_label="SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_SEARCH"
+            search_label="SIGNAGE_MANAGER.SEARCH_MEDIA_ARIA"
             empty_icon="image"
             empty_label="SIGNAGE_MANAGER.NO_MEDIA"
             [list]="list"

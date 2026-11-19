@@ -240,7 +240,7 @@ export class StaffUser extends User {
             case 'ooo':
                 return i18n('COMMON.WORK_HOURS_OUT');
             case 'aol':
-                return i18n('COMMON.WORK_HOURS_LEAVE');
+                return i18n('COMMON.AOL');
             case 'sick':
                 return i18n('COMMON.WORK_HOURS_SICK');
             default:

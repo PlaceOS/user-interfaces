@@ -59,7 +59,7 @@ test('CON-PARK-03: cancelling another user’s parking booking persists', async 
             .toBe(true);
         await adminPage.reload();
         const cancelled = await waitForRow(adminPage, spaces[0].name);
-        expect(cancelled.some((c) => /cancelled/i.test(c))).toBe(true);
+        expect(cancelled.some((c) => /cancell?ed/i.test(c))).toBe(true);
     } finally {
         await cleanUpBookings(adminApi, [booking.id]);
         const response = await adminApi.delete(

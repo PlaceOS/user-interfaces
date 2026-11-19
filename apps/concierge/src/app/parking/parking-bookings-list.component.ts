@@ -468,7 +468,7 @@ interface ParkingBookingColumnTemplates {
                                     >
                                     <div class="pr-2">
                                         {{
-                                            'APP.CONCIERGE.PARKING_APPROVE_SERIES'
+                                            'APP.CONCIERGE.APPROVE_SERIES'
                                                 | translate
                                         }}
                                     </div>
@@ -498,7 +498,7 @@ interface ParkingBookingColumnTemplates {
                                     <icon class="text-2xl">event_busy</icon>
                                     <div class="pr-2">
                                         {{
-                                            'APP.CONCIERGE.PARKING_DECLINE_SERIES'
+                                            'APP.CONCIERGE.REJECT_SERIES'
                                                 | translate
                                         }}
                                     </div>
@@ -641,13 +641,11 @@ interface ParkingBookingColumnTemplates {
                                     isCancelledBooking(row)
                                 "
                                 [matTooltip]="
-                                    'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
-                                        | translate
+                                    'BOOKINGS.ACTION_DELETE' | translate
                                 "
                                 (click)="removeBooking(row)"
                                 [attr.aria-label]="
-                                    'APP.CONCIERGE.BOOKING_REMOVE_TITLE'
-                                        | translate
+                                    'BOOKINGS.ACTION_DELETE' | translate
                                 "
                             >
                                 <icon>delete</icon>

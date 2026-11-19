@@ -106,7 +106,7 @@ const TABLE_METRIC_GUIDE: ReportMetricGuideItem[] = [
                     },
                     {
                         key: 'host',
-                        name: 'APP.CONCIERGE.BOOKED_FOR' | translate,
+                        name: 'BOOKINGS.BOOKED_FOR_LABEL' | translate,
                     },
                     {
                         key: 'checked_in',

@@ -196,7 +196,7 @@ export type DeskFormType = 'single' | 'group' | 'other';
                     @if (!form_value().all_day && allow_time_changes()) {
                         <div class="flex-1">
                             <label for="time">{{
-                                'FORM.TIME' | translate
+                                'COMMON.TIME' | translate
                             }}</label>
                             <time-field
                                 name="time"
