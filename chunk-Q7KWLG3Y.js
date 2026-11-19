@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-IQMEITKR.js";
+} from "./chunk-KJUHAGJG.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-GMODDPNV.js";
+} from "./chunk-4KR2C3QA.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -32,7 +32,7 @@ import {
 } from "./chunk-L6EPZ6WJ.js";
 import {
   CustomTooltipComponent
-} from "./chunk-JBACJD6B.js";
+} from "./chunk-L7EJOVEW.js";
 import {
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
@@ -48,7 +48,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-FZYJFOMV.js";
+} from "./chunk-WCM3A57G.js";
 import {
   FormField,
   disabled,
@@ -56,10 +56,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-MNO2N5TL.js";
+} from "./chunk-VBDS3DJQ.js";
 import {
   TranslatePipe
-} from "./chunk-ZAVOAP3X.js";
+} from "./chunk-TZ4BFRAU.js";
 import {
   AbstractControl,
   Booking,
@@ -84,7 +84,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-MV2QGRCK.js";
+} from "./chunk-3VFTIV7O.js";
 import {
   $,
   AssetRequest,
@@ -182,7 +182,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-QETTROIX.js";
+} from "./chunk-BHLQTKDR.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -13519,6 +13519,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (!event.id) {
         payment = await this._takePayment(spaces.filter((_) => !isIgnored(_)), all_day_period);
       }
+      const payment_id = payment?.id || event.extension_data?.payment_id;
+      if (payment_id)
+        ext.payment_id = payment_id;
       let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
@@ -19491,5 +19494,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=3be62334-9ac1-5994-acde-4d90e43b96cd
-//# sourceMappingURL=chunk-H3BU4SQT.js.map
+//# debugId=9d686c14-afdd-5ca3-ab6d-6ffea7978250
+//# sourceMappingURL=chunk-Q7KWLG3Y.js.map
