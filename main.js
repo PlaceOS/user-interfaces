@@ -3,10 +3,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-XAS3JKH4.js";
+} from "./chunk-ILD77KLB.js";
 import {
   TranslatePipe
-} from "./chunk-RXJHAZIS.js";
+} from "./chunk-FZC2CI5C.js";
 import "./chunk-73745V4N.js";
 import {
   LazySentryErrorHandler,
@@ -31,7 +31,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-WHACNEAV.js";
+} from "./chunk-XCSM44OM.js";
 import {
   AsyncHandler,
   Bp,
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-CPBYOVRF.js";
+} from "./chunk-YQCHZOJE.js";
 import "./chunk-FUB2AYYJ.js";
 import {
   IconComponent
@@ -8249,9 +8249,12 @@ var RemoteDebugModule = class {
   }
 };
 function releaseMedia(entry) {
+  if (entry.type !== "snapshot" && entry.type !== "animation")
+    return;
   const upload_id = entry.result.data?.upload_id;
-  if (upload_id?.startsWith("blob:"))
+  if (typeof upload_id === "string" && upload_id.startsWith("blob:")) {
     URL.revokeObjectURL(upload_id);
+  }
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -10450,11 +10453,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-72XC4W22.js").then((m) => m.ChatComponent)
+  import("./chat.component-QCTVYPL6.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-MXSYCDDX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-ZXQ4AWBN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10514,9 +10517,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-72XC4W22.js").then((m) => m.ChatComponent),
+    import("./chat.component-QCTVYPL6.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-MXSYCDDX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-ZXQ4AWBN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10558,12 +10561,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-EYEUFCQY.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-EJC3NURZ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-UEVEJXCX.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-VAHRVGMY.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10591,5 +10594,5 @@ if (environment.production) {
 }
 console.log("Production:", !!environment.production);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=bf2da31b-1229-55fc-a597-62a0732f2dbc
+//# debugId=74b78b7e-173b-58de-be67-d7e453ccd039
 //# sourceMappingURL=main.js.map
