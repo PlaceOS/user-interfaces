@@ -3,25 +3,25 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-RDOI37AF.js";
+} from "./chunk-USTCXLQL.js";
 import {
   generateMockSpace
-} from "./chunk-56CMGYD3.js";
+} from "./chunk-T5GNOLKX.js";
 import {
   MatDialog,
   setHours
-} from "./chunk-IDCZXZ5F.js";
+} from "./chunk-UIWJCZFU.js";
 import {
   AnnounceDirective,
   subDays
-} from "./chunk-T7VRBBIT.js";
+} from "./chunk-EZF2WWIV.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-XCCL6EFG.js";
+} from "./chunk-A35P7UHX.js";
 import {
   TranslatePipe
-} from "./chunk-5AO3LGAH.js";
-import "./chunk-4HTOKQID.js";
+} from "./chunk-KAGPQZXX.js";
+import "./chunk-565FUVDX.js";
 import {
   IconComponent
 } from "./chunk-SUZPYCVY.js";
@@ -46,12 +46,14 @@ import {
   registerActiveLocale,
   reloadOnChunkLoadError,
   remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   remoteSetupCommandBinding,
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-2FUU2MPZ.js";
+} from "./chunk-UF4BXY26.js";
 import {
   AsyncHandler,
   Bp,
@@ -87,7 +89,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-TRMUIPPN.js";
+} from "./chunk-SWRNNVZG.js";
 import "./chunk-PPXTKGZE.js";
 import {
   BidiModule,
@@ -784,7 +786,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-STEO4O6I.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-XGLP4F3B.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -912,7 +914,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-STEO4O6I.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-XGLP4F3B.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -8063,19 +8065,9 @@ var MAX_DEVICES = 1e3;
 var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
 var MAX_DURATION_MS = 60 * 60 * 1e3;
 var COMMAND_TIMEOUT_MS = 15 * 60 * 1e3;
-var MAX_DEVICE_MEDIA = 3;
 function setBinding(mod, name, value) {
   mod.listen(name);
   mod[name] = value;
-}
-function remoteLogsViewBinding(device_id) {
-  return `logs:${device_id}`;
-}
-function remoteDebugMediaBinding(device_id) {
-  return `media:${device_id}`;
-}
-function remoteDebugResultsBinding(device_id) {
-  return `results:${device_id}`;
 }
 var RemoteDebugModule = class {
   /** Starts with the logs in `seed` */
@@ -8083,7 +8075,7 @@ var RemoteDebugModule = class {
     this.devices = {};
     this.timers = {};
     for (const view of seed) {
-      this[remoteLogsViewBinding(view.device.id)] = view;
+      this[remoteDebugLogsBinding(view.device.id)] = view;
       this.devices[view.device.id] = __spreadProps(__spreadValues({}, view.device), {
         last_seen: view.entries.at(-1)?.timestamp ?? 0
       });
@@ -8133,7 +8125,7 @@ var RemoteDebugModule = class {
     if (!isRemoteLogRequest(logs) || logs.id !== request_id)
       return;
     seen(this, device);
-    const name = remoteLogsViewBinding(device_id);
+    const name = remoteDebugLogsBinding(device_id);
     const view = this[name];
     const same_session = view?.device?.started_at === device.started_at;
     const old = same_session ? view.entries : [];
@@ -8153,40 +8145,26 @@ var RemoteDebugModule = class {
       return;
     seen(this, device);
     removeCommand(this, device_id, command_id);
-    if (command.type === "snapshot" || command.type === "animation") {
-      addMedia(this, device_id, command_id, result);
-    }
     const name = remoteDebugResultsBinding(device_id);
-    const results = this[name] ?? [];
-    setBinding(this, name, [
-      ...results,
+    const results = [
+      ...this[name] ?? [],
       {
         id: command.id,
         type: command.type,
         result,
         received_at: Date.now()
       }
-    ].slice(-MAX_DEVICE_RESULTS));
+    ];
+    for (const old of results.splice(0, results.length - MAX_DEVICE_RESULTS)) {
+      releaseMedia(old);
+    }
+    setBinding(this, name, results);
   }
 };
-function addMedia(mod, device_id, command_id, result) {
-  const media = result.data;
-  if (!result.ok || typeof media?.upload_id !== "string")
-    return;
-  const name = remoteDebugMediaBinding(device_id);
-  const list = [
-    ...mod[name] ?? [],
-    __spreadProps(__spreadValues({}, media), {
-      id: command_id,
-      url: media.upload_id,
-      received_at: Date.now()
-    })
-  ];
-  for (const old of list.splice(0, list.length - MAX_DEVICE_MEDIA)) {
-    if (old.url.startsWith("blob:"))
-      URL.revokeObjectURL(old.url);
-  }
-  setBinding(mod, name, list);
+function releaseMedia(entry) {
+  const upload_id = entry.result.data?.upload_id;
+  if (upload_id?.startsWith("blob:"))
+    URL.revokeObjectURL(upload_id);
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -8217,9 +8195,8 @@ function seen(mod, device) {
     [device.id]: __spreadProps(__spreadValues({}, device), { last_seen: Date.now() })
   })).sort((a, b) => b.last_seen - a.last_seen);
   for (const removed of list.splice(MAX_DEVICES)) {
-    setBinding(mod, remoteLogsViewBinding(removed.id), null);
+    setBinding(mod, remoteDebugLogsBinding(removed.id), null);
     setBinding(mod, remoteDebugResultsBinding(removed.id), null);
-    setBinding(mod, remoteDebugMediaBinding(removed.id), null);
   }
   mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
 }
@@ -10500,11 +10477,11 @@ function returnToWelcomeWhenIdle() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-QZQFDL5X.js").then((m) => m.ChatComponent)
+  import("./chat.component-ASUSN7R4.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-CSWTQBZQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-4ZHVXM4Y.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -10612,9 +10589,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-QZQFDL5X.js").then((m) => m.ChatComponent),
+    import("./chat.component-ASUSN7R4.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-CSWTQBZQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-4ZHVXM4Y.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10676,33 +10653,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-S7YGOTO6.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-D2V5MUZO.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-U5VKFO2J.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-YWO5LX4L.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-D7L3QU75.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-D5MR6CCZ.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-AFEVIDXD.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-HAM57THT.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-I4L5JDCT.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-G3TJGPR5.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-ABKOAME4.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-IF4C6SQS.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -10737,5 +10714,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=29a6cb1b-25ea-5752-b771-aacd5258a3ee
+//# debugId=66b1fa94-96c4-5226-850a-123b0759ae99
 //# sourceMappingURL=main.js.map
