@@ -3686,6 +3686,7 @@
         "COMPLETE_PAYMENT": "完成付款",
         "COMPLETING_PAYMENT": "正在等待付款...",
         "NO_REFERENCE": "此付款未关联任何预订，因此无法完成。",
+        "POPUP_BLOCKED": "您的浏览器阻止了付款页面。请允许此网站的弹出窗口，然后重试。",
         "PAYMENT_FAILED": "付款未成功。",
         "PAYMENT_CANCELLED": "付款已取消。未完成预订。",
         "CAPTURE_FAILED": "预订已保存，但付款未能完成。错误：{{ error }}",

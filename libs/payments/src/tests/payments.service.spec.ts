@@ -177,7 +177,8 @@ describe('PaymentsService', () => {
             url: 'https://pay.example.com/cs-1',
             expires_at: 0,
         }));
-        driver.get_payment = () => payment('authorized');
+        const states: Payment['status'][] = ['pending', 'authorized'];
+        driver.get_payment = () => payment(states.shift() || 'authorized');
         driver.capture_payment = vi.fn(() => payment('succeeded'));
         const done = spectator.service.completePayment(
             { ...payment('pending'), reference },
@@ -187,6 +188,34 @@ describe('PaymentsService', () => {
         await expect(done).resolves.toEqual(payment('succeeded'));
         expect(window_ref.location.href).toBe('https://pay.example.com/cs-1');
         expect(driver.capture_payment).toHaveBeenCalledWith('pay-1', reference);
+    });
+
+    it('captures a payment that went through after the page closed, with no new link', async () => {
+        const reference = { type: 'booking' as const, id: 'booking-1' };
+        const window_ref = { close: vi.fn() };
+        driver.get_payment_link = vi.fn();
+        driver.get_payment = () => payment('authorized');
+        driver.capture_payment = vi.fn(() => payment('succeeded'));
+        await expect(
+            spectator.service.completePayment(
+                { ...payment('pending'), reference },
+                window_ref as unknown as Window,
+            ),
+        ).resolves.toEqual(payment('succeeded'));
+        expect(driver.get_payment_link).not.toHaveBeenCalled();
+        expect(window_ref.close).toHaveBeenCalled();
+    });
+
+    it('does not complete a payment when the browser blocks the window', async () => {
+        const reference = { type: 'booking' as const, id: 'booking-1' };
+        driver.get_payment_link = vi.fn();
+        await expect(
+            spectator.service.completePayment(
+                { ...payment('pending'), reference },
+                null,
+            ),
+        ).rejects.toBe('PAYMENTS.POPUP_BLOCKED');
+        expect(driver.get_payment_link).not.toHaveBeenCalled();
     });
 
     it('does not complete a payment without a reference', async () => {

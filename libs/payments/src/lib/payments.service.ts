@@ -1,4 +1,10 @@
-import { computed, inject, Injectable, resource } from '@angular/core';
+import {
+    computed,
+    inject,
+    Injectable,
+    InjectionToken,
+    resource,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { errorMessage, i18n, OrganisationService } from '@placeos/common';
@@ -25,6 +31,16 @@ import {
 /** Zone binding of the payment driver. Set `mod` on the binding to use another module name */
 export const PAYMENT_BINDING = 'payments';
 export const PAYMENT_MODULE = 'Payments';
+
+/**
+ * Whether bookings and events made in this app ask the user to pay. Only
+ * apps where users book for themselves provide `true`. Booking panels and
+ * staff apps keep the default, `false`.
+ */
+export const PAYMENT_CHECKOUT = new InjectionToken<boolean>(
+    'PAYMENT_CHECKOUT',
+    { factory: () => false },
+);
 
 /** Time between checks of a payment while the user pays on the hosted page */
 const POLL_INTERVAL_MS = 2_000;
@@ -65,10 +81,16 @@ interface WaitOptions {
 export class PaymentsService {
     private _org = inject(OrganisationService);
     private _dialog = inject(MatDialog);
+    private _checkout = inject(PAYMENT_CHECKOUT);
 
     /** Whether the active building or the organisation has a payment driver */
     public get enabled(): boolean {
         return !!this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE);
+    }
+
+    /** Whether new bookings and events in this app take a payment */
+    public get can_checkout(): boolean {
+        return this._checkout && this.enabled;
     }
 
     /** `enabled` as a signal that updates when the active building changes */
@@ -190,7 +212,8 @@ export class PaymentsService {
      * Complete an open payment of the user on a new link to the hosted page,
      * then take it for its reference. Only use it for a payment with a
      * `reference`, so that the user does not pay for nothing. Resolves with
-     * the latest payment, also when the user closes the page first.
+     * the latest payment, also when the user closes the page first. Throws
+     * when the browser blocks the window, as the user cannot see the page.
      */
     public async completePayment(
         payment: Payment,
@@ -198,6 +221,7 @@ export class PaymentsService {
     ): Promise<Payment> {
         const reference = payment.reference;
         if (!reference) throw i18n('PAYMENTS.NO_REFERENCE');
+        if (!window_ref) throw i18n('PAYMENTS.POPUP_BLOCKED');
         const result = await this._resume(payment.id, {
             window: window_ref,
         }).catch((e) => {
@@ -257,16 +281,26 @@ export class PaymentsService {
         return this._waitOnHostedPage(session.payment_id, session.url, options);
     }
 
-    /** Get a new link to the hosted page of an open payment and wait for it */
+    /**
+     * Get a new link to the hosted page of an open payment and wait for it.
+     * The provider can complete the payment after the user closes the page,
+     * so a payment that is already complete resolves with no new link.
+     */
     private async _resume(id: string, options: ResumeOptions) {
+        const close = (e: unknown): never => {
+            options.window?.close();
+            throw e;
+        };
+        const current = await this.call('get_payment', id).catch(close);
+        if (isComplete(current)) {
+            options.window?.close();
+            return paidOrThrow(current);
+        }
         const session = await this.call(
             'get_payment_link',
             id,
             completeUrl('success'),
-        ).catch((e) => {
-            options.window?.close();
-            throw e;
-        });
+        ).catch(close);
         return this._waitOnHostedPage(id, session.url, options);
     }
 
@@ -284,11 +318,16 @@ export class PaymentsService {
             window: options.window,
             signal: options.signal,
         });
-        if (payment.status === 'failed' || payment.status === 'cancelled') {
-            throw i18n('PAYMENTS.PAYMENT_FAILED');
-        }
-        return payment;
+        return paidOrThrow(payment);
     }
+}
+
+/** The payment when it went through, else the error to show */
+function paidOrThrow(payment: Payment) {
+    if (payment.status === 'failed' || payment.status === 'cancelled') {
+        throw i18n('PAYMENTS.PAYMENT_FAILED');
+    }
+    return payment;
 }
 
 /** Whether the payment can no longer change without action from the app */

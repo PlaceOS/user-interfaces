@@ -3686,6 +3686,7 @@
         "COMPLETE_PAYMENT": "Concluir pagamento",
         "COMPLETING_PAYMENT": "A aguardar o pagamento...",
         "NO_REFERENCE": "Este pagamento não está associado a uma reserva, por isso não pode ser concluído.",
+        "POPUP_BLOCKED": "O seu navegador bloqueou a página de pagamento. Permita pop-ups para este site e tente novamente.",
         "PAYMENT_FAILED": "O pagamento não foi concluído.",
         "PAYMENT_CANCELLED": "Pagamento cancelado. A reserva não foi feita.",
         "CAPTURE_FAILED": "A reserva foi guardada, mas não foi possível concluir o pagamento. Erro: {{ error }}",

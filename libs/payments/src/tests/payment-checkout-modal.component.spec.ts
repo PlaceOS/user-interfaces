@@ -97,4 +97,19 @@ describe('PaymentCheckoutModalComponent', () => {
         expect(data.cancel).toHaveBeenCalledWith('pay-1');
         expect(spectator.component.view()).toBe('review');
     });
+
+    it('cancels the open payment when it fails to reopen', async () => {
+        vi.spyOn(window, 'open').mockReturnValue(null);
+        data.pay = vi.fn(async () => {
+            throw new PaymentWindowClosedError('pay-1');
+        });
+        data.resume = vi.fn(async () => {
+            throw 'Link expired';
+        });
+        await spectator.component.pay();
+        await spectator.component.reopen();
+        expect(data.cancel).toHaveBeenCalledWith('pay-1');
+        expect(spectator.component.view()).toBe('review');
+        expect(spectator.component.error()).toBe('Link expired');
+    });
 });

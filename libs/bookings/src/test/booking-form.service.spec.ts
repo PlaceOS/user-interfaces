@@ -1227,7 +1227,9 @@ describe('BookingFormService', () => {
                 capture: vi.fn(async () => payment),
                 cancel: vi.fn(async () => payment),
             };
-            Object.assign(spectator.inject(PaymentsService), payments);
+            Object.assign(spectator.inject(PaymentsService), payments, {
+                can_checkout: true,
+            });
         });
 
         it('should save the payment ID and capture the payment after the save', async () => {
@@ -1271,6 +1273,16 @@ describe('BookingFormService', () => {
             await spectator.service.postForm(true);
 
             expect(savedBookings().length).toBe(0);
+        });
+
+        it('should not ask for a payment for a group booking', async () => {
+            newDeskForm();
+            spectator.service.setOptions({ group: true });
+
+            await spectator.service.postForm(true);
+
+            expect(payments.checkout).not.toHaveBeenCalled();
+            expect(savedBookings().length).toBe(1);
         });
     });
 
@@ -4269,6 +4281,26 @@ describe('BookingFormService', () => {
             );
 
             expect(deletedBookingIds()).toEqual(['booking-1']);
+        });
+
+        it('should release the payment when the asset requests fail', async () => {
+            const payment = { id: 'pay-1', status: 'authorized' };
+            const payments = {
+                can_checkout: true,
+                checkout: vi.fn(async () => ({ status: 'paid', payment })),
+                capture: vi.fn(),
+                cancel: vi.fn(async () => payment),
+            };
+            Object.assign(spectator.inject(PaymentsService), payments);
+            postBookings({ status: 422, error: 'Asset unavailable' });
+            useDeskFormWithAssets();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'Asset unavailable',
+            );
+
+            expect(payments.cancel).toHaveBeenCalledWith(payment);
+            expect(payments.capture).not.toHaveBeenCalled();
         });
 
         it('should report an asset clash instead of the desk being unavailable', async () => {
