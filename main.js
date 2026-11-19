@@ -1,27 +1,27 @@
 import {
   generateMockSpace
-} from "./chunk-RCOW3ZLI.js";
+} from "./chunk-YXU5ZJ3M.js";
 import {
   MatDialog,
   setHours
-} from "./chunk-YPVJJXAG.js";
+} from "./chunk-TFMCGI62.js";
 import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-EDVZVVFK.js";
+} from "./chunk-KVBBWFOP.js";
 import {
   AnnounceDirective,
   subDays
-} from "./chunk-FZ7ZHPYN.js";
+} from "./chunk-GBDSQHNT.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-7NFKQE2V.js";
-import "./chunk-U4DJMOEP.js";
+} from "./chunk-ZMSTQKEJ.js";
+import "./chunk-OSAFLJG7.js";
 import {
   TranslatePipe
-} from "./chunk-LMCAARPJ.js";
+} from "./chunk-GLEMTKBP.js";
 import {
   IconComponent
 } from "./chunk-IZCLOVZ4.js";
@@ -45,7 +45,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-FXNCQWWO.js";
+} from "./chunk-OW4GOPLO.js";
 import {
   AsyncHandler,
   Bp,
@@ -82,7 +82,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-BNJZUR3W.js";
+} from "./chunk-HR3UWFOG.js";
 import "./chunk-LSZ7TEBZ.js";
 import {
   BidiModule,
@@ -778,7 +778,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-4AYECJ2U.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-5HE7SYPU.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -906,7 +906,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-4AYECJ2U.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-5HE7SYPU.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -10278,11 +10278,11 @@ function returnToWelcomeWhenIdle() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-WOCRLKC3.js").then((m) => m.ChatComponent)
+  import("./chat.component-DZIY5IZV.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-DJT2E5H3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-2EZIBXHQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -10390,9 +10390,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-WOCRLKC3.js").then((m) => m.ChatComponent),
+    import("./chat.component-DZIY5IZV.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-DJT2E5H3.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-2EZIBXHQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10454,33 +10454,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-JKIP37WJ.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-PCWMX3GF.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-UKX7WSVK.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-XWIKVGLY.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-G73I7WC4.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-RRTSZN4G.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-7XEBLZVD.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-TGA75ENG.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-DXT2JNFS.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-CDAUP7JD.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-UONC624L.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-JBSC7MWP.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
