@@ -4,21 +4,21 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-KACAZ7BH.js";
+} from "./chunk-JUIQUC4Q.js";
 import {
   subMinutes
-} from "./chunk-OHG73EXT.js";
+} from "./chunk-WX43FN63.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-W6LFZVWT.js";
+} from "./chunk-RSSCY6CH.js";
 import {
   AnnounceDirective
-} from "./chunk-MEQDX2XG.js";
+} from "./chunk-DF43GL4J.js";
 import {
   TranslatePipe
-} from "./chunk-42GC53TS.js";
+} from "./chunk-SQRDGQD4.js";
 import "./chunk-PGER6XBG.js";
 import {
   LazySentryErrorHandler,
@@ -43,7 +43,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-KWH6TPGD.js";
+} from "./chunk-OQSBWCIE.js";
 import {
   AsyncHandler,
   Bp,
@@ -78,7 +78,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-RLI2MDKB.js";
+} from "./chunk-QMZYGRJ6.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
@@ -8248,6 +8248,12 @@ var RemoteDebugModule = class {
     setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
     return command.id;
   }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof (device == null ? void 0 : device.id) !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
   /** Add entries from a device. Ignores calls for a request that is not active */
   $post_logs(device_id, request_id, entries, device) {
     var _a;
@@ -10506,11 +10512,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_4_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-L2FKMMHQ.js").then((m) => m.ChatComponent)
+  import("./chat.component-P2T5ZFWB.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_8_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-CDZU37TH.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-4M4IIUUG.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10571,9 +10577,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-L2FKMMHQ.js").then((m) => m.ChatComponent),
+    import("./chat.component-P2T5ZFWB.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-CDZU37TH.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-4M4IIUUG.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10616,22 +10622,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-DK2CQI6B.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-MVMESJPQ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-GZP53X4K.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-PPS377KS.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-HN4W3R2X.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-QZ5J6E35.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-7NQH43SO.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-DOWJ7T4H.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10663,5 +10669,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=bf6615e3-5705-5e4e-b085-b3bf5387c7e5
+//# debugId=d53f32dd-0746-5806-a667-9136afc7b51f
 //# sourceMappingURL=main.js.map
