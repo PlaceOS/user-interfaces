@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-YUCSW3U2.js";
+} from "./chunk-QLDAJZRD.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-I6IECCNN.js";
+} from "./chunk-LYZMB3V6.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-FKKCMUXE.js";
+} from "./chunk-SXGM2NBO.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-5WHZVBTL.js";
+} from "./chunk-O7YZY5TP.js";
 import {
   TranslatePipe
-} from "./chunk-LOTK6ZWB.js";
+} from "./chunk-SVI7FLQS.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-XKVAIQAL.js";
+} from "./chunk-TSK675L2.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-WIE24JT4.js";
+} from "./chunk-Z5EPRMZE.js";
 import "./chunk-ARRIYDBO.js";
 import {
   BasePortalOutlet,
@@ -16081,6 +16081,10 @@ var FINAL_PAYMENT_STATES = [
 var PAYMENT_BINDING = "payments";
 var PAYMENT_MODULE = "Payments";
 var PAYMENT_CHECKOUT = new InjectionToken("PAYMENT_CHECKOUT", { factory: () => false });
+var LOCAL_HOSTS = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "[::1]"]);
+function isPaymentContext({ isSecureContext, location: location2 } = window) {
+  return isSecureContext || LOCAL_HOSTS.has(location2.hostname);
+}
 var POLL_INTERVAL_MS = 2e3;
 var MAX_POLLS = 450;
 var PaymentsService = class _PaymentsService {
@@ -16088,6 +16092,7 @@ var PaymentsService = class _PaymentsService {
     this._org = inject(OrganisationService);
     this._dialog = inject(MatDialog);
     this._checkout = inject(PAYMENT_CHECKOUT);
+    this._secure = isPaymentContext();
     this.is_enabled = computed(
       () => {
         this._org.active_building();
@@ -16137,13 +16142,22 @@ var PaymentsService = class _PaymentsService {
       )
     );
   }
-  /** Whether the active building or the organisation has a payment driver */
+  /**
+   * Whether the active building or the organisation has a payment driver,
+   * and the page is in a secure context or on a local host
+   */
   get enabled() {
-    return !!this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE);
+    return !!this._module;
   }
   /** Whether new bookings and events in this app take a payment */
   get can_checkout() {
     return this._checkout && this.enabled;
+  }
+  /** Payment driver module. `null` without a driver or a secure context */
+  get _module() {
+    if (!this._secure)
+      return null;
+    return this._org.module?.(PAYMENT_BINDING, PAYMENT_MODULE) ?? null;
   }
   /** Whether the driver supports the optional feature */
   hasCapability(capability) {
@@ -16151,7 +16165,7 @@ var PaymentsService = class _PaymentsService {
   }
   /** Call a method of the payment driver with type checked arguments */
   async call(method, ...args) {
-    const mod = this._org.module(PAYMENT_BINDING, PAYMENT_MODULE);
+    const mod = this._module;
     if (!mod)
       throw i18n("PAYMENTS.NOT_ENABLED");
     return mod.execute(method, args);
@@ -27583,5 +27597,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=3be7b83e-0ae9-54c1-8093-23f09d74f33b
-//# sourceMappingURL=calendar-pane.component-DIAX3G7Z.js.map
+//# debugId=7a1bd13e-a0a2-5f78-a4d2-08d42dd596ce
+//# sourceMappingURL=calendar-pane.component-SYGUKDV7.js.map
