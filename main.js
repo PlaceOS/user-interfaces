@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-5ZAH2YUW.js";
-import "./chunk-7AL23MLW.js";
+} from "./chunk-Y2YIUKDE.js";
+import "./chunk-ZTRMHWPP.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-WNY5HC3C.js";
+} from "./chunk-VKZ2TDXE.js";
 import "./chunk-M533ZSP3.js";
 import {
   TranslatePipe
-} from "./chunk-23FKCPH5.js";
+} from "./chunk-ESVCGX5W.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-QFQLYBLF.js";
+} from "./chunk-HR4FNMB6.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-CNLMC2EN.js";
+} from "./chunk-THWX2K42.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -8325,9 +8325,12 @@ var RemoteDebugModule = class {
 };
 function releaseMedia(entry) {
   var _a;
+  if (entry.type !== "snapshot" && entry.type !== "animation")
+    return;
   const upload_id = (_a = entry.result.data) == null ? void 0 : _a.upload_id;
-  if (upload_id == null ? void 0 : upload_id.startsWith("blob:"))
+  if (typeof upload_id === "string" && upload_id.startsWith("blob:")) {
     URL.revokeObjectURL(upload_id);
+  }
 }
 function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
   clearTimeout(mod.timers[device_id]);
@@ -10550,7 +10553,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-XA2NYCHX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-USKQQEJX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10592,7 +10595,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-XA2NYCHX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-USKQQEJX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10661,22 +10664,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-Y3YZJX36.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-CVOPXNGG.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-JL3N2VIB.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-2IG5RCCG.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-S6ERUAO2.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-55LCG6SA.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-WA2KWKCX.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-DQJU756W.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10704,5 +10707,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=46bc0750-f289-5069-b20c-dc349d0cee76
+//# debugId=9982c117-7f51-5110-b66c-18656bd45691
 //# sourceMappingURL=main.js.map
