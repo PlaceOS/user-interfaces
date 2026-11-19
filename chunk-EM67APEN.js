@@ -6423,15 +6423,15 @@ var HotkeysService = _HotkeysService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "40303af",
-  "hash": "40303af",
+  "raw": "7ab60b1",
+  "hash": "7ab60b1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "40303af",
+  "suffix": "7ab60b1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795081000469
+  "time": 1795083038008
 };
 
 // libs/common/src/lib/settings.ts
@@ -8542,5 +8542,5 @@ export {
   themedLogo,
   SettingsService
 };
-//# debugId=47ed1be8-27aa-5b5e-8191-95a73f6a8040
-//# sourceMappingURL=chunk-QMZYGRJ6.js.map
+//# debugId=00166bd7-d605-5b72-b58b-bb95118fe73c
+//# sourceMappingURL=chunk-EM67APEN.js.map
