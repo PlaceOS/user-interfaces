@@ -1,0 +1,2 @@
+import{b as D,kr as ra,ot as MV,rt as Ln,tn as Yc}from"./chunk-Cw7ux8kt.js";var o=(()=>{class t{constructor(){this.pulseOnChange=MV.required(),this._element=D(Ln);let s=!0;Yc(()=>{if(this.pulseOnChange(),s){s=!1;return}let e=this._element.nativeElement;e.classList.remove(`stagehand-pulse`),e.offsetWidth,e.classList.add(`stagehand-pulse`)})}static{this.ɵfac=function(e){return new(e||t)}}static{this.ɵdir=ra({type:t,selectors:[[``,`pulseOnChange`,``]],inputs:{pulseOnChange:[1,`pulseOnChange`]}})}}return t})();export{o as t};
+//# debugId=fbb69f37-7fd7-5b63-897c-ae044af29162
