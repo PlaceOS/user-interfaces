@@ -5621,15 +5621,15 @@ var LocaleService = class _LocaleService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "2480874",
-  "hash": "2480874",
+  "raw": "2b981c1",
+  "hash": "2b981c1",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "2480874",
+  "suffix": "2b981c1",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795044794109
+  "time": 1795047996372
 };
 
 // libs/common/src/lib/settings.ts
@@ -5872,7 +5872,7 @@ var StaffUser = class extends User {
       case "ooo":
         return i18n("COMMON.WORK_HOURS_OUT");
       case "aol":
-        return i18n("COMMON.WORK_HOURS_LEAVE");
+        return i18n("COMMON.AOL");
       case "sick":
         return i18n("COMMON.WORK_HOURS_SICK");
       default:
@@ -6955,5 +6955,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=f2bedde7-012d-575c-b467-f2ee48cfc92e
-//# sourceMappingURL=chunk-FCI6GU7D.js.map
+//# debugId=d12be6bb-3e42-5f66-9c7d-6bd5d22230a2
+//# sourceMappingURL=chunk-L32IGBIA.js.map
