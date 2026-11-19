@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-GQULIEDK.js";
-import "./chunk-F5TNGOVI.js";
+} from "./chunk-FKKCMUXE.js";
+import "./chunk-5WHZVBTL.js";
 import {
   TranslatePipe
-} from "./chunk-M3LZOOHA.js";
+} from "./chunk-LOTK6ZWB.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -30,7 +30,7 @@ import {
   serviceWorkerUpdate,
   setupCache,
   toQueryString
-} from "./chunk-N72G3RFZ.js";
+} from "./chunk-XKVAIQAL.js";
 import {
   AsyncHandler,
   Bp,
@@ -78,7 +78,7 @@ import {
   waitForCurrentUser,
   wi,
   withTimeout
-} from "./chunk-QFYBKOH4.js";
+} from "./chunk-WIE24JT4.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -552,7 +552,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-NYHOUW3K.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-QGC2FCOM.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -680,7 +680,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-NYHOUW3K.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-QGC2FCOM.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -3963,6 +3963,28 @@ function mockEventCatering(event) {
   });
 }
 
+// libs/mocks/src/lib/api/payments.data.ts
+var LINKED_PREFIX = "pay-linked";
+function mockPaymentsEnabled() {
+  try {
+    return localStorage.getItem("PLACEOS.mock_payments") === "true";
+  } catch {
+    return false;
+  }
+}
+function mockLinkedPaymentId(type, id, index) {
+  if (index % 3 !== 0 || !mockPaymentsEnabled())
+    return void 0;
+  return `${LINKED_PREFIX}:${type}:${id}`;
+}
+function linkedPaymentReference(id) {
+  const [prefix, type, ...ref] = id.split(":");
+  if (prefix !== LINKED_PREFIX || type !== "booking" && type !== "event") {
+    return null;
+  }
+  return { type, id: ref.join(":") };
+}
+
 // libs/mocks/src/lib/api/spaces.data.ts
 var ROOM_FEATURES = {
   "Meeting Room": [
@@ -4670,6 +4692,9 @@ var MOCK_EVENTS = (() => {
       return false;
     seen.add(event.id);
     event.extension_data.catering = mockEventCatering(event);
+    const payment_id = mockLinkedPaymentId("event", event.id, seen.size);
+    if (payment_id)
+      event.extension_data.payment_id = payment_id;
     return true;
   });
   return uniqueEvents.sort((a, b) => a.event_start - b.event_start);
@@ -4838,6 +4863,14 @@ var MOCK_BOOKINGS = (() => {
       plate_number: "CANCELLED"
     });
     bookings.push(booking);
+  }
+  const paid_types = ["desk", "parking", "locker"];
+  for (const booking of bookings) {
+    if (!paid_types.includes(booking.booking_type))
+      continue;
+    const payment_id = mockLinkedPaymentId("booking", booking.id, booking.id);
+    if (payment_id)
+      booking.extension_data.payment_id = payment_id;
   }
   return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
@@ -9115,6 +9148,39 @@ function findPayment(payments, id) {
     throw "Payment not found";
   return payment;
 }
+function linkedPayment(payments, id) {
+  const reference = linkedPaymentReference(id);
+  if (!reference)
+    return findPayment(payments, id);
+  const existing = payments.find((_) => _.id === id);
+  if (existing)
+    return existing;
+  const amount = reference.type === "event" ? 5e3 : 2e3;
+  const name = reference.type === "event" ? "Meeting room" : "Booking";
+  const payment = newPayment({
+    id,
+    status: "succeeded",
+    amount,
+    description: name,
+    items: [
+      {
+        product_id: "",
+        resource_type: reference.type === "event" ? "room" : "desk",
+        resource_id: "",
+        name,
+        description: "",
+        unit: "booking",
+        quantity: 1,
+        unit_amount: amount,
+        amount
+      }
+    ],
+    reference,
+    payment_method: { type: "card", brand: "visa", last4: "4242" }
+  });
+  payments.push(payment);
+  return payment;
+}
 function updatePayment(payments, id, changes) {
   const payment = findPayment(payments, id);
   Object.assign(payment, changes, { updated_at: now2() });
@@ -9281,7 +9347,7 @@ var PaymentsModule = class {
     };
   }
   $get_payment(id) {
-    const payment = findPayment(this._payments, id);
+    const payment = linkedPayment(this._payments, id);
     if (payment.status === "pending" && now2() - payment.updated_at >= HOSTED_PAY_DELAY) {
       updatePayment(this._payments, id, {
         status: "authorized",
@@ -10304,13 +10370,6 @@ function registerMockZones() {
     }
   });
 }
-function mockPaymentsEnabled() {
-  try {
-    return localStorage.getItem("PLACEOS.mock_payments") === "true";
-  } catch {
-    return false;
-  }
-}
 
 // libs/mocks/src/index.ts
 function mocksInit() {
@@ -10372,7 +10431,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-6UZDHJFO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-75BYRZ5F.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10582,7 +10641,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-6UZDHJFO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-75BYRZ5F.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10620,7 +10679,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-STHFL4AM.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-DIAX3G7Z.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10645,5 +10704,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=70d074bc-4ad2-5714-bf66-89bd794e361a
+//# debugId=7484f168-2511-5a1e-b63d-71e0ae2eb604
 //# sourceMappingURL=main.js.map

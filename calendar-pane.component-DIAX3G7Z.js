@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-OXDCAUM7.js";
+} from "./chunk-YUCSW3U2.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-V4KIYT57.js";
+} from "./chunk-I6IECCNN.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-GQULIEDK.js";
+} from "./chunk-FKKCMUXE.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-F5TNGOVI.js";
+} from "./chunk-5WHZVBTL.js";
 import {
   TranslatePipe
-} from "./chunk-M3LZOOHA.js";
+} from "./chunk-LOTK6ZWB.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-N72G3RFZ.js";
+} from "./chunk-XKVAIQAL.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-QFYBKOH4.js";
+} from "./chunk-WIE24JT4.js";
 import "./chunk-ARRIYDBO.js";
 import {
   BasePortalOutlet,
@@ -21248,6 +21248,9 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       if (!event.id) {
         payment = await this._takePayment(spaces.filter((_) => !isIgnored(_)), all_day_period);
       }
+      const payment_id = payment?.id || event.extension_data?.payment_id;
+      if (payment_id)
+        ext.payment_id = payment_id;
       let created_event = await this._performBooking(new CalendarEvent(__spreadProps(__spreadValues({}, this._model()), {
         date: all_day_period.date,
         duration: all_day_period.duration,
@@ -27580,5 +27583,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=4eb48cc1-4153-5c04-8a6f-ab1bf05475ec
-//# sourceMappingURL=calendar-pane.component-STHFL4AM.js.map
+//# debugId=3be7b83e-0ae9-54c1-8093-23f09d74f33b
+//# sourceMappingURL=calendar-pane.component-DIAX3G7Z.js.map
