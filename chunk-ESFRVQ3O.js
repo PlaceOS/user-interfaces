@@ -36,10 +36,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-OXWWOTF3.js";
+} from "./chunk-C6MAPXJE.js";
 import {
   AnnounceDirective
-} from "./chunk-PBFD34HT.js";
+} from "./chunk-D4ROKIUE.js";
 import {
   FormField,
   disabled,
@@ -50,12 +50,12 @@ import {
 } from "./chunk-KUCFMP5P.js";
 import {
   TranslatePipe
-} from "./chunk-STDV4P4T.js";
+} from "./chunk-XAMMIGN5.js";
 import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-7YOJS5DC.js";
+} from "./chunk-FHSAWPDG.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -155,7 +155,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-MLIHSKTI.js";
+} from "./chunk-GIMILWIA.js";
 import {
   IconComponent,
   SafePipe
@@ -7173,6 +7173,10 @@ var FINAL_PAYMENT_STATES = [
 var PAYMENT_BINDING = "payments";
 var PAYMENT_MODULE = "Payments";
 var PAYMENT_CHECKOUT = new InjectionToken("PAYMENT_CHECKOUT", { factory: () => false });
+var LOCAL_HOSTS = /* @__PURE__ */ new Set(["localhost", "127.0.0.1", "[::1]"]);
+function isPaymentContext({ isSecureContext, location: location2 } = window) {
+  return isSecureContext || LOCAL_HOSTS.has(location2.hostname);
+}
 var POLL_INTERVAL_MS = 2e3;
 var MAX_POLLS = 450;
 var _PaymentsService = class _PaymentsService {
@@ -7180,6 +7184,7 @@ var _PaymentsService = class _PaymentsService {
     this._org = inject(OrganisationService);
     this._dialog = inject(MatDialog);
     this._checkout = inject(PAYMENT_CHECKOUT);
+    this._secure = isPaymentContext();
     this.is_enabled = computed(
       () => {
         this._org.active_building();
@@ -7238,14 +7243,23 @@ var _PaymentsService = class _PaymentsService {
       )
     );
   }
-  /** Whether the active building or the organisation has a payment driver */
+  /**
+   * Whether the active building or the organisation has a payment driver,
+   * and the page is in a secure context or on a local host
+   */
   get enabled() {
-    var _a, _b;
-    return !!((_b = (_a = this._org).module) == null ? void 0 : _b.call(_a, PAYMENT_BINDING, PAYMENT_MODULE));
+    return !!this._module;
   }
   /** Whether new bookings and events in this app take a payment */
   get can_checkout() {
     return this._checkout && this.enabled;
+  }
+  /** Payment driver module. `null` without a driver or a secure context */
+  get _module() {
+    var _a, _b;
+    if (!this._secure)
+      return null;
+    return ((_b = (_a = this._org).module) == null ? void 0 : _b.call(_a, PAYMENT_BINDING, PAYMENT_MODULE)) ?? null;
   }
   /** Whether the driver supports the optional feature */
   hasCapability(capability) {
@@ -7254,7 +7268,7 @@ var _PaymentsService = class _PaymentsService {
   }
   /** Call a method of the payment driver with type checked arguments */
   async call(method, ...args) {
-    const mod = this._org.module(PAYMENT_BINDING, PAYMENT_MODULE);
+    const mod = this._module;
     if (!mod)
       throw i18n("PAYMENTS.NOT_ENABLED");
     return mod.execute(method, args);
@@ -13155,5 +13169,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=0c9e60c6-24e7-5add-b380-5933baa6d2fb
-//# sourceMappingURL=chunk-VZPWE3TK.js.map
+//# debugId=e272b16e-7a5e-513e-b410-7314f3cd98fc
+//# sourceMappingURL=chunk-ESFRVQ3O.js.map
