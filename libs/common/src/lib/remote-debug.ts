@@ -296,6 +296,103 @@ export function remoteDebugDeviceBinding(device_id: string) {
     return `device:${device_id}`;
 }
 
+/*
+ * Viewer side of the driver interface. The admin views in Concierge and
+ * Signage Manager use these bindings and methods. Devices do not.
+ */
+
+/** Driver binding with the devices that called the driver, by device ID */
+export const REMOTE_DEBUG_DEVICES = 'devices';
+
+/** Device that called the driver, in the `devices` binding */
+export interface RemoteDebugSeenDevice extends RemoteDebugDevice {
+    /** Unix epoch in milliseconds of the last call from the device */
+    last_seen: number;
+}
+
+/** Logs that the driver has for a device, in the `logs:<id>` binding */
+export interface RemoteLogsView {
+    /** Details from the last `post_logs` call. `null` before the first call */
+    device: RemoteDebugDevice | null;
+    /** Entries ordered by `seq`, oldest first */
+    entries: RemoteLogEntry[];
+}
+
+/** Result that the driver has for a command, in the `results:<id>` binding */
+export interface RemoteDebugCommandResult {
+    id: string;
+    type: RemoteDebugCommandType;
+    result: RemoteDebugResult;
+    received_at: number;
+}
+
+/** Options of the `request_logs` driver method */
+export type RemoteLogRequestOptions = Pick<
+    RemoteLogRequest,
+    'history' | 'before' | 'duration'
+>;
+
+/**
+ * Options of the `send_command` driver method. `keys` for `settings`, `path`
+ * for `navigate`, `width` for `snapshot`, and all but `keys` and `path` for
+ * `animation`
+ */
+export interface RemoteDebugCommandOptions {
+    keys?: string[];
+    path?: string;
+    width?: number;
+    duration?: number;
+    fps?: number;
+    format?: 'webp' | 'gif';
+}
+
+/** Name of the driver binding with the logs that the driver has for a device */
+export function remoteDebugLogsBinding(device_id: string) {
+    return `logs:${device_id}`;
+}
+
+/** Name of the driver binding with the command results that the driver has for a device */
+export function remoteDebugResultsBinding(device_id: string) {
+    return `results:${device_id}`;
+}
+
+/** Address of an uploaded snapshot or animation. In mock mode the upload ID is a `blob:` URL */
+export function remoteDebugMediaUrl(upload_id: string) {
+    return upload_id.startsWith('blob:')
+        ? upload_id
+        : `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+}
+
+/**
+ * Module of the RemoteDebug driver from the `remote_debug` binding of the
+ * organisation zone. The bindings are read from the zone, as some apps do
+ * not load zone bindings (`dont_load_metadata`). `null` when the zone has no
+ * binding, `undefined` when the bindings cannot be read.
+ */
+export async function readRemoteDebugModule(
+    org_id: string,
+): Promise<PlaceModuleBinding | null | undefined> {
+    if (!org_id) return undefined;
+    const bindings = await showMetadata(org_id, 'bindings')
+        .then((_) => (_?.details ?? {}) as Record<string, unknown>)
+        .catch(() => null);
+    if (!bindings) return undefined;
+    const binding = bindings[REMOTE_DEBUG_BINDING];
+    const { id, module } = (
+        typeof binding === 'string' ? { id: binding } : (binding ?? {})
+    ) as { id?: unknown; module?: unknown };
+    if (typeof id !== 'string' || !id) return null;
+    return getModule(
+        id,
+        typeof module === 'string' && module ? module : REMOTE_DEBUG_MODULE,
+    );
+}
+
+/** ID of the organisation zone. A limited start, such as Signage, initialises without the organisation */
+export function remoteDebugOrgId(org: OrganisationService) {
+    return org.organisation?.id || `${authority()?.config?.['org_zone'] ?? ''}`;
+}
+
 /** Whether a value from the driver is a log request that a device can apply */
 export function isRemoteLogRequest(value: unknown): value is RemoteLogRequest {
     if (!value || typeof value !== 'object') return false;
@@ -447,16 +544,9 @@ export class RemoteDebugService extends AsyncHandler {
      */
     private async _loadBinding() {
         this.clearTimeout('binding');
-        // A limited start, such as Signage, initialises without the organisation
-        const org_id =
-            this._org.organisation?.id ||
-            `${authority()?.config?.['org_zone'] ?? ''}`;
-        const bindings = org_id
-            ? await showMetadata(org_id, 'bindings')
-                  .then((_) => (_?.details ?? {}) as Record<string, unknown>)
-                  .catch(() => null)
-            : null;
-        if (!bindings) {
+        const org_id = remoteDebugOrgId(this._org);
+        const mod = await readRemoteDebugModule(org_id);
+        if (mod === undefined) {
             log(LOG_TAG, `Failed to read the bindings of "${org_id}"`);
             this.timeout(
                 'binding',
@@ -465,20 +555,7 @@ export class RemoteDebugService extends AsyncHandler {
             );
             return;
         }
-        const binding = bindings[REMOTE_DEBUG_BINDING];
-        const { id, module } = (
-            typeof binding === 'string' ? { id: binding } : (binding ?? {})
-        ) as { id?: unknown; module?: unknown };
-        this._connect(
-            typeof id === 'string' && id
-                ? getModule(
-                      id,
-                      typeof module === 'string' && module
-                          ? module
-                          : REMOTE_DEBUG_MODULE,
-                  )
-                : null,
-        );
+        this._connect(mod);
     }
 
     /** Listen to the driver of the binding. `null` stops remote debugging */
