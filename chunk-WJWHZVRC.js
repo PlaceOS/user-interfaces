@@ -56,7 +56,7 @@ import {
   wi,
   withTimeout,
   ys
-} from "./chunk-2CXOBEVW.js";
+} from "./chunk-SHYEYYXD.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -1809,7 +1809,6 @@ var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
     this._endRequest();
     this.unsub("state");
     this.clearTimeout("register");
-    this.clearInterval("register");
     this._module = mod;
     this._module_key = key;
     this._commands = [];
@@ -1831,16 +1830,25 @@ var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
    * staff browsers, do not register.
    */
   _startRegister() {
-    this.timeout("register", () => {
-      this._register();
-      this.interval("register", () => this._register(), REMOTE_DEBUG_HEARTBEAT_MS);
-    }, Math.random() * REGISTER_SPREAD_MS);
+    this.timeout("register", () => this._register(), Math.random() * REGISTER_SPREAD_MS);
   }
+  /**
+   * Register, then wait for the next heartbeat. ts-client keeps calls that
+   * are made while the websocket is down and sends them all when it
+   * reconnects, so a device that is not connected does not call. It tries
+   * again after a new random wait, so devices that reconnect together
+   * spread their calls.
+   */
   _register() {
     const mod = this._module;
     if (!mod)
       return;
+    if (!Vs()) {
+      this._startRegister();
+      return;
+    }
     this._call(mod, "register", [this._deviceDetails()]).catch((error) => log(LOG_TAG, "Failed to register", error, "warn"));
+    this.timeout("register", () => this._register(), REMOTE_DEBUG_HEARTBEAT_MS);
   }
   _applyState(value) {
     const state = value && typeof value === "object" ? value : {};
@@ -1898,8 +1906,10 @@ var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
   _isOwnCallLine(message) {
     if (!message.startsWith("[PlaceOS][WS] ["))
       return false;
-    if (OWN_CALL_LINE.test(message))
-      return true;
+    const mod = this._module;
+    if (mod && OWN_CALL_LINE.test(message)) {
+      return message.includes(`) ${mod.system.id}, ${mod.name}_${mod.index}, `);
+    }
     return this._calls > 0 && message.startsWith("[PlaceOS][WS] [SUCCESS]");
   }
   /** Call a method of the driver */
@@ -3896,5 +3906,5 @@ export {
   PushNotificationService,
   toQueryString
 };
-//# debugId=154af676-a311-5306-9af9-962506848068
-//# sourceMappingURL=chunk-PMVSYV4Q.js.map
+//# debugId=d6075fca-968b-5206-bcc9-3dedc9013ff2
+//# sourceMappingURL=chunk-WJWHZVRC.js.map
