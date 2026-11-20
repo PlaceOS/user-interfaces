@@ -38,7 +38,12 @@
                         "input": "shared/assets",
                         "output": "/assets/"
                     },
-                    "apps/stagehand/src/manifest.webmanifest"
+                    "apps/stagehand/src/manifest.webmanifest",
+                    {
+                        "input": "node_modules/ts-md5/dist/",
+                        "output": "/assets",
+                        "glob": "*worker.js"
+                    }
                 ],
                 "styles": [
                     "apps/stagehand/src/styles.css",

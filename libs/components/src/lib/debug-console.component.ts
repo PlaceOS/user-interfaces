@@ -13,13 +13,13 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import { OrganisationService, SettingsService } from '@placeos/common';
+import { SettingsService } from '@placeos/common';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
-import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import {
     ClientEvent,
-    RemoteLoggingService,
-} from 'libs/common/src/lib/remote-logging.service';
+    ConsoleHistoryService,
+} from 'libs/common/src/lib/console-history.service';
+import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import { CustomTooltipComponent } from './custom-tooltip.component';
 import { IconComponent } from './icon.component';
 import { JsonDisplayComponent } from './json-display.component';
@@ -225,8 +225,7 @@ function logSearchText(event: ClientEvent): string {
     ],
 })
 export class DebugConsoleComponent extends AsyncHandler implements OnInit {
-    private _org = inject(OrganisationService);
-    private _logs = inject(RemoteLoggingService);
+    private _logs = inject(ConsoleHistoryService);
     private _hotkey = inject(HotkeysService);
     private _settings = inject(SettingsService);
 
@@ -279,13 +278,6 @@ export class DebugConsoleComponent extends AsyncHandler implements OnInit {
 
     constructor() {
         super();
-        effect(() => {
-            if (!this._org.initialised()) return;
-            this._org.active_building();
-            const binding = this._org.binding('remote_logger');
-            const system_id = binding instanceof Object ? binding.id : binding;
-            this._logs.setSystem(system_id);
-        });
         effect(() => {
             const log_list = this._logs.history();
             const limit = this._log_limits();

@@ -197,5 +197,14 @@ export const routes: Routes = [
             ),
         canActivate: [AuthorisedUserGuard],
     },
+    {
+        path: 'remote-debug',
+        title: 'Remote Debugging',
+        loadComponent: () =>
+            import('./remote-debug/remote-debug.component').then(
+                (m) => m.RemoteDebugComponent,
+            ),
+        canActivate: [AuthorisedUserGuard],
+    },
     { path: '**', redirectTo: '-' },
 ];

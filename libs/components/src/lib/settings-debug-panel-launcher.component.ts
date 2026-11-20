@@ -13,8 +13,8 @@ import {
 } from '@angular/core';
 import { MatMenuModule, MatMenuTrigger } from '@angular/material/menu';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';
+import { ConsoleHistoryService } from 'libs/common/src/lib/console-history.service';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
-import { RemoteLoggingService } from 'libs/common/src/lib/remote-logging.service';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { type HashMap } from 'libs/common/src/lib/types';
 import { user_group_names } from 'libs/common/src/lib/user-state';
@@ -150,7 +150,7 @@ export class SettingsDebugPanelLauncherComponent
             if (!this.allowed()) return;
             untracked(() => {
                 installBindingDebugHooks();
-                this._injector.get(RemoteLoggingService);
+                this._injector.get(ConsoleHistoryService);
                 this._settings.set(this._injector.get(SettingsService));
             });
         });

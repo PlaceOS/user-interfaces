@@ -8,7 +8,7 @@ import {
     signal,
 } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { AsyncHandler, RemoteLoggingService, VERSION } from '@placeos/common';
+import { AsyncHandler, VERSION } from '@placeos/common';
 import {
     AnnounceDirective,
     IconComponent,
@@ -207,7 +207,6 @@ export class PanelViewComponent
 {
     private _state = inject(PanelStateService);
     private _route = inject(ActivatedRoute);
-    private _logger = inject(RemoteLoggingService);
 
     public readonly system = this._state.space;
     public readonly version = VERSION;
@@ -376,7 +375,6 @@ export class PanelViewComponent
         const params = this._route.snapshot.paramMap;
         if (params.has('system_id')) {
             this._state.system = params.get('system_id');
-            this._logger.setMetadata(params.get('system_id'));
         }
         document.body.parentElement.classList.add('showing-panel');
     }

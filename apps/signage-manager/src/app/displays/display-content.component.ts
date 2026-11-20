@@ -9,6 +9,7 @@ import { AssignedPlaylistsPanelComponent } from '../shared/assigned-playlists-pa
 import { LinkedItemRowComponent } from '../shared/linked-item-row.component';
 import { TemplateMappingsComponent } from '../shared/template-mappings.component';
 import { SignageContextService } from '../signage-context.service';
+import { DisplayAdminComponent } from './display-admin.component';
 import { DisplayScheduleComponent } from './display-schedule.component';
 import { SignageDisplayService } from './signage-display.service';
 
@@ -69,6 +70,19 @@ import { SignageDisplayService } from './signage-display.service';
                                 (add)="addPlaylist()"
                                 (remove)="removePlaylist($event)"
                                 (retry)="reloadPlaylists()"
+                            />
+                        </div>
+                    }
+
+                    @if (activeTab() === 'admin') {
+                        <div
+                            id="display-admin-panel"
+                            role="tabpanel"
+                            aria-labelledby="display-admin-tab"
+                            class="bg-base-100 border-base-300 min-h-0 flex-1 overflow-auto rounded-lg border"
+                        >
+                            <display-admin
+                                [display_id]="selected_display().id"
                             />
                         </div>
                     }
@@ -168,6 +182,7 @@ import { SignageDisplayService } from './signage-display.service';
         IconComponent,
         LoadErrorComponent,
         AssignedPlaylistsPanelComponent,
+        DisplayAdminComponent,
         DisplayScheduleComponent,
         LinkedItemRowComponent,
         TemplateMappingsComponent,
@@ -180,7 +195,7 @@ export class DisplayContentComponent {
     private readonly _playlist_service = inject(SignagePlaylistService);
 
     public readonly activeTab = input<
-        'schedule' | 'templates' | 'playlists' | 'zones'
+        'schedule' | 'templates' | 'playlists' | 'zones' | 'admin'
     >('schedule');
     public readonly selected_display = this._display_service.selected_display;
     public readonly can_update = this._context.can_update;

@@ -1,5 +1,6 @@
 import { mockSystem } from '@placeos/ts-client';
 
+import { createRemoteDebugSystem } from '../realtime/remote-debug';
 import { createRemoteSetupSystem } from '../realtime/remote-setup';
 import {
     MOCK_PAGE_SIZE,
@@ -21,6 +22,7 @@ export function registerMockSystems() {
     persist('spaces', MOCK_SPACES);
     MOCK_SPACES.forEach((space) => createSystem(space));
     createRemoteSetupSystem(MOCK_SPACES.map((space) => space.id));
+    createRemoteDebugSystem();
 
     registerMockEndpoint({
         path: '/api/engine/v2/systems',

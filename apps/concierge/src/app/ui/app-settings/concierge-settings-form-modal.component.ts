@@ -172,6 +172,9 @@ import { UploadButtonComponent } from './upload-button.component';
                                 <mat-option value="remote-setup">
                                     Remote Setup
                                 </mat-option>
+                                <mat-option value="remote-debug">
+                                    Remote Debugging
+                                </mat-option>
                                 <mat-option value="events">
                                     Group Events
                                 </mat-option>
