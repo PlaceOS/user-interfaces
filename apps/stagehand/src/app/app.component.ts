@@ -21,6 +21,10 @@ import { mocksInit } from '@placeos/mocks';
         </div>
         @defer (when has_chat()) {
             <global-chat />
+        } @error {
+            <!-- Chat is optional. If its chunk fails to download (for
+                 example while offline), show nothing and do not report
+                 an uncaught NG0750 error. -->
         }
         <global-loading />
         @defer (on idle) {
