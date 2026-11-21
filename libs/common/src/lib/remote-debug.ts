@@ -38,7 +38,7 @@ export type RemoteLogLevel = (typeof REMOTE_LOG_LEVELS)[number];
 
 /** Log entry that a device sends to the RemoteDebug driver */
 export interface RemoteLogEntry {
-    /** Number of the entry on the device. Starts at 1 when the app loads. A gap shows entries that were dropped */
+    /** Number of the entry on the device. Starts at 1 when the app loads. A gap shows entries below the requested level, or entries that were dropped */
     seq: number;
     /** Unix epoch in milliseconds on the device clock */
     timestamp: number;
@@ -120,7 +120,7 @@ export interface RemoteDebugResult {
 /** Details of the device that the device sends with each call */
 export interface RemoteDebugDevice {
     id: string;
-    /** Short name of the application */
+    /** Name of the application: the `app.name` setting, else the name in the console log tag */
     app: string;
     version: string;
     /** Git hash of the build */
@@ -227,7 +227,7 @@ export const REMOTE_DEBUG_UPLOAD = new InjectionToken<
     },
 });
 
-/** Organisation or building binding that holds the RemoteDebug system */
+/** Organisation zone binding that holds the RemoteDebug system */
 export const REMOTE_DEBUG_BINDING = 'remote_debug';
 /** Default module name of the RemoteDebug driver */
 export const REMOTE_DEBUG_MODULE = 'RemoteDebug';
@@ -255,6 +255,13 @@ export const MAX_REMOTE_DEBUG_COMMANDS = 20;
 const MAX_SETTINGS_KEYS = 50;
 /** Most characters in the JSON of a command result */
 const MAX_RESULT_LENGTH = 100_000;
+/**
+ * Names of result fields that hold credentials, such as settings with an
+ * access token or map keys, also a setting inside `keys`. PlaceOS logs the arguments of driver calls, so
+ * results leave out their values.
+ */
+const SECRET_FIELD =
+    /token|secret|password|api[_-]?key|credential|(^|[._])keys([._]|$)/i;
 /** Most handled command IDs that the device remembers */
 const MAX_HANDLED_COMMANDS = 50;
 /** Local storage key of the command IDs that this device handled */
@@ -454,6 +461,56 @@ export function isRemoteDebugCommand(
                 command['type'] as RemoteDebugCommandType,
             );
     }
+}
+
+/*
+ * Readers of the viewer bindings. The driver is not in this repository, so
+ * the admin views leave out values that they cannot show.
+ */
+
+/** The `logs:<id>` binding, without bad entries. `null` when it has no entries list */
+export function readRemoteLogsView(value: unknown): RemoteLogsView | null {
+    if (!value || typeof value !== 'object') return null;
+    const view = value as Partial<Record<keyof RemoteLogsView, unknown>>;
+    if (!Array.isArray(view.entries)) return null;
+    return {
+        device:
+            view.device && typeof view.device === 'object'
+                ? (view.device as RemoteDebugDevice)
+                : null,
+        entries: view.entries.filter(
+            (_): _ is RemoteLogEntry =>
+                typeof _?.seq === 'number' &&
+                typeof _.timestamp === 'number' &&
+                typeof _.message === 'string' &&
+                REMOTE_LOG_LEVELS.includes(_.level),
+        ),
+    };
+}
+
+/** The `results:<id>` binding, without results that have no `ok` state */
+export function readRemoteDebugResults(
+    value: unknown,
+): RemoteDebugCommandResult[] {
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+        (_): _ is RemoteDebugCommandResult =>
+            typeof _?.id === 'string' && typeof _.result?.ok === 'boolean',
+    );
+}
+
+/** The `devices` binding, without devices that have no ID, app, address or time */
+export function readRemoteDebugDevices(
+    value: unknown,
+): RemoteDebugSeenDevice[] {
+    if (!value || typeof value !== 'object') return [];
+    return Object.values(value).filter(
+        (_): _ is RemoteDebugSeenDevice =>
+            typeof _?.id === 'string' &&
+            typeof _.app === 'string' &&
+            typeof _.url === 'string' &&
+            typeof _.last_seen === 'number',
+    );
 }
 
 /** Whether an entry at `level` is at `minimum` or higher */
@@ -692,6 +749,7 @@ export class RemoteDebugService extends AsyncHandler {
         this.unsub('console');
         this.unsub('errors');
         this._buffer.set([]);
+        this._last_error = null;
     }
 
     private _add(
@@ -718,15 +776,26 @@ export class RemoteDebugService extends AsyncHandler {
     }
 
     /**
-     * Whether a line is a ts-client debug line about a call of this service.
-     * These lines show only with `window.debug`. If the device sent them,
-     * each `post_logs` call would cause the next one.
+     * Whether a line is a ts-client debug line about a call of this service,
+     * or about a change of a driver binding. These lines show only with
+     * `window.debug`. If the device sent them, each `post_logs` call would
+     * cause the next one.
      */
     private _isOwnCallLine(message: string) {
         if (!message.startsWith('[PlaceOS][WS] [')) return false;
         // Another driver can have a method of the same name, such as RemoteSetup
         // `register`, so the line must name this module: `sys, Module_1, method`
         const mod = this._module;
+        // A change of a driver binding. A `logs:<id>` change of this device
+        // comes from its own `post_logs` call
+        if (
+            mod &&
+            message.startsWith(
+                `[PlaceOS][WS] [NOTIFY] ${mod.system.id}, ${mod.name}_${mod.index}, `,
+            )
+        ) {
+            return true;
+        }
         if (mod && OWN_CALL_LINE.test(message)) {
             return message.includes(
                 `) ${mod.system.id}, ${mod.name}_${mod.index}, `,
@@ -854,19 +923,17 @@ export class RemoteDebugService extends AsyncHandler {
         try {
             // A new binding value starts a new run, so the run stops at the list limit
             for (let i = 0; i < MAX_REMOTE_DEBUG_COMMANDS; i++) {
-                const handled = [...readHandledCommands(), ...this._handled];
+                const stored = readHandledCommands();
                 const command = this._commands.find(
-                    (_) => !handled.includes(_.id),
+                    (_) =>
+                        !stored.includes(_.id) && !this._handled.includes(_.id),
                 );
                 const mod = this._module;
                 if (!command || !mod) break;
                 this._handled = [...this._handled, command.id].slice(
                     -MAX_HANDLED_COMMANDS,
                 );
-                const saved = saveHandledCommands([
-                    ...readHandledCommands(),
-                    command.id,
-                ]);
+                const saved = saveHandledCommands([...stored, command.id]);
                 log(LOG_TAG, `Running command ${command.type}`, command.id);
                 const result = await this._runCommand(command, saved);
                 await this._call(mod, 'command_result', [
@@ -905,7 +972,16 @@ export class RemoteDebugService extends AsyncHandler {
         try {
             const data = await this._commandData(command);
             // Scrub the JSON text, so nested values are scrubbed at any depth
-            const json = scrubSecrets(JSON.stringify(data ?? null));
+            const json = scrubSecrets(
+                JSON.stringify(data ?? null, (key, value) =>
+                    key &&
+                    SECRET_FIELD.test(key) &&
+                    value !== null &&
+                    typeof value !== 'boolean'
+                        ? '[Filtered]'
+                        : value,
+                ),
+            );
             if (json.length > MAX_RESULT_LENGTH) {
                 return { ok: false, error: 'Result is too large' };
             }
@@ -1034,7 +1110,8 @@ export class RemoteDebugService extends AsyncHandler {
     private _deviceDetails(): RemoteDebugDevice {
         return {
             id: this.device_id,
-            app: appName(),
+            // The short name of most fixed device apps is PlaceOS
+            app: `${this._settings.get('app.name') || appName()}`,
             version: `${VERSION.version ?? ''}`,
             build: `${VERSION.hash ?? ''}`,
             url: scrubSecrets(location.href),

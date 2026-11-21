@@ -59,7 +59,7 @@ describe('animatedWebp', () => {
         const { chunks, alpha } = webpImageChunks(file);
 
         expect(alpha).toBe(true);
-        expect(Array.from(chunks)).toEqual([
+        expect(chunks.flatMap((_) => Array.from(_))).toEqual([
             ...chunk('ALPH', [7]),
             ...chunk('VP8 ', [1, 2, 3]),
         ]);

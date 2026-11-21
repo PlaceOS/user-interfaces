@@ -288,6 +288,8 @@ export class UploadsService extends AsyncHandler {
                             return;
                         }
                         stop();
+                        // The manager keeps a failed upload and its File
+                        upload.remove();
                         observer.error({
                             ...upload_details,
                             error: uploadStateError(state),

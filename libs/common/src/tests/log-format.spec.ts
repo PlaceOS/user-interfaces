@@ -23,6 +23,18 @@ describe('formatLogArgs', () => {
         ).toBe('Failed https://a.test/?token=[Filtered]');
     });
 
+    it('should remove the credentials of websocket cookies', () => {
+        // ts-client prints the cookie that it sets, and `document.cookie`
+        expect(
+            formatLogArgs([
+                '[PlaceOS][WS] Cookies:',
+                ['a=1; bearer_token=tok-1', 'api-key=key-1;max-age=120;path=/'],
+            ]),
+        ).toBe(
+            '[PlaceOS][WS] Cookies: ["a=1; bearer_token=[Filtered]","api-key=[Filtered];max-age=120;path=/"]',
+        );
+    });
+
     it('should convert numbers like the console and keep %c without an argument', () => {
         expect(
             formatLogArgs([

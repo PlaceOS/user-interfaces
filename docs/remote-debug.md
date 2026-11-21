@@ -10,12 +10,14 @@ Remote debugging lets a person find problems on a device from a different locati
 - Reload the app, or clear the service worker caches and reload.
 - Get a snapshot of the screen, or a short animation as an animated WebP or GIF.
 
-The device ID is the same ID that remote setup uses. See [Device ID](remote-setup.md#device-id).
+The device ID is the same ID that remote setup uses. See [Device ID](remote-setup.md#device-id). Tabs of the same app in one browser have the same device ID, so use one tab of the app while you debug it.
 
 ## Enable remote debugging
 
 1. Add a system with the `RemoteDebug` driver. See [Driver interface](#driver-interface).
 2. Add the `remote_debug` binding to the organisation zone. The device reads the bindings of the organisation zone itself, so remote debugging also works in apps that do not load zone bindings, such as Booking Panel.
+
+Earlier versions sent each console call to a `Logger` driver through the `remote_logger` binding. This version does not use that binding. If a site uses it, add the `RemoteDebug` driver and the `remote_debug` binding before you update the devices.
 
 The value is the system ID, or an object with the system ID and the module name:
 
@@ -155,7 +157,7 @@ type RemoteDebugCommand =
 
 ```ts
 interface RemoteLogEntry {
-    /** Number of the entry on the device. Starts at 1 when the app loads. A gap shows entries that were dropped */
+    /** Number of the entry on the device. Starts at 1 when the app loads. A gap shows entries below the requested level, or entries that were dropped */
     seq: number;
     /** Unix epoch in milliseconds on the device clock */
     timestamp: number;
@@ -175,7 +177,7 @@ interface RemoteDebugResult {
 
 interface RemoteDebugDevice {
     id: string;
-    /** Short name of the app */
+    /** Name of the app: the `app.name` setting, else the name in the console log tag */
     app: string;
     version: string;
     /** Git hash of the build */
@@ -190,16 +192,16 @@ interface RemoteDebugDevice {
 
 ### Commands
 
-| Command       | Data of the result                                 | Description                                                                               |
-| ------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| `status`      | `RemoteDebugStatus`                                | Status of the device. See below.                                                          |
-| `settings`    | Value of each key. `null` when a key has no value. | Values of the settings keys, as the app reads them now. Local overrides are included.     |
-| `storage`     | `{ key: string; length: number }[]`                | Local storage keys and the length of each value. The device does not send values.         |
-| `navigate`    | `{ url: string }`                                  | Open a route of the app. The command fails if the route does not open.                    |
-| `reload`      | `null`                                             | Reload the app after the result is sent.                                                  |
-| `clear_cache` | `{ caches: number; workers: number }`              | Remove all Cache Storage caches and service worker registrations, then reload the app.    |
-| `snapshot`    | `RemoteDebugMedia`                                 | Image of the screen. See [Snapshots and animations](#snapshots-and-animations).           |
-| `animation`   | `RemoteDebugMedia`                                 | Short animation of the screen. See [Snapshots and animations](#snapshots-and-animations). |
+| Command       | Data of the result                                 | Description                                                                                                                                                                               |
+| ------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `status`      | `RemoteDebugStatus`                                | Status of the device. See below.                                                                                                                                                          |
+| `settings`    | Value of each key. `null` when a key has no value. | Values of the settings keys, as the app reads them now. Local overrides are included. A field with a credential, such as a token, a password or a value in `keys`, shows as `[Filtered]`. |
+| `storage`     | `{ key: string; length: number }[]`                | Local storage keys and the length of each value. The device does not send values.                                                                                                         |
+| `navigate`    | `{ url: string }`                                  | Open a route of the app. The command fails if the route does not open.                                                                                                                    |
+| `reload`      | `null`                                             | Reload the app after the result is sent.                                                                                                                                                  |
+| `clear_cache` | `{ caches: number; workers: number }`              | Remove all Cache Storage caches and service worker registrations, then reload the app.                                                                                                    |
+| `snapshot`    | `RemoteDebugMedia`                                 | Image of the screen. See [Snapshots and animations](#snapshots-and-animations).                                                                                                           |
+| `animation`   | `RemoteDebugMedia`                                 | Short animation of the screen. See [Snapshots and animations](#snapshots-and-animations).                                                                                                 |
 
 `RemoteDebugStatus` has these fields:
 
@@ -262,7 +264,8 @@ interface RemoteDebugMedia {
 
 What the capture cannot show:
 
-- Content that the page cannot read shows as an empty area: images from other origins without CORS, iframes, canvases and videos from other origins.
+- Content that the page cannot read shows as an empty area: images from other origins without CORS, and canvases and videos from other origins.
+- All iframes, also iframes from the same origin. They show as an empty area.
 - Scroll positions inside the page.
 - The values of password fields.
 
@@ -272,20 +275,20 @@ Timing: in Chrome on a desktop computer, a 1,280 pixel snapshot of the Control s
 
 Devices do not use these methods and bindings. The admin views (see [Admin views](#admin-views)) use them. The types are in `libs/common/src/lib/remote-debug.ts`.
 
-| Method                                    | Description                                                                                                                                       |
-| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `request_logs(device_id, level, options)` | Set `logs` in `device:<device_id>` to a request with a new, unique ID.                                                                            |
-| `set_level(device_id, level)`             | Change the `level` of the active request. Keep the same request ID.                                                                               |
-| `stop_logs(device_id)`                    | Set `logs` in `device:<device_id>` to `null`.                                                                                                     |
-| `send_command(device_id, type, options)`  | Add a command with a new, unique ID to `commands`. Returns the command ID. `options` holds the command fields, such as `keys`, `path` or `width`. |
+| Method                                    | Description                                                                                                                                                                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `request_logs(device_id, level, options)` | Set `logs` in `device:<device_id>` to a request with a new, unique ID.                                                                                                                                                   |
+| `set_level(device_id, level)`             | Change the `level` of the active request. Keep the same request ID.                                                                                                                                                      |
+| `stop_logs(device_id)`                    | Set `logs` in `device:<device_id>` to `null`.                                                                                                                                                                            |
+| `send_command(device_id, type, options)`  | Add a command with a new, unique ID to `commands`. Returns the command ID, or `null` when the command is not valid or the device has 20 commands. `options` holds the command fields, such as `keys`, `path` or `width`. |
 
 The driver shows what it gets in these bindings:
 
-| Binding        | Type                                                               | Description                                                                                             |
-| -------------- | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| `devices`      | `Record<string, RemoteDebugDevice & { last_seen: number }>`        | Devices that registered or called the driver, by device ID.                                             |
-| `logs:<id>`    | `{ device: RemoteDebugDevice \| null; entries: RemoteLogEntry[] }` | Entries ordered by `seq`, oldest first.                                                                 |
-| `results:<id>` | `{ id; type; result: RemoteDebugResult; received_at }[]`           | Last command results, oldest first. A `snapshot` or `animation` result holds the upload ID of its file. |
+| Binding        | Type                                                               | Description                                                                                                                                              |
+| -------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `devices`      | `Record<string, RemoteDebugDevice & { last_seen: number }>`        | Devices that registered or called the driver, by device ID.                                                                                              |
+| `logs:<id>`    | `{ device: RemoteDebugDevice \| null; entries: RemoteLogEntry[] }` | Entries of the app session in `device.started_at`, ordered by `seq`, oldest first. When `started_at` changes, remove the entries of the earlier session. |
+| `results:<id>` | `{ id; type; result: RemoteDebugResult; received_at }[]`           | Last command results, oldest first. A `snapshot` or `animation` result holds the upload ID of its file.                                                  |
 
 ### How a device applies the binding
 
@@ -317,9 +320,11 @@ Each request also sends new entries while it is active. Keep the entries ordered
 - Set `logs` to `null` when the request ends. A device that reloads applies a request that is still in the binding.
 - Remove stale commands. A stale command is a command without a result after a time limit, for example 15 minutes.
 - Ignore entries that have a `seq` that the driver has already for the same `started_at`. A device sends a failed batch again, and a batch can arrive after a timeout.
-- Only let users who can debug devices set requests and send commands. `reload`, `clear_cache` and `navigate` change what a device shows. Any device that can sign in can call `post_logs` and `command_result`.
+- Only let users who can debug devices read `devices`, `logs:<id>` and `results:<id>`, set requests and send commands. `reload`, `clear_cache` and `navigate` change what a device shows. Any device that can sign in can call `post_logs`, `command_result` and `register`, and read its own `device:<id>` binding.
+- The driver cannot check that a caller owns a device ID. Keep the user that first called for each device ID, and ignore calls for that ID from other users. Use `devices` as information from the devices, not to give access.
 - Snapshots and animations show what is on the screen, for example names and meeting titles. The uploads need the `support` permission to read. Remove them after a time limit. A device can finish an upload after its command timed out, so the driver does not get that upload ID. Also find old uploads by their file name, which starts with `remote-debug-`.
-- Keep a limit on the data for each device, for example the last 5,000 entries and the last 50 results. Keep 1,000 devices maximum. When there are more, remove the devices with the oldest `last_seen` first.
+- Keep a limit on the data for each device. Keep at least the 8,000 entries that a device can have, so that [Get older entries](#get-older-entries) works, and for example the last 50 results. Keep 1,000 devices maximum. When there are more, remove the devices with the oldest `last_seen` first.
+- Remove entries and results after a time limit, for example 7 days, also for a device that still registers.
 - Set `last_seen` on each call from the device: `register`, `post_logs` and `command_result`. Remove stale devices, for example after 7 days.
 
 ### Mock driver

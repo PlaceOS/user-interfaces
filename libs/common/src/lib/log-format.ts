@@ -44,7 +44,9 @@ export function formatLogArgs(all_args: readonly unknown[]): string {
             );
         }
         for (let i = next; i < args.length; i++) parts.push(argText(args[i]));
-        return limitText(scrubSecrets(parts.join(' ').replace(ANSI_CODE, '')));
+        return ownCopy(
+            limitText(scrubSecrets(parts.join(' ').replace(ANSI_CODE, ''))),
+        );
     } catch {
         return '[Log entry that cannot be read]';
     }
@@ -53,6 +55,17 @@ export function formatLogArgs(all_args: readonly unknown[]): string {
 /** Number text of `%d`, `%i` and `%f`. Symbols give `NaN`, as in the console */
 function numberText(value: unknown, parse: (text: string) => number) {
     return typeof value === 'symbol' ? 'NaN' : `${parse(String(value))}`;
+}
+
+/**
+ * Copy of the text that does not share memory with a larger string. V8 can
+ * make a slice of a string point into the original string, so a 2,000
+ * character entry from a 1 MB log message would keep all of the 1 MB. The
+ * slice copies the joined text to a new string first, and then points only
+ * into that copy.
+ */
+function ownCopy(text: string) {
+    return (' ' + text).slice(1);
 }
 
 function limitText(text: string) {
@@ -117,20 +130,20 @@ function boundedJson(root: object): string {
         const list = Array.isArray(value) ? (value as unknown[]) : null;
         if (depth >= MAX_DEPTH) return write(list ? '[Array]' : '[Object]');
         parents.add(value);
-        const keys = list ? null : Object.keys(value);
-        const count = list ? list.length : keys!.length;
+        const keys = list ? [] : Object.keys(value);
+        const count = list ? list.length : keys.length;
         let open = write(list ? '[' : '{');
         // Each step writes text, so the loop stops when the text is full
         for (let i = 0; open && i < count; i++) {
             if (i > 0 && !write(',')) open = false;
-            else if (keys && !write(`${JSON.stringify(keys[i])}:`))
+            else if (!list && !write(`${JSON.stringify(keys[i])}:`))
                 open = false;
             else {
                 let item: unknown;
                 try {
                     item = list
                         ? list[i]
-                        : (value as Record<string, unknown>)[keys![i]];
+                        : (value as Record<string, unknown>)[keys[i]];
                 } catch {
                     item = '[Unreadable]';
                 }

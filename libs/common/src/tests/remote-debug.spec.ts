@@ -18,6 +18,7 @@ import {
 } from '../lib/remote-debug';
 import { MAX_CAPTURE_BYTES } from '../lib/screen-capture';
 import { SettingsService } from '../lib/settings.service';
+import { UploadsService } from '../lib/uploads.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -78,6 +79,17 @@ describe('RemoteDebugService', () => {
     };
     let service: RemoteDebugService;
     const upload = vi.fn(async (_file: File) => 'upload-1');
+    const settings: Record<string, unknown> = {
+        'app.name': 'Booking Panel',
+        'app.title': 'Panel',
+        'app.maps.access_token': 'secret-1',
+        'app.maps': {
+            access_token: 'secret-1',
+            keys: { google: 'k1' },
+            zoom: 3,
+        },
+        'app.maps.keys.google': 'k1',
+    };
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -114,8 +126,7 @@ describe('RemoteDebugService', () => {
                 {
                     provide: SettingsService,
                     useValue: {
-                        get: (key: string) =>
-                            key === 'app.title' ? 'Panel' : undefined,
+                        get: (key: string) => settings[key],
                         debug_overrides: signal({ debug: true }),
                     },
                 },
@@ -303,6 +314,14 @@ describe('RemoteDebugService', () => {
                 'color: default',
             );
             console.debug('[PlaceOS][WS] [SUCCESS](1)');
+            // The binding change that the call causes
+            console.debug(
+                `%c[PlaceOS]%c[WS] %c[NOTIFY] sys-debug, RemoteDebug_1, logs:${deviceId()} changed`,
+                'color: #0288D1',
+                'color: #009688',
+                'color: default',
+                [],
+            );
         });
         console.warn('real warning');
         driver.emitLogs({ id: 'req-1', level: 'debug' });
@@ -364,6 +383,40 @@ describe('RemoteDebugService', () => {
         ]);
     });
 
+    it('should send a full queue in order when a slow call ends', async () => {
+        await connect();
+        let release = () => {};
+        let running = 0;
+        let most = 0;
+        driver.execute.mockImplementation(async (method: string) => {
+            if (method !== 'post_logs') return;
+            most = Math.max(most, ++running);
+            // The first call stays open until the test releases it
+            if (driver.execute.mock.calls.length === 1) {
+                await new Promise<void>((resolve) => (release = resolve));
+            }
+            running--;
+        });
+        driver.emitLogs({ id: 'req-1', level: 'info', history: 0 });
+        console.info('first');
+        await vi.advanceTimersByTimeAsync(1000);
+        for (let i = 1; i <= 1500; i++) console.info(`line ${i}`);
+        await vi.advanceTimersByTimeAsync(5000);
+        release();
+        await vi.advanceTimersByTimeAsync(15_000);
+
+        const batches = sentMessages(driver.execute);
+        expect(most).toBe(1);
+        expect(batches.every((_) => _.length <= 100)).toBe(true);
+        // The queue keeps 1,000 entries, so the oldest 500 lines are removed
+        const lines = batches.slice(1).flat();
+        expect([lines.length, lines[0], lines.at(-1)]).toEqual([
+            1000,
+            'line 501',
+            'line 1500',
+        ]);
+    });
+
     it('should stop at the end of the duration and not apply the request again', async () => {
         await connect();
         driver.emitLogs({
@@ -401,7 +454,7 @@ describe('RemoteDebugService', () => {
         expect(results['cmd-1']).toMatchObject({
             ok: true,
             data: {
-                device: { id: deviceId() },
+                device: { id: deviceId(), app: 'Booking Panel' },
                 setting_overrides: ['debug'],
                 log_counts: { error: 1 },
                 last_error: { message: 'failed to load' },
@@ -414,6 +467,78 @@ describe('RemoteDebugService', () => {
         expect(results['cmd-3']).toEqual({
             ok: true,
             data: { url: '/bootstrap' },
+        });
+    });
+
+    it('should leave out the values of credential settings', async () => {
+        await connect();
+        driver.emitCommands([
+            {
+                id: 'cmd-1',
+                type: 'settings',
+                keys: [
+                    'app.maps.access_token',
+                    'app.maps',
+                    'app.maps.keys.google',
+                ],
+            },
+        ]);
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(sentResults(driver.execute)['cmd-1'].data).toEqual({
+            'app.maps.access_token': '[Filtered]',
+            'app.maps': {
+                access_token: '[Filtered]',
+                keys: '[Filtered]',
+                zoom: 3,
+            },
+            'app.maps.keys.google': '[Filtered]',
+        });
+    });
+
+    it('should clear the caches and send the counts in the result', async () => {
+        await connect();
+        const deleted: string[] = [];
+        const unregister = vi.fn(async () => true);
+        vi.stubGlobal('caches', {
+            keys: async () => ['app-1', 'app-2'],
+            delete: async (name: string) => deleted.push(name) > 0,
+        });
+        Object.defineProperty(navigator, 'serviceWorker', {
+            configurable: true,
+            value: { getRegistrations: async () => [{ unregister }] },
+        });
+        let sent = () => {};
+        driver.execute.mockImplementation(
+            () => new Promise<void>((resolve) => (sent = resolve)),
+        );
+        driver.emitCommands([{ id: 'cmd-1', type: 'clear_cache' }]);
+        await vi.advanceTimersByTimeAsync(0);
+
+        // The caches are clear while the result is on its way
+        expect(deleted).toEqual(['app-1', 'app-2']);
+        expect(unregister).toHaveBeenCalled();
+        expect(sentResults(driver.execute)['cmd-1']).toEqual({
+            ok: true,
+            data: { caches: 2, workers: 1 },
+        });
+        sent();
+        vi.unstubAllGlobals();
+        delete (navigator as { serviceWorker?: unknown }).serviceWorker;
+    });
+
+    it('should not reload when it cannot save the command ID', async () => {
+        await connect();
+        vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+            throw new Error('Quota exceeded');
+        });
+        driver.emitCommands([{ id: 'cmd-1', type: 'clear_cache' }]);
+        await vi.advanceTimersByTimeAsync(0);
+
+        // Without the saved ID, the app would run the command after each reload
+        expect(sentResults(driver.execute)['cmd-1']).toEqual({
+            ok: false,
+            error: 'Local storage is not available',
         });
     });
 
@@ -497,5 +622,30 @@ describe('RemoteDebugService', () => {
             ['error', 'TypeError: bad value'],
             ['rejection', 'Unhandled rejection: timeout'],
         ]);
+    });
+});
+
+describe('REMOTE_DEBUG_UPLOAD', () => {
+    it('should upload a capture that only support users can read', async () => {
+        const uploadFileToCompletion = vi.fn(async () => 'upload-1');
+        TestBed.configureTestingModule({
+            providers: [
+                {
+                    provide: UploadsService,
+                    useValue: { uploadFileToCompletion },
+                },
+            ],
+        });
+        const file = new File(['x'], 'remote-debug.webp');
+
+        const id = await TestBed.inject(REMOTE_DEBUG_UPLOAD)(file);
+
+        expect(id).toBe('upload-1');
+        expect(uploadFileToCompletion).toHaveBeenCalledWith(
+            file,
+            false,
+            'support',
+        );
+        TestBed.resetTestingModule();
     });
 });

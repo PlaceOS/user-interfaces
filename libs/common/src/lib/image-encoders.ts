@@ -15,17 +15,18 @@ export interface WebpFrame {
 const MAX_WEBP_DURATION = 0xffffff;
 
 /**
- * Image chunks of a WebP file: `ALPH`, `VP8 ` and `VP8L`. Other chunks, such
- * as `VP8X` and metadata, are not kept. Throws when the file is not WebP.
+ * Image chunks of a WebP file: `ALPH`, `VP8 ` and `VP8L`. The chunks are
+ * views into `file`. Other chunks, such as `VP8X` and metadata, are not
+ * kept. Throws when the file is not WebP.
  */
 export function webpImageChunks(file: Uint8Array): {
-    chunks: Uint8Array;
+    chunks: Uint8Array[];
     alpha: boolean;
 } {
     if (ascii(file, 0, 4) !== 'RIFF' || ascii(file, 8, 4) !== 'WEBP') {
         throw new Error('The frame is not a WebP file');
     }
-    const parts: Uint8Array[] = [];
+    const chunks: Uint8Array[] = [];
     let alpha = false;
     // Each step moves past one chunk, so the loop ends at the end of the file
     for (let offset = 12; offset + 8 <= file.length; ) {
@@ -33,55 +34,78 @@ export function webpImageChunks(file: Uint8Array): {
         const size = readUint32(file, offset + 4);
         const end = offset + 8 + size + (size % 2);
         if (type === 'ALPH' || type === 'VP8 ' || type === 'VP8L') {
-            parts.push(file.subarray(offset, Math.min(end, file.length)));
+            chunks.push(file.subarray(offset, Math.min(end, file.length)));
             if (type !== 'VP8 ') alpha = true;
         }
         offset = end;
     }
-    if (!parts.length) throw new Error('The WebP file has no image');
-    return { chunks: concat(parts), alpha };
+    if (!chunks.length) throw new Error('The WebP file has no image');
+    return { chunks, alpha };
 }
 
 /**
  * Animated WebP file of the frames. Each frame covers the full canvas and
- * does not blend with the frame before it. The animation loops forever.
+ * does not blend with the frame before it. The animation loops forever. The
+ * image data of the frames is copied one time, into the file.
  */
 export function animatedWebp(
     frames: readonly WebpFrame[],
     width: number,
     height: number,
 ): Uint8Array<ArrayBuffer> {
-    const images = frames.map((frame) => ({
-        ...webpImageChunks(frame.file),
-        duration: Math.min(
-            Math.max(Math.round(frame.duration), 1),
-            MAX_WEBP_DURATION,
-        ),
-    }));
-    const alpha = images.some((_) => _.alpha);
-    const vp8x = new Uint8Array(10);
+    const images = frames.map((frame) => {
+        const { chunks, alpha } = webpImageChunks(frame.file);
+        return {
+            chunks,
+            alpha,
+            size: chunks.reduce((sum, _) => sum + _.length, 0),
+            duration: Math.min(
+                Math.max(Math.round(frame.duration), 1),
+                MAX_WEBP_DURATION,
+            ),
+        };
+    });
+    // The RIFF header, `VP8X`, `ANIM`, and one `ANMF` for each frame
+    const length =
+        12 +
+        (8 + 10) +
+        (8 + 6) +
+        images.reduce((sum, _) => sum + 8 + 16 + _.size + (_.size % 2), 0);
+    const file = new Uint8Array(length);
+    let offset = 0;
+    const write = (bytes: Uint8Array) => {
+        file.set(bytes, offset);
+        offset += bytes.length;
+    };
+    /** Type and size of a chunk. Its payload follows */
+    const header = (type: string, size: number) => {
+        write(bytesOf(type));
+        writeUint32(file, offset, size);
+        offset += 4;
+    };
+    header('RIFF', length - 8);
+    write(bytesOf('WEBP'));
+    header('VP8X', 10);
     // Animation flag, and the alpha flag when a frame has alpha
-    vp8x[0] = 0x02 | (alpha ? 0x10 : 0);
-    writeUint24(vp8x, 4, width - 1);
-    writeUint24(vp8x, 7, height - 1);
+    file[offset] = 0x02 | (images.some((_) => _.alpha) ? 0x10 : 0);
+    writeUint24(file, offset + 4, width - 1);
+    writeUint24(file, offset + 7, height - 1);
+    offset += 10;
+    header('ANIM', 6);
     // White background, loop forever
-    const anim = new Uint8Array([0xff, 0xff, 0xff, 0xff, 0, 0]);
-    const chunks = [chunk('VP8X', vp8x), chunk('ANIM', anim)];
+    write(new Uint8Array([0xff, 0xff, 0xff, 0xff, 0, 0]));
     for (const image of images) {
-        const header = new Uint8Array(16);
-        writeUint24(header, 6, width - 1);
-        writeUint24(header, 9, height - 1);
-        writeUint24(header, 12, image.duration);
+        header('ANMF', 16 + image.size);
+        writeUint24(file, offset + 6, width - 1);
+        writeUint24(file, offset + 9, height - 1);
+        writeUint24(file, offset + 12, image.duration);
         // Do not blend with the frame before, do not dispose
-        header[15] = 0x02;
-        chunks.push(chunk('ANMF', concat([header, image.chunks])));
+        file[offset + 15] = 0x02;
+        offset += 16;
+        image.chunks.forEach(write);
+        // A chunk with an odd size has one byte of padding
+        offset += image.size % 2;
     }
-    const body = concat(chunks);
-    const file = new Uint8Array(12 + body.length);
-    file.set(bytesOf('RIFF'), 0);
-    writeUint32(file, 4, 4 + body.length);
-    file.set(bytesOf('WEBP'), 8);
-    file.set(body, 12);
     return file;
 }
 
@@ -335,15 +359,7 @@ function subBlocks(data: Uint8Array): Uint8Array {
     return out;
 }
 
-/** RIFF chunk with its header and the padding byte for an odd size */
-function chunk(type: string, payload: Uint8Array): Uint8Array {
-    const out = new Uint8Array(8 + payload.length + (payload.length % 2));
-    out.set(bytesOf(type), 0);
-    writeUint32(out, 4, payload.length);
-    out.set(payload, 8);
-    return out;
-}
-
+/** One array with the bytes of the parts, in order */
 function concat(parts: readonly Uint8Array[]): Uint8Array<ArrayBuffer> {
     const out = new Uint8Array(parts.reduce((sum, _) => sum + _.length, 0));
     let offset = 0;

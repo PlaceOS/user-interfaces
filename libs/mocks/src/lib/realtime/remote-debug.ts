@@ -26,8 +26,8 @@ import { registerSystem } from '@placeos/ts-client';
 
 /** System with the mock RemoteDebug driver. The zone `bindings` mock points `remote_debug` at it */
 export const REMOTE_DEBUG_MOCK_SYSTEM = 'sys-remote-debug';
-/** Most entries that the mock keeps for each device */
-const MAX_DEVICE_ENTRIES = 5000;
+/** Most entries that the mock keeps for each device: all the entries that a device keeps */
+const MAX_DEVICE_ENTRIES = 8000;
 /** Most results that the mock keeps for each device */
 const MAX_DEVICE_RESULTS = 50;
 /** Most devices that the mock keeps data for */
