@@ -4042,6 +4042,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .min-w-\[40\%\] {
   min-width: 40%;
 }
+#placeos .min-w-\[48rem\] {
+  min-width: 48rem;
+}
+#placeos .min-w-\[52rem\] {
+  min-width: 52rem;
+}
 #placeos .min-w-\[80vw\] {
   min-width: 80vw;
 }

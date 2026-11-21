@@ -3687,6 +3687,8 @@
         "PAYMENT_FAILED": "El pago no se completó.",
         "PAYMENT_CANCELLED": "Pago cancelado. No se realizó la reserva.",
         "CAPTURE_FAILED": "La reserva está guardada, pero no se pudo completar el pago. Error: {{ error }}",
+        "ROOMS_DECLINED": "Ninguna sala aceptó la reunión, por lo que no se cobra y no se pide el catering.",
+        "RELEASE_FAILED": "No se pudo liberar el pago {{ id }}. Contacte con soporte. Error: {{ error }}",
         "ROOM_BOOKING": "Reserva de sala",
         "UNIT_BOOKING": "por reserva",
         "UNIT_HOUR": "por hora",
