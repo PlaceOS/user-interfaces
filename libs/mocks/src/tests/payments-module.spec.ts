@@ -1,5 +1,6 @@
 import { MockPlaceWebsocketModule } from '@placeos/ts-client';
 
+import { MOCK_LEVELS } from '../lib/api/zone.data';
 import { createPaymentsModule } from '../lib/realtime/payments';
 
 describe('Mock payments module', () => {
@@ -20,6 +21,47 @@ describe('Mock payments module', () => {
         ]);
         expect(quote.items.map((_) => _.amount)).toEqual([1500, 900]);
         expect(quote.total).toBe(2400);
+    });
+
+    it('prices the catering assets that the meeting form orders', () => {
+        const quote = createModule().call('quote', [
+            [
+                {
+                    resource_type: 'catering',
+                    resource_id: 'catering-coffee',
+                    quantity: 2,
+                },
+            ],
+        ]);
+        expect(quote.total).toBe(700);
+    });
+
+    it('prices a resource on a level with a product of its building', () => {
+        const mod = createModule();
+        const level = MOCK_LEVELS[0];
+        mod.call('save_product', [
+            {
+                name: 'Building rooms',
+                description: '',
+                active: true,
+                resource_type: 'room',
+                resource_ids: [],
+                zone_ids: [level.parent_id],
+                unit: 'booking',
+                unit_amount: 5000,
+                currency: 'AUD',
+            },
+        ]);
+        const quote = mod.call('quote', [
+            [
+                {
+                    resource_type: 'room',
+                    resource_id: 'room-1',
+                    zone_id: level.id,
+                },
+            ],
+        ]);
+        expect(quote.total).toBe(5000);
     });
 
     it('authorizes a saved method, then captures it with the reference', () => {
@@ -50,6 +92,16 @@ describe('Mock payments module', () => {
         ]);
         expect(payment.status).toBe('succeeded');
         expect(payment.reference.id).toBe('booking-1');
+        // A retry for the same booking returns the payment with no error
+        const retry = mod.call('capture_payment', [
+            session.payment_id,
+            { type: 'booking', id: 'booking-1' },
+        ]);
+        expect(retry.status).toBe('succeeded');
+        // A cancel after a part refund refunds the rest
+        mod.call('refund_payment', [session.payment_id, 100, '']);
+        const cancelled = mod.call('cancel_payment', [session.payment_id]);
+        expect(cancelled.status).toBe('refunded');
     });
 
     it('refuses a checkout when the total changed', () => {

@@ -12,6 +12,9 @@ describe('PaymentCheckoutModalComponent', () => {
     let spectator: Spectator<PaymentCheckoutModalComponent>;
     let data: PaymentCheckoutData;
     const close = vi.fn();
+    /** Payment window that the browser did not block */
+    const popup = () =>
+        ({ close: vi.fn(), opener: window }) as unknown as Window;
 
     const createComponent = createComponentFactory({
         component: PaymentCheckoutModalComponent,
@@ -73,7 +76,7 @@ describe('PaymentCheckoutModalComponent', () => {
     });
 
     it('offers to reopen or cancel when the user closes the payment window', async () => {
-        vi.spyOn(window, 'open').mockReturnValue(null);
+        vi.spyOn(window, 'open').mockReturnValue(popup());
         data.pay = vi.fn(async () => {
             throw new PaymentWindowClosedError('pay-1');
         });
@@ -98,8 +101,38 @@ describe('PaymentCheckoutModalComponent', () => {
         expect(spectator.component.view()).toBe('review');
     });
 
-    it('cancels the open payment when it fails to reopen', async () => {
+    it('does not start a payment with a new method when the browser blocks the window', async () => {
         vi.spyOn(window, 'open').mockReturnValue(null);
+        spectator.component.method_id.set('');
+        await spectator.component.pay();
+        expect(data.pay).not.toHaveBeenCalled();
+        expect(spectator.component.error()).toBe('PAYMENTS.POPUP_BLOCKED');
+    });
+
+    it('stays on the open payment when the cancel fails', async () => {
+        data.pay = vi.fn(async () => {
+            throw new PaymentWindowClosedError('pay-1');
+        });
+        data.cancel = vi.fn(async () => {
+            throw 'Network error';
+        });
+        await spectator.component.pay();
+        await spectator.component.cancelPayment();
+        expect(spectator.component.view()).toBe('closed');
+        expect(spectator.component.error()).toBe('Network error');
+    });
+
+    it('stays on the open payment with the error when its cancel fails', async () => {
+        data.pay = vi.fn(async () => {
+            throw new PaymentWindowClosedError('pay-1', 'Network error');
+        });
+        await spectator.component.pay();
+        expect(spectator.component.view()).toBe('closed');
+        expect(spectator.component.error()).toBe('Network error');
+    });
+
+    it('stays on the open payment when it fails to reopen', async () => {
+        vi.spyOn(window, 'open').mockReturnValue(popup());
         data.pay = vi.fn(async () => {
             throw new PaymentWindowClosedError('pay-1');
         });
@@ -108,8 +141,9 @@ describe('PaymentCheckoutModalComponent', () => {
         });
         await spectator.component.pay();
         await spectator.component.reopen();
-        expect(data.cancel).toHaveBeenCalledWith('pay-1');
-        expect(spectator.component.view()).toBe('review');
+        // The user can reopen or cancel it, but cannot pay a second time
+        expect(data.cancel).not.toHaveBeenCalled();
+        expect(spectator.component.view()).toBe('closed');
         expect(spectator.component.error()).toBe('Link expired');
     });
 });

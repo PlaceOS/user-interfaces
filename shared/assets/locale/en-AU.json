@@ -3692,6 +3692,8 @@
         "PAYMENT_FAILED": "The payment was not successful.",
         "PAYMENT_CANCELLED": "Payment cancelled. The booking was not made.",
         "CAPTURE_FAILED": "The booking is saved, but the payment could not be completed. Error: {{ error }}",
+        "ROOMS_DECLINED": "No room accepted the meeting, so it is not charged and the catering is not ordered.",
+        "RELEASE_FAILED": "The payment {{ id }} could not be released. Contact support. Error: {{ error }}",
         "ROOM_BOOKING": "Room booking",
         "UNIT_BOOKING": "per booking",
         "UNIT_HOUR": "per hour",

@@ -3690,6 +3690,8 @@
         "PAYMENT_FAILED": "付款未成功。",
         "PAYMENT_CANCELLED": "付款已取消。未完成预订。",
         "CAPTURE_FAILED": "预订已保存，但付款未能完成。错误：{{ error }}",
+        "ROOMS_DECLINED": "没有会议室接受此会议，因此不收费，也不订购餐饮。",
+        "RELEASE_FAILED": "无法释放付款 {{ id }}。请联系支持人员。错误：{{ error }}",
         "ROOM_BOOKING": "会议室预订",
         "UNIT_BOOKING": "每次预订",
         "UNIT_HOUR": "每小时",

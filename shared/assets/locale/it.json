@@ -3690,6 +3690,8 @@
         "PAYMENT_FAILED": "Il pagamento non è riuscito.",
         "PAYMENT_CANCELLED": "Pagamento annullato. La prenotazione non è stata effettuata.",
         "CAPTURE_FAILED": "La prenotazione è salvata, ma non è stato possibile completare il pagamento. Errore: {{ error }}",
+        "ROOMS_DECLINED": "Nessuna sala ha accettato la riunione, quindi non viene addebitata e il catering non viene ordinato.",
+        "RELEASE_FAILED": "Impossibile rilasciare il pagamento {{ id }}. Contatta l'assistenza. Errore: {{ error }}",
         "ROOM_BOOKING": "Prenotazione sala",
         "UNIT_BOOKING": "a prenotazione",
         "UNIT_HOUR": "all'ora",

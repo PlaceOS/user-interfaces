@@ -6,6 +6,7 @@ import {
     AssetRequest,
     Building,
     CalendarEvent,
+    CateringOrder,
     currentUser,
     EMPTY_USER,
     ExternalCateringService,
@@ -374,6 +375,90 @@ describe('EventFormService', () => {
             id: 'event-1',
         });
     });
+
+    it.each([
+        ['a selected room', false],
+        ['the fallback room of the building', true],
+    ])(
+        'should release the payment when the calendar declines %s',
+        async (_, fallback) => {
+            const space = new Space({
+                id: 'space-1',
+                email: 'space-1@test.com',
+                name: 'Sydney room',
+                zones: ['bld-1'],
+            });
+            const payment = { id: 'pay-1', status: 'authorized' } as Payment;
+            type Internals = {
+                _takePayment: () => Promise<Payment>;
+                _checkBuildingBookableHours: () => Promise<void>;
+                _checkResourcesAvailable: () => Promise<boolean>;
+                _checkResourceRules: () => Promise<boolean>;
+                _performBooking: () => Promise<CalendarEvent>;
+                _space_pipe: { transform: () => Promise<Space> };
+            };
+            const internals = service as unknown as Internals;
+            vi.spyOn(internals, '_takePayment').mockResolvedValue(payment);
+            vi.spyOn(
+                internals,
+                '_checkBuildingBookableHours',
+            ).mockResolvedValue();
+            vi.spyOn(internals, '_checkResourcesAvailable').mockResolvedValue(
+                true,
+            );
+            vi.spyOn(internals, '_checkResourceRules').mockResolvedValue(true);
+            vi.spyOn(internals._space_pipe, 'transform').mockResolvedValue(
+                space,
+            );
+            vi.spyOn(internals, '_performBooking').mockResolvedValue(
+                new CalendarEvent({
+                    id: 'event-1',
+                    resources: [
+                        new Space({ ...space, response_status: 'declined' }),
+                    ],
+                }),
+            );
+            if (fallback) {
+                vi.mocked(
+                    TestBed.inject(SettingsService).get,
+                ).mockImplementation((key: string) =>
+                    key === 'app.events.no_space_resource'
+                        ? space.email
+                        : undefined,
+                );
+            }
+            const payments = TestBed.inject(PaymentsService);
+            const cancel = vi
+                .spyOn(payments, 'cancel')
+                .mockResolvedValue(payment);
+            const capture = vi.spyOn(payments, 'capture');
+            service.newForm();
+            service.model.update((model) => ({
+                ...model,
+                host: 'host@test.com',
+                organiser: new User({ email: 'host@test.com' }),
+                creator: 'host@test.com',
+                title: 'Paid meeting',
+                date: new Date(2028, 5, 15, 10).valueOf(),
+                duration: 60,
+                attendees: [],
+                resources: fallback ? [] : [space],
+                catering: [new CateringOrder({ id: 'order-1' })],
+            }));
+
+            await service.postForm(true);
+
+            expect(cancel).toHaveBeenCalledWith(payment);
+            expect(capture).not.toHaveBeenCalled();
+            // The payment held the catering, so it is not ordered
+            const urls = vi
+                .mocked<(url: string) => Promise<unknown>>(ts_client.get)
+                .mock.calls.map(([url]) => url);
+            expect(
+                urls.filter((url) => url.includes('catering-order')),
+            ).toEqual([]);
+        },
+    );
 
     it('should remove the visitor booking when the last visitor leaves an event', async () => {
         vi.spyOn(

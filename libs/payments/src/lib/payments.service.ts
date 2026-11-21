@@ -13,6 +13,7 @@ import {
     openPaymentWindow,
     PaymentCheckoutData,
     PaymentCheckoutModalComponent,
+    PaymentEndedError,
     PaymentWindowClosedError,
     PayOptions,
     ResumeOptions,
@@ -61,6 +62,8 @@ export function isPaymentContext({
 const POLL_INTERVAL_MS = 2_000;
 /** Upper bound of checks for one payment. 450 checks are 15 minutes */
 const MAX_POLLS = 450;
+/** Status checks in sequence that can fail before the wait stops */
+const MAX_FAILED_CHECKS = 3;
 
 /** Result of a checkout */
 export type CheckoutResult =
@@ -83,6 +86,11 @@ interface WaitOptions {
     window?: Window | null;
     /** Stops the wait, e.g. when the user cancels in the app */
     signal?: AbortSignal;
+    /**
+     * Cancel the payment when the wait stops or fails. Default `true`. Use
+     * `false` for a payment of a saved booking, so that the booking stays paid.
+     */
+    cancel?: boolean;
 }
 
 /**
@@ -163,7 +171,13 @@ export class PaymentsService {
     ): Promise<ReturnType<PaymentDriver[M]>> {
         const mod = this._module;
         if (!mod) throw i18n('PAYMENTS.NOT_ENABLED');
-        return mod.execute<ReturnType<PaymentDriver[M]>>(method, args);
+        return mod
+            .execute<ReturnType<PaymentDriver[M]>>(method, args)
+            .catch((e: unknown) => {
+                // PlaceOS rejects with the error of the driver in `msg`
+                const msg = (e as { msg?: unknown } | null)?.msg;
+                throw typeof msg === 'string' && msg ? msg : e;
+            });
     }
 
     /**
@@ -210,18 +224,18 @@ export class PaymentsService {
 
     /**
      * Open the hosted page to add a payment method. Resolves when the user
-     * closes the page.
+     * closes the page. Throws when the browser blocks the window.
      */
     public async addPaymentMethod(window_ref = this.openWindow()) {
+        if (!window_ref) throw i18n('PAYMENTS.POPUP_BLOCKED');
         const session = await this.call(
             'create_setup_session',
             completeUrl('setup'),
         ).catch((e) => {
-            window_ref?.close();
+            window_ref.close();
             throw e;
         });
-        if (window_ref) window_ref.location.href = session.url;
-        else window.open(session.url, '_blank', 'noopener');
+        window_ref.location.href = session.url;
         await waitForClose(window_ref);
     }
 
@@ -249,8 +263,13 @@ export class PaymentsService {
         if (!window_ref) throw i18n('PAYMENTS.POPUP_BLOCKED');
         const result = await this._resume(payment.id, {
             window: window_ref,
+            cancel: false,
         }).catch((e) => {
-            if (e instanceof PaymentWindowClosedError) {
+            // Show the latest state of the payment
+            if (
+                e instanceof PaymentWindowClosedError ||
+                e instanceof PaymentEndedError
+            ) {
                 return this.call('get_payment', payment.id);
             }
             throw e;
@@ -265,16 +284,33 @@ export class PaymentsService {
      * `PaymentWindowClosedError` when the user closes the hosted page first,
      * and leaves the payment open. Throws `CheckoutCancelledError` and
      * cancels the payment when the signal aborts or the wait times out.
+     * When that cancel fails, throws `PaymentWindowClosedError` with the
+     * error, so the user can reopen or cancel the payment again.
      */
     public async waitForPayment(
         id: string,
-        { window: window_ref, signal }: WaitOptions = {},
+        { window: window_ref, signal, cancel = true }: WaitOptions = {},
     ): Promise<Payment> {
+        const stop = () => this._release(id, cancel);
         let closed_checks = 0;
+        let failed_checks = 0;
         for (let i = 0; i < MAX_POLLS; i++) {
             if (signal?.aborted) break;
-            const payment = await this.call('get_payment', id);
-            if (isComplete(payment)) return payment;
+            const payment = await this.call('get_payment', id).catch(
+                async (e) => {
+                    // Cancel after some failures, so the user can pay again
+                    // without leaving this payment open
+                    if (++failed_checks < MAX_FAILED_CHECKS) return null;
+                    await stop();
+                    // The payment is cancelled, so the user can pay again
+                    if (cancel) throw new PaymentEndedError(errorMessage(e));
+                    throw e;
+                },
+            );
+            // The user can cancel while the check runs
+            if (signal?.aborted) break;
+            if (payment) failed_checks = 0;
+            if (payment && isComplete(payment)) return payment;
             // Check again after the window closes, as the provider can be
             // slow to update the payment.
             if (window_ref?.closed && ++closed_checks > 2) {
@@ -282,7 +318,7 @@ export class PaymentsService {
             }
             await delay(POLL_INTERVAL_MS, signal);
         }
-        await this.call('cancel_payment', id).catch(() => null);
+        await stop();
         throw new CheckoutCancelledError();
     }
 
@@ -311,21 +347,33 @@ export class PaymentsService {
      * The provider can complete the payment after the user closes the page,
      * so a payment that is already complete resolves with no new link.
      */
-    private async _resume(id: string, options: ResumeOptions) {
+    private async _resume(
+        id: string,
+        options: ResumeOptions & Pick<WaitOptions, 'cancel'>,
+    ) {
         const close = (e: unknown): never => {
             options.window?.close();
             throw e;
         };
-        const current = await this.call('get_payment', id).catch(close);
+        // The user can cancel while a request runs. A failed request then
+        // counts as the cancel
+        const settle = <T>(request: Promise<T>) =>
+            request.catch((e) => (options.signal?.aborted ? null : close(e)));
+        const stopped = async (): Promise<never> => {
+            options.window?.close();
+            await this._release(id, options.cancel !== false);
+            throw new CheckoutCancelledError();
+        };
+        const current = await settle(this.call('get_payment', id));
+        if (options.signal?.aborted || !current) return stopped();
         if (isComplete(current)) {
             options.window?.close();
             return paidOrThrow(current);
         }
-        const session = await this.call(
-            'get_payment_link',
-            id,
-            completeUrl('success'),
-        ).catch(close);
+        const session = await settle(
+            this.call('get_payment_link', id, completeUrl('success')),
+        );
+        if (options.signal?.aborted || !session) return stopped();
         return this._waitOnHostedPage(id, session.url, options);
     }
 
@@ -333,7 +381,7 @@ export class PaymentsService {
     private async _waitOnHostedPage(
         id: string,
         url: string | undefined,
-        options: ResumeOptions,
+        options: ResumeOptions & Pick<WaitOptions, 'cancel'>,
     ) {
         if (url) {
             if (options.window) options.window.location.href = url;
@@ -342,17 +390,40 @@ export class PaymentsService {
         const payment = await this.waitForPayment(id, {
             window: options.window,
             signal: options.signal,
+            cancel: options.cancel,
         });
         return paidOrThrow(payment);
     }
+
+    /**
+     * Cancel a payment that the app stops waiting for. When the cancel
+     * fails, throws `PaymentWindowClosedError`, as the payment is still open.
+     */
+    private async _release(id: string, cancel: boolean) {
+        if (!cancel) return;
+        await this.call('cancel_payment', id).catch((e) => {
+            throw new PaymentWindowClosedError(
+                id,
+                errorMessage(e) || i18n('PAYMENTS.PAYMENT_FAILED'),
+            );
+        });
+    }
 }
 
-/** The payment when it went through, else the error to show */
+/** The payment when it is authorized or taken, else the error to show */
 function paidOrThrow(payment: Payment) {
-    if (payment.status === 'failed' || payment.status === 'cancelled') {
-        throw i18n('PAYMENTS.PAYMENT_FAILED');
+    if (payment.status === 'authorized' || payment.status === 'succeeded') {
+        return payment;
     }
-    return payment;
+    // A part of the money is still taken, so the payment stays open until
+    // the user cancels it
+    if (payment.status === 'partially_refunded') {
+        throw new PaymentWindowClosedError(
+            payment.id,
+            i18n('PAYMENTS.PAYMENT_FAILED'),
+        );
+    }
+    throw new PaymentEndedError();
 }
 
 /** Whether the payment can no longer change without action from the app */

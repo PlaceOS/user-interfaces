@@ -1233,6 +1233,12 @@ describe('BookingFormService', () => {
         });
 
         it('should save the payment ID and capture the payment after the save', async () => {
+            // The backend gives the new booking its ID
+            vi.mocked(ts_client.post).mockImplementation(async (url, body) =>
+                url.includes('/clashing-assets')
+                    ? []
+                    : { ...body, id: 'booking-new' },
+            );
             newDeskForm();
             await spectator.service.postForm(true);
 
@@ -1244,10 +1250,10 @@ describe('BookingFormService', () => {
                 }),
             ]);
             expect(savedBookings()[0].extension_data.payment_id).toBe('pay-1');
-            expect(payments.capture).toHaveBeenCalledWith(
-                payment,
-                expect.objectContaining({ type: 'booking' }),
-            );
+            expect(payments.capture).toHaveBeenCalledWith(payment, {
+                type: 'booking',
+                id: 'booking-new',
+            });
             expect(payments.cancel).not.toHaveBeenCalled();
         });
 
@@ -1270,7 +1276,9 @@ describe('BookingFormService', () => {
             payments.checkout.mockResolvedValue({ status: 'cancelled' });
             newDeskForm();
 
-            await spectator.service.postForm(true);
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'PAYMENTS.PAYMENT_CANCELLED',
+            );
 
             expect(savedBookings().length).toBe(0);
         });

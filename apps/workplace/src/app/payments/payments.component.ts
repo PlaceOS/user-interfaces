@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -48,14 +48,13 @@ const PAGE_SIZE = 20;
                     <h1 class="text-2xl font-medium">
                         {{ 'PAYMENTS.HEADER' | translate }}
                     </h1>
-                    <nav class="bg-base-100 flex rounded-lg p-1" role="tablist">
+                    <nav class="bg-base-100 flex rounded-lg p-1">
                         @for (item of tabs(); track item.id) {
                             <button
                                 matRipple
-                                role="tab"
                                 class="flex-1 rounded-md px-3 py-2 text-sm"
                                 [name]="'tab-' + item.id"
-                                [attr.aria-selected]="tab() === item.id"
+                                [attr.aria-pressed]="tab() === item.id"
                                 [class.bg-secondary]="tab() === item.id"
                                 [class.text-secondary-content]="
                                     tab() === item.id
@@ -324,7 +323,15 @@ export class PaymentsComponent implements OnInit {
     public readonly error = signal('');
 
     /** Tabs for the features of the driver */
-    public readonly tabs = signal<{ id: PaymentsTab; name: string }[]>([]);
+    public readonly tabs = computed(() => [
+        { id: 'payments' as const, name: 'PAYMENTS.TAB_PAYMENTS' },
+        ...(this._payments.hasCapability('invoices')
+            ? [{ id: 'invoices' as const, name: 'PAYMENTS.TAB_INVOICES' }]
+            : []),
+        ...(this._payments.hasCapability('saved_methods')
+            ? [{ id: 'methods' as const, name: 'PAYMENTS.TAB_METHODS' }]
+            : []),
+    ]);
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
@@ -333,19 +340,6 @@ export class PaymentsComponent implements OnInit {
             return;
         }
         await currentUserLoaded();
-        const config = await this._payments
-            .call('get_config')
-            .catch(() => null);
-        const capabilities = config?.capabilities || [];
-        this.tabs.set([
-            { id: 'payments', name: 'PAYMENTS.TAB_PAYMENTS' },
-            ...(capabilities.includes('invoices')
-                ? [{ id: 'invoices' as const, name: 'PAYMENTS.TAB_INVOICES' }]
-                : []),
-            ...(capabilities.includes('saved_methods')
-                ? [{ id: 'methods' as const, name: 'PAYMENTS.TAB_METHODS' }]
-                : []),
-        ]);
         await this.load();
     }
 

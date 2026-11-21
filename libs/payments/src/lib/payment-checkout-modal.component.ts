@@ -1,4 +1,12 @@
-import { Component, inject, OnDestroy, signal } from '@angular/core';
+import {
+    Component,
+    effect,
+    ElementRef,
+    inject,
+    OnDestroy,
+    signal,
+    viewChild,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
@@ -25,10 +33,23 @@ export class CheckoutCancelledError extends Error {
     }
 }
 
-/** The user closed the hosted page before the payment completed. The payment is still open */
+/**
+ * The payment is still open, e.g. the user closed the hosted page first, or
+ * the cancel failed. `reason` is the error to show, if there is one
+ */
 export class PaymentWindowClosedError extends Error {
-    constructor(public readonly payment_id: string) {
+    constructor(
+        public readonly payment_id: string,
+        public readonly reason = '',
+    ) {
         super('Payment window closed');
+    }
+}
+
+/** The payment ended without payment, e.g. it failed or was refunded. A new payment is safe */
+export class PaymentEndedError extends Error {
+    constructor(message = '') {
+        super(message || i18n('PAYMENTS.PAYMENT_FAILED'));
     }
 }
 
@@ -180,7 +201,14 @@ const NEW_METHOD = '';
                 >
                     {{ 'COMMON.CANCEL' | translate }}
                 </button>
-                <button btn matRipple name="pay" class="flex-1" (click)="pay()">
+                <button
+                    #pay_button
+                    btn
+                    matRipple
+                    name="pay"
+                    class="flex-1"
+                    (click)="pay()"
+                >
                     {{
                         'PAYMENTS.PAY_AMOUNT'
                             | translate
@@ -198,7 +226,23 @@ const NEW_METHOD = '';
             >
                 <icon class="text-5xl opacity-60">tab_close</icon>
                 <p announce>{{ 'PAYMENTS.WINDOW_CLOSED' | translate }}</p>
-                <button btn matRipple name="reopen" (click)="reopen()">
+                @if (error()) {
+                    <p
+                        announce
+                        class="bg-error/10 text-error rounded-sm p-2 text-sm"
+                    >
+                        {{ error() }}
+                    </p>
+                }
+                <button
+                    #reopen_button
+                    btn
+                    matRipple
+                    name="reopen"
+                    [class.opacity-50]="cancelling()"
+                    [attr.aria-disabled]="cancelling()"
+                    (click)="reopen()"
+                >
                     {{ 'PAYMENTS.REOPEN_PAYMENT_PAGE' | translate }}
                     <icon class="ml-2 text-xl">open_in_new</icon>
                 </button>
@@ -207,6 +251,8 @@ const NEW_METHOD = '';
                     matRipple
                     name="cancel-payment"
                     class="clear"
+                    [class.opacity-50]="cancelling()"
+                    [attr.aria-disabled]="cancelling()"
                     (click)="cancelPayment()"
                 >
                     {{ 'PAYMENTS.CANCEL_PAYMENT' | translate }}
@@ -235,7 +281,13 @@ const NEW_METHOD = '';
                 } @else {
                     <p announce>{{ 'PAYMENTS.PROCESSING' | translate }}</p>
                 }
-                <button btn matRipple class="clear" (click)="stop()">
+                <button
+                    #stop_button
+                    btn
+                    matRipple
+                    class="clear"
+                    (click)="stop()"
+                >
                     {{ 'PAYMENTS.CANCEL_PAYMENT' | translate }}
                 </button>
             </main>
@@ -276,11 +328,28 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
     public readonly view = signal<CheckoutView>('review');
     public readonly hosted_url = signal('');
     public readonly error = signal('');
+    public readonly cancelling = signal(false);
+
+    private readonly _pay_button =
+        viewChild<ElementRef<HTMLButtonElement>>('pay_button');
+    private readonly _reopen_button =
+        viewChild<ElementRef<HTMLButtonElement>>('reopen_button');
+    private readonly _stop_button =
+        viewChild<ElementRef<HTMLButtonElement>>('stop_button');
+
+    constructor() {
+        // A view change removes the focused button. Move the focus to the
+        // main action of the new view
+        effect(() => this._pay_button()?.nativeElement.focus());
+        effect(() => this._reopen_button()?.nativeElement.focus());
+        effect(() => this._stop_button()?.nativeElement.focus());
+    }
 
     public async pay() {
         const method_id = this.method_id() || undefined;
         // Open the window in the click handler, or the browser blocks it
         const window_ref = method_id ? null : openPaymentWindow();
+        if (!method_id && !window_ref) return this._popupBlocked();
         await this._run(window_ref, (options) =>
             this.data.pay({
                 ...options,
@@ -293,17 +362,30 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
     /** Open the hosted page again with a new link from the driver */
     public async reopen() {
         const id = this._open_payment_id;
-        if (!id) return;
+        if (!id || this.cancelling()) return;
         const window_ref = openPaymentWindow();
+        if (!window_ref) return this._popupBlocked();
         await this._run(window_ref, (options) => this.data.resume(id, options));
     }
 
-    /** Cancel the open payment and go back to the review */
+    /**
+     * Cancel the open payment and go back to the review. Stays on the open
+     * payment when the cancel fails, so the user cannot pay twice.
+     */
     public async cancelPayment() {
         const id = this._open_payment_id;
-        this._open_payment_id = '';
-        this.view.set('review');
-        if (id) await this.data.cancel(id).catch(() => null);
+        if (!id || this.cancelling()) return;
+        this.cancelling.set(true);
+        this.error.set('');
+        try {
+            await this.data.cancel(id);
+            this._open_payment_id = '';
+            this.view.set('review');
+        } catch (e) {
+            this.error.set(errorMessage(e) || i18n('PAYMENTS.PAYMENT_FAILED'));
+        } finally {
+            this.cancelling.set(false);
+        }
     }
 
     /** Stop waiting for the hosted page. The service cancels the payment */
@@ -316,9 +398,10 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
     }
 
     public ngOnDestroy() {
-        this._abort?.abort();
+        // The service cancels the payment that it waits for
+        if (this.view() === 'processing') return this._abort?.abort();
         // Do not leave an open payment when the modal goes away
-        if (this._open_payment_id) {
+        if (this._open_payment_id && !this.cancelling()) {
             this.data.cancel(this._open_payment_id).catch(() => null);
         }
     }
@@ -345,13 +428,23 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
             if (e instanceof PaymentWindowClosedError) {
                 this._open_payment_id = e.payment_id;
                 this.view.set('closed');
+                this.error.set(e.reason);
                 return;
             }
-            // A failed reopen must not leave a payment open behind the review,
-            // as the user can then pay again
-            const open_id = this._open_payment_id;
+            // A failed reopen stays on the open payment, so the user cannot
+            // pay twice. They can reopen it again or cancel it
+            if (
+                this._open_payment_id &&
+                !(e instanceof CheckoutCancelledError) &&
+                !(e instanceof PaymentEndedError)
+            ) {
+                this.view.set('closed');
+                this.error.set(
+                    errorMessage(e) || i18n('PAYMENTS.PAYMENT_FAILED'),
+                );
+                return;
+            }
             this._open_payment_id = '';
-            if (open_id) this.data.cancel(open_id).catch(() => null);
             this.view.set('review');
             if (!(e instanceof CheckoutCancelledError)) {
                 this.error.set(
@@ -360,9 +453,22 @@ export class PaymentCheckoutModalComponent implements OnDestroy {
             }
         }
     }
+
+    private _popupBlocked() {
+        this.error.set(i18n('PAYMENTS.POPUP_BLOCKED'));
+    }
 }
 
-/** Empty window for a hosted page. `null` when the browser blocks it */
+/**
+ * Empty window for a hosted page. `null` when the browser blocks it. The
+ * window gets no `opener`, so the hosted page cannot navigate the app.
+ */
 export function openPaymentWindow() {
-    return window.open('', 'placeos-payment', 'popup,width=520,height=760');
+    const window_ref = window.open(
+        '',
+        'placeos-payment',
+        'popup,width=520,height=760',
+    );
+    if (window_ref) window_ref.opener = null;
+    return window_ref;
 }
