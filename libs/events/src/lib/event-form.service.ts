@@ -1087,9 +1087,11 @@ export class EventFormService extends AsyncHandler {
             if (Object.keys(attendee_flags).length)
                 ext.attendee_flags = attendee_flags;
             const value = this._model();
+            // Rooms that the payment is for
+            const charged_rooms = spaces.filter((_) => !isIgnored(_));
             if (!event.id) {
                 payment = await this._takePayment(
-                    spaces.filter((_) => !isIgnored(_)),
+                    charged_rooms,
                     all_day_period,
                 );
             }
@@ -1141,6 +1143,33 @@ export class EventFormService extends AsyncHandler {
                 date_end,
                 resources: booked_resources,
             });
+            // The user does not pay for an event when no room accepted it.
+            // The payment also holds the catering, so the catering is not
+            // ordered. A part of the rooms is not refunded yet
+            const charged_responses = this._resolveResourceResponses(
+                charged_rooms,
+                saved_resources,
+            );
+            const released =
+                !!payment &&
+                charged_responses.length > 0 &&
+                charged_responses.every(
+                    (_) => _.response_status === 'declined',
+                );
+            if (payment && released) {
+                const id = payment.id;
+                await this._payments.cancel(payment).then(
+                    () => notifyWarn(i18n('PAYMENTS.ROOMS_DECLINED')),
+                    (e) =>
+                        notifyError(
+                            i18n('PAYMENTS.RELEASE_FAILED', {
+                                id,
+                                error: errorMessage(e) || e,
+                            }),
+                        ),
+                );
+                payment = null;
+            }
             if (failed_resources.length) {
                 notifyWarn(
                     i18n(
@@ -1179,7 +1208,7 @@ export class EventFormService extends AsyncHandler {
             // form can hold no orders for an event that has them, so an
             // empty list is not taken as a removal
             const is_new_booking = !event.id;
-            if (this._model().catering?.length) {
+            if (this._model().catering?.length && !released) {
                 let submit_catering: Promise<unknown> | null = null;
                 if (this._external_catering.enabled) {
                     // The external catering driver only creates orders (no update/cancel) and

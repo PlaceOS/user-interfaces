@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterModule } from '@angular/router';
@@ -58,7 +58,7 @@ const PAYMENT_PAGES = [
                     <div class="mb-4 px-8">
                         <div class="bg-base-200 overflow-hidden rounded-sm">
                             <nav mat-tab-nav-bar [tabPanel]="panel">
-                                @for (page of pages; track page.route) {
+                                @for (page of pages(); track page.route) {
                                     <a
                                         mat-tab-link
                                         routerLinkActive
@@ -105,7 +105,14 @@ const PAYMENT_PAGES = [
 export class PaymentsComponent {
     private _payments = inject(PaymentsService);
 
-    public readonly pages = PAYMENT_PAGES;
+    /** Invoices show only when the driver supports them */
+    public readonly pages = computed(() =>
+        PAYMENT_PAGES.filter(
+            (page) =>
+                page.route !== 'invoices' ||
+                this._payments.hasCapability('invoices'),
+        ),
+    );
     public readonly enabled = this._payments.is_enabled;
     public readonly config = this._payments.config;
     public readonly config_error = this._payments.config_error;

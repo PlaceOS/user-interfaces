@@ -495,7 +495,8 @@ export class PaymentDetailsModalComponent implements OnInit {
         const page = await this._payments
             .call('list_invoices', { payment_id: payment.id, limit: 1 })
             .catch(() => null);
-        this.invoice.set(page?.items[0] ?? null);
+        // A request can finish before the lookup
+        if (!this.invoice()) this.invoice.set(page?.items[0] ?? null);
     }
 
     /** Request an invoice. Privileged users also send it */
@@ -513,14 +514,21 @@ export class PaymentDetailsModalComponent implements OnInit {
                 this.payment().id,
                 billing,
             );
-            if (this.privileged()) {
+            // Keep the invoice and show the details, so a failed send retries
+            // this invoice with no new request
+            this.invoice.set(invoice);
+            this.view.set('details');
+            // The driver can send the invoice on request
+            const unsent =
+                invoice.status === 'requested' || invoice.status === 'draft';
+            if (this.privileged() && unsent) {
                 invoice = await this._payments.call(
                     'send_invoice',
                     invoice.id,
                     billing.email,
                 );
+                this.invoice.set(invoice);
             }
-            this.invoice.set(invoice);
             notifySuccess(
                 i18n(
                     this.privileged()
@@ -536,6 +544,7 @@ export class PaymentDetailsModalComponent implements OnInit {
         if (!invoice) return;
         await this._run('PAYMENTS.SENDING_INVOICE', async () => {
             this.invoice.set(
+                // `null` keeps the recipient that the invoice has
                 await this._payments.call('send_invoice', invoice.id, null),
             );
             notifySuccess(i18n('PAYMENTS.INVOICE_SENT'));

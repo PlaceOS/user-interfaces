@@ -48,6 +48,7 @@ const STATUSES: InvoiceStatus[] = [
                 <input
                     matInput
                     type="email"
+                    [attr.aria-label]="'PAYMENTS.FILTER_USER' | translate"
                     [placeholder]="'PAYMENTS.FILTER_USER' | translate"
                     [ngModel]="user_email()"
                     (ngModelChange)="user_email.set($event); reload(true)"
@@ -57,6 +58,7 @@ const STATUSES: InvoiceStatus[] = [
                 <mat-select
                     [ngModel]="status()"
                     (ngModelChange)="status.set($event); reload()"
+                    [aria-label]="'PAYMENTS.STATUS' | translate"
                     [placeholder]="'PAYMENTS.ALL_STATUSES' | translate"
                 >
                     <mat-option value="">{{
@@ -87,12 +89,12 @@ const STATUSES: InvoiceStatus[] = [
             </div>
         } @else {
             <div
-                class="border-base-200 overflow-hidden rounded-lg border text-sm"
+                class="border-base-200 overflow-x-auto rounded-lg border text-sm"
                 role="table"
             >
                 <div
                     role="row"
-                    class="bg-base-200 grid grid-cols-[8rem_8rem_1fr_8rem_8rem_9rem] items-center font-medium"
+                    class="bg-base-200 grid min-w-[52rem] grid-cols-[8rem_8rem_1fr_8rem_8rem_9rem] items-center font-medium"
                 >
                     <div role="columnheader" class="p-3">
                         {{ 'PAYMENTS.DATE' | translate }}
@@ -114,7 +116,7 @@ const STATUSES: InvoiceStatus[] = [
                 @for (item of invoices(); track item.id) {
                     <div
                         role="row"
-                        class="border-base-200 grid grid-cols-[8rem_8rem_1fr_8rem_8rem_9rem] items-center border-t"
+                        class="border-base-200 grid min-w-[52rem] grid-cols-[8rem_8rem_1fr_8rem_8rem_9rem] items-center border-t"
                     >
                         <div role="cell" class="p-3">
                             {{ item.created_at * 1000 | date: 'mediumDate' }}
@@ -147,6 +149,7 @@ const STATUSES: InvoiceStatus[] = [
                                     matRipple
                                     class="inverse"
                                     [name]="'send-' + item.id"
+                                    [disabled]="sending().includes(item.id)"
                                     (click)="send(item)"
                                 >
                                     {{ 'PAYMENTS.SEND' | translate }}
@@ -215,6 +218,8 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
     public readonly user_email = signal('');
     public readonly status = signal<InvoiceStatus | ''>('');
     public readonly invoices = signal<Invoice[]>([]);
+    /** IDs of the invoices that are sending */
+    public readonly sending = signal<string[]>([]);
     public readonly cursor = signal<string | undefined>(undefined);
     public readonly loading = signal(false);
     public readonly error = signal('');
@@ -258,6 +263,8 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
     }
 
     public async send(invoice: Invoice) {
+        if (this.sending().includes(invoice.id)) return;
+        this.sending.update((ids) => [...ids, invoice.id]);
         try {
             const sent = await this._payments.call(
                 'send_invoice',
@@ -270,6 +277,8 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
             notifySuccess(i18n('PAYMENTS.INVOICE_SENT'));
         } catch (e) {
             notifyError(errorMessage(e) || i18n('PAYMENTS.ACTION_FAILED'));
+        } finally {
+            this.sending.update((ids) => ids.filter((_) => _ !== invoice.id));
         }
     }
 

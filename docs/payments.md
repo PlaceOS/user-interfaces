@@ -21,8 +21,9 @@ Source:
     { "payments": { "id": "sys-payments", "mod": "Payments" } }
     ```
 
-3. Add products in Concierge, on the **Products & services** page. A booking has a price only when a product matches it. Catering items use the prices of the catering menu.
-4. Add the `payments` feature to the Workplace and Concierge `features` settings to show the payment pages. See [Workplace settings](settings/workplace.md) and [Concierge settings](settings/concierge.md).
+3. Add the `payments` feature to the Workplace and Concierge `features` settings to show the payment pages. See [Workplace settings](settings/workplace.md) and [Concierge settings](settings/concierge.md).
+4. Make sure that the driver returns `privileged: true` for the staff who manage payments. Only these users can open the Concierge payment pages.
+5. Add products in Concierge, on the **Products & services** page. A booking has a price only when a product matches it. Catering items use the prices of the catering menu.
 
 ## What users can do
 
@@ -39,6 +40,8 @@ Source:
 
 The driver decides who is privileged. It returns `privileged` in `get_config`. The Concierge pages show a "no access" message to users who are not privileged. The driver must also refuse the privileged methods for these users. The `feature_groups` setting can hide the Concierge links from other user groups, but it is not a security control.
 
+The apps take the payment in the browser. The booking and event APIs do not check it. When a paid resource must not be booked without payment, a backend check must refuse the booking without a captured payment for the same user and resources.
+
 ## Checkout flow
 
 The app never sees card numbers. The user pays on a page that the provider hosts.
@@ -52,19 +55,22 @@ Only Workplace asks for payment. An app turns the checkout on when it provides t
     - With a saved method, the driver charges the method. When the provider needs the user to confirm, for example with 3-D Secure, the driver returns a `url`.
     - With a new method, the driver returns the `url` of the hosted payment page. The app opens it in a popup window.
 5. The app calls `get_payment` every 2 seconds until the payment is `authorized` or in a final state.
-    - When the user closes the popup window first, the payment stays open. The user can select **Reopen payment page**. The app calls `get_payment` first, because the provider can complete the payment after the window closes. When the payment is not complete, the app calls `get_payment_link` to get a new link. The user can also select **Cancel payment**.
-    - When the user selects **Cancel payment**, or the check runs for 15 minutes, the app calls `cancel_payment`.
+    - When the user closes the popup window first, the payment stays open. The user can select **Reopen payment page**. The app calls `get_payment` first, because the provider can complete the payment after the window closes. When the payment is not complete, the app calls `get_payment_link` to get a new link. The user can also select **Cancel payment**. When the reopen or the cancel fails, the app shows the error and keeps the open payment, so the user cannot pay twice.
+    - When the user selects **Cancel payment**, the check runs for 15 minutes, or 3 checks in sequence fail, the app calls `cancel_payment`. When the cancel fails, the app shows the error and keeps the payment open, with **Reopen payment page** and **Cancel payment**.
+    - Only an `authorized` or `succeeded` payment saves the booking. When a reopened payment is already `refunded`, `cancelled` or `failed`, the app shows an error and the user can pay again. A `partially_refunded` payment stays open until the user cancels it, as a part of the money is still taken.
+    - When the browser blocks the popup window for a new method, the app shows an error and does not call `create_checkout`.
 6. The app saves the booking or the event.
     - The app stores the payment ID in `extension_data.payment_id` of the booking or the event. An edit keeps it.
     - When the save succeeds, the app calls `capture_payment` with a reference to the booking or the event.
     - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist.
+    - When the calendar declines all of the rooms of a new event, the app calls `cancel_payment` and does not order the catering, as the payment holds both. When the cancel fails, the app shows the payment ID.
     - A booking with asset requests is captured after the asset requests save. When they fail, the app removes the booking and calls `cancel_payment`.
 
 The hosted page goes back to `assets/payment-complete.html` of the app. This page only closes the popup window. The app gets the result from the driver, not from the page.
 
-The payment details show **Complete payment** only for an open payment of the user that has a `reference`. A payment without a reference has no saved booking. If the user completed it, they would pay for nothing. After the payment completes, the app captures it for its reference. When the browser blocks the popup window, the app shows an error and does not call the driver. The driver must release open payments without a reference when the provider session expires.
+The payment details show **Complete payment** only for an open payment of the user that has a `reference`. A payment without a reference has no saved booking. If the user completed it, they would pay for nothing. After the payment completes, the app captures it for its reference. This flow does not cancel the payment when the checks fail or time out, as its booking is saved. When the browser blocks the popup window, the app shows an error and does not call the driver. The driver must release open payments without a reference when the provider session expires.
 
-Changes to saved bookings and events are not charged. Group bookings are not charged, because the app saves one booking for each member and has no combined checkout. A recurring booking is charged as one booking. External catering is not charged, because the driver cannot get its prices.
+Changes to saved bookings and events are not charged. Group bookings are not charged, because the app saves one booking for each member and has no combined checkout. A recurring booking is charged as one booking. External catering is not charged, because the driver cannot get its prices. With `app.events.use_bookings`, the payment ID is not stored on the booking yet.
 
 ## Driver contract
 
@@ -82,22 +88,22 @@ Rules for all methods:
 
 ### Methods for all users
 
-| Method                  | Arguments               | Returns                | Description                                                                                                                          |
-| ----------------------- | ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `get_config`            | –                       | `PaymentConfig`        | Provider name, default currency, `privileged` and the optional `capabilities` of the driver.                                         |
-| `quote`                 | `items`                 | `PaymentQuote`         | Price of the line items. The driver must calculate all prices.                                                                       |
-| `create_checkout`       | `request`               | `CheckoutSession`      | Start a payment. The driver must refuse the request when its total is not equal to `expected_total`.                                 |
-| `get_payment`           | `id`                    | `Payment`              | One payment.                                                                                                                         |
-| `get_payment_link`      | `id`, `return_url`      | `HostedSession`        | New link to the hosted page of a `pending` or `requires_action` payment. The payment ID stays the same. Fails for other states.      |
-| `capture_payment`       | `id`, `reference`       | `Payment`              | Take an authorized payment and link it to the booking or the event.                                                                  |
-| `cancel_payment`        | `id`                    | `Payment`              | Release a payment that is not taken. Refund a payment that is taken.                                                                 |
-| `list_payments`         | `query`                 | `PaymentPage<Payment>` | Payments, newest first.                                                                                                              |
-| `list_payment_methods`  | –                       | `PaymentMethod[]`      | Saved payment methods of the current user.                                                                                           |
-| `create_setup_session`  | `return_url`            | `HostedSession`        | Hosted page to add a payment method.                                                                                                 |
-| `remove_payment_method` | `id`                    | –                      | Remove a saved payment method of the current user.                                                                                   |
-| `request_invoice`       | `payment_id`, `billing` | `Invoice`              | Ask for an invoice for a payment. The invoice has the `requested` status until staff send it. A driver can also send it immediately. |
-| `list_invoices`         | `query`                 | `PaymentPage<Invoice>` | Invoices, newest first.                                                                                                              |
-| `list_products`         | `query`                 | `PaymentProduct[]`     | Products. Archived products only when `include_inactive` is `true`.                                                                  |
+| Method                  | Arguments               | Returns                | Description                                                                                                                                                                                 |
+| ----------------------- | ----------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `get_config`            | –                       | `PaymentConfig`        | Provider name, default currency, `privileged` and the optional `capabilities` of the driver.                                                                                                |
+| `quote`                 | `items`                 | `PaymentQuote`         | Price of the line items. The driver must calculate all prices.                                                                                                                              |
+| `create_checkout`       | `request`               | `CheckoutSession`      | Start a payment. The driver must refuse the request when its total is not equal to `expected_total`.                                                                                        |
+| `get_payment`           | `id`                    | `Payment`              | One payment.                                                                                                                                                                                |
+| `get_payment_link`      | `id`, `return_url`      | `HostedSession`        | New link to the hosted page of a `pending` or `requires_action` payment. The payment ID stays the same. Fails for other states.                                                             |
+| `capture_payment`       | `id`, `reference`       | `Payment`              | Take an authorized payment and link it to the booking or the event. Link a payment that is already taken without a new charge. A repeated call with the same reference returns the payment. |
+| `cancel_payment`        | `id`                    | `Payment`              | Release a payment that is not taken. Refund a payment that is taken. For users who are not privileged, refuse a payment that has a `reference`, as its booking is saved.                    |
+| `list_payments`         | `query`                 | `PaymentPage<Payment>` | Payments, newest first.                                                                                                                                                                     |
+| `list_payment_methods`  | –                       | `PaymentMethod[]`      | Saved payment methods of the current user.                                                                                                                                                  |
+| `create_setup_session`  | `return_url`            | `HostedSession`        | Hosted page to add a payment method.                                                                                                                                                        |
+| `remove_payment_method` | `id`                    | –                      | Remove a saved payment method of the current user.                                                                                                                                          |
+| `request_invoice`       | `payment_id`, `billing` | `Invoice`              | Ask for an invoice for a payment. The invoice has the `requested` status until staff send it. A driver can also send it immediately.                                                        |
+| `list_invoices`         | `query`                 | `PaymentPage<Invoice>` | Invoices, newest first.                                                                                                                                                                     |
+| `list_products`         | `query`                 | `PaymentProduct[]`     | Products. Archived products only when `include_inactive` is `true`.                                                                                                                         |
 
 ### Methods for privileged users
 
@@ -136,18 +142,18 @@ A driver lists the optional features that it supports in `capabilities`. The app
 
 Each line item has a `resource_type`. Prices come from different places for different types:
 
-- `room`, `desk`, `parking`, `locker` and `asset`: the driver finds the active product with the same `resource_type`. When the product has `resource_ids`, the resource must be in the list. When the product has `zone_ids`, the zone of the resource must be in the list. When more than one product matches, the driver uses the most specific product: resource IDs first, then zones, then the type only.
-- `catering`: the driver uses the catering menu in the `catering` metadata of the zone. The price is `unit_price` plus the `unit_price` of each selected option, in cents.
+- `room`, `desk`, `parking`, `locker` and `asset`: the driver finds the active product with the same `resource_type`. When the product has `resource_ids`, the resource must be in the list. When the product has `zone_ids`, the `zone_id` of the item, or the building of that zone, must be in the list. The `zone_id` of a resource is usually its level. When more than one product matches, the driver uses the most specific product: resource IDs first, then zones, then the type only.
+- `catering`: the `resource_id` is the ID of a catering asset. The menu of a building is the assets of the `CATERING:<caterer>` asset types. The price is `other_data.unit_price` of the asset plus the `unit_price` of each selected option in `other_data.options`, in cents.
 - `service`, and items with a `product_id`: the driver uses that product.
 
-The `unit` of the product sets the quantity:
+The `unit` of the product sets the quantity. The `quantity` of the item is 1 when it is not set. Booking items have no `quantity`. Concierge invoices send the quantity that staff enter.
 
-| Unit      | Quantity                                                                               |
-| --------- | -------------------------------------------------------------------------------------- |
-| `booking` | 1 for each booking.                                                                    |
-| `hour`    | The `duration` in hours, rounded up. Without a `duration`, the `quantity` of the item. |
-| `day`     | The `duration` in days, rounded up. Without a `duration`, the `quantity` of the item.  |
-| `item`    | The `quantity` of the item.                                                            |
+| Unit      | Quantity                                                                                 |
+| --------- | ---------------------------------------------------------------------------------------- |
+| `booking` | The `quantity` of the item.                                                              |
+| `hour`    | The `duration` in hours, rounded up, times the `quantity`. Without a `duration`, 1 hour. |
+| `day`     | The `duration` in days, rounded up, times the `quantity`. Without a `duration`, 1 day.   |
+| `item`    | The `quantity` of the item.                                                              |
 
 ## Stripe driver notes
 

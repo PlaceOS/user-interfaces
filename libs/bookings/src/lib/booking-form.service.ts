@@ -1438,7 +1438,6 @@ export class BookingFormService extends AsyncHandler {
             ignore_check,
         );
         const payment = await this._takePayment(value, booking, all_day_period);
-        if (payment === false) return;
         const selected_zones = [
             ...(value?.zones || []),
             ...(value.booking_asset?.zones || []),
@@ -1598,8 +1597,9 @@ export class BookingFormService extends AsyncHandler {
 
     /**
      * Ask the user to pay for a new booking when payments are enabled, and
-     * store the payment ID on `value`. Resolves `false` when the user
-     * cancels, and `null` when the booking has no price. Changes to saved
+     * store the payment ID on `value`. Throws when the user cancels, so
+     * callers do not report a saved booking. Resolves `null` when the
+     * booking has no price. Changes to saved
      * bookings and group bookings are not charged. A group booking saves one
      * booking for each member, and has no combined checkout yet.
      */
@@ -1607,7 +1607,7 @@ export class BookingFormService extends AsyncHandler {
         value: Record<string, any>,
         booking: Booking,
         period: { date: number; duration: number },
-    ): Promise<Payment | null | false> {
+    ): Promise<Payment | null> {
         if (booking.id || this._options().group) return null;
         if (!this._payments.can_checkout) return null;
         const resources: BookedResource[] = value.resources?.length
@@ -1626,7 +1626,9 @@ export class BookingFormService extends AsyncHandler {
                 })),
             }),
         });
-        if (result.status === 'cancelled') return false;
+        if (result.status === 'cancelled') {
+            throw i18n('PAYMENTS.PAYMENT_CANCELLED');
+        }
         if (result.status === 'free') return null;
         value.extension_data = {
             ...value.extension_data,

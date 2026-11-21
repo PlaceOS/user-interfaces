@@ -48,6 +48,7 @@ const PERIODS = [7, 30, 90, 365, 0] as const;
                     matInput
                     name="user-email"
                     type="email"
+                    [attr.aria-label]="'PAYMENTS.FILTER_USER' | translate"
                     [placeholder]="'PAYMENTS.FILTER_USER' | translate"
                     [ngModel]="user_email()"
                     (ngModelChange)="user_email.set($event); reload(true)"
@@ -57,6 +58,7 @@ const PERIODS = [7, 30, 90, 365, 0] as const;
                 <mat-select
                     [ngModel]="status()"
                     (ngModelChange)="status.set($event); reload()"
+                    [aria-label]="'PAYMENTS.STATUS' | translate"
                     [placeholder]="'PAYMENTS.ALL_STATUSES' | translate"
                 >
                     <mat-option value="">{{
@@ -73,6 +75,7 @@ const PERIODS = [7, 30, 90, 365, 0] as const;
                 <mat-select
                     [ngModel]="period()"
                     (ngModelChange)="period.set($event); reload()"
+                    [aria-label]="'FORM.PERIOD' | translate"
                 >
                     @for (days of periods; track days) {
                         <mat-option [value]="days">
@@ -102,12 +105,12 @@ const PERIODS = [7, 30, 90, 365, 0] as const;
             </div>
         } @else {
             <div
-                class="border-base-200 overflow-hidden rounded-lg border text-sm"
+                class="border-base-200 overflow-x-auto rounded-lg border text-sm"
                 role="table"
             >
                 <div
                     role="row"
-                    class="bg-base-200 grid grid-cols-[10rem_1fr_1fr_8rem_9rem_3rem] items-center font-medium"
+                    class="bg-base-200 grid min-w-[48rem] grid-cols-[10rem_1fr_1fr_8rem_9rem_3rem] items-center font-medium"
                 >
                     <div role="columnheader" class="p-3">
                         {{ 'PAYMENTS.DATE' | translate }}
@@ -129,7 +132,7 @@ const PERIODS = [7, 30, 90, 365, 0] as const;
                 @for (item of payments(); track item.id) {
                     <div
                         role="row"
-                        class="border-base-200 hover:bg-base-200 grid grid-cols-[10rem_1fr_1fr_8rem_9rem_3rem] items-center border-t"
+                        class="border-base-200 hover:bg-base-200 grid min-w-[48rem] grid-cols-[10rem_1fr_1fr_8rem_9rem_3rem] items-center border-t"
                     >
                         <div role="cell" class="p-3">
                             {{ item.created_at * 1000 | date: 'short' }}

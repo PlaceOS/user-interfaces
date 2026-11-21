@@ -8,7 +8,7 @@
  * - Timestamps are unix seconds, like other PlaceOS APIs.
  */
 
-/** State of a payment. Final states are `succeeded`, `cancelled`, `failed` and `refunded` */
+/** State of a payment. `FINAL_PAYMENT_STATES` lists the states that do not change without action */
 export type PaymentStatus =
     | 'pending'
     | 'requires_action'

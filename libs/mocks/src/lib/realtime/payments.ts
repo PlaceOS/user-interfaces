@@ -22,9 +22,11 @@ import type {
 } from 'libs/payments/src/lib/payment.types';
 
 import { HashMap, randomString } from '@placeos/common';
+import { MOCK_ASSETS } from '../api/assets.data';
 import { MOCK_MENU } from '../api/catering.data';
 import { linkedPaymentReference } from '../api/payments.data';
 import { ACTIVE_USER } from '../api/users.data';
+import { MOCK_LEVELS } from '../api/zone.data';
 
 /** Mock methods have a `$` prefix. The type keeps the mock in sync with the driver contract */
 type MockDriver<T> = { [K in keyof T as `$${K & string}`]: T[K] };
@@ -64,6 +66,38 @@ function page<T>(list: T[], limit = 20, cursor?: string): PaymentPage<T> {
     };
 }
 
+interface MockCateringItem {
+    id: string;
+    name: string;
+    unit_price: number;
+    options?: { id: string; name: string; unit_price?: number }[];
+}
+
+/**
+ * Catering item of the ID. The meeting form orders the catering assets of
+ * the zone. The old menu in zone metadata is the fallback.
+ */
+function cateringItem(id = ''): MockCateringItem | undefined {
+    const asset = MOCK_ASSETS.find(
+        (_) => _.id === id && `${_.asset_type_id}`.startsWith('_catering_'),
+    );
+    if (asset) {
+        return {
+            id: asset.id,
+            name: asset.name,
+            unit_price: +asset.other_data?.unit_price || 0,
+            options: asset.other_data?.options || [],
+        };
+    }
+    return MOCK_MENU.find((_) => _.id === id);
+}
+
+/** The zone of a resource and the building of the zone */
+function zoneScope(zone_id = '') {
+    const level = MOCK_LEVELS.find((_) => _.id === zone_id);
+    return [zone_id, level?.parent_id].filter((_): _ is string => !!_);
+}
+
 /** Price an item from its product, or from the catering menu */
 function priceItem(
     products: PaymentProduct[],
@@ -71,21 +105,21 @@ function priceItem(
 ): PaymentLineItem[] {
     const quantity = item.quantity || 1;
     if (item.resource_type === 'catering') {
-        const menu_item = MOCK_MENU.find((_) => _.id === item.resource_id);
+        const menu_item = cateringItem(item.resource_id);
         if (!menu_item) return [];
-        const options = ((menu_item as HashMap).options || []).filter(
-            (option: HashMap) => item.option_ids?.includes(option.id),
+        const options = (menu_item.options || []).filter((option) =>
+            item.option_ids?.includes(option.id),
         );
         const unit_amount =
             menu_item.unit_price +
-            options.reduce((sum: number, o: HashMap) => sum + o.unit_price, 0);
+            options.reduce((sum, o) => sum + (o.unit_price || 0), 0);
         return [
             {
                 product_id: '',
                 resource_type: 'catering',
                 resource_id: menu_item.id,
                 name: menu_item.name,
-                description: options.map((o: HashMap) => o.name).join(', '),
+                description: options.map((o) => o.name).join(', '),
                 unit: 'item',
                 quantity,
                 unit_amount,
@@ -125,6 +159,7 @@ function findProduct(products: PaymentProduct[], item: PaymentLineItemRequest) {
     }
     const specificity = (p: PaymentProduct) =>
         (p.resource_ids.length ? 2 : 0) + (p.zone_ids.length ? 1 : 0);
+    const zones = zoneScope(item.zone_id);
     return products
         .filter(
             (p) =>
@@ -132,7 +167,8 @@ function findProduct(products: PaymentProduct[], item: PaymentLineItemRequest) {
                 p.resource_type === item.resource_type &&
                 (!p.resource_ids.length ||
                     p.resource_ids.includes(item.resource_id || '')) &&
-                (!p.zone_ids.length || p.zone_ids.includes(item.zone_id || '')),
+                (!p.zone_ids.length ||
+                    zones.some((zone) => p.zone_ids.includes(zone))),
         )
         .sort((a, b) => specificity(b) - specificity(a))[0];
 }
@@ -417,6 +453,15 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
 
     $capture_payment(id: string, reference: PaymentReference): Payment {
         const payment = findPayment(this._payments, id);
+        const same =
+            payment.reference?.type === reference.type &&
+            payment.reference?.id === reference.id;
+        // A repeated capture for the same reference returns the payment
+        if (payment.status === 'succeeded' && same) return payment;
+        // A payment that is already taken is linked, with no new charge
+        if (payment.status === 'succeeded' && !payment.reference) {
+            return updatePayment(this._payments, id, { reference });
+        }
         if (payment.status !== 'authorized') {
             throw `Payment is ${payment.status}`;
         }
@@ -429,7 +474,10 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
 
     $cancel_payment(id: string): Payment {
         const payment = findPayment(this._payments, id);
-        if (payment.status === 'succeeded') {
+        if (
+            payment.status === 'succeeded' ||
+            payment.status === 'partially_refunded'
+        ) {
             return this.$refund_payment(id, null, 'Cancelled');
         }
         return updatePayment(this._payments, id, { status: 'cancelled' });

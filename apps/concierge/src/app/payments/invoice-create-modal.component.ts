@@ -69,11 +69,12 @@ const MAX_ROWS = 50;
             </main>
         } @else {
             <main class="w-lg max-w-[85vw] space-y-2 p-4">
-                <label for="invoice-user" class="text-sm font-medium">{{
+                <label id="invoice-user-label" class="text-sm font-medium">{{
                     'PAYMENTS.USER' | translate
                 }}</label>
                 <a-user-search-field
-                    id="invoice-user"
+                    role="group"
+                    aria-labelledby="invoice-user-label"
                     [(ngModel)]="user"
                 ></a-user-search-field>
                 <div class="text-sm font-medium">
@@ -85,13 +86,13 @@ const MAX_ROWS = 50;
                             appearance="outline"
                             class="no-subscript flex-1"
                         >
+                            <mat-label>{{
+                                'PAYMENTS.SELECT_PRODUCT' | translate
+                            }}</mat-label>
                             <mat-select
                                 [ngModel]="row.product_id"
                                 (ngModelChange)="
                                     updateRow(i, { product_id: $event })
-                                "
-                                [placeholder]="
-                                    'PAYMENTS.SELECT_PRODUCT' | translate
                                 "
                             >
                                 @for (product of products(); track product.id) {
@@ -168,7 +169,7 @@ const MAX_ROWS = 50;
                     class="bg-base-200 flex justify-between rounded-sm p-2 font-medium"
                 >
                     <span>{{ 'PAYMENTS.TOTAL' | translate }}</span>
-                    <span total>
+                    <span total aria-live="polite">
                         @if (quote(); as q) {
                             {{ q.total | amount: q.currency }}
                         } @else {
@@ -269,15 +270,17 @@ export class InvoiceCreateModalComponent
 
     public async ngOnInit() {
         this.products.set(
-            await this._payments
-                .call('list_products', {})
-                .catch(() => [] as PaymentProduct[]),
+            await this._payments.call('list_products', {}).catch((e) => {
+                notifyError(errorMessage(e) || i18n('PAYMENTS.ACTION_FAILED'));
+                return [] as PaymentProduct[];
+            }),
         );
     }
 
     public addRow() {
         if (this.rows().length >= MAX_ROWS) return;
         this.rows.update((rows) => [...rows, { product_id: '', quantity: 1 }]);
+        this._updateQuote();
     }
 
     public removeRow(index: number) {
@@ -323,10 +326,17 @@ export class InvoiceCreateModalComponent
 
     /** Ask the driver for the total after the items stop changing */
     private _updateQuote() {
+        // Do not allow a save with the total of the old items
+        this.quote.set(null);
         this.timeout('quote', async () => {
             const items = this.items();
             const quote = items.length
-                ? await this._payments.call('quote', items).catch(() => null)
+                ? await this._payments.call('quote', items).catch((e) => {
+                      notifyError(
+                          errorMessage(e) || i18n('PAYMENTS.ACTION_FAILED'),
+                      );
+                      return null;
+                  })
                 : null;
             // Skip the result when the items changed while it loaded
             if (items === this.items()) this.quote.set(quote);

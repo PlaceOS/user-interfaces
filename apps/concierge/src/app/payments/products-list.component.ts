@@ -32,6 +32,7 @@ import {
             <mat-form-field appearance="outline" class="no-subscript w-48">
                 <mat-select
                     [(ngModel)]="type"
+                    [aria-label]="'PAYMENTS.RESOURCE_TYPE' | translate"
                     [placeholder]="'PAYMENTS.ALL_TYPES' | translate"
                 >
                     <mat-option value="">{{
@@ -72,12 +73,12 @@ import {
             </div>
         } @else {
             <div
-                class="border-base-200 overflow-hidden rounded-lg border text-sm"
+                class="border-base-200 overflow-x-auto rounded-lg border text-sm"
                 role="table"
             >
                 <div
                     role="row"
-                    class="bg-base-200 grid grid-cols-[1fr_8rem_10rem_10rem_6rem_6.5rem] items-center font-medium"
+                    class="bg-base-200 grid min-w-[52rem] grid-cols-[1fr_8rem_10rem_10rem_6rem_6.5rem] items-center font-medium"
                 >
                     <div role="columnheader" class="p-3">
                         {{ 'FORM.NAME' | translate }}
@@ -99,7 +100,7 @@ import {
                 @for (item of filtered(); track item.id) {
                     <div
                         role="row"
-                        class="border-base-200 grid grid-cols-[1fr_8rem_10rem_10rem_6rem_6.5rem] items-center border-t"
+                        class="border-base-200 grid min-w-[52rem] grid-cols-[1fr_8rem_10rem_10rem_6rem_6.5rem] items-center border-t"
                         [class.opacity-60]="!item.active"
                     >
                         <div role="cell" class="min-w-0 p-3">
