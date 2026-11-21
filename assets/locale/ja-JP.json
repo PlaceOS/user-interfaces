@@ -3687,6 +3687,8 @@
         "PAYMENT_FAILED": "支払いは完了しませんでした。",
         "PAYMENT_CANCELLED": "支払いがキャンセルされました。予約は作成されていません。",
         "CAPTURE_FAILED": "予約は保存されましたが、支払いを完了できませんでした。エラー: {{ error }}",
+        "ROOMS_DECLINED": "会議を受け入れた部屋がないため、料金は請求されず、ケータリングも注文されません。",
+        "RELEASE_FAILED": "支払い {{ id }} を解除できませんでした。サポートに連絡してください。エラー: {{ error }}",
         "ROOM_BOOKING": "会議室の予約",
         "UNIT_BOOKING": "予約ごと",
         "UNIT_HOUR": "1時間あたり",
