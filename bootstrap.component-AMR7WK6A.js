@@ -23,18 +23,18 @@ import {
 } from "./chunk-UDJWO5W2.js";
 import {
   RemoteSetupService
-} from "./chunk-M6AXRTV3.js";
+} from "./chunk-7J2ZFVSJ.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-JLHXV6CJ.js";
+} from "./chunk-HUJBPLBX.js";
 import "./chunk-FA46AMLA.js";
 import {
   TranslatePipe
-} from "./chunk-465IFB63.js";
+} from "./chunk-QEWE5XCF.js";
 import {
   OrganisationService
-} from "./chunk-UQX2WYHH.js";
+} from "./chunk-KIMNZ2VV.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -47,7 +47,7 @@ import {
   Ra,
   Space,
   VERSION
-} from "./chunk-PAX74PXM.js";
+} from "./chunk-4N7PTO77.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
@@ -2873,4 +2873,4 @@ export {
   BootstrapComponent
 };
 //# debugId=12a3201d-ca6a-5241-9005-7f4b60070ca2
-//# sourceMappingURL=bootstrap.component-2RAKTWHI.js.map
+//# sourceMappingURL=bootstrap.component-AMR7WK6A.js.map

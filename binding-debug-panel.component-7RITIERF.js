@@ -11,10 +11,10 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-MKKTWK4I.js";
+} from "./chunk-QOQRW4DR.js";
 import {
   Clipboard
-} from "./chunk-UQX2WYHH.js";
+} from "./chunk-KIMNZ2VV.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -25,7 +25,7 @@ import {
   AsyncHandler,
   HotkeysService,
   Ua
-} from "./chunk-PAX74PXM.js";
+} from "./chunk-4N7PTO77.js";
 import {
   IconComponent
 } from "./chunk-3ES5YZ5E.js";
@@ -1912,4 +1912,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=465fbdc3-2585-5f93-aee0-6f5c387db185
-//# sourceMappingURL=binding-debug-panel.component-S53T6N67.js.map
+//# sourceMappingURL=binding-debug-panel.component-7RITIERF.js.map

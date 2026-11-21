@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-M6AXRTV3.js";
-import "./chunk-EEVZSHLK.js";
+} from "./chunk-7J2ZFVSJ.js";
+import "./chunk-TXJPCIGC.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-JLHXV6CJ.js";
+} from "./chunk-HUJBPLBX.js";
 import "./chunk-FA46AMLA.js";
 import {
   TranslatePipe
-} from "./chunk-465IFB63.js";
+} from "./chunk-QEWE5XCF.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -28,7 +28,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-UQX2WYHH.js";
+} from "./chunk-KIMNZ2VV.js";
 import "./chunk-5YZYH22M.js";
 import "./chunk-GLALPF4J.js";
 import {
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-PAX74PXM.js";
+} from "./chunk-4N7PTO77.js";
 import {
   IconComponent
 } from "./chunk-3ES5YZ5E.js";
@@ -9461,17 +9461,34 @@ function page(list, limit = 20, cursor) {
     next_cursor: start + size < list.length ? `${start + size}` : void 0
   };
 }
+function cateringItem(id = "") {
+  var _a, _b;
+  const asset = MOCK_ASSETS.find((_) => _.id === id && `${_.asset_type_id}`.startsWith("_catering_"));
+  if (asset) {
+    return {
+      id: asset.id,
+      name: asset.name,
+      unit_price: +((_a = asset.other_data) == null ? void 0 : _a.unit_price) || 0,
+      options: ((_b = asset.other_data) == null ? void 0 : _b.options) || []
+    };
+  }
+  return MOCK_MENU.find((_) => _.id === id);
+}
+function zoneScope(zone_id = "") {
+  const level = MOCK_LEVELS.find((_) => _.id === zone_id);
+  return [zone_id, level == null ? void 0 : level.parent_id].filter((_) => !!_);
+}
 function priceItem(products, item) {
   const quantity = item.quantity || 1;
   if (item.resource_type === "catering") {
-    const menu_item = MOCK_MENU.find((_) => _.id === item.resource_id);
+    const menu_item = cateringItem(item.resource_id);
     if (!menu_item)
       return [];
     const options = (menu_item.options || []).filter((option) => {
       var _a;
       return (_a = item.option_ids) == null ? void 0 : _a.includes(option.id);
     });
-    const unit_amount = menu_item.unit_price + options.reduce((sum, o) => sum + o.unit_price, 0);
+    const unit_amount = menu_item.unit_price + options.reduce((sum, o) => sum + (o.unit_price || 0), 0);
     return [
       {
         product_id: "",
@@ -9511,7 +9528,8 @@ function findProduct(products, item) {
     return products.find((p) => p.active && p.id === item.product_id);
   }
   const specificity = (p) => (p.resource_ids.length ? 2 : 0) + (p.zone_ids.length ? 1 : 0);
-  return products.filter((p) => p.active && p.resource_type === item.resource_type && (!p.resource_ids.length || p.resource_ids.includes(item.resource_id || "")) && (!p.zone_ids.length || p.zone_ids.includes(item.zone_id || ""))).sort((a, b) => specificity(b) - specificity(a))[0];
+  const zones = zoneScope(item.zone_id);
+  return products.filter((p) => p.active && p.resource_type === item.resource_type && (!p.resource_ids.length || p.resource_ids.includes(item.resource_id || "")) && (!p.zone_ids.length || zones.some((zone) => p.zone_ids.includes(zone)))).sort((a, b) => specificity(b) - specificity(a))[0];
 }
 function newPayment(data) {
   return __spreadValues({
@@ -9756,7 +9774,14 @@ var PaymentsModule = class {
     };
   }
   $capture_payment(id, reference) {
+    var _a, _b;
     const payment = findPayment(this._payments, id);
+    const same = ((_a = payment.reference) == null ? void 0 : _a.type) === reference.type && ((_b = payment.reference) == null ? void 0 : _b.id) === reference.id;
+    if (payment.status === "succeeded" && same)
+      return payment;
+    if (payment.status === "succeeded" && !payment.reference) {
+      return updatePayment(this._payments, id, { reference });
+    }
     if (payment.status !== "authorized") {
       throw `Payment is ${payment.status}`;
     }
@@ -9768,7 +9793,7 @@ var PaymentsModule = class {
   }
   $cancel_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "succeeded") {
+    if (payment.status === "succeeded" || payment.status === "partially_refunded") {
       return this.$refund_payment(id, null, "Cancelled");
     }
     return updatePayment(this._payments, id, { status: "cancelled" });
@@ -10802,7 +10827,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-PXGMMW4P.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-J26IHHGX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10844,7 +10869,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-PXGMMW4P.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-J26IHHGX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10913,22 +10938,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-2RAKTWHI.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-AMR7WK6A.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-ZXAZE5O4.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-SPIEOBZP.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-4CDVFHJL.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-X7O7RJE5.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-LDR65ZY7.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-RMUIL26G.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10956,5 +10981,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=3d3f0519-10da-5fb6-8126-6db1771b105c
+//# debugId=73f884ce-c33c-5e03-8392-12ccefd49e0e
 //# sourceMappingURL=main.js.map

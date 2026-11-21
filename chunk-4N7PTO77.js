@@ -5659,15 +5659,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "7d3a28d",
-  "hash": "7d3a28d",
+  "raw": "69f7435",
+  "hash": "69f7435",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "7d3a28d",
+  "suffix": "69f7435",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795064674373
+  "time": 1795253846167
 };
 
 // libs/common/src/lib/placeos.ts
@@ -7764,5 +7764,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=ac27bda7-33ee-582a-b740-4e262159d1a2
-//# sourceMappingURL=chunk-PAX74PXM.js.map
+//# debugId=fdeed9f8-086e-5584-bb6a-03f236059dfb
+//# sourceMappingURL=chunk-4N7PTO77.js.map
