@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-SXGM2NBO.js";
-import "./chunk-O7YZY5TP.js";
+} from "./chunk-YM6BBMMU.js";
+import "./chunk-LZY3BH6D.js";
 import {
   TranslatePipe
-} from "./chunk-SVI7FLQS.js";
+} from "./chunk-CDWHNH5M.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -30,7 +30,7 @@ import {
   serviceWorkerUpdate,
   setupCache,
   toQueryString
-} from "./chunk-TSK675L2.js";
+} from "./chunk-5TTYT2CT.js";
 import {
   AsyncHandler,
   Bp,
@@ -78,7 +78,7 @@ import {
   waitForCurrentUser,
   wi,
   withTimeout
-} from "./chunk-Z5EPRMZE.js";
+} from "./chunk-TCOP5OC3.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -552,7 +552,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-A4E766FP.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-RZCKAYHP.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -680,7 +680,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-A4E766FP.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-RZCKAYHP.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9077,14 +9077,30 @@ function page(list, limit = 20, cursor) {
     next_cursor: start + size < list.length ? `${start + size}` : void 0
   };
 }
+function cateringItem(id = "") {
+  const asset = MOCK_ASSETS.find((_) => _.id === id && `${_.asset_type_id}`.startsWith("_catering_"));
+  if (asset) {
+    return {
+      id: asset.id,
+      name: asset.name,
+      unit_price: +asset.other_data?.unit_price || 0,
+      options: asset.other_data?.options || []
+    };
+  }
+  return MOCK_MENU.find((_) => _.id === id);
+}
+function zoneScope(zone_id = "") {
+  const level = MOCK_LEVELS.find((_) => _.id === zone_id);
+  return [zone_id, level?.parent_id].filter((_) => !!_);
+}
 function priceItem(products, item) {
   const quantity = item.quantity || 1;
   if (item.resource_type === "catering") {
-    const menu_item = MOCK_MENU.find((_) => _.id === item.resource_id);
+    const menu_item = cateringItem(item.resource_id);
     if (!menu_item)
       return [];
     const options = (menu_item.options || []).filter((option) => item.option_ids?.includes(option.id));
-    const unit_amount = menu_item.unit_price + options.reduce((sum, o) => sum + o.unit_price, 0);
+    const unit_amount = menu_item.unit_price + options.reduce((sum, o) => sum + (o.unit_price || 0), 0);
     return [
       {
         product_id: "",
@@ -9124,7 +9140,8 @@ function findProduct(products, item) {
     return products.find((p) => p.active && p.id === item.product_id);
   }
   const specificity = (p) => (p.resource_ids.length ? 2 : 0) + (p.zone_ids.length ? 1 : 0);
-  return products.filter((p) => p.active && p.resource_type === item.resource_type && (!p.resource_ids.length || p.resource_ids.includes(item.resource_id || "")) && (!p.zone_ids.length || p.zone_ids.includes(item.zone_id || ""))).sort((a, b) => specificity(b) - specificity(a))[0];
+  const zones = zoneScope(item.zone_id);
+  return products.filter((p) => p.active && p.resource_type === item.resource_type && (!p.resource_ids.length || p.resource_ids.includes(item.resource_id || "")) && (!p.zone_ids.length || zones.some((zone) => p.zone_ids.includes(zone)))).sort((a, b) => specificity(b) - specificity(a))[0];
 }
 function newPayment(data) {
   return __spreadValues({
@@ -9370,6 +9387,12 @@ var PaymentsModule = class {
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
+    const same = payment.reference?.type === reference.type && payment.reference?.id === reference.id;
+    if (payment.status === "succeeded" && same)
+      return payment;
+    if (payment.status === "succeeded" && !payment.reference) {
+      return updatePayment(this._payments, id, { reference });
+    }
     if (payment.status !== "authorized") {
       throw `Payment is ${payment.status}`;
     }
@@ -9381,7 +9404,7 @@ var PaymentsModule = class {
   }
   $cancel_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "succeeded") {
+    if (payment.status === "succeeded" || payment.status === "partially_refunded") {
       return this.$refund_payment(id, null, "Cancelled");
     }
     return updatePayment(this._payments, id, { status: "cancelled" });
@@ -10431,7 +10454,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-NOSN6JFB.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-UBUTBBA6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10641,7 +10664,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-NOSN6JFB.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-UBUTBBA6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10679,7 +10702,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-SYGUKDV7.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-66SLO5Q3.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10704,5 +10727,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=7484f168-2511-5a1e-b63d-71e0ae2eb604
+//# debugId=d6ea224b-bbff-5abd-8a5e-72a73b6d4d4b
 //# sourceMappingURL=main.js.map
