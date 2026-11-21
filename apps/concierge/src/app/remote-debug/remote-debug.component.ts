@@ -94,7 +94,7 @@ export function filterRemoteDebugDevices(
                         >
                             <form
                                 class="flex items-center gap-2"
-                                (ngSubmit)="open(query())"
+                                (ngSubmit)="openQuery()"
                             >
                                 <mat-form-field
                                     appearance="outline"
@@ -114,7 +114,7 @@ export function filterRemoteDebugDevices(
                                     btn
                                     matRipple
                                     type="submit"
-                                    [disabled]="!query().trim()"
+                                    [disabled]="!openable()"
                                 >
                                     Open
                                 </button>
@@ -126,9 +126,12 @@ export function filterRemoteDebugDevices(
                                     Showing {{ shown().length }} of
                                     {{ matching().length }}.
                                 }
+                                @if (query().trim() && !openable()) {
+                                    Select a device in the list.
+                                }
                             </p>
                             <ul
-                                class="bg-base-100 border-base-300 flex min-h-0 flex-col overflow-y-auto rounded-lg border"
+                                class="bg-base-100 border-base-300 flex max-h-72 min-h-0 flex-col overflow-y-auto rounded-lg border lg:max-h-none"
                                 aria-label="Devices"
                             >
                                 @for (item of shown(); track item.id) {
@@ -263,6 +266,25 @@ export class RemoteDebugComponent {
     public readonly online_count = computed(
         () => this.devices().filter((_) => this.isOnline(_)).length,
     );
+
+    /**
+     * Device ID that Open opens: the device with the typed ID, or the only
+     * device that matches the filter. Text that matches no device is a
+     * device ID. Text that matches more devices only filters the list.
+     */
+    public readonly openable = computed(() => {
+        const text = this.query().trim();
+        if (!text) return '';
+        const matching = this.matching();
+        const device =
+            matching.find((_) => _.id.toLowerCase() === text.toLowerCase()) ??
+            (matching.length === 1 ? matching[0] : null);
+        return device?.id ?? (matching.length ? '' : text);
+    });
+
+    public openQuery() {
+        this.open(this.openable());
+    }
 
     public open(device_id: string) {
         const trimmed = device_id.trim();

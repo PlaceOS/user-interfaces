@@ -28,14 +28,14 @@ const MAX_DEVICES = 20;
 /**
  * IDs of the devices that show a display, newest first. A device shows the
  * display when remote setup set it up with the display, or when the RemoteDebug
- * driver saw it on the player route of the display (`#/signage/<id>`).
+ * driver saw it on a player route of the display: `#/signage/<id>` or
+ * `#/template/<template_id>/<id>`.
  */
 export function displayDeviceIds(
     display_id: string,
     debug_devices: readonly RemoteDebugSeenDevice[],
     setup_devices: readonly RemoteSetupDevice[],
 ): string[] {
-    const route = `#/signage/${encodeURIComponent(display_id)}`;
     const ids = new Map<string, number>();
     for (const device of setup_devices) {
         if (
@@ -46,10 +46,7 @@ export function displayDeviceIds(
         }
     }
     for (const device of debug_devices) {
-        const index = device.url.indexOf(route);
-        const next = device.url.charAt(index + route.length);
-        // The route ends at the end of the address, a query or a sub-route
-        if (index >= 0 && (next === '' || next === '?' || next === '/')) {
+        if (playerDisplayId(device.url) === display_id) {
             ids.set(
                 device.id,
                 Math.max(ids.get(device.id) ?? 0, device.last_seen),
@@ -60,6 +57,18 @@ export function displayDeviceIds(
         .sort((a, b) => b[1] - a[1])
         .slice(0, MAX_DEVICES)
         .map(([id]) => id);
+}
+
+/** ID of the display in a Signage player address. Empty for other addresses */
+function playerDisplayId(url: string) {
+    const route = url.split('#')[1]?.split('?')[0] ?? '';
+    const [, page, first, second] = route.split('/');
+    const id = page === 'signage' ? first : page === 'template' ? second : '';
+    try {
+        return decodeURIComponent(id ?? '');
+    } catch {
+        return '';
+    }
 }
 
 /**
@@ -170,15 +179,24 @@ export class DisplayAdminComponent extends AsyncHandler {
             this._setup_devices(),
         ),
     );
-    /** Device that the user picked. Another display clears it */
-    private readonly _picked = linkedSignal({
-        source: this.display_id,
-        computation: () => '',
+    /**
+     * Device that the panel shows. Starts at the newest device of the
+     * display, and stays when the order changes, so a heartbeat does not
+     * change the device while the user works. Another display starts again.
+     */
+    public readonly selected = linkedSignal<
+        { display_id: string; ids: string[] },
+        string
+    >({
+        source: () => ({
+            display_id: this.display_id(),
+            ids: this.device_ids(),
+        }),
+        computation: ({ display_id, ids }, previous) =>
+            previous?.value && previous.source.display_id === display_id
+                ? previous.value
+                : (ids[0] ?? ''),
     });
-    /** Device that the panel shows: the picked device, else the newest device of the display */
-    public readonly selected = computed(
-        () => this._picked() || this.device_ids()[0] || '',
-    );
     public typed_id = '';
 
     constructor() {
@@ -206,7 +224,7 @@ export class DisplayAdminComponent extends AsyncHandler {
     }
 
     public pick(device_id: string) {
-        this._picked.set(device_id);
+        this.selected.set(device_id);
     }
 
     public openTyped() {

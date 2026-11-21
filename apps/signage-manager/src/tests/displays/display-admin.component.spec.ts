@@ -1,6 +1,16 @@
+import { signal } from '@angular/core';
+import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { RemoteDebugSeenDevice, RemoteSetupDevice } from '@placeos/common';
+import {
+    RemoteDebugPanelComponent,
+    RemoteDebugViewService,
+} from '@placeos/components';
+import { MockComponent } from 'ng-mocks';
 
-import { displayDeviceIds } from '../../app/displays/display-admin.component';
+import {
+    DisplayAdminComponent,
+    displayDeviceIds,
+} from '../../app/displays/display-admin.component';
 
 const debugDevice = (id: string, url: string, last_seen: number) =>
     ({
@@ -42,6 +52,12 @@ describe('displayDeviceIds', () => {
                     'https://p.test/signage/#/signage/sys-10',
                     50,
                 ),
+                // The player route of a display with a template
+                debugDevice(
+                    'DEV-G',
+                    'https://p.test/signage/#/template/tpl-1/sys-1',
+                    25,
+                ),
             ],
             [
                 setupDevice('DEV-D', 'sys-1', 20),
@@ -53,6 +69,52 @@ describe('displayDeviceIds', () => {
             ],
         );
 
-        expect(ids).toEqual(['DEV-A', 'DEV-D', 'DEV-B']);
+        expect(ids).toEqual(['DEV-A', 'DEV-G', 'DEV-D', 'DEV-B']);
+    });
+});
+
+describe('DisplayAdminComponent', () => {
+    let spectator: Spectator<DisplayAdminComponent>;
+    const devices = signal<RemoteDebugSeenDevice[]>([]);
+    const createComponent = createComponentFactory({
+        component: DisplayAdminComponent,
+        providers: [
+            {
+                provide: RemoteDebugViewService,
+                useValue: { state: signal('ready'), devices },
+            },
+        ],
+        overrideComponents: [
+            [
+                DisplayAdminComponent,
+                {
+                    remove: { imports: [RemoteDebugPanelComponent] },
+                    add: {
+                        imports: [MockComponent(RemoteDebugPanelComponent)],
+                    },
+                },
+            ],
+        ],
+        detectChanges: false,
+    });
+
+    it('should keep the selected device when a heartbeat changes the order', () => {
+        const url = 'https://p.test/signage/#/signage/sys-1';
+        devices.set([
+            debugDevice('DEV-A', url, 20),
+            debugDevice('DEV-B', url, 10),
+        ]);
+        spectator = createComponent({ props: { display_id: 'sys-1' } });
+        spectator.detectChanges();
+        expect(spectator.component.selected()).toBe('DEV-A');
+
+        devices.set([
+            debugDevice('DEV-A', url, 20),
+            debugDevice('DEV-B', url, 30),
+        ]);
+        spectator.detectChanges();
+
+        expect(spectator.component.device_ids()).toEqual(['DEV-B', 'DEV-A']);
+        expect(spectator.component.selected()).toBe('DEV-A');
     });
 });
