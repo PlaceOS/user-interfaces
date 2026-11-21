@@ -5145,15 +5145,15 @@ function isEmptyUser(user) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "69f7435",
-  "hash": "69f7435",
+  "raw": "ad532fd",
+  "hash": "ad532fd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "69f7435",
+  "suffix": "ad532fd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795253839968
+  "time": 1795261224481
 };
 
 // libs/common/src/lib/placeos.ts
@@ -6628,5 +6628,5 @@ export {
   scrubSecrets,
   initSentryFromSettings
 };
-//# debugId=17bf6d35-8c75-5518-8228-4a0c4aab0289
-//# sourceMappingURL=chunk-TGOZOBMS.js.map
+//# debugId=f13492a7-693a-5039-85f6-4483efb0cbab
+//# sourceMappingURL=chunk-RLQNIZTM.js.map
