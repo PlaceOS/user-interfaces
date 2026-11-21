@@ -28,11 +28,22 @@ import {
     unitKey,
 } from './payment-amount.pipe';
 import { PaymentStatusComponent } from './payment-status.component';
-import { BillingDetails, Invoice, Payment } from './payment.types';
+import {
+    BillingDetails,
+    Invoice,
+    Payment,
+    PaymentReference,
+} from './payment.types';
 import { PaymentsService } from './payments.service';
 
 export interface PaymentDetailsData {
     payment: Payment;
+    /**
+     * Booking or event that has the payment, when the app knows it, e.g. a
+     * row of a booking list. Privileged users can then take an authorized
+     * payment that the app did not capture after the save.
+     */
+    reference?: PaymentReference;
 }
 
 type DetailsView = 'details' | 'invoice' | 'refund';
@@ -338,6 +349,17 @@ type DetailsView = 'details' | 'invoice' | 'refund';
                     <footer
                         class="bg-base-200 sticky bottom-0 m-2 flex flex-wrap gap-2 rounded-sm p-2"
                     >
+                        @if (can_capture()) {
+                            <button
+                                btn
+                                matRipple
+                                name="capture-payment"
+                                class="flex-1"
+                                (click)="capture()"
+                            >
+                                {{ 'PAYMENTS.CAPTURE_PAYMENT' | translate }}
+                            </button>
+                        }
                         @if (can_complete()) {
                             <button
                                 btn
@@ -478,6 +500,19 @@ export class PaymentDetailsModalComponent implements OnInit {
                 payment.status === 'requires_action')
         );
     });
+    /**
+     * Whether a privileged user can take an authorized payment of a saved
+     * booking, e.g. when the capture after the save failed
+     */
+    public readonly can_capture = computed(() => {
+        const payment = this.payment();
+        return (
+            this.privileged() &&
+            !!this._data.reference &&
+            !payment.reference &&
+            payment.status === 'authorized'
+        );
+    });
     public readonly can_refund = computed(
         () =>
             this.privileged() &&
@@ -562,6 +597,18 @@ export class PaymentDetailsModalComponent implements OnInit {
                     window_ref,
                 ),
             );
+        });
+    }
+
+    /** Take the authorized payment for the booking of the list row */
+    public async capture() {
+        const reference = this._data.reference;
+        if (!reference) return;
+        await this._run('PAYMENTS.CAPTURING', async () => {
+            this.payment.set(
+                await this._payments.capture(this.payment(), reference),
+            );
+            notifySuccess(i18n('PAYMENTS.CAPTURE_SUCCESS'));
         });
     }
 

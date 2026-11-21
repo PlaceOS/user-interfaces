@@ -44,6 +44,14 @@ describe('UserSearchFieldComponent', () => {
         expect(spec.query('input')?.getAttribute('autocomplete')).toBe('off');
     });
 
+    it('should name the native input from the visible label of the field', () => {
+        const spec = createComponent({ props: { labelled_by: 'user-label' } });
+
+        expect(spec.query('input')?.getAttribute('aria-labelledby')).toBe(
+            'user-label',
+        );
+    });
+
     /** Search for a term and wait for the debounced search to finish */
     const search = async (
         spec: Spectator<UserSearchFieldComponent>,

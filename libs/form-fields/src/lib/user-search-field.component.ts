@@ -67,6 +67,7 @@ import { searchStaff } from 'libs/users/src/lib/staff.fn';
                     [disabled]="disabled()"
                     [matAutocomplete]="auto"
                     [placeholder]="placeholder() | translate"
+                    [attr.aria-labelledby]="labelled_by() || null"
                     (focus)="selectInputText()"
                     (blur)="resetTerm()"
                 />
@@ -186,6 +187,11 @@ export class UserSearchFieldComponent
     public readonly disabled = model<boolean>(undefined);
     /** Placeholder text to display */
     public readonly placeholder = input<string>('FORM.USER_SEARCH');
+    /**
+     * ID of the visible label of the field. The search input gets its name
+     * from it, not from the placeholder, which goes away when the user types
+     */
+    public readonly labelled_by = input<string>('');
     /** Limit available options to these */
     public readonly options = input<User[]>(undefined);
     /** Whether guests should also show when searching for users */

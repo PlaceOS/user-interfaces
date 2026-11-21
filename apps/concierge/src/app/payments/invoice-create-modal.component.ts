@@ -73,8 +73,7 @@ const MAX_ROWS = 50;
                     'PAYMENTS.USER' | translate
                 }}</label>
                 <a-user-search-field
-                    role="group"
-                    aria-labelledby="invoice-user-label"
+                    labelled_by="invoice-user-label"
                     [(ngModel)]="user"
                 ></a-user-search-field>
                 <div class="text-sm font-medium">

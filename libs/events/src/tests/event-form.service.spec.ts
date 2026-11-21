@@ -370,10 +370,11 @@ describe('EventFormService', () => {
         expect(
             perform_booking_spy.mock.calls[0][0].extension_data.payment_id,
         ).toBe('pay-1');
-        expect(capture).toHaveBeenCalledWith(payment, {
-            type: 'event',
-            id: 'event-1',
-        });
+        expect(capture).toHaveBeenCalledWith(
+            payment,
+            { type: 'event', id: 'event-1' },
+            [],
+        );
     });
 
     it.each([
@@ -459,6 +460,152 @@ describe('EventFormService', () => {
             ).toEqual([]);
         },
     );
+
+    describe('payment of the rooms and the catering', () => {
+        type Internals = {
+            _checkBuildingBookableHours: () => Promise<void>;
+            _checkResourcesAvailable: () => Promise<boolean>;
+            _checkResourceRules: () => Promise<boolean>;
+            _performBooking: (event: CalendarEvent) => Promise<CalendarEvent>;
+            _space_pipe: { transform: (email: string) => Promise<Space> };
+        };
+        const payment = {
+            id: 'pay-1',
+            status: 'authorized',
+            items: [],
+        } as unknown as Payment;
+        const room = (id: string) =>
+            new Space({
+                id,
+                email: `${id}@test.com`,
+                name: id,
+                zones: ['bld-1'],
+            });
+
+        /** Book the rooms with a paid checkout. `save` returns the saved event */
+        const book = async (
+            rooms: Space[],
+            save: Internals['_performBooking'],
+        ) => {
+            const internals = service as unknown as Internals;
+            vi.spyOn(
+                internals,
+                '_checkBuildingBookableHours',
+            ).mockResolvedValue();
+            vi.spyOn(internals, '_checkResourcesAvailable').mockResolvedValue(
+                true,
+            );
+            vi.spyOn(internals, '_checkResourceRules').mockResolvedValue(true);
+            vi.spyOn(internals._space_pipe, 'transform').mockImplementation(
+                async (email) => rooms.find((_) => _.email === email) as Space,
+            );
+            vi.spyOn(internals, '_performBooking').mockImplementation(save);
+            vi.mocked<(url: string) => Promise<unknown>>(
+                ts_client.get,
+            ).mockResolvedValue([]);
+            const payments = TestBed.inject(PaymentsService);
+            vi.spyOn(payments, 'can_checkout', 'get').mockReturnValue(true);
+            const spies = {
+                checkout: vi
+                    .spyOn(payments, 'checkout')
+                    .mockResolvedValue({ status: 'paid', payment }),
+                capture: vi
+                    .spyOn(payments, 'capture')
+                    .mockResolvedValue(payment),
+                cancel: vi.spyOn(payments, 'cancel').mockResolvedValue(payment),
+            };
+            service.newForm();
+            service.model.update((model) => ({
+                ...model,
+                host: 'host@test.com',
+                organiser: new User({ email: 'host@test.com' }),
+                creator: 'host@test.com',
+                title: 'Paid meeting',
+                date: new Date(2028, 5, 15, 10).valueOf(),
+                duration: 60,
+                attendees: [],
+                resources: rooms,
+                catering: [
+                    new CateringOrder({
+                        id: 'order-1',
+                        items: [
+                            {
+                                id: 'coffee',
+                                name: 'Coffee',
+                                quantity: 2,
+                                options: [{ id: 'oat', active: true }],
+                            },
+                        ],
+                    } as unknown as Partial<CateringOrder>),
+                ],
+            }));
+            const result = service.postForm(true);
+            return { result, ...spies };
+        };
+
+        it('should send the rooms and the catering with its options to checkout', async () => {
+            const { result, checkout } = await book(
+                [room('space-1')],
+                async (event) => new CalendarEvent({ ...event, id: 'event-1' }),
+            );
+            await result;
+
+            expect(checkout.mock.calls[0][0].items).toEqual([
+                expect.objectContaining({
+                    resource_type: 'room',
+                    resource_id: 'space-1',
+                    duration: 60,
+                }),
+                expect.objectContaining({
+                    resource_type: 'catering',
+                    resource_id: 'coffee',
+                    quantity: 2,
+                    option_ids: ['oat'],
+                }),
+            ]);
+        });
+
+        it('should release the payment and not capture it when the save fails', async () => {
+            const { result, capture, cancel } = await book(
+                [room('space-1')],
+                () => Promise.reject('Calendar error'),
+            );
+
+            await expect(result).rejects.toBeDefined();
+            expect(cancel).toHaveBeenCalledWith(payment);
+            expect(capture).not.toHaveBeenCalled();
+        });
+
+        it('should not take the rooms that declined when another room accepts', async () => {
+            const rooms = [room('space-1'), room('space-2')];
+            const { result, capture, cancel } = await book(
+                rooms,
+                async (event) =>
+                    new CalendarEvent({
+                        ...event,
+                        id: 'event-1',
+                        resources: [
+                            new Space({
+                                ...rooms[0],
+                                response_status: 'declined',
+                            }),
+                            new Space({
+                                ...rooms[1],
+                                response_status: 'accepted',
+                            }),
+                        ],
+                    }),
+            );
+            await result;
+
+            expect(cancel).not.toHaveBeenCalled();
+            expect(capture).toHaveBeenCalledWith(
+                payment,
+                { type: 'event', id: 'event-1' },
+                ['space-1'],
+            );
+        });
+    });
 
     it('should remove the visitor booking when the last visitor leaves an event', async () => {
         vi.spyOn(

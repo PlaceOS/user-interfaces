@@ -363,6 +363,8 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
     ];
     private _payments: Payment[] = seedHistory();
     private _invoices: Invoice[] = [];
+    /** Sessions of `create_checkout` by idempotency key */
+    private _checkouts = new Map<string, CheckoutSession>();
 
     constructor(_: HashMap) {}
 
@@ -396,6 +398,9 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
     }
 
     $create_checkout(request: CheckoutRequest): CheckoutSession {
+        // A retry with the same key gets the first session, with no new payment
+        const existing = this._checkouts.get(request.idempotency_key);
+        if (existing) return existing;
         const quote = this.$quote(request.items);
         if (quote.total !== request.expected_total) {
             throw 'The price changed. Check the new price and try again.';
@@ -415,12 +420,14 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
             },
         });
         this._payments.unshift(payment);
-        return {
+        const session: CheckoutSession = {
             payment_id: payment.id,
             status: payment.status,
             url: method ? undefined : request.return_url,
             expires_at: now() + 30 * 60,
         };
+        this._checkouts.set(request.idempotency_key, session);
+        return session;
     }
 
     $get_payment(id: string): Payment {
@@ -451,7 +458,11 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
         };
     }
 
-    $capture_payment(id: string, reference: PaymentReference): Payment {
+    $capture_payment(
+        id: string,
+        reference: PaymentReference,
+        exclude_resource_ids: string[],
+    ): Payment {
         const payment = findPayment(this._payments, id);
         const same =
             payment.reference?.type === reference.type &&
@@ -465,8 +476,15 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
         if (payment.status !== 'authorized') {
             throw `Payment is ${payment.status}`;
         }
+        // Take only the items that are not excluded
+        const items = payment.items.filter(
+            (item) => !exclude_resource_ids.includes(item.resource_id),
+        );
+        const amount = items.reduce((sum, item) => sum + item.amount, 0);
         return updatePayment(this._payments, id, {
-            status: 'succeeded',
+            status: amount > 0 ? 'succeeded' : 'cancelled',
+            amount,
+            items,
             reference,
             receipt_url: undefined,
         });

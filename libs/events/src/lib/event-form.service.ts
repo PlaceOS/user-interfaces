@@ -1143,19 +1143,20 @@ export class EventFormService extends AsyncHandler {
                 date_end,
                 resources: booked_resources,
             });
-            // The user does not pay for an event when no room accepted it.
-            // The payment also holds the catering, so the catering is not
-            // ordered. A part of the rooms is not refunded yet
+            // The user does not pay for the rooms that declined. When no
+            // room accepted, the payment is released. It also holds the
+            // catering, so the catering is not ordered
             const charged_responses = this._resolveResourceResponses(
                 charged_rooms,
                 saved_resources,
             );
+            const declined_ids = charged_responses
+                .filter((_) => _.response_status === 'declined')
+                .map((_) => _.id);
             const released =
                 !!payment &&
                 charged_responses.length > 0 &&
-                charged_responses.every(
-                    (_) => _.response_status === 'declined',
-                );
+                declined_ids.length === charged_responses.length;
             if (payment && released) {
                 const id = payment.id;
                 await this._payments.cancel(payment).then(
@@ -1301,7 +1302,11 @@ export class EventFormService extends AsyncHandler {
             }
             if (payment) {
                 await this._payments
-                    .capture(payment, { type: 'event', id: created_event.id })
+                    .capture(
+                        payment,
+                        { type: 'event', id: created_event.id },
+                        declined_ids,
+                    )
                     .catch((e) =>
                         notifyError(
                             i18n('PAYMENTS.CAPTURE_FAILED', {

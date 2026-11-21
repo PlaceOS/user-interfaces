@@ -1424,7 +1424,8 @@ a[icon] {
     .mdc-text-field__input {
         color: var(--base-content);
         &::placeholder {
-            color: var(--base-400);
+            /* 65% of the text colour has more than 4.5:1 contrast in both themes */
+            color: color-mix(in srgb, var(--base-content) 65%, transparent);
         }
     }
 
@@ -1754,7 +1755,8 @@ textarea {
     }
 
     &::placeholder {
-        color: var(--base-300);
+        /* 65% of the text colour has more than 4.5:1 contrast in both themes */
+        color: color-mix(in srgb, var(--base-content) 65%, transparent);
     }
 }
 
@@ -1808,7 +1810,8 @@ a[link] {
     ::placeholder,
     .mat-form-field-label,
     .mat-mdc-select-placeholder {
-        color: var(--base-300);
+        /* 65% of the text colour has more than 4.5:1 contrast in both themes */
+        color: color-mix(in srgb, var(--base-content) 65%, transparent);
     }
 
     input {

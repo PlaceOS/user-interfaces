@@ -64,6 +64,10 @@ const POLL_INTERVAL_MS = 2_000;
 const MAX_POLLS = 450;
 /** Status checks in sequence that can fail before the wait stops */
 const MAX_FAILED_CHECKS = 3;
+/** Attempts of `capture_payment`. The driver makes a repeated capture safe */
+const CAPTURE_ATTEMPTS = 3;
+/** Wait before the next capture attempt, times the number of attempts */
+const CAPTURE_RETRY_MS = 1_000;
 
 /** Result of a checkout */
 export type CheckoutResult =
@@ -192,12 +196,13 @@ export class PaymentsService {
         const methods = this.hasCapability('saved_methods')
             ? await this.call('list_payment_methods').catch(() => [])
             : [];
+        const keys = checkoutKeys();
         const data: PaymentCheckoutData = {
             quote,
             description: details.description,
             methods,
             can_save_method: this.hasCapability('saved_methods'),
-            pay: (options) => this._pay(details, quote, options),
+            pay: (options) => this._pay(details, quote, options, keys),
             resume: (id, options) => this._resume(id, options),
             cancel: (id) => this.call('cancel_payment', id),
         };
@@ -212,9 +217,29 @@ export class PaymentsService {
         return payment ? { status: 'paid', payment } : { status: 'cancelled' };
     }
 
-    /** Take an authorized payment and link it to the saved booking or event */
-    public capture(payment: Payment, reference: PaymentReference) {
-        return this.call('capture_payment', payment.id, reference);
+    /**
+     * Take an authorized payment and link it to the saved booking or event.
+     * The items of `exclude_resource_ids` are not taken, e.g. rooms that
+     * declined. Tries again after a failure, as a repeated capture is safe.
+     */
+    public async capture(
+        payment: Payment,
+        reference: PaymentReference,
+        exclude_resource_ids: string[] = [],
+    ): Promise<Payment> {
+        for (let attempt = 1; ; attempt++) {
+            try {
+                return await this.call(
+                    'capture_payment',
+                    payment.id,
+                    reference,
+                    exclude_resource_ids,
+                );
+            } catch (e) {
+                if (attempt >= CAPTURE_ATTEMPTS) throw e;
+                await delay(CAPTURE_RETRY_MS * attempt);
+            }
+        }
     }
 
     /** Release or refund a payment, e.g. when the booking fails to save */
@@ -326,8 +351,11 @@ export class PaymentsService {
         details: CheckoutDetails,
         quote: PaymentQuote,
         options: PayOptions,
+        keys: CheckoutKeys,
     ) {
+        const key = keys.next(`${options.method_id}:${!!options.save_method}`);
         const session = await this.call('create_checkout', {
+            idempotency_key: key,
             items: details.items,
             expected_total: quote.total,
             description: details.description,
@@ -339,6 +367,8 @@ export class PaymentsService {
             options.window?.close();
             throw e;
         });
+        // The payment exists, so the next attempt is a new payment
+        keys.done(key);
         return this._waitOnHostedPage(session.payment_id, session.url, options);
     }
 
@@ -371,10 +401,26 @@ export class PaymentsService {
             return paidOrThrow(current);
         }
         const session = await settle(
-            this.call('get_payment_link', id, completeUrl('success')),
+            this.call('get_payment_link', id, completeUrl('success')).catch(
+                (e) => this._completeOrThrow(id, e),
+            ),
         );
         if (options.signal?.aborted || !session) return stopped();
+        if ('status' in session) {
+            options.window?.close();
+            return paidOrThrow(session);
+        }
         return this._waitOnHostedPage(id, session.url, options);
+    }
+
+    /**
+     * The payment when it is complete, else throws `error`. The provider can
+     * complete a payment after a check, and then refuses a new link to it.
+     */
+    private async _completeOrThrow(id: string, error: unknown) {
+        const payment = await this.call('get_payment', id).catch(() => null);
+        if (payment && isComplete(payment)) return payment;
+        throw error;
     }
 
     /** Show the hosted page when there is one, then wait for the payment */
@@ -408,6 +454,29 @@ export class PaymentsService {
             );
         });
     }
+}
+
+type CheckoutKeys = ReturnType<typeof checkoutKeys>;
+
+/**
+ * Idempotency keys for the `create_checkout` requests of one checkout. A
+ * retry with the same options after a failed request gets the same key, as
+ * the driver can have made the payment before the response was lost. A new
+ * key starts when the options change or after the driver made a payment.
+ */
+function checkoutKeys() {
+    let last: { options: string; key: string } | null = null;
+    return {
+        next(options: string) {
+            if (last?.options !== options) {
+                last = { options, key: crypto.randomUUID() };
+            }
+            return last.key;
+        },
+        done(key: string) {
+            if (last?.key === key) last = null;
+        },
+    };
 }
 
 /** The payment when it is authorized or taken, else the error to show */

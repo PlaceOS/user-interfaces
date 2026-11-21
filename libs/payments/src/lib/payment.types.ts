@@ -104,6 +104,12 @@ export interface PaymentReference {
 }
 
 export interface CheckoutRequest {
+    /**
+     * Unique key of the checkout attempt. A retry after an unknown result,
+     * e.g. a lost response, sends the same key. The driver must then return
+     * the session of the first request and not start a second payment
+     */
+    idempotency_key: string;
     items: PaymentLineItemRequest[];
     /** Total of the quote that the user accepted. The driver must reject the request when its total is different */
     expected_total: number;
@@ -276,8 +282,16 @@ export interface PaymentDriver {
     quote(items: PaymentLineItemRequest[]): PaymentQuote;
     create_checkout(request: CheckoutRequest): CheckoutSession;
     get_payment(id: string): Payment;
-    /** Take an authorized payment and link it to what it paid for */
-    capture_payment(id: string, reference: PaymentReference): Payment;
+    /**
+     * Take an authorized payment and link it to what it paid for. The items
+     * of `exclude_resource_ids` are not taken, e.g. rooms that declined the
+     * meeting. With nothing left to take, the driver releases the payment
+     */
+    capture_payment(
+        id: string,
+        reference: PaymentReference,
+        exclude_resource_ids: string[],
+    ): Payment;
     /**
      * New link to the hosted page of a payment that is `pending` or
      * `requires_action`, e.g. after the user closed the page. The payment ID
