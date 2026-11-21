@@ -1875,8 +1875,14 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-secondary {
   border-color: var(--secondary);
 }
+#placeos .border-success {
+  border-color: var(--success);
+}
 #placeos .border-transparent {
   border-color: transparent;
+}
+#placeos .border-warning {
+  border-color: var(--warn);
 }
 #placeos .border-white {
   border-color: #ffffff;
@@ -1958,6 +1964,14 @@ input:where([type=button], [type=reset], [type=submit]),
     background-color: color-mix(in oklab, var(--error) 10%, transparent);
   }
 }
+#placeos .bg-error\/15 {
+  background-color: var(--error);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-error\/15 {
+    background-color: color-mix(in oklab, var(--error) 15%, transparent);
+  }
+}
 #placeos .bg-error\/20\! {
   background-color: var(--error) !important;
 }
@@ -1981,6 +1995,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-info\/10 {
     background-color: color-mix(in oklab, var(--info) 10%, transparent);
+  }
+}
+#placeos .bg-info\/15 {
+  background-color: var(--info);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-info\/15 {
+    background-color: color-mix(in oklab, var(--info) 15%, transparent);
   }
 }
 #placeos .bg-neutral {
@@ -2013,6 +2035,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-success\/10 {
     background-color: color-mix(in oklab, var(--success) 10%, transparent);
+  }
+}
+#placeos .bg-success\/15 {
+  background-color: var(--success);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-success\/15 {
+    background-color: color-mix(in oklab, var(--success) 15%, transparent);
   }
 }
 #placeos .bg-transparent {
@@ -6884,7 +6914,7 @@ a[icon][disabled] {
   color: var(--base-content);
 }
 #placeos .mdc-text-field__input::placeholder {
-  color: var(--base-400);
+  color: color-mix(in srgb, var(--base-content) 65%, transparent);
 }
 #placeos .mdc-text-field--focused .mdc-notched-outline__leading,
 #placeos .mdc-text-field--focused .mdc-notched-outline__trailing {
@@ -7146,7 +7176,7 @@ textarea span[required] {
 }
 input::placeholder,
 textarea::placeholder {
-  color: var(--base-300);
+  color: color-mix(in srgb, var(--base-content) 65%, transparent);
 }
 label span[required] {
   color: var(--warn);
@@ -7187,7 +7217,7 @@ a[link]:active {
 #placeos ::placeholder,
 #placeos .mat-form-field-label,
 #placeos .mat-mdc-select-placeholder {
-  color: var(--base-300);
+  color: color-mix(in srgb, var(--base-content) 65%, transparent);
 }
 #placeos input {
   caret-color: var(--primary);

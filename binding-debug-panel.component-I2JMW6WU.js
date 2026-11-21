@@ -3,7 +3,7 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-J2YUBVJU.js";
+} from "./chunk-D7TQQ7HD.js";
 import {
   DebugPanelResize
 } from "./chunk-PYHSK4LB.js";
@@ -18,13 +18,13 @@ import {
   FormsModule,
   NgControlStatus,
   NgModel
-} from "./chunk-4YPFEEQF.js";
+} from "./chunk-RSHRVVYH.js";
 import {
   AsyncHandler,
   HotkeysService,
   IconComponent,
   Ua
-} from "./chunk-PPCD75SS.js";
+} from "./chunk-BGOHVY64.js";
 import "./chunk-NSE4C5J5.js";
 import "./chunk-NHAWYO2J.js";
 import {
@@ -1909,4 +1909,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=50b51cc2-b86b-5209-8056-15f637f0061f
-//# sourceMappingURL=binding-debug-panel.component-5D56WEP2.js.map
+//# sourceMappingURL=binding-debug-panel.component-I2JMW6WU.js.map
