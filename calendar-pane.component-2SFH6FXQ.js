@@ -8,14 +8,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-BDBMM2KJ.js";
+} from "./chunk-V3OU3AJD.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-HAL7BSDF.js";
+} from "./chunk-VX7VY3TF.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-YM6BBMMU.js";
+} from "./chunk-3BJOPWDT.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-LZY3BH6D.js";
+} from "./chunk-S5PTFL72.js";
 import {
   TranslatePipe
-} from "./chunk-CDWHNH5M.js";
+} from "./chunk-QHKC25FH.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-5TTYT2CT.js";
+} from "./chunk-GXMKS6B4.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-TCOP5OC3.js";
+} from "./chunk-5NU2ZCFP.js";
 import "./chunk-ARRIYDBO.js";
 import {
   BasePortalOutlet,
@@ -16214,6 +16214,8 @@ function isPaymentContext({ isSecureContext, location: location2 } = window) {
 var POLL_INTERVAL_MS = 2e3;
 var MAX_POLLS = 450;
 var MAX_FAILED_CHECKS = 3;
+var CAPTURE_ATTEMPTS = 3;
+var CAPTURE_RETRY_MS = 1e3;
 var PaymentsService = class _PaymentsService {
   constructor() {
     this._org = inject(OrganisationService);
@@ -16312,12 +16314,13 @@ var PaymentsService = class _PaymentsService {
     if (quote.total <= 0)
       return { status: "free" };
     const methods = this.hasCapability("saved_methods") ? await this.call("list_payment_methods").catch(() => []) : [];
+    const keys = checkoutKeys();
     const data = {
       quote,
       description: details.description,
       methods,
       can_save_method: this.hasCapability("saved_methods"),
-      pay: (options) => this._pay(details, quote, options),
+      pay: (options) => this._pay(details, quote, options, keys),
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
@@ -16325,9 +16328,21 @@ var PaymentsService = class _PaymentsService {
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
   }
-  /** Take an authorized payment and link it to the saved booking or event */
-  capture(payment, reference) {
-    return this.call("capture_payment", payment.id, reference);
+  /**
+   * Take an authorized payment and link it to the saved booking or event.
+   * The items of `exclude_resource_ids` are not taken, e.g. rooms that
+   * declined. Tries again after a failure, as a repeated capture is safe.
+   */
+  async capture(payment, reference, exclude_resource_ids = []) {
+    for (let attempt = 1; ; attempt++) {
+      try {
+        return await this.call("capture_payment", payment.id, reference, exclude_resource_ids);
+      } catch (e) {
+        if (attempt >= CAPTURE_ATTEMPTS)
+          throw e;
+        await delay2(CAPTURE_RETRY_MS * attempt);
+      }
+    }
   }
   /** Release or refund a payment, e.g. when the booking fails to save */
   cancel(payment) {
@@ -16415,8 +16430,10 @@ var PaymentsService = class _PaymentsService {
     await stop();
     throw new CheckoutCancelledError();
   }
-  async _pay(details, quote, options) {
+  async _pay(details, quote, options, keys) {
+    const key = keys.next(`${options.method_id}:${!!options.save_method}`);
     const session = await this.call("create_checkout", {
+      idempotency_key: key,
       items: details.items,
       expected_total: quote.total,
       description: details.description,
@@ -16428,6 +16445,7 @@ var PaymentsService = class _PaymentsService {
       options.window?.close();
       throw e;
     });
+    keys.done(key);
     return this._waitOnHostedPage(session.payment_id, session.url, options);
   }
   /**
@@ -16453,10 +16471,24 @@ var PaymentsService = class _PaymentsService {
       options.window?.close();
       return paidOrThrow(current);
     }
-    const session = await settle(this.call("get_payment_link", id, completeUrl("success")));
+    const session = await settle(this.call("get_payment_link", id, completeUrl("success")).catch((e) => this._completeOrThrow(id, e)));
     if (options.signal?.aborted || !session)
       return stopped();
+    if ("status" in session) {
+      options.window?.close();
+      return paidOrThrow(session);
+    }
     return this._waitOnHostedPage(id, session.url, options);
+  }
+  /**
+   * The payment when it is complete, else throws `error`. The provider can
+   * complete a payment after a check, and then refuses a new link to it.
+   */
+  async _completeOrThrow(id, error) {
+    const payment = await this.call("get_payment", id).catch(() => null);
+    if (payment && isComplete(payment))
+      return payment;
+    throw error;
   }
   /** Show the hosted page when there is one, then wait for the payment */
   async _waitOnHostedPage(id, url, options) {
@@ -16501,6 +16533,21 @@ var PaymentsService = class _PaymentsService {
     }]
   }], null, null);
 })();
+function checkoutKeys() {
+  let last = null;
+  return {
+    next(options) {
+      if (last?.options !== options) {
+        last = { options, key: crypto.randomUUID() };
+      }
+      return last.key;
+    },
+    done(key) {
+      if (last?.key === key)
+        last = null;
+    }
+  };
+}
 function paidOrThrow(payment) {
   if (payment.status === "authorized" || payment.status === "succeeded") {
     return payment;
@@ -19332,6 +19379,13 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         []
       )
     );
+    this.labelled_by = input(
+      "",
+      ...ngDevMode ? [{ debugName: "labelled_by" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.options = input(
       void 0,
       ...ngDevMode ? [{ debugName: "options" }] : (
@@ -19545,7 +19599,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
       if (rf & 2) {
         \u0275\u0275queryAdvance(2);
       }
-    }, inputs: { autocomplete: [1, "autocomplete"], disabled: [1, "disabled"], placeholder: [1, "placeholder"], options: [1, "options"], guests: [1, "guests"], guests_only: [1, "guests_only"], disable_search: [1, "disable_search"], clear: [1, "clear"], error: [1, "error"], allow_externals: [1, "allow_externals"], query_fn: [1, "query_fn"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([provideValueAccessor(() => _UserSearchFieldComponent)]), \u0275\u0275InheritDefinitionFeature], decls: 19, vars: 17, consts: [["input", ""], ["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "mr-2", "-ml-1", "flex", "h-8", "w-8", "items-center", "justify-center"], [3, "user"], [1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["keyboard", "", "matInput", "", 3, "ngModelChange", "focus", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], ["disabled", ""], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [3, "mousedown", "value"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
+    }, inputs: { autocomplete: [1, "autocomplete"], disabled: [1, "disabled"], placeholder: [1, "placeholder"], labelled_by: [1, "labelled_by"], options: [1, "options"], guests: [1, "guests"], guests_only: [1, "guests_only"], disable_search: [1, "disable_search"], clear: [1, "clear"], error: [1, "error"], allow_externals: [1, "allow_externals"], query_fn: [1, "query_fn"] }, outputs: { disabled: "disabledChange" }, features: [\u0275\u0275ProvidersFeature([provideValueAccessor(() => _UserSearchFieldComponent)]), \u0275\u0275InheritDefinitionFeature], decls: 19, vars: 18, consts: [["input", ""], ["auto", "matAutocomplete"], [1, "flex", "w-full", "space-x-2"], ["appearance", "outline", 1, "w-1/2", "flex-1"], ["matPrefix", "", 1, "mr-2", "-ml-1", "flex", "h-8", "w-8", "items-center", "justify-center"], [3, "user"], [1, "block", "flex", "w-6", "items-center", "justify-center", "text-2xl"], ["keyboard", "", "matInput", "", 3, "ngModelChange", "focus", "blur", "ngModel", "disabled", "matAutocomplete", "placeholder"], ["matSuffix", "", "diameter", "24"], [3, "optionSelected", "displayWith"], [3, "value"], ["disabled", ""], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border"], [1, "flex", "items-center", "space-x-2"], [1, "-ml-2", 3, "user"], [1, "leading-tight"], [1, "text-xs", "opacity-30"], [3, "mousedown", "value"], ["icon", "", "matRipple", "", 1, "border-secondary", "text-secondary", "h-12", "w-12", "rounded-sm", "border", 3, "click"]], template: function UserSearchFieldComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 2)(1, "mat-form-field", 3)(2, "div", 4);
         \u0275\u0275conditionalCreate(3, UserSearchFieldComponent_Conditional_3_Template, 1, 1, "a-user-avatar", 5)(4, UserSearchFieldComponent_Conditional_4_Template, 2, 0, "icon", 6);
@@ -19585,8 +19639,8 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
         \u0275\u0275advance(2);
         \u0275\u0275conditional((tmp_3_0 = ctx.selected_user()) ? 3 : 4, tmp_3_0);
         \u0275\u0275advance(2);
-        \u0275\u0275property("ngModel", ctx.search_term())("disabled", ctx.disabled())("matAutocomplete", auto_r5)("placeholder", \u0275\u0275pipeBind1(7, 14, ctx.placeholder()));
-        \u0275\u0275attribute("autocomplete", ctx.autocomplete());
+        \u0275\u0275property("ngModel", ctx.search_term())("disabled", ctx.disabled())("matAutocomplete", auto_r5)("placeholder", \u0275\u0275pipeBind1(7, 15, ctx.placeholder()));
+        \u0275\u0275attribute("autocomplete", ctx.autocomplete())("aria-labelledby", ctx.labelled_by() || null);
         \u0275\u0275control();
         \u0275\u0275advance(3);
         \u0275\u0275conditional(ctx.loading() ? 8 : -1);
@@ -19667,6 +19721,7 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
                     [disabled]="disabled()"
                     [matAutocomplete]="auto"
                     [placeholder]="placeholder() | translate"
+                    [attr.aria-labelledby]="labelled_by() || null"
                     (focus)="selectInputText()"
                     (blur)="resetTerm()"
                 />
@@ -19747,10 +19802,10 @@ var UserSearchFieldComponent = class _UserSearchFieldComponent extends AsyncHand
       UserAvatarComponent,
       VirtualKeyboardComponent
     ], styles: ["/* angular:styles/component:css;d84628be6394a4ab204c469dc548d2d04b7c619d7a49b10690a47d4a374a3d83;/home/runner/work/user-interfaces/user-interfaces/libs/form-fields/src/lib/user-search-field.component.ts */\n:host {\n  display: block;\n}\nicon {\n  top: 0.15em;\n  left: -0.15em;\n}\n/*# sourceMappingURL=user-search-field.component.css.map */\n"] }]
-  }], null, { autocomplete: [{ type: Input, args: [{ isSignal: true, alias: "autocomplete", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], placeholder: [{ type: Input, args: [{ isSignal: true, alias: "placeholder", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], disable_search: [{ type: Input, args: [{ isSignal: true, alias: "disable_search", required: false }] }], clear: [{ type: Input, args: [{ isSignal: true, alias: "clear", required: false }] }], error: [{ type: Input, args: [{ isSignal: true, alias: "error", required: false }] }], allow_externals: [{ type: Input, args: [{ isSignal: true, alias: "allow_externals", required: false }] }], query_fn: [{ type: Input, args: [{ isSignal: true, alias: "query_fn", required: false }] }], _input_el: [{ type: ViewChild, args: ["input", __spreadProps(__spreadValues({}, { read: ElementRef }), { isSignal: true })] }], _autocomplete_trigger: [{ type: ViewChild, args: [forwardRef(() => MatAutocompleteTrigger), { isSignal: true }] }] });
+  }], null, { autocomplete: [{ type: Input, args: [{ isSignal: true, alias: "autocomplete", required: false }] }], disabled: [{ type: Input, args: [{ isSignal: true, alias: "disabled", required: false }] }, { type: Output, args: ["disabledChange"] }], placeholder: [{ type: Input, args: [{ isSignal: true, alias: "placeholder", required: false }] }], labelled_by: [{ type: Input, args: [{ isSignal: true, alias: "labelled_by", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], guests: [{ type: Input, args: [{ isSignal: true, alias: "guests", required: false }] }], guests_only: [{ type: Input, args: [{ isSignal: true, alias: "guests_only", required: false }] }], disable_search: [{ type: Input, args: [{ isSignal: true, alias: "disable_search", required: false }] }], clear: [{ type: Input, args: [{ isSignal: true, alias: "clear", required: false }] }], error: [{ type: Input, args: [{ isSignal: true, alias: "error", required: false }] }], allow_externals: [{ type: Input, args: [{ isSignal: true, alias: "allow_externals", required: false }] }], query_fn: [{ type: Input, args: [{ isSignal: true, alias: "query_fn", required: false }] }], _input_el: [{ type: ViewChild, args: ["input", __spreadProps(__spreadValues({}, { read: ElementRef }), { isSignal: true })] }], _autocomplete_trigger: [{ type: ViewChild, args: [forwardRef(() => MatAutocompleteTrigger), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 164 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(UserSearchFieldComponent, { className: "UserSearchFieldComponent", filePath: "libs/form-fields/src/lib/user-search-field.component.ts", lineNumber: 165 });
 })();
 
 // libs/explore/src/lib/explore-desk-info.component.ts
@@ -21468,7 +21523,8 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         resources: booked_resources
       }));
       const charged_responses = this._resolveResourceResponses(charged_rooms, saved_resources);
-      const released = !!payment && charged_responses.length > 0 && charged_responses.every((_) => _.response_status === "declined");
+      const declined_ids = charged_responses.filter((_) => _.response_status === "declined").map((_) => _.id);
+      const released = !!payment && charged_responses.length > 0 && declined_ids.length === charged_responses.length;
       if (payment && released) {
         const id = payment.id;
         await this._payments.cancel(payment).then(() => notifyWarn(i18n("PAYMENTS.ROOMS_DECLINED")), (e) => notifyError(i18n("PAYMENTS.RELEASE_FAILED", {
@@ -21533,7 +21589,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
         }
       }
       if (payment) {
-        await this._payments.capture(payment, { type: "event", id: created_event.id }).catch((e) => notifyError(i18n("PAYMENTS.CAPTURE_FAILED", {
+        await this._payments.capture(payment, { type: "event", id: created_event.id }, declined_ids).catch((e) => notifyError(i18n("PAYMENTS.CAPTURE_FAILED", {
           error: errorMessage(e) || e
         })));
       }
@@ -27778,5 +27834,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=3d08010f-24ec-55ab-8973-8c8310084b90
-//# sourceMappingURL=calendar-pane.component-66SLO5Q3.js.map
+//# debugId=d7b1718a-9b24-5014-aca2-da3c290dd016
+//# sourceMappingURL=calendar-pane.component-2SFH6FXQ.js.map

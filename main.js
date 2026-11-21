@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-YM6BBMMU.js";
-import "./chunk-LZY3BH6D.js";
+} from "./chunk-3BJOPWDT.js";
+import "./chunk-S5PTFL72.js";
 import {
   TranslatePipe
-} from "./chunk-CDWHNH5M.js";
+} from "./chunk-QHKC25FH.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -30,7 +30,7 @@ import {
   serviceWorkerUpdate,
   setupCache,
   toQueryString
-} from "./chunk-5TTYT2CT.js";
+} from "./chunk-GXMKS6B4.js";
 import {
   AsyncHandler,
   Bp,
@@ -78,7 +78,7 @@ import {
   waitForCurrentUser,
   wi,
   withTimeout
-} from "./chunk-TCOP5OC3.js";
+} from "./chunk-5NU2ZCFP.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -552,7 +552,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-RZCKAYHP.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-RM5NLBFG.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -680,7 +680,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-RZCKAYHP.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-RM5NLBFG.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9312,6 +9312,7 @@ var PaymentsModule = class {
     ];
     this._payments = seedHistory();
     this._invoices = [];
+    this._checkouts = /* @__PURE__ */ new Map();
   }
   $get_config() {
     return {
@@ -9339,6 +9340,9 @@ var PaymentsModule = class {
     };
   }
   $create_checkout(request) {
+    const existing = this._checkouts.get(request.idempotency_key);
+    if (existing)
+      return existing;
     const quote = this.$quote(request.items);
     if (quote.total !== request.expected_total) {
       throw "The price changed. Check the new price and try again.";
@@ -9356,12 +9360,14 @@ var PaymentsModule = class {
       }
     });
     this._payments.unshift(payment);
-    return {
+    const session = {
       payment_id: payment.id,
       status: payment.status,
       url: method ? void 0 : request.return_url,
       expires_at: now2() + 30 * 60
     };
+    this._checkouts.set(request.idempotency_key, session);
+    return session;
   }
   $get_payment(id) {
     const payment = linkedPayment(this._payments, id);
@@ -9385,7 +9391,7 @@ var PaymentsModule = class {
       expires_at: now2() + 30 * 60
     };
   }
-  $capture_payment(id, reference) {
+  $capture_payment(id, reference, exclude_resource_ids) {
     const payment = findPayment(this._payments, id);
     const same = payment.reference?.type === reference.type && payment.reference?.id === reference.id;
     if (payment.status === "succeeded" && same)
@@ -9396,8 +9402,12 @@ var PaymentsModule = class {
     if (payment.status !== "authorized") {
       throw `Payment is ${payment.status}`;
     }
+    const items = payment.items.filter((item) => !exclude_resource_ids.includes(item.resource_id));
+    const amount = items.reduce((sum, item) => sum + item.amount, 0);
     return updatePayment(this._payments, id, {
-      status: "succeeded",
+      status: amount > 0 ? "succeeded" : "cancelled",
+      amount,
+      items,
       reference,
       receipt_url: void 0
     });
@@ -10454,7 +10464,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-UBUTBBA6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-53LSOQM7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10664,7 +10674,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-UBUTBBA6.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-53LSOQM7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10702,7 +10712,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-66SLO5Q3.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-2SFH6FXQ.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10727,5 +10737,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=d6ea224b-bbff-5abd-8a5e-72a73b6d4d4b
+//# debugId=87afddaf-136d-5a0b-9222-07530f18f7a0
 //# sourceMappingURL=main.js.map
