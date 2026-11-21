@@ -1,1 +1,0 @@
-import{t as So}from"./main-I2PNO355.js";function n(){So(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
