@@ -22,6 +22,7 @@ import {
     registerActiveLocale,
     reloadOnChunkLoadError,
 } from '@placeos/common';
+import { PAYMENT_CHECKOUT } from '@placeos/payments';
 
 import { environment } from '../environments/environment';
 import { routes } from './app.routes';
@@ -52,5 +53,7 @@ export const appConfig: ApplicationConfig = {
             useFactory: (localeService: LocaleService) => localeService.locale,
         },
         { provide: TitleStrategy, useClass: SettingsTitleStrategy },
+        // Users book for themselves here, so new bookings take a payment
+        { provide: PAYMENT_CHECKOUT, useValue: true },
     ],
 };

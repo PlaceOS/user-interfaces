@@ -19,3 +19,4 @@
 - [Remote setup](docs/remote-setup.md): Read before changing the remote setup flow, the device bootstrap screens, or the RemoteSetup driver interface.
 - [Signage plugin thumbnails](docs/signage-plugin-thumbnails.md): Read before changing the signage plugin thumbnail protocol.
 - [Teams and Microsoft 365 app](docs/teams-app.md): Read before changing the Teams app package or the Teams host sign-in.
+- [Payments](docs/payments.md): Read before changing the payment driver interface, the checkout flow or the payment pages.

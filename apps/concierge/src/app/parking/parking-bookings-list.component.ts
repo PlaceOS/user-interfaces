@@ -27,6 +27,7 @@ import {
     TranslatePipe,
     ViewportVisibilityComponent,
 } from '@placeos/components';
+import { BookingPaymentComponent, PaymentsService } from '@placeos/payments';
 import { isSameDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { BookingApprovalBarComponent } from '../ui/booking-approval-bar.component';
@@ -70,6 +71,7 @@ interface ParkingBookingColumnTemplates {
     user_groups_template: TemplateRef<unknown>;
     allocation_group_template: TemplateRef<unknown>;
     action_template: TemplateRef<unknown>;
+    payment_template: TemplateRef<unknown>;
     status_busy_label: string;
     type_label: string;
     time_label: string;
@@ -81,6 +83,7 @@ interface ParkingBookingColumnTemplates {
     status_label: string;
     user_groups_label: string;
     allocation_group_label: string;
+    payment_label: string;
 }
 
 @Component({
@@ -149,6 +152,7 @@ interface ParkingBookingColumnTemplates {
                             user_groups_template,
                             allocation_group_template,
                             action_template,
+                            payment_template,
                             status_busy_label: 'COMMON.STATUS_BUSY' | translate,
                             type_label:
                                 'BOOKINGS.PARKING_VEHICLE_TYPE' | translate,
@@ -169,6 +173,7 @@ interface ParkingBookingColumnTemplates {
                             allocation_group_label:
                                 'APP.CONCIERGE.PARKING_ALLOCATION_GROUP'
                                 | translate,
+                            payment_label: 'PAYMENTS.PAYMENT' | translate,
                         })
                     "
                     [filter]="options().search"
@@ -180,6 +185,13 @@ interface ParkingBookingColumnTemplates {
                         ) | translate
                     "
                 />
+                <ng-template #payment_template let-row="row">
+                    <booking-payment
+                        class="block px-4"
+                        [payment_id]="row.extension_data?.payment_id"
+                        [reference]="{ type: 'booking', id: row.id }"
+                    ></booking-payment>
+                </ng-template>
                 <ng-template #date_template let-row="row">
                     <div class="px-4 py-2" data-testid="parking-booking-time">
                         @if (isAllDayBooking(row)) {
@@ -698,6 +710,7 @@ interface ParkingBookingColumnTemplates {
         ParkingBookingsWeekViewComponent,
         ParkingSpacePipe,
         ViewportVisibilityComponent,
+        BookingPaymentComponent,
     ],
 })
 export class ParkingBookingsListComponent
@@ -706,6 +719,8 @@ export class ParkingBookingsListComponent
 {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
+    /** Shows the payment column when the building has a payment driver */
+    public readonly payments_enabled = inject(PaymentsService).is_enabled;
 
     public readonly bookings = computed(() => {
         const selected_date = this._state.options().date;
@@ -1122,6 +1137,14 @@ export class ParkingBookingsListComponent
                 key: 'space_restriction',
                 name: 'Space Restriction',
                 size: '12rem',
+            },
+            {
+                key: 'payment',
+                name: templates.payment_label,
+                content: templates.payment_template,
+                size: '6rem',
+                sortable: false,
+                show: this.payments_enabled(),
             },
             {
                 key: 'actions',

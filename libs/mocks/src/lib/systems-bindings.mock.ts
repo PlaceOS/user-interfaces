@@ -128,7 +128,7 @@ export function createSystem(space: HashMap) {
         Capture: [createCaptureModule(space)],
         MeetingPush: [createMeetingPushModule()],
         VidConf: [createVideoConferenceModule()],
-        Payment: [createPaymentsModule(space)],
+        Payments: [createPaymentsModule(space)],
         LockerLocations: [createLockerLocationsModule()],
         Lighting: [new LightingModule()],
         HearingAugmentation: [new HearingAugmentationModule()],

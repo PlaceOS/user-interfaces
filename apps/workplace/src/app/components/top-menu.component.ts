@@ -21,6 +21,7 @@ import {
     userSignal,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
+import { PaymentsService } from '@placeos/payments';
 import { FEATURE_MENU_ITEMS } from './menu-items';
 
 export interface TopMenuEmbedItem {
@@ -267,6 +268,7 @@ export function hasLoadedTopMenuSettings(state: TopMenuSettingsState) {
 export class TopMenuComponent {
     private _element = inject(ElementRef);
     private _org = inject(OrganisationService);
+    private _payments = inject(PaymentsService);
     private _router = inject(Router);
     private _settings = inject(SettingsService);
     private _destroy_ref = inject(DestroyRef);
@@ -326,8 +328,9 @@ export class TopMenuComponent {
         const groups = this.user().groups;
         return feature_list.filter(
             (name) =>
-                !feature_groups[name]?.length ||
-                feature_groups[name].find((_) => groups.includes(_)),
+                (!feature_groups[name]?.length ||
+                    feature_groups[name].find((_) => groups.includes(_))) &&
+                (name !== 'payments' || this._payments.is_enabled()),
         );
     });
 

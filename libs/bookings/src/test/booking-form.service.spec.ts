@@ -6,7 +6,7 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { PaymentsService } from '@placeos/payments';
+import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 import { of, Subject } from 'rxjs';
 import type { Mock, MockedFunction } from 'vitest';
 
@@ -108,7 +108,7 @@ describe('BookingFormService', () => {
             } as any),
             MockProvider(MatDialog, { open: vi.fn() }),
             MockProvider(PaymentsService, {
-                makePayment: vi.fn(),
+                checkout: vi.fn(async () => ({ status: 'cancelled' as const })),
                 enabled: true,
             }),
             // Mock the asset state service so its async `resource()`/effects do
@@ -1204,6 +1204,94 @@ describe('BookingFormService', () => {
 
         expect(savedBookings().length).toBe(1);
         expect((savedBookings()[0] as Booking).booking_type).toBe('desk');
+    });
+
+    describe('with payments', () => {
+        const payment = { id: 'pay-1', status: 'authorized' };
+        let payments: Record<string, Mock>;
+
+        const newDeskForm = () => {
+            spectator.service.newForm('desk');
+            spectator.service.model.update((m) => ({
+                ...m,
+                asset_id: 'desk-1',
+                asset_name: 'Desk 1',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+            }));
+        };
+
+        beforeEach(() => {
+            payments = {
+                checkout: vi.fn(async () => ({ status: 'paid', payment })),
+                capture: vi.fn(async () => payment),
+                cancel: vi.fn(async () => payment),
+            };
+            Object.assign(spectator.inject(PaymentsService), payments, {
+                can_checkout: true,
+            });
+        });
+
+        it('should save the payment ID and capture the payment after the save', async () => {
+            // The backend gives the new booking its ID
+            vi.mocked(ts_client.post).mockImplementation(async (url, body) =>
+                url.includes('/clashing-assets')
+                    ? []
+                    : { ...body, id: 'booking-new' },
+            );
+            newDeskForm();
+            await spectator.service.postForm(true);
+
+            expect(payments.checkout.mock.calls[0][0].items).toEqual([
+                expect.objectContaining({
+                    resource_type: 'desk',
+                    resource_id: 'desk-1',
+                    duration: 60,
+                }),
+            ]);
+            expect(savedBookings()[0].extension_data.payment_id).toBe('pay-1');
+            expect(payments.capture).toHaveBeenCalledWith(payment, {
+                type: 'booking',
+                id: 'booking-new',
+            });
+            expect(payments.cancel).not.toHaveBeenCalled();
+        });
+
+        it('should release the payment when the booking fails to save', async () => {
+            vi.mocked(ts_client.post).mockImplementation((async (
+                url: string,
+            ) => {
+                if (url.includes('/clashing-assets')) return [];
+                throw { status: 500, error: 'Server error' };
+            }) as any);
+            newDeskForm();
+
+            await expect(spectator.service.postForm(true)).rejects.toBeTruthy();
+
+            expect(payments.cancel).toHaveBeenCalledWith(payment);
+            expect(payments.capture).not.toHaveBeenCalled();
+        });
+
+        it('should not save the booking when the user cancels the payment', async () => {
+            payments.checkout.mockResolvedValue({ status: 'cancelled' });
+            newDeskForm();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'PAYMENTS.PAYMENT_CANCELLED',
+            );
+
+            expect(savedBookings().length).toBe(0);
+        });
+
+        it('should not ask for a payment for a group booking', async () => {
+            newDeskForm();
+            spectator.service.setOptions({ group: true });
+
+            await spectator.service.postForm(true);
+
+            expect(payments.checkout).not.toHaveBeenCalled();
+            expect(savedBookings().length).toBe(1);
+        });
     });
 
     it('should keep an untyped stored booking when the flow loads it', () => {
@@ -4201,6 +4289,26 @@ describe('BookingFormService', () => {
             );
 
             expect(deletedBookingIds()).toEqual(['booking-1']);
+        });
+
+        it('should release the payment when the asset requests fail', async () => {
+            const payment = { id: 'pay-1', status: 'authorized' };
+            const payments = {
+                can_checkout: true,
+                checkout: vi.fn(async () => ({ status: 'paid', payment })),
+                capture: vi.fn(),
+                cancel: vi.fn(async () => payment),
+            };
+            Object.assign(spectator.inject(PaymentsService), payments);
+            postBookings({ status: 422, error: 'Asset unavailable' });
+            useDeskFormWithAssets();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'Asset unavailable',
+            );
+
+            expect(payments.cancel).toHaveBeenCalledWith(payment);
+            expect(payments.capture).not.toHaveBeenCalled();
         });
 
         it('should report an asset clash instead of the desk being unavailable', async () => {

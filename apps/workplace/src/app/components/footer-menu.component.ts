@@ -7,6 +7,7 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { PaymentsService } from '@placeos/payments';
 import { landingFeatures } from '../landing-new/landing-features';
 import { FEATURE_MENU_ITEMS } from './menu-items';
 import type { TopMenuEmbedItem } from './top-menu.component';
@@ -23,6 +24,7 @@ const FOOTER_MENU_ORDER = [
     'lockers',
     'control',
     'deals-n-offers',
+    'payments',
     'team-schedule',
 ];
 
@@ -215,6 +217,7 @@ const FOOTER_MENU_ITEMS = FOOTER_MENU_ORDER.flatMap((id) =>
 export class FooterMenuComponent extends AsyncHandler {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
+    private _payments = inject(PaymentsService);
 
     public readonly blur_backdrop = model(false);
     public readonly show_book_items = signal(false);
@@ -224,8 +227,13 @@ export class FooterMenuComponent extends AsyncHandler {
     public readonly dark_mode = computed(
         () => this._settings.theme_signal() === 'dark',
     );
-    /** Features of the user, limited by `app.feature_groups` like the top menu */
-    public readonly features = landingFeatures();
+    private readonly _user_features = landingFeatures();
+    /** Features of the user. `payments` also needs a payment driver */
+    public readonly features = computed(() =>
+        this._user_features().filter(
+            (name) => name !== 'payments' || this._payments.is_enabled(),
+        ),
+    );
     public readonly default_page = computed<string>(() => {
         this._org.active_building();
         return this._settings.get('app.default_route') || '/landing';

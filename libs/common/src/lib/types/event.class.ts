@@ -135,6 +135,8 @@ export interface EventExtensionData {
      * Graph/CalendarEvent API payload is built.
      */
     attendee_flags?: Record<string, AttendeeFlags | undefined>;
+    /** ID of the payment for the rooms and catering of a new event */
+    payment_id?: string;
 }
 
 export interface EventListQueryParams {

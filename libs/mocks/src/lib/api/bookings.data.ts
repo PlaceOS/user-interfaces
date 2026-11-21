@@ -13,6 +13,7 @@ import {
 } from 'date-fns';
 import { MOCK_ASSETS } from './assets.data';
 import { MOCK_EVENTS } from './events.data';
+import { mockLinkedPaymentId } from './payments.data';
 
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from './users.data';
@@ -293,6 +294,16 @@ export const MOCK_BOOKINGS = (() => {
         bookings.push(booking);
     }
 
+    const paid_types = ['desk', 'parking', 'locker'];
+    for (const booking of bookings) {
+        if (!paid_types.includes(booking.booking_type)) continue;
+        const payment_id = mockLinkedPaymentId(
+            'booking',
+            booking.id,
+            booking.id,
+        );
+        if (payment_id) booking.extension_data.payment_id = payment_id;
+    }
     return bookings.sort((a, b) => a.booking_start - b.booking_start);
 })();
 

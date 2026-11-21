@@ -9,6 +9,7 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { PaymentsService } from '@placeos/payments';
 import { MockProvider } from 'ng-mocks';
 import { timer } from 'rxjs';
 
@@ -53,6 +54,7 @@ describe('RoomBookingsComponent', () => {
                 newBooking: vi.fn(),
                 getDate: vi.fn(() => Date.now()),
             }),
+            MockProvider(PaymentsService, { is_enabled: signal(false) }),
             MockProvider(SettingsService, {
                 get: (() => false) as any,
             }),
