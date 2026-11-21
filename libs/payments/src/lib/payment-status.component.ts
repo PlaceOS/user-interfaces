@@ -3,20 +3,31 @@ import { Component, computed, input } from '@angular/core';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { InvoiceStatus, PaymentStatus } from './payment.types';
 
+/*
+ * A tint of the status colour behind the text colour of the theme. The text
+ * has more than 4.5:1 contrast in the light and the dark themes, which the
+ * full status colours do not have with their content colours.
+ */
+const INFO = 'bg-info/15 border-info';
+const SUCCESS = 'bg-success/15 border-success';
+const WARNING = 'bg-warning/20 border-warning';
+const ERROR = 'bg-error/15 border-error';
+const NEUTRAL = 'bg-base-200 border-base-300';
+
 const STATUS_CLASSES: Record<PaymentStatus | InvoiceStatus, string> = {
-    pending: 'bg-base-200',
-    requires_action: 'bg-warning text-warning-content',
-    authorized: 'bg-info text-info-content',
-    succeeded: 'bg-success text-success-content',
-    partially_refunded: 'bg-warning text-warning-content',
-    refunded: 'bg-base-300',
-    cancelled: 'bg-base-300',
-    failed: 'bg-error text-error-content',
-    requested: 'bg-warning text-warning-content',
-    draft: 'bg-base-200',
-    open: 'bg-info text-info-content',
-    paid: 'bg-success text-success-content',
-    void: 'bg-base-300',
+    pending: NEUTRAL,
+    requires_action: WARNING,
+    authorized: INFO,
+    succeeded: SUCCESS,
+    partially_refunded: WARNING,
+    refunded: NEUTRAL,
+    cancelled: NEUTRAL,
+    failed: ERROR,
+    requested: WARNING,
+    draft: NEUTRAL,
+    open: INFO,
+    paid: SUCCESS,
+    void: NEUTRAL,
 };
 
 /** Coloured label for the status of a payment or an invoice */
@@ -24,7 +35,7 @@ const STATUS_CLASSES: Record<PaymentStatus | InvoiceStatus, string> = {
     selector: 'payment-status',
     template: `
         <span
-            class="inline-block rounded-full px-2 py-0.5 text-xs whitespace-nowrap"
+            class="text-base-content inline-block rounded-full border px-2 py-0.5 text-xs whitespace-nowrap"
             [class]="classes()"
         >
             {{ label() | translate }}
@@ -38,6 +49,6 @@ export class PaymentStatusComponent {
         () => `PAYMENTS.STATUS_${this.status().toUpperCase()}`,
     );
     public readonly classes = computed(
-        () => STATUS_CLASSES[this.status()] || 'bg-base-200',
+        () => STATUS_CLASSES[this.status()] || NEUTRAL,
     );
 }

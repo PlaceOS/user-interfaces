@@ -71,6 +71,7 @@ describe('Mock payments module', () => {
         ]);
         const session = mod.call('create_checkout', [
             {
+                idempotency_key: 'key-1',
                 items: [
                     {
                         resource_type: 'desk',
@@ -89,6 +90,7 @@ describe('Mock payments module', () => {
         const payment = mod.call('capture_payment', [
             session.payment_id,
             { type: 'booking', id: 'booking-1' },
+            [],
         ]);
         expect(payment.status).toBe('succeeded');
         expect(payment.reference.id).toBe('booking-1');
@@ -96,6 +98,7 @@ describe('Mock payments module', () => {
         const retry = mod.call('capture_payment', [
             session.payment_id,
             { type: 'booking', id: 'booking-1' },
+            [],
         ]);
         expect(retry.status).toBe('succeeded');
         // A cancel after a part refund refunds the rest
@@ -104,10 +107,65 @@ describe('Mock payments module', () => {
         expect(cancelled.status).toBe('refunded');
     });
 
+    it('returns the first session for a repeated idempotency key', () => {
+        const mod = createModule();
+        const request = {
+            idempotency_key: 'key-1',
+            items: [{ resource_type: 'desk', resource_id: 'desk-1' }],
+            expected_total: mod.call('quote', [
+                [{ resource_type: 'desk', resource_id: 'desk-1' }],
+            ]).total,
+            description: '',
+            return_url: '',
+            cancel_url: '',
+        };
+        const first = mod.call('create_checkout', [request]);
+        const retry = mod.call('create_checkout', [request]);
+        expect(retry.payment_id).toBe(first.payment_id);
+        const other = mod.call('create_checkout', [
+            { ...request, idempotency_key: 'key-2' },
+        ]);
+        expect(other.payment_id).not.toBe(first.payment_id);
+    });
+
+    it.each([
+        [['desk-2'], 'succeeded', 1500],
+        [['desk-1', 'desk-2'], 'cancelled', 0],
+    ])(
+        'does not take the excluded items %j on capture',
+        (exclude, status, amount) => {
+            const mod = createModule();
+            const items = ['desk-1', 'desk-2'].map((resource_id) => ({
+                resource_type: 'desk',
+                resource_id,
+                duration: 480,
+            }));
+            const session = mod.call('create_checkout', [
+                {
+                    idempotency_key: 'key-1',
+                    items,
+                    expected_total: mod.call('quote', [items]).total,
+                    description: '',
+                    payment_method_id: 'pm-visa',
+                    return_url: '',
+                    cancel_url: '',
+                },
+            ]);
+            const payment = mod.call('capture_payment', [
+                session.payment_id,
+                { type: 'event', id: 'event-1' },
+                exclude,
+            ]);
+            expect(payment.status).toBe(status);
+            expect(payment.amount).toBe(amount);
+        },
+    );
+
     it('refuses a checkout when the total changed', () => {
         expect(() =>
             createModule().call('create_checkout', [
                 {
+                    idempotency_key: 'key-1',
                     items: [{ resource_type: 'desk', resource_id: 'desk-1' }],
                     expected_total: 1,
                     description: '',

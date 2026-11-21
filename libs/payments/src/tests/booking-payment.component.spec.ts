@@ -46,8 +46,10 @@ describe('BookingPaymentComponent', () => {
         expect(spectator.query('button')).toBeFalsy();
     });
 
-    it('loads the payment and opens its details', async () => {
+    it('loads the payment and opens its details with the booking of the row', async () => {
+        const reference = { type: 'booking' as const, id: 'booking-1' };
         spectator.setInput('payment_id', 'pay-1');
+        spectator.setInput('reference', reference);
         spectator.detectChanges();
 
         spectator.click('button[name="view-payment"]');
@@ -55,7 +57,7 @@ describe('BookingPaymentComponent', () => {
 
         expect(call).toHaveBeenCalledWith('get_payment', 'pay-1');
         expect(open).toHaveBeenCalledWith(PaymentDetailsModalComponent, {
-            data: { payment },
+            data: { payment, reference },
         });
     });
 });

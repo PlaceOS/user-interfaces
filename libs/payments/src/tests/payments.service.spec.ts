@@ -154,6 +154,88 @@ describe('PaymentsService', () => {
         expect(paid).toEqual(payment('authorized'));
     });
 
+    /** Open a checkout and get the actions that the modal gets */
+    const openCheckout = async (): Promise<PaymentCheckoutData> => {
+        driver.quote = () => QUOTE;
+        dialog_open.mockReturnValue({ afterClosed: () => of(undefined) });
+        await spectator.service.checkout({
+            description: 'Room 1',
+            items: [{ resource_type: 'room', resource_id: 'room-1' }],
+        });
+        return dialog_open.mock.calls[0][1].data;
+    };
+
+    it('sends the same idempotency key when the user retries a failed checkout', async () => {
+        const data = await openCheckout();
+        const create = vi
+            .fn()
+            .mockRejectedValueOnce({ msg: 'Timeout' })
+            .mockReturnValue({ payment_id: 'pay-1', status: 'authorized' });
+        driver.create_checkout = create;
+        driver.get_payment = () => payment('authorized');
+        const keys = () => create.mock.calls.map(([_]) => _.idempotency_key);
+
+        await expect(data.pay({ method_id: 'pm-1' })).rejects.toBe('Timeout');
+        await data.pay({ method_id: 'pm-1' });
+        // The payment exists, so the next attempt is a new payment
+        await data.pay({ method_id: 'pm-1' });
+
+        expect(keys()[1]).toBe(keys()[0]);
+        expect(keys()[2]).not.toBe(keys()[0]);
+    });
+
+    it('sends a new idempotency key when the user picks another method', async () => {
+        const data = await openCheckout();
+        const create = vi.fn().mockRejectedValue({ msg: 'Timeout' });
+        driver.create_checkout = create;
+
+        await expect(data.pay({ method_id: 'pm-1' })).rejects.toBe('Timeout');
+        await expect(data.pay({ method_id: 'pm-2' })).rejects.toBe('Timeout');
+
+        const [first, second] = create.mock.calls.map(
+            ([_]) => _.idempotency_key,
+        );
+        expect(second).not.toBe(first);
+    });
+
+    it('accepts a reopened payment that completes before the new link', async () => {
+        const data = await openCheckout();
+        const states: Payment['status'][] = ['pending', 'authorized'];
+        driver.get_payment = () => payment(states.shift() || 'authorized');
+        driver.get_payment_link = () => Promise.reject({ msg: 'Not open' });
+        driver.cancel_payment = vi.fn();
+
+        await expect(data.resume('pay-1', {})).resolves.toEqual(
+            payment('authorized'),
+        );
+        expect(driver.cancel_payment).not.toHaveBeenCalled();
+    });
+
+    it('tries a failed capture again, up to 3 times', async () => {
+        vi.useFakeTimers();
+        const reference = { type: 'booking' as const, id: 'booking-1' };
+        driver.capture_payment = vi
+            .fn()
+            .mockRejectedValueOnce({ msg: 'Timeout' })
+            .mockReturnValue(payment('succeeded'));
+        const done = spectator.service.capture(
+            payment('authorized'),
+            reference,
+        );
+        await vi.advanceTimersByTimeAsync(1_000);
+        await expect(done).resolves.toEqual(payment('succeeded'));
+
+        driver.capture_payment = vi.fn().mockRejectedValue({ msg: 'Expired' });
+        const failed = spectator.service.capture(
+            payment('authorized'),
+            reference,
+        );
+        const result = expect(failed).rejects.toBe('Expired');
+        await vi.advanceTimersByTimeAsync(5_000);
+        await result;
+        expect(driver.capture_payment).toHaveBeenCalledTimes(3);
+    });
+
     it('resolves as cancelled when the checkout modal closes without a payment', async () => {
         driver.quote = () => QUOTE;
         dialog_open.mockReturnValue({ afterClosed: () => of(undefined) });
@@ -382,7 +464,11 @@ describe('PaymentsService', () => {
         await vi.advanceTimersByTimeAsync(5_000);
         await expect(done).resolves.toEqual(payment('succeeded'));
         expect(window_ref.location.href).toBe('https://pay.example.com/cs-1');
-        expect(driver.capture_payment).toHaveBeenCalledWith('pay-1', reference);
+        expect(driver.capture_payment).toHaveBeenCalledWith(
+            'pay-1',
+            reference,
+            [],
+        );
     });
 
     it('captures a payment that went through after the page closed, with no new link', async () => {

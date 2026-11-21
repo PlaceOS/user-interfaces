@@ -7,7 +7,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { errorMessage, i18n, notifyError } from '@placeos/common';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
-import { PaymentDetailsModalComponent } from './payment-details-modal.component';
+import {
+    PaymentDetailsData,
+    PaymentDetailsModalComponent,
+} from './payment-details-modal.component';
+import { PaymentReference } from './payment.types';
 import { PaymentsService } from './payments.service';
 
 /**
@@ -54,6 +58,8 @@ export class BookingPaymentComponent {
 
     /** `extension_data.payment_id` of the booking or the event */
     public readonly payment_id = input<string | undefined>('');
+    /** The booking or the event of the row, so staff can take its payment */
+    public readonly reference = input<PaymentReference>();
     public readonly enabled = this._payments.is_enabled;
     public readonly loading = signal(false);
 
@@ -63,9 +69,10 @@ export class BookingPaymentComponent {
         this.loading.set(true);
         try {
             const payment = await this._payments.call('get_payment', id);
-            this._dialog.open(PaymentDetailsModalComponent, {
-                data: { payment },
-            });
+            this._dialog.open<PaymentDetailsModalComponent, PaymentDetailsData>(
+                PaymentDetailsModalComponent,
+                { data: { payment, reference: this.reference() } },
+            );
         } catch (e) {
             notifyError(
                 i18n('PAYMENTS.LOAD_ERROR', { error: errorMessage(e) || e }),

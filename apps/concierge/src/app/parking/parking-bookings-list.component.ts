@@ -189,6 +189,7 @@ interface ParkingBookingColumnTemplates {
                     <booking-payment
                         class="block px-4"
                         [payment_id]="row.extension_data?.payment_id"
+                        [reference]="{ type: 'booking', id: row.id }"
                     ></booking-payment>
                 </ng-template>
                 <ng-template #date_template let-row="row">

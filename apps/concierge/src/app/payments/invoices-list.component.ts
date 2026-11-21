@@ -213,6 +213,11 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
     private _payments = inject(PaymentsService);
     private _dialog = inject(MatDialog);
     private _load_id = 0;
+    /**
+     * Invoices that this page sent. A list request that started before the
+     * send can return the old state, which shows Send again
+     */
+    private _sent = new Map<string, Invoice>();
 
     public readonly statuses = STATUSES;
     public readonly user_email = signal('');
@@ -248,8 +253,11 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
                 cursor: more ? this.cursor() : undefined,
             });
             if (id !== this._load_id) return;
+            const items = page.items.map((item) =>
+                isUnsent(item) ? this._sent.get(item.id) || item : item,
+            );
             this.invoices.update((list) =>
-                more ? [...list, ...page.items] : page.items,
+                more ? [...list, ...items] : items,
             );
             this.cursor.set(page.next_cursor);
         } catch (e) {
@@ -271,6 +279,7 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
                 invoice.id,
                 null,
             );
+            this._sent.set(sent.id, sent);
             this.invoices.update((list) =>
                 list.map((item) => (item.id === sent.id ? sent : item)),
             );
@@ -288,4 +297,9 @@ export class InvoicesListComponent extends AsyncHandler implements OnInit {
             .afterClosed()
             .subscribe((done) => (done ? this.load() : null));
     }
+}
+
+/** Whether staff can still send the invoice */
+function isUnsent(invoice: Invoice) {
+    return invoice.status === 'requested' || invoice.status === 'draft';
 }
