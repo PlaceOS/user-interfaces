@@ -4,10 +4,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-DONHQAA6.js";
+} from "./chunk-CKTWQ2JG.js";
 import {
   toQueryString
-} from "./chunk-G3T3XMOD.js";
+} from "./chunk-FVN6GNQP.js";
 import "./chunk-GLALPF4J.js";
 import {
   Bp,
@@ -29,7 +29,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-O3AU4RLV.js";
+} from "./chunk-SOK5D6HN.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-BHPAVDM2.js";
 import {
@@ -8306,6 +8306,7 @@ var PaymentsModule = class {
     ];
     this._payments = seedHistory();
     this._invoices = [];
+    this._checkouts = /* @__PURE__ */ new Map();
   }
   $get_config() {
     return {
@@ -8333,6 +8334,9 @@ var PaymentsModule = class {
     };
   }
   $create_checkout(request) {
+    const existing = this._checkouts.get(request.idempotency_key);
+    if (existing)
+      return existing;
     const quote = this.$quote(request.items);
     if (quote.total !== request.expected_total) {
       throw "The price changed. Check the new price and try again.";
@@ -8350,12 +8354,14 @@ var PaymentsModule = class {
       }
     });
     this._payments.unshift(payment);
-    return {
+    const session = {
       payment_id: payment.id,
       status: payment.status,
       url: method ? void 0 : request.return_url,
       expires_at: now2() + 30 * 60
     };
+    this._checkouts.set(request.idempotency_key, session);
+    return session;
   }
   $get_payment(id) {
     const payment = linkedPayment(this._payments, id);
@@ -8379,7 +8385,7 @@ var PaymentsModule = class {
       expires_at: now2() + 30 * 60
     };
   }
-  $capture_payment(id, reference) {
+  $capture_payment(id, reference, exclude_resource_ids) {
     const payment = findPayment(this._payments, id);
     const same = payment.reference?.type === reference.type && payment.reference?.id === reference.id;
     if (payment.status === "succeeded" && same)
@@ -8390,8 +8396,12 @@ var PaymentsModule = class {
     if (payment.status !== "authorized") {
       throw `Payment is ${payment.status}`;
     }
+    const items = payment.items.filter((item) => !exclude_resource_ids.includes(item.resource_id));
+    const amount = items.reduce((sum, item) => sum + item.amount, 0);
     return updatePayment(this._payments, id, {
-      status: "succeeded",
+      status: amount > 0 ? "succeeded" : "cancelled",
+      amount,
+      items,
       reference,
       receipt_url: void 0
     });
@@ -9408,5 +9418,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=b3e43e5b-8d1e-571f-9529-ff049e1984fb
-//# sourceMappingURL=src-MJCTELMD.js.map
+//# debugId=baa0532b-1a9c-5fe7-8229-020047e284f5
+//# sourceMappingURL=src-U4JRWAEE.js.map
