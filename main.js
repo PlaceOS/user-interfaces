@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-7J2ZFVSJ.js";
-import "./chunk-TXJPCIGC.js";
+} from "./chunk-CB5LLZZA.js";
+import "./chunk-MI55NOU7.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-HUJBPLBX.js";
+} from "./chunk-XG6EJX4L.js";
 import "./chunk-FA46AMLA.js";
 import {
   TranslatePipe
-} from "./chunk-QEWE5XCF.js";
+} from "./chunk-ATVOLI7S.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -28,7 +28,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-KIMNZ2VV.js";
+} from "./chunk-UOPISXXU.js";
 import "./chunk-5YZYH22M.js";
 import "./chunk-GLALPF4J.js";
 import {
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-4N7PTO77.js";
+} from "./chunk-MXNVQOYW.js";
 import {
   IconComponent
 } from "./chunk-3ES5YZ5E.js";
@@ -9700,6 +9700,7 @@ var PaymentsModule = class {
     ];
     this._payments = seedHistory();
     this._invoices = [];
+    this._checkouts = /* @__PURE__ */ new Map();
   }
   $get_config() {
     return {
@@ -9727,6 +9728,9 @@ var PaymentsModule = class {
     };
   }
   $create_checkout(request) {
+    const existing = this._checkouts.get(request.idempotency_key);
+    if (existing)
+      return existing;
     const quote = this.$quote(request.items);
     if (quote.total !== request.expected_total) {
       throw "The price changed. Check the new price and try again.";
@@ -9744,12 +9748,14 @@ var PaymentsModule = class {
       }
     });
     this._payments.unshift(payment);
-    return {
+    const session = {
       payment_id: payment.id,
       status: payment.status,
       url: method ? void 0 : request.return_url,
       expires_at: now2() + 30 * 60
     };
+    this._checkouts.set(request.idempotency_key, session);
+    return session;
   }
   $get_payment(id) {
     const payment = linkedPayment(this._payments, id);
@@ -9773,7 +9779,7 @@ var PaymentsModule = class {
       expires_at: now2() + 30 * 60
     };
   }
-  $capture_payment(id, reference) {
+  $capture_payment(id, reference, exclude_resource_ids) {
     var _a, _b;
     const payment = findPayment(this._payments, id);
     const same = ((_a = payment.reference) == null ? void 0 : _a.type) === reference.type && ((_b = payment.reference) == null ? void 0 : _b.id) === reference.id;
@@ -9785,8 +9791,12 @@ var PaymentsModule = class {
     if (payment.status !== "authorized") {
       throw `Payment is ${payment.status}`;
     }
+    const items = payment.items.filter((item) => !exclude_resource_ids.includes(item.resource_id));
+    const amount = items.reduce((sum, item) => sum + item.amount, 0);
     return updatePayment(this._payments, id, {
-      status: "succeeded",
+      status: amount > 0 ? "succeeded" : "cancelled",
+      amount,
+      items,
       reference,
       receipt_url: void 0
     });
@@ -10827,7 +10837,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-J26IHHGX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-NNKYIVBW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10869,7 +10879,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-J26IHHGX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-NNKYIVBW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10938,22 +10948,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-AMR7WK6A.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-IHSO76BI.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-SPIEOBZP.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-JLRTRJLS.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-X7O7RJE5.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-CIBSDYL3.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-RMUIL26G.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-IB4GHSOY.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -10981,5 +10991,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=73f884ce-c33c-5e03-8392-12ccefd49e0e
+//# debugId=b3e3e6e3-ccd6-5e91-a38b-176dee435af5
 //# sourceMappingURL=main.js.map
