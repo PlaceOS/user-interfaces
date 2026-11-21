@@ -3,7 +3,7 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-HHQP66GJ.js";
+} from "./chunk-UHQ737KV.js";
 import {
   DebugPanelResize
 } from "./chunk-7HCTNEFP.js";
@@ -14,12 +14,12 @@ import {
 import "./chunk-UYCOOCLJ.js";
 import {
   Clipboard
-} from "./chunk-FHSAWPDG.js";
+} from "./chunk-SGTNP4P7.js";
 import {
   AsyncHandler,
   HotkeysService,
   Ua
-} from "./chunk-GIMILWIA.js";
+} from "./chunk-LXENZTTU.js";
 import {
   IconComponent
 } from "./chunk-ECEYXSP4.js";
@@ -1912,4 +1912,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=465fbdc3-2585-5f93-aee0-6f5c387db185
-//# sourceMappingURL=binding-debug-panel.component-QXSDJ2KK.js.map
+//# sourceMappingURL=binding-debug-panel.component-WR7233Y2.js.map
