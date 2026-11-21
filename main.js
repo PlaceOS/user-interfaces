@@ -5,14 +5,14 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-IAWRPCML.js";
+} from "./chunk-TYT3CN67.js";
 import "./chunk-RZU5UVP7.js";
 import {
   deviceId
 } from "./chunk-GLALPF4J.js";
 import {
   TranslatePipe
-} from "./chunk-T2DACLAW.js";
+} from "./chunk-22SQZ6TM.js";
 import {
   OrganisationService,
   PlaceOS_Service,
@@ -28,7 +28,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-N7YJ7SX7.js";
+} from "./chunk-GPFXUA2F.js";
 import {
   AsyncHandler,
   Bp,
@@ -67,7 +67,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-4EDLLOPD.js";
+} from "./chunk-QNLPUHDW.js";
 import "./chunk-SFUFVX22.js";
 import {
   IconComponent,
@@ -9354,14 +9354,30 @@ function page(list, limit = 20, cursor) {
     next_cursor: start + size < list.length ? `${start + size}` : void 0
   };
 }
+function cateringItem(id = "") {
+  const asset = MOCK_ASSETS.find((_) => _.id === id && `${_.asset_type_id}`.startsWith("_catering_"));
+  if (asset) {
+    return {
+      id: asset.id,
+      name: asset.name,
+      unit_price: +asset.other_data?.unit_price || 0,
+      options: asset.other_data?.options || []
+    };
+  }
+  return MOCK_MENU.find((_) => _.id === id);
+}
+function zoneScope(zone_id = "") {
+  const level = MOCK_LEVELS.find((_) => _.id === zone_id);
+  return [zone_id, level?.parent_id].filter((_) => !!_);
+}
 function priceItem(products, item) {
   const quantity = item.quantity || 1;
   if (item.resource_type === "catering") {
-    const menu_item = MOCK_MENU.find((_) => _.id === item.resource_id);
+    const menu_item = cateringItem(item.resource_id);
     if (!menu_item)
       return [];
     const options = (menu_item.options || []).filter((option) => item.option_ids?.includes(option.id));
-    const unit_amount = menu_item.unit_price + options.reduce((sum, o) => sum + o.unit_price, 0);
+    const unit_amount = menu_item.unit_price + options.reduce((sum, o) => sum + (o.unit_price || 0), 0);
     return [
       {
         product_id: "",
@@ -9401,7 +9417,8 @@ function findProduct(products, item) {
     return products.find((p) => p.active && p.id === item.product_id);
   }
   const specificity = (p) => (p.resource_ids.length ? 2 : 0) + (p.zone_ids.length ? 1 : 0);
-  return products.filter((p) => p.active && p.resource_type === item.resource_type && (!p.resource_ids.length || p.resource_ids.includes(item.resource_id || "")) && (!p.zone_ids.length || p.zone_ids.includes(item.zone_id || ""))).sort((a, b) => specificity(b) - specificity(a))[0];
+  const zones = zoneScope(item.zone_id);
+  return products.filter((p) => p.active && p.resource_type === item.resource_type && (!p.resource_ids.length || p.resource_ids.includes(item.resource_id || "")) && (!p.zone_ids.length || zones.some((zone) => p.zone_ids.includes(zone)))).sort((a, b) => specificity(b) - specificity(a))[0];
 }
 function newPayment(data) {
   return __spreadValues({
@@ -9647,6 +9664,12 @@ var PaymentsModule = class {
   }
   $capture_payment(id, reference) {
     const payment = findPayment(this._payments, id);
+    const same = payment.reference?.type === reference.type && payment.reference?.id === reference.id;
+    if (payment.status === "succeeded" && same)
+      return payment;
+    if (payment.status === "succeeded" && !payment.reference) {
+      return updatePayment(this._payments, id, { reference });
+    }
     if (payment.status !== "authorized") {
       throw `Payment is ${payment.status}`;
     }
@@ -9658,7 +9681,7 @@ var PaymentsModule = class {
   }
   $cancel_payment(id) {
     const payment = findPayment(this._payments, id);
-    if (payment.status === "succeeded") {
+    if (payment.status === "succeeded" || payment.status === "partially_refunded") {
       return this.$refund_payment(id, null, "Cancelled");
     }
     return updatePayment(this._payments, id, { status: "cancelled" });
@@ -10669,11 +10692,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-DIAFE566.js").then((m) => m.ChatComponent)
+  import("./chat.component-ABSLT33X.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_9_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-YH2BJIUZ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7KAWZZ3M.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -10734,9 +10757,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-DIAFE566.js").then((m) => m.ChatComponent),
+    import("./chat.component-ABSLT33X.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-YH2BJIUZ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7KAWZZ3M.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10776,7 +10799,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-Y4WXLO3Z.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-TH6XTOGQ.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -10815,5 +10838,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=98b41275-92ed-5607-8508-36e902502f1c
+//# debugId=1131af98-3bcb-570b-a3cf-5e5954ee1da9
 //# sourceMappingURL=main.js.map
