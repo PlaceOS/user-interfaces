@@ -6,12 +6,13 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { PlaceModuleBinding } from '@placeos/ts-client';
+import { is_connected, PlaceModuleBinding } from '@placeos/ts-client';
 
 import {
     AsyncHandler,
     notifyError,
     OrganisationService,
+    readRemoteDebugDevices,
     readRemoteDebugModule,
     REMOTE_DEBUG_DEVICES,
     remoteDebugOrgId,
@@ -32,9 +33,7 @@ export class RemoteDebugViewService extends AsyncHandler {
     private readonly _org = inject(OrganisationService);
     private readonly _module = signal<PlaceModuleBinding | null>(null);
     private readonly _state = signal<RemoteDebugViewState>('loading');
-    private readonly _devices = signal<Record<string, RemoteDebugSeenDevice>>(
-        {},
-    );
+    private readonly _devices = signal<RemoteDebugSeenDevice[]>([]);
 
     /** Module of the driver. `null` until the state is `ready` */
     public readonly module = this._module.asReadonly();
@@ -43,9 +42,7 @@ export class RemoteDebugViewService extends AsyncHandler {
     public readonly now = signal(Date.now());
     /** Devices that called the driver, last seen first */
     public readonly devices = computed(() =>
-        Object.values(this._devices()).sort(
-            (a, b) => b.last_seen - a.last_seen,
-        ),
+        [...this._devices()].sort((a, b) => b.last_seen - a.last_seen),
     );
 
     constructor() {
@@ -70,11 +67,7 @@ export class RemoteDebugViewService extends AsyncHandler {
             mod
                 .variable<unknown>(REMOTE_DEBUG_DEVICES)
                 .bindThenSubscribe((value) =>
-                    this._devices.set(
-                        value && typeof value === 'object'
-                            ? (value as Record<string, RemoteDebugSeenDevice>)
-                            : {},
-                    ),
+                    this._devices.set(readRemoteDebugDevices(value)),
                 ),
         );
     }
@@ -82,7 +75,8 @@ export class RemoteDebugViewService extends AsyncHandler {
     /**
      * Call a method of the driver for the people who debug, such as
      * `request_logs` or `send_command`. Resolves the result of the driver.
-     * Shows an error and resolves `undefined` when the call fails.
+     * Shows an error and resolves `undefined` when the call fails, or when
+     * the websocket is not connected.
      */
     public async call<T = unknown>(
         method: string,
@@ -90,6 +84,13 @@ export class RemoteDebugViewService extends AsyncHandler {
     ): Promise<T | undefined> {
         const mod = this._module();
         if (!mod) return undefined;
+        // ts-client keeps a call that it cannot send and sends it after it
+        // connects again, maybe after the user left the page. A reload must
+        // not run then
+        if (!is_connected()) {
+            notifyError('Remote debugging needs a connection to PlaceOS');
+            return undefined;
+        }
         try {
             return await mod.execute<T>(method, args);
         } catch (error) {

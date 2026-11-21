@@ -23,6 +23,8 @@ import {
     isRemoteLogRequest,
     notifyError,
     notifySuccess,
+    readRemoteDebugResults,
+    readRemoteLogsView,
     REMOTE_LOG_LEVELS,
     RemoteDebugCommandOptions,
     RemoteDebugCommandResult,
@@ -485,12 +487,17 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
     /** Show only entries with a lower `seq`. `null` shows the newest entries */
     public readonly older_than = signal<number | null>(null);
     /**
-     * Log request calls (start, stop, level, older entries) run one at a
-     * time, so they reach the driver in the order the user made them.
-     * ts-client also joins a call with the same arguments while it runs,
-     * which would drop the last of quick changes such as debug, warn, debug
+     * Driver calls (logs, level, older entries, commands) run one at a time,
+     * so they reach the driver in the order the user made them. ts-client
+     * also joins a call with the same arguments while it runs, and it shows
+     * each object argument as `[object Object]`. So without the queue, quick
+     * calls such as WebP and GIF animations would join into one call
      */
     private _requests: Promise<unknown> = Promise.resolve();
+    /** Calls in the queue that did not finish */
+    private _pending = 0;
+    /** Whether the panel closed. Calls that did not start do not run */
+    private _closed = false;
     /** `seq` that a request for older entries asked for. The page moves when older entries arrive */
     private _older_wanted: number | null = null;
     /** ID of the log request in the binding, to find a new request */
@@ -566,8 +573,7 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         await this._queue(() => this._view.call('stop_logs', [device_id]));
     }
 
-    /** Select a level. An active request changes its level */
-    /** Select a level. An active request at another level changes its level */
+    /** Select a level. When logs are live, send the level to the device */
     public async setLevel(level: RemoteLogLevel) {
         this.level.set(level);
         // The binding can still show an older level, so always send it. The
@@ -579,7 +585,6 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         );
     }
 
-    /** New request for the entries before the oldest entry that the driver has */
     /**
      * Show older entries. When the driver has more entries than the panel
      * shows, show the page before the oldest shown entry. Otherwise ask the
@@ -635,11 +640,27 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         this._older_wanted = null;
     }
 
-    /** Run a log request call after the calls before it */
-    private _queue<T>(call: () => Promise<T>): Promise<T> {
-        const next = this._requests.then(call);
+    /**
+     * Run a driver call after the calls before it. A call that did not start
+     * when the panel closes does not run, so a reload is not sent later.
+     * When the last call finishes, the level shows the level in the binding.
+     */
+    private _queue<T>(call: () => Promise<T>): Promise<T | undefined> {
+        this._pending++;
+        const next = this._requests
+            .then(() => (this._closed ? undefined : call()))
+            .finally(() => {
+                if (--this._pending) return;
+                const logs = this._state().logs;
+                if (isRemoteLogRequest(logs)) this.level.set(logs.level);
+            });
         this._requests = next.catch(() => undefined);
         return next;
+    }
+
+    protected override destroy() {
+        this._closed = true;
+        super.destroy();
     }
 
     /** Whether an entry before `seq` matches the filter */
@@ -668,11 +689,13 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         options: RemoteDebugCommandOptions = {},
         device_id = this.device_id(),
     ) {
-        const id = await this._view.call<string | null>('send_command', [
-            device_id,
-            type,
-            options,
-        ]);
+        const id = await this._queue(() =>
+            this._view.call<string | null>('send_command', [
+                device_id,
+                type,
+                options,
+            ]),
+        );
         // `undefined` is a failed call, which the view service already shows
         if (id === undefined) return;
         if (id) notifySuccess(`Sent ${type} to ${device_id}`);
@@ -748,12 +771,16 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
                 .bindThenSubscribe((value) => {
                     const state: RemoteDebugDeviceState =
                         value && typeof value === 'object' ? value : {};
-                    // A new request sets the selected level. Later binding
-                    // values can be older than a level that the user selects
+                    // A new request sets the selected level. While calls
+                    // wait, a binding value can be older than the level that
+                    // the user selected, so the level stays until they finish
                     const logs = isRemoteLogRequest(state.logs)
                         ? state.logs
                         : null;
-                    if (logs && logs.id !== this._request_id) {
+                    if (
+                        logs &&
+                        (logs.id !== this._request_id || !this._pending)
+                    ) {
                         this.level.set(logs.level);
                     }
                     this._request_id = logs?.id ?? '';
@@ -763,19 +790,18 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         this.subscription(
             'logs',
             mod
-                .variable<RemoteLogsView | null>(
-                    remoteDebugLogsBinding(device_id),
-                )
-                .bindThenSubscribe((value) => {
+                .variable<unknown>(remoteDebugLogsBinding(device_id))
+                .bindThenSubscribe((raw) => {
+                    const value = readRemoteLogsView(raw);
                     // A reloaded device starts its `seq` again, so the cursor no longer applies
                     const started_at = value?.device?.started_at;
                     if (started_at !== this._logs()?.device?.started_at) {
                         this.older_than.set(null);
                         this._older_wanted = null;
                     }
-                    this._logs.set(value ?? null);
-                    // Show the older entries when they arrive
-                    // Only when an older entry matches the filter, so the page does not go blank
+                    this._logs.set(value);
+                    // Show the older entries when they arrive, if one
+                    // matches the filter, so the page does not go blank
                     const wanted = this._older_wanted;
                     if (wanted !== null && this._hasMatchBefore(wanted)) {
                         this.older_than.set(wanted);
@@ -786,11 +812,9 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
         this.subscription(
             'results',
             mod
-                .variable<
-                    RemoteDebugCommandResult[] | null
-                >(remoteDebugResultsBinding(device_id))
+                .variable<unknown>(remoteDebugResultsBinding(device_id))
                 .bindThenSubscribe((value) =>
-                    this._results.set(Array.isArray(value) ? value : []),
+                    this._results.set(readRemoteDebugResults(value)),
                 ),
         );
     }

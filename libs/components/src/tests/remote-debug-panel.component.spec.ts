@@ -251,6 +251,66 @@ describe('RemoteDebugPanelComponent', () => {
         expect(levels).toEqual(['debug', 'warn', 'debug']);
     });
 
+    it('should send each command when the user selects them quickly', async () => {
+        const sent: unknown[] = [];
+        // Like ts-client, a call with the same text of its arguments as a
+        // running call joins it. An object shows as `[object Object]`
+        const running = new Map<string, Promise<string>>();
+        call.mockImplementation((method: string, args: unknown[]) => {
+            const key = `${method}|${args}`;
+            const joined = running.get(key);
+            if (joined) return joined;
+            sent.push(args[2]);
+            const result = new Promise<string>((resolve) =>
+                setTimeout(() => resolve(`cmd-${sent.length}`)),
+            ).finally(() => running.delete(key));
+            running.set(key, result);
+            return result;
+        });
+
+        await Promise.all([
+            spectator.component.send('animation', { format: 'webp' }),
+            spectator.component.send('animation', { format: 'gif' }),
+        ]);
+
+        expect(sent).toEqual([{ format: 'webp' }, { format: 'gif' }]);
+    });
+
+    it('should show the level of the driver when no call waits', async () => {
+        emit('device:DEV-1', { logs: { id: 'req-1', level: 'info' } });
+        let release = () => {};
+        call.mockImplementation(
+            () => new Promise((resolve) => (release = () => resolve(null))),
+        );
+        const changed = spectator.component.setLevel('debug');
+        // The call starts after the calls before it
+        await new Promise((resolve) => setTimeout(resolve));
+        // A new request, such as one for older entries, arrives before the
+        // driver applies the level change
+        emit('device:DEV-1', { logs: { id: 'req-2', level: 'info' } });
+        // The driver applies the level before its call returns
+        emit('device:DEV-1', { logs: { id: 'req-2', level: 'debug' } });
+        release();
+        await changed;
+
+        expect(spectator.component.level()).toBe('debug');
+    });
+
+    it('should not send waiting calls after the panel closes', async () => {
+        let release = () => {};
+        call.mockImplementation(
+            () => new Promise((resolve) => (release = () => resolve(null))),
+        );
+        spectator.component.send('status');
+        const reload = spectator.component.send('reload');
+        await new Promise((resolve) => setTimeout(resolve));
+        spectator.fixture.destroy();
+        release();
+        await reload;
+
+        expect(call.mock.calls.map(([, args]) => args[1])).toEqual(['status']);
+    });
+
     it('should start and stop live logs at the selected level', async () => {
         // Log request calls run in a queue, so they start after a microtask
         const settle = () => new Promise((resolve) => setTimeout(resolve));
@@ -269,6 +329,27 @@ describe('RemoteDebugPanelComponent', () => {
         spectator.click('[stop-logs]');
         await settle();
         expect(call).toHaveBeenCalledWith('stop_logs', ['DEV-1']);
+    });
+
+    it('should leave out bad values from the driver', () => {
+        emit('logs:DEV-1', {
+            device: null,
+            entries: [{ seq: 4 }, ...logs.entries],
+        });
+        emit('results:DEV-1', [
+            { id: 'cmd-1', type: 'status', received_at: 1 },
+            {
+                id: 'cmd-2',
+                type: 'status',
+                received_at: 2,
+                result: { ok: false, error: 'Timed out' },
+            },
+        ]);
+
+        expect(spectator.queryAll('[logs] ol li')).toHaveLength(3);
+        expect(spectator.query('[results]')?.textContent).toContain(
+            'Timed out',
+        );
     });
 
     it('should show a snapshot result as an image of its upload', () => {
