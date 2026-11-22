@@ -738,10 +738,12 @@ const MOCK_PLUGINS = [
     },
 ];
 
+const FACILITIES_GROUP_ID = 'signage-group-facilities';
+const MARKETING_GROUP_ID = 'signage-group-marketing';
 const SIGNAGE_GROUPS: Array<{ group: any; permissions: number }> = [
     {
         group: {
-            id: 'signage-group-facilities',
+            id: FACILITIES_GROUP_ID,
             name: 'Facilities Signage',
             description: 'Facility-managed signage content',
             subsystems: ['signage'],
@@ -750,7 +752,7 @@ const SIGNAGE_GROUPS: Array<{ group: any; permissions: number }> = [
     },
     {
         group: {
-            id: 'signage-group-marketing',
+            id: MARKETING_GROUP_ID,
             name: 'Marketing Signage',
             description: 'Marketing managed signage content',
             subsystems: ['signage'],
@@ -838,6 +840,42 @@ function filterByGroup<T>(items: T[], group_id = '') {
     return items.filter((_, index) => index % 2 === 0);
 }
 
+/** Group links of media and playlists. Older mock records use the seeded links. */
+function contentGroupIds(item: HashMap, index: number): string[] {
+    return (
+        item.group_ids ??
+        (index % 2 === 0
+            ? [FACILITIES_GROUP_ID, MARKETING_GROUP_ID]
+            : [FACILITIES_GROUP_ID])
+    );
+}
+
+function contentGroupScope(query_params: HashMap = {}) {
+    const { group_id, include_child_data } = query_params;
+    if (!group_id) return null;
+    const groups = new Set<string>([group_id]);
+    if (`${include_child_data}` === 'true') {
+        // The set also visits newly added descendants and skips repeated IDs.
+        for (const parent_id of groups) {
+            for (const { group } of SIGNAGE_GROUPS) {
+                if (group.parent_id === parent_id) groups.add(group.id);
+            }
+        }
+    }
+    return groups;
+}
+
+function filterContentByGroup<T extends HashMap>(
+    items: T[],
+    query_params: HashMap = {},
+) {
+    const groups = contentGroupScope(query_params);
+    if (!groups) return items;
+    return items.filter((item, index) =>
+        contentGroupIds(item, index).some((id) => groups.has(id)),
+    );
+}
+
 /**
  * Groups holding an item, matching the index parity `filterByGroup` uses to
  * fake group scoping.
@@ -845,7 +883,12 @@ function filterByGroup<T>(items: T[], group_id = '') {
 function sharedWithGroups(items: any[], id: string) {
     const index = items.findIndex((item) => item.id === id);
     if (index < 0) return [];
-    const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+    const group_ids: string[] | undefined = items[index].group_ids;
+    const groups = group_ids
+        ? SIGNAGE_GROUPS.filter(({ group }) => group_ids.includes(group.id))
+        : index % 2 === 0
+          ? SIGNAGE_GROUPS
+          : [SIGNAGE_GROUPS[0]];
     return groups.map(({ group }) => ({ id: group.id, name: group.name }));
 }
 
@@ -1295,7 +1338,7 @@ export function registerMockSignage() {
         method: 'GET',
         page_size: MOCK_PAGE_SIZE,
         callback: (request) =>
-            filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(
+            filterContentByGroup(MOCK_MEDIA, request.query_params).map(
                 toEngineMedia,
             ),
     });
@@ -1305,7 +1348,7 @@ export function registerMockSignage() {
         method: 'GET',
         callback: (request) => [
             ...new Set(
-                filterByGroup(MOCK_MEDIA, request.query_params?.group_id)
+                filterContentByGroup(MOCK_MEDIA, request.query_params)
                     .flatMap((item) => item.tags || [])
                     .filter((tag) => !!tag),
             ),
@@ -1317,9 +1360,9 @@ export function registerMockSignage() {
         method: 'GET',
         callback: (request) => {
             const counts: Record<string, number> = {};
-            for (const item of filterByGroup(
+            for (const item of filterContentByGroup(
                 MOCK_MEDIA,
-                request.query_params?.group_id,
+                request.query_params,
             )) {
                 for (const tag of item.tags || []) {
                     if (!tag) continue;
@@ -1330,9 +1373,9 @@ export function registerMockSignage() {
         },
     });
 
-    /** Media of the request's group that has `tag` */
+    /** Media in the request's scope that has `tag` */
     const taggedMedia = (query_params: HashMap, tag: string) =>
-        filterByGroup(MOCK_MEDIA, query_params?.group_id).filter((item) =>
+        filterContentByGroup(MOCK_MEDIA, query_params).filter((item) =>
             toEngineMedia(item).tags.includes(tag),
         );
 
@@ -1356,11 +1399,28 @@ export function registerMockSignage() {
         method: 'DELETE',
         callback: ({ query_params }) => {
             const { tag } = query_params;
-            for (const item of taggedMedia(query_params, tag)) {
-                if (`${query_params.remove_media}` === 'true') {
-                    removeItem(MOCK_MEDIA, item.id);
-                    continue;
+            const items = taggedMedia(query_params, tag);
+            if (`${query_params.remove_media}` === 'true') {
+                const scope = contentGroupScope(query_params);
+                const changes = items.map((item) => ({
+                    item,
+                    remaining_groups: scope
+                        ? contentGroupIds(
+                              item,
+                              MOCK_MEDIA.indexOf(item),
+                          ).filter((id) => !scope.has(id))
+                        : [],
+                }));
+                for (const { item, remaining_groups } of changes) {
+                    if (remaining_groups.length) {
+                        item.group_ids = remaining_groups;
+                    } else {
+                        removeItem(MOCK_MEDIA, item.id);
+                    }
                 }
+                return;
+            }
+            for (const item of items) {
                 applyEngineChanges(item, {
                     tags: toEngineMedia(item).tags.filter(
                         (value: string) => value !== tag,
@@ -1377,6 +1437,9 @@ export function registerMockSignage() {
             const now = getUnixTime(Date.now());
             const item = {
                 id: mockId('media-'),
+                ...(request.query_params?.group_id
+                    ? { group_ids: [request.query_params.group_id] }
+                    : {}),
                 name: request.body?.name || '',
                 type: request.body?.media_type === 'video' ? 'video' : 'image',
                 tags: request.body?.tags || [],
@@ -1475,7 +1538,7 @@ export function registerMockSignage() {
         method: 'GET',
         page_size: MOCK_PAGE_SIZE,
         callback: (request) =>
-            filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(
+            filterContentByGroup(MOCK_PLAYLISTS, request.query_params).map(
                 toEnginePlaylist,
             ),
     });
@@ -1496,6 +1559,9 @@ export function registerMockSignage() {
             const now = getUnixTime(Date.now());
             const playlist = {
                 id: mockId('playlist-'),
+                ...(request.query_params?.group_id
+                    ? { group_ids: [request.query_params.group_id] }
+                    : {}),
                 name: request.body?.name || '',
                 description: request.body?.description || '',
                 status: 'active',

@@ -1,5 +1,6 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SignageContextService } from '../signage-context.service';
 
@@ -12,16 +13,36 @@ import { SignageContextService } from '../signage-context.service';
                 class="border-base-300 bg-base-200 text-base-content/70 flex min-w-0 items-center gap-0.5 overflow-hidden rounded-full border px-2 py-0.5 text-xs"
                 [attr.aria-label]="'SIGNAGE_MANAGER.GROUPS_TITLE' | translate"
             >
+                @let can_toggle =
+                    show_child_content_toggle() && !show_all_groups();
+                @let label =
+                    (can_toggle
+                        ? 'SIGNAGE_MANAGER.INCLUDE_CHILD_DATA'
+                        : 'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP'
+                    ) | translate;
                 <button
                     type="button"
                     matRipple
                     class="hover:border-base-300 border-base-200 m-0 mr-0.5 flex shrink-0 items-center justify-center rounded-full border p-0 text-sm"
-                    [attr.aria-label]="
-                        'SIGNAGE_MANAGER.SELECT_SIGNAGE_GROUP' | translate
+                    [class.min-w-6]="can_toggle"
+                    [class.min-h-6]="can_toggle"
+                    [class.cursor-pointer]="can_toggle"
+                    [attr.aria-label]="label"
+                    [matTooltip]="can_toggle ? label : ''"
+                    [attr.aria-pressed]="
+                        can_toggle ? include_child_data() : null
                     "
-                    (click)="selectGroup()"
+                    (click)="can_toggle ? toggleChildContent() : selectGroup()"
                 >
-                    <icon>{{ show_all_groups() ? 'public' : 'group' }}</icon>
+                    @if (show_all_groups()) {
+                        <icon>public</icon>
+                    } @else {
+                        <icon>{{
+                            can_toggle && !include_child_data()
+                                ? 'person'
+                                : 'group'
+                        }}</icon>
+                    }
                 </button>
                 @if (show_all_groups()) {
                     <button
@@ -60,10 +81,13 @@ import { SignageContextService } from '../signage-context.service';
         }
     `,
     host: { class: 'flex min-w-0 items-center gap-2' },
-    imports: [MatRippleModule, IconComponent, TranslatePipe],
+    imports: [MatRippleModule, MatTooltipModule, IconComponent, TranslatePipe],
 })
 export class GroupBreadcrumbsComponent {
     private readonly _context = inject(SignageContextService);
+
+    public readonly show_child_content_toggle = input(false);
+    public readonly include_child_data = this._context.include_child_data;
 
     /** The active signage group and its ancestors, root first. */
     public readonly hierarchy = this._context.selected_group_hierarchy;
@@ -82,5 +106,9 @@ export class GroupBreadcrumbsComponent {
 
     public selectGroup() {
         return this._context.selectGroup();
+    }
+
+    public toggleChildContent() {
+        this._context.setIncludeChildData(!this.include_child_data());
     }
 }

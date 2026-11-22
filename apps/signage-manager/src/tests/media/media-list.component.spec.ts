@@ -22,6 +22,7 @@ describe('MediaListComponent folders', () => {
     const context_stub = {
         signage_groups,
         selected_group_id: signal(''),
+        include_child_data: signal(false),
         can_manage_all_groups,
         can_update_media_tags,
         can_update: signal(true),

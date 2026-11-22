@@ -11,6 +11,7 @@ import { SignagePlaylistService } from './signage-playlist.service';
             heading="SIGNAGE_MANAGER.PLAYLISTS_PAGE_TITLE"
             [count]="total_count()"
             [can_add]="can_create()"
+            [show_child_content_toggle]="true"
             add_label="SIGNAGE_MANAGER.CREATE_NEW_PLAYLIST"
             add_tooltip="SIGNAGE_MANAGER.NEW_PLAYLIST"
             (add)="addPlaylist()"

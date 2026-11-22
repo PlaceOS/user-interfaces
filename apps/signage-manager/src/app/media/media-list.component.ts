@@ -783,9 +783,12 @@ export class MediaListComponent {
             .fill(0)
             .map((_, idx) => `playlist-${idx}`),
     );
-    /** Selected media. A group switch from any control starts it empty. */
+    /** Selected media, cleared when the library scope changes. */
     public readonly selected_ids = linkedSignal({
-        source: this._context.selected_group_id,
+        source: () => ({
+            group_id: this._context.selected_group_id(),
+            include_child_data: this._context.include_child_data(),
+        }),
         computation: () => new Set<string>(),
     });
     public readonly selected_media = computed(() => {
@@ -828,11 +831,12 @@ export class MediaListComponent {
     /** Opened tag folder, or null for the folder grid. Leaving folder view
      * or switching group closes it. */
     public readonly selected_folder = linkedSignal<
-        { group_id: string; folder_view: boolean },
+        { group_id: string; include_child_data: boolean; folder_view: boolean },
         string | null
     >({
         source: () => ({
             group_id: this._context.selected_group_id(),
+            include_child_data: this._context.include_child_data(),
             folder_view: this.view_mode() === 'folder',
         }),
         computation: () => null,

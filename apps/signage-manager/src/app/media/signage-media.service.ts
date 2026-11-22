@@ -18,6 +18,7 @@ import {
     notifyWarn,
     OrganisationService,
     parseWebUrl,
+    responseErrorMessage,
     SettingsService,
     UploadsService,
 } from '@placeos/common';
@@ -279,17 +280,16 @@ export class SignageMediaService {
         const can_query = this._context.can_query_group_data();
         const group_id = this._context.api_group_id_debounced.value();
         const search = this._media_search_debounced.value().trim();
+        const query_params = this._context.contentQueryParams(
+            { limit: PAGE_SIZE, ...searchParam(search) },
+            group_id,
+        );
         this._context.data_change();
         this._media_reload();
         untracked(() =>
             this._media_list.reset(
                 initialised && can_query
-                    ? querySignageMedia(
-                          this._context.orgZoneQueryParams(
-                              { limit: PAGE_SIZE, ...searchParam(search) },
-                              group_id,
-                          ),
-                      )
+                    ? querySignageMedia(query_params)
                     : null,
             ),
         );
@@ -324,16 +324,17 @@ export class SignageMediaService {
         params: () => ({
             initialised: this._org.initialised(),
             can_query: this._context.can_query_group_data(),
-            group_id: this._context.api_group_id_debounced.value(),
+            query_params: this._context.contentQueryParams(
+                {},
+                this._context.api_group_id_debounced.value(),
+            ),
             change: this._context.data_change(),
         }),
         loader: async ({ params }) => {
             const empty: SignageMediaTagCounts = { tags: [], counts: {} };
             if (!params.initialised || !params.can_query) return empty;
             try {
-                return await listSignageMediaTagCounts(
-                    this._context.orgZoneQueryParams({}, params.group_id),
-                );
+                return await listSignageMediaTagCounts(params.query_params);
             } catch {
                 return empty;
             }
@@ -1292,6 +1293,9 @@ export class SignageMediaService {
     }
 
     public async renameMediaTag(tag: string, count: number) {
+        const scope = this._context.groupQueryParams(
+            this._context.childContentQueryParams(),
+        );
         const result = await this._openMediaTagModal({
             action: 'rename',
             tag,
@@ -1299,41 +1303,44 @@ export class SignageMediaService {
             can_delete_media: false,
         });
         if (result?.action !== 'rename') return false;
-        const group_id = this._context.api_group_id();
         return this._saveMediaTagChange(
             () =>
                 renameSignageMediaTag({
                     current_tag: tag,
                     new_tag: result.new_tag,
-                    ...(group_id ? { group_id } : {}),
+                    ...scope,
                 }),
             'SIGNAGE_MANAGER.SVC_MEDIA_TAG_RENAMED',
         );
     }
 
     public async removeMediaTag(tag: string, count: number) {
+        const scope = this._context.groupQueryParams(
+            this._context.childContentQueryParams(),
+        );
+        const can_delete_media = this._context.can_delete_tagged_media();
         const result = await this._openMediaTagModal({
             action: 'remove',
             tag,
             count,
-            can_delete_media: this._context.can_delete_tagged_media(),
+            can_delete_media,
+            ...(scope.include_child_data ? { include_child_data: true } : {}),
         });
         if (result?.action !== 'remove') return false;
         if (
             result.remove_media &&
             !this._context.requirePermission(
-                this._context.can_delete_tagged_media(),
+                can_delete_media,
                 'SIGNAGE_MANAGER.SVC_NO_DELETE_MEDIA',
             )
         )
             return false;
-        const group_id = this._context.api_group_id();
         return this._saveMediaTagChange(
             () =>
                 removeSignageMediaTag({
                     tag,
                     ...(result.remove_media ? { remove_media: true } : {}),
-                    ...(group_id ? { group_id } : {}),
+                    ...scope,
                 }),
             'SIGNAGE_MANAGER.SVC_MEDIA_TAG_REMOVED',
         );
@@ -1375,7 +1382,7 @@ export class SignageMediaService {
         } catch (error) {
             notifyError(
                 i18n('SIGNAGE_MANAGER.SVC_MEDIA_TAG_ERROR', {
-                    error: error instanceof Error ? error.message : `${error}`,
+                    error: (await responseErrorMessage(error)) || String(error),
                 }),
             );
             return false;

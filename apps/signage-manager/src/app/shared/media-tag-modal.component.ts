@@ -22,6 +22,7 @@ export interface MediaTagModalData {
     tag: string;
     count: number;
     can_delete_media: boolean;
+    include_child_data?: boolean;
 }
 
 export type MediaTagModalResult =
@@ -87,8 +88,10 @@ export type MediaTagModalResult =
                     </mat-checkbox>
                     <p class="text-base-content/70 mt-1 text-sm">
                         {{
-                            'SIGNAGE_MANAGER.DELETE_TAGGED_MEDIA_HINT'
-                                | translate
+                            (data.include_child_data
+                                ? 'SIGNAGE_MANAGER.DELETE_TAGGED_MEDIA_CHILD_GROUPS_HINT'
+                                : 'SIGNAGE_MANAGER.DELETE_TAGGED_MEDIA_HINT'
+                            ) | translate
                         }}
                     </p>
                 }

@@ -51,7 +51,7 @@ import { SignageMediaService } from './signage-media.service';
                                     : total_count()
                         }}
                     </div>
-                    <group-breadcrumbs />
+                    <group-breadcrumbs [show_child_content_toggle]="true" />
                 </div>
             </div>
             <div class="w-px flex-1"></div>

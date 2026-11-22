@@ -29,7 +29,11 @@ import { GroupBreadcrumbsComponent } from './group-breadcrumbs.component';
                             }}
                         </div>
                     }
-                    <group-breadcrumbs />
+                    <group-breadcrumbs
+                        [show_child_content_toggle]="
+                            show_child_content_toggle()
+                        "
+                    />
                 </div>
             </div>
             <div class="w-px flex-1"></div>
@@ -64,6 +68,7 @@ export class SectionHeaderComponent {
     /** Number of items, or null to hide the count while it is not known */
     public readonly count = input.required<number | null>();
     public readonly can_add = input(false);
+    public readonly show_child_content_toggle = input(false);
     /** Translation key of the add button's accessible name */
     public readonly add_label = input.required<string>();
     /** Translation key of the add button's tooltip */

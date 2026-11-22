@@ -36,6 +36,7 @@ import {
     showGroupFeatures,
 } from '@placeos/ts-client';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
+import type { GroupSelectModalData } from './shared/group-select-modal.component';
 import { byName } from './shared/paged-search';
 import { storedSignal } from './shared/stored-signal';
 import {
@@ -410,6 +411,15 @@ export class SignageContextService {
     public readonly api_group_id = computed(
         () => this.selected_group()?.group.id || '',
     );
+    private readonly _include_child_data = signal(false);
+    public readonly include_child_data = computed(
+        () => !!this.api_group_id() && this._include_child_data(),
+    );
+
+    public setIncludeChildData(include: boolean) {
+        if (this.api_group_id()) this._include_child_data.set(include);
+    }
+
     // Group selection fans out to six heavy list queries (media, playlists,
     // displays, zones...). Debounce so clicking through the group tree doesn't
     // fire a full set of refetches per click. The group restored on page load
@@ -433,10 +443,10 @@ export class SignageContextService {
         this._hasGroupPermission(SignageGroupPermission.Delete),
     );
     public readonly can_update_media_tags = computed(() =>
-        this.api_group_id() ? this.can_update() : this.is_sys_admin(),
+        this._canChangeTaggedMedia(SignageGroupPermission.Update),
     );
     public readonly can_delete_tagged_media = computed(() =>
-        this.api_group_id() ? this.can_delete() : this.is_sys_admin(),
+        this._canChangeTaggedMedia(SignageGroupPermission.Delete),
     );
     public readonly can_delete_displays = this.is_sys_admin;
     public readonly can_approve = computed(() =>
@@ -605,6 +615,13 @@ export class SignageContextService {
             groups: this.signage_groups(),
             selected_group_id: this.selected_group_id(),
             show_all_groups: this.can_manage_all_groups(),
+            child_content: this.api_group_id()
+                ? {
+                      included: this.include_child_data,
+                      setIncluded: (include) =>
+                          this.setIncludeChildData(include),
+                  }
+                : undefined,
         });
         if (group_id === undefined) return;
         this.setSelectedGroup(group_id);
@@ -616,6 +633,23 @@ export class SignageContextService {
         return !!(
             permissions & SignageGroupPermission.Manage ||
             permissions & permission
+        );
+    }
+
+    private _canChangeTaggedMedia(permission: SignageGroupPermission) {
+        if (!this.api_group_id()) return this.is_sys_admin();
+        if (this._hasGroupPermission(permission)) return true;
+        // An item can be editable through another group link. The API checks
+        // the permissions on the affected items and links before saving.
+        return (
+            this.include_child_data() &&
+            this.signage_groups().some(
+                ({ permissions }) =>
+                    !!(
+                        permissions &
+                        (SignageGroupPermission.Manage | permission)
+                    ),
+            )
         );
     }
 
@@ -657,6 +691,26 @@ export class SignageContextService {
             group_id?: string;
             zone_id?: string;
         };
+    }
+
+    public childContentQueryParams(group_id = this.api_group_id()) {
+        return group_id && this._include_child_data()
+            ? { include_child_data: 'true' }
+            : {};
+    }
+
+    /** Scope the media and playlist library reads for the selected group. */
+    public contentQueryParams<T extends Record<string, any>>(
+        query_params: T,
+        group_id = this.api_group_id(),
+    ) {
+        return this.orgZoneQueryParams(
+            {
+                ...query_params,
+                ...this.childContentQueryParams(group_id),
+            },
+            group_id,
+        );
     }
 
     /**
@@ -772,12 +826,7 @@ export class SignageContextService {
     }
 
     /** Let the user pick a group from the group select modal */
-    private async _pickGroup(data: {
-        title: string;
-        groups: PlaceCurrentGroup[];
-        selected_group_id?: string;
-        show_all_groups?: boolean;
-    }) {
+    private async _pickGroup(data: GroupSelectModalData) {
         const { GroupSelectModalComponent } =
             await import('./shared/group-select-modal.component');
         const ref = this._dialog.open(GroupSelectModalComponent, {

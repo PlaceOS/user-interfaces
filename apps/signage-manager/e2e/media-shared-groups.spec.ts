@@ -37,6 +37,7 @@ test.describe('US-SGM-005: Media List Shared Groups', () => {
         ).toHaveText(BOTH_GROUPS);
 
         const single_row = mediaRow(page, 'Building Directory v2');
+        await single_row.scrollIntoViewIfNeeded();
         await expect(
             sharedGroupsList(single_row).getByRole('listitem'),
         ).toHaveText(['Facilities Signage']);
@@ -44,7 +45,7 @@ test.describe('US-SGM-005: Media List Shared Groups', () => {
         // Right aligned, directly before the media actions menu button
         const list_box = await sharedGroupsList(shared_row).boundingBox();
         const menu_box = await shared_row
-            .getByRole('button', { name: /media actions/i })
+            .getByRole('button', { name: 'Actions for Building Directory' })
             .boundingBox();
         expect(list_box).not.toBeNull();
         expect(menu_box).not.toBeNull();

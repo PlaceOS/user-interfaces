@@ -131,7 +131,7 @@ export class SignagePlaylistService {
     private readonly _playlist_cache = signal<Record<string, SignagePlaylist>>(
         {},
     );
-    private _playlist_cache_group: string | null = null;
+    private _playlist_cache_scope: string | null = null;
     private _playlist_cache_change: number | null = null;
     private readonly _playlist_list = new PagedList<SignagePlaylist>({
         sort: byName,
@@ -159,25 +159,25 @@ export class SignagePlaylistService {
         const can_query = this._context.can_query_group_data();
         const group_id = this._context.api_group_id_debounced.value();
         const search = this._playlist_search_debounced.value().trim();
+        const query_params = this._context.contentQueryParams(
+            { limit: PAGE_SIZE, ...searchParam(search) },
+            group_id,
+        );
+        const scope = `${group_id}:${!!query_params.include_child_data}`;
         const change = this._context.data_change();
         this._playlists_retry();
         untracked(() => {
             if (
-                group_id !== this._playlist_cache_group ||
+                scope !== this._playlist_cache_scope ||
                 change !== this._playlist_cache_change
             ) {
-                this._playlist_cache_group = group_id;
+                this._playlist_cache_scope = scope;
                 this._playlist_cache_change = change;
                 this._playlist_cache.set({});
             }
             this._playlist_list.reset(
                 initialised && can_query
-                    ? querySignagePlaylists(
-                          this._context.orgZoneQueryParams(
-                              { limit: PAGE_SIZE, ...searchParam(search) },
-                              group_id,
-                          ),
-                      )
+                    ? querySignagePlaylists(query_params)
                     : null,
             );
         });

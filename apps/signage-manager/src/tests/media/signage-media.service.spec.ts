@@ -369,6 +369,34 @@ describe('SignageMediaService', () => {
         expect(renamed).toBe(true);
     });
 
+    it('shows the API permission error when an expanded tag rename is denied', async () => {
+        const message = 'Missing Update permission on some of the tagged media';
+        closeNextDialogWith({ action: 'rename', new_tag: 'updates' });
+        vi.mocked(renameSignageMediaTag).mockRejectedValue(
+            new Response(JSON.stringify({ error: message }), {
+                status: 403,
+                headers: { 'content-type': 'application/json' },
+            }),
+        );
+        const service = createService();
+        selectApiGroup('group-1');
+        TestBed.inject(SignageContextService).setIncludeChildData(true);
+
+        await expect(service.renameMediaTag('news', 4)).resolves.toBe(false);
+
+        expect(renameSignageMediaTag).toHaveBeenCalledWith({
+            current_tag: 'news',
+            new_tag: 'updates',
+            group_id: 'group-1',
+            include_child_data: 'true',
+        });
+        expect(notify_open).toHaveBeenCalledWith(
+            expect.stringContaining(message),
+            expect.anything(),
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+    });
+
     it('removes a media tag and its media in the selected group', async () => {
         closeNextDialogWith({ action: 'remove', remove_media: true });
         (removeSignageMediaTag as any).mockResolvedValue(undefined);

@@ -1,5 +1,12 @@
-import { Component, computed, inject, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    signal,
+    type Signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,6 +24,10 @@ export interface GroupSelectModalData {
     groups: PlaceCurrentGroup[];
     selected_group_id?: string;
     show_all_groups?: boolean;
+    child_content?: {
+        included: Signal<boolean>;
+        setIncluded: (include: boolean) => void;
+    };
 }
 
 @Component({
@@ -44,6 +55,16 @@ export interface GroupSelectModalData {
         <div
             class="h-[65vh] max-w-lg min-w-lg space-y-2 overflow-auto px-4 pt-2 pb-4 text-center max-md:h-auto max-md:max-w-none max-md:min-w-0 max-md:flex-1"
         >
+            @if (data.child_content; as child_content) {
+                <div class="text-left">
+                    <mat-checkbox
+                        [checked]="child_content.included()"
+                        (change)="child_content.setIncluded($event.checked)"
+                    >
+                        {{ 'SIGNAGE_MANAGER.INCLUDE_CHILD_DATA' | translate }}
+                    </mat-checkbox>
+                </div>
+            }
             @if (!data.selected_group_id && data.show_all_groups) {
                 <nav
                     [attr.aria-label]="
@@ -178,6 +199,7 @@ export interface GroupSelectModalData {
     styles: [DIALOG_TITLE_STYLES],
     imports: [
         FormsModule,
+        MatCheckboxModule,
         MatRippleModule,
         MatDialogModule,
         MatFormFieldModule,

@@ -147,6 +147,31 @@ describe('SignageContextService group context', () => {
             expect(mediaQueryGroups()).toEqual(['g2']);
             expect(querySignagePlaylists).toHaveBeenCalledTimes(1);
         });
+
+        it('offers expanded tag actions from a read-only group when media may be writable', async () => {
+            localStorage.setItem(STORAGE_KEY, 'g1');
+            vi.mocked(currentGroups).mockResolvedValue([
+                membership('g1', READ),
+                {
+                    group: new PlaceGroup({
+                        id: 'g2',
+                        name: 'Child',
+                        parent_id: 'g1',
+                        subsystems: ['signage'],
+                    }),
+                    permissions: READ | UPDATE,
+                } as PlaceCurrentGroup,
+            ]);
+            const service = TestBed.inject(SignageContextService);
+            await settle();
+
+            expect(service.can_update_media_tags()).toBe(false);
+
+            service.setIncludeChildData(true);
+
+            expect(service.can_update_media_tags()).toBe(true);
+            expect(service.can_delete_tagged_media()).toBe(false);
+        });
     });
 
     describe('startup', () => {
