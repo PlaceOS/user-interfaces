@@ -1,7 +1,7 @@
 import {
   listenToConsole,
   randomInt
-} from "./chunk-CRGOLDOU.js";
+} from "./chunk-X442T4UJ.js";
 import {
   Injectable,
   setClassMetadata,
@@ -63,4 +63,4 @@ export {
   ConsoleHistoryService
 };
 //# debugId=2f972c6d-6a8d-546a-9915-f47fe021912f
-//# sourceMappingURL=chunk-PV6WBP5R.js.map
+//# sourceMappingURL=chunk-2U25XCAX.js.map
