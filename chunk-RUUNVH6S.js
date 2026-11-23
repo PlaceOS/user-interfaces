@@ -11428,15 +11428,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "5f6c7b7",
-  "hash": "5f6c7b7",
+  "raw": "3bd5868",
+  "hash": "3bd5868",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "5f6c7b7",
+  "suffix": "3bd5868",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795450043549
+  "time": 1795451449858
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -22136,5 +22136,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=4b704966-245a-5de5-b56a-b6e0efead773
-//# sourceMappingURL=chunk-FHFAKJ43.js.map
+//# debugId=04dcbe8d-d560-5dd1-bbc2-0f6cdb5f8aa9
+//# sourceMappingURL=chunk-RUUNVH6S.js.map
