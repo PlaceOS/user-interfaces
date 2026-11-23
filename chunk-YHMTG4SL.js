@@ -2,7 +2,7 @@ import {
   deviceId,
   getModule,
   initialisationComplete
-} from "./chunk-B76KXNGN.js";
+} from "./chunk-Q4R6IMTG.js";
 import {
   AsyncHandler,
   LocaleService,
@@ -11,7 +11,7 @@ import {
   isMock,
   log,
   settingSignal
-} from "./chunk-VK72XFLC.js";
+} from "./chunk-HBYR7TCA.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
@@ -365,4 +365,4 @@ export {
   AnnounceDirective
 };
 //# debugId=e6d6e2c8-63a8-5f9a-92f5-8c6ca6df3f82
-//# sourceMappingURL=chunk-UBODX4J6.js.map
+//# sourceMappingURL=chunk-YHMTG4SL.js.map
