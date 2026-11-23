@@ -141,6 +141,29 @@ describe('mock RemoteDebug driver', () => {
         });
     });
 
+    it('should release the capture files of a device that it removes', () => {
+        const revoke = vi
+            .spyOn(URL, 'revokeObjectURL')
+            .mockImplementation(() => undefined);
+        const command_id = mod.call('send_command', [device_id, 'snapshot']);
+        mod.call('command_result', [
+            device_id,
+            command_id,
+            { ok: true, data: { upload_id: 'blob:snapshot-1' } },
+            device,
+        ]);
+        vi.advanceTimersByTime(1);
+
+        // 1,000 newer devices push out the oldest one
+        for (let i = 0; i < 1000; i++) {
+            mod.call('register', [{ ...device, id: `DEV-NEW${i}` }]);
+        }
+
+        expect(mod.devices[device_id]).toBeUndefined();
+        expect(revoke).toHaveBeenCalledWith('blob:snapshot-1');
+        revoke.mockRestore();
+    });
+
     it('should have seeded logs for the remote setup mock devices', () => {
         const seeded = mod['logs:DEV-MOCK0001'] as RemoteLogsView;
 

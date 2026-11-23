@@ -279,7 +279,8 @@ function removeCommand(mod: MockModule, device_id: string, command_id: string) {
 
 /**
  * Add or update a device in `devices`. Keeps the `MAX_DEVICES` devices that
- * were seen last, and removes the logs and results of the other devices.
+ * were seen last, and removes the logs, results and capture files of the
+ * other devices.
  */
 function seen(mod: MockModule & RemoteDebugModule, device: RemoteDebugDevice) {
     const list = Object.values({
@@ -287,8 +288,14 @@ function seen(mod: MockModule & RemoteDebugModule, device: RemoteDebugDevice) {
         [device.id]: { ...device, last_seen: Date.now() },
     }).sort((a, b) => b.last_seen - a.last_seen);
     for (const removed of list.splice(MAX_DEVICES)) {
+        const results = remoteDebugResultsBinding(removed.id);
+        for (const result of (mod[results] as
+            | RemoteDebugCommandResult[]
+            | null) ?? []) {
+            releaseMedia(result);
+        }
         setBinding(mod, remoteDebugLogsBinding(removed.id), null);
-        setBinding(mod, remoteDebugResultsBinding(removed.id), null);
+        setBinding(mod, results, null);
     }
     mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
 }
