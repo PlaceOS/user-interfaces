@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-HVBFF3F3.js";
+} from "./chunk-MWNC7ZOW.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,7 +14,7 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-6O6BLYWD.js";
+} from "./chunk-KVFSKF7N.js";
 import {
   Bp,
   Or,
@@ -35,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-VXXG5E5E.js";
+} from "./chunk-BJHDJZ7W.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -8766,7 +8766,7 @@ var PaymentsModule = class {
       Object.assign(existing, input, { updated_at: now2() });
       return existing;
     }
-    const item = product(__spreadProps(__spreadValues({}, input), { id: void 0 }));
+    const item = product(__spreadProps(__spreadValues({}, input), { id: `prod-${randomString(8)}` }));
     this._products.push(item);
     return item;
   }
@@ -9671,5 +9671,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=4902ee51-3b69-5625-a696-412c1bfa373b
-//# sourceMappingURL=src-NUZLXD2A.js.map
+//# debugId=c3f3d296-87bf-550d-a3c4-1442d784e17f
+//# sourceMappingURL=src-QBJDIV2B.js.map
