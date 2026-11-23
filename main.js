@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-T7D2JB32.js";
-import "./chunk-2TD2LYYM.js";
+} from "./chunk-RSBEZFU7.js";
+import "./chunk-RM3S2LNA.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-5VOT7G2L.js";
+} from "./chunk-SCT44CGQ.js";
 import "./chunk-K7S2HSD4.js";
 import {
   TranslatePipe
-} from "./chunk-JYYR3UCL.js";
+} from "./chunk-BZKK2X4Z.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-BOPNQOPQ.js";
+} from "./chunk-CUTJFGA2.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -70,7 +70,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-MLZL75HV.js";
+} from "./chunk-HJRHK5WO.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -5614,19 +5614,19 @@ function registerMockCalendars() {
     });
     return spaces;
   };
+  const roomCalendar = (space) => ({
+    id: space.email,
+    system: space
+  });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/availability",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/free_busy",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/:email/permission",
@@ -11131,7 +11131,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-WNECDIGR.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-STINYXWW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11175,7 +11175,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-WNECDIGR.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-STINYXWW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11248,22 +11248,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-GICA3HLF.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-T7734RY2.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-XZVJZOCD.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-EFSUXXVU.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-WRH2DIHR.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-F754UXTM.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-QLSQUOBB.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-EPKN3KDR.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11291,5 +11291,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=07fee284-0882-59fa-80a8-b0548eba5a30
+//# debugId=fab18c04-a734-56a1-9630-30855c46b013
 //# sourceMappingURL=main.js.map
