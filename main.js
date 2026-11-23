@@ -1,53 +1,62 @@
 import {
   takeUntilDestroyed
-} from "./chunk-BQTY7PP7.js";
-import {
-  blockMissedFileDrop
-} from "./chunk-WXE7GGKL.js";
+} from "./chunk-JFSL2YEN.js";
 import {
   SignageTemplateService
-} from "./chunk-BQ4WQXOL.js";
-import "./chunk-NUDNJSVI.js";
+} from "./chunk-ZVJDUJDS.js";
+import "./chunk-UQBWKX66.js";
+import {
+  blockMissedFileDrop
+} from "./chunk-TPCIIJYP.js";
 import {
   CommandPaletteService,
   injectNavItems
-} from "./chunk-SZ26KSTM.js";
-import "./chunk-O6PVTH34.js";
-import "./chunk-RKPPDHSQ.js";
+} from "./chunk-KD6DHZXG.js";
+import {
+  MatMenu,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger
+} from "./chunk-ZIWTZUG3.js";
+import "./chunk-YTMZEC3C.js";
+import "./chunk-RE3BHRSQ.js";
 import {
   SignageContextService
-} from "./chunk-ECMDH73J.js";
-import "./chunk-QBA626HA.js";
-import "./chunk-PCEZJ27E.js";
+} from "./chunk-7OVMCNFU.js";
+import "./chunk-SG57ZUUB.js";
+import "./chunk-5G4V6J43.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-SEB7GISE.js";
-import "./chunk-AAM3XREZ.js";
+} from "./chunk-QUXBOEJE.js";
+import "./chunk-VKSF4PS5.js";
 import {
   openConfirmModal
-} from "./chunk-PSTKTS7H.js";
+} from "./chunk-NGGC2XGN.js";
 import {
   AnnounceDirective
-} from "./chunk-DNBAR6RW.js";
-import "./chunk-26OIUIHH.js";
+} from "./chunk-AUV25AH4.js";
+import "./chunk-MNAOEVWZ.js";
 import {
   MatDialog
-} from "./chunk-OPFTRVSI.js";
-import "./chunk-XUI5Q4W7.js";
+} from "./chunk-4MZUVPXU.js";
+import "./chunk-NXFWFAR7.js";
 import {
   MatTooltip,
   MatTooltipModule
-} from "./chunk-5RIAMWU5.js";
+} from "./chunk-M4R2OMQ3.js";
 import {
   TranslatePipe
-} from "./chunk-3FBFZD7L.js";
+} from "./chunk-HRFYIX4C.js";
 import {
   CustomTooltipComponent
-} from "./chunk-RKT5A6DJ.js";
-import "./chunk-XUC5JTKQ.js";
+} from "./chunk-24RSQBX3.js";
+import "./chunk-ENFA7HCT.js";
 import {
+  LazySentryErrorHandler,
+  MAX_REMOTE_DEBUG_COMMANDS,
   OrganisationService,
   PlaceOS_Service,
+  REMOTE_DEBUG_MODULE,
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   UploadsService,
@@ -56,31 +65,29 @@ import {
   getLoadingMessage,
   initialisationComplete,
   initialisationFailure,
+  isRemoteDebugCommand,
+  isRemoteLogRequest,
   nativeDomainError,
   needsNativeDomain,
   provideServiceWorker,
   registerActiveLocale,
   reloadOnChunkLoadError,
+  remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   remoteSetupCommandBinding,
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-SCI2JPYU.js";
-import "./chunk-X25JVJEC.js";
-import {
-  MatMenu,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger
-} from "./chunk-BMBNZ6M7.js";
+} from "./chunk-VFUVK5O2.js";
+import "./chunk-WG7PJTZZ.js";
 import {
   IconComponent
-} from "./chunk-HOZSCKVQ.js";
+} from "./chunk-BQWZIAG6.js";
 import {
   AsyncHandler,
   GroupPermission,
-  LazySentryErrorHandler,
   SettingsService,
   addMonths,
   current_user,
@@ -91,7 +98,7 @@ import {
   themedLogo,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-D32SKL6P.js";
+} from "./chunk-6BG52BIQ.js";
 import {
   Bp,
   J,
@@ -116,15 +123,15 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-UWUUBN6E.js";
-import "./chunk-ZIHEKIW7.js";
-import "./chunk-KQUEHK5N.js";
+} from "./chunk-HLJZZGGR.js";
+import "./chunk-TYLQ2T3C.js";
+import "./chunk-7NEE74GJ.js";
 import {
   BidiModule,
   MatRipple,
   MatRippleModule,
   _getAnimationsState
-} from "./chunk-5XA7EDTX.js";
+} from "./chunk-AVEVXYGF.js";
 import {
   NavigationEnd,
   Router,
@@ -138,7 +145,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withViewTransitions
-} from "./chunk-35VUMMTM.js";
+} from "./chunk-7H4OKNBG.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -221,12 +228,13 @@ import {
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1,
   ɵɵviewQuerySignal
-} from "./chunk-W6NHZ5YT.js";
+} from "./chunk-Y6KAMZVN.js";
 import {
   __objRest,
+  __restKey,
   __spreadProps,
   __spreadValues
-} from "./chunk-GLT7DQUO.js";
+} from "./chunk-QQY67O5D.js";
 
 // node_modules/date-fns/subDays.js
 function subDays(date, amount, options) {
@@ -880,7 +888,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-6E2SPTCE.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-WBCRFX7O.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1008,7 +1016,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-6E2SPTCE.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-WBCRFX7O.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -5014,13 +5022,13 @@ var MOCK_EVENTS = (() => {
       });
     }
   }
-  const seen = /* @__PURE__ */ new Set();
+  const seen2 = /* @__PURE__ */ new Set();
   const uniqueEvents = events.filter((event) => {
-    if (seen.has(event.id))
+    if (seen2.has(event.id))
       return false;
-    seen.add(event.id);
+    seen2.add(event.id);
     event.extension_data.catering = mockEventCatering(event);
-    const payment_id = mockLinkedPaymentId("event", event.id, seen.size);
+    const payment_id = mockLinkedPaymentId("event", event.id, seen2.size);
     if (payment_id)
       event.extension_data.payment_id = payment_id;
     return true;
@@ -6456,10 +6464,12 @@ var MOCK_PLUGINS = [
     params: {}
   }
 ];
+var FACILITIES_GROUP_ID = "signage-group-facilities";
+var MARKETING_GROUP_ID = "signage-group-marketing";
 var SIGNAGE_GROUPS = [
   {
     group: {
-      id: "signage-group-facilities",
+      id: FACILITIES_GROUP_ID,
       name: "Facilities Signage",
       description: "Facility-managed signage content",
       subsystems: ["signage"]
@@ -6468,7 +6478,7 @@ var SIGNAGE_GROUPS = [
   },
   {
     group: {
-      id: "signage-group-marketing",
+      id: MARKETING_GROUP_ID,
       name: "Marketing Signage",
       description: "Marketing managed signage content",
       subsystems: ["signage"]
@@ -6541,11 +6551,36 @@ function filterByGroup(items, group_id = "") {
     return items;
   return items.filter((_, index) => index % 2 === 0);
 }
+function contentGroupIds(item, index) {
+  return item.group_ids ?? (index % 2 === 0 ? [FACILITIES_GROUP_ID, MARKETING_GROUP_ID] : [FACILITIES_GROUP_ID]);
+}
+function contentGroupScope(query_params = {}) {
+  const { group_id, include_child_data } = query_params;
+  if (!group_id)
+    return null;
+  const groups = /* @__PURE__ */ new Set([group_id]);
+  if (`${include_child_data}` === "true") {
+    for (const parent_id of groups) {
+      for (const { group } of SIGNAGE_GROUPS) {
+        if (group.parent_id === parent_id)
+          groups.add(group.id);
+      }
+    }
+  }
+  return groups;
+}
+function filterContentByGroup(items, query_params = {}) {
+  const groups = contentGroupScope(query_params);
+  if (!groups)
+    return items;
+  return items.filter((item, index) => contentGroupIds(item, index).some((id) => groups.has(id)));
+}
 function sharedWithGroups(items, id) {
   const index = items.findIndex((item) => item.id === id);
   if (index < 0)
     return [];
-  const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+  const group_ids = items[index].group_ids;
+  const groups = group_ids ? SIGNAGE_GROUPS.filter(({ group }) => group_ids.includes(group.id)) : index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
   return groups.map(({ group }) => ({ id: group.id, name: group.name }));
 }
 function toEngineMedia(item) {
@@ -6883,13 +6918,13 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
+    callback: (request) => filterContentByGroup(MOCK_MEDIA, request.query_params).map(toEngineMedia)
   });
   registerMockEndpoint({
     path: "/api/engine/v2/signage/media/tags",
     method: "GET",
     callback: (request) => [
-      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
+      ...new Set(filterContentByGroup(MOCK_MEDIA, request.query_params).flatMap((item) => item.tags || []).filter((tag) => !!tag))
     ]
   });
   registerMockEndpoint({
@@ -6897,7 +6932,7 @@ function registerMockSignage() {
     method: "GET",
     callback: (request) => {
       const counts = {};
-      for (const item of filterByGroup(MOCK_MEDIA, request.query_params?.group_id)) {
+      for (const item of filterContentByGroup(MOCK_MEDIA, request.query_params)) {
         for (const tag of item.tags || []) {
           if (!tag)
             continue;
@@ -6907,7 +6942,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  const taggedMedia = (query_params, tag) => filterByGroup(MOCK_MEDIA, query_params?.group_id).filter((item) => toEngineMedia(item).tags.includes(tag));
+  const taggedMedia = (query_params, tag) => filterContentByGroup(MOCK_MEDIA, query_params).filter((item) => toEngineMedia(item).tags.includes(tag));
   registerMockEndpoint({
     path: "/api/engine/v2/signage/media/tags",
     method: "PATCH",
@@ -6924,11 +6959,23 @@ function registerMockSignage() {
     method: "DELETE",
     callback: ({ query_params }) => {
       const { tag } = query_params;
-      for (const item of taggedMedia(query_params, tag)) {
-        if (`${query_params.remove_media}` === "true") {
-          removeItem(MOCK_MEDIA, item.id);
-          continue;
+      const items = taggedMedia(query_params, tag);
+      if (`${query_params.remove_media}` === "true") {
+        const scope = contentGroupScope(query_params);
+        const changes = items.map((item) => ({
+          item,
+          remaining_groups: scope ? contentGroupIds(item, MOCK_MEDIA.indexOf(item)).filter((id) => !scope.has(id)) : []
+        }));
+        for (const { item, remaining_groups } of changes) {
+          if (remaining_groups.length) {
+            item.group_ids = remaining_groups;
+          } else {
+            removeItem(MOCK_MEDIA, item.id);
+          }
         }
+        return;
+      }
+      for (const item of items) {
         applyEngineChanges(item, {
           tags: toEngineMedia(item).tags.filter((value) => value !== tag)
         });
@@ -6940,15 +6987,16 @@ function registerMockSignage() {
     method: "POST",
     callback: (request) => {
       const now3 = getUnixTime(Date.now());
-      const item = {
-        id: mockId("media-"),
+      const item = __spreadProps(__spreadValues({
+        id: mockId("media-")
+      }, request.query_params?.group_id ? { group_ids: [request.query_params.group_id] } : {}), {
         name: request.body?.name || "",
         type: request.body?.media_type === "video" ? "video" : "image",
         tags: request.body?.tags || [],
         created_at: now3,
         updated_at: now3,
         engine: __spreadValues({}, request.body)
-      };
+      });
       MOCK_MEDIA.push(item);
       return toEngineMedia(item);
     }
@@ -7020,7 +7068,7 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/playlists",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
+    callback: (request) => filterContentByGroup(MOCK_PLAYLISTS, request.query_params).map(toEnginePlaylist)
   });
   registerMockEndpoint({
     path: "/api/engine/v2/signage/playlists/approvers",
@@ -7033,8 +7081,9 @@ function registerMockSignage() {
     method: "POST",
     callback: (request) => {
       const now3 = getUnixTime(Date.now());
-      const playlist = {
-        id: mockId("playlist-"),
+      const playlist = __spreadProps(__spreadValues({
+        id: mockId("playlist-")
+      }, request.query_params?.group_id ? { group_ids: [request.query_params.group_id] } : {}), {
         name: request.body?.name || "",
         description: request.body?.description || "",
         status: "active",
@@ -7043,7 +7092,7 @@ function registerMockSignage() {
         created_at: now3,
         updated_at: now3,
         engine: __spreadValues({}, request.body)
-      };
+      });
       MOCK_PLAYLISTS.push(playlist);
       return toEnginePlaylist(playlist);
     }
@@ -8184,11 +8233,213 @@ function registerMockSurveys() {
   });
 }
 
+// libs/mocks/src/lib/realtime/remote-debug.ts
+var REMOTE_DEBUG_MOCK_SYSTEM = "sys-remote-debug";
+var MAX_DEVICE_ENTRIES = 8e3;
+var MAX_DEVICE_RESULTS = 50;
+var MAX_DEVICES = 1e3;
+var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
+var MAX_DURATION_MS = 60 * 60 * 1e3;
+var COMMAND_TIMEOUT_MS = 15 * 60 * 1e3;
+function setBinding(mod, name, value) {
+  mod.listen(name);
+  mod[name] = value;
+}
+var RemoteDebugModule = class {
+  /** Starts with the logs in `seed` */
+  constructor(seed = []) {
+    this.devices = {};
+    this.timers = {};
+    for (const view of seed) {
+      this[remoteDebugLogsBinding(view.device.id)] = view;
+      this.devices[view.device.id] = __spreadProps(__spreadValues({}, view.device), {
+        last_seen: view.entries.at(-1)?.timestamp ?? 0
+      });
+    }
+  }
+  /** Set a new log request for a device. Returns the request ID */
+  $request_logs(device_id, level, options = {}) {
+    const request = __spreadProps(__spreadValues({}, options), {
+      id: randomString(12),
+      level
+    });
+    if (!isRemoteLogRequest(request))
+      return null;
+    setState(this, device_id, { logs: request });
+    startExpiry(this, device_id, request.duration);
+    return request.id;
+  }
+  /** Change the level of the active log request of a device */
+  $set_level(device_id, level) {
+    const logs = deviceState(this, device_id).logs;
+    if (!isRemoteLogRequest(logs) || logs.level === level)
+      return;
+    setState(this, device_id, { logs: __spreadProps(__spreadValues({}, logs), { level }) });
+    startExpiry(this, device_id, logs.duration);
+  }
+  /** End the active log request of a device */
+  $stop_logs(device_id) {
+    clearTimeout(this.timers[device_id]);
+    const _a = this.timers, { [device_id]: _ } = _a, timers = __objRest(_a, [__restKey(device_id)]);
+    this.timers = timers;
+    setState(this, device_id, { logs: null });
+  }
+  /** Add a command for a device. Returns the command ID, or `null` when the command is not valid or the list is full */
+  $send_command(device_id, type, options = {}) {
+    const command = __spreadProps(__spreadValues({}, options), { id: randomString(12), type });
+    const commands = deviceState(this, device_id).commands ?? [];
+    if (!isRemoteDebugCommand(command) || commands.length >= MAX_REMOTE_DEBUG_COMMANDS) {
+      return null;
+    }
+    setState(this, device_id, { commands: [...commands, command] });
+    setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
+    return command.id;
+  }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
+  /** Add entries from a device. Ignores calls for a request that is not active */
+  $post_logs(device_id, request_id, entries, device) {
+    const logs = deviceState(this, device_id).logs;
+    if (!isRemoteLogRequest(logs) || logs.id !== request_id)
+      return;
+    seen(this, device);
+    const name = remoteDebugLogsBinding(device_id);
+    const view = this[name];
+    const same_session = view?.device?.started_at === device.started_at;
+    const old = same_session ? view.entries : [];
+    const known = new Set(old.map((_) => _.seq));
+    const added = entries.filter((_) => !known.has(_.seq));
+    if (same_session && !added.length)
+      return;
+    setBinding(this, name, {
+      device,
+      entries: [...old, ...added].sort((a, b) => a.seq - b.seq).slice(-MAX_DEVICE_ENTRIES)
+    });
+  }
+  /** Keep the result of a command and remove the command */
+  $command_result(device_id, command_id, result, device) {
+    const command = (deviceState(this, device_id).commands ?? []).find((_) => _.id === command_id);
+    if (!command)
+      return;
+    seen(this, device);
+    removeCommand(this, device_id, command_id);
+    const name = remoteDebugResultsBinding(device_id);
+    const results = [
+      ...this[name] ?? [],
+      {
+        id: command.id,
+        type: command.type,
+        result,
+        received_at: Date.now()
+      }
+    ];
+    for (const old of results.splice(0, results.length - MAX_DEVICE_RESULTS)) {
+      releaseMedia(old);
+    }
+    setBinding(this, name, results);
+  }
+};
+function releaseMedia(entry) {
+  if (entry.type !== "snapshot" && entry.type !== "animation")
+    return;
+  const upload_id = entry.result.data?.upload_id;
+  if (typeof upload_id === "string" && upload_id.startsWith("blob:")) {
+    URL.revokeObjectURL(upload_id);
+  }
+}
+function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
+  clearTimeout(mod.timers[device_id]);
+  mod.timers = __spreadProps(__spreadValues({}, mod.timers), {
+    [device_id]: setTimeout(() => mod.$stop_logs(device_id), Math.min(Math.max(duration, 0), MAX_DURATION_MS))
+  });
+}
+function deviceState(mod, device_id) {
+  const state = mod[remoteDebugDeviceBinding(device_id)];
+  return state && typeof state === "object" ? state : {};
+}
+function setState(mod, device_id, change) {
+  setBinding(mod, remoteDebugDeviceBinding(device_id), __spreadValues(__spreadValues({
+    logs: null,
+    commands: []
+  }, deviceState(mod, device_id)), change));
+}
+function removeCommand(mod, device_id, command_id) {
+  const commands = deviceState(mod, device_id).commands ?? [];
+  if (!commands.some((_) => _.id === command_id))
+    return;
+  setState(mod, device_id, {
+    commands: commands.filter((_) => _.id !== command_id)
+  });
+}
+function seen(mod, device) {
+  const list = Object.values(__spreadProps(__spreadValues({}, mod.devices), {
+    [device.id]: __spreadProps(__spreadValues({}, device), { last_seen: Date.now() })
+  })).sort((a, b) => b.last_seen - a.last_seen);
+  for (const removed of list.splice(MAX_DEVICES)) {
+    const results = remoteDebugResultsBinding(removed.id);
+    for (const result of mod[results] ?? []) {
+      releaseMedia(result);
+    }
+    setBinding(mod, remoteDebugLogsBinding(removed.id), null);
+    setBinding(mod, results, null);
+  }
+  mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
+}
+function seededView(id, app, now3) {
+  const lines = [
+    ["info", `[${app}][APP] Initialising...`],
+    ["debug", `[${app}][Settings] Loaded settings from the server`],
+    ["warn", `[${app}][WS] Websocket closed. Reconnecting in 5s`],
+    ["info", `[${app}][WS] Websocket connected`],
+    [
+      "error",
+      `TypeError: Cannot read properties of undefined (reading 'id')`
+    ]
+  ];
+  return {
+    device: {
+      id,
+      app,
+      version: "mock",
+      build: "mock",
+      url: `https://placeos.test/${app}/`,
+      user_agent: "Mock device",
+      started_at: now3 - 60 * 60 * 1e3
+    },
+    entries: lines.map(([level, message], i) => ({
+      seq: i + 1,
+      timestamp: now3 - (lines.length - i) * 60 * 1e3,
+      level,
+      source: "console",
+      message
+    }))
+  };
+}
+function createRemoteDebugSystem() {
+  const now3 = Date.now();
+  const mod = new RemoteDebugModule([
+    seededView("DEV-MOCK0001", "booking-panel", now3),
+    seededView("DEV-MOCK0002", "control", now3)
+  ]);
+  const system = Bp(REMOTE_DEBUG_MOCK_SYSTEM, {
+    [REMOTE_DEBUG_MODULE]: [mod]
+  });
+  const registered = system?.[REMOTE_DEBUG_MODULE]?.[0];
+  if (registered) {
+    window.app ??= {};
+    window.app["remote_debug"] = registered;
+  }
+}
+
 // libs/mocks/src/lib/realtime/remote-setup.ts
 var APPLY_DELAY_MS = 1500;
-var MAX_DEVICES = 1e3;
+var MAX_DEVICES2 = 1e3;
 var SYSTEM_CLEAR_MS = 15 * 60 * 1e3;
-function setBinding(mod, name, value) {
+function setBinding2(mod, name, value) {
   mod.listen(name);
   mod[name] = value;
 }
@@ -8216,7 +8467,7 @@ var RemoteSetupModule = class {
       config,
       issued_at: Date.now()
     };
-    setBinding(this, remoteSetupCommandBinding(device_id), command);
+    setBinding2(this, remoteSetupCommandBinding(device_id), command);
     if (isSeeded(device_id)) {
       setTimeout(() => this.$complete(device_id, command.id), APPLY_DELAY_MS);
     }
@@ -8224,7 +8475,7 @@ var RemoteSetupModule = class {
   }
   $clear(device_id) {
     if (!this.clear_list.includes(device_id)) {
-      this.clear_list = [...this.clear_list, device_id].slice(-MAX_DEVICES);
+      this.clear_list = [...this.clear_list, device_id].slice(-MAX_DEVICES2);
     }
     const device = this.devices[device_id];
     if (device && isSeeded(device_id)) {
@@ -8236,7 +8487,7 @@ var RemoteSetupModule = class {
     this.clear_systems = [
       ...this.clear_systems.filter((entry) => now3 - entry.issued_at < SYSTEM_CLEAR_MS),
       { id: randomString(12), app, system_id, issued_at: now3 }
-    ].slice(-MAX_DEVICES);
+    ].slice(-MAX_DEVICES2);
     for (const device of Object.values(this.devices)) {
       if (isSeeded(device.id) && device.app === app && device.config?.system_id === system_id) {
         setTimeout(() => this.$register(device.id, device.app), APPLY_DELAY_MS);
@@ -8259,11 +8510,11 @@ var RemoteSetupModule = class {
         last_command: command.id
       }));
     }
-    setBinding(this, name, null);
+    setBinding2(this, name, null);
   }
 };
 function withDevice(devices, device) {
-  const list = Object.values(__spreadProps(__spreadValues({}, devices), { [device.id]: device })).sort((a, b) => b.last_seen - a.last_seen).slice(0, MAX_DEVICES);
+  const list = Object.values(__spreadProps(__spreadValues({}, devices), { [device.id]: device })).sort((a, b) => b.last_seen - a.last_seen).slice(0, MAX_DEVICES2);
   return Object.fromEntries(list.map((d) => [d.id, d]));
 }
 function isSeeded(device_id) {
@@ -10063,6 +10314,7 @@ function registerMockSystems() {
   persist("spaces", MOCK_SPACES);
   MOCK_SPACES.forEach((space) => createSystem(space));
   createRemoteSetupSystem(MOCK_SPACES.map((space) => space.id));
+  createRemoteDebugSystem();
   registerMockEndpoint({
     path: "/api/engine/v2/systems",
     method: "GET",
@@ -10525,7 +10777,8 @@ function registerMockZones() {
             area_management: system_id,
             location_services: system_id,
             contact_tracing: system_id,
-            lockers: system_id
+            lockers: system_id,
+            remote_debug: REMOTE_DEBUG_MOCK_SYSTEM
           }, mockPaymentsEnabled() ? { payments: system_id } : {})
         }
       };
@@ -11904,9 +12157,9 @@ var NavSidebarComponent = class _NavSidebarComponent {
 
 // apps/signage-manager/src/app/app.component.ts
 var _c04 = ["main"];
-var AppComponent_Defer_13_DepsFn = () => [
+var AppComponent_Defer_14_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-YIJB3R23.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-ZDJT2MAV.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11954,9 +12207,11 @@ function AppComponent_Defer_12_Template(rf, ctx) {
     \u0275\u0275property("loadSchema", ctx_r1.load_settings_schema);
   }
 }
+function AppComponent_DeferError_13_Template(rf, ctx) {
+}
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-6JL2G3XM.js");
+    this.load_settings_schema = () => import("./settings.schema-HJJ7KON7.js");
     this._placeos = inject(PlaceOS_Service);
     this._uploads = inject(UploadsService);
     this._injector = inject(Injector);
@@ -12049,7 +12304,7 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    const { ImageGenService } = await import("./image-gen.service-N5AJWZL5.js");
+    const { ImageGenService } = await import("./image-gen.service-WZ4T6LUO.js");
     const image_gen = this._injector.get(ImageGenService);
     await image_gen.load(Mt()?.config?.org_zone);
     if (image_gen.enabled())
@@ -12080,7 +12335,7 @@ var AppComponent = class _AppComponent {
           return ctx.blockMissedFileDrop($event);
         }, \u0275\u0275resolveWindow);
       }
-    }, decls: 15, vars: 6, consts: [["main", ""], ["href", "#main-content", 1, "skip-link", 3, "click"], ["role", "alert", 1, "bg-error/10", "border-error/30", "flex", "items-center", "gap-3", "border-b", "px-4", "py-2", "text-sm"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "sm:flex-row"], [1, "sm:h-full"], ["id", "main-content", "tabindex", "-1", 1, "relative", "min-h-0", "min-w-0", "flex-1"], [1, "text-error", "text-xl"], [1, "min-w-0", "flex-1"], ["btn", "", "matRipple", "", "type", "button", 1, "inverse", 3, "click"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    }, decls: 16, vars: 6, consts: [["main", ""], ["href", "#main-content", 1, "skip-link", 3, "click"], ["role", "alert", 1, "bg-error/10", "border-error/30", "flex", "items-center", "gap-3", "border-b", "px-4", "py-2", "text-sm"], [1, "flex", "h-1/2", "w-full", "flex-1", "flex-col", "sm:flex-row"], [1, "sm:h-full"], ["id", "main-content", "tabindex", "-1", 1, "relative", "min-h-0", "min-w-0", "flex-1"], [1, "text-error", "text-xl"], [1, "min-w-0", "flex-1"], ["btn", "", "matRipple", "", "type", "button", 1, "inverse", 3, "click"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "a", 1);
         \u0275\u0275listener("click", function AppComponent_Template_a_click_0_listener($event) {
@@ -12099,8 +12354,8 @@ var AppComponent = class _AppComponent {
         \u0275\u0275conditionalCreate(10, AppComponent_Conditional_10_Template, 1, 0, "nav-footer");
         \u0275\u0275elementEnd();
         \u0275\u0275element(11, "global-loading");
-        \u0275\u0275domTemplate(12, AppComponent_Defer_12_Template, 1, 1);
-        \u0275\u0275defer(13, 12, AppComponent_Defer_13_DepsFn);
+        \u0275\u0275domTemplate(12, AppComponent_Defer_12_Template, 1, 1)(13, AppComponent_DeferError_13_Template, 0, 0);
+        \u0275\u0275defer(14, 12, AppComponent_Defer_14_DepsFn, null, null, 13);
         \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
@@ -12129,7 +12384,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-YIJB3R23.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-ZDJT2MAV.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -12182,6 +12437,10 @@ var AppComponent = class _AppComponent {
             <settings-debug-panel-launcher
                 [loadSchema]="load_settings_schema"
             />
+        } @error {
+            <!-- The launcher is optional. If its chunk fails to download
+                 (for example while offline), show nothing and do not
+                 report an uncaught NG0750 error. -->
         }
     `, host: {
         "(document:keydown)": "onKeydown($event)",
@@ -12203,7 +12462,7 @@ var AppComponent = class _AppComponent {
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 119 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage-manager/src/app/app.component.ts", lineNumber: 123 });
 })();
 function showsNav(route) {
   for (let depth = 0; route && depth < 32; depth++) {
@@ -12379,58 +12638,58 @@ var APP_ROUTES = [
       {
         path: "media",
         title: "SIGNAGE_MANAGER.NAV_MEDIA",
-        loadComponent: () => import("./media.component-XYRHMLXD.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-FQXQW7NE.js").then((m) => m.MediaSectionComponent)
       },
       {
         matcher: listOrItem("playlists"),
         title: "SIGNAGE_MANAGER.NAV_PLAYLISTS",
-        loadComponent: () => import("./playlists.component-ZZZ3MEDH.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-SCGSTQ44.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
         title: "SIGNAGE_MANAGER.NAV_TEMPLATES",
-        loadComponent: () => import("./templates.component-2VNUAOIS.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-3DXUX64I.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
         title: "SIGNAGE_MANAGER.NAV_TEMPLATES",
-        loadComponent: () => import("./templates.component-2VNUAOIS.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-3DXUX64I.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
         title: "SIGNAGE_MANAGER.NAV_SCHEDULES",
-        loadComponent: () => import("./schedules.component-6OLERMEO.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-YFHN2HFO.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         matcher: listOrItem("displays"),
         title: "SIGNAGE_MANAGER.NAV_DISPLAYS",
-        loadComponent: () => import("./displays.component-V3E5M57H.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-KAX2E3UU.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
         title: "SIGNAGE_MANAGER.NAV_MANAGE",
-        loadComponent: () => import("./manage.component-CPQPIJAU.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-44ACPCQZ.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
             title: "SIGNAGE_MANAGER.NAV_REPORT",
-            loadComponent: () => import("./content-report.component-TXNCPXZM.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-6EZJYOXF.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
             title: "SIGNAGE_MANAGER.NAV_BRANDING",
-            loadComponent: () => import("./branding.component-B4QJ27X7.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-DOKPU225.js").then((m) => m.BrandingComponent)
           }
         ]
       },
       {
         path: "remote-setup",
         data: { nav: false },
-        loadComponent: () => import("./remote-setup.component-SLXBXPMD.js").then((m) => m.RemoteSetupComponent)
+        loadComponent: () => import("./remote-setup.component-G6BRJPSK.js").then((m) => m.RemoteSetupComponent)
       },
       // Old addresses of the pages now under Manage
       { path: "report", redirectTo: "manage/report" },
@@ -12439,12 +12698,12 @@ var APP_ROUTES = [
         path: "groups",
         canActivate: [manageGroupsGuard],
         title: "COMMON.GROUPS",
-        loadComponent: () => import("./groups.component-JLI6SH5B.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-RE7JGNSZ.js").then((m) => m.GroupsSectionComponent)
       },
       {
         matcher: listOrItem("zones"),
         title: "SIGNAGE_MANAGER.NAV_ZONES",
-        loadComponent: () => import("./zones.component-2XWB5DWF.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-Y5AVMA3A.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
@@ -12478,5 +12737,5 @@ var APP_CONFIG = {
 
 // apps/signage-manager/src/main.ts
 bootstrapApplication(AppComponent, APP_CONFIG).catch((err) => console.error(err));
-//# debugId=9e476234-cd0d-57c2-96dd-feddc01946fd
+//# debugId=fd2c2bdb-503f-5e47-8ab1-a3b31df3ae24
 //# sourceMappingURL=main.js.map
