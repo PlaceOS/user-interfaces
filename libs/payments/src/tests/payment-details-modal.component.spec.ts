@@ -104,9 +104,12 @@ describe('PaymentDetailsModalComponent', () => {
         // Staff go back, then start a new refund
         spectator.component.view.set('details');
         spectator.detectChanges();
+        // A double click loads the payment once
         spectator.click('button[name="refund"]');
+        void spectator.component.openRefund();
         await settle();
         await settle();
+        expect(driver.get_payment).toHaveBeenCalledTimes(1);
         expect(driver.get_payment).toHaveBeenCalledWith('pay-1');
         expect(amountInput()?.disabled).toBe(false);
         await submit();

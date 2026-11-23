@@ -636,7 +636,10 @@ export class PaymentDetailsModalComponent implements OnInit {
      * the payment first, as that request can still have refunded it
      */
     public async openRefund() {
+        // The loading view also stops a second click while the payment loads
+        if (this.loading()) return;
         if (this.refund_unsettled()) {
+            this.loading.set(i18n('COMMON.LOADING'));
             const latest = await this._payments
                 .call('get_payment', this.payment().id)
                 .catch((e) => {
@@ -646,7 +649,8 @@ export class PaymentDetailsModalComponent implements OnInit {
                         }),
                     );
                     return null;
-                });
+                })
+                .finally(() => this.loading.set(''));
             if (!latest) return;
             this.payment.set(latest);
             this.refund_unsettled.set(false);
