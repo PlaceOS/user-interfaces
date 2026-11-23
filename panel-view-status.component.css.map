@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["panel-view-status.component.ts"],
+  "sourcesContent": ["\n            :host > div > div {\n                background-color: #424242;\n            }\n        "],
+  "mappings": ";AACY,MAAA,EAAA,IAAA,EAAA;AACI,oBAAA;AACJ;",
+  "names": []
+}
