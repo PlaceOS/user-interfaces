@@ -5,10 +5,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-ISCC3WFE.js";
+} from "./chunk-XBWZ3G4A.js";
 import {
   TranslatePipe
-} from "./chunk-7E6OH4W4.js";
+} from "./chunk-77O5FLEA.js";
 import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
@@ -34,7 +34,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-OL75ZOG5.js";
+} from "./chunk-FV6FJNUJ.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-6QLP6OFC.js";
+} from "./chunk-PEJXTPZ2.js";
 import "./chunk-C6AMB2L4.js";
 import {
   IconComponent,
@@ -10959,11 +10959,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-BUTDQXQD.js").then((m) => m.ChatComponent)
+  import("./chat.component-O3675BMN.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-3TG3VGV4.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-B6PPPFHM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11028,9 +11028,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-BUTDQXQD.js").then((m) => m.ChatComponent),
+    import("./chat.component-O3675BMN.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-3TG3VGV4.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-B6PPPFHM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11078,7 +11078,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-AC6GMRRJ.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-PUK4NENW.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",

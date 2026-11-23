@@ -1,9 +1,9 @@
 import {
   TranslatePipe
-} from "./chunk-7E6OH4W4.js";
+} from "./chunk-77O5FLEA.js";
 import {
   OrganisationService
-} from "./chunk-OL75ZOG5.js";
+} from "./chunk-FV6FJNUJ.js";
 import {
   Ia,
   LocaleService,
@@ -13,7 +13,7 @@ import {
   Ua,
   addDays,
   predictableRandomInt
-} from "./chunk-6QLP6OFC.js";
+} from "./chunk-PEJXTPZ2.js";
 import {
   BidiModule,
   LiveAnnouncer,
@@ -837,4 +837,4 @@ export {
   CateringOrderDocketsComponent
 };
 //# debugId=03ca15d8-74c9-5bdd-9b01-9d4be12a9e33
-//# sourceMappingURL=chunk-ISCC3WFE.js.map
+//# sourceMappingURL=chunk-XBWZ3G4A.js.map

@@ -1,10 +1,10 @@
 import "./chunk-O5BFB2JT.js";
 import {
   TranslatePipe
-} from "./chunk-7E6OH4W4.js";
+} from "./chunk-77O5FLEA.js";
 import {
   OrganisationService
-} from "./chunk-OL75ZOG5.js";
+} from "./chunk-FV6FJNUJ.js";
 import {
   AsyncHandler,
   J,
@@ -21,7 +21,7 @@ import {
   notifyError,
   randomString,
   settingSignal
-} from "./chunk-6QLP6OFC.js";
+} from "./chunk-PEJXTPZ2.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -3257,4 +3257,4 @@ export {
   ChatComponent
 };
 //# debugId=d83e36d7-bba8-5860-b83d-98d23d4943ea
-//# sourceMappingURL=chat.component-BUTDQXQD.js.map
+//# sourceMappingURL=chat.component-O3675BMN.js.map
