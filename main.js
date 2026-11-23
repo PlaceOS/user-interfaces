@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-6CD5IMQH.js";
-import "./chunk-P6KYFBR4.js";
+} from "./chunk-CGDLYPAL.js";
+import "./chunk-VPLWJ4DR.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-4LCEGV37.js";
+} from "./chunk-WFUH2QOZ.js";
 import "./chunk-M533ZSP3.js";
 import {
   TranslatePipe
-} from "./chunk-OQNLUMDO.js";
+} from "./chunk-ADMBNP4Y.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-WJNDFHSS.js";
+} from "./chunk-7HROJWAF.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-NE5UCCRH.js";
+} from "./chunk-RD2DDVW7.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -9945,6 +9945,7 @@ var PaymentsModule = class {
     this._payments = seedHistory();
     this._invoices = [];
     this._checkouts = /* @__PURE__ */ new Map();
+    this._refunds = /* @__PURE__ */ new Set();
   }
   $get_config() {
     return {
@@ -10105,13 +10106,18 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason, _request_id) {
+  $refund_payment(id, amount, _reason, request_id) {
     const payment = findPayment(this._payments, id);
+    const key = request_id ? `${id}:${request_id}` : "";
+    if (key && this._refunds.has(key))
+      return payment;
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
     if (refund <= 0 || refund > refundable)
       throw "Invalid refund amount";
     const amount_refunded = payment.amount_refunded + refund;
+    if (key)
+      this._refunds.add(key);
     return updatePayment(this._payments, id, {
       amount_refunded,
       status: amount_refunded >= payment.amount ? "refunded" : "partially_refunded"
@@ -11083,7 +11089,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-STSSTWFO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MMW7ABHJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11127,7 +11133,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-STSSTWFO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MMW7ABHJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11200,22 +11206,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-AMMODOMS.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-J7OKFHZW.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-6PC6YIQK.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-G33YM7NV.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-N6D5ZEUO.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-S3AMRAUC.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-XYZ2GWTZ.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-XBBJDJEH.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11243,5 +11249,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=6eb6df9a-1b89-5b48-ac66-71708a36b0e8
+//# debugId=c91568d9-47fd-590d-bba1-6a1793c4c377
 //# sourceMappingURL=main.js.map
