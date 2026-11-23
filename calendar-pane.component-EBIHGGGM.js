@@ -15,14 +15,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-JGVBJYZE.js";
+} from "./chunk-BY5WRWI6.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-CV5CMPFB.js";
+} from "./chunk-NWLYK35O.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-VNS2OXUJ.js";
+} from "./chunk-JIER72EP.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-EFDVNBW4.js";
+} from "./chunk-GC6CMDPY.js";
 import {
   TranslatePipe
-} from "./chunk-DTY4DYGE.js";
+} from "./chunk-3LFNGRNO.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-O4YL2YTQ.js";
+} from "./chunk-DAIRTHYZ.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-3ASXNKXP.js";
+} from "./chunk-7M76WHQB.js";
 import {
   BasePortalOutlet,
   CdkConnectedOverlay,
@@ -16349,6 +16349,16 @@ var PaymentsService = class _PaymentsService {
     return this.call("cancel_payment", payment.id);
   }
   /**
+   * Release the payment of a booking that did not save. When the release
+   * fails, shows the payment ID, so the user can ask support to release it
+   */
+  async release(payment) {
+    await this.cancel(payment).catch((e) => notifyError(i18n("PAYMENTS.RELEASE_FAILED", {
+      id: payment.id,
+      error: errorMessage(e) || e
+    })));
+  }
+  /**
    * Open the hosted page to add a payment method. Resolves when the user
    * closes the page. Throws when the browser blocks the window.
    */
@@ -17576,13 +17586,13 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       zones
     })).toJSON(), q).catch(async (e) => {
       if (payment)
-        await this._payments.cancel(payment).catch(() => null);
+        await this._payments.release(payment);
       return this._saveFailure(e);
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
       await this._saveAssetRequests(result, value, booking, zones).catch(async (e) => {
         if (payment) {
-          await this._payments.cancel(payment).catch(() => null);
+          await this._payments.release(payment);
         }
         throw e;
       });
@@ -21599,7 +21609,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return created_event;
     } catch (e) {
       if (payment)
-        await this._payments.cancel(payment).catch(() => null);
+        await this._payments.release(payment);
       this.removeLoadingTag(Tags.PostBooking);
       if (isPermissionError(e))
         this._clearSavedHostChange();
@@ -27834,5 +27844,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=de9bbb8c-aaec-5864-9346-16b029ba5548
-//# sourceMappingURL=calendar-pane.component-ZP4LOF3V.js.map
+//# debugId=fc1ef440-3ff1-581a-b8a0-deec73c51202
+//# sourceMappingURL=calendar-pane.component-EBIHGGGM.js.map
