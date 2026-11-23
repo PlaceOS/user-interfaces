@@ -1,1 +1,0 @@
-import{t as zm}from"./main-JNCKS25S.js";function n(){zm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
