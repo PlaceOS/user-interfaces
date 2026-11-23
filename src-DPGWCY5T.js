@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-MWNC7ZOW.js";
+} from "./chunk-UW73IECC.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,7 +14,7 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-KVFSKF7N.js";
+} from "./chunk-WFVNSM5P.js";
 import {
   Bp,
   Or,
@@ -35,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-BJHDJZ7W.js";
+} from "./chunk-3GM3XCZ7.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -8714,7 +8714,7 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason) {
+  $refund_payment(id, amount, _reason, _request_id) {
     const payment = findPayment(this._payments, id);
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
@@ -9671,5 +9671,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=c3f3d296-87bf-550d-a3c4-1442d784e17f
-//# sourceMappingURL=src-QBJDIV2B.js.map
+//# debugId=fef57854-9003-5e55-9f24-1d82af9dad14
+//# sourceMappingURL=src-DPGWCY5T.js.map
