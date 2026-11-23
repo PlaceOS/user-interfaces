@@ -1,12 +1,12 @@
 import {
   minuteClock
-} from "./chunk-PJI6LGZJ.js";
+} from "./chunk-O4FYOX37.js";
 import {
   PageHeadingDirective
 } from "./chunk-D7UGMEVZ.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-6AGWOKEH.js";
+} from "./chunk-6V324NUQ.js";
 import {
   MatMenu,
   MatMenuItem,
@@ -19,21 +19,21 @@ import {
 } from "./chunk-AMR42YE5.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-LOOFVRZN.js";
+} from "./chunk-NUXASCII.js";
 import {
   TranslatePipe
-} from "./chunk-LDN26ZUJ.js";
+} from "./chunk-ALYSKAN5.js";
 import {
   IconComponent
 } from "./chunk-3RSZXOUT.js";
-import "./chunk-OSN6JHKH.js";
+import "./chunk-YW247LWX.js";
 import {
   AsyncHandler,
   LocaleService,
   SettingsService,
   isPublicMode,
   settingSignal
-} from "./chunk-TPQ6QJDJ.js";
+} from "./chunk-YPJ5EE6B.js";
 import "./chunk-JDEFAKXV.js";
 import "./chunk-WWD2MK5Z.js";
 import "./chunk-ZMX7GYSU.js";
@@ -595,4 +595,4 @@ export {
   WelcomeComponent
 };
 //# debugId=fe57ba10-f973-5bfd-8e2b-1225de3ab64c
-//# sourceMappingURL=welcome.component-N4QE2YHF.js.map
+//# sourceMappingURL=welcome.component-VLMQJX3I.js.map
