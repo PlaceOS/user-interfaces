@@ -1,5 +1,6 @@
 import { MockPlaceWebsocketModule } from '@placeos/ts-client';
 
+import type { Payment } from 'libs/payments/src/lib/payment.types';
 import { MOCK_LEVELS } from '../lib/api/zone.data';
 import { createPaymentsModule } from '../lib/realtime/payments';
 
@@ -218,5 +219,21 @@ describe('Mock payments module', () => {
         const second = mod.call('save_product', [input]);
         expect(first.id).toMatch(/^prod-/);
         expect(second.id).not.toBe(first.id);
+    });
+
+    it('refunds once for a repeated request ID', () => {
+        const mod = createModule();
+        const [paid] = mod
+            .call('list_payments', [{ limit: 100 }])
+            .items.filter((_: Payment) => _.status === 'succeeded');
+        const before = paid.amount_refunded;
+        mod.call('refund_payment', [paid.id, 100, '', 'refund-1']);
+        const retry = mod.call('refund_payment', [
+            paid.id,
+            100,
+            '',
+            'refund-1',
+        ]);
+        expect(retry.amount_refunded).toBe(before + 100);
     });
 });

@@ -69,11 +69,12 @@ describe('PaymentDetailsModalComponent', () => {
         driver = { list_invoices: vi.fn(() => ({ items: [] })) };
     });
 
-    it('sends the same refund ID on a retry, and a new ID for a new refund', async () => {
+    it('sends the same refund ID on a retry, and a new ID for changed values or a new refund', async () => {
         capabilities.push('refunds');
         data = { payment: payment() };
         driver.refund_payment = vi
             .fn()
+            .mockRejectedValueOnce('Timeout')
             .mockRejectedValueOnce('Timeout')
             .mockReturnValue(
                 payment({ status: 'partially_refunded', amount_refunded: 500 }),
@@ -89,13 +90,16 @@ describe('PaymentDetailsModalComponent', () => {
         spectator.click('button[name="refund"]');
         await submit();
         await submit();
+        spectator.component.refund_amount.set(5);
+        await submit();
         spectator.click('button[name="refund"]');
         await submit();
 
         const ids = driver.refund_payment.mock.calls.map((args) => args[3]);
         expect(ids[0]).toEqual(expect.any(String));
         expect(ids[1]).toBe(ids[0]);
-        expect(ids[2]).not.toBe(ids[0]);
+        expect(ids[2]).not.toBe(ids[1]);
+        expect(ids[3]).not.toBe(ids[2]);
     });
 
     it('lets staff take an authorized payment for the event of the row', async () => {

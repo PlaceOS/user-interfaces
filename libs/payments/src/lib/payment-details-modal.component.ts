@@ -463,10 +463,11 @@ export class PaymentDetailsModalComponent implements OnInit {
     public readonly refund_amount = signal<number | null>(null);
     public readonly refund_reason = signal('');
     /**
-     * ID of the refund of the open refund view. A retry from the view sends
-     * the same ID, so the driver does not refund twice when a response is lost
+     * ID of the last refund request of the open refund view, with its amount
+     * and reason. A retry with the same values sends the same ID, so the
+     * driver does not refund twice when a response is lost
      */
-    private _refund_id = '';
+    private _refund: { key: string; id: string } | null = null;
 
     /** Amount that is not refunded yet, in the minor unit */
     public readonly refundable = computed(
@@ -625,13 +626,19 @@ export class PaymentDetailsModalComponent implements OnInit {
 
     /** Show the refund view, for a new refund */
     public openRefund() {
-        this._refund_id = crypto.randomUUID();
+        this._refund = null;
         this.view.set('refund');
     }
 
     public async refund() {
         if (!this.valid_refund()) return;
         const amount = this.refund_amount();
+        // Changed values are a new refund, so they get a new ID
+        const key = JSON.stringify([amount, this.refund_reason()]);
+        if (this._refund?.key !== key) {
+            this._refund = { key, id: crypto.randomUUID() };
+        }
+        const request_id = this._refund.id;
         await this._run('PAYMENTS.REFUNDING', async () => {
             this.payment.set(
                 await this._payments.call(
@@ -641,7 +648,7 @@ export class PaymentDetailsModalComponent implements OnInit {
                         ? null
                         : toMinorUnits(amount, this.payment().currency),
                     this.refund_reason(),
-                    this._refund_id,
+                    request_id,
                 ),
             );
             notifySuccess(i18n('PAYMENTS.REFUND_SUCCESS'));

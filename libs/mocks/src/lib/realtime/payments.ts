@@ -365,6 +365,8 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
     private _invoices: Invoice[] = [];
     /** Sessions of `create_checkout` by idempotency key */
     private _checkouts = new Map<string, CheckoutSession>();
+    /** `request_id` values of the refunds that are done, by payment */
+    private _refunds = new Set<string>();
 
     constructor(_: HashMap) {}
 
@@ -574,13 +576,16 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
         id: string,
         amount: number | null,
         _reason: string,
-        _request_id?: string | null,
+        request_id?: string | null,
     ) {
         const payment = findPayment(this._payments, id);
+        const key = request_id ? `${id}:${request_id}` : '';
+        if (key && this._refunds.has(key)) return payment;
         const refundable = payment.amount - payment.amount_refunded;
         const refund = amount === null ? refundable : amount;
         if (refund <= 0 || refund > refundable) throw 'Invalid refund amount';
         const amount_refunded = payment.amount_refunded + refund;
+        if (key) this._refunds.add(key);
         return updatePayment(this._payments, id, {
             amount_refunded,
             status:
