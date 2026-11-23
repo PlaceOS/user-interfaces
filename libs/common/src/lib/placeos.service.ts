@@ -59,6 +59,7 @@ import {
 import { lazySnackbar, notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
 import { createNativeAuthUrl, mockModeRequested, setupPlace } from './placeos';
+import { RemoteDebugService } from './remote-debug';
 import { initSentryFromSettings } from './sentry';
 import { SettingsService } from './settings.service';
 import { finishTeamsSignIn, startTeamsHost } from './teams-host';
@@ -138,6 +139,8 @@ export class PlaceOS_Service extends AsyncHandler {
     private _maps = inject(MapsPeopleService);
     /** Reports startup failures to the console and Sentry */
     private _error_handler = inject(ErrorHandler);
+    /** Injected here, so log capture starts with the app */
+    private _remote_debug = inject(RemoteDebugService);
 
     private _zone = '';
     private _region = '';

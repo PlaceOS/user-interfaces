@@ -21,6 +21,7 @@ describe('DisplaysSectionComponent', () => {
     const can_update = signal(false);
     const can_delete_displays = signal(false);
     const templates_enabled = signal(true);
+    const can_manage_all_groups = signal(false);
     const playlists_loading = signal(false);
     const related_loading = signal(false);
     const template_mappings = signal<{ id: string }[]>([]);
@@ -32,6 +33,7 @@ describe('DisplaysSectionComponent', () => {
         can_update,
         can_delete_displays,
         templates_enabled,
+        can_manage_all_groups,
     };
     const display_stub = {
         selected_display,
@@ -87,6 +89,7 @@ describe('DisplaysSectionComponent', () => {
         can_update.set(false);
         can_delete_displays.set(false);
         templates_enabled.set(true);
+        can_manage_all_groups.set(false);
         playlists_loading.set(false);
         related_loading.set(false);
         template_mappings.set([]);
@@ -261,6 +264,25 @@ describe('DisplaysSectionComponent', () => {
         TestBed.flushEffects();
 
         expect(component.view_tab()).toBe('templates');
+    });
+
+    it('shows the admin tab only to admin and support users', async () => {
+        const [component, fixture] = await make();
+        fixture.componentRef.setInput('tab', 'admin');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        expect(component.tabs().map((_) => _.id)).not.toContain('admin');
+        expect(component.view_tab()).toBe('schedule');
+
+        can_manage_all_groups.set(true);
+        fixture.componentRef.setInput('tab', null);
+        fixture.componentRef.setInput('tab', 'admin');
+        fixture.detectChanges();
+        TestBed.flushEffects();
+
+        expect(component.tabs().map((_) => _.id)).toContain('admin');
+        expect(component.view_tab()).toBe('admin');
     });
 
     it('navigates and updates the tab when switching views', async () => {

@@ -33,7 +33,12 @@
                         "input": "node_modules/@placeos/ts-client/dist/",
                         "output": "/"
                     },
-                    "apps/map-kiosk/src/manifest.webmanifest"
+                    "apps/map-kiosk/src/manifest.webmanifest",
+                    {
+                        "input": "node_modules/ts-md5/dist/",
+                        "output": "/assets",
+                        "glob": "*worker.js"
+                    }
                 ],
                 "styles": [
                     "apps/map-kiosk/src/styles.css",

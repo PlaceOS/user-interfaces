@@ -29,7 +29,7 @@ describe('UploadsService', () => {
         vi.clearAllMocks();
         spectator = createService();
         state = new BehaviorSubject({ status: 'UPLOADING', progress: 0 });
-        mock_upload = { id: 'up-1', state, resume: vi.fn() };
+        mock_upload = { id: 'up-1', state, resume: vi.fn(), remove: vi.fn() };
         vi.mocked(cloud_uploads.initUploads).mockReturnValue(undefined);
         vi.mocked(cloud_uploads.humanReadableByteCount).mockReturnValue('1 KB');
         vi.mocked(cloud_uploads.uploadFile).mockResolvedValue(mock_upload);
@@ -134,6 +134,8 @@ describe('UploadsService', () => {
         await expect(promise).rejects.toThrow(/status 401/);
         // Exhausted, so no further resume attempts
         expect(mock_upload.resume).toHaveBeenCalledTimes(3);
+        // The manager no longer keeps the file
+        expect(mock_upload.remove).toHaveBeenCalled();
     });
 
     it('should report the reason an upload failed', async () => {

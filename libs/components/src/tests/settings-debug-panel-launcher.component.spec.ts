@@ -1,9 +1,9 @@
 import { signal } from '@angular/core';
 import { DeferBlockBehavior, TestBed } from '@angular/core/testing';
 import {
+    ConsoleHistoryService,
     EMPTY_USER,
     HotkeysService,
-    RemoteLoggingService,
     setCurrentUser,
     SettingsService,
     StaffUser,
@@ -38,7 +38,7 @@ describe('SettingsDebugPanelLauncherComponent', () => {
                     },
                 },
                 {
-                    provide: RemoteLoggingService,
+                    provide: ConsoleHistoryService,
                     useFactory: () => ({ started: ++logging_starts }),
                 },
                 {

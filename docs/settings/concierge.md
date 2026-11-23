@@ -106,6 +106,7 @@ Each locale entry requires an `id` and `name`:
 | `points-of-interest` | Map features | No |
 | `url-management` | URL management | No |
 | `remote-setup` | Remote setup of booking panels and control panels. See [Remote setup](../remote-setup.md) | No |
+| `remote-debug` | Remote debugging of devices, for admin and support users. See [Remote debugging](../remote-debug.md) | No |
 | `email-templates` | Email templates | Yes |
 | `deals-n-offers` | Deals and offers | No |
 | `internal-users` | User list | Yes |

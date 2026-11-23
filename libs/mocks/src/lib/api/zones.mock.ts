@@ -1,4 +1,5 @@
 import { HashMap, padLength, predictableRandomInt } from '@placeos/common';
+import { REMOTE_DEBUG_MOCK_SYSTEM } from '../realtime/remote-debug';
 import {
     MOCK_PAGE_SIZE,
     mockId,
@@ -218,6 +219,7 @@ export function registerMockZones() {
                         location_services: system_id,
                         contact_tracing: system_id,
                         lockers: system_id,
+                        remote_debug: REMOTE_DEBUG_MOCK_SYSTEM,
                         // payments: system_id,
                     },
                 },

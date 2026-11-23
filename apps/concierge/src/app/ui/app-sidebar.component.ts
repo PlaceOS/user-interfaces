@@ -39,6 +39,8 @@ interface SidebarLink {
     icon: string;
     /** Only show as active on the route itself, not on its child routes. Query params are ignored */
     exact?: boolean;
+    /** Only users in one of these groups see the link, also when they are admins */
+    groups?: readonly string[];
 }
 
 /** Collapsible group of links. Shows when one or more of its links show */
@@ -217,12 +219,6 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 icon: 'link',
             },
             {
-                id: 'remote-setup',
-                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_SETUP',
-                route: ['/remote-setup'],
-                icon: 'qr_code_scanner',
-            },
-            {
                 id: 'email-templates',
                 name: 'APP.CONCIERGE.MENU_MANAGE_EMAILS',
                 route: ['/email-templates'],
@@ -233,6 +229,27 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 name: 'APP.CONCIERGE.MENU_MANAGE_DEALS',
                 route: ['/deals-n-offers'],
                 icon: 'local_offer',
+            },
+        ],
+    },
+    {
+        id: 'devices',
+        name: 'APP.CONCIERGE.MENU_DEVICES',
+        admin_only: true,
+        children: [
+            {
+                id: 'remote-setup',
+                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_SETUP',
+                route: ['/remote-setup'],
+                icon: 'qr_code_scanner',
+            },
+            {
+                id: 'remote-debug',
+                name: 'APP.CONCIERGE.MENU_MANAGE_REMOTE_DEBUG',
+                route: ['/remote-debug'],
+                icon: 'bug_report',
+                // The page is for PlaceOS admin and support users only
+                groups: ['placeos_admin', 'placeos_support'],
             },
         ],
     },
@@ -496,6 +513,7 @@ const SIDEBAR_GROUPS: readonly SidebarGroup[] = [
                 flex-direction: column;
                 height: 100%;
                 width: 16rem;
+                background-color: var(--base-100);
                 border-right: 1px solid var(--base-200);
                 /* Stays still on page changes (styles.css) */
                 view-transition-name: concierge-sidebar;
@@ -608,6 +626,10 @@ export class ApplicationSidebarComponent
 
     /** Whether one of the features of the link is on for the current user */
     private _canView(link: SidebarLink): boolean {
+        const groups = link.groups;
+        if (groups && !user_group_names().some((_) => groups.includes(_))) {
+            return false;
+        }
         return [link.id, ...(link.alt_features || [])].some((_) =>
             this._hasFeature(_),
         );
