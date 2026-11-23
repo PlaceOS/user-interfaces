@@ -23,23 +23,23 @@ import {
   BOOKING_STORE_KEY,
   EVENT_KEY,
   RemoteSetupService
-} from "./chunk-TH5RC2KJ.js";
+} from "./chunk-36ST2S5Z.js";
 import {
   AnnounceDirective
-} from "./chunk-S4MEBI6Y.js";
+} from "./chunk-BHSPFTUW.js";
 import {
   TranslatePipe
-} from "./chunk-U5J7CYZB.js";
+} from "./chunk-ETBBCSZJ.js";
 import "./chunk-E73KFHH5.js";
 import {
   OrganisationService
-} from "./chunk-WMJW7D52.js";
+} from "./chunk-FOK73WRS.js";
 import {
   Space,
   VERSION,
   orThrowPage,
   systems_exports
-} from "./chunk-CBY3FLYG.js";
+} from "./chunk-UF3UHGQQ.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -881,4 +881,4 @@ export {
   BootstrapComponent
 };
 //# debugId=a88e908c-2ccd-53ec-883c-ef26704408f3
-//# sourceMappingURL=bootstrap.component-7IAADS2R.js.map
+//# sourceMappingURL=bootstrap.component-V5FVZUNZ.js.map

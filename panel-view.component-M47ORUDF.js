@@ -20,27 +20,27 @@ import {
   timelineNow,
   timelineSlot,
   timelineStart
-} from "./chunk-6PR3N2BT.js";
+} from "./chunk-SDCMBJCV.js";
 import "./chunk-6SVTW7BM.js";
 import "./chunk-PLCOWYBA.js";
 import "./chunk-ZBLQSZZW.js";
 import "./chunk-YRS34B4W.js";
 import "./chunk-XPXIQO3T.js";
-import "./chunk-SEWOYA4A.js";
+import "./chunk-N5O7N6G4.js";
 import {
   AnnounceDirective
-} from "./chunk-S4MEBI6Y.js";
+} from "./chunk-BHSPFTUW.js";
 import {
   TranslatePipe
-} from "./chunk-U5J7CYZB.js";
+} from "./chunk-ETBBCSZJ.js";
 import "./chunk-E73KFHH5.js";
-import "./chunk-WMJW7D52.js";
+import "./chunk-FOK73WRS.js";
 import {
   AsyncHandler,
   VERSION,
   notifyError,
   startOfMinute
-} from "./chunk-CBY3FLYG.js";
+} from "./chunk-UF3UHGQQ.js";
 import {
   IconComponent,
   SafePipe
@@ -2151,4 +2151,4 @@ export {
   PanelViewComponent
 };
 //# debugId=bc0e76e6-9847-559e-9fe1-fdcb784bb255
-//# sourceMappingURL=panel-view.component-UEDW2BUP.js.map
+//# sourceMappingURL=panel-view.component-M47ORUDF.js.map
