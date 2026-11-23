@@ -2,9 +2,11 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { querySignagePlugins, SignagePlugin } from '@placeos/ts-client';
+import { signage_plugins } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { SignageContextService } from '../app/signage-context.service';
 import { SignageGroupFeatures } from '../app/signage-features';
+import { signagePlugin } from '../app/signage-models';
 import { SignagePluginService } from '../app/signage-plugin.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -26,9 +28,11 @@ describe('SignagePluginService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settings.get.mockReturnValue(false);
-        vi.mocked(querySignagePlugins).mockResolvedValue({
-            data: [],
-        } as Awaited<ReturnType<typeof querySignagePlugins>>);
+        vi.mocked(signage_plugins.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            }),
+        );
         TestBed.configureTestingModule({
             providers: [
                 { provide: SettingsService, useValue: settings },
@@ -43,17 +47,17 @@ describe('SignagePluginService', () => {
     }
 
     it('requests plugins and widgets separately', async () => {
-        vi.mocked(querySignagePlugins).mockImplementation(async (options) => {
-            const plugin_type = options.plugin_type || 'plugin';
-            return {
+        vi.mocked(signage_plugins.query).mockImplementation(async (input) => {
+            const plugin_type = input?.plugin_type || 'plugin';
+            return mockPage({
                 data: [
-                    new SignagePlugin({
+                    signagePlugin({
                         id: `${plugin_type}-1`,
                         name: plugin_type,
                         plugin_type,
                     }),
                 ],
-            } as Awaited<ReturnType<typeof querySignagePlugins>>;
+            });
         });
         const service = createService();
         // Plugins load once the user can query the "All groups" view
@@ -68,26 +72,27 @@ describe('SignagePluginService', () => {
             expect(service.plugins()[0]?.id).toBe('plugin-1');
             expect(service.widgets()[0]?.id).toBe('widget-1');
         });
-        expect(querySignagePlugins).toHaveBeenCalledWith(
+        expect(signage_plugins.query).toHaveBeenCalledWith(
             expect.objectContaining({ plugin_type: 'plugin' }),
         );
-        expect(querySignagePlugins).toHaveBeenCalledWith(
+        expect(signage_plugins.query).toHaveBeenCalledWith(
             expect.objectContaining({ plugin_type: 'widget' }),
         );
     });
 
     it('limits plugins to the ones the group makes available', async () => {
-        vi.mocked(querySignagePlugins).mockResolvedValue({
-            data: ['plugin-1', 'plugin-2'].map(
-                (id) =>
-                    new SignagePlugin({
+        vi.mocked(signage_plugins.query).mockResolvedValue(
+            mockPage({
+                data: ['plugin-1', 'plugin-2'].map((id) =>
+                    signagePlugin({
                         id,
                         name: id,
                         plugin_type: 'plugin',
                         enabled: true,
                     }),
-            ),
-        } as Awaited<ReturnType<typeof querySignagePlugins>>);
+                ),
+            }),
+        );
         const service = createService();
         const context = TestBed.inject(SignageContextService);
         const group = signal<SignageGroupFeatures>({});
@@ -109,16 +114,18 @@ describe('SignagePluginService', () => {
     });
 
     it('resolves a loaded plugin without querying again', async () => {
-        vi.mocked(querySignagePlugins).mockResolvedValue({
-            data: [
-                new SignagePlugin({
-                    id: 'plugin-1',
-                    name: 'Clock',
-                    plugin_type: 'plugin',
-                    enabled: true,
-                }),
-            ],
-        } as Awaited<ReturnType<typeof querySignagePlugins>>);
+        vi.mocked(signage_plugins.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    signagePlugin({
+                        id: 'plugin-1',
+                        name: 'Clock',
+                        plugin_type: 'plugin',
+                        enabled: true,
+                    }),
+                ],
+            }),
+        );
         const service = createService();
         Object.defineProperty(
             TestBed.inject(SignageContextService),
@@ -127,13 +134,13 @@ describe('SignagePluginService', () => {
         );
         TestBed.flushEffects();
         await vi.waitFor(() => expect(service.all_plugins()).toHaveLength(1));
-        const calls = vi.mocked(querySignagePlugins).mock.calls.length;
+        const calls = vi.mocked(signage_plugins.query).mock.calls.length;
 
         const plugin = await service.resolvePlugin('plugin-1');
 
         expect(plugin?.name).toBe('Clock');
-        expect(querySignagePlugins).toHaveBeenCalledTimes(calls);
+        expect(signage_plugins.query).toHaveBeenCalledTimes(calls);
         expect(await service.resolvePlugin('plugin-2')).toBeUndefined();
-        expect(querySignagePlugins).toHaveBeenCalledTimes(calls + 1);
+        expect(signage_plugins.query).toHaveBeenCalledTimes(calls + 1);
     });
 });

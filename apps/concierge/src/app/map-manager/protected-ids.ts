@@ -8,8 +8,9 @@ import {
 import { BuildingLevel } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/events';
 import { ProtectedId, ProtectedIdSource } from '@placeos/map-editor';
-import { PlaceAsset, showMetadata } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
 import { firstValueFrom } from 'rxjs';
+import { jsonList, jsonRecord, showMetadata } from '../metadata';
 
 interface DeskRecord {
     id?: string;
@@ -23,7 +24,7 @@ interface PointRecord {
     location?: string | [number, number];
 }
 
-function assetMapId(asset: PlaceAsset): string {
+function assetMapId(asset: Asset): string {
     const data = (asset.other_data || {}) as { map_id?: string };
     return asset.map_id || data.map_id || '';
 }
@@ -54,9 +55,7 @@ export function conciergeProtectedIdSources(
                     .filter((entry) => !!entry.id);
             }
             const metadata = await showMetadata(level.id, 'desks');
-            const list = Array.isArray(metadata.details)
-                ? (metadata.details as DeskRecord[])
-                : [];
+            const list = jsonList<DeskRecord>(metadata.details);
             return list
                 .map(
                     (desk): ProtectedId => ({
@@ -111,10 +110,9 @@ export function conciergeProtectedIdSources(
                 organisation_id,
                 'points-of-interest',
             );
-            const mapping = (metadata.details || {}) as Record<
-                string,
-                PointRecord[]
-            >;
+            const mapping = jsonRecord<Record<string, PointRecord[]>>(
+                metadata.details,
+            );
             const list = Array.isArray(mapping[level.id])
                 ? mapping[level.id]
                 : [];

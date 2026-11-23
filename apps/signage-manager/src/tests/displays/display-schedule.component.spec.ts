@@ -5,7 +5,10 @@ import { addDays, isSameDay, startOfWeek } from 'date-fns';
 import { DisplayScheduleComponent } from '../../app/displays/display-schedule.component';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
-import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
+import {
+    type HydratedSignageTemplateMapping,
+    hydratedTemplateMapping,
+} from '../../app/signage-template-mapping';
 
 describe('DisplayScheduleComponent', () => {
     const selected_display = signal<unknown>(null);
@@ -162,7 +165,7 @@ describe('DisplayScheduleComponent', () => {
             },
         ]);
         template_mappings.set([
-            new HydratedSignageTemplateMapping({
+            hydratedTemplateMapping({
                 id: 'm1',
                 template_id: 't1',
                 zone_id: 'z1',

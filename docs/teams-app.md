@@ -88,7 +88,7 @@ For a test, a user can upload the package in Teams from **Apps** > **Manage your
 
 ## Known limits
 
-- **Token expiry:** With SSO, ts-client uses the refresh token from the exchange to get a new PlaceOS token. The app does not refresh a token from the sign-in window. When that token expires, API requests fail. Reload the tab to sign in again.
+- **Token expiry:** The tab is a trusted app, so ts-client keeps its tokens in the storage over a reload. With SSO, ts-client uses the refresh token from the exchange to get a new PlaceOS token. The app does not refresh a token from the sign-in window. When that token expires, API requests fail. Reload the tab to sign in again.
 - **Sign out:** Sign out goes to the PlaceOS logout page in the tab frame. This can fail in the frame.
 - **External links:** `libs/components/src/lib/user-controls.component.ts` and `libs/explore/src/lib/explore-spaces.service.ts` use `window.open()`. Web hosts usually open a new browser tab. Desktop and mobile hosts are not validated. A follow-up can use `app.openLink()` from teams-js in the host.
 - **Classic Outlook for Windows:** Support for Microsoft 365 personal tabs in classic Outlook is not validated.

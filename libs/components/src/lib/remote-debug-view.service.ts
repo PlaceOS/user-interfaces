@@ -6,17 +6,17 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { is_connected, PlaceModuleBinding } from '@placeos/ts-client';
-
 import {
     AsyncHandler,
     notifyError,
     OrganisationService,
     readRemoteDebugDevices,
     readRemoteDebugModule,
+    realtimeConnected,
     REMOTE_DEBUG_DEVICES,
     remoteDebugOrgId,
     RemoteDebugSeenDevice,
+    type ModuleHandle,
 } from '@placeos/common';
 
 /** State of the RemoteDebug driver for the admin views */
@@ -31,7 +31,7 @@ export type RemoteDebugViewState = 'loading' | 'ready' | 'missing' | 'failed';
 @Injectable({ providedIn: 'root' })
 export class RemoteDebugViewService extends AsyncHandler {
     private readonly _org = inject(OrganisationService);
-    private readonly _module = signal<PlaceModuleBinding | null>(null);
+    private readonly _module = signal<ModuleHandle | null>(null);
     private readonly _state = signal<RemoteDebugViewState>('loading');
     private readonly _devices = signal<RemoteDebugSeenDevice[]>([]);
 
@@ -66,7 +66,7 @@ export class RemoteDebugViewService extends AsyncHandler {
             'devices',
             mod
                 .variable<unknown>(REMOTE_DEBUG_DEVICES)
-                .bindThenSubscribe((value) =>
+                .subscribe((value) =>
                     this._devices.set(readRemoteDebugDevices(value)),
                 ),
         );
@@ -85,10 +85,9 @@ export class RemoteDebugViewService extends AsyncHandler {
     ): Promise<T> {
         const mod = this._module();
         if (!mod) throw new Error('The RemoteDebug driver is not set up');
-        // ts-client keeps a call that it cannot send and sends it after it
-        // connects again, maybe after the user left the page. A reload must
-        // not run then
-        if (!is_connected()) {
+        // A call that cannot go now waits until the socket opens again,
+        // maybe after the user left the page. A reload must not run then
+        if (!realtimeConnected()) {
             const message = 'Remote debugging needs a connection to PlaceOS';
             notifyError(message);
             throw new Error(message);

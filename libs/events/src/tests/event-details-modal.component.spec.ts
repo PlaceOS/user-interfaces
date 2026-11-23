@@ -13,6 +13,8 @@ import { AttendeeListComponent } from '../lib/attendee-list.component';
 
 import { DatePipe } from '@angular/common';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { startMockPlaceClient } from '@placeos/common/tests';
+import { deregisterSystem, registerSystem } from '@placeos/ts-client/compat';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { BindingDirective } from 'libs/components/src/lib/binding.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -23,10 +25,6 @@ import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.compone
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { EventDetailsModalComponent } from '../lib/event-details-modal.component';
-
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as ts_client from '@placeos/ts-client';
 
 describe('EventDetailsModalComponent', () => {
     let spectator: Spectator<EventDetailsModalComponent>;
@@ -178,9 +176,16 @@ describe('EventDetailsModalComponent', () => {
     });
 
     it('should not show the room as checked in when the check-in fails', async () => {
-        vi.mocked(ts_client.getModule).mockReturnValueOnce({
-            execute: vi.fn().mockRejectedValue(new Error('offline')),
-        } as any);
+        startMockPlaceClient();
+        registerSystem('sys-1', {
+            Bookings: [
+                {
+                    $checkin: () => {
+                        throw new Error('offline');
+                    },
+                },
+            ],
+        });
         spectator.component.space.set(new Space({ id: 'sys-1' } as any));
         spectator.component.room_status.set('pending');
 
@@ -188,32 +193,36 @@ describe('EventDetailsModalComponent', () => {
 
         expect(spectator.component.room_status()).toBe('pending');
         expect(spectator.component.checking_in()).toBe(false);
+        deregisterSystem('sys-1');
     });
 
     it('should check in the room for the event start and show it as busy', async () => {
-        const execute = vi.fn().mockResolvedValue(undefined);
-        vi.mocked(ts_client.getModule).mockReturnValueOnce({
-            execute,
-        } as any);
+        startMockPlaceClient();
+        const checkin = vi.fn().mockReturnValue(true);
+        registerSystem('sys-1', { Bookings: [{ $checkin: checkin }] });
         const date = new Date(2028, 5, 15, 10).valueOf();
         spectator.component.event.set(new CalendarEvent({ date }));
         spectator.component.space.set(new Space({ id: 'sys-1' } as any));
 
         await spectator.component.checkin();
 
-        expect(ts_client.getModule).toHaveBeenCalledWith('sys-1', 'Bookings');
-        expect(execute).toHaveBeenCalledWith('checkin', [date / 1000]);
+        expect(checkin).toHaveBeenCalledWith(date / 1000);
         expect(spectator.component.room_status()).toBe('busy');
         expect(spectator.component.checking_in()).toBe(false);
+        deregisterSystem('sys-1');
     });
 
     it('should not check in when the event has no room', async () => {
+        startMockPlaceClient();
+        const checkin = vi.fn();
+        registerSystem('sys-1', { Bookings: [{ $checkin: checkin }] });
         spectator.component.space.set(new Space());
 
         await spectator.component.checkin();
 
-        expect(ts_client.getModule).not.toHaveBeenCalled();
+        expect(checkin).not.toHaveBeenCalled();
         expect(spectator.component.room_status()).toBe('');
+        deregisterSystem('sys-1');
     });
 
     it.each([

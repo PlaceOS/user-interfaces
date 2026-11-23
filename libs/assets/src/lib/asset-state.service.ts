@@ -11,11 +11,16 @@ import {
 import {
     AssetGroup,
     CalendarEvent,
+    jsonRecord,
     OrganisationService,
     SettingsService,
     Space,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import {
+    type AssetCategory,
+    metadata as metadata_v7,
+} from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addMinutes, endOfMinute, getUnixTime, startOfMinute } from 'date-fns';
 import { assetAvailable, getAssetRulesForZone } from './asset.utilities';
 import { queryAssetCategories, queryGroupAvailability } from './assets.fn';
@@ -54,7 +59,7 @@ export class AssetStateService {
     private _loading = signal<string>('');
     private _rules = signal([]);
     private _available_groups = signal<AssetGroup[]>([]);
-    private _category_list = signal<any[]>([]);
+    private _category_list = signal<AssetCategory[]>([]);
     private _settings = signal<Record<string, any>>({});
     private _network_requested = false;
     private _network_consumed = signal(false);
@@ -118,8 +123,8 @@ export class AssetStateService {
                 _.assets?.length &&
                 visible_categories.includes(_.category_id) &&
                 (!category.length || category.includes(_.category_id)) &&
-                (_.name.toLowerCase().includes(search) ||
-                    _.description.toLowerCase().includes(search)) &&
+                ((_.name || '').toLowerCase().includes(search) ||
+                    (_.description || '').toLowerCase().includes(search)) &&
                 assetAvailable(_, rules, event),
         );
     });
@@ -233,7 +238,9 @@ export class AssetStateService {
         const list = await request;
         this._removeLoading('[Availability]');
         request.finally(() => this._available_group_requests.delete(key));
-        const sorted_list = list.sort((a, b) => a.name.localeCompare(b.name));
+        const sorted_list = list.sort((a, b) =>
+            (a.name || '').localeCompare(b.name || ''),
+        );
         this._available_groups.set(sorted_list);
     }
 
@@ -242,8 +249,10 @@ export class AssetStateService {
         this._category_list_request = queryAssetCategories()
             .then((categories) => {
                 this._category_list.set(
-                    categories.data
-                        .sort((a, b) => a.name.localeCompare(b.name))
+                    [...categories.data]
+                        .sort((a, b) =>
+                            (a.name || '').localeCompare(b.name || ''),
+                        )
                         .filter((c) => !c.hidden),
                 );
                 return categories;
@@ -256,11 +265,11 @@ export class AssetStateService {
         const existing = this._settings_requests.get(building_id);
         const request =
             existing ||
-            showMetadata(building_id, 'assets-settings')
-                .then(
-                    (metadata) =>
-                        (metadata.details as Record<string, unknown>) || {},
-                )
+            metadata_v7
+                .show({ id: building_id, name: 'assets-settings' })
+                .then(orThrow)
+                .then((data) => data['assets-settings'])
+                .then((metadata) => jsonRecord(metadata?.details))
                 .catch(() => ({}));
         if (!existing) this._settings_requests.set(building_id, request);
         this._settings.set(await request);

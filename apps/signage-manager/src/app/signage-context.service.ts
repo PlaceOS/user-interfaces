@@ -24,17 +24,15 @@ import {
     userSignal,
 } from '@placeos/common';
 import {
-    currentGroups,
-    PlaceCurrentGroup,
-    PlaceGroup,
-    type PlaceGroupQueryOptions,
-    PlaceUser,
-    queryGroups,
-    shareSignageMedia,
-    shareSignagePlaylists,
-    shareSignageTemplates,
-    showGroupFeatures,
+    type Group,
+    groups as groups_v7,
+    type GroupsCurrentGroup,
+    playlist,
+    playlist_media,
+    signage_templates,
+    type User,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
 import type { GroupSelectModalData } from './shared/group-select-modal.component';
 import { byName } from './shared/paged-search';
@@ -53,17 +51,17 @@ const SIGNAGE_SHARE_CONFIG = {
     media: {
         title: 'SIGNAGE_MANAGER.SVC_SHARE_MEDIA_TITLE',
         success: 'SIGNAGE_MANAGER.SVC_MEDIA_SHARED',
-        request: shareSignageMedia,
+        request: playlist_media.share,
     },
     playlists: {
         title: 'SIGNAGE_MANAGER.SVC_SHARE_PLAYLIST_TITLE',
         success: 'SIGNAGE_MANAGER.SVC_PLAYLIST_SHARED',
-        request: shareSignagePlaylists,
+        request: playlist.share,
     },
     templates: {
         title: 'SIGNAGE_MANAGER.SVC_SHARE_TEMPLATE_TITLE',
         success: 'SIGNAGE_MANAGER.SVC_TEMPLATE_SHARED',
-        request: shareSignageTemplates,
+        request: signage_templates.share,
     },
 } as const;
 
@@ -82,10 +80,12 @@ export interface ApprovalRequestFlow<A> {
     /** Approve at once, for users who can approve */
     approve: () => Promise<unknown>;
     /** Query of the item type in one group, to find the groups that hold it */
-    query: (group_id: string) => Promise<{ data?: { id: string }[] }>;
-    list_approvers: (group_id: string) => Promise<A[]>;
+    query: (group_id: string) => Promise<{ data?: readonly { id: string }[] }>;
+    list_approvers: (group_id: string) => Promise<readonly A[]>;
     /** Let the user pick an approver. Undefined when cancelled. */
-    pick: (approvers: A[]) => Promise<ApprovalRequestChoice | undefined>;
+    pick: (
+        approvers: readonly A[],
+    ) => Promise<ApprovalRequestChoice | undefined>;
     request: (
         group_id: string,
         message: string,
@@ -104,17 +104,6 @@ interface LoadedGroupFeatures {
     group_id: string;
     features: SignageGroupFeatures;
 }
-
-const SIGNAGE_GROUP_FIELDS = [
-    'id',
-    'name',
-    'description',
-    'subsystems',
-    'authority_id',
-    'parent_id',
-    'features',
-    'children_count',
-].join(',');
 
 // Upper bound on group index pages, 10,000 groups at 200 per page.
 const MAX_GROUP_PAGES = 50;
@@ -140,7 +129,7 @@ export enum SignageGroupPermission {
 }
 
 /** Groups with their names decoded, sorted by name */
-export function sortGroups<T extends PlaceGroup>(groups: T[]) {
+export function sortGroups<T extends Group>(groups: T[]) {
     return groups.map(decodeEntityNames).sort(byName);
 }
 
@@ -192,12 +181,12 @@ function sharedRequest<T>(load: () => Promise<T>, user: () => unknown) {
 /** Group and its ancestors, root first. Stops on a repeated group so a broken
  * parent chain can't loop forever. */
 export function groupHierarchy(
-    selected: PlaceGroup | undefined,
-    all_groups: PlaceGroup[],
+    selected: Group | undefined,
+    all_groups: Group[],
 ) {
     if (!selected) return [];
     const groups = new Map(all_groups.map((item) => [item.id, item]));
-    const hierarchy: PlaceGroup[] = [];
+    const hierarchy: Group[] = [];
     const seen = new Set<string>();
     let group = selected;
     while (group?.id && !seen.has(group.id)) {
@@ -290,15 +279,14 @@ export class SignageContextService {
                   }
                 : undefined,
         loader: async ({ params }) => {
-            if (!params.user_email) return [] as PlaceCurrentGroup[];
+            if (!params.user_email) return [] as GroupsCurrentGroup[];
             try {
                 const groups = params.sys_admin
                     ? (await this.allSignageGroups(params.groups_change)).map(
-                          (group) =>
-                              ({
-                                  group,
-                                  permissions: SignageGroupPermission.Manage,
-                              }) as PlaceCurrentGroup,
+                          (group): GroupsCurrentGroup => ({
+                              group,
+                              permissions: SignageGroupPermission.Manage,
+                          }),
                       )
                     : await this.currentSignageGroups(params.groups_change);
                 this.signage_groups_failed.set(false);
@@ -341,14 +329,14 @@ export class SignageContextService {
         ),
     );
     public readonly is_sys_admin = computed(() => {
-        const user: Partial<Pick<PlaceUser, 'groups' | 'sys_admin'>> =
+        const user: Partial<Pick<User, 'groups' | 'sys_admin'>> =
             this.current_user();
         return (
             !!user.sys_admin || (user.groups || []).includes('placeos_admin')
         );
     });
     private readonly _is_support = computed(() => {
-        const user: Partial<Pick<PlaceUser, 'groups' | 'support'>> =
+        const user: Partial<Pick<User, 'groups' | 'support'>> =
             this.current_user();
         return (
             !!user.support || (user.groups || []).includes('placeos_support')
@@ -376,17 +364,14 @@ export class SignageContextService {
      * would hide groups past the first 200 from the selector and group admin.
      * Stops after `MAX_GROUP_PAGES` pages.
      */
-    public async queryManageableGroups(params: PlaceGroupQueryOptions = {}) {
-        // The groups index takes `subsystem`, which the client options do
-        // not type
-        const query_params: PlaceGroupQueryOptions & { subsystem: string } = {
-            limit: 200,
-            fields: SIGNAGE_GROUP_FIELDS,
-            subsystem: 'signage',
-            ...params,
-        };
+    public async queryManageableGroups(
+        params: Parameters<typeof groups_v7.query>[0] = {},
+    ) {
+        // The groups index of the server filters by `subsystem`, but 7.x of
+        // ts-client does not have the param. The filter below keeps the
+        // signage groups.
         const groups = await queryAll(
-            queryGroups(query_params),
+            groups_v7.query({ limit: 200, ...params }).then(orThrowPage),
             MAX_GROUP_PAGES,
         );
         return groups
@@ -398,7 +383,7 @@ export class SignageContextService {
     // save. Share one request per `groups_change` and user.
     /** Signage groups of the current user, one request per `groups_change` */
     public readonly currentSignageGroups = sharedRequest(
-        () => currentGroups({ subsystem: 'signage' }),
+        () => groups_v7.current({ subsystem: 'signage' }).then(orThrow),
         () => untracked(this.active_user)?.email,
     );
     /** Every signage group, for admins, one request per `groups_change` */
@@ -590,7 +575,9 @@ export class SignageContextService {
     /** Effective signage flags of a group, including inherited values */
     public async loadGroupFeatures(group_id: string) {
         if (!group_id) return {} as SignageGroupFeatures;
-        const raw = await showGroupFeatures(group_id, { subsystem: 'signage' });
+        const raw = await groups_v7
+            .features({ id: group_id, subsystem: 'signage' })
+            .then(orThrow);
         return signageGroupFeatures(raw);
     }
 
@@ -664,51 +651,47 @@ export class SignageContextService {
     }
 
     /** Add the selected group to query params */
-    public groupQueryParams<T extends Record<string, any>>(
+    public groupQueryParams<T extends object>(
         query_params: T,
         group_id = this.api_group_id(),
-    ) {
+    ): T & { group_id?: string } {
         return {
             ...query_params,
             ...(group_id ? { group_id } : {}),
-        } as T & { group_id?: string };
-    }
-
-    /** Add the selected group to query params, or the organisation zone for
-     * "All groups" */
-    public orgZoneQueryParams<T extends Record<string, any>>(
-        query_params: T,
-        group_id = this.api_group_id(),
-    ) {
-        const org_zone_id = this._org.organisation?.id;
-        let zone_params: { group_id?: string; zone_id?: string } = {};
-        if (group_id) {
-            zone_params = { group_id };
-        } else if (org_zone_id) {
-            zone_params = { zone_id: org_zone_id };
-        }
-        return { ...query_params, ...zone_params } as T & {
-            group_id?: string;
-            zone_id?: string;
         };
     }
 
-    public childContentQueryParams(group_id = this.api_group_id()) {
+    /**
+     * Add the selected group to the query params of a display query, or the
+     * organisation zone for "All groups". The other signage indexes take no
+     * zone, so use `groupQueryParams` for them.
+     */
+    public orgZoneQueryParams<T extends object>(
+        query_params: T,
+        group_id = this.api_group_id(),
+    ): T & { group_id?: string; zone_id?: string[] } {
+        const org_zone_id = this._org.organisation?.id;
+        if (group_id) return { ...query_params, group_id };
+        if (org_zone_id) return { ...query_params, zone_id: [org_zone_id] };
+        return { ...query_params };
+    }
+
+    /** Adds the content of child groups when the user selects it. */
+    public childContentQueryParams(group_id = this.api_group_id()): {
+        include_child_data?: boolean;
+    } {
         return group_id && this._include_child_data()
-            ? { include_child_data: 'true' }
+            ? { include_child_data: true }
             : {};
     }
 
     /** Scope the media and playlist library reads for the selected group. */
-    public contentQueryParams<T extends Record<string, any>>(
+    public contentQueryParams<T extends object>(
         query_params: T,
         group_id = this.api_group_id(),
     ) {
-        return this.orgZoneQueryParams(
-            {
-                ...query_params,
-                ...this.childContentQueryParams(group_id),
-            },
+        return this.groupQueryParams(
+            { ...query_params, ...this.childContentQueryParams(group_id) },
             group_id,
         );
     }
@@ -743,9 +726,10 @@ export class SignageContextService {
             groups: target_groups,
         });
         if (!group_id) return false;
-        const options = { items: item_ids.join(','), to: group_id };
         try {
-            await share_config.request(options);
+            await share_config
+                .request({ items: item_ids, to: group_id })
+                .then(orThrow);
         } catch {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_SHARE'));
             return false;
@@ -763,7 +747,9 @@ export class SignageContextService {
      */
     public async groupsHolding(
         item_id: string,
-        query: (group_id: string) => Promise<{ data?: { id: string }[] }>,
+        query: (
+            group_id: string,
+        ) => Promise<{ data?: readonly { id: string }[] }>,
     ) {
         const groups = this.signage_groups().filter(({ group }) => group.id);
         const selected_group = groups.find(
@@ -793,8 +779,8 @@ export class SignageContextService {
             await flow.approve();
             return;
         }
-        let approvers: A[] = [];
-        let group: PlaceCurrentGroup | undefined;
+        let approvers: readonly A[] = [];
+        let group: GroupsCurrentGroup | undefined;
         flow.loading.set(true);
         try {
             [group] = await this.groupsHolding(flow.item_id, flow.query);

@@ -1,12 +1,8 @@
 import { COMMA, ENTER, SPACE } from '@angular/cdk/keycodes';
 import { Component, Injector, OnInit, inject, signal } from '@angular/core';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
-import {
-    addSystem,
-    showMetadata,
-    updateMetadata,
-    updateSystem,
-} from '@placeos/ts-client';
+import { metadata, systems } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { CommonModule } from '@angular/common';
 import { FormField, form } from '@angular/forms/signals';
@@ -43,6 +39,7 @@ import {
     DurationFieldComponent,
     ImageListFieldComponent,
 } from '@placeos/form-fields';
+import { jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
 import { TimezoneFieldComponent } from '../ui/timezone-field.component';
@@ -519,7 +516,8 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
             this._org.organisation.id,
             'settings',
         );
-        const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
+        const overflow =
+            getItemWithKeys(['events', 'overflow'], jsonRecord(details)) || {};
         if (this._data.room.id && overflow[this._data.room.id]) {
             patchSignalModel(this.settings_model, overflow[this._data.room.id]);
         }
@@ -581,13 +579,25 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
         }
         this.loading.set(true);
         this._dialog_ref.disableClose = true;
-        const data = { ...this.model() };
+        // `zone` and `camera_snapshot_url` are form-only fields. The request
+        // check of ts-client rejects a field that `System` does not have.
+        const {
+            zone: _zone,
+            camera_snapshot_url: _url,
+            ...data
+        } = this.model();
         try {
             // Save the room first, so a new room has an ID for its
             // setup and breakdown times.
             const system = await (data.id
-                ? updateSystem(data.id, data)
-                : addSystem(data));
+                ? systems
+                      .update({
+                          sys_id: data.id,
+                          version: data.version ?? 0,
+                          body: data,
+                      })
+                      .then(orThrow)
+                : systems.create({ body: data }).then(orThrow));
             await this._saveOverflow(system.id).catch(() =>
                 notifyWarn('Unable to save room setup and breakdown times'),
             );
@@ -602,20 +612,28 @@ export class RoomModalComponent extends AsyncHandler implements OnInit {
 
     /** Store the room's setup and breakdown times in the org settings. */
     private async _saveOverflow(system_id: string) {
-        const { details } = (await showMetadata(
+        const stored = await showMetadata(
             this._org.organisation.id,
             'settings',
-        )) as any;
+        );
+        const details = jsonRecord<{ events: Record<string, unknown> }>(
+            stored.details,
+        );
         const overflow = getItemWithKeys(['events', 'overflow'], details) || {};
         overflow[system_id] = this.settings_model();
-        await updateMetadata(this._org.organisation.id, {
-            name: 'settings',
-            details: {
-                ...details,
-                events: { ...(details?.events || {}), overflow },
-            },
-            description: '',
-        });
+        await metadata
+            .update({
+                id: this._org.organisation.id,
+                body: {
+                    name: 'settings',
+                    details: toJsonValue({
+                        ...details,
+                        events: { ...(details.events || {}), overflow },
+                    }),
+                    description: '',
+                },
+            })
+            .then(orThrow);
     }
 
     public selectItemfromMap() {

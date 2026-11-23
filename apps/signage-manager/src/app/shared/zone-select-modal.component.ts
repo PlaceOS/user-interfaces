@@ -6,7 +6,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { byDisplayName, PagedSearch } from './paged-search';
 import { ZoneSelectTreeComponent } from './zone-select-tree.component';
@@ -75,8 +75,8 @@ export class ZoneSelectModalComponent {
 
     public readonly roots = this._zone_service.root_zones;
     // Start with no zone, so one click cannot assign to the whole organisation
-    public readonly selected_zone = signal<PlaceZone | null>(null);
-    public readonly list = new PagedSearch<PlaceZone>((search) => {
+    public readonly selected_zone = signal<Zone | null>(null);
+    public readonly list = new PagedSearch<Zone>((search) => {
         const parent_id = this.selected_zone()?.id;
         return search.trim()
             ? this._zone_service.querySelectableZones(search, parent_id || '')

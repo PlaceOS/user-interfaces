@@ -1,4 +1,4 @@
-import { TriggerConditionOperator } from '@placeos/ts-client';
+import { TriggerConditionOperator } from '@placeos/ts-client/compat';
 
 import {
     BrokerValue,

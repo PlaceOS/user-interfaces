@@ -30,12 +30,13 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 
 import { brandEditingOn, canEditBrandKit } from '../branding/brand-access';
 import { SignageMediaService } from '../media/signage-media.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
+import { signageMedia } from '../signage-models';
 import { uploadUrl } from '../signage-url.util';
 import {
     ImageGenLayerControlsComponent,
@@ -1122,7 +1123,7 @@ export class ImageGenModalComponent implements OnDestroy {
                           new File([blob], `${name}.jpg`, {
                               type: COMPOSITE_TYPE[0],
                           }),
-                          new SignageMedia({ name, tags: this._tags() }),
+                          signageMedia({ name, tags: this._tags() }),
                       )
                     : await this._media_service.addMediaFromUpload(
                           candidate.upload_id,
@@ -1204,7 +1205,7 @@ export class ImageGenModalComponent implements OnDestroy {
      * The row an earlier Save made but could not finish, so Save again reuses
      * it rather than making a second. While it is set the pick is locked.
      */
-    private _pending: { media: SignageMedia; claimed: boolean } | undefined;
+    private _pending: { media: PlaylistItem; claimed: boolean } | undefined;
     /** bumped to stop whichever job the modal was following */
     private _job_token = 0;
     private _logo_defaulted = false;

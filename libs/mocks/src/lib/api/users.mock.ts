@@ -13,7 +13,7 @@ const GUEST_CATERING: HashMap = {};
 
 /** Find a user by ID or email */
 const findUser = (list: HashMap[], id: string) =>
-    list.find((user) => user.id === id || user.email === id);
+    list.find((user) => `${user.id}` === id || user.email === id);
 
 export function registerMockUsers() {
     // The staff list holds the active user. Loading saved data copies it, so
@@ -149,7 +149,13 @@ export function registerMockUsers() {
             const id = decodeURIComponent(request.route_params.email);
             const guest = findUser(MOCK_GUESTS, id);
             if (guest) return Object.assign(guest, request.body);
-            const created = { id, email: id, ...request.body };
+            const created = {
+                ...request.body,
+                id:
+                    Math.max(0, ...MOCK_GUESTS.map((user) => +user.id || 0)) +
+                    1,
+                email: id,
+            };
             MOCK_GUESTS.push(created);
             return created;
         },

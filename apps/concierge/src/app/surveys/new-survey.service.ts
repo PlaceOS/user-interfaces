@@ -8,15 +8,17 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
-    removeQuestion,
-    showSurvey,
-    Survey,
-    SurveyQuestion,
-} from '@placeos/ts-client';
+    type Survey,
+    type SurveyQuestion,
+    surveys,
+    surveys_questions,
+} from '@placeos/ts-client/staff';
 import { queryAllSurveyQuestions } from '../query-all-pages';
 import { confirmAction, errorText } from '../ui/modal-actions';
 import { QuestionModalComponent } from './question-modal.component';
+import type { QuestionDraft } from './types';
 
 export interface QuestionFilters {
     search_text?: string;
@@ -43,7 +45,9 @@ export class NewSurveyService {
     private readonly _survey = resource({
         params: () => this._survey_id(),
         defaultValue: null as Survey | null,
-        loader: async ({ params: id }) => (!id ? null : showSurvey(id)),
+        loader: async ({ params: id }) =>
+            // Survey IDs are numbers. The route gives the ID as a string.
+            !Number(id) ? null : surveys.show({ id: Number(id) }).then(orThrow),
     });
     public readonly survey: Signal<Survey | null> = this._survey.value;
 
@@ -51,7 +55,7 @@ export class NewSurveyService {
     private readonly _questions = resource({
         params: () => this._change(),
         defaultValue: [] as SurveyQuestion[],
-        loader: async () => queryAllSurveyQuestions({ limit: 200 }),
+        loader: async () => queryAllSurveyQuestions(),
     });
     public readonly questions: Signal<SurveyQuestion[]> = this._questions.value;
     /** Whether the question list has loaded and is not loading again */
@@ -65,7 +69,7 @@ export class NewSurveyService {
         const questions = this.questions();
         if (!survey) return [];
         const q_list: SurveyQuestion[] = [];
-        for (const page of survey.pages) {
+        for (const page of survey.pages ?? []) {
             for (const q_id of page.question_order) {
                 const question = questions.find((q) => q.id === q_id);
                 if (question) q_list.push(question);
@@ -93,7 +97,10 @@ export class NewSurveyService {
         this._question_filters.set(filters);
     }
 
-    public editQuestion(question = new SurveyQuestion({ type: 'text' })) {
+    /** Open the question form. Without a question, the form makes a new text question. */
+    public editQuestion(
+        question: Partial<SurveyQuestion | QuestionDraft> = { type: 'text' },
+    ) {
         const ref = this._dialog.open(QuestionModalComponent, {
             data: question,
         });
@@ -102,7 +109,7 @@ export class NewSurveyService {
         });
     }
 
-    public async removeQuestion(question: SurveyQuestion) {
+    public async removeQuestion(question: Pick<SurveyQuestion, 'id'>) {
         const removed = await confirmAction(
             this._dialog,
             {
@@ -113,7 +120,10 @@ export class NewSurveyService {
             },
             {
                 loading: 'Removing survey question...',
-                action: () => removeQuestion(`${question.id}`),
+                action: () =>
+                    surveys_questions
+                        .destroy({ id: question.id })
+                        .then(orThrow),
                 error: (e) =>
                     `Failed to remove survey question. ${errorText(e)}`,
             },

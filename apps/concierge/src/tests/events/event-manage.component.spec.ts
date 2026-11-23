@@ -6,14 +6,17 @@ import {
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService, generateEventForm } from '@placeos/events';
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { events, PlaceCalendarEvent } from '@placeos/ts-client/staff';
 import { addMinutes, startOfDay } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import { EventManageComponent } from '../../app/events/event-manage.component';
 import { EventStateService } from '../../app/events/event-state.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
+import { mockData } from '@placeos/common/tests';
+
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('EventManageComponent', () => {
     let spectator: SpectatorRouting<EventManageComponent>;
@@ -148,22 +151,19 @@ describe('EventManageComponent', () => {
     });
 
     it('should not replace a group event metadata with the metadata route', async () => {
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockImplementation(async (url) =>
-            url.includes('/metadata/')
-                ? { view_access: 'PUBLIC', permission: 'PUBLIC' }
-                : {
-                      id: 'event-1',
-                      title: 'Group event',
-                      host: 'group@events.com',
-                      permission: 'open',
-                      attendees: [],
-                      extension_data: {
-                          shared_event: true,
-                          view_access: 'OPEN',
-                      },
-                  },
+        vi.mocked(events.show).mockResolvedValue(
+            mockReply(
+                mockData(PlaceCalendarEvent, {
+                    id: 'event-1',
+                    title: 'Group event',
+                    host: 'group@events.com',
+                    attendees: [],
+                    extension_data: {
+                        shared_event: true,
+                        view_access: 'OPEN',
+                    },
+                }),
+            ),
         );
         const form_state = spectator.inject(EventFormService);
 
@@ -174,13 +174,11 @@ describe('EventManageComponent', () => {
         const [loaded] = vi.mocked(form_state.newForm).mock.calls[0];
         expect(loaded.extension_data.view_access).toBe('OPEN');
         expect(spectator.component.model()).not.toHaveProperty('permission');
-        expect(ts_client.get).not.toHaveBeenCalledWith(
-            expect.stringContaining('/metadata/'),
-        );
+        expect(events.getMetadata).not.toHaveBeenCalled();
     });
 
     it('should go back to the list when the event fails to load', async () => {
-        vi.mocked(ts_client.get).mockRejectedValue({ status: 404 } as never);
+        vi.mocked(events.show).mockRejectedValue({ status: 404 });
         const router = spectator.router;
         const navigate = vi.spyOn(router, 'navigate').mockResolvedValue(true);
 

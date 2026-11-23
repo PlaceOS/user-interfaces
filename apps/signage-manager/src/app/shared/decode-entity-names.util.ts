@@ -23,8 +23,8 @@ const _decoded = new WeakSet<object>();
 
 /** Returns a shallow copy of `item` with name fields (and one nested level of
  * group/user/zone) HTML-entity decoded. The copy keeps the prototype of
- * `item`, so getters such as `SignageMedia.media_url` still work. An item
- * this function returned is returned as is, so names decode only once. */
+ * `item`. An item this function returned is returned as is, so names decode
+ * only once. */
 export function decodeEntityNames<T>(item: T): T {
     if (!item || typeof item !== 'object' || _decoded.has(item)) return item;
     const copy: T = Object.assign(

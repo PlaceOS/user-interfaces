@@ -1,15 +1,12 @@
-import { Injectable, computed, signal } from '@angular/core';
+import { computed, Injectable, signal } from '@angular/core';
 import {
-    PlaceAuthority,
-    PublicEventQueryOptions,
-    invalidateToken,
-    listPublicEvents,
-    publicEventGuestToken,
-    registerPublicEvent,
-    setStorage,
-    setToken,
-    token,
+    configure,
+    createClient,
+    type DomainAuthority,
+    type JsonValue,
+    public_events,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { isSystemEvent } from './public-event.helpers';
 
 declare global {
@@ -57,6 +54,53 @@ export interface GuestDetails {
 }
 
 const GUEST_STORAGE_KEY = 'PLACEOS.public.guest';
+/** Key of the guest token: `{ token, expires_at_ms }` as JSON */
+const TOKEN_STORAGE_KEY = 'PLACEOS.public.token';
+/**
+ * Keys of the guest token of 6.x. 6.x stored it with the client ID, which is
+ * `''` in this app, as the key prefix.
+ */
+const LEGACY_TOKEN_STORAGE_KEYS = ['_access_token', '_expires_at'];
+/** Lifetime of a guest token from `public_events.guestToken` */
+const GUEST_TOKEN_LIFETIME_MS = 2 * 60 * 60 * 1000;
+
+/** A guest token and the time it expires, in ms since the epoch */
+interface GuestToken {
+    token: string;
+    expires_at_ms: number;
+}
+
+/**
+ * The guest token in `storage` that is not expired, or null. Removes a
+ * token that is expired or not valid, so it does not stay in the storage.
+ */
+function storedGuestToken(storage: Storage): GuestToken | null {
+    const guest_token = readGuestToken(storage);
+    if (!guest_token) storage.removeItem(TOKEN_STORAGE_KEY);
+    return guest_token;
+}
+
+function readGuestToken(storage: Storage): GuestToken | null {
+    try {
+        const value: unknown = JSON.parse(
+            storage.getItem(TOKEN_STORAGE_KEY) || 'null',
+        );
+        if (
+            value &&
+            typeof value === 'object' &&
+            'token' in value &&
+            'expires_at_ms' in value &&
+            typeof value.token === 'string' &&
+            typeof value.expires_at_ms === 'number' &&
+            Date.now() < value.expires_at_ms
+        ) {
+            return { token: value.token, expires_at_ms: value.expires_at_ms };
+        }
+    } catch {
+        return null;
+    }
+    return null;
+}
 
 /** Rejects a guest access request that `forgetGuest` made out of date */
 class GuestForgottenError extends Error {}
@@ -64,12 +108,19 @@ class GuestForgottenError extends Error {}
 @Injectable({ providedIn: 'root' })
 export class PublicEventsService {
     private _guest_remembered = !!this._rememberedGuestDetails();
+    /**
+     * Token of this tab's guest. Read from storage only at startup, so a
+     * guest that another tab stores does not change the token of this tab.
+     */
+    private _guest_token = storedGuestToken(
+        this._guest_remembered ? localStorage : sessionStorage,
+    );
     /** Changed by `forgetGuest`, so pending requests do not store the old guest */
     private _guest_version = 0;
     /** Events source of the loaded `events`. Empty until a load succeeds. */
     private _events_system_id = '';
 
-    public readonly authority = signal<PlaceAuthority | null>(null);
+    public readonly authority = signal<DomainAuthority | null>(null);
     public readonly loading = signal('');
     public readonly error = signal('');
     public readonly events = signal<PublicEvent[]>([]);
@@ -115,8 +166,18 @@ export class PublicEventsService {
         () => `${this.authority()?.config?.['recaptcha_key'] || ''}`,
     );
 
+    /** Requests a guest token. A new guest has no token to send yet. */
+    private readonly _anonymous_client = createClient({
+        base_url: '',
+        auth: { kind: 'none' },
+    });
+
     constructor() {
-        setStorage(this._rememberedGuestDetails() ? 'local' : 'session');
+        // The app has no PlaceOS login. Requests send the guest token.
+        configure({
+            base_url: '',
+            auth: { kind: 'bearer', token: () => this._guestToken() || null },
+        });
     }
 
     /** Loads the PlaceOS authority once. A failure shows in `error`. */
@@ -125,9 +186,9 @@ export class PublicEventsService {
         try {
             const resp = await fetch('/auth/authority');
             if (!resp.ok) throw new Error('Unable to load PlaceOS authority.');
-            this.authority.set((await resp.json()) as PlaceAuthority);
+            this.authority.set((await resp.json()) as DomainAuthority);
             // Returning guests with a valid token do not need the check yet
-            if (!token(false)) this._addRecaptcha(this._recaptcha_key());
+            if (!this._guestToken()) this._addRecaptcha(this._recaptcha_key());
         } catch (err) {
             this.error.set(this._message(err));
         }
@@ -143,15 +204,22 @@ export class PublicEventsService {
         this.loading.set('Checking guest access...');
         try {
             const captcha = await this._runRecaptcha('public_events');
-            const token = await publicEventGuestToken(system_id, {
-                ...details,
-                captcha,
-            });
+            const token = await public_events
+                .guestToken(
+                    {
+                        system_id,
+                        body: {
+                            ...details,
+                            captcha,
+                        },
+                    },
+                    { client: this._anonymous_client },
+                )
+                .then(orThrow);
             if (!token) throw new Error('Guest access response was invalid.');
             if (version !== this._guest_version)
                 throw new GuestForgottenError();
-            setStorage(remember ? 'local' : 'session');
-            setToken(token, Date.now() + 2 * 60 * 60 * 1000);
+            this._storeGuestToken(token, remember);
             this._storeGuestDetails(details, remember);
             this._guest_remembered = remember;
             this.guest.set(details);
@@ -174,11 +242,13 @@ export class PublicEventsService {
         try {
             await this._ensureGuestAccess(system_id);
             this.loading.set('Loading public events...');
-            const events = await listPublicEvents(system_id, {
-                limit: 100,
-            } satisfies PublicEventQueryOptions);
+            const events = await public_events
+                .query({ system_id, limit: 100 })
+                .then(orThrow);
             this.events.set(
-                (events || []).filter((event) => !isSystemEvent(event)),
+                events
+                    .flatMap((value) => readPublicEvent(value) ?? [])
+                    .filter((event) => !isSystemEvent(event)),
             );
             this._events_system_id = system_id;
         } catch (err) {
@@ -195,10 +265,15 @@ export class PublicEventsService {
         await this._ensureGuestAccess(system_id);
         this.loading.set('Registering for event...');
         try {
-            return await registerPublicEvent(system_id, {
-                event_id,
-                ...guest,
-            });
+            return await public_events
+                .register({
+                    system_id,
+                    body: {
+                        event_id,
+                        ...guest,
+                    },
+                })
+                .then(orThrow);
         } catch (err) {
             this.error.set(this._message(err));
             throw err;
@@ -210,15 +285,19 @@ export class PublicEventsService {
     /**
      * Forgets the guest on this device. Removes the guest details and the
      * guest token from local and session storage, so the next visitor
-     * must enter their own details.
+     * must enter their own details. Also removes the guest token of 6.x.
      */
     public forgetGuest() {
-        for (const storage of ['local', 'session'] as const) {
-            setStorage(storage);
-            invalidateToken();
+        const keys = [
+            TOKEN_STORAGE_KEY,
+            GUEST_STORAGE_KEY,
+            ...LEGACY_TOKEN_STORAGE_KEYS,
+        ];
+        for (const key of keys) {
+            localStorage.removeItem(key);
+            sessionStorage.removeItem(key);
         }
-        localStorage.removeItem(GUEST_STORAGE_KEY);
-        sessionStorage.removeItem(GUEST_STORAGE_KEY);
+        this._guest_token = null;
         this._guest_remembered = false;
         this._guest_version += 1;
         this.guest.set(null);
@@ -274,10 +353,21 @@ export class PublicEventsService {
     }
 
     private async _ensureGuestAccess(system_id: string) {
-        if (token(false)) return;
+        if (this._guestToken()) return;
         const guest = this.guest();
         if (!guest) throw new Error('Guest details are required.');
         await this.requestGuestAccess(system_id, guest, this._guest_remembered);
+    }
+
+    /**
+     * The token of this tab's guest that is not expired, or `''`. Another
+     * tab can keep the token of a different guest in local storage.
+     */
+    private _guestToken(): string {
+        const guest_token = this._guest_token;
+        return guest_token && Date.now() < guest_token.expires_at_ms
+            ? guest_token.token
+            : '';
     }
 
     private _configMap(value: unknown): Record<string, unknown> {
@@ -298,6 +388,21 @@ export class PublicEventsService {
         return this._parseGuestDetails(
             sessionStorage.getItem(GUEST_STORAGE_KEY),
         );
+    }
+
+    /**
+     * Makes `token` the token of this tab, and keeps it in one storage
+     * only, as the guest details
+     */
+    private _storeGuestToken(token: string, remember: boolean) {
+        const storage = remember ? localStorage : sessionStorage;
+        const other_storage = remember ? sessionStorage : localStorage;
+        this._guest_token = {
+            token,
+            expires_at_ms: Date.now() + GUEST_TOKEN_LIFETIME_MS,
+        };
+        storage.setItem(TOKEN_STORAGE_KEY, JSON.stringify(this._guest_token));
+        other_storage.removeItem(TOKEN_STORAGE_KEY);
     }
 
     private _storeGuestDetails(details: GuestDetails, remember: boolean) {
@@ -322,4 +427,26 @@ export class PublicEventsService {
             return null;
         }
     }
+}
+
+/**
+ * Reads an event of `public_events.query`. The API document has no schema for
+ * the events, so the app keeps the fields with a text, number or boolean
+ * value, and ignores an item that is not an object.
+ */
+function readPublicEvent(value: JsonValue): PublicEvent | null {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) {
+        return null;
+    }
+    const event: PublicEvent = {};
+    for (const [key, field] of Object.entries(value)) {
+        if (
+            typeof field === 'string' ||
+            typeof field === 'number' ||
+            typeof field === 'boolean'
+        ) {
+            event[key] = field;
+        }
+    }
+    return event;
 }

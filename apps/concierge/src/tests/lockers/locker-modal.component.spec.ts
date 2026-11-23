@@ -1,11 +1,11 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import * as ts_client from '@placeos/ts-client';
+import { staff } from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 
 import { LockerModalComponent } from '../../app/lockers/locker-modal.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('LockerModalComponent', () => {
     let spectator: Spectator<LockerModalComponent>;
@@ -85,7 +85,8 @@ describe('LockerModalComponent', () => {
     });
 
     it('should keep the stored assignee when the staff lookup fails', async () => {
-        vi.mocked(ts_client.get).mockRejectedValue('offline');
+        // showStaff() -> staff.show()
+        vi.mocked(staff.show).mockRejectedValue('offline');
         dialog_data.locker = {
             id: 'locker-3',
             name: 'Locker 3',

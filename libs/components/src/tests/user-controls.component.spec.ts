@@ -11,20 +11,27 @@ import {
     setCurrentUser,
     settingSignal,
 } from '@placeos/common';
-import { logout, updateUser } from '@placeos/ts-client';
+import { users } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { format } from 'date-fns';
 
-// The real user store drives `currentUser()`; only ts-client `logout` is
-// stubbed. `hasNewVersion` has no exported test hook, so the component's own
-// getter is overridden per-instance where the update state matters.
+// The real user store drives `currentUser()`; only the session and the
+// users API are stubbed. `hasNewVersion` has no exported test hook, so the
+// component's own getter is overridden per-instance where the update state
+// matters.
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { SupportTicketModalComponent } from 'libs/form-fields/src/lib/support-ticket-modal.component';
 import { ChangelogService } from '../lib/changelog.service';
 import { UserControlsComponent } from '../lib/user-controls.component';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 describe('UserControlsComponent', () => {
     let spectator: Spectator<UserControlsComponent>;
+    let place: TestPlaceClient;
     const settings = {
         get: vi.fn<(key: string) => unknown>(() => null),
         saveUserSetting: vi.fn(),
@@ -73,7 +80,7 @@ describe('UserControlsComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(logout).mockImplementation(() => undefined);
+        place = startTestPlaceClient();
         settings.get.mockReturnValue(null);
         setCurrentUser(test_user);
         settingSignal('features', []).set([]);
@@ -97,7 +104,7 @@ describe('UserControlsComponent', () => {
 
     it('should log the user out on sign out', () => {
         spectator.click('button.inverse');
-        expect(logout).toHaveBeenCalled();
+        expect(place.logout).toHaveBeenCalled();
     });
 
     it('should disable the changelog action when no changelog is deployed', () => {
@@ -193,12 +200,14 @@ describe('UserControlsComponent', () => {
                 ],
             } as any),
         );
-        vi.mocked(updateUser).mockResolvedValue({} as any);
+        vi.mocked(users.update).mockResolvedValue(mockReply({} as any));
         spectator = createComponent();
         await spectator.component.setLocation('wfh');
         const today = format(Date.now(), 'yyyy-MM-dd');
-        const saved = vi.mocked(updateUser).mock.calls[0][1] as StaffUser;
-        expect(saved.work_overrides[today].blocks[0].location).toBe('wfh');
+        const { body } = vi.mocked(users.update).mock.calls[0][0];
+        expect(body).toMatchObject({
+            work_overrides: { [today]: { blocks: [{ location: 'wfh' }] } },
+        });
         expect(settings.saveUserSetting).not.toHaveBeenCalled();
     });
 

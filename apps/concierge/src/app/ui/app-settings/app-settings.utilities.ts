@@ -1,5 +1,7 @@
 import { currentUser, SettingsService, VERSION } from '@placeos/common';
-import { PlaceZone, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7, type Zone } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { jsonRecord, showMetadata, toJsonValue } from '../../metadata';
 
 export type AppSettings = Record<string, unknown>;
 
@@ -183,8 +185,8 @@ export function appSettingOverrides(
 }
 
 /** Zone fields that the App Settings modals read. The organisation fits too. */
-export type AppSettingsZone = Pick<PlaceZone, 'id' | 'name'> &
-    Partial<Pick<PlaceZone, 'display_name' | 'parent_id'>>;
+export type AppSettingsZone = Pick<Zone, 'id' | 'name'> &
+    Partial<Pick<Zone, 'display_name' | 'parent_id'>>;
 
 /** Applications that store their settings in zone metadata. */
 export type MetadataApp = 'concierge' | 'workplace' | 'visitor-kiosk';
@@ -239,7 +241,7 @@ export interface AppSettingsLayers {
 
 async function loadMetadata(id: string, key: string): Promise<AppSettings> {
     const metadata = await showMetadata(id, key);
-    return (metadata.details || {}) as AppSettings;
+    return jsonRecord<AppSettings>(metadata.details);
 }
 
 /**
@@ -300,9 +302,14 @@ export async function saveAppSettings(
         layers.stored,
     );
     details.edited_by = editedBy();
-    await updateMetadata(zone_id, {
-        name: key,
-        details,
-        description: `[${VERSION.hash}|C] ${app_name} Application Settings`,
-    });
+    await metadata_v7
+        .update({
+            id: zone_id,
+            body: {
+                name: key,
+                details: toJsonValue(details),
+                description: `[${VERSION.hash}|C] ${app_name} Application Settings`,
+            },
+        })
+        .then(orThrow);
 }

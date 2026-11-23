@@ -1,10 +1,10 @@
 import { signal } from '@angular/core';
 import { SwUpdate, type VersionEvent } from '@angular/service-worker';
-import { isOnline } from '@placeos/ts-client';
 import { Subscription } from 'rxjs';
 
 import { MINUTES, SECONDS } from './constants';
 import { log } from './general';
+import { isOnline } from './place-client';
 
 let _timer: ReturnType<typeof setInterval> | undefined;
 let _initial_check: ReturnType<typeof setTimeout> | undefined;

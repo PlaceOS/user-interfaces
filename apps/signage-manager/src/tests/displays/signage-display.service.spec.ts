@@ -6,21 +6,18 @@ import {
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
-import {
-    PlaceSystem,
-    PlaceZone,
-    query,
-    removeSystem,
-    show,
-    showZone,
-    SignagePlaylist,
-    update,
-} from '@placeos/ts-client';
+import { PlaceSystem, query, systems, zones } from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { NEVER, of } from 'rxjs';
 import { signageDisplay } from '../../app/displays/signage-display';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignageContextService } from '../../app/signage-context.service';
-import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
+import {
+    signagePlaylist,
+    signageSystem,
+    signageZone,
+} from '../../app/signage-models';
+import { hydratedTemplateMapping } from '../../app/signage-template-mapping';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -81,22 +78,22 @@ describe('SignageDisplayService', () => {
         'shows an error when assigning from the %s fails and allows a retry',
         async (source) => {
             const service = createService();
-            const display = new PlaceSystem({
+            const display = signageSystem({
                 id: 'display-1',
                 version: 2,
                 playlists: ['existing-playlist'],
             });
-            const playlist = new SignagePlaylist({ id: 'playlist-1' });
-            const updated = new PlaceSystem({
+            const playlist = signagePlaylist({ id: 'playlist-1' });
+            const updated = signageSystem({
                 ...display,
                 version: 3,
                 playlists: ['existing-playlist', playlist.id],
             });
             service.selected_display.set(display);
-            vi.mocked(show).mockResolvedValue(display);
-            vi.mocked(update)
+            vi.mocked(systems.show).mockResolvedValue(mockReply(display));
+            vi.mocked(systems.update)
                 .mockRejectedValueOnce(new Error('Save failed'))
-                .mockResolvedValueOnce(updated);
+                .mockResolvedValueOnce(mockReply(updated));
             const changed = vi.spyOn(
                 TestBed.inject(SignageContextService),
                 'changed',
@@ -121,18 +118,18 @@ describe('SignageDisplayService', () => {
 
             await assign();
 
-            expect(update).toHaveBeenLastCalledWith(
-                expect.objectContaining({
-                    id: display.id,
-                    path: 'systems',
-                    method: 'patch',
-                    form_data: {
-                        playlists: ['existing-playlist', playlist.id],
-                        version: 2,
-                    },
-                }),
-            );
-            expect(service.selected_display()).toEqual(updated);
+            expect(systems.update).toHaveBeenLastCalledWith({
+                sys_id: display.id,
+                version: 2,
+                body: {
+                    playlists: ['existing-playlist', playlist.id],
+                    version: 2,
+                },
+            });
+            expect(service.selected_display()).toEqual({
+                ...updated,
+                signage_last_seen: 0,
+            });
             expect(changed).toHaveBeenCalledOnce();
             expect(notify_open).toHaveBeenLastCalledWith(
                 expect.any(String),
@@ -199,14 +196,14 @@ describe('SignageDisplayService', () => {
     it('shows an error when the selected display cannot be loaded', async () => {
         const service = createService();
         closeNextDialogWith('display-unloaded');
-        vi.mocked(show).mockRejectedValueOnce(new Error('Load failed'));
+        vi.mocked(systems.show).mockRejectedValueOnce(new Error('Load failed'));
         const changed = vi.spyOn(
             TestBed.inject(SignageContextService),
             'changed',
         );
 
         await service.addDisplayToPlaylist(
-            new SignagePlaylist({ id: 'playlist-1' }),
+            signagePlaylist({ id: 'playlist-1' }),
         );
 
         expect(notify_open).toHaveBeenCalledExactlyOnceWith(
@@ -214,42 +211,44 @@ describe('SignageDisplayService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(update).not.toHaveBeenCalled();
+        expect(systems.update).not.toHaveBeenCalled();
         expect(changed).not.toHaveBeenCalled();
     });
 
     describe('adding a display to a zone', () => {
-        const zone = new PlaceZone({ id: 'zone-1', parent_id: 'building-1' });
+        const zone = signageZone({ id: 'zone-1', parent_id: 'building-1' });
 
         it('adds the zone and its ancestors and keeps the other zones', async () => {
             const service = createService();
-            const display = new PlaceSystem({
+            const display = signageSystem({
                 id: 'display-1',
                 version: 5,
                 zones: ['org-1', 'other-zone'],
             });
-            vi.mocked(show).mockResolvedValue(display);
-            vi.mocked(showZone).mockImplementation(
-                async (id: string) =>
-                    new PlaceZone({
-                        id,
-                        parent_id: id === 'building-1' ? 'org-1' : '',
-                    }),
+            vi.mocked(systems.show).mockResolvedValue(mockReply(display));
+            vi.mocked(zones.show).mockImplementation(
+                fromV1Mock(
+                    async (id: string) =>
+                        signageZone({
+                            id,
+                            parent_id: id === 'building-1' ? 'org-1' : '',
+                        }),
+                    ['id', '...'],
+                ),
             );
-            vi.mocked(update).mockResolvedValue(display);
+            vi.mocked(systems.update).mockResolvedValue(mockReply(display));
             closeNextDialogWith(display.id);
 
             await service.addDisplayToZone(zone);
 
-            expect(update).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    id: 'display-1',
-                    form_data: {
-                        zones: ['org-1', 'other-zone', 'building-1', 'zone-1'],
-                        version: 5,
-                    },
-                }),
-            );
+            expect(systems.update).toHaveBeenCalledWith({
+                sys_id: 'display-1',
+                version: 5,
+                body: {
+                    zones: ['org-1', 'other-zone', 'building-1', 'zone-1'],
+                    version: 5,
+                },
+            });
             expect(notify_open).toHaveBeenLastCalledWith(
                 'Display added to zone',
                 expect.anything(),
@@ -259,14 +258,16 @@ describe('SignageDisplayService', () => {
 
         it('saves nothing for a display that is already in the zone', async () => {
             const service = createService();
-            vi.mocked(show).mockResolvedValue(
-                new PlaceSystem({ id: 'display-1', zones: ['zone-1'] }),
+            vi.mocked(systems.show).mockResolvedValue(
+                mockReply(
+                    signageSystem({ id: 'display-1', zones: ['zone-1'] }),
+                ),
             );
             closeNextDialogWith('display-1');
 
             await service.addDisplayToZone(zone);
 
-            expect(update).not.toHaveBeenCalled();
+            expect(systems.update).not.toHaveBeenCalled();
             expect(notify_open).toHaveBeenCalledExactlyOnceWith(
                 'Display already assigned to this zone.',
                 expect.anything(),
@@ -294,37 +295,35 @@ describe('SignageDisplayService', () => {
             TestBed.inject(SignageContextService),
             'changed',
         );
-        closeNextDialogWith(new PlaceSystem({ id: 'd1', name: 'Lobby' }));
+        closeNextDialogWith(signageSystem({ id: 'd1', name: 'Lobby' }));
 
-        await service.editDisplay(new PlaceSystem({ id: 'd1' }));
+        await service.editDisplay(signageSystem({ id: 'd1' }));
         expect(changed).toHaveBeenCalledTimes(1);
 
-        vi.mocked(removeSystem).mockResolvedValue({});
+        vi.mocked(systems.destroy).mockResolvedValue(mockReply(''));
         confirmNextDialog();
-        await service.removeDisplay(new PlaceSystem({ id: 'd1' }));
+        await service.removeDisplay(signageSystem({ id: 'd1' }));
         expect(changed).toHaveBeenCalledTimes(2);
     });
 
     it('takes a display used outside signage off signage instead of deleting it', async () => {
         const service = createService();
-        const display = new PlaceSystem({
+        const display = signageSystem({
             id: 'room-1',
             version: 4,
             modules: ['mod-1'],
         });
-        vi.mocked(update).mockResolvedValue(display);
+        vi.mocked(systems.update).mockResolvedValue(mockReply(display));
         confirmNextDialog();
 
         expect(await service.removeDisplay(display)).toBe(true);
 
-        expect(removeSystem).not.toHaveBeenCalled();
-        expect(update).toHaveBeenCalledWith(
-            expect.objectContaining({
-                id: 'room-1',
-                form_data: { signage: false },
-                method: 'patch',
-            }),
-        );
+        expect(systems.destroy).not.toHaveBeenCalled();
+        expect(systems.update).toHaveBeenCalledWith({
+            sys_id: 'room-1',
+            version: 4,
+            body: { signage: false, version: 4 },
+        });
     });
 
     it('loads the template mappings of the selected display once for its views', async () => {
@@ -335,12 +334,10 @@ describe('SignageDisplayService', () => {
         const templates = TestBed.inject(SignageTemplateService);
         const list = vi
             .spyOn(templates, 'listTemplateMappings')
-            .mockResolvedValue([
-                new HydratedSignageTemplateMapping({ id: 'm1' }),
-            ]);
+            .mockResolvedValue([hydratedTemplateMapping({ id: 'm1' })]);
         const service = createService();
 
-        service.selected_display.set(new PlaceSystem({ id: 'd1' }));
+        service.selected_display.set(signageSystem({ id: 'd1' }));
         await vi.waitFor(() =>
             expect(service.selected_display_template_mappings()).toHaveLength(
                 1,

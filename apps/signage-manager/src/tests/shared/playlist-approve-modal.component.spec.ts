@@ -2,15 +2,13 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import {
-    approveSignagePlaylist,
-    listSignagePlaylistMediaRevisions,
-    SignagePlaylistMedia,
-} from '@placeos/ts-client';
+import { playlist } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistApproveModalComponent } from '../../app/shared/playlist-approve-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { playlistRevision } from '../../app/signage-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -43,31 +41,33 @@ describe('PlaylistApproveModalComponent', () => {
         dialog_ref.disableClose = false;
         context.can_update.set(true);
         playlist_service.undoPlaylistChanges.mockResolvedValue(true);
-        (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
-            {
-                id: 'current-version',
-                items: ['media-1', 'media-3'],
-                media: [
-                    {
-                        id: 'media-1',
-                        name: 'Media 1',
-                    },
-                    {
-                        id: 'media-3',
-                        name: 'Webpage',
-                        media_type: 'webpage',
-                    },
-                ],
-                updated_at: 1,
-            },
-            {
-                id: 'previous-version',
-                items: ['media-2'],
-                media: [{ id: 'media-2', name: 'Media 2' }],
-                updated_at: 2,
-                approved: true,
-            },
-        ]);
+        (playlist.mediaRevisions as any).mockResolvedValue(
+            mockReply([
+                {
+                    id: 'current-version',
+                    items: ['media-1', 'media-3'],
+                    media: [
+                        {
+                            id: 'media-1',
+                            name: 'Media 1',
+                        },
+                        {
+                            id: 'media-3',
+                            name: 'Webpage',
+                            media_type: 'webpage',
+                        },
+                    ],
+                    updated_at: 1,
+                },
+                {
+                    id: 'previous-version',
+                    items: ['media-2'],
+                    media: [{ id: 'media-2', name: 'Media 2' }],
+                    updated_at: 2,
+                    approved: true,
+                },
+            ]),
+        );
         await TestBed.configureTestingModule({
             imports: [PlaylistApproveModalComponent],
             providers: [
@@ -92,7 +92,7 @@ describe('PlaylistApproveModalComponent', () => {
     }
 
     it('resets loading state when approval fails', async () => {
-        (approveSignagePlaylist as any).mockRejectedValue(
+        (playlist.approveMedia as any).mockRejectedValue(
             new Error('Approval failed'),
         );
         const fixture = await render();
@@ -114,34 +114,38 @@ describe('PlaylistApproveModalComponent', () => {
     });
 
     it('approves when the shown version is still the latest', async () => {
-        vi.mocked(approveSignagePlaylist).mockResolvedValue({});
+        vi.mocked(playlist.approveMedia).mockResolvedValue(mockReply(true));
         const fixture = await render();
 
         await fixture.componentInstance.approve();
 
-        expect(listSignagePlaylistMediaRevisions).toHaveBeenLastCalledWith(
-            'playlist-1',
-            { limit: 1 },
-        );
-        expect(approveSignagePlaylist).toHaveBeenCalledWith('playlist-1');
+        expect(playlist.mediaRevisions).toHaveBeenLastCalledWith({
+            id: 'playlist-1',
+            limit: 1,
+        });
+        expect(playlist.approveMedia).toHaveBeenCalledWith({
+            id: 'playlist-1',
+        });
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
     });
 
     it('does not approve a version that changed after it was shown', async () => {
         const fixture = await render();
-        vi.mocked(listSignagePlaylistMediaRevisions).mockResolvedValue([
-            new SignagePlaylistMedia({
-                id: 'newer-version',
-                items: ['media-4'],
-                updated_at: 3,
-            }),
-        ]);
+        vi.mocked(playlist.mediaRevisions).mockResolvedValue(
+            mockReply([
+                playlistRevision({
+                    id: 'newer-version',
+                    items: ['media-4'],
+                    updated_at: 3,
+                }),
+            ]),
+        );
 
         await fixture.componentInstance.approve();
         fixture.detectChanges();
         await fixture.whenStable();
 
-        expect(approveSignagePlaylist).not.toHaveBeenCalled();
+        expect(playlist.approveMedia).not.toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             expect.stringContaining('The playlist changed'),
@@ -195,7 +199,7 @@ describe('PlaylistApproveModalComponent', () => {
     });
 
     it('blocks approval and shows an error when the versions fail to load', async () => {
-        (listSignagePlaylistMediaRevisions as any).mockRejectedValue(
+        (playlist.mediaRevisions as any).mockRejectedValue(
             new Error('Forbidden'),
         );
         const fixture = await render();
@@ -216,15 +220,22 @@ describe('PlaylistApproveModalComponent', () => {
 
         await component.approve();
 
-        expect(approveSignagePlaylist).not.toHaveBeenCalled();
+        expect(playlist.approveMedia).not.toHaveBeenCalled();
     });
 
     it('compares with the last approved version, not the one before', async () => {
-        (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
-            { id: 'latest', items: ['media-3'], media: [] },
-            { id: 'draft', items: ['media-2'], media: [] },
-            { id: 'approved', items: ['media-1'], media: [], approved: true },
-        ]);
+        (playlist.mediaRevisions as any).mockResolvedValue(
+            mockReply([
+                { id: 'latest', items: ['media-3'], media: [] },
+                { id: 'draft', items: ['media-2'], media: [] },
+                {
+                    id: 'approved',
+                    items: ['media-1'],
+                    media: [],
+                    approved: true,
+                },
+            ]),
+        );
         const fixture = await render();
         const component = fixture.componentInstance;
 

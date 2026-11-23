@@ -21,12 +21,14 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     AsyncHandler,
+    authority,
     EMPTY_USER,
     provideValueAccessor,
     settingSignal,
     User,
 } from '@placeos/common';
-import { authority, queryUsers, showUser } from '@placeos/ts-client';
+import { users } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -213,11 +215,14 @@ export class UserSearchFieldComponent
         const guest_query = () => searchGuests(q).catch(() => [] as User[]);
         if (this.guests_only()) return guest_query();
         const staff = this.use_basic_search()
-            ? await queryUsers({
-                  q,
-                  authority_id: authority()?.id,
-                  fields: ['id', 'name', 'email'].join(','),
-              })
+            ? await users
+                  .query({
+                      q,
+                      // No `fields`: the response schema needs all the
+                      // required fields of a user
+                      authority_id: authority()?.id,
+                  })
+                  .then(orThrowPage)
                   .then((_) => _.data.map((u) => new User(u)))
                   .catch(() => [] as User[])
             : await searchStaff(q, { signal }).catch(() => [] as User[]);
@@ -291,7 +296,9 @@ export class UserSearchFieldComponent
             !this.use_basic_search() &&
             (value?.id || value?.email)
         ) {
-            showUser(value.email || value.id)
+            users
+                .show({ id: value.email || value.id })
+                .then(orThrow)
                 .then((details) => {
                     if (!details || selection !== this._selection_count) return;
                     const updated = new User({

@@ -10,7 +10,8 @@ import {
 } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
-import { showUser, updateUser } from '@placeos/ts-client';
+import { users } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addDays, set, startOfMinute, startOfWeek } from 'date-fns';
 
 import {
@@ -339,8 +340,7 @@ export class WFHSettingsModalComponent implements OnInit {
 
     public initialiseDay(day: number) {
         const settings = this.settings();
-        if (!settings[day])
-            settings[day] = { day_of_week: day as any, blocks: [] };
+        if (!settings[day]) settings[day] = { day_of_week: day, blocks: [] };
         if (!settings[day].blocks) settings[day].blocks = [];
         if (settings[day].blocks.length === 0) {
             this.addBlock(settings[day], 0);
@@ -412,14 +412,29 @@ export class WFHSettingsModalComponent implements OnInit {
         }
         if (!this._data?.local) {
             try {
-                const user = await showUser('current');
-                await updateUser(user.id, {
-                    ...user,
-                    groups: user.groups.filter(
-                        (_) => !_.startsWith('placeos_'),
-                    ),
-                    work_preferences: new_settings,
-                } as any);
+                const user = await users.current().then(orThrow);
+                // A PATCH of the changed fields. The v7 user has `null` for
+                // absent fields, which the server would save.
+                await users
+                    .update({
+                        id: user.id,
+                        body: {
+                            groups: user.groups.filter(
+                                (_) => !_.startsWith('placeos_'),
+                            ),
+                            work_preferences: new_settings.map((pref) => ({
+                                day_of_week: pref.day_of_week,
+                                blocks: pref.blocks.map(
+                                    ({ start_time, end_time, location }) => ({
+                                        start_time,
+                                        end_time,
+                                        location,
+                                    }),
+                                ),
+                            })),
+                        },
+                    })
+                    .then(orThrow);
             } catch (error) {
                 notifyError('Unable to save user work preferences.');
                 throw error;

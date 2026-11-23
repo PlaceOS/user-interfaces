@@ -1,11 +1,14 @@
 import { HashMap } from '@placeos/common';
-import { MockHttpRequest, registerMockEndpoint } from '@placeos/ts-client';
+import {
+    type MockHttpRequest,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
 
 import { registerMockSignage } from '../lib/api/signage.mock';
 import { MOCK_STAFF } from '../lib/api/users.data';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const API = '/api/engine/v2/signage';
 

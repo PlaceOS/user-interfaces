@@ -5,6 +5,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { Asset, OrganisationService } from '@placeos/common';
 import * as ts_client_mod from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { bookings } from '@placeos/ts-client/staff';
 import { addMinutes } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
@@ -14,6 +16,7 @@ import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-
 import { AssetViewComponent } from '../../app/asset-manager/asset-view.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 const active_product = signal<unknown>(null);
 const extra_assets = signal<Asset[]>([]);
@@ -55,10 +58,11 @@ describe('AssetViewComponent', () => {
         active_product_status.set('idle');
         delete_active = vi.fn(async () => ({}));
         post_change = vi.fn();
-        vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(
-            undefined as never,
+        vi.mocked(ts_client_mod.assets.destroy).mockResolvedValue(
+            mockReply(''),
         );
-        vi.mocked(ts_client_mod.get).mockResolvedValue([] as never);
+        // removeAssetRequests() -> queryBookings() -> bookings.query()
+        vi.mocked(bookings.query).mockResolvedValue(mockReply([]));
         spectator = createComponent();
     });
 

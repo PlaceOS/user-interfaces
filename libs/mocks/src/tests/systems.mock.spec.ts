@@ -2,23 +2,21 @@ import {
     mockSystem,
     registerMockEndpoint,
     registerSystem,
-} from '@placeos/ts-client';
+} from '@placeos/ts-client/compat';
 
 import { MOCK_SPACES } from '../lib/api/spaces.data';
 import { registerMockSystems } from '../lib/api/systems.mock';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 type Space = (typeof MOCK_SPACES)[number];
 const API = '/api/engine/v2';
 
 describe('registerMockSystems', () => {
-    /** Display module with a `volume` binding, as ts-client stores it */
-    const display = (volume: number) => ({
-        _volume: { value: volume, set: vi.fn() },
-        call: vi.fn(),
-    });
+    /** Display module with a `volume` binding. ts-client keeps a variable
+     * as a plain property. */
+    const display = (volume: number) => ({ volume, call: vi.fn() });
     /** Modules that every mock system returns in these tests */
     const modules = () => ({
         Bookings: [{ $poll_bookings: vi.fn(), call: vi.fn() }],
@@ -79,7 +77,7 @@ describe('registerMockSystems', () => {
                 route_params: { id: MOCK_SPACES[0].id, module },
             });
 
-        expect(state('Display_2')).toEqual({ volume: 70 });
+        expect(state('Display_2')).toEqual({ volume: '70' });
         expect(() => state('Display_3')).toThrow(
             expect.objectContaining({ status: 404 }),
         );

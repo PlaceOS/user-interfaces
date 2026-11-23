@@ -18,9 +18,17 @@ import {
 import { ParkingRequestFormDetailsComponent } from '../lib/parking-request-form-details.component';
 import { ParkingService } from '../lib/parking.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
+/** Page of bookings for the mocked `bookings.query`, with partial test data */
+const bookingPage = (list: object[]) =>
+    mockPage({ data: list.map((item) => item as unknown as StaffBooking) });
 
-import * as ts_client from '@placeos/ts-client';
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+import { mockPage } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    type Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 
 describe('ParkingRequestFormDetailsComponent', () => {
     let spectator: Spectator<ParkingRequestFormDetailsComponent>;
@@ -112,10 +120,10 @@ describe('ParkingRequestFormDetailsComponent', () => {
     afterEach(() => {
         vi.mocked(settings.get).mockImplementation(getSetting);
         vi.restoreAllMocks();
-        (ts_client.get as any).mockReset();
-        (ts_client.get as any).mockResolvedValue([]);
-        (ts_client.query as any).mockReset();
-        (ts_client.query as any).mockResolvedValue({ data: [] });
+        vi.mocked(bookings.query).mockReset();
+        vi.mocked(bookings.query).mockResolvedValue(bookingPage([]));
+        vi.mocked(bookings.booked).mockReset();
+        vi.mocked(bookings.booked).mockResolvedValue(mockPage({ data: [] }));
         now_spy = null;
     });
 
@@ -128,8 +136,8 @@ describe('ParkingRequestFormDetailsComponent', () => {
                 groups: [],
             }),
         );
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
+        vi.mocked(bookings.query).mockResolvedValue(bookingPage([]));
+        vi.mocked(bookings.booked).mockResolvedValue(mockPage({ data: [] }));
         // Pin "now" to a moment before the form's default date so that the
         // shift-applies-to-form helpers don't roll the booking forward into
         // tomorrow on tests that don't care about that behaviour.
@@ -391,41 +399,38 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (ts_client.get as any).mockResolvedValue([
-            {
-                id: 'desk-booking-1',
-                booking_type: 'desk',
-                user_email: 'me@test.com',
-                booking_start: 1,
-                booking_end: 2,
-                zones: ['lvl-2', 'bld-2'],
-            },
-            {
-                id: 'desk-booking-2',
-                booking_type: 'desk',
-                user_email: 'me@test.com',
-                booking_start: 1,
-                booking_end: 2,
-                zones: ['lvl-1', 'bld-1'],
-            },
-        ]);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: 'desk-booking-1',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-2', 'bld-2'],
+                },
+                {
+                    id: 'desk-booking-2',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-1', 'bld-1'],
+                },
+            ]),
+        );
 
         await spectator.component.ngOnInit();
         await flush();
 
         expect(org.building.id).toBe('bld-2');
         expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('/api/staff/v1/bookings?'),
-        );
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('period_start='),
-        );
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('type=desk'),
-        );
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('email=me%40test.com'),
+        expect(bookings.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                period_start: expect.any(Number),
+                type: 'desk',
+                email: 'me@test.com',
+            }),
         );
     });
 
@@ -445,7 +450,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
 
         expect(org.building.id).toBe('bld-1');
         expect(spectator.component.desk_booking_building_id()).toBe('');
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(bookings.query).not.toHaveBeenCalled();
     });
 
     it('should use the selected host when defaulting the selected building from desk bookings', async () => {
@@ -460,29 +465,31 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = { id: 'bld-1', timezone: 'UTC' };
-        (ts_client.get as any).mockResolvedValue([]);
+        vi.mocked(bookings.query).mockResolvedValue(bookingPage([]));
         await spectator.component.ngOnInit();
         await flush();
         expect(org.building.id).toBe('bld-1');
 
-        (ts_client.get as any).mockResolvedValue([
-            {
-                id: 'current-user-desk',
-                booking_type: 'desk',
-                user_email: 'me@test.com',
-                booking_start: 1,
-                booking_end: 2,
-                zones: ['lvl-2', 'bld-2'],
-            },
-            {
-                id: 'selected-user-desk',
-                booking_type: 'desk',
-                user_email: 'other@test.com',
-                booking_start: 1,
-                booking_end: 2,
-                zones: ['lvl-1', 'bld-1'],
-            },
-        ]);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: 'current-user-desk',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-2', 'bld-2'],
+                },
+                {
+                    id: 'selected-user-desk',
+                    booking_type: 'desk',
+                    user_email: 'other@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-1', 'bld-1'],
+                },
+            ]),
+        );
 
         spectator.component.model.update((m) => ({
             ...m,
@@ -513,16 +520,18 @@ describe('ParkingRequestFormDetailsComponent', () => {
             { id: 'lvl-2', parent_id: 'bld-2', tags: ['parking'] },
         ]);
         org.building = bld_1;
-        (ts_client.get as any).mockResolvedValue([
-            {
-                id: 'desk-booking-1',
-                booking_type: 'desk',
-                user_email: 'me@test.com',
-                booking_start: 1,
-                booking_end: 2,
-                zones: ['lvl-2', 'bld-2'],
-            },
-        ]);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: 'desk-booking-1',
+                    booking_type: 'desk',
+                    user_email: 'me@test.com',
+                    booking_start: 1,
+                    booking_end: 2,
+                    zones: ['lvl-2', 'bld-2'],
+                },
+            ]),
+        );
         await spectator.component.ngOnInit();
         await flush();
         expect(spectator.component.desk_booking_building_id()).toBe('bld-2');
@@ -794,9 +803,7 @@ describe('ParkingRequestFormDetailsComponent', () => {
         await spectator.component.ngOnInit();
         await new Promise((resolve) => setTimeout(resolve, 350));
 
-        expect(ts_client.query).not.toHaveBeenCalledWith(
-            expect.objectContaining({ path: 'booked' }),
-        );
+        expect(bookings.booked).not.toHaveBeenCalled();
     });
 
     it('should force an all-day booking when neither presets nor custom are allowed', async () => {

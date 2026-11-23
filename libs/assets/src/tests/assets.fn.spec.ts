@@ -1,9 +1,32 @@
-import { AssetRequest, setCurrentUser, StaffUser } from '@placeos/common';
+import {
+    AssetRequest,
+    Booking,
+    setCurrentUser,
+    StaffUser,
+} from '@placeos/common';
 import { validateAssetRequestsForResource } from '../lib/assets.fn';
 
+// The booking helpers of bookings.fn run for real on top of the stubbed
+// staff booking operations
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    type Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
+
+/** Booking as the staff API sends it. Test data has only some fields */
+const staffBooking = (data: object) => data as unknown as StaffBooking;
+
+/** Bookings that the staff `bookings.query` operation sends */
+const bookingList = (list: object[]) => mockReply(list.map(staffBooking));
+
+/** Ids of the bookings sent to the staff `bookings.destroy` operation */
+const removedIds = () =>
+    vi.mocked(bookings.destroy).mock.calls.map(([input]) => input.id);
 
 describe('validateAssetRequestsForResource', () => {
     const date = 1_800_000_000_000;
@@ -31,21 +54,32 @@ describe('validateAssetRequestsForResource', () => {
                 name: 'Current User',
             }),
         );
-        vi.spyOn(ts_client, 'queryAssetTypes').mockResolvedValue({
-            total: 1,
-            next: null,
-            data: [{ id: 'group-1', name: 'Projector' }],
-        } as never);
-        vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
-            total: 1,
-            next: null,
-            data: [{ id: 'unit-1', asset_type_id: 'group-1' }],
-        } as never);
-        vi.spyOn(ts_client, 'get').mockResolvedValue([] as never);
-        vi.spyOn(ts_client, 'post').mockResolvedValue({
-            id: 'booking-1',
-        } as never);
+        vi.spyOn(ts_client.asset_types, 'query').mockResolvedValue(
+            mockPage({
+                total: 1,
+                next: null,
+                data: [{ id: 'group-1', name: 'Projector' }],
+            } as never),
+        );
+        vi.spyOn(ts_client.assets, 'query').mockResolvedValue(
+            mockPage({
+                total: 1,
+                next: null,
+                data: [{ id: 'unit-1', asset_type_id: 'group-1' }],
+            } as never),
+        );
+        vi.mocked(bookings.query).mockResolvedValue(bookingList([]));
+        vi.mocked(bookings.create).mockResolvedValue(
+            mockReply(staffBooking({ id: 1 })),
+        );
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
     });
+
+    /** Body and input of the first created booking */
+    const created = () => {
+        const [input] = vi.mocked(bookings.create).mock.calls[0];
+        return [input.body as unknown as Booking, input] as const;
+    };
 
     afterEach(() => vi.useRealTimers());
 
@@ -57,31 +91,29 @@ describe('validateAssetRequestsForResource', () => {
         );
         await create();
 
-        const [url, body] = (ts_client.post as any).mock.calls[0] as [
-            string,
-            any,
-        ];
-        expect(url).not.toMatch(/event_id=\d/);
+        const [body, query] = created();
+        expect(query?.event_id).toBeUndefined();
         expect(body.parent_id).toBe(1138);
         expect(body.asset_ids).toEqual(['unit-1']);
     });
 
     it('should keep the asset requests of other native bookings', async () => {
-        vi.spyOn(ts_client, 'get').mockResolvedValue([
-            {
-                id: 'other-asset-booking',
-                booking_type: 'asset-request',
-                user_email: period.host,
-                approved: true,
-                asset_ids: ['unit-1'],
-                extension_data: {
-                    parent_id: '9999',
-                    request_id: 'other-request',
-                    request: { id: 'other-request', items: [] },
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingList([
+                {
+                    id: 2,
+                    booking_type: 'asset-request',
+                    user_email: period.host,
+                    approved: true,
+                    asset_ids: ['unit-1'],
+                    extension_data: {
+                        parent_id: '9999',
+                        request_id: 'other-request',
+                        request: { id: 'other-request', items: [] },
+                    },
                 },
-            },
-        ] as never);
-        const delete_spy = vi.spyOn(ts_client, 'del');
+            ]),
+        );
 
         const create = await validateAssetRequestsForResource(
             { id: '1138', ical_uid: '', from_bookings: true },
@@ -90,7 +122,7 @@ describe('validateAssetRequestsForResource', () => {
         );
         await create();
 
-        expect(delete_spy).not.toHaveBeenCalled();
+        expect(bookings.destroy).not.toHaveBeenCalled();
     });
 
     it('should link a request to a calendar event only when saved', async () => {
@@ -100,32 +132,31 @@ describe('validateAssetRequestsForResource', () => {
             [request],
         );
         // Validation must not reserve the asset
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.create).not.toHaveBeenCalled();
         await create();
 
-        const [url, body] = (ts_client.post as any).mock.calls[0] as [
-            string,
-            any,
-        ];
-        expect(url).toContain('event_id=event-1');
-        expect(body.parent_id).toBeUndefined();
+        const [body, query] = created();
+        expect(query.event_id).toBe('event-1');
+        expect(body.parent_id).toBeFalsy();
         expect(body.extension_data.parent_id).toBe('event-1');
         expect(body.asset_ids).toEqual(['unit-1']);
     });
 
     it('should replace a selected asset that another booking holds', async () => {
         // Group results are cached per zone, so use a zone of its own
-        vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
-            total: 2,
-            next: null,
-            data: [
-                { id: 'unit-1', asset_type_id: 'group-1' },
-                { id: 'unit-2', asset_type_id: 'group-1' },
-            ],
-        } as never);
-        vi.spyOn(ts_client, 'get').mockResolvedValue([
-            { id: 'other', status: 'approved', asset_ids: ['unit-1'] },
-        ] as never);
+        vi.spyOn(ts_client.assets, 'query').mockResolvedValue(
+            mockPage({
+                total: 2,
+                next: null,
+                data: [
+                    { id: 'unit-1', asset_type_id: 'group-1' },
+                    { id: 'unit-2', asset_type_id: 'group-1' },
+                ],
+            } as never),
+        );
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingList([{ id: 3, status: 'approved', asset_ids: ['unit-1'] }]),
+        );
         const selected = new AssetRequest({
             id: 'request-2',
             items: [
@@ -145,9 +176,7 @@ describe('validateAssetRequestsForResource', () => {
         );
         await create();
 
-        expect((ts_client.post as any).mock.calls[0][1].asset_ids).toEqual([
-            'unit-2',
-        ]);
+        expect(created()[0].asset_ids).toEqual(['unit-2']);
         expect(selected.conflict).toBe(false);
     });
 
@@ -164,33 +193,35 @@ describe('validateAssetRequestsForResource', () => {
         /** `request` as the booking form holds it, bound to the event time */
         const event_request = (items = request.items) =>
             new AssetRequest({ id: request.id, items, event: { date } });
+        /** Id of the saved asset booking */
+        const held = 4;
         /** Saved asset booking of `request` that holds unit-1 */
-        const saved_booking = (extra: Record<string, unknown> = {}) => ({
-            id: 'held',
-            booking_type: 'asset-request',
-            date,
-            duration: period.duration,
-            asset_ids: ['unit-1'],
-            extension_data: {
-                parent_id: event.id,
-                request_id: request.id,
-                request: { id: request.id, items: request.items },
-            },
-            ...extra,
-        });
+        const saved_booking = (extra: Partial<Booking> = {}) =>
+            staffBooking({
+                id: held,
+                booking_type: 'asset-request',
+                date,
+                duration: period.duration,
+                asset_ids: ['unit-1'],
+                extension_data: {
+                    parent_id: event.id,
+                    request_id: request.id,
+                    request: { id: request.id, items: request.items },
+                },
+                ...extra,
+            });
 
         beforeEach(() => {
-            vi.spyOn(ts_client, 'del').mockResolvedValue(undefined as never);
             // Group results are cached per zone, so use a zone of its own
-            vi.spyOn(ts_client, 'queryAssets').mockResolvedValue(
-                two_units as never,
+            vi.spyOn(ts_client.assets, 'query').mockResolvedValue(
+                mockPage(two_units as never),
             );
         });
 
         it('should keep the booking of an unchanged request', async () => {
-            vi.spyOn(ts_client, 'get').mockResolvedValue([
-                saved_booking(),
-            ] as never);
+            vi.mocked(bookings.query).mockResolvedValue(
+                mockReply([saved_booking()]),
+            );
 
             const create = await validateAssetRequestsForResource(
                 event,
@@ -199,21 +230,23 @@ describe('validateAssetRequestsForResource', () => {
             );
             await create();
 
-            expect(ts_client.del).not.toHaveBeenCalled();
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(bookings.destroy).not.toHaveBeenCalled();
+            expect(bookings.create).not.toHaveBeenCalled();
         });
 
         it('should replace the booking of a changed request', async () => {
-            vi.spyOn(ts_client, 'get').mockResolvedValue([
-                saved_booking(),
-            ] as never);
+            vi.mocked(bookings.query).mockResolvedValue(
+                mockReply([saved_booking()]),
+            );
             const changed = event_request([
                 { ...request.items[0], quantity: 2 },
             ]);
 
             let removed: () => void = () => undefined;
-            vi.mocked(ts_client.del).mockReturnValue(
-                new Promise<void>((resolve) => (removed = resolve)) as never,
+            vi.mocked(bookings.destroy).mockReturnValue(
+                new Promise((resolve) => {
+                    removed = () => resolve(mockReply(''));
+                }),
             );
 
             const create = await validateAssetRequestsForResource(
@@ -222,25 +255,20 @@ describe('validateAssetRequestsForResource', () => {
                 [changed],
             );
             const saving = create();
-            await vi.waitFor(() =>
-                expect(ts_client.del).toHaveBeenCalledWith(
-                    expect.stringContaining('/held?'),
-                    expect.anything(),
-                ),
-            );
+            await vi.waitFor(() => expect(removedIds()).toEqual([held]));
             // The old booking frees its asset before the new one is made
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(bookings.create).not.toHaveBeenCalled();
             removed();
             await saving;
 
-            const body = (ts_client.post as any).mock.calls[0][1];
+            const [body] = created();
             expect(body.asset_ids).toEqual(['unit-1', 'unit-2']);
         });
 
         it('should replace an approved booking when the state is reset', async () => {
-            vi.spyOn(ts_client, 'get').mockResolvedValue([
-                saved_booking({ approved: true }),
-            ] as never);
+            vi.mocked(bookings.query).mockResolvedValue(
+                mockReply([saved_booking({ approved: true })]),
+            );
             // A request that holds the saved unit and is linked to its
             // booking, so the approval would carry over without the reset
             const unchanged = event_request([
@@ -255,20 +283,17 @@ describe('validateAssetRequestsForResource', () => {
             );
             await create();
 
-            expect(ts_client.del).toHaveBeenCalledWith(
-                expect.stringContaining('/held?'),
-                expect.anything(),
-            );
-            const body = (ts_client.post as any).mock.calls[0][1];
+            expect(removedIds()).toEqual([held]);
+            const [body] = created();
             expect(body.approved).toBe(false);
             expect(body.extension_data.request_id).toBe(request.id);
         });
     });
 
     it('should flag a conflict when no asset is free', async () => {
-        vi.spyOn(ts_client, 'get').mockResolvedValue([
-            { id: 'other', status: 'approved', asset_ids: ['unit-1'] },
-        ] as never);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingList([{ id: 3, status: 'approved', asset_ids: ['unit-1'] }]),
+        );
         const blocked = new AssetRequest({
             id: 'request-3',
             items: [
@@ -280,6 +305,6 @@ describe('validateAssetRequestsForResource', () => {
             validateAssetRequestsForResource({}, period, [blocked]),
         ).rejects.toBe('Unable to find available asset for request');
         expect(blocked.conflict).toBe(true);
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.create).not.toHaveBeenCalled();
     });
 });

@@ -8,6 +8,7 @@ import { OrganisationService } from '@placeos/common';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { AvailableRoomsStateModalComponent } from '../lib/available-rooms-state-modal.component';
 
 describe('AvailableRoomsStateModalComponent', () => {
@@ -35,8 +36,16 @@ describe('AvailableRoomsStateModalComponent', () => {
         });
 
     beforeEach(() => {
-        vi.mocked(ts_client.querySystems).mockReturnValue(
-            Promise.resolve({ data: spaces, total: spaces.length }) as any,
+        vi.mocked(ts_client.systems.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({
+                        data: spaces,
+                        total: spaces.length,
+                    }) as any,
+                ['...'],
+                'page',
+            ),
         );
         dialog_data.disabled_rooms = ['space-2'];
         org.building = { id: 'bld-1' };
@@ -118,7 +127,7 @@ describe('AvailableRoomsStateModalComponent', () => {
     });
 
     it('should show an error with a retry when the rooms fail to load', async () => {
-        vi.mocked(ts_client.querySystems).mockRejectedValueOnce(
+        vi.mocked(ts_client.systems.query).mockRejectedValueOnce(
             new Error('Network error'),
         );
         // The room list of a building loads once, so use a new building

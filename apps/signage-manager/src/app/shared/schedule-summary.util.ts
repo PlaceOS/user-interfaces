@@ -7,7 +7,7 @@ import {
     parseCronWeeksOfMonth,
     settingSignal,
 } from '@placeos/common';
-import { type SignagePlaylistSchedule } from '@placeos/ts-client';
+import { type PlaylistSchedule } from '@placeos/ts-client';
 import { format, fromUnixTime } from 'date-fns';
 import {
     formatPlayDateTime,
@@ -338,7 +338,7 @@ export function scheduleMaskLabel(mask: string) {
  * @param locale Locale of the weekday names
  */
 export function scheduleSummary(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     locale: string,
 ) {
     const period = playPeriodMinutes(schedule);

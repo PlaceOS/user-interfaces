@@ -1,33 +1,49 @@
 import { TestBed } from '@angular/core/testing';
 import {
-    PlaceAuthority,
-    invalidateToken,
-    listPublicEvents,
-    publicEventGuestToken,
-    registerPublicEvent,
-    setStorage,
-    setToken,
-    token,
+    configure,
+    type DomainAuthority,
+    public_events,
 } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { PublicEventsService } from '../app/public-events.service';
 
-vi.mock('@placeos/ts-client', () => ({
-    invalidateToken: vi.fn(),
-    listPublicEvents: vi.fn(),
-    publicEventGuestToken: vi.fn(),
-    registerPublicEvent: vi.fn(),
-    setStorage: vi.fn(),
-    setToken: vi.fn(),
-    token: vi.fn(),
-}));
+vi.mock('@placeos/ts-client', { spy: true });
 
 const GUEST_KEY = 'PLACEOS.public.guest';
+/** Call options of the guest token request: a client with no auth */
+const ANONYMOUS = {
+    client: expect.objectContaining({ auth: { kind: 'none' } }),
+};
+const TOKEN_KEY = 'PLACEOS.public.token';
+
+/** Stores a guest token that has not expired */
+function storeToken(storage: Storage = sessionStorage) {
+    storage.setItem(
+        TOKEN_KEY,
+        JSON.stringify({
+            token: 'guest-token',
+            expires_at_ms: Date.now() + 60_000,
+        }),
+    );
+}
+
+/** The guest token in `storage`, or `null` */
+function tokenIn(storage: Storage): { token: string; expires_at_ms: number } {
+    return JSON.parse(storage.getItem(TOKEN_KEY) || 'null');
+}
+
+/** Bearer token callback of the service that was made last */
+function lastBearer() {
+    const auth = vi.mocked(configure).mock.calls.at(-1)?.[0].auth;
+    if (auth?.kind !== 'bearer') throw new Error('Expected a bearer token');
+    return auth.token;
+}
 
 describe('PublicEventsService', () => {
     const guest = { name: 'Guest User', email: 'guest@example.com' };
 
     function authority(config: Record<string, unknown>) {
-        return { config } as unknown as PlaceAuthority;
+        return { config } as unknown as DomainAuthority;
     }
 
     function stubAuthorityFetch(config: Record<string, unknown> = {}) {
@@ -44,10 +60,11 @@ describe('PublicEventsService', () => {
         localStorage.clear();
         sessionStorage.clear();
         vi.clearAllMocks();
-        vi.mocked(token).mockReturnValue('guest-token');
-        vi.mocked(publicEventGuestToken).mockResolvedValue('new-token');
-        vi.mocked(listPublicEvents).mockResolvedValue([]);
-        vi.mocked(registerPublicEvent).mockResolvedValue({});
+        vi.mocked(public_events.guestToken).mockResolvedValue(
+            mockReply('new-token'),
+        );
+        vi.mocked(public_events.query).mockResolvedValue(mockReply([]));
+        vi.mocked(public_events.register).mockResolvedValue(mockReply(''));
     });
 
     afterEach(() => {
@@ -58,7 +75,6 @@ describe('PublicEventsService', () => {
 
     describe('authority', () => {
         it('should load the authority once and add the recaptcha script once', async () => {
-            vi.mocked(token).mockReturnValue('');
             const fetch = stubAuthorityFetch({ recaptcha_key: 'site-key' });
             const service = TestBed.inject(PublicEventsService);
 
@@ -87,6 +103,7 @@ describe('PublicEventsService', () => {
         });
 
         it('should add the recaptcha script only when a guest token is needed', async () => {
+            storeToken();
             stubAuthorityFetch({ recaptcha_key: 'site-key' });
             const service = TestBed.inject(PublicEventsService);
 
@@ -161,45 +178,79 @@ describe('PublicEventsService', () => {
 
             expect(service.guest()).toBeNull();
             expect(service.authenticated()).toBe(false);
-            expect(setStorage).toHaveBeenCalledWith('session');
         });
 
-        it('should use local token storage when the guest was remembered', () => {
+        it('should remove an expired guest token when it reads it', async () => {
+            localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            localStorage.setItem(
+                TOKEN_KEY,
+                JSON.stringify({
+                    token: 'old-token',
+                    expires_at_ms: Date.now() - 1,
+                }),
+            );
+
+            TestBed.inject(PublicEventsService);
+
+            expect(await lastBearer()()).toBeNull();
+            expect(tokenIn(localStorage)).toBeNull();
+        });
+
+        it('should load the guest that was remembered', () => {
             localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
 
             const service = TestBed.inject(PublicEventsService);
 
             expect(service.guest()).toEqual(guest);
-            expect(setStorage).toHaveBeenCalledWith('local');
         });
     });
 
     describe('forgetGuest', () => {
-        it('should remove the guest details and token from both storages', () => {
+        it('should remove the guest details and token from both storages', async () => {
             localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            storeToken(localStorage);
+            storeToken(sessionStorage);
             const service = TestBed.inject(PublicEventsService);
-            vi.mocked(setStorage).mockClear();
+            expect(await lastBearer()()).toBe('guest-token');
 
             service.forgetGuest();
 
-            expect(vi.mocked(setStorage).mock.calls).toEqual([
-                ['local'],
-                ['session'],
-            ]);
-            expect(invalidateToken).toHaveBeenCalledTimes(2);
+            expect(await lastBearer()()).toBeNull();
+            expect(tokenIn(localStorage)).toBeNull();
+            expect(tokenIn(sessionStorage)).toBeNull();
             expect(localStorage.getItem(GUEST_KEY)).toBeNull();
             expect(sessionStorage.getItem(GUEST_KEY)).toBeNull();
             expect(service.guest()).toBeNull();
             expect(service.authenticated()).toBe(false);
         });
 
+        it('should remove the guest token of 6.x from both storages', () => {
+            // 6.x had no client ID in this app, so the keys have no prefix
+            for (const storage of [localStorage, sessionStorage]) {
+                storage.setItem('_access_token', 'old-token');
+                storage.setItem('_expires_at', `${Date.now() + 60_000}`);
+            }
+            const service = TestBed.inject(PublicEventsService);
+
+            service.forgetGuest();
+
+            for (const storage of [localStorage, sessionStorage]) {
+                expect(storage.getItem('_access_token')).toBeNull();
+                expect(storage.getItem('_expires_at')).toBeNull();
+            }
+        });
+
         it('should not store the guest again when a pending request resolves', async () => {
             localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
-            vi.mocked(token).mockReturnValue('');
             let resolve_token: (value: string) => void = () => undefined;
-            vi.mocked(publicEventGuestToken).mockReturnValue(
-                new Promise((resolve) => (resolve_token = resolve)),
+            vi.mocked(public_events.guestToken).mockImplementation(
+                () =>
+                    new Promise(
+                        (resolve) =>
+                            (resolve_token = (value) =>
+                                resolve(mockReply(value))),
+                    ),
             );
             const service = TestBed.inject(PublicEventsService);
             const loading = service.loadEvents('sys-1');
@@ -209,22 +260,23 @@ describe('PublicEventsService', () => {
             resolve_token('old-token');
             await loading;
 
-            expect(setToken).not.toHaveBeenCalled();
+            expect(tokenIn(localStorage)).toBeNull();
             expect(localStorage.getItem(GUEST_KEY)).toBeNull();
             expect(service.guest()).toBeNull();
             expect(service.error()).toBe('');
-            expect(listPublicEvents).not.toHaveBeenCalled();
+            expect(public_events.query).not.toHaveBeenCalled();
         });
     });
 
     describe('requestGuestAccess', () => {
         it.each([
-            [true, localStorage, sessionStorage, 'local'],
-            [false, sessionStorage, localStorage, 'session'],
+            [true, localStorage, sessionStorage],
+            [false, sessionStorage, localStorage],
         ])(
-            'should store the guest in one storage only (remember: %s)',
-            async (remember, kept, cleared, storage) => {
+            'should store the guest and token in one storage only (remember: %s)',
+            async (remember, kept, cleared) => {
                 cleared.setItem(GUEST_KEY, JSON.stringify(guest));
+                storeToken(cleared);
                 const service = TestBed.inject(PublicEventsService);
 
                 await service.requestGuestAccess('system-1', guest, remember);
@@ -233,10 +285,39 @@ describe('PublicEventsService', () => {
                     guest,
                 );
                 expect(cleared.getItem(GUEST_KEY)).toBeNull();
-                expect(setStorage).toHaveBeenLastCalledWith(storage);
+                expect(tokenIn(kept)?.token).toBe('new-token');
+                expect(tokenIn(cleared)).toBeNull();
                 expect(service.guest()).toEqual(guest);
+                expect(await lastBearer()()).toBe('new-token');
             },
         );
+
+        it('should request a guest token without auth when no token is stored', async () => {
+            const actual =
+                await vi.importActual<typeof import('@placeos/ts-client')>(
+                    '@placeos/ts-client',
+                );
+            vi.mocked(public_events.guestToken).mockImplementation(
+                actual.public_events.guestToken,
+            );
+            const fetch = vi.fn().mockResolvedValue(
+                new Response(JSON.stringify('server-token'), {
+                    headers: { 'content-type': 'application/json' },
+                }),
+            );
+            vi.stubGlobal('fetch', fetch);
+            const service = TestBed.inject(PublicEventsService);
+
+            await service.requestGuestAccess('system-1', guest);
+
+            expect(fetch).toHaveBeenCalledTimes(1);
+            const [url, init] = fetch.mock.calls[0] as [string, RequestInit];
+            expect(url).toBe(
+                '/api/engine/v2/public_events/guest_token/system-1',
+            );
+            expect(new Headers(init.headers).has('authorization')).toBe(false);
+            expect(tokenIn(sessionStorage)?.token).toBe('server-token');
+        });
 
         it('should set the guest token to expire after two hours', async () => {
             vi.useFakeTimers({ now: new Date(2026, 4, 12, 9, 0) });
@@ -244,14 +325,16 @@ describe('PublicEventsService', () => {
 
             await service.requestGuestAccess('system-1', guest);
 
-            expect(setToken).toHaveBeenCalledWith(
-                'new-token',
-                Date.now() + 2 * 60 * 60 * 1000,
-            );
+            expect(tokenIn(sessionStorage)).toEqual({
+                token: 'new-token',
+                expires_at_ms: Date.now() + 2 * 60 * 60 * 1000,
+            });
         });
 
         it('should show the error and keep the visitor signed out when no token is returned', async () => {
-            vi.mocked(publicEventGuestToken).mockResolvedValue('');
+            vi.mocked(public_events.guestToken).mockResolvedValue(
+                mockReply(''),
+            );
             const service = TestBed.inject(PublicEventsService);
 
             await expect(
@@ -261,12 +344,12 @@ describe('PublicEventsService', () => {
             expect(service.error()).toBe('Guest access response was invalid.');
             expect(service.loading()).toBe('');
             expect(service.guest()).toBeNull();
-            expect(setToken).not.toHaveBeenCalled();
+            expect(tokenIn(localStorage)).toBeNull();
             expect(localStorage.getItem(GUEST_KEY)).toBeNull();
         });
 
         it('should clear the previous error when a retry succeeds', async () => {
-            vi.mocked(publicEventGuestToken).mockRejectedValueOnce(
+            vi.mocked(public_events.guestToken).mockRejectedValueOnce(
                 new Error('Denied'),
             );
             const service = TestBed.inject(PublicEventsService);
@@ -295,10 +378,16 @@ describe('PublicEventsService', () => {
             expect(execute).toHaveBeenCalledWith('site-key', {
                 action: 'public_events',
             });
-            expect(publicEventGuestToken).toHaveBeenCalledWith('system-1', {
-                ...guest,
-                captcha: 'captcha-token',
-            });
+            expect(public_events.guestToken).toHaveBeenCalledWith(
+                {
+                    system_id: 'system-1',
+                    body: {
+                        ...guest,
+                        captcha: 'captcha-token',
+                    },
+                },
+                ANONYMOUS,
+            );
         });
 
         it('should fail when recaptcha returns no token', async () => {
@@ -312,7 +401,7 @@ describe('PublicEventsService', () => {
             await expect(
                 service.requestGuestAccess('system-1', guest),
             ).rejects.toThrow('Guest access check returned no response.');
-            expect(publicEventGuestToken).not.toHaveBeenCalled();
+            expect(public_events.guestToken).not.toHaveBeenCalled();
         });
 
         it('should wait for the recaptcha script to load', async () => {
@@ -322,7 +411,7 @@ describe('PublicEventsService', () => {
 
             const request = service.requestGuestAccess('system-1', guest);
             await vi.advanceTimersByTimeAsync(2 * 250);
-            expect(publicEventGuestToken).not.toHaveBeenCalled();
+            expect(public_events.guestToken).not.toHaveBeenCalled();
             vi.stubGlobal('grecaptcha', {
                 ready: (callback: () => void) => callback(),
                 execute: vi.fn().mockResolvedValue('captcha-token'),
@@ -330,10 +419,16 @@ describe('PublicEventsService', () => {
             await vi.advanceTimersByTimeAsync(250);
 
             await request;
-            expect(publicEventGuestToken).toHaveBeenCalledWith('system-1', {
-                ...guest,
-                captcha: 'captcha-token',
-            });
+            expect(public_events.guestToken).toHaveBeenCalledWith(
+                {
+                    system_id: 'system-1',
+                    body: {
+                        ...guest,
+                        captcha: 'captcha-token',
+                    },
+                },
+                ANONYMOUS,
+            );
         });
 
         it('should stop waiting for recaptcha after a bounded number of tries', async () => {
@@ -351,27 +446,34 @@ describe('PublicEventsService', () => {
             await failed;
             expect(vi.getTimerCount()).toBe(0);
             expect(service.error()).toBe('Guest access check failed to load.');
-            expect(publicEventGuestToken).not.toHaveBeenCalled();
+            expect(public_events.guestToken).not.toHaveBeenCalled();
         });
     });
 
     describe('loadEvents', () => {
         it('should refresh guest access and hide system events when the token is missing', async () => {
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
-            vi.mocked(token).mockReturnValue('');
-            vi.mocked(listPublicEvents).mockResolvedValue([
-                { id: 'setup', is_system_event: true },
-                { id: 'event-1', title: 'Public Event' },
-            ]);
+            vi.mocked(public_events.query).mockResolvedValue(
+                mockReply([
+                    { id: 'setup', is_system_event: true },
+                    { id: 'event-1', title: 'Public Event' },
+                ]),
+            );
             const service = TestBed.inject(PublicEventsService);
 
             await service.loadEvents('system-1');
 
-            expect(publicEventGuestToken).toHaveBeenCalledWith('system-1', {
-                ...guest,
-                captcha: '',
-            });
-            expect(setStorage).toHaveBeenLastCalledWith('session');
+            expect(public_events.guestToken).toHaveBeenCalledWith(
+                {
+                    system_id: 'system-1',
+                    body: {
+                        ...guest,
+                        captcha: '',
+                    },
+                },
+                ANONYMOUS,
+            );
+            expect(tokenIn(sessionStorage)?.token).toBe('new-token');
             expect(service.events()).toEqual([
                 { id: 'event-1', title: 'Public Event' },
             ]);
@@ -380,14 +482,50 @@ describe('PublicEventsService', () => {
 
         it('should use an existing guest token', async () => {
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            storeToken();
             const service = TestBed.inject(PublicEventsService);
 
             await service.loadEvents('system-1');
 
-            expect(publicEventGuestToken).not.toHaveBeenCalled();
-            expect(listPublicEvents).toHaveBeenCalledWith('system-1', {
+            expect(public_events.guestToken).not.toHaveBeenCalled();
+            expect(public_events.query).toHaveBeenCalledWith({
+                system_id: 'system-1',
                 limit: 100,
             });
+        });
+
+        it('should not use the token of a guest that another tab remembered', async () => {
+            sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            const service = TestBed.inject(PublicEventsService);
+            // Another tab remembers a different guest
+            storeToken(localStorage);
+
+            await service.loadEvents('system-1');
+
+            expect(public_events.guestToken).toHaveBeenCalledWith(
+                { system_id: 'system-1', body: { ...guest, captcha: '' } },
+                ANONYMOUS,
+            );
+            expect(tokenIn(sessionStorage)?.token).toBe('new-token');
+        });
+
+        it('should keep the token of its own guest when another tab remembers a guest', async () => {
+            // Tab 1 starts with remembered guest A
+            localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            storeToken(localStorage);
+            new PublicEventsService();
+            const tab_1_token = lastBearer();
+
+            // Tab 2 shares the storage and remembers guest B
+            const tab_2 = new PublicEventsService();
+            await tab_2.requestGuestAccess(
+                'system-1',
+                { name: 'Guest B', email: 'b@example.com' },
+                true,
+            );
+
+            expect(tokenIn(localStorage)?.token).toBe('new-token');
+            expect(await tab_1_token()).toBe('guest-token');
         });
 
         it('should load the events again for the next guest', async () => {
@@ -399,37 +537,37 @@ describe('PublicEventsService', () => {
             service.guest.set(guest);
             await service.loadEvents('system-1');
 
-            expect(listPublicEvents).toHaveBeenCalledTimes(2);
+            expect(public_events.query).toHaveBeenCalledTimes(2);
         });
 
         it('should keep the loaded events until a refresh or another source', async () => {
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            storeToken();
             const service = TestBed.inject(PublicEventsService);
 
             await service.loadEvents('system-1');
             service.error.set('Registration failed');
             await service.loadEvents('system-1');
-            expect(listPublicEvents).toHaveBeenCalledTimes(1);
+            expect(public_events.query).toHaveBeenCalledTimes(1);
             expect(service.error()).toBe('');
 
             await service.loadEvents('system-1', true);
             await service.loadEvents('system-2');
-            expect(listPublicEvents).toHaveBeenCalledTimes(3);
+            expect(public_events.query).toHaveBeenCalledTimes(3);
         });
 
         it('should show an error when there is no token and no guest', async () => {
-            vi.mocked(token).mockReturnValue('');
             const service = TestBed.inject(PublicEventsService);
 
             await service.loadEvents('system-1');
 
             expect(service.error()).toBe('Guest details are required.');
-            expect(listPublicEvents).not.toHaveBeenCalled();
+            expect(public_events.query).not.toHaveBeenCalled();
         });
 
         it('should show a list failure as the error and clear loading', async () => {
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
-            vi.mocked(listPublicEvents).mockRejectedValue(
+            vi.mocked(public_events.query).mockRejectedValue(
                 new Error('Server unavailable'),
             );
             const service = TestBed.inject(PublicEventsService);
@@ -444,27 +582,34 @@ describe('PublicEventsService', () => {
     describe('register', () => {
         it('should refresh remembered guest access before registering when the token is missing', async () => {
             localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
-            vi.mocked(token).mockReturnValue('');
             const service = TestBed.inject(PublicEventsService);
 
             await service.register('system-1', 'event-1');
 
-            expect(publicEventGuestToken).toHaveBeenCalledWith('system-1', {
-                ...guest,
-                captcha: '',
-            });
-            expect(setStorage).toHaveBeenLastCalledWith('local');
-            expect(registerPublicEvent).toHaveBeenCalledWith('system-1', {
-                event_id: 'event-1',
-                ...guest,
+            expect(public_events.guestToken).toHaveBeenCalledWith(
+                {
+                    system_id: 'system-1',
+                    body: {
+                        ...guest,
+                        captcha: '',
+                    },
+                },
+                ANONYMOUS,
+            );
+            expect(tokenIn(localStorage)?.token).toBe('new-token');
+            expect(public_events.register).toHaveBeenCalledWith({
+                system_id: 'system-1',
+                body: {
+                    event_id: 'event-1',
+                    ...guest,
+                },
             });
             expect(service.loading()).toBe('');
         });
 
         it('should not register when the guest access refresh fails', async () => {
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
-            vi.mocked(token).mockReturnValue('');
-            vi.mocked(publicEventGuestToken).mockRejectedValue(
+            vi.mocked(public_events.guestToken).mockRejectedValue(
                 new Error('Denied'),
             );
             const service = TestBed.inject(PublicEventsService);
@@ -472,7 +617,7 @@ describe('PublicEventsService', () => {
             await expect(
                 service.register('system-1', 'event-1'),
             ).rejects.toThrow('Denied');
-            expect(registerPublicEvent).not.toHaveBeenCalled();
+            expect(public_events.register).not.toHaveBeenCalled();
             expect(service.error()).toBe('Denied');
             expect(service.loading()).toBe('');
         });
@@ -483,12 +628,12 @@ describe('PublicEventsService', () => {
             await expect(
                 service.register('system-1', 'event-1'),
             ).rejects.toThrow('Guest details are required.');
-            expect(registerPublicEvent).not.toHaveBeenCalled();
+            expect(public_events.register).not.toHaveBeenCalled();
         });
 
         it('should show a registration failure as the error and rethrow it', async () => {
             sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
-            vi.mocked(registerPublicEvent).mockRejectedValue(
+            vi.mocked(public_events.register).mockRejectedValue(
                 new Error('Event is full'),
             );
             const service = TestBed.inject(PublicEventsService);

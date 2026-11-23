@@ -49,12 +49,11 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    listChildMetadata,
-    PlaceZone,
-    QueryResponse,
-    showMetadata,
-    updateMetadata,
+    metadata as metadata_v7,
+    parseResponse,
+    Zone,
 } from '@placeos/ts-client';
+import { orThrow, type QueryResponse } from '@placeos/ts-client/compat';
 import { addHours, format, getUnixTime } from 'date-fns';
 
 import {
@@ -63,6 +62,7 @@ import {
     runBulk,
     runBulkAction,
 } from '@placeos/components';
+import { jsonList, showMetadata, toJsonValue } from '../metadata';
 import { clearAssignedBooking } from '../ui/assigned-booking';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
@@ -114,6 +114,13 @@ export function matchesDeskSearch(booking: Booking, search?: string) {
     const text = search?.toLowerCase();
     if (!text) return true;
     return rowSearchText(booking, DESK_BOOKING_SEARCH_KEYS).includes(text);
+}
+
+/** A zone with only the ID set, for a desk read from the metadata of the zone */
+function zoneWithId(id: string): Zone {
+    const result = parseResponse(Zone, { id }, { missing_fields: 'zero' });
+    if (result.ok === false) throw new Error('A zone ID does not parse');
+    return result.value;
 }
 
 @Injectable({
@@ -212,9 +219,7 @@ export class DesksStateService extends AsyncHandler {
                             zone,
                             details: await showMetadata(zone, 'desks')
                                 .then((item) =>
-                                    item.details instanceof Array
-                                        ? item.details
-                                        : [],
+                                    jsonList<Partial<Desk>>(item.details),
                                 )
                                 .catch(() => []),
                         })),
@@ -226,10 +231,13 @@ export class DesksStateService extends AsyncHandler {
                         })),
                     );
                 } else {
-                    const metadata = await listChildMetadata(
-                        this._org.building?.id,
-                        { name: 'desks' },
-                    ).catch(() => [] as unknown[]);
+                    const metadata = await metadata_v7
+                        .childrenMetadata({
+                            id: this._org.building?.id,
+                            name: 'desks',
+                        })
+                        .then(orThrow)
+                        .catch(() => [] as unknown[]);
                     // Tag each desk with its level so per-desk saves can
                     // target the correct zone when viewing all levels.
                     list = metadata
@@ -280,9 +288,9 @@ export class DesksStateService extends AsyncHandler {
                     ).catch(() => null);
                     return {
                         level,
-                        has_bookable:
-                            metadata?.details instanceof Array &&
-                            metadata.details.some((desk) => desk.bookable),
+                        has_bookable: jsonList<Partial<Desk>>(
+                            metadata?.details,
+                        ).some((desk) => desk.bookable),
                     };
                 }),
             );
@@ -568,11 +576,16 @@ export class DesksStateService extends AsyncHandler {
                 if (idx >= 0) desk_list[idx] = desk;
                 else desk_list.push(desk);
             }
-            await updateMetadata(zone, {
-                name: 'desks',
-                details: desk_list,
-                description: 'List of available desks',
-            });
+            await metadata_v7
+                .update({
+                    id: zone,
+                    body: {
+                        name: 'desks',
+                        details: toJsonValue(desk_list),
+                        description: 'List of available desks',
+                    },
+                })
+                .then(orThrow);
         }
         this._change.set(Date.now());
     }
@@ -607,11 +620,16 @@ export class DesksStateService extends AsyncHandler {
             const updated_desks = (await this._storedDeskList(zone_id)).filter(
                 (_) => _.id !== desk.id,
             );
-            await updateMetadata(zone_id, {
-                name: 'desks',
-                description: 'desks',
-                details: updated_desks,
-            });
+            await metadata_v7
+                .update({
+                    id: zone_id,
+                    body: {
+                        name: 'desks',
+                        description: 'desks',
+                        details: toJsonValue(updated_desks),
+                    },
+                })
+                .then(orThrow);
         }
         this._change.set(Date.now());
     }
@@ -970,9 +988,7 @@ export class DesksStateService extends AsyncHandler {
                       levels.map((level) =>
                           showMetadata(level.id, 'desks')
                               .then((metadata) =>
-                                  metadata.details instanceof Array
-                                      ? metadata.details
-                                      : [],
+                                  jsonList<Partial<Desk>>(metadata.details),
                               )
                               .catch(() => []),
                       ),
@@ -1002,8 +1018,8 @@ export class DesksStateService extends AsyncHandler {
      */
     private async _storedDeskList(zone: string): Promise<Desk[]> {
         const { details } = await showMetadata(zone, 'desks');
-        return (details instanceof Array ? details : []).map(
-            (item) => new Desk({ ...item, zone: { id: zone } }),
+        return jsonList<Partial<Desk>>(details).map(
+            (item) => new Desk({ ...item, zone: zoneWithId(zone) }),
         );
     }
 
@@ -1024,8 +1040,8 @@ export class DesksStateService extends AsyncHandler {
                 (use_assets && desk['asset_type_id'] ? desk.id : metadata.id) ||
                 `desk-${zone.slice(-3)}.${randomInt(999_999)}`,
             // Desks store the level as their zone. Desk types its zone as a
-            // PlaceZone, which BuildingLevel does not match.
-            zone: this._org.levelWithID([zone]) as unknown as PlaceZone,
+            // Zone, which BuildingLevel does not match.
+            zone: this._org.levelWithID([zone]) as unknown as Zone,
         });
     }
 
@@ -1062,11 +1078,16 @@ export class DesksStateService extends AsyncHandler {
             );
             return deskFromAsset(saved, this._org.levelWithID([zone]));
         }
-        await updateMetadata(zone, {
-            name: 'desks',
-            details: desk_list,
-            description: 'List of available desks',
-        });
+        await metadata_v7
+            .update({
+                id: zone,
+                body: {
+                    name: 'desks',
+                    details: toJsonValue(desk_list),
+                    description: 'List of available desks',
+                },
+            })
+            .then(orThrow);
         return desk;
     }
 
@@ -1149,11 +1170,16 @@ export class DesksStateService extends AsyncHandler {
         original_desk_list: unknown[],
     ) {
         try {
-            await updateMetadata(zone, {
-                name: 'desks',
-                details: original_desk_list,
-                description: 'List of available desks',
-            });
+            await metadata_v7
+                .update({
+                    id: zone,
+                    body: {
+                        name: 'desks',
+                        details: toJsonValue(original_desk_list),
+                        description: 'List of available desks',
+                    },
+                })
+                .then(orThrow);
         } catch (rollback_err) {
             console.error(
                 'Failed to rollback desk metadata after error',
@@ -1174,6 +1200,7 @@ export class DesksStateService extends AsyncHandler {
             ? this._org.building?.timezone
             : '';
         const date = setTimeInTimezone(Date.now(), 1, 0, timezone);
+        const stored_zone: unknown = desk.zone;
         return new Booking({
             user_id: desk.assigned_to,
             user_email: desk.assigned_to,
@@ -1198,7 +1225,9 @@ export class DesksStateService extends AsyncHandler {
                 this._org.region?.id,
                 this._org.building?.id,
                 desk.zone?.id,
-                desk.zone,
+                // Older desk metadata can store the zone as an ID. The API
+                // takes only IDs in `zones`, so a zone object is left out.
+                typeof stored_zone === 'string' ? stored_zone : '',
                 ...(desk['zones'] || []),
                 zone,
             ]).filter((_) => !!_),

@@ -28,6 +28,7 @@ import {
     getFormTimeSyncHandle,
     getTimeInTimezone,
     i18n,
+    isMock,
     notifyError,
     OrganisationService,
     parseWebUrl,
@@ -37,7 +38,6 @@ import {
     UploadsService,
     user_group_names,
 } from '@placeos/common';
-import { isMock } from '@placeos/ts-client';
 import {
     addDays,
     addMinutes,

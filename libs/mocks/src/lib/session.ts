@@ -1,9 +1,9 @@
 import { HashMap, log, toQueryString } from '@placeos/common';
 import {
-    MockHttpRequest,
-    MockHttpRequestHandlerOptions,
+    type MockHttpRequest,
+    type MockHttpRequestHandlerOptions,
     registerMockEndpoint as registerEndpoint,
-} from '@placeos/ts-client';
+} from '@placeos/ts-client/compat';
 
 /** Prefix of the localStorage keys that hold mock data */
 const MOCK_SESSION_PREFIX = 'PLACEOS.mock.';

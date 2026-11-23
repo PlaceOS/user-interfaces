@@ -1,13 +1,14 @@
 import { effect, Injectable, signal } from '@angular/core';
 import {
+    apiKey,
     AsyncHandler,
     MINUTES,
     randomString,
     scoped_log,
     SECONDS,
+    token,
     withTimeout,
 } from '@placeos/common';
-import { apiKey, token } from '@placeos/ts-client';
 // `Subject`/`firstValueFrom` are kept for `on_change`: awaiting a cache item's
 // next terminal status is an event stream, not state, so it stays reactive.
 import { filter, firstValueFrom, of, Subject, timeout } from 'rxjs';

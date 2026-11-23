@@ -13,6 +13,7 @@ import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import {
     EmailTemplate,
     EmailTemplatesStateService,
@@ -68,10 +69,19 @@ describe('EmailTemplatesStateService', () => {
         dialog_open = vi.fn(() => makeConfirmRef());
         active_building.set({ id: 'bld-1' });
         active_region.set(null);
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: [],
-        });
-        (ts_client.updateMetadata as any).mockResolvedValue(undefined);
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: [],
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client.metadata.update as any).mockResolvedValue(
+            mockReply(undefined),
+        );
         spectator = createService();
     });
 
@@ -83,11 +93,11 @@ describe('EmailTemplatesStateService', () => {
         await expect(
             spectator.service.saveTemplate({ zone_id: '' } as EmailTemplate),
         ).rejects.toBe('A building is required');
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should show an error when reading templates fails on save', async () => {
-        (ts_client.showMetadata as any).mockRejectedValue('offline');
+        (ts_client.metadata.show as any).mockRejectedValue('offline');
 
         await expect(
             spectator.service.saveTemplate({
@@ -101,7 +111,7 @@ describe('EmailTemplatesStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should generate an id and timestamps for new templates', async () => {
@@ -116,13 +126,13 @@ describe('EmailTemplatesStateService', () => {
         expect(template.id).toMatch(/^template-/);
         expect(template.created_at).toBeGreaterThan(0);
         expect(template.updated_at).toBeGreaterThan(0);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'bld-1',
+            body: expect.objectContaining({
                 name: 'email_templates',
                 details: expect.arrayContaining([template]),
             }),
-        );
+        });
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -131,10 +141,17 @@ describe('EmailTemplatesStateService', () => {
     });
 
     it('should strip a template from its previous zone when moved', async () => {
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: [{ id: 'template-1', zone_id: 'bld-0' }],
-            description: 'old',
-        });
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: [{ id: 'template-1', zone_id: 'bld-0' }],
+                    description: 'old',
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         const template = {
             id: 'template-1',
             zone_id: 'bld-1',
@@ -143,26 +160,32 @@ describe('EmailTemplatesStateService', () => {
 
         await spectator.service.saveTemplate(template, 'bld-0');
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'bld-0',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'bld-0',
+            body: expect.objectContaining({
                 name: 'email_templates',
                 details: [],
             }),
-        );
+        });
     });
 
     it('should remove a template from its zone metadata', async () => {
-        (ts_client.showMetadata as any).mockImplementation((zone) =>
-            Promise.resolve(
-                zone === 'bld-1'
-                    ? {
-                          details: [
-                              { id: 'keep', zone_id: 'bld-1' },
-                              { id: 'drop', zone_id: 'bld-1' },
-                          ],
-                      }
-                    : { details: [] },
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                (zone) =>
+                    Promise.resolve(
+                        zone === 'bld-1'
+                            ? {
+                                  details: [
+                                      { id: 'keep', zone_id: 'bld-1' },
+                                      { id: 'drop', zone_id: 'bld-1' },
+                                  ],
+                              }
+                            : { details: [] },
+                    ),
+                ['id', 'name'],
+                'data',
+                'name',
             ),
         );
 
@@ -171,12 +194,12 @@ describe('EmailTemplatesStateService', () => {
             zone_id: 'bld-1',
         } as EmailTemplate);
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'bld-1',
+            body: expect.objectContaining({
                 details: [{ id: 'keep', zone_id: 'bld-1' }],
             }),
-        );
+        });
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -185,13 +208,19 @@ describe('EmailTemplatesStateService', () => {
     });
 
     it('should write the new zone before removing a moved template from the old zone', async () => {
-        (ts_client.showMetadata as any).mockImplementation((zone) =>
-            Promise.resolve({
-                details:
-                    zone === 'bld-0'
-                        ? [{ id: 'template-1', zone_id: 'bld-0' }]
-                        : [],
-            }),
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                (zone) =>
+                    Promise.resolve({
+                        details:
+                            zone === 'bld-0'
+                                ? [{ id: 'template-1', zone_id: 'bld-0' }]
+                                : [],
+                    }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
 
         await spectator.service.saveTemplate(
@@ -199,21 +228,21 @@ describe('EmailTemplatesStateService', () => {
             'bld-0',
         );
 
-        const zones = (ts_client.updateMetadata as any).mock.calls.map(
-            ([zone]) => zone,
+        const zones = (ts_client.metadata.update as any).mock.calls.map(
+            ([{ id }]) => id,
         );
         expect(zones).toEqual(['bld-1', 'bld-0']);
     });
 
     it('should not write templates when the zone list cannot be read', async () => {
-        (ts_client.showMetadata as any).mockRejectedValue('offline');
+        (ts_client.metadata.show as any).mockRejectedValue('offline');
 
         await spectator.service.removeTemplate({
             id: 'drop',
             zone_id: 'bld-1',
         } as EmailTemplate);
 
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -229,15 +258,21 @@ describe('EmailTemplatesStateService', () => {
             zone_id: 'bld-1',
         } as EmailTemplate);
 
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should load a template by id from the merged zone list', async () => {
-        (ts_client.showMetadata as any).mockImplementation((zone) =>
-            Promise.resolve(
-                zone === 'bld-1'
-                    ? { details: [{ id: 'target', subject: 'Found' }] }
-                    : { details: [] },
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                (zone) =>
+                    Promise.resolve(
+                        zone === 'bld-1'
+                            ? { details: [{ id: 'target', subject: 'Found' }] }
+                            : { details: [] },
+                    ),
+                ['id', 'name'],
+                'data',
+                'name',
             ),
         );
 

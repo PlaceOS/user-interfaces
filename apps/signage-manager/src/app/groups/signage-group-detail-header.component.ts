@@ -3,7 +3,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { PlaceGroup } from '@placeos/ts-client';
+import { type Group } from '@placeos/ts-client';
 import { SignageGroupAccessModalComponent } from './signage-group-access-modal.component';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupEditModalComponent } from './signage-group-edit-modal.component';
@@ -117,28 +117,28 @@ export class SignageGroupDetailHeaderComponent {
         this._group_admin.managed_group_id.set('');
     }
 
-    public editGroup(group: Partial<PlaceGroup> = {}) {
+    public editGroup(group: Partial<Group> = {}) {
         this._dialog.open(SignageGroupEditModalComponent, {
             data: { group },
             panelClass: 'mobile-fullscreen',
         });
     }
 
-    public editFeatures(group: PlaceGroup) {
+    public editFeatures(group: Group) {
         this._dialog.open(SignageGroupFeaturesModalComponent, {
             data: { group },
             panelClass: 'mobile-fullscreen',
         });
     }
 
-    public editAccess(group: PlaceGroup) {
+    public editAccess(group: Group) {
         this._dialog.open(SignageGroupAccessModalComponent, {
             data: { group },
             panelClass: 'mobile-fullscreen',
         });
     }
 
-    public removeGroup(group: PlaceGroup) {
+    public removeGroup(group: Group) {
         this._group_admin.removeSignageGroup(group);
     }
 }

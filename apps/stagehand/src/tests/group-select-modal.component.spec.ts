@@ -2,7 +2,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent } from '@placeos/components';
-import { PlaceCurrentGroup } from '@placeos/ts-client';
+import type { GroupsCurrentGroup } from '@placeos/ts-client';
 import { MockComponent } from 'ng-mocks';
 
 import {
@@ -14,7 +14,7 @@ const membership = (id: string, extra: Record<string, unknown> = {}) =>
     ({
         group: { id, name: id, ...extra },
         permissions: 1,
-    }) as unknown as PlaceCurrentGroup;
+    }) as unknown as GroupsCurrentGroup;
 
 describe('GroupSelectModalComponent', () => {
     let spectator: Spectator<GroupSelectModalComponent>;

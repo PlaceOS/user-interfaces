@@ -21,9 +21,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
-import { SurveyQuestion } from '@placeos/ts-client';
-
-import { QuestionType, QuestionTypeOptions } from './types';
+import { questionDraft, QuestionType, QuestionTypeOptions } from './types';
 
 @Component({
     selector: 'placeos-question',
@@ -209,7 +207,7 @@ import { QuestionType, QuestionTypeOptions } from './types';
                                                 track item
                                             ) {
                                                 <mat-option
-                                                    [value]="item.value"
+                                                    [value]="item.text"
                                                     >{{ item.text }}</mat-option
                                                 >
                                             }
@@ -298,7 +296,7 @@ export class QuestionComponent implements AfterViewInit, OnInit {
     public is_card = input(true);
     public preview = model(false);
     public readonly question = model(
-        new SurveyQuestion({ title: '', type: QuestionType.Single_Line_Text }),
+        questionDraft({ title: '', type: QuestionType.Single_Line_Text }),
     );
 
     public QuestionType = QuestionType;
@@ -342,8 +340,6 @@ export class QuestionComponent implements AfterViewInit, OnInit {
     public ngOnInit() {
         const q = this.question();
         if (!q) return;
-        // The API can return `{}` for questions created without choices.
-        if (!Array.isArray(q.choices)) q.choices = [];
         if (!q.max_rating) q.max_rating = 3;
     }
 

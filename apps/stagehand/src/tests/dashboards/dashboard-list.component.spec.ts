@@ -5,8 +5,9 @@ import {
 } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { mockData } from '@placeos/common/tests';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { PlaceAlertDashboard } from '@placeos/ts-client';
+import { AlertDashboard } from '@placeos/ts-client';
 import { DashboardListComponent } from '../../app/dashboards/dashboard-list.component';
 import { DashboardsService } from '../../app/dashboards/dashboards.service';
 
@@ -73,7 +74,7 @@ describe('DashboardListComponent', () => {
         spectator.component.show_children.set({ 'dash-1': true });
 
         await spectator.component.toggleChildren(
-            new PlaceAlertDashboard({ id: 'dash-2' }),
+            mockData(AlertDashboard, { id: 'dash-2' }),
         );
 
         expect(spectator.component.show_children()).toEqual({ 'dash-2': true });

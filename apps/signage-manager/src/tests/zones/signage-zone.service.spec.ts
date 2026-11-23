@@ -6,16 +6,11 @@ import {
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
-import {
-    addZone,
-    PlaceZone,
-    removeZone,
-    showZone,
-    SignagePlaylist,
-    updateZone,
-} from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { NEVER, of } from 'rxjs';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signagePlaylist, signageZone } from '../../app/signage-models';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -63,8 +58,12 @@ describe('SignageZoneService', () => {
 
     /** Serve zones from a map of zone id to parent id */
     function mockParents(parents: Record<string, string>) {
-        vi.mocked(showZone).mockImplementation(
-            async (id: string) => new PlaceZone({ id, parent_id: parents[id] }),
+        vi.mocked(zones.show).mockImplementation(
+            fromV1Mock(
+                async (id: string) =>
+                    signageZone({ id, parent_id: parents[id] }),
+                ['id', '...'],
+            ),
         );
     }
 
@@ -81,47 +80,48 @@ describe('SignageZoneService', () => {
 
     it('creates signage zones under an accessible parent', async () => {
         const service = createService();
-        const saved_zone = new PlaceZone({
+        const saved_zone = signageZone({
             id: 'zone-new',
             display_name: 'Reception',
             parent_id: 'building-1',
             tags: ['signage'],
         });
-        vi.mocked(addZone).mockResolvedValue(saved_zone);
+        vi.mocked(zones.create).mockResolvedValue(mockReply(saved_zone));
 
-        const result = await service.saveZone(new PlaceZone({}), {
+        const result = await service.saveZone(signageZone({}), {
             name: 'SIGNAGE Reception',
             display_name: 'Reception',
             description: 'Reception displays',
             parent_id: 'building-1',
         });
 
-        expect(addZone).toHaveBeenCalledWith({
-            name: 'SIGNAGE Reception',
-            display_name: 'Reception',
-            description: 'Reception displays',
-            parent_id: 'building-1',
-            tags: ['signage'],
+        expect(zones.create).toHaveBeenCalledWith({
+            body: {
+                name: 'SIGNAGE Reception',
+                display_name: 'Reception',
+                description: 'Reception displays',
+                parent_id: 'building-1',
+                tags: ['signage'],
+            },
         });
         expect(result).toEqual(saved_zone);
         expect(service.selected_zone()).toEqual(saved_zone);
     });
 
-    it('updates only signage zones and preserves their tags and version', async () => {
+    it('updates only signage zones and preserves their tags', async () => {
         const service = createService();
-        const zone = new PlaceZone({
+        const zone = signageZone({
             id: 'zone-1',
             display_name: 'Old name',
             parent_id: 'building-1',
             tags: ['signage', 'public'],
-            version: 7,
         });
-        const saved_zone = new PlaceZone({
+        const saved_zone = signageZone({
             ...zone,
             display_name: 'Lobby',
             parent_id: 'building-2',
         });
-        vi.mocked(updateZone).mockResolvedValue(saved_zone);
+        vi.mocked(zones.update).mockResolvedValue(mockReply(saved_zone));
         mockParents({ 'building-2': 'org-1' });
 
         await service.saveZone(zone, {
@@ -131,18 +131,20 @@ describe('SignageZoneService', () => {
             parent_id: 'building-2',
         });
 
-        expect(updateZone).toHaveBeenCalledWith('zone-1', {
-            name: 'SIGNAGE Lobby',
-            display_name: 'Lobby',
-            description: 'Main lobby',
-            parent_id: 'building-2',
-            tags: ['signage', 'public'],
-            version: 7,
+        expect(zones.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: {
+                name: 'SIGNAGE Lobby',
+                display_name: 'Lobby',
+                description: 'Main lobby',
+                parent_id: 'building-2',
+                tags: ['signage', 'public'],
+            },
         });
 
-        vi.mocked(updateZone).mockClear();
+        vi.mocked(zones.update).mockClear();
         await service.saveZone(
-            new PlaceZone({ id: 'building-1', tags: ['building'] }),
+            signageZone({ id: 'building-1', tags: ['building'] }),
             {
                 name: 'Building',
                 display_name: 'Building',
@@ -150,21 +152,21 @@ describe('SignageZoneService', () => {
                 parent_id: 'org-1',
             },
         );
-        expect(updateZone).not.toHaveBeenCalled();
+        expect(zones.update).not.toHaveBeenCalled();
     });
 
     it('clears the zone search when the selected zone changes', () => {
         const service = createService();
         service.zone_search_term.set('kiosk');
 
-        service.selected_zone.set(new PlaceZone({ id: 'zone-2' }));
+        service.selected_zone.set(signageZone({ id: 'zone-2' }));
 
         expect(service.zone_search_term()).toBe('');
     });
 
     it('does not make a zone the parent of its own ancestor', async () => {
         const service = createService();
-        const zone = new PlaceZone({
+        const zone = signageZone({
             id: 'zone-1',
             parent_id: 'building-1',
             tags: ['signage'],
@@ -179,35 +181,35 @@ describe('SignageZoneService', () => {
         });
 
         expect(result).toBeNull();
-        expect(updateZone).not.toHaveBeenCalled();
+        expect(zones.update).not.toHaveBeenCalled();
     });
 
     it('deletes only signage-tagged zones after confirmation', async () => {
         confirmNextDialog();
         const service = createService();
-        const zone = new PlaceZone({
+        const zone = signageZone({
             id: 'zone-1',
             display_name: 'Lobby',
             tags: ['signage'],
         });
         service.selected_zone.set(zone);
-        vi.mocked(removeZone).mockResolvedValue({});
+        vi.mocked(zones.destroy).mockResolvedValue(mockReply(''));
 
         const removed = await service.removeZone(zone);
 
-        expect(removeZone).toHaveBeenCalledWith('zone-1');
+        expect(zones.destroy).toHaveBeenCalledWith({ id: 'zone-1' });
         expect(removed).toBe(true);
         expect(service.selected_zone()).toBeNull();
 
-        vi.mocked(removeZone).mockClear();
+        vi.mocked(zones.destroy).mockClear();
         const untagged_removed = await service.removeZone(
-            new PlaceZone({ id: 'building-1', tags: ['building'] }),
+            signageZone({ id: 'building-1', tags: ['building'] }),
         );
         expect(untagged_removed).toBe(false);
-        expect(removeZone).not.toHaveBeenCalled();
+        expect(zones.destroy).not.toHaveBeenCalled();
     });
     describe('adding a zone to a playlist', () => {
-        const playlist = new SignagePlaylist({ id: 'playlist-1' });
+        const playlist = signagePlaylist({ id: 'playlist-1' });
 
         /** The zone picker closes with `zone_id` */
         function pickZone(zone_id: string) {
@@ -223,33 +225,31 @@ describe('SignageZoneService', () => {
 
         it('loads a picked zone that the zone list does not hold', async () => {
             const service = createService();
-            const zone = new PlaceZone({
+            const zone = signageZone({
                 id: 'zone-far',
-                version: 3,
                 playlists: ['playlist-0'],
             });
-            vi.mocked(showZone).mockResolvedValue(zone);
-            vi.mocked(updateZone).mockResolvedValue(zone);
+            vi.mocked(zones.show).mockResolvedValue(mockReply(zone));
+            vi.mocked(zones.update).mockResolvedValue(mockReply(zone));
             pickZone('zone-far');
 
             await service.addZoneToPlaylist(playlist);
 
-            expect(showZone).toHaveBeenCalledWith('zone-far');
-            expect(updateZone).toHaveBeenCalledWith(
-                'zone-far',
-                { playlists: ['playlist-0', 'playlist-1'], version: 3 },
-                'patch',
-            );
+            expect(zones.show).toHaveBeenCalledWith({ id: 'zone-far' });
+            expect(zones.update).toHaveBeenCalledWith({
+                id: 'zone-far',
+                body: { playlists: ['playlist-0', 'playlist-1'] },
+            });
         });
 
         it('shows an error when the picked zone cannot be loaded', async () => {
             const service = createService();
-            vi.mocked(showZone).mockRejectedValue(new Error('Not found'));
+            vi.mocked(zones.show).mockRejectedValue(new Error('Not found'));
             pickZone('zone-gone');
 
             await service.addZoneToPlaylist(playlist);
 
-            expect(updateZone).not.toHaveBeenCalled();
+            expect(zones.update).not.toHaveBeenCalled();
             expect(notify_open).toHaveBeenCalledExactlyOnceWith(
                 'Could not update the assignment. Please try again.',
                 expect.anything(),

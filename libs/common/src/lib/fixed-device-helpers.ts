@@ -1,5 +1,5 @@
-import { isFixedDevice } from '@placeos/ts-client';
 import { scoped_log } from './general';
+import { isFixedDevice } from './place-client';
 
 const log = scoped_log('FIXED_DEV');
 

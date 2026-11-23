@@ -19,7 +19,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, Router } from '@angular/router';
-import { querySystems } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import {
     getNativeSystemId,
@@ -252,12 +253,16 @@ export class SystemBootstrapComponent implements OnInit {
             if (search.length < 2) return [] as Space[];
             this.loading.set('search');
             try {
-                const { data } = await querySystems({
-                    q: search,
-                    limit: 20,
-                    fields: ['id', 'name', 'display_name', 'email'].join(','),
-                    zone_id: this._org.organisation?.id,
-                });
+                const { data } = await systems
+                    .query({
+                        q: search,
+                        limit: 20,
+                        fields: ['id', 'name', 'display_name', 'email'],
+                        zone_id: this._org.organisation?.id
+                            ? [this._org.organisation.id]
+                            : undefined,
+                    })
+                    .then(orThrowPage);
                 return data.map(
                     ({ id, name, display_name, email }) =>
                         new Space({ id, name, display_name, email }),

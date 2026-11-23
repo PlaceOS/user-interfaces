@@ -10,8 +10,9 @@ import {
     WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { ViewAction, ViewerFeature } from '@placeos/common';
-import { getModule, showMetadata } from '@placeos/ts-client';
+import { getModule, ViewAction, ViewerFeature } from '@placeos/common';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import {
     AsyncHandler,
@@ -84,7 +85,10 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
     private _room_alerts = resource({
         params: () => this._building() || undefined,
         loader: () =>
-            showMetadata(this._org.organisation.id, `room_alerts`)
+            metadata
+                .show({ id: this._org.organisation.id, name: `room_alerts` })
+                .then(orThrow)
+                .then((data) => data[`room_alerts`])
                 .then((_) => _.details || {})
                 .catch(() => ({})),
     });
@@ -122,26 +126,25 @@ export class ExploreSpacesService extends AsyncHandler implements OnDestroy {
         if (!list?.length) return;
         for (const space of list) {
             const mod = getModule(space.id, 'Bookings');
-            let binding = mod.variable('bookings');
             this.subscription(
                 `b-${space.id}`,
-                binding.bindThenSubscribe((d) =>
-                    this.handleBookingsChange(space, d),
-                ),
+                mod
+                    .variable<HashMap[]>('bookings')
+                    .subscribe((d) => this.handleBookingsChange(space, d)),
             );
-            binding = mod.variable('status');
             this.subscription(
                 `s-${space.id}`,
-                binding.bindThenSubscribe((d) =>
-                    this.handleStatusChange(list, space, d),
-                ),
+                mod
+                    .variable<string>('status')
+                    .subscribe((d) => this.handleStatusChange(list, space, d)),
             );
-            binding = mod.variable('presence');
             this.subscription(
                 `c-${space.id}`,
-                binding.bindThenSubscribe((d) =>
-                    this.handlePresenceChange(list, space, d),
-                ),
+                mod
+                    .variable<boolean>('presence')
+                    .subscribe((d) =>
+                        this.handlePresenceChange(list, space, d),
+                    ),
             );
         }
         this.updateActions(list);

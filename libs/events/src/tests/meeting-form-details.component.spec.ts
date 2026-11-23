@@ -7,14 +7,19 @@ import {
     SettingsService,
     User,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { calendars } from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 import { generateEventForm } from '../lib/event-form';
 import { EventFormService } from '../lib/event-form.service';
 import { MeetingFormDetailsComponent } from '../lib/meeting-form-details.component';
 
-// The real queryCalendarPermission runs; only the ts-client GET beneath it is stubbed.
-vi.mock('@placeos/ts-client', { spy: true });
+// The real queryCalendarPermission runs; only the staff operation beneath it
+// is stubbed. The API document has only `can_edit` for the permission.
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+/** Permission reply of the staff API */
+const permission = (can_edit: boolean) => mockReply({ can_edit });
 
 describe('MeetingFormDetailsComponent', () => {
     let spectator: Spectator<MeetingFormDetailsComponent>;
@@ -68,7 +73,9 @@ describe('MeetingFormDetailsComponent', () => {
         for (const key in setting_signals) delete setting_signals[key];
         setCurrentUser(me);
         event = new CalendarEvent();
-        vi.mocked(ts_client.get).mockResolvedValue({} as any);
+        vi.mocked(calendars.checkPermission).mockResolvedValue(
+            permission(false),
+        );
         spectator = createComponent();
     });
 
@@ -153,9 +160,7 @@ describe('MeetingFormDetailsComponent', () => {
             organiser: { email: 'other@place.tech' } as any,
         }));
         await flush();
-        expect(ts_client.get).not.toHaveBeenCalledWith(
-            expect.stringContaining('/permission'),
-        );
+        expect(calendars.checkPermission).not.toHaveBeenCalled();
     });
 
     it('should skip permission checks for the current user', async () => {
@@ -165,23 +170,19 @@ describe('MeetingFormDetailsComponent', () => {
             organiser: { email: 'ME@place.tech' } as any,
         }));
         await flush();
-        expect(ts_client.get).not.toHaveBeenCalledWith(
-            expect.stringContaining('/permission'),
-        );
+        expect(calendars.checkPermission).not.toHaveBeenCalled();
     });
 
     it('should keep the selected host without a calendar check for native bookings', async () => {
         setting_signals['events.can_book_for_anyone'].set(true);
         setting_signals['events.use_bookings'].set(true);
-        vi.mocked(ts_client.get).mockRejectedValue('error');
+        vi.mocked(calendars.checkPermission).mockRejectedValue('error');
         spectator.component.model.update((m) => ({
             ...m,
             organiser: { email: 'other@place.tech' } as any,
         }));
         await flush();
-        expect(ts_client.get).not.toHaveBeenCalledWith(
-            expect.stringContaining('/permission'),
-        );
+        expect(calendars.checkPermission).not.toHaveBeenCalled();
         expect(spectator.component.permission_error()).toBe('');
         expect(spectator.component.model().organiser.email).toBe(
             'other@place.tech',
@@ -191,18 +192,17 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should keep the selected host when they have shared their calendar', async () => {
         setting_signals['events.can_book_for_anyone'].set(true);
-        vi.mocked(ts_client.get).mockResolvedValue({
-            has_access: true,
-            role: 'write',
-        } as any);
+        vi.mocked(calendars.checkPermission).mockResolvedValue(
+            permission(true),
+        );
         spectator.component.model.update((m) => ({
             ...m,
             organiser: { email: 'other@place.tech' } as any,
         }));
         await flush();
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('other%40place.tech/permission'),
-        );
+        expect(calendars.checkPermission).toHaveBeenCalledWith({
+            user_email: 'other@place.tech',
+        });
         expect(spectator.component.permission_error()).toBe('');
         expect(spectator.component.model().organiser.email).toBe(
             'other@place.tech',
@@ -211,11 +211,9 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should reset the host when calendar permissions are missing', async () => {
         setting_signals['events.can_book_for_anyone'].set(true);
-        vi.mocked(ts_client.get).mockResolvedValue({
-            has_access: false,
-            role: 'read',
-            can_edit: false,
-        } as any);
+        vi.mocked(calendars.checkPermission).mockResolvedValue(
+            permission(false),
+        );
         spectator.component.model.update((m) => ({
             ...m,
             organiser: { email: 'other@place.tech' } as any,
@@ -230,7 +228,7 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should reset the host when the permission check fails', async () => {
         setting_signals['events.can_book_for_anyone'].set(true);
-        vi.mocked(ts_client.get).mockRejectedValue('error');
+        vi.mocked(calendars.checkPermission).mockRejectedValue('error');
         spectator.component.model.update((m) => ({
             ...m,
             organiser: { email: 'other@place.tech' } as any,
@@ -244,13 +242,13 @@ describe('MeetingFormDetailsComponent', () => {
 
     it('should ignore a permission result for a host that is no longer selected', async () => {
         setting_signals['events.can_book_for_anyone'].set(true);
-        let denyFirstHost: (value: unknown) => void = () => undefined;
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockImplementation((url) =>
-            url.includes('first%40place.tech')
+        let denyFirstHost: (
+            value: ReturnType<typeof permission>,
+        ) => void = () => undefined;
+        vi.mocked(calendars.checkPermission).mockImplementation((input) =>
+            input.user_email === 'first@place.tech'
                 ? new Promise((resolve) => (denyFirstHost = resolve))
-                : Promise.resolve({ has_access: true, role: 'write' }),
+                : Promise.resolve(permission(true)),
         );
         spectator.component.model.update((m) => ({
             ...m,
@@ -263,7 +261,7 @@ describe('MeetingFormDetailsComponent', () => {
         }));
         await flush();
 
-        denyFirstHost({ has_access: false, role: 'read', can_edit: false });
+        denyFirstHost(permission(false));
         await flush();
 
         expect(spectator.component.permission_error()).toBe('');

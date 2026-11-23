@@ -1,7 +1,8 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { AsyncHandler, OrganisationService } from '@placeos/common';
 import { SafePipe } from '@placeos/components';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { StagehandPageComponent } from './ui/stagehand-page.component';
 
 interface RecorderStreamImage {
@@ -64,17 +65,20 @@ export class RecorderGridViewComponent extends AsyncHandler implements OnInit {
 
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
-        const block = await showMetadata(
-            this._org.organisation.id,
-            'recorder-streams',
-        );
+        const block = await metadata
+            .show({ id: this._org.organisation.id, name: 'recorder-streams' })
+            .then(orThrow)
+            .then((data) => data['recorder-streams']);
+        const details = block?.details;
+        if (!details || typeof details !== 'object') return;
+        // The metadata is JSON that this app writes, so it has this shape
         const { domain, api_path, images } =
-            block.details as RecorderStreamMetadata;
+            details as unknown as Partial<RecorderStreamMetadata>;
         // Streams load only from a recorder host set in the metadata
         if (!domain) return;
         this.domain = domain;
         this.api_path = api_path;
-        this.image_data = images;
+        this.image_data = images || [];
         this.refresh();
     }
 

@@ -13,7 +13,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignagePlugin } from '@placeos/ts-client';
+import { type SignagePlugin } from '@placeos/ts-client';
 import { ImageGenService } from '../image-gen/image-gen.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
 import { MediaAddModalComponent } from '../shared/media-add-modal.component';

@@ -10,14 +10,10 @@ import {
 } from '@placeos/common';
 import { getMapDetails } from '@placeos/components';
 import { ProtectedIdSource } from '@placeos/map-editor';
-import {
-    PlaceZone,
-    showMetadata,
-    showZone,
-    updateMetadata,
-    updateZone,
-} from '@placeos/ts-client';
+import { metadata as metadata_v7, type Zone, zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { LevelModalComponent } from '../level-manager/level-modal.component';
+import { showMetadata, toJsonValue } from '../metadata';
 import {
     appendMapHistory,
     isApiUpload,
@@ -34,7 +30,7 @@ export const MAP_HISTORY_KEY = 'map-history';
 export interface SavedLevelMap {
     upload_id: string;
     map_id: string;
-    zone: PlaceZone;
+    zone: Zone;
 }
 
 @Injectable({
@@ -152,7 +148,7 @@ export class MapManagementService {
 
     /** The map URL the server holds now, to spot a change made elsewhere. */
     public async currentMapId(level_id: string): Promise<string> {
-        const zone = await showZone(level_id);
+        const zone = await zones.show({ id: level_id }).then(orThrow);
         return zone.map_id || '';
     }
 
@@ -186,8 +182,10 @@ export class MapManagementService {
         });
         const upload_id = await this._uploads.uploadFileToCompletion(file);
         const map_id = `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
-        const response = await updateZone(level.id, { id: level.id, map_id });
-        const zone = new PlaceZone({ ...level, ...response, map_id });
+        const response = await zones
+            .update({ id: level.id, body: { map_id } })
+            .then(orThrow);
+        const zone: Zone = { ...response, map_id };
         this._org.addZone(zone);
         this._map_names.update((map) => new Map(map).set(map_id, file_name));
         await this._recordHistory(level.id, {
@@ -207,10 +205,17 @@ export class MapManagementService {
         const existing = await showMetadata(level_id, MAP_HISTORY_KEY).catch(
             () => null,
         );
-        await updateMetadata(level_id, {
-            name: MAP_HISTORY_KEY,
-            details: appendMapHistory(existing?.details, entry),
-            description: 'Map versions saved from Concierge',
-        });
+        await metadata_v7
+            .update({
+                id: level_id,
+                body: {
+                    name: MAP_HISTORY_KEY,
+                    details: toJsonValue(
+                        appendMapHistory(existing?.details, entry),
+                    ),
+                    description: 'Map versions saved from Concierge',
+                },
+            })
+            .then(orThrow);
     }
 }

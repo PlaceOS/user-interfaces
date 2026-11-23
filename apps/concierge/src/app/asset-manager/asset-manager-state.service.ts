@@ -34,6 +34,7 @@ import {
     MINUTES,
     OrganisationService,
     SettingsService,
+    cleanObject,
     flatten,
     nextValueFrom,
     notifyError,
@@ -48,13 +49,14 @@ import {
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
 import {
-    PlaceMetadata,
-    cleanObject,
-    removeAssetType,
-    showMetadata,
-    updateMetadata,
+    AssetCategory as AssetCategorySchema,
+    asset_types,
+    metadata as metadata_v7,
+    parseResponse,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { jsonList, jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { errorText } from '../ui/modal-actions';
 import { ResourceDemand } from '../ui/resource-demand';
@@ -73,6 +75,17 @@ export interface AssetOptions {
     search?: string;
     view: 'grid' | 'list';
     active_item?: string;
+}
+
+/** The category entry for asset types without a category */
+function uncategorisedCategory(): AssetCategory {
+    const result = parseResponse(
+        AssetCategorySchema,
+        { id: '', name: 'Uncategorised' },
+        { missing_fields: 'zero' },
+    );
+    if (result.ok === false) throw new Error('A category does not parse');
+    return result.value;
 }
 
 @Injectable({
@@ -265,10 +278,7 @@ export class AssetManagerStateService extends AsyncHandler {
         defaultValue: [] as AssetCategory[],
         loader: async () => {
             const list = await queryAssetCategories();
-            return [
-                new AssetCategory({ id: '', name: 'Uncategorised' }),
-                ...list.data,
-            ];
+            return [uncategorisedCategory(), ...list.data];
         },
     });
     public readonly categories: Signal<AssetCategory[]> =
@@ -348,8 +358,8 @@ export class AssetManagerStateService extends AsyncHandler {
             const metadata = await showMetadata(
                 params.building,
                 'assets-settings',
-            ).catch(() => ({}) as PlaceMetadata);
-            return (metadata.details as Record<string, any>) || {};
+            ).catch(() => null);
+            return jsonRecord<Record<string, any>>(metadata?.details);
         },
     });
     public readonly settings: Signal<Record<string, any>> =
@@ -485,7 +495,7 @@ export class AssetManagerStateService extends AsyncHandler {
     public async deleteActiveProduct() {
         const item = this.active_product();
         if (!item?.id) return;
-        await removeAssetType(item.id);
+        await asset_types.destroy({ id: item.id }).then(orThrow);
         this._change.set(Date.now());
         notifySuccess('Successfully deleted asset');
     }
@@ -544,27 +554,35 @@ export class AssetManagerStateService extends AsyncHandler {
     public async getConfig(
         zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
-        const rules = (await showMetadata(zone_id, 'assets_config')).details;
-        return rules instanceof Array ? (rules as any) : [];
+        const { details } = await showMetadata(zone_id, 'assets_config');
+        return jsonList<AttachedResourceRuleset>(details);
     }
 
     private updateConfig(zone_id: string, config: AttachedResourceRuleset[]) {
-        return updateMetadata(zone_id, {
-            id: zone_id,
-            name: 'assets_config',
-            details: config,
-            description: `Assets config for ${zone_id}`,
-        });
+        return metadata_v7
+            .update({
+                id: zone_id,
+                body: {
+                    name: 'assets_config',
+                    details: toJsonValue(config),
+                    description: `Assets config for ${zone_id}`,
+                },
+            })
+            .then(orThrow);
     }
 
     public async saveSettings(settings: Record<string, any>) {
         const old_settings = this.settings();
-        const result = await updateMetadata(this._org.building.id, {
-            id: this._org.building.id,
-            name: 'assets-settings',
-            details: { ...old_settings, ...settings },
-            description: `Assets settings for ${this._org.building.id}`,
-        });
+        const result = await metadata_v7
+            .update({
+                id: this._org.building.id,
+                body: {
+                    name: 'assets-settings',
+                    details: toJsonValue({ ...old_settings, ...settings }),
+                    description: `Assets settings for ${this._org.building.id}`,
+                },
+            })
+            .then(orThrow);
         this._change.set(Date.now());
         return result;
     }

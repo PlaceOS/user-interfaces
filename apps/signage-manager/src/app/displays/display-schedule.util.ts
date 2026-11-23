@@ -1,11 +1,11 @@
-import { SignagePlaylist } from '@placeos/ts-client';
 import { addMinutes, format, startOfDay } from 'date-fns';
 import {
     buildScheduleBlocks,
     MINUTES_PER_DAY,
     ScheduleBlock,
 } from '../schedules/signage-schedule.util';
-import { HydratedSignageTemplateMapping } from '../signage-template-mapping';
+import { signagePlaylist } from '../signage-models';
+import { type HydratedSignageTemplateMapping } from '../signage-template-mapping';
 
 interface DisplayScheduleBlock extends ScheduleBlock {
     mapping?: HydratedSignageTemplateMapping;
@@ -23,7 +23,7 @@ export function buildDisplayScheduleDays(
         buildScheduleBlocks(
             [
                 {
-                    playlist: new SignagePlaylist({
+                    playlist: signagePlaylist({
                         id: mapping.id,
                         name:
                             mapping.template_details.name ||

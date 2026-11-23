@@ -5,18 +5,23 @@ import {
     AsyncHandler,
     failInitialisation,
     firstTruthyValueFrom,
+    invalidateToken,
+    isMock,
     lazySnackbar,
     LocaleService,
     log,
     markInitialisationComplete,
     OrganisationService,
+    PLACE_SETUP_TIMEOUT,
     setAppName,
     setDefaultCreator,
     setNotifyOutlet,
     SettingsService,
+    setToken,
     setTranslationService,
     setupCache,
     setupPlace,
+    token,
     userSignal,
     waitForCurrentUser,
     withTimeout,
@@ -24,13 +29,6 @@ import {
 import { GlobalLoadingComponent } from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
-import {
-    exchangeEntraToken,
-    invalidateToken,
-    isMock,
-    setToken,
-    token,
-} from '@placeos/ts-client';
 import { setInternalUserDomain } from '@placeos/users';
 
 import { acquireNaaToken, naaClientId } from './outlook-auth';
@@ -109,10 +107,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         if (this._isAuthDialog()) return this._completeAuthDialog();
         log('Outlook', `Initialising auth...`);
-        if (!(await this._initialiseAuth())) return;
+        const in_outlook = host === Office.HostType.Outlook;
+        // In Outlook, the login tries single sign-on when it has no token
+        if (!(await this._initialiseAuth(true, in_outlook))) return;
         if (!token()) {
-            if (host === Office.HostType.Outlook) {
-                if (!(await this._signInWithOutlook())) return;
+            if (in_outlook) {
+                // Single sign-on is not available or failed
+                if (!(await this._signInWithDialog())) return;
             } else {
                 // A browser outside Outlook. Use the normal PlaceOS login.
                 log('Outlook', `Not in Outlook, using PlaceOS login...`);
@@ -122,7 +123,11 @@ export class AppComponent extends AsyncHandler implements OnInit {
         await this._finishInitialise();
     }
 
-    private async _initialiseAuth(local = true): Promise<boolean> {
+    /**
+     * Set up the PlaceOS login. With `sso`, the login exchanges a Microsoft
+     * Entra token from Outlook for PlaceOS tokens when it has no token.
+     */
+    private async _initialiseAuth(local = true, sso = false): Promise<boolean> {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.local_login = local;
@@ -141,8 +146,19 @@ export class AppComponent extends AsyncHandler implements OnInit {
             this._mocks_registered = true;
             mocksInit();
         }
+        const entra_token =
+            sso && this._naa_client_id ? () => this._naaToken() : undefined;
         try {
-            await setupPlace(settings);
+            // A Microsoft prompt can take longer than the normal setup
+            await setupPlace(
+                settings,
+                entra_token
+                    ? PLACE_SETUP_TIMEOUT + SIGN_IN_TIMEOUT_MS
+                    : PLACE_SETUP_TIMEOUT,
+                // The task pane is in Outlook, so it keeps its tokens over
+                // a reload
+                { entra_token, trusted: true },
+            );
             return true;
         } catch (error) {
             console.error(error);
@@ -173,27 +189,22 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     /**
-     * Sign in from the task pane in Outlook. Uses nested app authentication
-     * when the manifest has a client ID and Outlook supports it. Otherwise,
-     * or when it fails, uses the PlaceOS sign-in dialog.
+     * Entra token for single sign-on with nested app authentication, or
+     * `null` when Outlook does not support it or it fails. The task pane then
+     * uses the PlaceOS sign-in dialog.
      */
-    private async _signInWithOutlook(): Promise<boolean> {
+    private async _naaToken(): Promise<string | null> {
         log('Outlook', `Signing in through Outlook...`);
-        const sso_signed_in = await withTimeout(
+        return withTimeout(
             acquireNaaToken(this._naa_client_id),
             SIGN_IN_TIMEOUT_MS,
             'Microsoft single sign-on timed out.',
         )
-            .then(async (entra_token) => {
-                if (!entra_token) return false;
-                await exchangeEntraToken(entra_token);
-                return true;
-            })
+            .then((entra_token) => entra_token || null)
             .catch((error) => {
                 log('Outlook', 'Single sign-on failed.', error, 'warn');
-                return false;
+                return null;
             });
-        return sso_signed_in || this._signInWithDialog();
     }
 
     /**

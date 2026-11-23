@@ -1,7 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, input } from '@angular/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
+import {
+    type SurveyAnswer,
+    type SurveyQuestion,
+} from '@placeos/ts-client/staff';
 import { QuestionType } from './types';
 
 @Component({

@@ -1,11 +1,12 @@
 import { ApplicationRef, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { PlaylistItemDetailsComponent } from '../../app/playlists/playlist-item-details.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
 import { SignageInventoryService } from '../../app/signage-inventory.service';
+import { signagePlaylist } from '../../app/signage-models';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('PlaylistItemDetailsComponent', () => {
@@ -167,7 +168,7 @@ describe('PlaylistItemDetailsComponent', () => {
     it('labels a playlist with the default animation as default, not cut', async () => {
         // ts-client turns the saved index 0 into `cut`; a saved Cut is 1
         selected_playlist.set(
-            new SignagePlaylist({
+            signagePlaylist({
                 id: 'pl-1',
                 default_animation: 0 as unknown as MediaAnimation,
             }),

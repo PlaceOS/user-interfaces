@@ -18,7 +18,13 @@ import {
 
 import * as ts_client from '@placeos/ts-client';
 
+import { startFakePlaceClient } from './fake-session';
+
 vi.mock('@placeos/ts-client', { spy: true });
+
+/** Uses `token` as the access token of the session */
+const useToken = (token: string) =>
+    startFakePlaceClient().setCredential({ kind: 'bearer', token });
 
 function setGroups(subsystems: string[], permissions: number) {
     user_groups.set([{ group: { subsystems }, permissions } as any]);
@@ -49,7 +55,7 @@ describe('user-state', () => {
         });
 
         function storeFor(token: string) {
-            vi.mocked(ts_client.token).mockReturnValue(token);
+            useToken(token);
             setCurrentUser(user);
             setGroups(['bookings'], GroupPermission.Read);
             storeUserData();
@@ -68,7 +74,7 @@ describe('user-state', () => {
 
         it('should ignore cached data from a different token', () => {
             storeFor('token-1');
-            vi.mocked(ts_client.token).mockReturnValue('token-2');
+            useToken('token-2');
             expect(cachedUserData()).toBe(null);
             // The mismatched data is dropped rather than left to be re-checked
             expect(localStorage.getItem('PLACEOS.user')).toBe(null);
@@ -83,7 +89,7 @@ describe('user-state', () => {
         });
 
         it('should not cache the empty user', () => {
-            vi.mocked(ts_client.token).mockReturnValue('token-1');
+            useToken('token-1');
             setCurrentUser(EMPTY_USER);
             storeUserData();
             expect(localStorage.getItem('PLACEOS.user')).toBe(null);
@@ -176,11 +182,8 @@ describe('user-state', () => {
         beforeEach(() => {
             vi.resetModules();
             localStorage.setItem('mock', 'true');
-            vi.mocked(ts_client.setup).mockResolvedValue(undefined);
-            vi.mocked(ts_client.showUser).mockReturnValue(
-                new Promise(() => undefined) as ReturnType<
-                    typeof ts_client.showUser
-                >,
+            vi.mocked(ts_client.users.current).mockImplementation(
+                () => new Promise(() => undefined),
             );
         });
 
@@ -190,11 +193,11 @@ describe('user-state', () => {
 
             initialiseUser();
             await new Promise((resolve) => setTimeout(resolve));
-            expect(ts_client.showUser).not.toHaveBeenCalled();
+            expect(ts_client.users.current).not.toHaveBeenCalled();
 
             await setupPlace({ mock: true } as PlaceSettings, 0);
             await vi.waitFor(() =>
-                expect(ts_client.showUser).toHaveBeenCalledWith('current'),
+                expect(ts_client.users.current).toHaveBeenCalled(),
             );
         });
     });

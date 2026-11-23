@@ -10,6 +10,7 @@ import { NEVER, of } from 'rxjs';
 import { LevelManagementService } from '../../app/level-manager/level-management.service';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -40,8 +41,10 @@ describe('LevelManagementService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client.removeZone as any).mockClear();
-        (ts_client.removeZone as any).mockResolvedValue(undefined);
+        (ts_client.zones.destroy as any).mockClear();
+        (ts_client.zones.destroy as any).mockResolvedValue(
+            mockReply(undefined),
+        );
         spectator = createService({
             providers: [
                 { provide: OrganisationService, useValue: org },
@@ -97,7 +100,7 @@ describe('LevelManagementService', () => {
             name: 'Level 1',
         } as any);
 
-        expect(ts_client.removeZone).toHaveBeenCalledWith('level-1');
+        expect(ts_client.zones.destroy).toHaveBeenCalledWith({ id: 'level-1' });
         expect(org.removeZone).toHaveBeenCalledWith(
             expect.objectContaining({ id: 'level-1', tags: ['level'] }),
         );
@@ -117,7 +120,7 @@ describe('LevelManagementService', () => {
             name: 'Level 1',
         } as any);
 
-        expect(ts_client.removeZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.destroy).not.toHaveBeenCalled();
         expect(org.removeZone).not.toHaveBeenCalled();
         expect(close).toHaveBeenCalled();
     });

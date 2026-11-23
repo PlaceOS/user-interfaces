@@ -3,7 +3,8 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-import { showMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 
 import { DialogEvent } from '@placeos/common';
 import {
@@ -13,39 +14,54 @@ import {
 } from '../lib/attached-resource-config-modal.component';
 
 describe('zoneRulesetLoader', () => {
-    const metadata = (details: unknown) =>
-        Promise.resolve({ details } as Awaited<
-            ReturnType<typeof showMetadata>
-        >);
+    // The 6.x metadata of the zone. `fromV1Mock` puts it under its name
+    const metadata = (details: unknown) => Promise.resolve({ details });
 
     beforeEach(() => {
-        vi.mocked(showMetadata).mockReset();
+        vi.mocked(metadata_v7.show).mockReset();
     });
 
     it('should load the rules of a zone once until asked for fresh rules', async () => {
         const rules = [{ conditions: [], options: [] }];
-        vi.mocked(showMetadata).mockReturnValue(metadata(rules));
+        vi.mocked(metadata_v7.show).mockImplementation(
+            fromV1Mock(() => metadata(rules), ['id', 'name'], 'data', 'name'),
+        );
         const load = zoneRulesetLoader('catering_config');
 
         await expect(load('zone-1')).resolves.toBe(rules);
         await load('zone-1');
-        expect(showMetadata).toHaveBeenCalledTimes(1);
-        expect(showMetadata).toHaveBeenCalledWith('zone-1', 'catering_config');
+        expect(metadata_v7.show).toHaveBeenCalledTimes(1);
+        expect(metadata_v7.show).toHaveBeenCalledWith({
+            id: 'zone-1',
+            name: 'catering_config',
+        });
 
         await load('zone-1', true);
-        expect(showMetadata).toHaveBeenCalledTimes(2);
+        expect(metadata_v7.show).toHaveBeenCalledTimes(2);
     });
 
     it('should give no rules for a missing zone, bad details or a failed request', async () => {
         const load = zoneRulesetLoader('catering_config');
         await expect(load('')).resolves.toEqual([]);
-        expect(showMetadata).not.toHaveBeenCalled();
+        expect(metadata_v7.show).not.toHaveBeenCalled();
 
-        vi.mocked(showMetadata).mockReturnValueOnce(metadata({ not: 'list' }));
+        vi.mocked(metadata_v7.show).mockImplementationOnce(
+            fromV1Mock(
+                () => metadata({ not: 'list' }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await expect(load('zone-1')).resolves.toEqual([]);
 
-        vi.mocked(showMetadata).mockReturnValueOnce(
-            Promise.reject(new Error('offline')),
+        vi.mocked(metadata_v7.show).mockImplementationOnce(
+            fromV1Mock(
+                () => Promise.reject(new Error('offline')),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
         await expect(load('zone-2')).resolves.toEqual([]);
     });

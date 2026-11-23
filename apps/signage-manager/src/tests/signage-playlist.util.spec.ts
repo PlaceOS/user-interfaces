@@ -1,4 +1,4 @@
-import { MediaAnimation } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { getUnixTime } from 'date-fns';
 import {
     createScheduleMaskFilter,
@@ -440,9 +440,9 @@ describe('playlist status', () => {
 });
 
 describe('playlist animation', () => {
-    it('reads the cut that ts-client puts in place of index 0 as the default', () => {
+    it('reads index 0 and no value as the default', () => {
         expect(
-            playlistAnimation({ default_animation: MediaAnimation.Cut }),
+            playlistAnimation({ default_animation: MediaAnimation.Default }),
         ).toBe(MediaAnimation.Default);
         expect(playlistAnimation({})).toBe(MediaAnimation.Default);
     });

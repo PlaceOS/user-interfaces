@@ -40,7 +40,7 @@ describe('mock catering orders', () => {
         expect(new Set(ids).size).toBe(ids.length);
         for (const booking of MOCK_CATERING_BOOKINGS.slice(0, 200)) {
             const event = MOCK_EVENTS.find(
-                (e) => e.id === booking.linked_event.id,
+                (e) => e.id === booking.linked_event.event_id,
             );
             const { details } = booking.extension_data;
             expect(

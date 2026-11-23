@@ -1,15 +1,16 @@
 import { Injectable, signal } from '@angular/core';
-import { requestTokenFromOpener, withTimeout } from '@placeos/common';
 import {
-    authorise,
     authority,
-    PlaceAuthOptions,
+    placeFetch,
+    requestTokenFromOpener,
     setToken,
-    setup,
-    showMetadata,
+    startPlaceClient,
+    toJsonValue,
     token,
-    updateMetadata,
-} from '@placeos/ts-client';
+    withTimeout,
+} from '@placeos/common';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { CallFailed, orThrow } from '@placeos/ts-client/compat';
 
 import type { Floorplan } from './types';
 
@@ -17,6 +18,8 @@ const SETTINGS_KEY = 'MAP_BUILDER.placeos';
 const FLOORPLAN_METADATA_KEY = 'map-studio';
 const PLACEOS_REQUEST_TIMEOUT = 10 * 1000;
 const HANDOFF_MIN_DELAY_MS = 30 * 1000;
+/** Parallel signed-out calls in this time start one login navigation */
+const LOGIN_COOLDOWN_MS = 5 * 1000;
 /** Items per request, and the most pages read for one list query */
 const PAGE_SIZE = 100;
 const PAGE_LIMIT = 50;
@@ -39,13 +42,20 @@ export function withoutLocalFields(
     return data;
 }
 
+/**
+ * Sends a request with `send` and reads the response with `read`. Rejects
+ * after `PLACEOS_REQUEST_TIMEOUT`, and then cancels the request.
+ * @param send `fetch`, or `placeFetch` for a request with the session
+ * credential
+ */
 function fetchWithDeadline<T>(
-    input: RequestInfo | URL,
+    input: string,
     init: RequestInit,
     read: (response: Response) => T | Promise<T>,
+    send: (input: string, init: RequestInit) => Promise<Response> = fetch,
 ): Promise<T> {
     const controller = new AbortController();
-    const request = fetch(input, { ...init, signal: controller.signal }).then(
+    const request = send(input, { ...init, signal: controller.signal }).then(
         read,
     );
     return withTimeout(
@@ -68,6 +78,25 @@ export class PlaceOSRequestError extends Error {
     ) {
         super(message);
     }
+}
+
+/**
+ * The floorplan object in metadata `details`. 6.x parsed `details` that the
+ * API gave as a JSON string, and 7.x gives the string, so this parses it.
+ * Null when `details` is not an object.
+ */
+function floorplanDetails(details: unknown): Partial<Floorplan> | null {
+    if (typeof details === 'string') {
+        try {
+            details = JSON.parse(details);
+        } catch {
+            return null;
+        }
+    }
+    if (!details || typeof details !== 'object' || Array.isArray(details)) {
+        return null;
+    }
+    return details as Partial<Floorplan>;
 }
 
 const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -200,31 +229,68 @@ export class PlaceOSService {
             (resp) => resp.ok,
         ).catch(() => false);
         if (!resolved) return this._mode.set('manual');
-        // ts-client keeps this object and reads handle_login on every authorise
-        const options: PlaceAuthOptions = {
-            auth_uri: '/auth/oauth/authorize',
-            token_uri: '/auth/token',
-            redirect_uri: new URL(
-                'oauth-resp.html',
-                document.baseURI,
-            ).toString(),
-            scope: 'public',
-            handle_login: false,
-        };
+        // Not `setupPlace`: Map Studio has no mock mode, and it asks the
+        // opener for a token before it sends the user to the login page.
+        const { session } = startPlaceClient({
+            base_url: '',
+            mock: false,
+            headers: {},
+            auth: {
+                redirect_uri: new URL(
+                    'oauth-resp.html',
+                    document.baseURI,
+                ).toString(),
+                scope: 'public',
+                grant: { kind: 'code' },
+                handle_login: false,
+                use_frame: true,
+            },
+        });
         try {
             await withTimeout(
-                setup(options),
+                session.start(),
                 PLACEOS_REQUEST_TIMEOUT,
                 'PlaceOS setup timed out.',
             );
+            const login_url = this._loginUrl();
             if (!token()) await this._useOpenerToken();
-            options.handle_login = true;
-            // With handle_login on, this redirects to the login page
-            if (!token()) return void authorise().catch(() => undefined);
+            // The mode stays `checking` while the page goes to the login
+            if (!token()) return this.goToLogin(login_url);
             this._mode.set('domain');
         } catch {
             this._mode.set('manual');
         }
+    }
+
+    /**
+     * The login page of the authority, with this page as the return URL.
+     * Throws when the authority did not load, or when the URL is not a web
+     * page, such as a `javascript:` URL.
+     */
+    private _loginUrl(): string {
+        const login_url = authority()?.login_url;
+        if (!login_url) throw new Error('PlaceOS authority failed.');
+        const url = login_url.replace(
+            '{{url}}',
+            encodeURIComponent(location.href),
+        );
+        const { protocol } = new URL(url, location.href);
+        if (protocol !== 'http:' && protocol !== 'https:') {
+            throw new Error('PlaceOS login URL is not HTTP.');
+        }
+        return url;
+    }
+
+    /**
+     * When a signed-out metadata call last started the login navigation. The
+     * user can stay on the page at the unload prompt, so a later call can try
+     * again after `LOGIN_COOLDOWN_MS`.
+     */
+    private _login_started_at = 0;
+
+    /** Sends the browser to the login page of the authority */
+    public goToLogin(url: string): void {
+        location.assign(url);
     }
 
     /**
@@ -361,14 +427,18 @@ export class PlaceOSService {
     public async getFloorplanMetadata(
         level_id: string,
     ): Promise<Partial<Floorplan> | null> {
-        const metadata = await showMetadata(level_id, FLOORPLAN_METADATA_KEY);
-        const details = metadata.details;
-        if (!details || typeof details !== 'object' || Array.isArray(details)) {
-            return null;
-        }
-        const floorplan = details as Partial<Floorplan>;
-        if (Number.isFinite(metadata.updated_at)) {
-            floorplan.updated_at = new Date(metadata.updated_at).toISOString();
+        const metadata = await metadata_v7
+            .show({ id: level_id, name: FLOORPLAN_METADATA_KEY })
+            .then(orThrow)
+            .catch((error: unknown) => this._loginOnSignedOut(error))
+            .then((data) => data[FLOORPLAN_METADATA_KEY]);
+        const floorplan = floorplanDetails(metadata?.details);
+        if (!floorplan) return null;
+        // The API gives Unix seconds
+        if (metadata.updated_at > 0) {
+            floorplan.updated_at = new Date(
+                metadata.updated_at * 1000,
+            ).toISOString();
         }
         return floorplan;
     }
@@ -383,15 +453,47 @@ export class PlaceOSService {
         if (details.svg_output === details.svg_source)
             delete details.svg_output;
         details.updated_at = floorplan.updated_at || new Date().toISOString();
-        const metadata = await updateMetadata(level_id, {
-            id: level_id,
-            name: FLOORPLAN_METADATA_KEY,
-            description: 'Map Studio floorplan',
-            details,
-        });
-        return Number.isFinite(metadata?.updated_at)
-            ? new Date(metadata.updated_at).toISOString()
+        const metadata = await metadata_v7
+            .update({
+                id: level_id,
+                body: {
+                    parent_id: level_id,
+                    name: FLOORPLAN_METADATA_KEY,
+                    description: 'Map Studio floorplan',
+                    details: toJsonValue(details),
+                },
+            })
+            .then(orThrow)
+            .catch((error: unknown) => this._loginOnSignedOut(error));
+        // The API gives Unix seconds
+        return metadata?.updated_at > 0
+            ? new Date(metadata.updated_at * 1000).toISOString()
             : details.updated_at;
+    }
+
+    /**
+     * Rethrows `error` from a floorplan metadata call. On the domain, a 511
+     * first sends the browser to the login page, as 6.x did with
+     * `handle_login`. So does `auth_missing`: the session dropped its token
+     * after a 511 of another request and could not renew it. Parallel calls
+     * start the navigation one time in `LOGIN_COOLDOWN_MS`. Other errors, and a 401, only go to the
+     * caller.
+     */
+    private _loginOnSignedOut(error: unknown): never {
+        const signed_out =
+            this._mode() === 'domain' &&
+            error instanceof CallFailed &&
+            (error.status === 511 || error.error.kind === 'auth_missing');
+        const now = Date.now();
+        if (signed_out && now - this._login_started_at > LOGIN_COOLDOWN_MS) {
+            try {
+                this.goToLogin(this._loginUrl());
+                this._login_started_at = now;
+            } catch {
+                // No usable login URL: the caller still gets the error
+            }
+        }
+        throw error;
     }
 
     /** The level's current `map_id` and its SVG; null when the level has no map. */
@@ -411,14 +513,13 @@ export class PlaceOSService {
         const url = new URL(map_id.replace(/^\/(?![/\\])/, ''), api);
         // Credentials go only to the PlaceOS host. Zone editors set map_id,
         // and a value such as `///host/map.svg` resolves to another origin.
-        const response = await fetch(url.href, {
-            headers:
-                url.origin !== api.origin
-                    ? {}
-                    : on_domain
-                      ? { Authorization: `Bearer ${token()}` }
-                      : { 'X-API-Key': api_key },
-        });
+        const same_host = url.origin === api.origin;
+        const response =
+            same_host && on_domain
+                ? await placeFetch(url.href)
+                : await fetch(url.href, {
+                      headers: same_host ? { 'X-API-Key': api_key } : {},
+                  });
         if (!response.ok) {
             throw new Error(`Failed to load level SVG: ${response.status}`);
         }
@@ -576,14 +677,15 @@ export class PlaceOSService {
         if (!on_domain && !isSecureDomain(domain || location.origin))
             throw new Error('Enter the PlaceOS domain as an https:// address.');
         const query = new URLSearchParams(params).toString();
+        // On the domain, `placeFetch` sends the session credential, renews
+        // it when it expired, and sends one time again after a 401 or 511.
+        // A status that stays is an error to the caller, as in 6.x.
         return fetchWithDeadline(
             `${on_domain ? '' : domain}/api/engine/v2${path}${query ? `?${query}` : ''}`,
             {
                 ...options,
                 headers: {
-                    ...(on_domain
-                        ? { Authorization: `Bearer ${token()}` }
-                        : { 'X-API-Key': api_key }),
+                    ...(on_domain ? {} : { 'X-API-Key': api_key }),
                     'Content-Type': 'application/json',
                     ...(options.headers ?? {}),
                 },
@@ -598,6 +700,7 @@ export class PlaceOSService {
                 }
                 return response.json() as Promise<T>;
             },
+            on_domain ? placeFetch : fetch,
         );
     }
 }

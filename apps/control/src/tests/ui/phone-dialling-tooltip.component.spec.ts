@@ -5,17 +5,21 @@ import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import { IconComponent } from '@placeos/components';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { ControlStateService } from '../../app/control-state.service';
 import { DialpadComponent } from '../../app/ui/dialpad.component';
 import { PhoneDiallingTooltipComponent } from '../../app/ui/phone-dialling-tooltip.component';
 
 describe('PhoneDiallingTooltipComponent', () => {
+    let place: TestPlaceClient;
     let spectator: Spectator<PhoneDiallingTooltipComponent>;
-    let execute: unknown;
+    let execute: ReturnType<
+        typeof vi.fn<(method: string, args: readonly unknown[]) => unknown>
+    >;
     const createComponent = createComponentFactory({
         component: PhoneDiallingTooltipComponent,
         declarations: [
@@ -39,24 +43,25 @@ describe('PhoneDiallingTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        place = startTestPlaceClient();
         execute = vi.fn().mockResolvedValue(null);
-        (client.getModule as any).mockImplementation(() => ({ execute }));
+        place.useExecute(execute);
         spectator = createComponent();
     });
 
     it('should send the dialpad character to the System module on input', async () => {
         await spectator.component.handleInput('5');
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
+        expect(place.modules()).toContain('sys-1|System_1');
         expect(execute).toHaveBeenCalledWith('qsc_dial_pad', ['5']);
     });
 
     it('should dial, hangup and clear via the System module', async () => {
         await spectator.component.dialPhone();
-        expect(execute).toHaveBeenCalledWith('qsc_dial_makecall');
+        expect(execute).toHaveBeenCalledWith('qsc_dial_makecall', []);
         await spectator.component.hangup();
-        expect(execute).toHaveBeenCalledWith('qsc_dial_hangup');
+        expect(execute).toHaveBeenCalledWith('qsc_dial_hangup', []);
         await spectator.component.clear();
-        expect(execute).toHaveBeenCalledWith('qsc_dial_pad_clear');
+        expect(execute).toHaveBeenCalledWith('qsc_dial_pad_clear', []);
     });
 
     it('should show the dial button when the phone is idle', () => {
@@ -73,7 +78,7 @@ describe('PhoneDiallingTooltipComponent', () => {
         spectator.detectChanges();
         expect('button[btn].inverse').toExist();
         spectator.click('button[btn].inverse');
-        expect(execute).toHaveBeenCalledWith('qsc_dial_hangup');
+        expect(execute).toHaveBeenCalledWith('qsc_dial_hangup', []);
     });
 
     it('should show a clear button only when a phone number is present', () => {
@@ -85,6 +90,6 @@ describe('PhoneDiallingTooltipComponent', () => {
         spectator.detectChanges();
         expect('button[icon]').toExist();
         spectator.click('button[icon]');
-        expect(execute).toHaveBeenCalledWith('qsc_dial_pad_clear');
+        expect(execute).toHaveBeenCalledWith('qsc_dial_pad_clear', []);
     });
 });

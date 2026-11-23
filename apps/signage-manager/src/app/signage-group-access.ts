@@ -1,9 +1,12 @@
-import { PlaceGroup, PlaceGroupAdMappings } from '@placeos/ts-client';
+import { type Group } from '@placeos/ts-client';
 import { decodeEntities } from './shared/decode-entity-names.util';
+
+/** AD group mappings of a group: AD group ID to its name and permissions */
+export type GroupAdMappings = Record<string, readonly [string, number]>;
 
 /** Group fields that control who gets access and with which permissions */
 export type SignageGroupAccess = Pick<
-    PlaceGroup,
+    Group,
     'default_permissions' | 'ad_group_mappings'
 >;
 
@@ -17,10 +20,10 @@ export interface DirectoryGroup {
 
 /** Access fields of a group. Decodes the HTML entities the backend adds to
  * AD group names. */
-export function signageGroupAccess(group: PlaceGroup): SignageGroupAccess {
-    const ad_group_mappings: PlaceGroupAdMappings = {};
+export function signageGroupAccess(group: Group): SignageGroupAccess {
+    const ad_group_mappings: GroupAdMappings = {};
     for (const [id, [name, permissions]] of Object.entries(
-        group.ad_group_mappings,
+        group.ad_group_mappings || {},
     )) {
         ad_group_mappings[id] = [decodeEntities(name), permissions];
     }

@@ -3,11 +3,7 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import {
-    AssetCategory,
-    AssetGroup,
-    OrganisationService,
-} from '@placeos/common';
+import { AssetGroup, OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import {
@@ -17,7 +13,10 @@ import {
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import { toJsonValue } from '../../app/metadata';
 
 describe('EmergencyContactsService', () => {
     let spectator: SpectatorService<EmergencyContactsService>;
@@ -38,39 +37,67 @@ describe('EmergencyContactsService', () => {
     beforeEach(async () => {
         // @placeos/assets wraps these ts-client primitives; only ts-client can
         // be spied under the bundling builder, so stub at that boundary.
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client.updateAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
-        vi.mocked(ts_client.updateAssetCategory).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({
-            id: 'at1',
-        } as any);
-        vi.mocked(ts_client.updateAssetType).mockResolvedValue({
-            id: 'at1',
-        } as any);
-        vi.mocked(ts_client.removeAsset).mockResolvedValue({});
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
-        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({ data: [] } as any),
+        );
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.assets.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.assets.update).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.asset_categories.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.asset_categories.update).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.asset_types.create).mockResolvedValue(
+            mockReply({
+                id: 'at1',
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.update).mockResolvedValue(
+            mockReply({
+                id: 'at1',
+            } as any),
+        );
+        vi.mocked(ts_client.assets.destroy).mockResolvedValue(mockReply(''));
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.metadata.update).mockResolvedValue(
+            mockReply({} as any),
+        );
         spectator = createService();
         // Let the constructor's ensureCategoryAndTypeExist() chain settle so
         // its write calls don't leak into the per-test assertions.
         await new Promise((r) => setTimeout(r));
-        vi.mocked(ts_client.addAsset).mockClear();
-        vi.mocked(ts_client.updateAsset).mockClear();
-        vi.mocked(ts_client.addAssetCategory).mockClear();
-        vi.mocked(ts_client.updateAssetCategory).mockClear();
-        vi.mocked(ts_client.addAssetType).mockClear();
-        vi.mocked(ts_client.updateAssetType).mockClear();
-        vi.mocked(ts_client.removeAsset).mockClear();
+        vi.mocked(ts_client.assets.create).mockClear();
+        vi.mocked(ts_client.assets.update).mockClear();
+        vi.mocked(ts_client.asset_categories.create).mockClear();
+        vi.mocked(ts_client.asset_categories.update).mockClear();
+        vi.mocked(ts_client.asset_types.create).mockClear();
+        vi.mocked(ts_client.asset_types.update).mockClear();
+        vi.mocked(ts_client.assets.destroy).mockClear();
     });
 
     it('should generate prefixed contact ids', () => {
@@ -89,43 +116,45 @@ describe('EmergencyContactsService', () => {
         });
         expect(ok).toBe(true);
         // contact id starts with `contact-` => new asset => addAsset
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 asset_type_id: 'at1',
                 identifier: 'Jane',
             }),
-        );
+        });
     });
 
     it('should remove a contact by id', async () => {
         const ok = await spectator.service.deleteContact('asset-9');
         expect(ok).toBe(true);
-        expect(ts_client.removeAsset).toHaveBeenCalledWith('asset-9');
+        expect(ts_client.assets.destroy).toHaveBeenCalledWith({
+            id: 'asset-9',
+        });
     });
 
     it('should skip persisting a role that already exists', async () => {
         spectator.service.roles.set(['Warden']);
-        vi.mocked(ts_client.addAssetCategory).mockClear();
-        vi.mocked(ts_client.updateAssetCategory).mockClear();
+        vi.mocked(ts_client.asset_categories.create).mockClear();
+        vi.mocked(ts_client.asset_categories.update).mockClear();
         const ok = await spectator.service.addRole('Warden');
         expect(ok).toBe(true);
-        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.updateAssetCategory).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.create).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.update).not.toHaveBeenCalled();
     });
 
     it('should persist a new sorted role list on add', async () => {
         spectator.service.category.set({ id: 'cat-1' } as any);
         spectator.service.roles.set(['Warden']);
-        vi.mocked(ts_client.updateAssetCategory).mockClear();
+        vi.mocked(ts_client.asset_categories.update).mockClear();
         const ok = await spectator.service.addRole('Aider');
         expect(ok).toBe(true);
         // category has an id => saveAssetCategory => updateAssetCategory
-        expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
-            'cat-1',
-            expect.objectContaining({
+        expect(ts_client.asset_categories.update).toHaveBeenCalledWith({
+            id: 'cat-1',
+            body: expect.objectContaining({
                 description: JSON.stringify({ roles: ['Aider', 'Warden'] }),
             }),
-        );
+        });
     });
 
     describe('role changes', () => {
@@ -139,7 +168,9 @@ describe('EmergencyContactsService', () => {
         });
 
         beforeEach(() => {
-            spectator.service.category.set(new AssetCategory({ id: 'cat-1' }));
+            spectator.service.category.set(
+                mockData(ts_client.AssetCategory, { id: 'cat-1' }),
+            );
             spectator.service.asset_type.set({ id: 'at1' } as AssetGroup);
             spectator.service.roles.set(['Aider', 'Warden']);
             spectator.service.contacts.set([
@@ -152,38 +183,38 @@ describe('EmergencyContactsService', () => {
             const ok = await spectator.service.renameRole('Warden', 'Chief');
 
             expect(ok).toBe(true);
-            expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
-                'cat-1',
-                expect.objectContaining({
+            expect(ts_client.asset_categories.update).toHaveBeenCalledWith({
+                id: 'cat-1',
+                body: expect.objectContaining({
                     description: JSON.stringify({ roles: ['Aider', 'Chief'] }),
                 }),
-            );
-            expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
-            expect(ts_client.updateAsset).toHaveBeenCalledWith(
-                'asset-1',
-                expect.objectContaining({
+            });
+            expect(ts_client.assets.update).toHaveBeenCalledTimes(1);
+            expect(ts_client.assets.update).toHaveBeenCalledWith({
+                id: 'asset-1',
+                body: expect.objectContaining({
                     other_data: expect.objectContaining({
                         roles: ['Chief', 'Aider'],
                     }),
                 }),
-            );
+            });
         });
 
         it('should remove a role from the role list and from each contact that has it', async () => {
             const ok = await spectator.service.removeRole('Aider');
 
             expect(ok).toBe(true);
-            expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
-                'cat-1',
-                expect.objectContaining({
+            expect(ts_client.asset_categories.update).toHaveBeenCalledWith({
+                id: 'cat-1',
+                body: expect.objectContaining({
                     description: JSON.stringify({ roles: ['Warden'] }),
                 }),
-            );
+            });
             const updated = vi
-                .mocked(ts_client.updateAsset)
-                .mock.calls.map(([id, asset]) => [
+                .mocked(ts_client.assets.update)
+                .mock.calls.map(([{ id, body }]) => [
                     id,
-                    asset.other_data?.['roles'],
+                    body.other_data?.['roles'],
                 ]);
             expect(updated).toEqual([
                 ['asset-1', ['Warden']],
@@ -208,15 +239,19 @@ describe('EmergencyContactsService', () => {
             [{ contacts: [legacy], roles: [], migrated: true }, false],
             [{ contacts: [], roles: [] }, false],
         ])('should check the legacy metadata %j', async (details, expected) => {
-            vi.mocked(ts_client.showMetadata).mockResolvedValue(
-                new ts_client.PlaceMetadata({ details }),
+            vi.mocked(ts_client.metadata.show).mockResolvedValue(
+                mockReply({
+                    emergency_contacts: mockData(ts_client.Metadata, {
+                        details: toJsonValue(details),
+                    }),
+                }),
             );
 
             expect(await spectator.service.needsMigration()).toBe(expected);
         });
 
         it('should not need migration when the metadata cannot be read', async () => {
-            vi.mocked(ts_client.showMetadata).mockRejectedValue(
+            vi.mocked(ts_client.metadata.show).mockRejectedValue(
                 new Error('404'),
             );
 

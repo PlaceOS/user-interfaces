@@ -1,8 +1,7 @@
 import { Subject } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
-
 import * as app from '../lib/application';
+import { FakeSession, startFakePlaceClient } from './fake-session';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -23,6 +22,7 @@ describe('application cache handling', () => {
     let console_debug: ReturnType<typeof vi.spyOn>;
     let console_warn: ReturnType<typeof vi.spyOn>;
     let debug_enabled: boolean;
+    let place: FakeSession;
 
     beforeEach(() => {
         vi.useFakeTimers();
@@ -41,7 +41,8 @@ describe('application cache handling', () => {
             unrecoverable: unrecoverable.asObservable(),
             checkForUpdate: vi.fn(async () => false),
         };
-        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        place = startFakePlaceClient();
+        place.signIn();
         Object.defineProperty(globalThis.navigator, 'onLine', {
             configurable: true,
             value: true,
@@ -70,7 +71,7 @@ describe('application cache handling', () => {
     });
 
     it('should wait for the network before reloading', () => {
-        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+        place.signOut();
         app.setupCache(cache, { auto_reload: true });
         version_updates.next(version_ready);
         expect(reload).not.toHaveBeenCalled();
@@ -79,7 +80,7 @@ describe('application cache handling', () => {
         vi.advanceTimersByTime(30_000);
         expect(reload).not.toHaveBeenCalled();
 
-        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        place.signIn();
         vi.advanceTimersByTime(5_000);
 
         expect(reload).toHaveBeenCalledTimes(1);
@@ -177,7 +178,7 @@ describe('application cache handling', () => {
     });
 
     it('should hold an initialisation reload back while offline', () => {
-        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+        place.signOut();
 
         app.requestInitReload();
         vi.advanceTimersByTime(60_000);
@@ -185,7 +186,7 @@ describe('application cache handling', () => {
         expect(reload).not.toHaveBeenCalled();
         expect(app.initReloadPending()).toBe(true);
 
-        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        place.signIn();
         vi.advanceTimersByTime(5_000);
 
         expect(reload).toHaveBeenCalledTimes(1);
@@ -216,11 +217,11 @@ describe('application cache handling', () => {
     });
 
     it('should drop a held initialisation reload once startup completes', () => {
-        vi.mocked(ts_client.isOnline).mockReturnValue(false);
+        place.signOut();
         app.requestInitReload();
 
         app.markInitialisationComplete();
-        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        place.signIn();
         vi.advanceTimersByTime(60_000);
 
         expect(reload).not.toHaveBeenCalled();

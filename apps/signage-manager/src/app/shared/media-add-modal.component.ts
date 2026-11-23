@@ -9,7 +9,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignagePlugin } from '@placeos/ts-client';
+import { type SignagePlugin } from '@placeos/ts-client';
 import { SignageMediaService } from '../media/signage-media.service';
 import { SignagePluginService } from '../signage-plugin.service';
 import { normaliseWebPageUrl } from '../signage-url.util';

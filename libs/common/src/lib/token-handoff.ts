@@ -1,4 +1,4 @@
-import { authorise, invalidateToken, token } from '@placeos/ts-client';
+import { authorise, invalidateToken, token } from './place-client';
 import { tokenExpiry } from './teams-host';
 
 const TOKEN_REQUEST = 'placeos:token-request';

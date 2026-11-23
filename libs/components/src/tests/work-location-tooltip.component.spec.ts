@@ -11,22 +11,22 @@ import {
 import { format } from 'date-fns';
 
 // The real user store drives `currentUser()`. `reloadUserData()` is a real
-// workspace fn that reloads via ts-client `showUser('current')`, so we stub
+// workspace fn that reloads via ts-client `users.current()`, so we stub
 // that call and assert on it as the reload proxy.
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
-import { updateUser } from '@placeos/ts-client';
+import { users } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { WorkLocationTooltipComponent } from '../lib/work-location-tooltip.component';
 
 describe('WorkLocationTooltipComponent', () => {
     let spectator: Spectator<WorkLocationTooltipComponent>;
-    // The template shows the current minute. Freeze the clock in the middle
-    // of a minute, so a change check never sees the minute roll over.
-    const frozen_time = new Date();
-    frozen_time.setSeconds(30, 0);
+    // The template shows the current minute. A fixed time makes each run
+    // the same. The time is in the middle of a minute.
+    const frozen_time = new Date(2026, 2, 4, 10, 15, 30);
     const today = frozen_time.getDay();
     const test_user = new StaffUser({
         id: 'user-1',
@@ -51,20 +51,33 @@ describe('WorkLocationTooltipComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        // Only Date is faked, so the real timers in the tests still run
+    // Freeze the clock for all of the file, not for each test. After a save,
+    // `reloadUserData()` loads the user 300 ms later, also after the test
+    // ended. The new user starts a change check. With the real clock, that
+    // check reads a different minute and fails with NG0100. Only Date is
+    // faked, so the real timers in the tests still run.
+    beforeAll(() => {
         vi.useFakeTimers({ toFake: ['Date'] });
         vi.setSystemTime(frozen_time);
+    });
+
+    afterAll(async () => {
+        // Let the last user reload end before the real clock is back
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        vi.useRealTimers();
+    });
+
+    beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(updateUser).mockResolvedValue({} as any);
+        vi.mocked(users.update).mockResolvedValue(mockReply({} as any));
         // Resolve reloads with the same user so the real user pipeline stays
         // consistent instead of erroring on a rejected request.
-        vi.mocked(ts_client.showUser).mockResolvedValue(test_user as any);
+        vi.mocked(ts_client.users.current).mockResolvedValue(
+            mockReply(test_user as any),
+        );
         setCurrentUser(test_user);
         spectator = createComponent();
     });
-
-    afterEach(() => vi.useRealTimers());
 
     it("should render blocks for today's work preference", () => {
         expect(spectator.component.active_preference.blocks).toHaveLength(2);
@@ -102,7 +115,7 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     it('should save a location override for the selected block', async () => {
-        vi.mocked(ts_client.showUser).mockClear();
+        vi.mocked(ts_client.users.current).mockClear();
         await spectator.component.setLocation(1, 'sick');
         const date = format(Date.now(), 'yyyy-MM-dd');
         expect(spectator.component.overrides()[date].blocks[1].location).toBe(
@@ -111,17 +124,17 @@ describe('WorkLocationTooltipComponent', () => {
         expect(spectator.component.overrides()[date].blocks[0].location).toBe(
             'wfo',
         );
-        expect(updateUser).toHaveBeenCalledWith(
-            'user-1',
-            expect.objectContaining({
+        expect(users.update).toHaveBeenCalledWith({
+            id: 'user-1',
+            body: expect.objectContaining({
                 work_overrides: expect.objectContaining({
                     [date]: expect.anything(),
                 }),
             }),
-        );
-        // `reloadUserData()` reloads via `showUser('current')` after a delay.
+        });
+        // `reloadUserData()` reloads via `users.current()` after a delay.
         await new Promise((resolve) => setTimeout(resolve, 350));
-        expect(ts_client.showUser).toHaveBeenCalledWith('current');
+        expect(ts_client.users.current).toHaveBeenCalled();
     });
 
     it('should update the location label when the user reloads', async () => {
@@ -158,13 +171,13 @@ describe('WorkLocationTooltipComponent', () => {
             })),
         };
         setNotifyOutlet(snackbar as never);
-        vi.mocked(updateUser).mockRejectedValue(new Error('500'));
+        vi.mocked(users.update).mockRejectedValue(new Error('500'));
 
         await spectator.component.setLocation(1, 'sick');
 
         expect(snackbar.open).toHaveBeenCalled();
         expect(spectator.component.overrides()).toEqual({});
-        expect(ts_client.showUser).not.toHaveBeenCalled();
+        expect(ts_client.users.current).not.toHaveBeenCalled();
     });
 
     it('should prune stale overrides when saving a new one', async () => {

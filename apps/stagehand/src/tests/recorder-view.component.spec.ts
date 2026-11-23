@@ -3,6 +3,7 @@ import { OrganisationService } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { RecorderGridViewComponent } from '../app/recorder-view.component';
 import { StagehandPageComponent } from '../app/ui/stagehand-page.component';
 
@@ -30,16 +31,32 @@ describe('RecorderGridViewComponent', () => {
 
     beforeEach(() => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {
-                domain: 'recorder.example.com',
-                api_path: '/snapshot/{IP_ADDRESS}/{DEVICE_ID}',
-                images: [
-                    { name: 'Camera A', ip_address: '10.0.0.1', id: 'dev-a' },
-                    { name: 'Camera B', ip_address: '10.0.0.2', id: 'dev-b' },
-                ],
-            },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {
+                            domain: 'recorder.example.com',
+                            api_path: '/snapshot/{IP_ADDRESS}/{DEVICE_ID}',
+                            images: [
+                                {
+                                    name: 'Camera A',
+                                    ip_address: '10.0.0.1',
+                                    id: 'dev-a',
+                                },
+                                {
+                                    name: 'Camera B',
+                                    ip_address: '10.0.0.2',
+                                    id: 'dev-b',
+                                },
+                            ],
+                        },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
     });
 
     afterEach(() => {
@@ -66,13 +83,27 @@ describe('RecorderGridViewComponent', () => {
     });
 
     it('should load no streams when the metadata has no recorder host', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {
-                domain: '',
-                api_path: '/snapshot/{IP_ADDRESS}/{DEVICE_ID}',
-                images: [{ name: 'Camera A', ip_address: '10.0.0.1', id: 'a' }],
-            },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {
+                            domain: '',
+                            api_path: '/snapshot/{IP_ADDRESS}/{DEVICE_ID}',
+                            images: [
+                                {
+                                    name: 'Camera A',
+                                    ip_address: '10.0.0.1',
+                                    id: 'a',
+                                },
+                            ],
+                        },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createComponent();
         await spectator.component.ngOnInit();
         await flush();

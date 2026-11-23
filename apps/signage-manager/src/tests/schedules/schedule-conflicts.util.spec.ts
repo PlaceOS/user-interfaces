@@ -1,5 +1,5 @@
-import { SignagePlaylist } from '@placeos/ts-client';
 import { findTakeoverConflicts } from '../../app/schedules/schedule-conflicts.util';
+import { signagePlaylist } from '../../app/signage-models';
 
 function playlist(
     id: string,
@@ -7,7 +7,7 @@ function playlist(
     play_period: number,
     play_takeover = true,
 ) {
-    return new SignagePlaylist({
+    return signagePlaylist({
         id,
         name: id,
         schedules: [{ play_cron, play_period, play_takeover }],
@@ -59,7 +59,7 @@ describe('findTakeoverConflicts', () => {
             zones: [level],
             playlists: [
                 playlist('a', '0 9 * * *', 60),
-                new SignagePlaylist({
+                signagePlaylist({
                     id: 'b',
                     name: 'b',
                     enabled: false,

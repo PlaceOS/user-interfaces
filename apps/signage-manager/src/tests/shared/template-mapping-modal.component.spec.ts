@@ -1,9 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { SignageTemplate } from '@placeos/ts-client';
 import { TemplateMappingModalComponent } from '../../app/shared/template-mapping-modal.component';
-import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
+import { signageTemplate } from '../../app/signage-models';
+import {
+    type HydratedSignageTemplateMapping,
+    hydratedTemplateMapping,
+} from '../../app/signage-template-mapping';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -25,7 +28,7 @@ describe('TemplateMappingModalComponent', () => {
                     useValue: {
                         mapping,
                         templates: [
-                            new SignageTemplate({
+                            signageTemplate({
                                 id: 'template-1',
                                 name: 'Welcome',
                                 approved: true,
@@ -130,7 +133,7 @@ describe('TemplateMappingModalComponent', () => {
 
     it('loads the mapped template and schedule for editing', async () => {
         const component = await createComponent(
-            new HydratedSignageTemplateMapping({
+            hydratedTemplateMapping({
                 id: 'mapping-1',
                 template_id: 'template-2',
                 schedule: {

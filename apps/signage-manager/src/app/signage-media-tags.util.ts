@@ -1,7 +1,5 @@
-import {
-    listSignageMediaTags,
-    listSignageMediaTagCounts as queryTagCounts,
-} from '@placeos/ts-client';
+import { playlist_media } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 export interface SignageMediaTagCounts {
     /** Distinct tags in use, sorted by name */
@@ -10,7 +8,7 @@ export interface SignageMediaTagCounts {
     counts: Record<string, number>;
 }
 
-function sortTagNames(tags: string[]) {
+function sortTagNames(tags: readonly string[]) {
     return [...tags].sort((a, b) => a.localeCompare(b));
 }
 
@@ -20,21 +18,26 @@ function sortTagNames(tags: string[]) {
  * leaving callers to count the media they have loaded.
  */
 export async function listSignageMediaTagCounts(
-    query_params: Record<string, string | undefined> = {},
+    query_params: { group_id?: string; include_child_data?: boolean } = {},
 ): Promise<SignageMediaTagCounts> {
-    // The API client sends empty strings, so leave out empty parameters
-    const params = Object.fromEntries(
-        Object.entries(query_params).filter(([, value]) => !!value),
-    );
+    // Leave out an empty group, which the API would read as a group ID
+    const params = query_params.group_id
+        ? {
+              group_id: query_params.group_id,
+              ...(query_params.include_child_data
+                  ? { include_child_data: true }
+                  : {}),
+          }
+        : {};
     try {
-        const response = await queryTagCounts(params);
+        const response = await playlist_media.tagCounts(params).then(orThrow);
         const counts: Record<string, number> = {};
         for (const [tag, count] of Object.entries(response || {})) {
             counts[tag] = Number(count) || 0;
         }
         return { tags: sortTagNames(Object.keys(counts)), counts };
     } catch {
-        const tags = await listSignageMediaTags(query_params);
+        const tags = await playlist_media.tags(params).then(orThrow);
         return { tags: sortTagNames(tags), counts: {} };
     }
 }

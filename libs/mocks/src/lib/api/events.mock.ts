@@ -1,5 +1,5 @@
 import { timePeriodsIntersect } from '@placeos/common';
-import { mockSystem } from '@placeos/ts-client';
+import { mockSystem } from '@placeos/ts-client/compat';
 import { mockId, persistById, registerMockEndpoint } from '../session';
 import { eventSpaces, MOCK_EVENTS } from './events.data';
 import { MOCK_SPACES } from './spaces.data';

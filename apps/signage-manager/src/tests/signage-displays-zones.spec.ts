@@ -9,22 +9,24 @@ import {
     UploadsService,
 } from '@placeos/common';
 import {
-    PlaceGroup,
-    PlaceSystem,
-    PlaceZone,
-    queryZones,
-    removeSystem,
-    removeZone,
-    showSignagePlaylist,
-    SignagePlaylist,
-    update,
-    updateZone,
+    playlist,
+    type System,
+    type SystemInput,
+    systems,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
 import { NEVER, of } from 'rxjs';
 import { SignageDisplayService } from '../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../app/signage-context.service';
+import {
+    signagePlaylist,
+    signageSystem,
+    signageZone,
+} from '../app/signage-models';
 import { SignageZoneService } from '../app/zones/signage-zone.service';
+import { signageGroup } from './signage-test-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -44,11 +46,13 @@ describe('SignageDisplayService and SignageZoneService', () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         setCurrentUser({ id: 'user-1', email: 'a@b.c' } as any);
-        vi.mocked(queryZones).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
+        vi.mocked(zones_v7.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
         TestBed.configureTestingModule({
             providers: [
                 { provide: UploadsService, useValue: {} },
@@ -100,11 +104,11 @@ describe('SignageDisplayService and SignageZoneService', () => {
         });
     }
 
-    /** Resolve system updates with raw API data, through the data mapper */
-    function updateSystemsWith(raw: Partial<PlaceSystem>) {
-        vi.mocked(update).mockImplementation(((params: {
-            fn: (raw: Partial<PlaceSystem>) => PlaceSystem;
-        }) => Promise.resolve(params.fn(raw))) as unknown as typeof update);
+    /** Resolve system updates with raw API data */
+    function updateSystemsWith(raw: SystemInput) {
+        vi.mocked(systems.update).mockResolvedValue(
+            mockReply(signageSystem(raw)),
+        );
     }
 
     const expectError = () =>
@@ -116,7 +120,7 @@ describe('SignageDisplayService and SignageZoneService', () => {
 
     it('decodes saved names so the next save sends the real name', async () => {
         const { displays: service } = createServices();
-        const display = new PlaceSystem({
+        const display = signageSystem({
             id: 'd1',
             name: 'A & B',
             version: 2,
@@ -131,22 +135,22 @@ describe('SignageDisplayService and SignageZoneService', () => {
         expect(service.selected_display()?.version).toBe(3);
 
         dialog.open.mockReturnValue({ afterClosed: () => NEVER });
-        void service.editDisplay(service.selected_display() as PlaceSystem);
+        void service.editDisplay(service.selected_display() as System);
         await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
         const data = dialog.open.mock.calls[0][1].data;
         expect(data.display.name).toBe('A & B');
 
         await data.onEdit('d1', { name: data.display.name });
-        expect(update).toHaveBeenLastCalledWith(
-            expect.objectContaining({ form_data: { name: 'A & B' } }),
+        expect(systems.update).toHaveBeenLastCalledWith(
+            expect.objectContaining({ body: { name: 'A & B' } }),
         );
     });
 
     it('decodes saved zone names before selecting the zone', async () => {
         const { zones: service } = createServices();
-        const zone = new PlaceZone({ id: 'z1', playlists: ['p1'] });
-        vi.mocked(updateZone).mockResolvedValue(
-            new PlaceZone({ id: 'z1', name: 'R&amp;D' }),
+        const zone = signageZone({ id: 'z1', playlists: ['p1'] });
+        vi.mocked(zones_v7.update).mockResolvedValue(
+            mockReply(signageZone({ id: 'z1', name: 'R&amp;D' })),
         );
 
         await service.removePlaylistFromZone(zone, 'p1');
@@ -156,9 +160,9 @@ describe('SignageDisplayService and SignageZoneService', () => {
 
     it('shows an error and keeps the selection when an assignment fails', async () => {
         const { context, zones: service } = createServices();
-        const zone = new PlaceZone({ id: 'z1', playlists: ['p1'] });
+        const zone = signageZone({ id: 'z1', playlists: ['p1'] });
         service.selected_zone.set(zone);
-        vi.mocked(updateZone).mockRejectedValue(new Error('Conflict'));
+        vi.mocked(zones_v7.update).mockRejectedValue(new Error('Conflict'));
         const changed = vi.spyOn(context, 'changed');
 
         await service.removePlaylistFromZone(zone, 'p1');
@@ -171,17 +175,17 @@ describe('SignageDisplayService and SignageZoneService', () => {
     it.each([
         [
             'display',
-            () => vi.mocked(removeSystem).mockRejectedValue(new Error('403')),
+            () =>
+                vi.mocked(systems.destroy).mockRejectedValue(new Error('403')),
             ({ displays }: SignageTestServices) =>
-                displays.removeDisplay(new PlaceSystem({ id: 'd1' })),
+                displays.removeDisplay(signageSystem({ id: 'd1' })),
         ],
         [
             'zone',
-            () => vi.mocked(removeZone).mockRejectedValue(new Error('403')),
+            () =>
+                vi.mocked(zones_v7.destroy).mockRejectedValue(new Error('403')),
             ({ zones }: SignageTestServices) =>
-                zones.removeZone(
-                    new PlaceZone({ id: 'z1', tags: ['signage'] }),
-                ),
+                zones.removeZone(signageZone({ id: 'z1', tags: ['signage'] })),
         ],
     ] as const)(
         'closes the confirm modal and shows an error when removing a %s fails',
@@ -200,17 +204,17 @@ describe('SignageDisplayService and SignageZoneService', () => {
 
     it('applies local edits only to displays and zones in the list', () => {
         const { displays, zones } = createServices();
-        displays['_display_list'].update(() => [new PlaceSystem({ id: 'd1' })]);
+        displays['_display_list'].update(() => [signageSystem({ id: 'd1' })]);
         displays['_display_overrides'].set({
-            d1: new PlaceSystem({ id: 'd1', name: 'Edited' }),
-            other: new PlaceSystem({ id: 'other', name: 'Other group' }),
+            d1: signageSystem({ id: 'd1', name: 'Edited' }),
+            other: signageSystem({ id: 'other', name: 'Other group' }),
         });
         zones['_all_zone_list'].set({
-            zones: [new PlaceZone({ id: 'z1' })],
+            zones: [signageZone({ id: 'z1' })],
             total: 1,
         });
         zones['_zone_overrides'].set({
-            other: new PlaceZone({ id: 'other', name: 'Other group' }),
+            other: signageZone({ id: 'other', name: 'Other group' }),
         });
 
         expect(
@@ -226,7 +230,7 @@ describe('SignageDisplayService and SignageZoneService', () => {
     ) {
         context['_signage_groups'].set([
             {
-                group: new PlaceGroup({ id: group_id, name: group_id }),
+                group: signageGroup({ id: group_id, name: group_id }),
                 permissions: 0,
             },
         ]);
@@ -234,21 +238,29 @@ describe('SignageDisplayService and SignageZoneService', () => {
     }
 
     // Staff users get a 403 from these routes without the group
-    it('scopes the zone and playlist lookups of a display to the group', async () => {
+    // The zone index takes no display filter, so the display zones are
+    // found in the zones of the group. The playlist lookup takes only the
+    // id, as the server checks access through the groups of the playlist
+    it('scopes the zone lookup of a display to the group', async () => {
         const { context, displays, playlists } = createServices();
         vi.spyOn(context, 'canQueryLists').mockReturnValue(true);
         selectGroup(context, 'g1');
-        vi.mocked(queryZones).mockResolvedValue({
-            data: [new PlaceZone({ id: 'z1', playlists: ['p9'] })],
-            total: 1,
-            next: null,
-        });
-        vi.mocked(showSignagePlaylist).mockResolvedValue(
-            new SignagePlaylist({ id: 'p9', name: 'Zone playlist' }),
+        vi.mocked(zones_v7.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    signageZone({ id: 'z1', playlists: ['p9'] }),
+                    signageZone({ id: 'z2', playlists: ['p8'] }),
+                ],
+                total: 2,
+                next: null,
+            }),
+        );
+        vi.mocked(playlist.show).mockResolvedValue(
+            mockReply(signagePlaylist({ id: 'p9', name: 'Zone playlist' })),
         );
 
         displays.selected_display.set(
-            new PlaceSystem({ id: 'd1', zones: ['z1'] }),
+            signageSystem({ id: 'd1', zones: ['z1'] }),
         );
         await vi.waitFor(() =>
             expect(playlists.playlistsById(['p9']).map(({ id }) => id)).toEqual(
@@ -256,17 +268,14 @@ describe('SignageDisplayService and SignageZoneService', () => {
             ),
         );
 
-        expect(queryZones).toHaveBeenCalledWith({
-            control_system_id: 'd1',
+        expect(zones_v7.query).toHaveBeenCalledWith({
             limit: 500,
             group_id: 'g1',
         });
         expect(displays.selected_display_zones().map(({ id }) => id)).toEqual([
             'z1',
         ]);
-        expect(showSignagePlaylist).toHaveBeenCalledWith('p9', {
-            group_id: 'g1',
-        });
+        expect(playlist.show).toHaveBeenCalledExactlyOnceWith({ id: 'p9' });
     });
 
     it('counts added and removed displays in the total', async () => {
@@ -274,9 +283,9 @@ describe('SignageDisplayService and SignageZoneService', () => {
         service['_display_list'].adjustTotal(5);
         dialog.open.mockReturnValue({
             afterClosed: () => ({
-                subscribe: (handler: (result: PlaceSystem) => void) => {
+                subscribe: (handler: (result: System) => void) => {
                     void Promise.resolve().then(() =>
-                        handler(new PlaceSystem({ id: 'd-new' })),
+                        handler(signageSystem({ id: 'd-new' })),
                     );
                     return { unsubscribe: vi.fn() };
                 },
@@ -286,9 +295,9 @@ describe('SignageDisplayService and SignageZoneService', () => {
         await service.addDisplay();
         expect(service.displays_total()).toBe(6);
 
-        vi.mocked(removeSystem).mockResolvedValue({});
+        vi.mocked(systems.destroy).mockResolvedValue(mockReply(''));
         confirmNextDialog();
-        await service.removeDisplay(new PlaceSystem({ id: 'd-new' }));
+        await service.removeDisplay(signageSystem({ id: 'd-new' }));
         expect(service.displays_total()).toBe(5);
     });
 
@@ -296,16 +305,16 @@ describe('SignageDisplayService and SignageZoneService', () => {
         const { context, displays, zones } = createServices();
         context['_signage_groups'].set(
             ['g1', 'g2'].map((id) => ({
-                group: new PlaceGroup({ id, name: id }),
+                group: signageGroup({ id, name: id }),
                 permissions: 0,
             })),
         );
         context.selected_group_id.set('g1');
         TestBed.tick();
         displays['_display_overrides'].set({
-            d1: new PlaceSystem({ id: 'd1' }),
+            d1: signageSystem({ id: 'd1' }),
         });
-        zones['_zone_overrides'].set({ z1: new PlaceZone({ id: 'z1' }) });
+        zones['_zone_overrides'].set({ z1: signageZone({ id: 'z1' }) });
 
         context.selected_group_id.set('g2');
         TestBed.tick();

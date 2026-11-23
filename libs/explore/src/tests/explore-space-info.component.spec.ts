@@ -2,12 +2,12 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { CalendarEvent, MAP_FEATURE_DATA, Space } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
 import { MockPipe } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
+import { startTestPlaceClient } from 'libs/components/src/tests/test-place-client';
 import {
     ExploreSpaceInfoComponent,
     SpaceInfoStatus,
@@ -31,19 +31,18 @@ describe('ExploreSpaceInfoComponent privacy', () => {
         ]);
         hide_details.next(false);
         hide_title.next(false);
-        const module = getModule('space-privacy', 'Bookings');
-        for (const [name, value] of [
-            ['hide_meeting_details', hide_details],
-            ['hide_meeting_title', hide_title],
-        ] as const) {
-            vi.spyOn(
-                module.variable(name),
-                'bindThenSubscribe',
-            ).mockImplementation((callback) => {
-                const subscription = value.subscribe(callback);
-                return () => subscription.unsubscribe();
+        // A driver binding follows its subject while it is bound.
+        // `undefined` is a setting that has not arrived.
+        startTestPlaceClient().bind.mockImplementation((target, listener) => {
+            const value =
+                target.name === 'hide_meeting_title'
+                    ? hide_title
+                    : hide_details;
+            const subscription = value.subscribe((v) => {
+                if (v !== undefined) listener({ kind: 'value', value: v });
             });
-        }
+            return () => subscription.unsubscribe();
+        });
         TestBed.configureTestingModule({
             imports: [ExploreSpaceInfoComponent],
             providers: [

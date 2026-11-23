@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 import { SignageMediaService } from '../media/signage-media.service';
 import { MediaThumbnailComponent } from './media-thumbnail.component';
 import { byName, PagedSearch } from './paged-search';
@@ -100,7 +100,7 @@ export class MediaSelectModalComponent {
         inject<
             MatDialogRef<
                 MediaSelectModalComponent,
-                SignageMedia | SignageMedia[]
+                PlaylistItem | PlaylistItem[]
             >
         >(MatDialogRef);
     private readonly _media_service = inject(SignageMediaService);
@@ -109,20 +109,20 @@ export class MediaSelectModalComponent {
     public readonly heading =
         this._data.heading || 'SIGNAGE_MANAGER.TEMPLATE_BACKGROUND_SELECT';
     /** Items picked so far, in the order they were picked */
-    public readonly picked = signal<SignageMedia[]>([]);
-    public readonly list = new PagedSearch<SignageMedia>(
+    public readonly picked = signal<PlaylistItem[]>([]);
+    public readonly list = new PagedSearch<PlaylistItem>(
         (search) => this._media_service.queryMedia(search),
         byName,
     );
 
-    public isSelected(media: SignageMedia) {
+    public isSelected(media: PlaylistItem) {
         return this.multiple
             ? this.picked().some(({ id }) => id === media.id)
             : media.id === this._data.selected_id;
     }
 
     /** Close with the item, or toggle it when picking several */
-    public pick(media: SignageMedia) {
+    public pick(media: PlaylistItem) {
         if (!this.multiple) {
             this._dialog_ref.close(media);
             return;

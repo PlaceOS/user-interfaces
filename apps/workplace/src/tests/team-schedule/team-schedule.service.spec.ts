@@ -9,6 +9,7 @@ import { MockProvider } from 'ng-mocks';
 import { Subject } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import {
     OrganisationService,
@@ -16,7 +17,9 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import { get, showMetadata, showUser } from '@placeos/ts-client';
+import { metadata, users as users_v7 } from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { TeamMember } from '../../app/team-schedule/common';
 import { TeamScheduleService } from '../../app/team-schedule/team-schedule.service';
 
@@ -76,11 +79,18 @@ describe('TeamScheduleService', () => {
         vi.clearAllMocks();
         settings_store = {};
         setCurrentUser({ id: 'me', email: 'me@example.com' } as any);
-        (showMetadata as any).mockResolvedValue({ details: [] });
-        (showUser as any).mockImplementation((email: string) =>
-            Promise.resolve({ email }),
+        (metadata.show as any).mockImplementation(
+            fromV1Mock(() => ({ details: [] }), ['id', 'name'], 'data', 'name'),
         );
-        vi.mocked(get).mockResolvedValue([] as any);
+        (users_v7.show as any).mockImplementation(
+            fromV1Mock(
+                (email: string) => Promise.resolve({ email }),
+                ['id', '...'],
+            ),
+        );
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(() => [], ['...']),
+        );
         spectator = createService();
         service = spectator.service;
     });
@@ -470,12 +480,23 @@ describe('TeamScheduleService', () => {
         });
 
         const setupColleagues = (users: any[]) => {
-            (showMetadata as any).mockResolvedValue({
-                details: users.map((u) => ({ email: u.email })),
-            });
+            (metadata.show as any).mockImplementation(
+                fromV1Mock(
+                    () => ({
+                        details: users.map((u) => ({ email: u.email })),
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
             const by_email = new Map(users.map((u) => [u.email, u]));
-            (showUser as any).mockImplementation((email: string) =>
-                Promise.resolve(by_email.get(email) || { email }),
+            (users_v7.show as any).mockImplementation(
+                fromV1Mock(
+                    (email: string) =>
+                        Promise.resolve(by_email.get(email) || { email }),
+                    ['id', '...'],
+                ),
             );
         };
 
@@ -577,16 +598,21 @@ describe('TeamScheduleService', () => {
                     })),
                 },
             ]);
-            vi.mocked(get).mockResolvedValue([
-                {
-                    date: monday + 9 * 3600 * 1000,
-                    duration: 480,
-                    zones: ['zone-bld', 'zone-lvl'],
-                    asset_name: 'Desk 42',
-                    asset_id: 'desk-42',
-                    description: '',
-                },
-            ] as any);
+            vi.mocked(staff_bookings.query).mockImplementation(
+                fromV1Mock(
+                    () => [
+                        {
+                            date: monday + 9 * 3600 * 1000,
+                            duration: 480,
+                            zones: ['zone-bld', 'zone-lvl'],
+                            asset_name: 'Desk 42',
+                            asset_id: 'desk-42',
+                            description: '',
+                        },
+                    ],
+                    ['...'],
+                ),
+            );
 
             await service.refresh();
             await wait();
@@ -638,7 +664,9 @@ describe('TeamScheduleService', () => {
         });
 
         it('should flag colleagues that do not load and clear the flag on a reload', async () => {
-            vi.mocked(showMetadata).mockRejectedValueOnce(new Error('offline'));
+            vi.mocked(metadata.show).mockRejectedValueOnce(
+                new Error('offline'),
+            );
             await service.refresh();
             expect(service.failed()).toBe(true);
             expect(service.total_members()).toBe(0);
@@ -659,17 +687,17 @@ describe('TeamScheduleService', () => {
             setupColleagues([{ email: 'a@example.com', name: 'A' }]);
             await service.refresh();
             await wait();
-            vi.mocked(get).mockClear();
+            vi.mocked(staff_bookings.query).mockClear();
 
             service.setFilters({ search: 'a', view: 'team', status: 'wfh' });
             TestBed.tick();
             await wait();
-            expect(get).not.toHaveBeenCalled();
+            expect(staff_bookings.query).not.toHaveBeenCalled();
 
             service.nextWeek();
             TestBed.tick();
             await wait();
-            expect(get).toHaveBeenCalledTimes(1);
+            expect(staff_bookings.query).toHaveBeenCalledTimes(1);
         });
 
         it('should drop a late response for an old week', async () => {
@@ -677,11 +705,17 @@ describe('TeamScheduleService', () => {
             await service.refresh();
             await wait();
             let resolveOldWeek: (list: unknown[]) => void = () => null;
-            vi.mocked(get)
-                .mockReturnValueOnce(
-                    new Promise((resolve) => (resolveOldWeek = resolve)) as any,
+            vi.mocked(staff_bookings.query)
+                .mockImplementationOnce(
+                    fromV1Mock(
+                        () =>
+                            new Promise(
+                                (resolve) => (resolveOldWeek = resolve),
+                            ),
+                        ['...'],
+                    ),
                 )
-                .mockResolvedValue([] as any);
+                .mockImplementation(fromV1Mock(() => [], ['...']));
 
             service.nextWeek();
             TestBed.tick();
@@ -702,19 +736,19 @@ describe('TeamScheduleService', () => {
             settings_store['favourite_team_members'] = ['fav@example.com'];
             TestBed.tick();
             await wait();
-            expect(showMetadata).not.toHaveBeenCalled();
-            expect(get).not.toHaveBeenCalled();
+            expect(metadata.show).not.toHaveBeenCalled();
+            expect(staff_bookings.query).not.toHaveBeenCalled();
             // Other screens can read the flags without a member load
             expect(service.isFavorite({ email: 'fav@example.com' })).toBe(true);
 
             // A contact change on Home marks the members to load later
             await service.refresh();
-            expect(showMetadata).not.toHaveBeenCalled();
+            expect(metadata.show).not.toHaveBeenCalled();
 
             service.watch();
             TestBed.tick();
             await wait();
-            expect(showMetadata).toHaveBeenCalledTimes(1);
+            expect(metadata.show).toHaveBeenCalledTimes(1);
         });
 
         it('should limit the booking requests that run at one time', async () => {
@@ -722,23 +756,32 @@ describe('TeamScheduleService', () => {
                 { length: 10 },
                 (_, i) => `user-${i}@example.com`,
             );
-            (showMetadata as any).mockResolvedValue({
-                details: emails.map((email) => ({ email })),
-            });
+            (metadata.show as any).mockImplementation(
+                fromV1Mock(
+                    () => ({
+                        details: emails.map((email) => ({ email })),
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
             let running = 0;
             let peak = 0;
-            vi.mocked(get).mockImplementation(async () => {
-                peak = Math.max(peak, ++running);
-                await wait(1);
-                running--;
-                return [] as any;
-            });
+            vi.mocked(staff_bookings.query).mockImplementation(
+                fromV1Mock(async () => {
+                    peak = Math.max(peak, ++running);
+                    await wait(1);
+                    running--;
+                    return [];
+                }, ['...']),
+            );
 
             service.watch();
             TestBed.tick();
             await wait(50);
 
-            expect(get).toHaveBeenCalledTimes(emails.length);
+            expect(staff_bookings.query).toHaveBeenCalledTimes(emails.length);
             expect(peak).toBeLessThanOrEqual(6);
             expect((service as any)._team_members()).toHaveLength(10);
         });
@@ -747,7 +790,7 @@ describe('TeamScheduleService', () => {
             const release = service.watch();
             TestBed.tick();
             await wait();
-            (showMetadata as any).mockClear();
+            (metadata.show as any).mockClear();
             release();
             TestBed.tick();
 
@@ -755,7 +798,7 @@ describe('TeamScheduleService', () => {
             TestBed.tick();
             await wait();
             // The colleagues stay loaded. Only their bookings load again.
-            expect(showMetadata).not.toHaveBeenCalled();
+            expect(metadata.show).not.toHaveBeenCalled();
             expect(service.loading()).toBe(false);
         });
     });

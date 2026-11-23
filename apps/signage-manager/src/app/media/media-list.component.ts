@@ -25,7 +25,7 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 import { ImageGenService } from '../image-gen/image-gen.service';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { mediaTypeLabel } from '../shared/media-labels.util';
@@ -1267,19 +1267,19 @@ export class MediaListComponent {
         this.selected_ids.set(new Set<string>());
     }
 
-    public thumbnailUrl(item: SignageMedia): string {
+    public thumbnailUrl(item: PlaylistItem): string {
         return playlistMediaThumbnailUrl(item);
     }
 
-    public isExpired(item: SignageMedia): boolean {
+    public isExpired(item: PlaylistItem): boolean {
         return !!item.valid_until && item.valid_until * 1000 < Date.now();
     }
 
-    public typeLabelKey(item: SignageMedia): string {
+    public typeLabelKey(item: PlaylistItem): string {
         return mediaTypeLabel(item.media_type) ?? 'COMMON.VIDEO';
     }
 
-    public typeBadgeClass(item: SignageMedia): string {
+    public typeBadgeClass(item: PlaylistItem): string {
         switch (item.media_type) {
             case 'image':
                 return 'bg-warning text-warning-content';
@@ -1292,10 +1292,10 @@ export class MediaListComponent {
         }
     }
 
-    public readonly previewItem = (item: SignageMedia) =>
+    public readonly previewItem = (item: PlaylistItem) =>
         this._media_service.previewMedia(item);
 
-    public readonly editItem = (item: SignageMedia) =>
+    public readonly editItem = (item: PlaylistItem) =>
         this._media_service.editMedia(item);
 
     public readonly can_edit_with_image_gen = computed(
@@ -1306,13 +1306,13 @@ export class MediaListComponent {
     );
 
     /** only an uploaded still can be sent back through the model */
-    public readonly isImage = (item: SignageMedia) =>
+    public readonly isImage = (item: PlaylistItem) =>
         item?.media_type === 'image' && !!item?.media_id;
 
-    public readonly editItemWithImageGen = (item: SignageMedia) =>
+    public readonly editItemWithImageGen = (item: PlaylistItem) =>
         this._media_service.editMediaWithImageGen(item);
 
-    public readonly removeItem = (item: SignageMedia) =>
+    public readonly removeItem = (item: PlaylistItem) =>
         this._media_service.removeMedia(item);
 
     public readonly renameTag = (tag: string, count: number) =>
@@ -1324,7 +1324,7 @@ export class MediaListComponent {
     public readonly addToPlaylist = (media_id: string) =>
         this._media_service.openPlaylistSelectModal(media_id);
 
-    public readonly shareItem = (item: SignageMedia) =>
+    public readonly shareItem = (item: PlaylistItem) =>
         this._media_service.shareMediaItems([item]);
 
     public async deleteSelected() {

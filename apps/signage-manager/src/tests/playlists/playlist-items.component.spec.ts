@@ -1,11 +1,12 @@
 import { computed, NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
+import { type PlaylistItemSchedule } from '@placeos/ts-client';
 import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { PlaylistActionsComponent } from '../../app/playlists/playlist-actions.component';
 import { PlaylistItemsComponent } from '../../app/playlists/playlist-items.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
+import { playlistItemSchedule } from '../../app/signage-models';
 import { playlistItemScheduleMap } from '../../app/signage-playlist.util';
 
 const NEXT_PLAY_SORT_KEY = 'PlaceOS.SIGNAGE:playlist-next-play-sort:v1';
@@ -22,9 +23,7 @@ describe('PlaylistItemsComponent', () => {
     const playlist_media_items = computed(() =>
         playlist_item_entries().map(({ media }) => media),
     );
-    const playlist_item_schedule_list = signal<SignagePlaylistItemSchedule[]>(
-        [],
-    );
+    const playlist_item_schedule_list = signal<PlaylistItemSchedule[]>([]);
     const playlist_item_schedules = computed(() =>
         playlistItemScheduleMap({ schedules: playlist_item_schedule_list() }),
     );
@@ -177,13 +176,12 @@ describe('PlaylistItemsComponent', () => {
 
     it('uses the schedule of each saved distribution item', async () => {
         const item = media('a');
-        const [first, second] = ['schedule-1', 'schedule-2'].map(
-            (id) =>
-                new SignagePlaylistItemSchedule({
-                    id,
-                    item_id: item.id,
-                    media: item,
-                }),
+        const [first, second] = ['schedule-1', 'schedule-2'].map((id) =>
+            playlistItemSchedule({
+                id,
+                item_id: item.id,
+                media: item,
+            }),
         );
         selected_playlist.set({ id: 'pl-1', distribution: true });
         setItems([item, item], ['schedule-1', 'schedule-2']);
@@ -197,7 +195,7 @@ describe('PlaylistItemsComponent', () => {
 
     it('uses the schedule of the media, then a fresh schedule', async () => {
         const item = media('b');
-        const mapped = new SignagePlaylistItemSchedule({ item_id: 'b' });
+        const mapped = playlistItemSchedule({ item_id: 'b' });
         setItems([item]);
         playlist_item_schedule_list.set([mapped]);
         const component = await make();
@@ -205,7 +203,7 @@ describe('PlaylistItemsComponent', () => {
 
         playlist_item_schedule_list.set([]);
         const fresh = component.itemSchedule(item, 0);
-        expect(fresh).toBeInstanceOf(SignagePlaylistItemSchedule);
+        expect(fresh.schedules).toEqual([]);
         expect(fresh.item_id).toBe('b');
     });
 
@@ -398,7 +396,7 @@ describe('PlaylistItemsComponent', () => {
     it('applies the first selected schedule to all selected distribution items', async () => {
         const first_item = media('a');
         const second_item = media('b');
-        const first_schedule = new SignagePlaylistItemSchedule({
+        const first_schedule = playlistItemSchedule({
             id: 'schedule-1',
             item_id: first_item.id,
             media: first_item,
@@ -410,7 +408,7 @@ describe('PlaylistItemsComponent', () => {
                 },
             ],
         });
-        const second_schedule = new SignagePlaylistItemSchedule({
+        const second_schedule = playlistItemSchedule({
             id: 'schedule-2',
             item_id: second_item.id,
             media: second_item,
@@ -453,21 +451,20 @@ describe('PlaylistItemsComponent', () => {
                 items.map(({ id }) => `schedule-${id}`),
             );
             playlist_item_schedule_list.set(
-                items.map(
-                    (item) =>
-                        new SignagePlaylistItemSchedule({
-                            id: `schedule-${item.id}`,
-                            item_id: item.id,
-                            media: item,
-                            schedules: plays[item.id]
-                                ? [
-                                      {
-                                          play_at: plays[item.id],
-                                          play_period: 60,
-                                      } as any,
-                                  ]
-                                : [],
-                        }),
+                items.map((item) =>
+                    playlistItemSchedule({
+                        id: `schedule-${item.id}`,
+                        item_id: item.id,
+                        media: item,
+                        schedules: plays[item.id]
+                            ? [
+                                  {
+                                      play_at: plays[item.id],
+                                      play_period: 60,
+                                  } as any,
+                              ]
+                            : [],
+                    }),
                 ),
             );
             return items;

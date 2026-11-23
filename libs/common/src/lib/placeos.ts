@@ -1,18 +1,17 @@
 import {
-    clientId,
-    PlaceAuthOptions,
-    setAPI_Key,
-    setAppHeaders,
-    setup,
+    browserEnvironment,
+    type AuthSession,
+    type Grant,
 } from '@placeos/ts-client';
 
-import { removeUrlParam } from './general';
+import { log } from './general';
 import {
     getNativeRedirectUri,
     isNativeApp,
     storeNativePkceVerifier,
 } from './native-app';
 import { notifyInfo } from './notifications';
+import { startPlaceClient } from './place-client';
 import { VERSION } from './version';
 
 const NATIVE_CREDENTIAL_FETCH_KEY = '__placeos_native_credential_fetch__';
@@ -119,7 +118,8 @@ export async function createNativeAuthUrl(
     const verifier = randomString();
     const challenge = await sha256Base64Url(verifier);
     localStorage.setItem(`${client_id}_nonce`, nonce);
-    storeNativePkceVerifier(`${client_id}_challenge`, verifier);
+    // The keys that the ts-client session reads for the code exchange
+    storeNativePkceVerifier(`${client_id}_code_verifier`, verifier);
     return (
         `${url}/auth/oauth/authorize?response_type=code` +
         `&client_id=${encodeURIComponent(client_id)}` +
@@ -144,60 +144,154 @@ export function mockModeRequested(): boolean {
     );
 }
 
-let _markSetupDone: () => void = () => {};
-const _setup_done = new Promise<void>((resolve) => (_markSetupDone = resolve));
+/** Key of the token that the paste shortcut keeps for the next load */
+const PASTED_TOKEN_KEY = 'PLACEOS.pasted_token';
 
-/**
- * Resolves once `setupPlace` has set up the API library, whether or not
- * setup succeeded. Until then, a request in mock mode goes to the real
- * backend, as the mocks are not registered yet.
- */
-export function placeSetupDone(): Promise<void> {
-    return _setup_done;
+/** Key of a pasted token for the app with this OAuth client ID */
+export function pastedTokenKey(client_id: string) {
+    return `${PASTED_TOKEN_KEY}.${client_id}`;
 }
 
 /**
- * Initialise the PlaceOS API library
+ * Uses a token that the paste shortcut of `PlaceOS_Service` kept for this
+ * load, before the login starts, and removes it, so it is used one time.
+ * The refresh token of the old account is replaced, so a renewal does not go
+ * back to that account. An app that is not trusted keeps the pasted refresh
+ * token in memory only.
+ */
+function usePastedToken(session: AuthSession) {
+    const key = pastedTokenKey(session.client_id);
+    const raw = sessionStorage.getItem(key);
+    if (!raw) return;
+    sessionStorage.removeItem(key);
+    let pasted: {
+        token?: unknown;
+        refresh_token?: unknown;
+        expires_at?: unknown;
+    };
+    try {
+        pasted = JSON.parse(raw);
+    } catch {
+        return;
+    }
+    const { token, refresh_token, expires_at } = pasted;
+    if (typeof token !== 'string' || !token || typeof expires_at !== 'number') {
+        return;
+    }
+    const refresh_key = `${session.client_id}_refresh_token`;
+    for (const storage of [localStorage, sessionStorage]) {
+        storage.removeItem(refresh_key);
+    }
+    if (typeof refresh_token === 'string' && refresh_token) {
+        session.useRefreshToken(refresh_token);
+    }
+    session.useToken(token, expires_at);
+}
+
+/**
+ * Uses the API key of the device before the login starts, so the first
+ * request already has it. `''` removes a key and token that the session
+ * keeps from an earlier run, so it stops using the old key.
+ */
+function useDeviceApiKey(
+    session: AuthSession,
+    storage: Storage,
+    api_key: string | undefined,
+) {
+    if (api_key === undefined) return;
+    // The key of the device wins: the login would read a key in the URL
+    removeApiKeyFromUrl();
+    if (api_key) return session.useApiKey(api_key);
+    const key = `${session.client_id}_x-api-key`;
+    if (api_key === '' && storage.getItem(key)) {
+        storage.removeItem(key);
+        session.invalidateToken();
+    }
+}
+
+/**
+ * Removes `x-api-key` from each part of the URL that the login reads: the
+ * query of the page, the query of a hash route (`#/rooms?x-api-key=…`) and
+ * a hash of parameters (`#x-api-key=…`). A hash route such as `#/rooms`
+ * stays as it is.
+ */
+function removeApiKeyFromUrl() {
+    // Rewrite the URL only when it has a key
+    if (!location.href.includes('x-api-key')) return;
+    const without = (part: string) => {
+        const params = new URLSearchParams(part);
+        params.delete('x-api-key');
+        return params.toString();
+    };
+    const url = new URL(location.href);
+    url.searchParams.delete('x-api-key');
+    const hash = url.hash.slice(1);
+    const query_start = hash.indexOf('?');
+    let route = query_start >= 0 ? hash.slice(0, query_start) : hash;
+    if (route.includes('=')) route = without(route);
+    const query = query_start >= 0 ? without(hash.slice(query_start + 1)) : '';
+    url.hash = query ? `${route}?${query}` : route;
+    if (url.href !== location.href) {
+        history.replaceState(history.state, '', url);
+    }
+}
+
+/** Options of `setupPlace` that are not in the settings */
+export interface PlaceSetupOptions {
+    /**
+     * The API key of the device, such as a key from the managed
+     * configuration of a native app. The session uses it before the login
+     * starts. `''` removes a key that the session keeps from an earlier run.
+     */
+    api_key?: string;
+    /**
+     * Gives a Microsoft Entra token to exchange for PlaceOS tokens, such as
+     * the SSO token of a Teams tab. The login then uses the `entra` grant.
+     */
+    entra_token?: () => Promise<string | null>;
+    /**
+     * Marks the app as trusted, so the session keeps its tokens in the
+     * storage over a reload. Use it for an app in a host that the user signs
+     * in to, such as a Teams tab or an Outlook add-in.
+     */
+    trusted?: boolean;
+}
+
+/**
+ * Initialise the PlaceOS API library. Resolves when the first login attempt
+ * ends. Rejects when the authority does not load, or after `timeout_ms`.
  */
 export async function setupPlace(
     settings: PlaceSettings,
     timeout_ms = PLACE_SETUP_TIMEOUT,
+    options: PlaceSetupOptions = {},
 ): Promise<void> {
     const protocol = settings.protocol || location.protocol;
     const host = settings.domain || location.hostname;
     const port = settings.port || location.port;
     const host_with_port = `${host}${port ? ':' + port : ''}`;
-    const url = settings.use_domain
-        ? `${protocol}//${host_with_port}`
-        : location.origin;
-    const route = (location.pathname + '/').replace('//', '/');
     const native = isNativeApp();
+    // `''` is the origin of the page
+    const base_url = settings.use_domain
+        ? `${native ? 'https:' : protocol}//${host_with_port}`
+        : '';
+    const route = (location.pathname + '/').replace('//', '/');
     const mock =
         settings.mock ||
         location.href.includes('mock=true') ||
         localStorage.getItem('mock') === 'true';
-    // Generate configuration object
-    const config: PlaceAuthOptions = {
-        auth_type: 'auth_code',
-        scope: 'public',
-        host: host_with_port,
-        secure: native || protocol === 'https:',
-        auth_uri: `${url}/auth/oauth/authorize`,
-        token_uri: `${url}/auth/oauth/token`,
-        redirect_uri: native
-            ? await getNativeRedirectUri(settings.app_name, settings.domain)
-            : `${location.origin}${route}oauth-resp.html`,
-        storage: native ? 'local' : settings.storage,
-        handle_login: native ? false : !settings.local_login,
-        use_iframe: !native,
-        mock,
-        delay: 300,
-    };
+    const grant: Grant = options.entra_token
+        ? { kind: 'entra', entraToken: options.entra_token }
+        : { kind: 'code' };
     if (native) {
         // ts-client only persists access/refresh tokens for trusted devices —
         // without this flag every cold start requires a full browser sign-in.
         localStorage.setItem('trust', 'true');
-        setupNativeCredentialedFetch([config.auth_uri, config.token_uri]);
+        const url = base_url || location.origin;
+        setupNativeCredentialedFetch([
+            `${url}/auth/oauth/authorize`,
+            `${url}/auth/oauth/token`,
+        ]);
     }
     if (localStorage) {
         localStorage.setItem(
@@ -208,16 +302,61 @@ export async function setupPlace(
     if (mock) {
         notifyInfo('Application in mock mode.');
     }
-    // Identify the app and build on every API request
-    setAppHeaders(
-        settings.app_name ||
-            location.pathname.split('/').find(Boolean) ||
-            'PlaceOS',
-        new Date(VERSION.time).toISOString(),
-        VERSION.hash,
-    );
-    const setup_promise = setup(config);
-    setup_promise.then(_markSetupDone, _markSetupDone);
+    const storage_kind = native ? 'local' : settings.storage || 'local';
+    const storage = storage_kind === 'session' ? sessionStorage : localStorage;
+    const { session } = startPlaceClient({
+        base_url,
+        mock,
+        // Identify the app and build on every API request
+        headers: {
+            'X-App-Name':
+                settings.app_name ||
+                location.pathname.split('/').find(Boolean) ||
+                'PlaceOS',
+            'X-App-Date': new Date(VERSION.time).toISOString(),
+            'X-App-Build': VERSION.hash,
+        },
+        auth: {
+            redirect_uri: native
+                ? await getNativeRedirectUri(settings.app_name, settings.domain)
+                : `${location.origin}${route}oauth-resp.html`,
+            scope: 'public',
+            grant,
+            handle_login: native ? false : !settings.local_login,
+            use_frame: !native,
+            environment: browserEnvironment(storage_kind),
+        },
+    });
+    if (session) {
+        // Before the pasted token: the session reads the trust flag on each
+        // token read and write.
+        if (options.trusted) {
+            storage.setItem(`${session.client_id}_trusted`, 'true');
+        }
+        usePastedToken(session);
+        useDeviceApiKey(session, storage, options.api_key);
+    }
+    const setup_promise: Promise<void> = session
+        ? session.start().then((result) => {
+              // Without strictNullChecks only `=== false` narrows a Result
+              if (result.ok !== false) return;
+              const { error } = result;
+              // Only the kind: a redirect error has the login URL, which
+              // can hold a token in its return URL.
+              log(
+                  'APP',
+                  `Login did not complete: ${error.kind}`,
+                  undefined,
+                  'warn',
+              );
+              if (
+                  error.kind === 'authority_unavailable' ||
+                  error.kind === 'authority_invalid'
+              ) {
+                  throw new Error(`PlaceOS authority failed: ${error.kind}`);
+              }
+          })
+        : Promise.resolve();
     if (timeout_ms <= 0) return setup_promise;
     return new Promise<void>((resolve, reject) => {
         const timer = setTimeout(
@@ -235,18 +374,4 @@ export async function setupPlace(
             },
         );
     });
-}
-
-/**
- * Store the `x-api-key` from the page query, then remove it from the URL, so
- * the key does not stay in the browser history. Call it when `setupPlace`
- * settles, also when it fails: ts-client stores the key under the client ID
- * that setup computes, and reads the key from the URL until then. Without a
- * client ID the key stays in the URL, so a reload can still sign in.
- */
-export function storeApiKeyFromUrl() {
-    const key = new URLSearchParams(location.search).get('x-api-key');
-    if (!key || !clientId()) return;
-    setAPI_Key(key);
-    removeUrlParam('x-api-key');
 }

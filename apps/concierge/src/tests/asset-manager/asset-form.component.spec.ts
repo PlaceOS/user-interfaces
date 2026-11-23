@@ -6,6 +6,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { AssetFormComponent } from '../../app/asset-manager/asset-form.component';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
@@ -36,11 +37,13 @@ describe('AssetFormComponent', () => {
     });
 
     beforeEach(() => {
-        (ts_client.addAsset as any).mockReset();
-        (ts_client.addAsset as any).mockResolvedValue({
-            id: 'a-1',
-            name: 'Chair 1',
-        });
+        (ts_client.assets.create as any).mockReset();
+        (ts_client.assets.create as any).mockResolvedValue(
+            mockReply({
+                id: 'a-1',
+                name: 'Chair 1',
+            }),
+        );
         spectator = createComponent();
         spectator.component.model.set({
             id: '',
@@ -59,12 +62,12 @@ describe('AssetFormComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 serial_number: 'SER-1',
                 zone_id: 'bld-1',
             }),
-        );
+        });
         expect(
             spectator.inject(AssetManagerStateService).setExtraAssets,
         ).toHaveBeenCalledWith([
@@ -82,6 +85,6 @@ describe('AssetFormComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.addAsset).not.toHaveBeenCalled();
+        expect(ts_client.assets.create).not.toHaveBeenCalled();
     });
 });

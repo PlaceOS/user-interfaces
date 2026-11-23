@@ -2,6 +2,8 @@ import { Injector, signal, WritableSignal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { form, required } from '@angular/forms/signals';
+import type { JsonValue } from '@placeos/ts-client';
+import { CallFailed } from '@placeos/ts-client/compat';
 import { addMinutes, differenceInMinutes } from 'date-fns';
 import {
     alignDateToBookableHours,
@@ -1632,6 +1634,36 @@ describe('General Methods', () => {
 
         it('should read other thrown values like errorMessage', async () => {
             expect(await responseErrorMessage('Desk taken')).toBe('Desk taken');
+        });
+
+        it('should read the body of a failed ts-client call', async () => {
+            const failed = (body: JsonValue | null, text: string | null) =>
+                new CallFailed({
+                    kind: 'http',
+                    status: 422,
+                    message: null,
+                    body,
+                    text,
+                });
+            expect(
+                await responseErrorMessage(
+                    failed({ error: 'Desk taken' }, null),
+                ),
+            ).toBe('Desk taken');
+            expect(
+                await responseErrorMessage(
+                    failed({ message: 'No access' }, null),
+                ),
+            ).toBe('No access');
+            expect(
+                await responseErrorMessage(failed(null, ' Not allowed\n')),
+            ).toBe('Not allowed');
+            expect(
+                await responseErrorMessage(
+                    failed(null, '\n<!DOCTYPE html><html>Bad gateway</html>'),
+                ),
+            ).toBe('422');
+            expect(await responseErrorMessage(failed(null, null))).toBe('422');
         });
     });
 

@@ -35,7 +35,7 @@ import {
     unique,
 } from '@placeos/common';
 import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
-import { PlaceAsset, showMetadata } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
 import {
     addDays,
     endOfDay,
@@ -45,6 +45,7 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
+import { jsonList, showMetadata } from '../metadata';
 import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import {
     activeReportBookings,
@@ -168,10 +169,7 @@ export class ReportsStateService extends AsyncHandler {
     private readonly _inventory_version = signal(0);
     public readonly inventory_version = this._inventory_version.asReadonly();
     /** In-flight inventory requests, shared by loads that run together */
-    private readonly _inventory_requests = new Map<
-        string,
-        Promise<PlaceAsset[]>
-    >();
+    private readonly _inventory_requests = new Map<string, Promise<Asset[]>>();
 
     /**
      * Values that select the report inventory. Equal values keep the same
@@ -287,8 +285,8 @@ export class ReportsStateService extends AsyncHandler {
 
     private _sharedInventory(
         key: string,
-        load: () => Promise<PlaceAsset[]>,
-    ): Promise<PlaceAsset[]> {
+        load: () => Promise<Asset[]>,
+    ): Promise<Asset[]> {
         let request = this._inventory_requests.get(key);
         if (!request) {
             request = load().finally(() =>
@@ -322,9 +320,9 @@ export class ReportsStateService extends AsyncHandler {
                             await Promise.all([
                                 this._sharedInventory(`banks:${id}`, () =>
                                     queryLockerBankAssetsForZones([id]),
-                                ).catch(() => [] as PlaceAsset[]),
+                                ).catch(() => [] as Asset[]),
                                 this.queryLockers(id).catch(
-                                    () => [] as PlaceAsset[],
+                                    () => [] as Asset[],
                                 ),
                             ]),
                         ] as const,
@@ -358,10 +356,8 @@ export class ReportsStateService extends AsyncHandler {
             const desks = await queryDeskAssets(zone_id).catch(() => []);
             return [zone_id, desks.length];
         }
-        const metadata = await showMetadata(zone_id, 'desks').catch(() => ({
-            details: [],
-        }));
-        return [zone_id, metadata.details.length];
+        const metadata = await showMetadata(zone_id, 'desks').catch(() => null);
+        return [zone_id, jsonList(metadata?.details).length];
     }
 
     /** Aggregated statistics for the active bookings and resource counts */

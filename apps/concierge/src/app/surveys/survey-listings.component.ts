@@ -10,7 +10,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { Survey } from '@placeos/ts-client';
+import { type Survey } from '@placeos/ts-client/staff';
 import { SurveyService } from './survey.service';
 
 @Component({

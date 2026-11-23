@@ -4,7 +4,8 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AssetCategory } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { removeAssetCategory } from '@placeos/ts-client';
+import { asset_categories } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 @Component({
     selector: 'asset-category-management-modal',
@@ -99,7 +100,7 @@ export class AssetCategoryManagementModalComponent {
     public readonly edit = this._data.edit;
 
     public readonly remove = async (category: AssetCategory) => {
-        await removeAssetCategory(category.id);
+        await asset_categories.destroy({ id: category.id }).then(orThrow);
         this.changed.emit();
     };
 }

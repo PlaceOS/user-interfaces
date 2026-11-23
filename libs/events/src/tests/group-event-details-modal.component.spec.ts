@@ -11,7 +11,14 @@ import {
     setCurrentUser,
     settingSignal,
 } from '@placeos/common';
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    events,
+    Guest,
+    PlaceCalendarEventAttendee,
+} from '@placeos/ts-client/staff';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -20,9 +27,19 @@ import { MockDirective, MockProvider } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
 import { GroupEventDetailsModalComponent } from '../lib/group-event-details-modal.component';
 
-// The real SpacePipe and events.fn wrappers run; only the ts-client API layer
-// beneath them is stubbed.
+// The real SpacePipe and events.fn wrappers run; only the ts-client API
+// layers beneath them are stubbed.
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+/** Staff API attendee for the current user */
+const me = () =>
+    mockReply(
+        mockData(PlaceCalendarEventAttendee, {
+            name: 'Me',
+            email: 'me@place.tech',
+        }),
+    );
 
 describe('GroupEventDetailsModalComponent', () => {
     let spectator: Spectator<GroupEventDetailsModalComponent>;
@@ -75,20 +92,24 @@ describe('GroupEventDetailsModalComponent', () => {
             name: 'Me',
         } as any);
         // Real SpacePipe resolves spaces through these ts-client lookups.
-        vi.mocked(ts_client.showSystem).mockResolvedValue({
-            id: 'space-1',
-            name: 'Space One',
-            zones: ['zone-1'],
-        } as any);
-        vi.mocked(ts_client.querySystemsWithEmails).mockResolvedValue({
-            data: [
-                {
-                    id: 'space-1',
-                    email: 'calendar@place.tech',
-                    zones: ['zone-1'],
-                },
-            ],
-        } as any);
+        vi.mocked(ts_client.systems.show).mockResolvedValue(
+            mockReply({
+                id: 'space-1',
+                name: 'Space One',
+                zones: ['zone-1'],
+            } as any),
+        );
+        vi.mocked(ts_client.systems.findByEmail).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'space-1',
+                        email: 'calendar@place.tech',
+                        zones: ['zone-1'],
+                    },
+                ],
+            } as any),
+        );
         spectator = createComponent();
     });
 
@@ -175,24 +196,20 @@ describe('GroupEventDetailsModalComponent', () => {
     });
 
     it('should register interest for the current user', async () => {
-        // addEventGuest runs for real; its POST returns the added guest.
-        vi.mocked(ts_client.post).mockResolvedValue({
-            email: 'me@place.tech',
-        } as any);
+        vi.mocked(events.addAttendee).mockResolvedValue(me());
         expect(spectator.component.is_interested()).toBe(false);
         await spectator.component.toggleInterest();
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/attendee'),
-            expect.anything(),
+        expect(events.addAttendee).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: event.id,
+                body: expect.objectContaining({ email: 'me@place.tech' }),
+            }),
         );
         expect(spectator.component.is_interested()).toBe(true);
     });
 
     it('should remove interest when already interested', async () => {
-        // removeEventGuest runs for real; its DELETE resolves the removed guest.
-        vi.mocked(ts_client.del).mockResolvedValue({
-            email: 'me@place.tech',
-        } as any);
+        vi.mocked(events.deleteAttendee).mockResolvedValue(mockReply(''));
         spectator.component.event.set(
             new CalendarEvent({
                 ...event,
@@ -201,24 +218,24 @@ describe('GroupEventDetailsModalComponent', () => {
         );
         expect(spectator.component.is_interested()).toBe(true);
         await spectator.component.toggleInterest();
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/attendee/'),
+        expect(events.deleteAttendee).toHaveBeenCalledWith(
+            expect.objectContaining({ id: event.id, email: 'me@place.tech' }),
         );
         expect(spectator.component.is_interested()).toBe(false);
     });
 
     it('should check in the current user when toggling attendance', async () => {
-        // addEventGuest + checkinEventGuest both run for real; the POST beneath
-        // them returns the current user as the guest.
-        vi.mocked(ts_client.post).mockResolvedValue({
-            email: 'me@place.tech',
-        } as any);
+        vi.mocked(events.addAttendee).mockResolvedValue(me());
+        vi.mocked(events.guestCheckin).mockResolvedValue(
+            mockReply(mockData(Guest, { email: 'me@place.tech' })),
+        );
         await spectator.component.toggleAttendance();
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringMatching(
-                /\/guests\/me@place\.tech\/checkin\?.*state=true/,
-            ),
-            '',
+        expect(events.guestCheckin).toHaveBeenCalledWith(
+            expect.objectContaining({
+                id: event.id,
+                guest_id: 'me@place.tech',
+                state: true,
+            }),
         );
         expect(spectator.component.is_going()).toBe(true);
     });

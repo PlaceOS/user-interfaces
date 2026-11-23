@@ -20,6 +20,7 @@ import {
     BookingClash,
     BookingRuleset,
     BookingType,
+    cleanObject,
     currentUser,
     currentUserCanApprove,
     currentUserIsLoaded,
@@ -31,10 +32,12 @@ import {
     GuestUser,
     i18n,
     isEmptyUser,
+    isMock,
     isWithinBookableHours,
     notifyError,
     notifyWarn,
     OrganisationService,
+    responseErrorMessage,
     rulesForResource,
     SETTING_KEYS,
     settingSignal,
@@ -43,13 +46,8 @@ import {
     User,
     user_group_names,
 } from '@placeos/common';
-import {
-    cleanObject,
-    isMock,
-    PlaceZone,
-    showMetadata,
-    showUser,
-} from '@placeos/ts-client';
+import { metadata, users, type Zone } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addDays, addMinutes, endOfDay, format, getUnixTime } from 'date-fns';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
 import { CalendarService } from 'libs/events/src/lib/calendar.service';
@@ -542,15 +540,23 @@ export class BookingFormService extends AsyncHandler {
                 : undefined,
         loader: ({ params }) => {
             const { ids, type } = params;
+            const name = `${type}_booking_rules`;
             return Promise.all(
-                ids.map((id) => showMetadata(id, `${type}_booking_rules`)),
+                ids.map((id) =>
+                    metadata
+                        .show({ id, name })
+                        .then(orThrow)
+                        .then((data) => data[name]?.details),
+                ),
             )
                 .then((building_rules) => {
                     const mapping: Record<string, BookingRuleset[]> = {};
-                    for (const rules of building_rules) {
-                        mapping[rules.id] =
-                            rules.details instanceof Array ? rules.details : [];
-                    }
+                    building_rules.forEach((details, index) => {
+                        // The rules are app data in free form JSON
+                        mapping[ids[index]] = Array.isArray(details)
+                            ? ([...details] as BookingRuleset[])
+                            : [];
+                    });
                     return mapping;
                 })
                 .catch(() => ({}) as Record<string, BookingRuleset[]>);
@@ -1691,16 +1697,12 @@ export class BookingFormService extends AsyncHandler {
      * permission failure also reverts the saved host change. */
     private async _saveFailure(e: any): Promise<never> {
         this._loading.set('');
-        let error = e?.error || e;
-        if (error instanceof Response) {
-            error = await error
-                .clone()
-                .json()
-                .catch(() => null);
-        }
+        // A failed call throws `CallFailed`. The server can explain the
+        // failure in the `error` or the `message` field of the response body.
+        const error = e?.error || e;
         const failure = e?.status
             ? {
-                  message: this._error_message(error),
+                  message: this._error_message(await responseErrorMessage(e)),
                   status: e.status,
               }
             : error;
@@ -2267,7 +2269,7 @@ export class BookingFormService extends AsyncHandler {
     }
 
     /** Org, region, building and level zones of a resource on `zone`. */
-    private _assetZones(zone?: PlaceZone) {
+    private _assetZones(zone?: Zone) {
         return (
             zone
                 ? unique([
@@ -2616,7 +2618,10 @@ export class BookingFormService extends AsyncHandler {
         ) {
             return current_user;
         }
-        return showUser(host).catch(() => ({ email: host }));
+        return users
+            .show({ id: host })
+            .then(orThrow)
+            .catch(() => ({ email: host }));
     }
 
     /**

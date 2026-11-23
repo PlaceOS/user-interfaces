@@ -1,65 +1,61 @@
-import {
-    create,
-    PlaceSystem,
-    type PlaceSystemsQueryOptions,
-    query,
-    show,
-    update,
-} from '@placeos/ts-client';
+import { type System, type SystemInput, systems } from '@placeos/ts-client';
+import { orThrow, orThrowPage, type Page } from '@placeos/ts-client/compat';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
-
-const SYSTEMS_PATH = 'systems';
+import { signageSystem } from '../signage-models';
 
 /**
- * Build a display from raw API data, with its names decoded.
- *
- * `PlaceSystem` sets a missing `signage_last_seen` to the current time, which
- * shows a display that never checked in as online. Keep the raw value instead,
- * 0 when the player has never checked in.
+ * Build a display from API data, with its names decoded. A display that
+ * never checked in has a `signage_last_seen` of 0.
  */
-export function signageDisplay(raw: Partial<PlaceSystem>): PlaceSystem {
-    const display = Object.assign(new PlaceSystem(raw), {
-        signage_last_seen: raw.signage_last_seen || 0,
-    });
-    return decodeEntityNames(display);
+export function signageDisplay(raw: Partial<System>): System {
+    return decodeEntityNames(
+        signageSystem({
+            ...raw,
+            signage_last_seen: raw.signage_last_seen || 0,
+        }),
+    );
 }
 
-/** Query systems as displays. Use instead of `querySystems` */
-export function querySignageDisplays(query_params: PlaceSystemsQueryOptions) {
-    return query({ query_params, fn: signageDisplay, path: SYSTEMS_PATH });
+/** The page with its systems as displays. `next` gives display pages too. */
+function displayPage(page: Page<readonly System[]>): Page<readonly System[]> {
+    return {
+        ...page,
+        data: page.data.map(signageDisplay),
+        next: page.next ? () => page.next()?.then(displayPage) ?? null : null,
+    };
 }
 
-/** Load one system as a display. Use instead of `showSystem` */
-export function showSignageDisplay(id: string) {
-    return show({
-        id,
-        query_params: {},
-        fn: signageDisplay,
-        path: SYSTEMS_PATH,
-    });
-}
-
-/** Patch a system and return it as a display. Use instead of `updateSystem` */
-export function updateSignageDisplay(
-    id: string,
-    form_data: Partial<PlaceSystem>,
+/** Query systems as displays. Use instead of `systems.query` */
+export function querySignageDisplays(
+    query_params: Parameters<typeof systems.query>[0],
 ) {
-    return update({
-        id,
-        form_data,
-        query_params: {},
-        method: 'patch',
-        fn: signageDisplay,
-        path: SYSTEMS_PATH,
-    });
+    return systems.query(query_params).then(orThrowPage).then(displayPage);
 }
 
-/** Create a system and return it as a display. Use instead of `addSystem` */
-export function addSignageDisplay(form_data: Partial<PlaceSystem>) {
-    return create({
-        form_data,
-        query_params: {},
-        fn: signageDisplay,
-        path: SYSTEMS_PATH,
-    });
+/** Load one system as a display. Use instead of `systems.show` */
+export function showSignageDisplay(id: string) {
+    return systems.show({ sys_id: id }).then(orThrow).then(signageDisplay);
+}
+
+/**
+ * Patch a system and return it as a display. Use instead of
+ * `systems.update`. The server checks `version` against the saved system.
+ */
+export function updateSignageDisplay(id: string, form_data: SystemInput) {
+    return systems
+        .update({
+            sys_id: id,
+            version: form_data.version || 0,
+            body: form_data,
+        })
+        .then(orThrow)
+        .then(signageDisplay);
+}
+
+/** Create a system and return it as a display. Use instead of `systems.create` */
+export function addSignageDisplay(form_data: SystemInput) {
+    return systems
+        .create({ body: form_data })
+        .then(orThrow)
+        .then(signageDisplay);
 }

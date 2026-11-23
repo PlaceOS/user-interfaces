@@ -6,7 +6,8 @@ import {
     i18n,
     notifySuccess,
 } from '@placeos/common';
-import { PlaceZone, removeZone } from '@placeos/ts-client';
+import { type Zone, zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { RegionModalComponent } from './region-modal.component';
 
 export interface RegionListOptions {
@@ -50,7 +51,7 @@ export class RegionManagementService {
         this._options.update((current) => ({ ...current, search }));
     }
 
-    public editRegion(region: PlaceZone = new PlaceZone()) {
+    public editRegion(region: Partial<Zone> = {}) {
         const ref = this._dialog.open(RegionModalComponent, {
             data: region,
         });
@@ -72,7 +73,7 @@ export class RegionManagementService {
             },
             {
                 loading: i18n('APP.CONCIERGE.REGIONS_REMOVE_LOADING'),
-                action: () => removeZone(region.id),
+                action: () => zones.destroy({ id: region.id }).then(orThrow),
                 error: (e) =>
                     i18n('APP.CONCIERGE.REGIONS_REMOVE_ERROR', {
                         error: errorText(e),

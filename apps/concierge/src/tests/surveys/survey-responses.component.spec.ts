@@ -8,11 +8,16 @@ import { of } from 'rxjs';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
 import { SurveyResponsesComponent } from '../../app/surveys/survey-responses.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import { TestBed } from '@angular/core/testing';
-import * as ts_client from '@placeos/ts-client';
-import { Survey, SurveyAnswer } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import {
+    Survey,
+    SurveyAnswer,
+    surveys_answers,
+} from '@placeos/ts-client/staff';
 import { captureDownloads } from '../reports/download-capture.helper';
 
 describe('SurveyResponsesComponent', () => {
@@ -60,7 +65,7 @@ describe('SurveyResponsesComponent', () => {
 
     it('should group responses by survey page in question order', () => {
         survey.set(
-            new Survey({
+            mockData(Survey, {
                 id: 1,
                 pages: [{ title: 'Page One', question_order: [1, 2] }],
             }),
@@ -81,21 +86,23 @@ describe('SurveyResponsesComponent', () => {
     it('should download the answers with their questions as a CSV file', async () => {
         const downloads = captureDownloads();
         try {
-            vi.mocked(ts_client.queryAnswers).mockResolvedValueOnce([
-                new SurveyAnswer({
-                    id: 7,
-                    question_id: 1,
-                    type: 'text',
-                    answer_json: 'Great, thanks' as any,
-                }),
-                new SurveyAnswer({
-                    id: 8,
-                    question_id: 1,
-                    type: '+cmd',
-                    answer_json: '=HYPERLINK("x")' as any,
-                }),
-            ]);
-            survey.set(new Survey({ id: 3, pages: [] }));
+            vi.mocked(surveys_answers.query).mockResolvedValueOnce(
+                mockReply([
+                    mockData(SurveyAnswer, {
+                        id: 7,
+                        question_id: 1,
+                        type: 'text',
+                        answer_json: 'Great, thanks',
+                    }),
+                    mockData(SurveyAnswer, {
+                        id: 8,
+                        question_id: 1,
+                        type: '+cmd',
+                        answer_json: '=HYPERLINK("x")',
+                    }),
+                ]),
+            );
+            survey.set(mockData(Survey, { id: 3, pages: [] }));
             survey_questions.set([{ id: 1, title: 'How was it?' }]);
             await vi.waitFor(() => {
                 TestBed.tick();

@@ -35,7 +35,7 @@ describe('RemoteDebugPanelComponent', () => {
         call = vi.fn(async () => 'id-1');
         const mod = {
             variable: (name: string) => ({
-                bindThenSubscribe: (next: (value: unknown) => void) => {
+                subscribe: (next: (value: unknown) => void) => {
                     listeners[name] = next;
                     return () => delete listeners[name];
                 },

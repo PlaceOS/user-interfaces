@@ -2,12 +2,12 @@ import { DatePipe } from '@angular/common';
 import { LOCALE_ID } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SignagePlaylist } from '@placeos/ts-client';
 import { ScheduleTimelineComponent } from '../../app/schedules/schedule-timeline.component';
 import {
     ScheduleTimelineRow,
     TimelineBlock,
 } from '../../app/schedules/signage-schedule.util';
+import { signagePlaylist } from '../../app/signage-models';
 
 function block(overrides: Partial<TimelineBlock> = {}): TimelineBlock {
     return {
@@ -67,11 +67,11 @@ describe('ScheduleTimelineComponent', () => {
                     block({ lane: 0 }),
                     block({
                         lane: 1,
-                        playlist: new SignagePlaylist({ id: 'b' }),
+                        playlist: signagePlaylist({ id: 'b' }),
                     }),
                     block({
                         lane: 2,
-                        playlist: new SignagePlaylist({ id: 'c' }),
+                        playlist: signagePlaylist({ id: 'c' }),
                     }),
                 ],
             }),
@@ -190,7 +190,7 @@ describe('ScheduleTimelineComponent', () => {
                     block(),
                     block({
                         takeover: true,
-                        playlist: new SignagePlaylist({ id: 'b' }),
+                        playlist: signagePlaylist({ id: 'b' }),
                     }),
                 ],
             }),
@@ -275,7 +275,7 @@ describe('ScheduleTimelineComponent', () => {
             row({
                 blocks: [
                     block({
-                        playlist: new SignagePlaylist({
+                        playlist: signagePlaylist({
                             id: 'off',
                             name: 'Off',
                             enabled: false,

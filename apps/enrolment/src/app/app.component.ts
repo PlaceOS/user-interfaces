@@ -7,6 +7,7 @@ import {
     currentUser,
     failInitialisation,
     firstTruthyValueFrom,
+    HashMap,
     initialisationFailure,
     initSentryFromSettings,
     lazySnackbar,
@@ -18,6 +19,7 @@ import {
     SettingsService,
     setupCache,
     setupPlace,
+    token,
 } from '@placeos/common';
 import { setInternalUserDomain } from '@placeos/users';
 
@@ -27,7 +29,11 @@ import {
     ServiceWorkerUpdateCardComponent,
 } from '@placeos/components';
 
-import { PlaceAuthority, token } from '@placeos/ts-client';
+/** The part of `/auth/authority` that the app reads before sign in */
+interface EnrolmentAuthority {
+    config?: { enrolment?: HashMap };
+}
+
 @Component({
     selector: 'app-root',
     imports: [
@@ -104,7 +110,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         setupCache(this._cache);
         const mock = mockModeRequested();
         // Mock mode has no server, so it has no enrolment overrides
-        let authority: Partial<PlaceAuthority> = {};
+        let authority: EnrolmentAuthority = {};
         if (mock) {
             await import('@placeos/mocks').then(({ mocksInit }) => mocksInit());
         } else {

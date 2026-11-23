@@ -21,12 +21,9 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    mediaThumbnail,
-    SignageMedia,
-    SignageTemplate,
-} from '@placeos/ts-client';
+import { type PlaylistItem, type SignageTemplate } from '@placeos/ts-client';
 import { firstValueFrom } from 'rxjs';
+import { mediaThumbnailUrl } from '../signage-url.util';
 import {
     MediaSelectModalComponent,
     MediaSelectModalData,
@@ -245,10 +242,10 @@ export class TemplateEditModalComponent {
         full_screen_takeover: !!this.template.full_screen_takeover,
         merge: !!this.template.merge,
     });
-    public readonly selected_background = signal<SignageMedia | null>(null);
+    public readonly selected_background = signal<PlaylistItem | null>(null);
     public readonly background_url = computed(() => {
         const media_id = this.model().background_item_id;
-        return media_id ? mediaThumbnail(media_id) : '';
+        return media_id ? mediaThumbnailUrl(media_id) : '';
     });
     public readonly form = form(this.model, (path) => {
         required(path.name);
@@ -262,7 +259,7 @@ export class TemplateEditModalComponent {
         const ref = this._dialog.open<
             MediaSelectModalComponent,
             MediaSelectModalData,
-            SignageMedia
+            PlaylistItem
         >(MediaSelectModalComponent, {
             data: { selected_id: this.model().background_item_id },
             panelClass: 'mobile-fullscreen',

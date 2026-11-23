@@ -1,6 +1,6 @@
 vi.mock('@placeos/ts-client', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { FakeSession, startFakePlaceClient } from '../tests/fake-session';
 
 import {
     answerTokenRequests,
@@ -35,8 +35,14 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 describe('answerTokenRequests', () => {
     const studio_origin = 'http://localhost:4201';
     let stop: () => void;
+    let place: FakeSession;
+    const useToken = (token: string) =>
+        place.setCredential({ kind: 'bearer', token });
 
-    beforeEach(() => vi.clearAllMocks());
+    beforeEach(() => {
+        vi.clearAllMocks();
+        place = startFakePlaceClient();
+    });
 
     afterEach(() => {
         stop?.();
@@ -46,7 +52,7 @@ describe('answerTokenRequests', () => {
 
     it('answers a token request from a window it opened', async () => {
         const token = jwt(Math.floor(Date.now() / 1000) + 3600);
-        vi.mocked(ts_client.authorise).mockResolvedValue(token);
+        useToken(token);
         const studio = otherWindow();
         const post = vi
             .spyOn(studio, 'postMessage')
@@ -65,9 +71,7 @@ describe('answerTokenRequests', () => {
     });
 
     it('ignores windows it did not open and other origins', async () => {
-        vi.mocked(ts_client.authorise).mockResolvedValue(
-            jwt(Math.floor(Date.now() / 1000) + 3600),
-        );
+        useToken(jwt(Math.floor(Date.now() / 1000) + 3600));
         const studio = otherWindow();
         const stranger = otherWindow(false);
         const post = vi
@@ -78,17 +82,16 @@ describe('answerTokenRequests', () => {
         message(studio, 'http://evil.test', { type: 'placeos:token-request' });
         await flush();
         expect(post).not.toHaveBeenCalled();
-        expect(ts_client.authorise).not.toHaveBeenCalled();
+        expect(place.session.authorize).not.toHaveBeenCalled();
     });
 
     it('refreshes a token inside the expiry margin before handing it over', async () => {
         const stale = jwt(Math.floor(Date.now() / 1000) + 60);
         const fresh = jwt(Math.floor(Date.now() / 1000) + 7200);
-        vi.mocked(ts_client.authorise)
-            .mockResolvedValueOnce(stale)
-            .mockResolvedValueOnce(fresh);
-        vi.mocked(ts_client.invalidateToken).mockImplementation(
-            () => undefined,
+        useToken(stale);
+        // The session gets a new token after the old one is removed
+        vi.mocked(place.session.invalidateToken).mockImplementation(() =>
+            useToken(fresh),
         );
         const studio = otherWindow();
         const post = vi
@@ -97,7 +100,7 @@ describe('answerTokenRequests', () => {
         stop = answerTokenRequests(() => studio_origin);
         message(studio, studio_origin, { type: 'placeos:token-request' });
         await flush();
-        expect(ts_client.invalidateToken).toHaveBeenCalledTimes(1);
+        expect(place.session.invalidateToken).toHaveBeenCalledTimes(1);
         expect(post).toHaveBeenCalledWith(
             expect.objectContaining({ token: fresh }),
             studio_origin,

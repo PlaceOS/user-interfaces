@@ -5,21 +5,18 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { CateringItem, OrganisationService } from '@placeos/common';
-import {
-    get,
-    patch,
-    queryAssetCategories,
-    queryAssets,
-    queryAssetTypes,
-    setToken,
-} from '@placeos/ts-client';
+import { asset_categories, asset_types, assets } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 
+import { type StubApi, startStubApi } from '@placeos/common/tests';
 import { CheckinPreferencesComponent } from '../../app/checkin/checkin-preferences.component';
 import { CheckinStateService } from '../../app/checkin/checkin-state.service';
 
-// Workspace modules cannot be intercepted, so stub the API client they call
+// Stub the guest catering calls and the asset operations of the menu
 vi.mock('@placeos/ts-client', { spy: true });
+
+const CATERING_PATH = '/api/staff/v1/guests/:email/catering';
 
 /** Unsigned JWT with the visitor details of a check-in link */
 function visitorJwt() {
@@ -29,20 +26,28 @@ function visitorJwt() {
 
 /** Catering menu of a building, stored as assets of a hidden category */
 function mockMenu(items: { id: string; tags: string[] }[]) {
-    vi.mocked(queryAssetCategories).mockResolvedValue({
-        data: [{ id: 'cat-1', name: '_CATERING_', hidden: true }],
-    } as never);
-    vi.mocked(queryAssetTypes).mockResolvedValue({
-        data: [{ id: 'type-1', name: 'CATERING:Cafe', category_id: 'cat-1' }],
-    } as never);
-    vi.mocked(queryAssets).mockResolvedValue({
-        data: items.map(({ id, tags }) => ({
-            id,
-            name: id,
-            asset_type_id: 'type-1',
-            other_data: { tags },
-        })),
-    } as never);
+    vi.mocked(asset_categories.query).mockResolvedValue(
+        mockPage({
+            data: [{ id: 'cat-1', name: '_CATERING_', hidden: true }],
+        } as never),
+    );
+    vi.mocked(asset_types.query).mockResolvedValue(
+        mockPage({
+            data: [
+                { id: 'type-1', name: 'CATERING:Cafe', category_id: 'cat-1' },
+            ],
+        } as never),
+    );
+    vi.mocked(assets.query).mockResolvedValue(
+        mockPage({
+            data: items.map(({ id, tags }) => ({
+                id,
+                name: id,
+                asset_type_id: 'type-1',
+                other_data: { tags },
+            })),
+        } as never),
+    );
 }
 
 describe('CheckinPreferencesComponent', () => {
@@ -66,10 +71,26 @@ describe('CheckinPreferencesComponent', () => {
         ],
     });
 
+    let api: StubApi;
+    /** Gives the saved beverage of the visitor */
+    const catering_get = vi.fn<() => unknown>();
+    /** Saves the beverage of the visitor */
+    const catering_set = vi.fn<(body: unknown) => unknown>();
+
+    beforeEach(() => {
+        catering_get.mockReset().mockReturnValue(null);
+        catering_set.mockReset().mockReturnValue(null);
+        api = startStubApi();
+        api.on('GET', CATERING_PATH, catering_get);
+        api.on('PATCH', CATERING_PATH, (request) => catering_set(request.body));
+    });
+
+    afterEach(() => vi.unstubAllGlobals());
+
     it('should keep the form locked until the saved beverage loads', async () => {
         let load_saved: (value: unknown) => void = () => undefined;
-        vi.mocked(get).mockReturnValue(
-            new Promise((resolve) => (load_saved = resolve)) as any,
+        catering_get.mockReturnValue(
+            new Promise((resolve) => (load_saved = resolve)),
         );
         spectator = createComponent();
         spectator.detectChanges();
@@ -84,9 +105,6 @@ describe('CheckinPreferencesComponent', () => {
     describe('with the saved beverage loaded', () => {
         beforeEach(() => {
             vi.clearAllMocks();
-            vi.mocked(get).mockResolvedValue(null);
-            vi.mocked(patch).mockResolvedValue(null);
-            vi.mocked(setToken).mockImplementation(() => undefined);
             // The link's building loads a menu, and the catering types stay
             // cached for this file. Give every test the same category and type.
             mockMenu([{ id: 'tea', tags: ['Drink'] }]);
@@ -101,12 +119,14 @@ describe('CheckinPreferencesComponent', () => {
 
             await spectator.component.update();
 
-            expect(patch).toHaveBeenCalledWith(
-                expect.stringContaining(
-                    'v%40b.com/catering?booking_id=event-1',
-                ),
+            expect(catering_set).toHaveBeenCalledWith(
                 expect.objectContaining({ id: 'tea', quantity: 1 }),
             );
+            const save = api.requests.find((r) => r.method === 'PATCH');
+            expect(save?.url.pathname).toBe(
+                '/api/staff/v1/guests/v%40b.com/catering',
+            );
+            expect(save?.url.searchParams.get('booking_id')).toBe('event-1');
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/welcome',
             ]);
@@ -117,7 +137,7 @@ describe('CheckinPreferencesComponent', () => {
 
             await spectator.component.update();
 
-            expect(patch).not.toHaveBeenCalled();
+            expect(catering_set).not.toHaveBeenCalled();
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/welcome',
             ]);
@@ -133,7 +153,10 @@ describe('CheckinPreferencesComponent', () => {
                     spectator.inject(CheckinStateService).loadGuestAndEvent,
                 ).toHaveBeenCalledWith('v@b.com', 'event-1'),
             );
-            expect(setToken).toHaveBeenCalledWith(jwt);
+            expect(api.fake.session.useToken).toHaveBeenCalledWith(
+                jwt,
+                undefined,
+            );
         });
 
         it('offers only the drinks on the menu of the kiosk building', async () => {
@@ -152,7 +175,7 @@ describe('CheckinPreferencesComponent', () => {
                     'tea',
                 ]),
             );
-            expect(queryAssets).toHaveBeenCalledWith(
+            expect(assets.query).toHaveBeenCalledWith(
                 expect.objectContaining({ zone_id: 'bld-1' }),
             );
             expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
@@ -170,15 +193,12 @@ describe('CheckinPreferencesComponent', () => {
                 ]),
             );
             // The menu loaded, but had nothing to drink
-            expect(queryAssets).toHaveBeenCalled();
+            expect(assets.query).toHaveBeenCalled();
             expect(spectator.component.menu()).toEqual([]);
         });
 
         it('selects the beverage the visitor saved before', async () => {
-            vi.mocked(get).mockResolvedValue({
-                id: 'coffee',
-                name: 'Coffee',
-            } as never);
+            catering_get.mockReturnValue({ id: 'coffee', name: 'Coffee' });
             spectator = createComponent();
             spectator.detectChanges();
 

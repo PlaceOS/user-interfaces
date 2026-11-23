@@ -15,12 +15,21 @@ import {
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as ts_client_mod from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    PlaceCalendarEvent,
+    bookings as staff_bookings,
+    events as staff_events,
+    Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 import { UserReportService } from 'apps/concierge/src/app/reports/user/user-report.service';
 
 import { captureDownloads } from '../download-capture.helper';
 
-vi.mock('@placeos/ts-client', { spy: true });
+import { mockData } from '@placeos/common/tests';
+import { serverData } from '../../mock-http';
+
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 const start = new Date('2026-04-06T00:00:00').valueOf();
 const end = new Date('2026-04-07T23:59:59').valueOf();
@@ -34,9 +43,38 @@ const room = {
 };
 const room_attendee = { email: room.email, name: room.name, resource: true };
 
+/**
+ * The staff API booking of an app booking. The API has no `asset_name`, so
+ * the app reads it from `extension_data`.
+ */
+const toStaffBooking = (booking: Booking, id: number) =>
+    mockData(StaffBooking, {
+        id,
+        booking_type: booking.booking_type,
+        asset_id: booking.asset_id,
+        booking_start: booking.booking_start,
+        booking_end: booking.booking_end,
+        zones: [...booking.zones],
+        checked_in: booking.checked_in,
+        approved: booking.approved,
+        deleted: booking.deleted,
+        extension_data: { asset_name: booking.asset_name },
+    });
+
+/** The staff API event of an app event in `room` */
+const toStaffEvent = (event: CalendarEvent) =>
+    serverData(PlaceCalendarEvent, {
+        host: event.host,
+        event_start: event.event_start,
+        event_end: event.event_end,
+        attendees: [room_attendee],
+        system: room,
+        extension_data: event.extension_data,
+    });
+
 describe('UserReportService', () => {
     let spectator: SpectatorService<UserReportService>;
-    let bookings: Partial<Booking>[];
+    let bookings: Booking[];
     let events: CalendarEvent[];
     let downloads: ReturnType<typeof captureDownloads>;
     let use_region: boolean;
@@ -60,10 +98,12 @@ describe('UserReportService', () => {
         await TestBed.inject(ApplicationRef).whenStable();
     }
 
-    function queries() {
-        return vi
-            .mocked(ts_client_mod.query)
-            .mock.calls.map(([request]) => request.query_params);
+    /** The input of each booking and event list request */
+    function queries(): Record<string, unknown>[] {
+        return [
+            ...vi.mocked(staff_bookings.query).mock.calls,
+            ...vi.mocked(staff_events.query).mock.calls,
+        ].map(([input]) => ({ ...input }));
     }
 
     beforeEach(() => {
@@ -76,15 +116,18 @@ describe('UserReportService', () => {
         bookings = [];
         events = [];
         downloads = captureDownloads();
-        // queryAllBookings (query_params.type) / queryAllEvents (no type),
-        // both routed through the ts-client `query` seam one layer down.
-        vi.mocked(ts_client_mod.query).mockImplementation((req: any) => {
-            const { type } = req?.query_params || {};
-            const data = type
-                ? bookings.filter((_) => _.booking_type === type)
-                : events;
-            return Promise.resolve({ data, next: undefined }) as any;
-        });
+        // queryAllBookings -> bookings.query, queryAllEvents -> events.query.
+        // The data goes through the schema, as data from the server does.
+        vi.mocked(staff_bookings.query).mockImplementation(async (input) =>
+            mockPage({
+                data: bookings
+                    .filter((_) => _.booking_type === input?.type)
+                    .map((_, index) => toStaffBooking(_, index + 1)),
+            }),
+        );
+        vi.mocked(staff_events.query).mockImplementation(async () =>
+            mockReply(events.map(toStaffEvent)),
+        );
         spectator = createService({
             providers: [
                 MockProvider(OrganisationService, {
@@ -105,7 +148,8 @@ describe('UserReportService', () => {
     it('should not request bookings before a user is selected', async () => {
         spectator.service.setOptions({ start, end });
         await settle();
-        expect(ts_client_mod.query).not.toHaveBeenCalled();
+        expect(staff_bookings.query).not.toHaveBeenCalled();
+        expect(staff_events.query).not.toHaveBeenCalled();
         expect(spectator.service.rows()).toEqual([]);
     });
 
@@ -148,7 +192,8 @@ describe('UserReportService', () => {
         await settle();
         active_building.set({ id: 'bld-2' });
         await settle();
-        expect(queries().at(-1).zones).toBe('bld-2');
+        const booking_queries = queries().filter((_) => _.type);
+        expect(booking_queries.at(-1).zones).toBe('bld-2');
     });
 
     it('should list bookings and hosted room events by date', async () => {

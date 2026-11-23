@@ -1,7 +1,8 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { SignageTemplate } from '@placeos/ts-client';
+import { type SignageTemplate as SignageTemplateV7 } from '@placeos/ts-client';
+import { signageTemplate } from '../../app/signage-models';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { TemplateListComponent } from '../../app/templates/template-list.component';
 
@@ -9,8 +10,8 @@ describe('TemplateListComponent', () => {
     const load_more = vi.fn();
     const template_stub = {
         template_search_term: signal(''),
-        templates: signal<SignageTemplate[]>([]),
-        selected_template: signal<SignageTemplate | null>(null),
+        templates: signal<SignageTemplateV7[]>([]),
+        selected_template: signal<SignageTemplateV7 | null>(null),
         templates_has_more: signal(false),
         templates_loading: signal(false),
         templates_error: signal(false),
@@ -61,7 +62,7 @@ describe('TemplateListComponent', () => {
 
         expect(
             component.getStatus(
-                new SignageTemplate({ id: 'template-1', approved: false }),
+                signageTemplate({ id: 'template-1', approved: false }),
             ),
         ).toBe('awaiting_approval');
     });
@@ -71,7 +72,7 @@ describe('TemplateListComponent', () => {
 
         expect(
             component.getStatus(
-                new SignageTemplate({
+                signageTemplate({
                     id: 'template-1',
                     approved: false,
                     approval_requested: true,
@@ -85,14 +86,14 @@ describe('TemplateListComponent', () => {
 
         expect(
             component.getStatus(
-                new SignageTemplate({ id: 'template-1', approved: true }),
+                signageTemplate({ id: 'template-1', approved: true }),
             ),
         ).toBeNull();
     });
 
     it('lists the groups a template is shared with', async () => {
         const component = await make();
-        const template = new SignageTemplate({
+        const template = signageTemplate({
             id: 'template-1',
             shared_with: [
                 { id: 'group-1', name: 'Facilities' },

@@ -33,6 +33,7 @@ import {
 } from '@placeos/form-fields';
 import { showStaff } from '@placeos/users';
 import { addMonths, getUnixTime } from 'date-fns';
+import { jsonRecord } from '../metadata';
 import { ParkingSpace } from './parking-state.service';
 
 type LevelOption = Pick<BuildingLevel, 'id' | 'name' | 'display_name'>;
@@ -296,7 +297,10 @@ export class ParkingSpaceModalComponent implements OnInit {
                 ...m,
                 id: data.id ?? m.id,
                 identifier: data.identifier ?? m.identifier,
-                map_id: data.map_id || data.other_data?.map_id || m.map_id,
+                map_id:
+                    data.map_id ||
+                    jsonRecord<{ map_id: string }>(data.other_data).map_id ||
+                    m.map_id,
                 assigned_to: data.assigned_to ?? m.assigned_to,
                 assigned_name: data.assigned_name ?? m.assigned_name,
                 bookable: data.bookable ?? m.bookable,

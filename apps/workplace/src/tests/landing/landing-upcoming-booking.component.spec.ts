@@ -15,9 +15,10 @@ import {
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { MockProvider } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { LandingUpcomingBookingComponent } from '../../app/landing-new/landing-upcoming-booking.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
@@ -81,7 +82,7 @@ describe('LandingUpcomingBookingComponent', () => {
         );
         upcoming_events.set([
             new Booking({
-                id: 'booking-1',
+                id: '502',
                 booking_type: 'desk',
                 type: 'desk',
                 asset_id: 'desk-1',
@@ -96,18 +97,27 @@ describe('LandingUpcomingBookingComponent', () => {
     });
 
     describe('checkIn', () => {
-        const checkInUrl = () =>
-            vi.mocked(ts_client.post).mock.calls[0]?.[0] as string;
+        /** Inputs of the check ins of bookings and of occurrences */
+        const checkIns = () =>
+            [
+                ...vi.mocked(staff_bookings.checkIn).mock.calls,
+                ...vi.mocked(staff_bookings.checkInInstance).mock.calls,
+            ].map(([input]) => input);
 
         beforeEach(() => {
-            vi.mocked(ts_client.post).mockResolvedValue({} as any);
+            vi.mocked(staff_bookings.checkIn).mockImplementation(
+                fromV1Mock(() => ({ id: 502 }), ['...']),
+            );
+            vi.mocked(staff_bookings.checkInInstance).mockImplementation(
+                fromV1Mock(() => ({ id: 501 }), ['...']),
+            );
         });
 
         it('should check in only the occurrence for the first day of a recurring booking', async () => {
             // The first day is the series master: it has no `instance`
             upcoming_events.set([
                 new Booking({
-                    id: 'series-1',
+                    id: '501',
                     booking_type: 'desk',
                     booking_start: 1_790_000_000,
                     duration: 60,
@@ -117,17 +127,20 @@ describe('LandingUpcomingBookingComponent', () => {
 
             await spectator.component.checkIn();
 
-            expect(ts_client.post).toHaveBeenCalledTimes(1);
-            expect(checkInUrl()).toContain(
-                '/series-1/check_in/1790000000?state=true',
-            );
+            expect(checkIns()).toEqual([
+                expect.objectContaining({
+                    id: 501,
+                    instance: 1_790_000_000,
+                    state: true,
+                }),
+            ]);
             expect(refreshUpcomingEvents).toHaveBeenCalledTimes(1);
         });
 
         it('should check in the instance of a later occurrence', async () => {
             upcoming_events.set([
                 new Booking({
-                    id: 'series-1',
+                    id: '501',
                     booking_type: 'desk',
                     booking_start: 1_790_000_000,
                     duration: 60,
@@ -137,15 +150,21 @@ describe('LandingUpcomingBookingComponent', () => {
 
             await spectator.component.checkIn();
 
-            expect(checkInUrl()).toContain(
-                '/series-1/check_in/1790086400?state=true',
-            );
+            expect(checkIns()).toEqual([
+                expect.objectContaining({
+                    id: 501,
+                    instance: 1_790_086_400,
+                    state: true,
+                }),
+            ]);
         });
 
         it('should check in a booking with no recurrence by its ID', async () => {
             await spectator.component.checkIn();
 
-            expect(checkInUrl()).toContain('/booking-1/check_in?state=true');
+            expect(vi.mocked(staff_bookings.checkIn).mock.calls).toEqual([
+                [expect.objectContaining({ id: 502, state: true })],
+            ]);
         });
 
         it('should send one request when check in is pressed twice', async () => {
@@ -154,7 +173,7 @@ describe('LandingUpcomingBookingComponent', () => {
                 spectator.component.checkIn(),
             ]);
 
-            expect(ts_client.post).toHaveBeenCalledTimes(1);
+            expect(checkIns()).toHaveLength(1);
             expect(spectator.component.checking_in()).toBe(false);
         });
     });

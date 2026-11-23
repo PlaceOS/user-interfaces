@@ -13,7 +13,9 @@ import {
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { short_url, ShortUrl } from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
 import { UrlManagementService } from '../../app/url-management/url-management.service';
 import { ShortUrlModalComponent } from '../../app/url-management/url-modal.component';
 
@@ -23,7 +25,6 @@ describe('UrlManagementService', () => {
     let spectator: SpectatorService<UrlManagementService>;
     let dialog_open: any;
     let notify_open: ReturnType<typeof vi.fn>;
-    let fetch_mock: ReturnType<typeof vi.fn>;
 
     const createService = createServiceFactory({
         service: UrlManagementService,
@@ -53,13 +54,10 @@ describe('UrlManagementService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        // queryAllShortURLs() -> query() at the ts-client boundary
-        (ts_client.query as any).mockResolvedValue({ data: [] });
-        (ts_client.del as any).mockResolvedValue(undefined);
-        (ts_client.token as any).mockReturnValue('bearer');
-        // getShortUrlQRCode() -> fetch() + URL.createObjectURL()
-        fetch_mock = vi.fn(async () => ({ blob: async () => new Blob(['x']) }));
-        (globalThis as any).fetch = fetch_mock;
+        vi.mocked(short_url.query).mockResolvedValue(mockPage({ data: [] }));
+        vi.mocked(short_url.destroy).mockResolvedValue(mockReply(''));
+        // getShortUrlQRCode() -> svgQr() + URL.createObjectURL()
+        vi.mocked(short_url.svgQr).mockResolvedValue(mockReply('<svg />'));
         URL.createObjectURL = vi.fn(() => 'qr-data');
         spectator = createService();
         (spectator.inject(MatDialog) as any).open = dialog_open;
@@ -72,34 +70,34 @@ describe('UrlManagementService', () => {
 
     it('should load short URLs and their QR codes after the debounce period', async () => {
         vi.useFakeTimers();
-        const next_page = vi.fn().mockResolvedValue({
-            data: [{ id: 'url-2', name: 'Beta' }],
-            total: 2,
-            next: null,
-        });
-        (ts_client.query as any).mockResolvedValue({
-            data: [{ id: 'url-1', name: 'Alpha' }],
-            total: 2,
-            next: next_page,
-        });
+        // The `next` of the 6.x page of `mockPage` gives the next 6.x page
+        const next_page = vi.fn(() =>
+            Promise.resolve({
+                data: [mockData(ShortUrl, { id: 'url-2', name: 'Beta' })],
+                total: 2,
+                next: null,
+            }),
+        );
+        vi.mocked(short_url.query).mockResolvedValue(
+            mockPage({
+                data: [mockData(ShortUrl, { id: 'url-1', name: 'Alpha' })],
+                total: 2,
+                next: next_page,
+            }),
+        );
 
         spectator = createService();
         TestBed.flushEffects();
         await vi.advanceTimersByTimeAsync(400);
 
-        expect(ts_client.query).toHaveBeenCalledWith(
-            expect.objectContaining({
-                query_params: { q: undefined, limit: 200 },
-            }),
-        );
+        expect(short_url.query).toHaveBeenCalledWith({
+            q: undefined,
+            limit: 200,
+        });
         expect(spectator.service.url_list()).toHaveLength(2);
         expect(next_page).toHaveBeenCalledTimes(1);
-        expect(fetch_mock).toHaveBeenCalledWith(
-            expect.stringContaining('/short_url/url-1/qr_code'),
-        );
-        expect(fetch_mock).toHaveBeenCalledWith(
-            expect.stringContaining('/short_url/url-2/qr_code'),
-        );
+        expect(short_url.svgQr).toHaveBeenCalledWith({ id: 'url-1' });
+        expect(short_url.svgQr).toHaveBeenCalledWith({ id: 'url-2' });
         expect(spectator.service.qr_codes()['url-1']).toBe('qr-data');
     });
 
@@ -110,11 +108,10 @@ describe('UrlManagementService', () => {
         await vi.advanceTimersByTimeAsync(400);
 
         expect(spectator.service.options()).toEqual({ search: 'meeting' });
-        expect(ts_client.query).toHaveBeenLastCalledWith(
-            expect.objectContaining({
-                query_params: { q: 'meeting', limit: 200 },
-            }),
-        );
+        expect(short_url.query).toHaveBeenLastCalledWith({
+            q: 'meeting',
+            limit: 200,
+        });
     });
 
     it('should merge partial filter updates into the current options', () => {
@@ -139,9 +136,7 @@ describe('UrlManagementService', () => {
         } as ShortURL);
 
         expect(dialog_open).toHaveBeenCalled();
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/short_url/url-9'),
-        );
+        expect(short_url.destroy).toHaveBeenCalledWith({ id: 'url-9' });
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -157,7 +152,7 @@ describe('UrlManagementService', () => {
             name: 'Gone',
         } as ShortURL);
 
-        expect(ts_client.del).not.toHaveBeenCalled();
+        expect(short_url.destroy).not.toHaveBeenCalled();
         expect(notify_open).not.toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -170,7 +165,7 @@ describe('UrlManagementService', () => {
         await spectator.service.loadQrCode(item);
         await spectator.service.loadQrCode(item);
 
-        expect(fetch_mock).toHaveBeenCalledTimes(1);
+        expect(short_url.svgQr).toHaveBeenCalledTimes(1);
         expect(spectator.service.qr_codes()['url-cache']).toBe('qr-data');
     });
 });

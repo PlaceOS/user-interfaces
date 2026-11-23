@@ -7,7 +7,8 @@ import { of } from 'rxjs';
 import { SurveyListingsComponent } from '../../app/surveys/survey-listings.component';
 import { SurveyService } from '../../app/surveys/survey.service';
 
-import { Survey } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { Survey } from '@placeos/ts-client/staff';
 
 describe('SurveyListingsComponent', () => {
     let spectator: Spectator<SurveyListingsComponent>;
@@ -53,7 +54,7 @@ describe('SurveyListingsComponent', () => {
     });
 
     it('should delegate survey removal to the service', async () => {
-        const survey = new Survey({ id: 4 });
+        const survey = mockData(Survey, { id: 4 });
         await spectator.component.remove(survey);
         expect(removeSurvey).toHaveBeenCalledWith(survey);
     });

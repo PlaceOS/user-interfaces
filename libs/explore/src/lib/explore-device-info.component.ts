@@ -1,15 +1,14 @@
 import {
-    Component,
-    ElementRef,
     afterNextRender,
+    Component,
     computed,
+    ElementRef,
     inject,
     signal,
 } from '@angular/core';
-import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, formatDistanceToNow } from 'date-fns';
 
-import { SettingsService } from '@placeos/common';
+import { getModule, SettingsService } from '@placeos/common';
 import { MAP_FEATURE_DATA } from 'libs/common/src/lib/types';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -260,7 +259,9 @@ export class ExploreDeviceInfoComponent {
         if (!mod) return;
         this.username.set('Loading...');
         const details = await mod
-            .execute('check_ownership_of', [this.mac()])
+            .execute<{
+                assigned_to?: string;
+            } | null>('check_ownership_of', [this.mac()])
             .catch(() => null);
         this.username.set(
             details && details.assigned_to ? details.assigned_to : '',

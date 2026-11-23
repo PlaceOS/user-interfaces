@@ -14,6 +14,7 @@ import { ItemListFieldComponent } from '../lib/item-list-field.component';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 
 describe('BookingRulesFormComponent', () => {
     let spectator: Spectator<BookingRulesFormComponent>;
@@ -39,9 +40,11 @@ describe('BookingRulesFormComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [],
-        } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
         spectator = createComponent();
     });
 

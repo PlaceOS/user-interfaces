@@ -10,9 +10,12 @@ import { MockProvider } from 'ng-mocks';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { OrganisationService } from '../lib/org/organisation.service';
 import { Building, Region } from '../lib/types/org.classes';
+import { FakeSession, startFakePlaceClient } from './fake-session';
+import { mockData } from './mock-data';
 
 import * as ts_client from '@placeos/ts-client';
-import { PlaceZone } from '@placeos/ts-client';
+import { Zone } from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
 
 // Real ts-client helpers run for real; only the API layer touched by this
 // service is overridden per-test via `vi.mocked(...)` in `beforeEach`.
@@ -28,37 +31,46 @@ describe('OrganisationService', () => {
         ],
     });
 
+    let place: FakeSession;
+
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
         sessionStorage.clear();
-        vi.mocked(ts_client.onlineState).mockReturnValue(
-            ts_client.createSignal(true),
+        place = startFakePlaceClient();
+        place.signIn({ id: 'auth-1' });
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({ data: [] } as any),
         );
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
-        vi.mocked(ts_client.authority).mockReturnValue({
-            id: 'auth-1',
-        } as any);
-        vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.bulkMetadata).mockResolvedValue({});
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
+        vi.mocked(ts_client.metadata.bulkFetch).mockResolvedValue(
+            mockReply({}),
+        );
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService();
     });
 
     it('should keep cache keys stable when the authority is unavailable', () => {
-        vi.mocked(ts_client.authority).mockReturnValue({
+        place.setAuthority({
             id: 'auth-1',
             config: { metadata_cache_id: 'meta-7' },
-        } as any);
+        });
         const service = spectator.service as any;
         const params = { tags: 'org' };
         const online_zone_key = service._zoneCacheKey(params);
         const online_metadata_id = service._metadataCacheID();
 
         // Offline cold boot: /auth/authority cannot be fetched
-        vi.mocked(ts_client.authority).mockReturnValue(undefined);
+        place.setAuthority(null);
 
         expect(service._zoneCacheKey(params)).toBe(online_zone_key);
         expect(service._metadataCacheID()).toBe(online_metadata_id);
@@ -71,7 +83,7 @@ describe('OrganisationService', () => {
         const key = service._zoneCacheKey({ tags: 'org' });
         service._setCachedItem(key, [{ id: 'zone-1' }]);
 
-        vi.mocked(ts_client.authority).mockReturnValue(undefined);
+        place.setAuthority(null);
 
         expect(
             service._getCachedItem(service._zoneCacheKey({ tags: 'org' })),
@@ -80,7 +92,7 @@ describe('OrganisationService', () => {
 
     it('should keep retrying and initialise once the backend returns', async () => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.queryZones).mockRejectedValue(
+        vi.mocked(ts_client.zones.query).mockRejectedValue(
             new Error('servers unavailable'),
         );
         const service = spectator.service as any;
@@ -92,11 +104,13 @@ describe('OrganisationService', () => {
         // Still down a minute later, still retrying
         await vi.advanceTimersByTimeAsync(60_000);
         expect(spectator.service.initialised()).toBe(false);
-        const attempts = vi.mocked(ts_client.queryZones).mock.calls.length;
+        const attempts = vi.mocked(ts_client.zones.query).mock.calls.length;
         expect(attempts).toBeGreaterThan(1);
 
         // Backend comes back; the next retry succeeds without a reload
-        vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({ data: [] } as any),
+        );
         await vi.advanceTimersByTimeAsync(30_000);
 
         expect(spectator.service.initialised()).toBe(true);
@@ -182,23 +196,29 @@ describe('OrganisationService', () => {
     });
 
     it('should describe a location from its zone IDs', () => {
-        spectator.service.addZone({
-            id: 'region-1',
-            tags: ['region'],
-            name: 'Australia',
-        } as PlaceZone);
-        spectator.service.addZone({
-            id: 'bld-1',
-            parent_id: 'region-1',
-            tags: ['building'],
-            name: 'Sydney',
-        } as PlaceZone);
-        spectator.service.addZone({
-            id: 'lvl-1',
-            parent_id: 'bld-1',
-            tags: ['level'],
-            name: 'Level 1',
-        } as PlaceZone);
+        spectator.service.addZone(
+            mockData(Zone, {
+                id: 'region-1',
+                tags: ['region'],
+                name: 'Australia',
+            }),
+        );
+        spectator.service.addZone(
+            mockData(Zone, {
+                id: 'bld-1',
+                parent_id: 'region-1',
+                tags: ['building'],
+                name: 'Sydney',
+            }),
+        );
+        spectator.service.addZone(
+            mockData(Zone, {
+                id: 'lvl-1',
+                parent_id: 'bld-1',
+                tags: ['level'],
+                name: 'Level 1',
+            }),
+        );
 
         expect(
             spectator.service.locationWithID(['bld-1', 'lvl-1']),
@@ -221,19 +241,25 @@ describe('OrganisationService', () => {
             id: 'bld-2',
             parent_id: region_2.id,
         });
-        spectator.service.addZone({
-            id: region_1.id,
-            tags: ['region'],
-        } as PlaceZone);
-        spectator.service.addZone({
-            id: region_2.id,
-            tags: ['region'],
-        } as PlaceZone);
-        spectator.service.addZone({
-            id: building_1.id,
-            parent_id: region_1.id,
-            tags: ['building'],
-        } as PlaceZone);
+        spectator.service.addZone(
+            mockData(Zone, {
+                id: region_1.id,
+                tags: ['region'],
+            }),
+        );
+        spectator.service.addZone(
+            mockData(Zone, {
+                id: region_2.id,
+                tags: ['region'],
+            }),
+        );
+        spectator.service.addZone(
+            mockData(Zone, {
+                id: building_1.id,
+                parent_id: region_1.id,
+                tags: ['building'],
+            }),
+        );
         vi.spyOn(spectator.service, 'loadBuildings').mockImplementation(
             async (parent_id?: string) =>
                 parent_id === region_2.id ? [building_2] : [building_1],
@@ -304,36 +330,38 @@ describe('OrganisationService', () => {
 
     it('should put parking after normal levels when loading and adding zones', async () => {
         const zones = [
-            new PlaceZone({
+            mockData(Zone, {
                 id: 'parking-2',
                 parent_id: 'bld-1',
                 name: '02 Parking',
                 tags: ['level', 'parking'],
             }),
-            new PlaceZone({
+            mockData(Zone, {
                 id: 'level-2',
                 parent_id: 'bld-1',
                 name: 'Level 2',
                 tags: ['level'],
             }),
-            new PlaceZone({
+            mockData(Zone, {
                 id: 'parking-1',
                 parent_id: 'bld-1',
                 name: '01 Parking',
                 tags: ['level', 'parking'],
             }),
-            new PlaceZone({
+            mockData(Zone, {
                 id: 'level-1',
                 parent_id: 'bld-1',
                 name: 'Level 1',
                 tags: ['level'],
             }),
         ];
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: zones,
-            total: zones.length,
-            next: vi.fn(),
-        });
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: zones,
+                total: zones.length,
+                next: vi.fn(),
+            }),
+        );
 
         await spectator.service.loadLevels();
 
@@ -346,7 +374,7 @@ describe('OrganisationService', () => {
         ).toEqual(expected);
 
         spectator.service.addZone(
-            new PlaceZone({
+            mockData(Zone, {
                 id: 'level-3',
                 parent_id: 'bld-1',
                 name: 'Level 3',
@@ -363,22 +391,26 @@ describe('OrganisationService', () => {
     });
 
     it('should cache zone data for the browser session', async () => {
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [{ id: 'bld-1', tags: ['building'] }],
-        } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'bld-1', tags: ['building'] }],
+            } as any),
+        );
 
         const first_list = await spectator.service.loadBuildings('org-1');
         const second_list = await spectator.service.loadBuildings('org-1');
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(1);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(1);
         expect(first_list.map(({ id }) => id)).toEqual(['bld-1']);
         expect(second_list.map(({ id }) => id)).toEqual(['bld-1']);
     });
 
     it('should flag that cached data was used so it can be refreshed', async () => {
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [{ id: 'bld-1', tags: ['building'] }],
-        } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'bld-1', tags: ['building'] }],
+            } as any),
+        );
 
         await spectator.service.loadBuildings('org-1');
         expect((spectator.service as any)._served_cache).toBe(false);
@@ -388,24 +420,28 @@ describe('OrganisationService', () => {
     });
 
     it('should skip the cache while refreshing', async () => {
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [{ id: 'bld-1', tags: ['building'] }],
-        } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'bld-1', tags: ['building'] }],
+            } as any),
+        );
 
         await spectator.service.loadBuildings('org-1');
         await (spectator.service as any)._refresh(() =>
             spectator.service.loadBuildings('org-1'),
         );
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(2);
         // The flag is cleared once the refresh completes
         expect((spectator.service as any)._refreshing).toBe(false);
     });
 
     it('should discard cached zone data older than the maximum age', async () => {
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [{ id: 'bld-1', tags: ['building'] }],
-        } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'bld-1', tags: ['building'] }],
+            } as any),
+        );
 
         await spectator.service.loadBuildings('org-1');
         for (let i = localStorage.length - 1; i >= 0; i--) {
@@ -417,34 +453,35 @@ describe('OrganisationService', () => {
         }
         await spectator.service.loadBuildings('org-1');
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(2);
         expect((spectator.service as any)._served_cache).toBe(false);
     });
 
     it('should invalidate cached zone data when metadata cache id changes', async () => {
-        let metadata_cache_id = 'cache-1';
-        vi.mocked(ts_client.authority).mockImplementation(
-            () =>
-                ({
-                    id: 'auth-1',
-                    config: { metadata_cache_id },
-                }) as any,
+        const setCacheId = (metadata_cache_id: string) =>
+            place.setAuthority({ id: 'auth-1', config: { metadata_cache_id } });
+        setCacheId('cache-1');
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'bld-1', tags: ['building'] }],
+            } as any),
         );
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [{ id: 'bld-1', tags: ['building'] }],
-        } as any);
 
         await spectator.service.loadBuildings('org-1');
         await spectator.service.loadBuildings('org-1');
-        metadata_cache_id = 'cache-2';
+        setCacheId('cache-2');
         await spectator.service.loadBuildings('org-1');
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(2);
     });
 
     it('should cache bulk metadata across loads', async () => {
-        vi.mocked(ts_client.bulkMetadata).mockImplementation((name) =>
-            Promise.resolve({ bld_1: { details: { name } } } as any),
+        vi.mocked(ts_client.metadata.bulkFetch).mockImplementation(
+            fromV1Mock(
+                (name) =>
+                    Promise.resolve({ bld_1: { details: { name } } } as any),
+                ['name', '...'],
+            ),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
@@ -456,14 +493,16 @@ describe('OrganisationService', () => {
         expect(building.bindings).toEqual({ name: 'bindings' });
         // ...and refreshed from the API in the background.
         await vi.waitFor(() =>
-            expect(ts_client.bulkMetadata).toHaveBeenCalledTimes(6),
+            expect(ts_client.metadata.bulkFetch).toHaveBeenCalledTimes(6),
         );
     });
 
     it('should clear org caches when reloading metadata', async () => {
-        vi.mocked(ts_client.queryZones).mockResolvedValue({
-            data: [{ id: 'bld-1', tags: ['building'] }],
-        } as any);
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'bld-1', tags: ['building'] }],
+            } as any),
+        );
         vi.spyOn(spectator.service as any, 'load').mockResolvedValue(undefined);
 
         await spectator.service.loadBuildings('org-1');
@@ -471,59 +510,75 @@ describe('OrganisationService', () => {
         await spectator.service.reloadMetadata();
         await spectator.service.loadBuildings('org-1');
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(2);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(2);
     });
 
     it('should load building metadata in bulk', async () => {
-        vi.mocked(ts_client.bulkMetadata).mockImplementation((name) =>
-            Promise.resolve({ bld_1: { details: { name } } } as any),
+        vi.mocked(ts_client.metadata.bulkFetch).mockImplementation(
+            fromV1Mock(
+                (name) =>
+                    Promise.resolve({ bld_1: { details: { name } } } as any),
+                ['name', '...'],
+            ),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
 
-        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('workplace_app', {
-            parent_ids: 'bld_1',
+        expect(ts_client.metadata.bulkFetch).toHaveBeenCalledWith({
+            name: 'workplace_app',
+            parent_ids: ['bld_1'],
         });
-        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('bindings', {
-            parent_ids: 'bld_1',
+        expect(ts_client.metadata.bulkFetch).toHaveBeenCalledWith({
+            name: 'bindings',
+            parent_ids: ['bld_1'],
         });
-        expect(ts_client.bulkMetadata).toHaveBeenCalledWith('booking_rules', {
-            parent_ids: 'bld_1',
+        expect(ts_client.metadata.bulkFetch).toHaveBeenCalledWith({
+            name: 'booking_rules',
+            parent_ids: ['bld_1'],
         });
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.show).not.toHaveBeenCalled();
     });
 
     it('should fall back to individual metadata requests when bulk returns 404', async () => {
-        vi.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 404 });
-        vi.mocked(ts_client.showMetadata).mockImplementation(
-            (id, name) => Promise.resolve({ details: { name } }) as any,
+        vi.mocked(ts_client.metadata.bulkFetch).mockRejectedValue({
+            status: 404,
+        });
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                (id, name) => Promise.resolve({ details: { name } }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
 
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld_1',
-            'workplace_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld_1',
-            'bindings',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld_1',
-            'booking_rules',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld_1',
+            name: 'workplace_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld_1',
+            name: 'bindings',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld_1',
+            name: 'booking_rules',
+        });
         expect(spectator.service.buildingSettings('bld_1')).toEqual({
             name: 'workplace_app',
         });
     });
 
     it('should not fall back to individual requests on non-404 bulk errors', async () => {
-        vi.mocked(ts_client.bulkMetadata).mockRejectedValue({ status: 500 });
+        vi.mocked(ts_client.metadata.bulkFetch).mockRejectedValue({
+            status: 500,
+        });
 
         await spectator.service.loadBuildingData({ id: 'bld_1' } as any);
 
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.show).not.toHaveBeenCalled();
         expect(spectator.service.buildingSettings('bld_1')).toEqual({});
     });
 
@@ -623,20 +678,15 @@ describe('OrganisationService', () => {
         ];
 
         beforeEach(() => {
-            vi.mocked(ts_client.isMock).mockReturnValue(false);
-            vi.mocked(ts_client.queryZones).mockResolvedValue({
-                data: orgs,
-            } as any);
+            vi.mocked(ts_client.zones.query).mockResolvedValue(
+                mockPage({
+                    data: orgs,
+                } as any),
+            );
         });
 
-        // Restore the real isMock so that later tests are not affected.
-        afterEach(() => vi.mocked(ts_client.isMock).mockReset());
-
         it('should use the org zone that the authority names', async () => {
-            vi.mocked(ts_client.authority).mockReturnValue({
-                id: 'auth-1',
-                config: { org_zone: 'org-2' },
-            } as any);
+            place.setAuthority({ id: 'auth-1', config: { org_zone: 'org-2' } });
 
             await spectator.service.loadOrganisation();
 
@@ -651,9 +701,11 @@ describe('OrganisationService', () => {
         });
 
         it('should send the user to the misconfigured page without an org', async () => {
-            vi.mocked(ts_client.queryZones).mockResolvedValue({
-                data: [],
-            } as any);
+            vi.mocked(ts_client.zones.query).mockResolvedValue(
+                mockPage({
+                    data: [],
+                } as any),
+            );
 
             await spectator.service.loadOrganisation();
 

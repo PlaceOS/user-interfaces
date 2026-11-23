@@ -31,16 +31,42 @@ import {
     notifySuccess,
     themedLogo,
 } from '@placeos/common';
+import type { JsonValue } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
-    addAnswer,
-    showQuestion,
-    showSurvey,
-    Survey,
-    SurveyAnswer,
-    SurveyQuestion,
-} from '@placeos/ts-client';
+    type Survey,
+    type SurveyAnswerInput,
+    type SurveyQuestion,
+    surveys,
+    surveys_answers,
+    surveys_questions,
+} from '@placeos/ts-client/staff';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
+
+/** A choice of a survey question. The form value of a choice is the object */
+type SurveyChoice = Readonly<Record<string, JsonValue>> & {
+    readonly text: string;
+};
+
+/** A survey question, with the lists that the form shows */
+interface OutletQuestion extends Omit<SurveyQuestion, 'choices' | 'options'> {
+    /** Choices with a text. The API can send `{}` for no choices */
+    choices: SurveyChoice[];
+    /** Values of a rating question, `1` to `max_rating` */
+    options: number[];
+}
+
+function surveyChoices(value: JsonValue): SurveyChoice[] {
+    if (!Array.isArray(value)) return [];
+    return value.filter(
+        (choice: JsonValue): choice is SurveyChoice =>
+            typeof choice === 'object' &&
+            choice !== null &&
+            !Array.isArray(choice) &&
+            typeof choice['text'] === 'string',
+    );
+}
 
 @Component({
     selector: `survey-outlet`,
@@ -360,7 +386,7 @@ export class SurveyOutletComponent
     public readonly loading = signal('');
     public readonly success = signal(false);
     public readonly survey = model<Survey>(null);
-    public readonly questions: Record<string | number, SurveyQuestion> = {};
+    public readonly questions: Record<string | number, OutletQuestion> = {};
     public readonly form = signal<UntypedFormGroup>(null);
 
     public readonly logo = themedLogo();
@@ -405,7 +431,7 @@ export class SurveyOutletComponent
         this.form().markAllAsTouched();
         if (!this.form().valid) return this._showFirstInvalidPage();
         this.loading.set('Saving survey answers...');
-        const answers: Partial<SurveyAnswer>[] = [];
+        const answers: SurveyAnswerInput[] = [];
         for (const q_id in this.questions) {
             const value = this.form().value[q_id];
             if (value !== null && value !== undefined) {
@@ -418,7 +444,7 @@ export class SurveyOutletComponent
             }
         }
         try {
-            await addAnswer(answers);
+            await surveys_answers.create({ body: answers }).then(orThrow);
         } catch {
             notifyError('Failed to submit survey answers.');
             this.loading.set('');
@@ -443,10 +469,14 @@ export class SurveyOutletComponent
      */
     private async _updateSurvey() {
         if (!this.survey_id()) return;
+        // Survey IDs are integers. The client refuses other IDs before a
+        // request, so the server cannot answer 404 for them.
+        const id = Number(this.survey_id());
+        if (!Number.isSafeInteger(id)) return this.not_found.emit(true);
         this.loading.set('Loading survey details...');
         let survey: Survey | null = null;
         try {
-            survey = await showSurvey(this.survey_id());
+            survey = await surveys.show({ id }).then(orThrow);
         } catch (e) {
             if ((e as { status?: number })?.status !== 404) {
                 this.loading.set('');
@@ -470,7 +500,9 @@ export class SurveyOutletComponent
         const requests: Promise<SurveyQuestion>[] = [];
         for (const page of this.survey().pages) {
             for (const question_id of page.question_order) {
-                requests.push(showQuestion(`${question_id}`));
+                requests.push(
+                    surveys_questions.show({ id: question_id }).then(orThrow),
+                );
             }
         }
         let questions: SurveyQuestion[];
@@ -481,14 +513,16 @@ export class SurveyOutletComponent
             return this.loading.set('');
         }
         for (const q of questions) {
-            // The API can return `{}` for questions created without choices.
-            if (!Array.isArray(q.choices)) q.choices = [];
-            this.questions[q.id] = q;
-            if (q.type === 'rating') {
-                q.options = new Array(q.max_rating)
-                    .fill(0)
-                    .map((_, idx) => idx + 1);
-            }
+            this.questions[q.id] = {
+                ...q,
+                choices: surveyChoices(q.choices),
+                options:
+                    q.type === 'rating'
+                        ? new Array(q.max_rating ?? 0)
+                              .fill(0)
+                              .map((_, idx) => idx + 1)
+                        : [],
+            };
         }
         console.log('Questions:', questions);
         this._generateForm();

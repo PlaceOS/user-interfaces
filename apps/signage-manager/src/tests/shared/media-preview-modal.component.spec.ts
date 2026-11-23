@@ -3,15 +3,19 @@ import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
-    MediaAnimation,
-    SignageMedia,
-    SignagePlaylist,
-    SignagePlugin,
-    showSignageMedia,
+    playlist_media,
+    type PlaylistItem,
+    type SignagePlugin as SignagePluginV7,
 } from '@placeos/ts-client';
+import { MediaAnimation, mockReply } from '@placeos/ts-client/compat';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaPreviewModalComponent } from '../../app/shared/media-preview-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import {
+    signageMedia,
+    signagePlaylist,
+    signagePlugin,
+} from '../../app/signage-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -20,8 +24,8 @@ describe('MediaPreviewModalComponent', () => {
     const service = { editMedia };
 
     async function createComponent(
-        media: SignageMedia,
-        plugin?: SignagePlugin,
+        media: PlaylistItem,
+        plugin?: SignagePluginV7,
         group_id = '',
     ) {
         await TestBed.configureTestingModule({
@@ -44,13 +48,15 @@ describe('MediaPreviewModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(showSignageMedia).mockResolvedValue(new SignageMedia({}));
+        vi.mocked(playlist_media.show).mockResolvedValue(
+            mockReply(signageMedia({})),
+        );
         TestBed.resetTestingModule();
     });
 
     it('starts in a loading state for renderable media with a url', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 media_uri: 'https://cdn/image.png',
@@ -63,7 +69,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('does not enter a loading state for plugin media', async () => {
         const component = await createComponent(
-            new SignageMedia({ id: 'm1', media_type: 'plugin' }),
+            signageMedia({ id: 'm1', media_type: 'plugin' }),
         );
 
         expect(component.media_loading()).toBe(false);
@@ -71,16 +77,16 @@ describe('MediaPreviewModalComponent', () => {
 
     it('maps the media type to a translation label', async () => {
         const component = await createComponent(
-            new SignageMedia({ id: 'm1', media_type: 'webpage' }),
+            signageMedia({ id: 'm1', media_type: 'webpage' }),
         );
 
         expect(component.type_label()).toBe('COMMON.WEBPAGE');
     });
 
     it('shows every media tag in the preview details', async () => {
-        const media = new SignageMedia({
+        const media = signageMedia({
             id: 'm1',
-            media_type: 'unknown',
+            media_type: null,
             tags: ['lobby', 'news'],
         });
         await TestBed.configureTestingModule({
@@ -109,7 +115,7 @@ describe('MediaPreviewModalComponent', () => {
     });
 
     /** Render the real template, without the media itself */
-    async function renderPreview(media: SignageMedia) {
+    async function renderPreview(media: PlaylistItem) {
         await TestBed.configureTestingModule({
             imports: [MediaPreviewModalComponent],
             providers: [
@@ -131,22 +137,22 @@ describe('MediaPreviewModalComponent', () => {
 
     // A failed lookup must not claim the media is in no playlist
     it('offers a retry when the playlists of the media fail to load', async () => {
-        vi.mocked(showSignageMedia).mockRejectedValue(new Error('boom'));
+        vi.mocked(playlist_media.show).mockRejectedValue(new Error('boom'));
         const element = await renderPreview(
-            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+            signageMedia({ id: 'm1', media_type: null }),
         );
 
         expect(element.textContent).not.toContain('Not in any playlists');
         // The shared-with list reads the media as well
-        const calls = vi.mocked(showSignageMedia).mock.calls.length;
+        const calls = vi.mocked(playlist_media.show).mock.calls.length;
         element.querySelector<HTMLButtonElement>('load-error button').click();
 
-        expect(showSignageMedia).toHaveBeenCalledTimes(calls + 1);
+        expect(playlist_media.show).toHaveBeenCalledTimes(calls + 1);
     });
 
     it('names the close button', async () => {
         const element = await renderPreview(
-            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+            signageMedia({ id: 'm1', media_type: null }),
         );
 
         const close = element.querySelector('header button[icon]');
@@ -155,7 +161,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('names the icon-only edit button', async () => {
         const element = await renderPreview(
-            new SignageMedia({ id: 'm1', media_type: 'unknown' }),
+            signageMedia({ id: 'm1', media_type: null }),
         );
 
         const edit = element.querySelector('aside button[icon]');
@@ -164,7 +170,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('uses the signage group passed to the modal', async () => {
         const component = await createComponent(
-            new SignageMedia({ id: 'm1', media_type: 'image' }),
+            signageMedia({ id: 'm1', media_type: 'image' }),
             undefined,
             'group-1',
         );
@@ -174,7 +180,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('maps the animation to a translation label', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 animation: MediaAnimation.CrossFade,
@@ -188,7 +194,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('maps an animation index from the API to its label', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 animation: 2 as unknown as MediaAnimation,
@@ -202,7 +208,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('only produces a safe url for webpage media', async () => {
         const image = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 media_uri: 'https://cdn/image.png',
@@ -212,7 +218,7 @@ describe('MediaPreviewModalComponent', () => {
 
         TestBed.resetTestingModule();
         const webpage = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm2',
                 media_type: 'webpage',
                 media_uri: 'https://example.com',
@@ -223,7 +229,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('does not load a stored non-web url in the preview frame', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'webpage',
                 media_uri: 'javascript:alert(document.cookie)',
@@ -240,12 +246,12 @@ describe('MediaPreviewModalComponent', () => {
 
     it('merges plugin defaults with the media plugin params', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'plugin',
                 plugin_params: { units: 'imperial' },
             }),
-            new SignagePlugin({
+            signagePlugin({
                 id: 'weather',
                 defaults: { units: 'metric', theme: 'light' },
             }),
@@ -258,17 +264,19 @@ describe('MediaPreviewModalComponent', () => {
     });
 
     it('loads containing playlists from the media response', async () => {
-        vi.mocked(showSignageMedia).mockResolvedValue(
-            new SignageMedia({
-                id: 'm1',
-                playlists: [
-                    new SignagePlaylist({ id: 'p1', name: 'One' }),
-                    new SignagePlaylist({ id: 'p2', name: 'Two' }),
-                ],
-            }),
+        vi.mocked(playlist_media.show).mockResolvedValue(
+            mockReply(
+                signageMedia({
+                    id: 'm1',
+                    playlists: [
+                        signagePlaylist({ id: 'p1', name: 'One' }),
+                        signagePlaylist({ id: 'p2', name: 'Two' }),
+                    ],
+                }),
+            ),
         );
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 media_uri: 'https://cdn/image.png',
@@ -279,9 +287,10 @@ describe('MediaPreviewModalComponent', () => {
 
         await component.ngOnInit();
 
-        expect(showSignageMedia).toHaveBeenCalledOnce();
-        expect(showSignageMedia).toHaveBeenCalledWith('m1', {
-            group_id: 'group-1',
+        // The server checks access through the groups of the media, so the
+        // lookup takes only the id, also with a group selected
+        expect(playlist_media.show).toHaveBeenCalledExactlyOnceWith({
+            id: 'm1',
         });
         expect(component.loading_playlists()).toBe(false);
         expect(component.containing_playlists().map((_) => _.id)).toEqual([
@@ -292,7 +301,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('uses no group filter when no group is selected', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 media_uri: 'https://cdn/image.png',
@@ -301,25 +310,25 @@ describe('MediaPreviewModalComponent', () => {
 
         await component.ngOnInit();
 
-        expect(showSignageMedia).toHaveBeenCalledWith('m1', {});
+        expect(playlist_media.show).toHaveBeenCalledWith({ id: 'm1' });
     });
 
     // A preview from the edit modal is of media that is not saved yet
     it('does not look up playlists for media without an id', async () => {
         const component = await createComponent(
-            new SignageMedia({ media_type: 'image' }),
+            signageMedia({ media_type: 'image' }),
         );
 
         await component.ngOnInit();
 
-        expect(showSignageMedia).not.toHaveBeenCalled();
+        expect(playlist_media.show).not.toHaveBeenCalled();
         expect(component.loading_playlists()).toBe(false);
     });
 
     it('clears playlist loading when the media request fails', async () => {
-        vi.mocked(showSignageMedia).mockRejectedValue(new Error('boom'));
+        vi.mocked(playlist_media.show).mockRejectedValue(new Error('boom'));
         const component = await createComponent(
-            new SignageMedia({ id: 'm1', media_type: 'image' }),
+            signageMedia({ id: 'm1', media_type: 'image' }),
         );
 
         await component.ngOnInit();
@@ -330,7 +339,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('clears loading and error flags when the media loads', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 media_uri: 'https://cdn/image.png',
@@ -345,7 +354,7 @@ describe('MediaPreviewModalComponent', () => {
 
     it('flags an error when the media fails to load', async () => {
         const component = await createComponent(
-            new SignageMedia({
+            signageMedia({
                 id: 'm1',
                 media_type: 'image',
                 media_uri: 'https://cdn/image.png',

@@ -16,6 +16,7 @@ import { ActivatedRoute } from '@angular/router';
 import {
     AsyncHandler,
     firstTruthyValueFrom,
+    isOnline,
     OrganisationService,
     SettingsService,
     Space,
@@ -26,7 +27,6 @@ import {
     IconComponent,
 } from '@placeos/components';
 import { SpacesService } from '@placeos/events';
-import { isOnline } from '@placeos/ts-client';
 import {
     getHours,
     getMinutes,

@@ -19,7 +19,8 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showAsset, showAssetType } from '@placeos/ts-client';
+import { asset_types, assets } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -191,9 +192,10 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
                     this.loading.set('Loading Asset Details...');
-                    const asset = await showAsset(params.get('id')).catch(
-                        () => null,
-                    );
+                    const asset = await assets
+                        .show({ id: params.get('id') })
+                        .then(orThrow)
+                        .catch(() => null);
                     if (!asset) {
                         notifyError('Unable to load asset details.');
                         this._router.navigate([this.base_route]);
@@ -204,9 +206,10 @@ export class AssetFormComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.get('group_id')) {
                     this.loading.set('Loading Product Details...');
-                    const product = await showAssetType(
-                        params.get('group_id'),
-                    ).catch(() => null);
+                    const product = await asset_types
+                        .show({ id: params.get('group_id') })
+                        .then(orThrow)
+                        .catch(() => null);
                     if (!product) {
                         notifyError(
                             'Unable to load associated product details.',

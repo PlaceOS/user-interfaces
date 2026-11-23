@@ -1,22 +1,24 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import {
+    authority,
     currentUser,
     firstTruthyValueFrom,
     markInitialisationComplete,
     mockModeRequested,
     SettingsService,
     setupPlace,
-    storeApiKeyFromUrl,
     waitForCurrentUser,
     withTimeout,
 } from '@placeos/common';
-import { authority, queryApplications, setAPI_Key } from '@placeos/ts-client';
+import { oauth_applications } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import {
     appInitial,
     type ApplicationRestriction,
     buildLauncherApplications,
     type LauncherApplication,
+    readApplications,
 } from './application-loader.util';
 
 @Component({
@@ -100,9 +102,6 @@ export class AppComponent implements OnInit {
     public readonly appInitial = appInitial;
 
     public async ngOnInit() {
-        const params = new URLSearchParams(location.search);
-        const api_key = params.get('x-api-key');
-        if (api_key) setAPI_Key(api_key);
         try {
             await firstTruthyValueFrom(this._settings.initialised);
             const settings = { ...(this._settings.get('composer') || {}) };
@@ -113,7 +112,8 @@ export class AppComponent implements OnInit {
                     mocksInit(),
                 );
             }
-            await setupPlace(settings).finally(storeApiKeyFromUrl);
+            // The login session reads `x-api-key` from the URL and removes it
+            await setupPlace(settings);
             await withTimeout(
                 waitForCurrentUser(),
                 30_000,
@@ -124,15 +124,15 @@ export class AppComponent implements OnInit {
             const active_authority = authority();
             if (!active_authority?.id) return;
 
-            const response = await queryApplications({
-                authority_id: active_authority.id,
-            } as Record<string, unknown>);
+            const response = await oauth_applications
+                .query({ authority_id: active_authority.id })
+                .then(orThrowPage);
             const restrictions = (this._settings.get(
                 'app.application_restrictions',
             ) || []) as ApplicationRestriction[];
             const user_groups = currentUser()?.groups || [];
             this.applications.set(
-                buildLauncherApplications(response?.data || [], {
+                buildLauncherApplications(readApplications(response.data), {
                     current_uri: location.href,
                     restrictions,
                     user_groups,

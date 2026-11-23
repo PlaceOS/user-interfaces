@@ -1,13 +1,16 @@
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import { FormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { User } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { calendars, CalendarsAvailability } from '@placeos/ts-client/staff';
 import { getUnixTime } from 'date-fns';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { mockData } from 'libs/common/src/tests/mock-data';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { DateFieldComponent } from 'libs/form-fields/src/lib/date-field.component';
@@ -18,9 +21,7 @@ import {
 } from '../lib/find-availability-modal/find-availability-modal.component';
 import { UserAvailabilityComponent } from '../lib/find-availability-modal/user-availability.component';
 
-const mockGet = vi.mocked(
-    ts_client.get as unknown as (url: string) => Promise<unknown>,
-);
+const freeBusy = vi.mocked(calendars.freeBusy);
 
 const HOST = new User({ email: 'host@place.tech', name: 'Host' });
 const NINE_AM = new Date('2030-06-01T09:00:00').valueOf();
@@ -47,7 +48,7 @@ describe('FindAvailabilityModalComponent dialog data', () => {
     const caller_users = [new User({ email: 'a@place.tech' })];
     const createComponent = modalFactory({ host: HOST, users: caller_users });
 
-    beforeEach(() => mockGet.mockResolvedValue([]));
+    beforeEach(() => freeBusy.mockResolvedValue(mockReply([])));
     afterEach(() => vi.useRealTimers());
 
     it('should default to now and one hour without a date or duration', () => {
@@ -81,7 +82,7 @@ describe('FindAvailabilityModalComponent', () => {
     };
 
     beforeEach(() => {
-        mockGet.mockResolvedValue([]);
+        freeBusy.mockResolvedValue(mockReply([]));
         spectator = createComponent();
     });
     afterEach(() => vi.useRealTimers());
@@ -155,15 +156,21 @@ describe('FindAvailabilityModalComponent', () => {
     it('should map busy periods to positions keyed by lower case email', async () => {
         const start = new Date('2030-06-01T06:00:00');
         const starts_at = getUnixTime(start);
-        mockGet.mockResolvedValue([
-            {
-                id: 'A@PLACE.TECH',
-                availability: [
-                    { status: 'busy', starts_at, ends_at: starts_at + 90 * 60 },
-                    { status: 'free', starts_at, ends_at: starts_at + 60 },
-                ],
-            },
-        ]);
+        freeBusy.mockResolvedValue(
+            mockReply([
+                mockData(CalendarsAvailability, {
+                    id: 'A@PLACE.TECH',
+                    availability: [
+                        {
+                            status: 'busy',
+                            starts_at,
+                            ends_at: starts_at + 90 * 60,
+                        },
+                        { status: 'free', starts_at, ends_at: starts_at + 60 },
+                    ],
+                }),
+            ]),
+        );
         spectator = createComponent();
         await vi.waitFor(() =>
             expect(spectator.component.availability()['a@place.tech']).toEqual([
@@ -175,22 +182,19 @@ describe('FindAvailabilityModalComponent', () => {
                 },
             ]),
         );
-        const url = new URL(mockGet.mock.lastCall![0], location.origin);
-        expect(url.searchParams.get('calendars')).toBe(
-            'host@place.tech,a@place.tech',
-        );
-        expect(url.searchParams.get('period_start')).toBe(
-            `${getUnixTime(new Date('2030-06-01T00:00:00'))}`,
-        );
-        expect(url.searchParams.get('period_end')).toBe(
-            `${getUnixTime(new Date('2030-06-01T23:59:59'))}`,
+        expect(freeBusy).toHaveBeenLastCalledWith(
+            expect.objectContaining({
+                calendars: 'host@place.tech,a@place.tech',
+                period_start: getUnixTime(new Date('2030-06-01T00:00:00')),
+                period_end: getUnixTime(new Date('2030-06-01T23:59:59')),
+            }),
         );
     });
 
     it('should show no busy periods when the free/busy request fails', async () => {
-        mockGet.mockRejectedValue(new Error('nope'));
+        freeBusy.mockRejectedValue(new Error('nope'));
         spectator = createComponent();
-        await vi.waitFor(() => expect(mockGet).toHaveBeenCalled());
+        await vi.waitFor(() => expect(freeBusy).toHaveBeenCalled());
         await spectator.fixture.whenStable();
         expect(spectator.component.availability()).toEqual({});
     });

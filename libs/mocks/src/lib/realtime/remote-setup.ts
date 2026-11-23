@@ -9,7 +9,7 @@ import {
     RemoteSetupDevice,
     RemoteSetupSystemClear,
 } from '@placeos/common';
-import { registerSystem } from '@placeos/ts-client';
+import { registerSystem } from '@placeos/ts-client/compat';
 
 /** Time before a seeded mock device applies a change */
 const APPLY_DELAY_MS = 1500;

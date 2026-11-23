@@ -1,6 +1,10 @@
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
-import { getShortUrlQRCode, saveShortURL, ShortURL } from '../lib/shorten.fn';
+import { getShortUrlQRCode, saveShortURL } from '../lib/shorten.fn';
+import { startFakePlaceClient } from './fake-session';
+import { mockData } from './mock-data';
+import { startMockPlaceClient } from './test-helpers';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -8,47 +12,54 @@ describe('short URLs', () => {
     beforeEach(() => vi.clearAllMocks());
 
     afterEach(() => {
-        vi.unstubAllGlobals();
         vi.restoreAllMocks();
     });
 
     describe('saveShortURL', () => {
-        // ts-client overloads put and post; the JSON overload is the one used.
-        type JsonRequest = (url: string, body: unknown) => Promise<object>;
-        const put = vi.mocked(ts_client.put as JsonRequest);
-        const post = vi.mocked(ts_client.post as JsonRequest);
-
         it('should update a URL that has an ID', async () => {
-            put.mockResolvedValue({ id: 'url-1', name: 'Saved' });
-
-            const saved = await saveShortURL({ id: 'url-1' } as ShortURL);
-
-            expect(put).toHaveBeenCalledWith('/api/engine/v2/short_url/url-1', {
+            const url = mockData(ts_client.ShortUrl, {
                 id: 'url-1',
+                name: 'Saved',
             });
-            expect(post).not.toHaveBeenCalled();
-            expect(saved).toEqual({ id: 'url-1', name: 'Saved' });
+            vi.mocked(ts_client.short_url.update).mockResolvedValue(
+                mockReply(url),
+            );
+
+            const saved = await saveShortURL({ id: 'url-1' });
+
+            expect(ts_client.short_url.update).toHaveBeenCalledWith({
+                id: 'url-1',
+                body: { id: 'url-1' },
+            });
+            expect(ts_client.short_url.create).not.toHaveBeenCalled();
+            expect(saved).toEqual(url);
         });
 
         it('should create a URL that has no ID', async () => {
-            post.mockResolvedValue({ id: 'url-2' });
+            const url = mockData(ts_client.ShortUrl, { id: 'url-2' });
+            vi.mocked(ts_client.short_url.create).mockResolvedValue(
+                mockReply(url),
+            );
 
-            const saved = await saveShortURL({ name: 'New' } as ShortURL);
+            const saved = await saveShortURL({ name: 'New' });
 
-            expect(post).toHaveBeenCalledWith('/api/engine/v2/short_url', {
-                name: 'New',
+            expect(ts_client.short_url.create).toHaveBeenCalledWith({
+                body: { name: 'New' },
             });
-            expect(put).not.toHaveBeenCalled();
-            expect(saved).toEqual({ id: 'url-2' });
+            expect(ts_client.short_url.update).not.toHaveBeenCalled();
+            expect(saved).toEqual(url);
         });
     });
 
     describe('getShortUrlQRCode', () => {
-        it('should fetch the QR code from the server once per format', async () => {
-            vi.mocked(ts_client.isMock).mockReturnValue(false);
-            vi.mocked(ts_client.token).mockReturnValue('token');
-            const fetch = vi.fn(async () => new Response('png'));
-            vi.stubGlobal('fetch', fetch);
+        it('should load the QR code from the server once per format', async () => {
+            startFakePlaceClient().signIn();
+            vi.mocked(ts_client.short_url.pngQr).mockResolvedValue(
+                mockReply(new Uint8Array([1, 2, 3])),
+            );
+            vi.mocked(ts_client.short_url.svgQr).mockResolvedValue(
+                mockReply('<svg></svg>'),
+            );
             vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:qr');
 
             expect(await getShortUrlQRCode('uri-server', 'png')).toBe(
@@ -59,21 +70,20 @@ describe('short URLs', () => {
             );
             await getShortUrlQRCode('uri-server', 'svg');
 
-            expect(fetch.mock.calls).toEqual([
-                ['/api/engine/v2/short_url/uri-server/qr_code.png'],
-                ['/api/engine/v2/short_url/uri-server/qr_code.svg'],
-            ]);
+            expect(ts_client.short_url.pngQr).toHaveBeenCalledTimes(1);
+            expect(ts_client.short_url.pngQr).toHaveBeenCalledWith({
+                id: 'uri-server',
+            });
+            expect(ts_client.short_url.svgQr).toHaveBeenCalledTimes(1);
         });
 
         it('should draw the QR code locally in mock mode', async () => {
-            vi.mocked(ts_client.isMock).mockReturnValue(true);
-            const fetch = vi.fn();
-            vi.stubGlobal('fetch', fetch);
+            startMockPlaceClient();
 
             const url = await getShortUrlQRCode('uri-mock');
 
             expect(url.startsWith('data:image/svg+xml,')).toBe(true);
-            expect(fetch).not.toHaveBeenCalled();
+            expect(ts_client.short_url.svgQr).not.toHaveBeenCalled();
         });
     });
 });

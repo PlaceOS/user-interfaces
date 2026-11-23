@@ -1,6 +1,6 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockDirective } from '@placeos/common/tests';
-import { getModule } from '@placeos/ts-client';
+import { startTestPlaceClient } from 'libs/components/src/tests/test-place-client';
 
 import { MatRippleModule } from '@angular/material/core';
 import {
@@ -10,8 +10,6 @@ import {
 import { MockModule } from 'ng-mocks';
 import { ControlStateService } from '../../app/control-state.service';
 import { TVControlsComponent } from '../../app/tabbed-view/tv-controls.component';
-
-vi.mock('@placeos/ts-client', { spy: true });
 
 describe('TVControlsComponent', () => {
     let spectator: Spectator<TVControlsComponent>;
@@ -77,12 +75,13 @@ describe('TVControlsComponent', () => {
 
     it('should execute the channel command on the mod when clicked', () => {
         const execute = vi.fn();
-        (getModule as any).mockReturnValue({ execute });
+        const place = startTestPlaceClient();
+        place.useExecute(execute);
         spectator.setInput('mod', 'IPTV');
         spectator.component.channel_list = [{ name: 'BBC', channel: 'bbc' }];
         spectator.detectChanges();
         spectator.click('button');
-        expect(getModule).toHaveBeenCalledWith('sys-1', 'IPTV');
+        expect(place.modules()).toContain('sys-1|IPTV_1');
         expect(execute).toHaveBeenCalledWith('channel', ['bbc']);
     });
 });

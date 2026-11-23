@@ -17,41 +17,34 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import {
-    addSignageTemplate,
-    addSignageTemplateMapping,
-    listSignageTemplateApprovers,
-    query,
-    querySignageTemplates,
-    removeSignageTemplate,
-    removeSignageTemplateDraft,
-    removeSignageTemplateMapping,
-    requestApprovalSignageTemplate,
-    showSignageTemplate,
-    type SignagePlaylistSchedule,
-    SignageTemplate,
-    type SignageTemplateApprover,
+    type PlaylistSchedule,
+    signage_template_mappings,
+    signage_templates,
+    type SignageTemplateInput,
     type SignageTemplateLayout,
-    updateSignageTemplate,
-    updateSignageTemplateMapping,
+    type SignageTemplate as SignageTemplateV7,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
 import { PagedList } from '../shared/paged-list';
 import { byName } from '../shared/paged-search';
 import type { TemplateRequestApprovalModalResult } from '../shared/template-request-approval-modal.component';
 import { SignageContextService } from '../signage-context.service';
+import { signageTemplate } from '../signage-models';
 import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
 import {
-    HydratedSignageTemplateMapping,
-    SignageTemplateMappingQuery,
-    SignageTemplateMappingTarget,
+    type HydratedSignageTemplateMapping,
+    hydratedTemplateMapping,
+    type SignageTemplateMappingQuery,
+    type SignageTemplateMappingTarget,
 } from '../signage-template-mapping';
 import { applyLayoutPositionDefaults } from './template-layout.util';
 
 /** Whether two records are approved and draft versions of one template. */
 export function isSameSignageTemplate(
-    first: SignageTemplate,
-    second: SignageTemplate,
+    first: SignageTemplateV7,
+    second: SignageTemplateV7,
 ) {
     return (
         (first.live_template_id || first.id) ===
@@ -64,10 +57,10 @@ export function isSameSignageTemplate(
  * changes as a draft record with its own ID, but routes and every template
  * call (update, approve, draft discard) use the live ID.
  */
-export function liveSignageTemplate(template: SignageTemplate) {
+export function liveSignageTemplate(template: SignageTemplateV7) {
     return template.live_template_id &&
         template.live_template_id !== template.id
-        ? new SignageTemplate({ ...template, id: template.live_template_id })
+        ? { ...template, id: template.live_template_id }
         : template;
 }
 
@@ -88,7 +81,7 @@ export class SignageTemplateService {
         this.template_search_term,
         400,
     );
-    private readonly _template_list = new PagedList<SignageTemplate>({
+    private readonly _template_list = new PagedList<SignageTemplateV7>({
         sort: byName,
     });
 
@@ -98,7 +91,9 @@ export class SignageTemplateService {
     // until it is approved, undone or deleted, or the group changes. A draft
     // made outside this session still shows as approved in the list, as the
     // index gives no sign of it.
-    private readonly _held_drafts = signal<Record<string, SignageTemplate>>({});
+    private readonly _held_drafts = signal<Record<string, SignageTemplateV7>>(
+        {},
+    );
 
     /** Loaded templates, with the drafts this session holds in place of their live records */
     public readonly templates = computed(() => {
@@ -150,12 +145,14 @@ export class SignageTemplateService {
             this._templates_queried.set(active);
             this._template_list.reset(
                 active
-                    ? querySignageTemplates(
-                          this._context.groupQueryParams(
-                              { limit, ...searchParam(search) },
-                              group_id,
-                          ),
-                      )
+                    ? signage_templates
+                          .query(
+                              this._context.groupQueryParams(
+                                  { limit, ...searchParam(search) },
+                                  group_id,
+                              ),
+                          )
+                          .then(orThrowPage)
                     : null,
                 { keep_items: same_query },
             );
@@ -185,7 +182,11 @@ export class SignageTemplateService {
         const group_id = this._context.api_group_id();
         try {
             const template = liveSignageTemplate(
-                decodeEntityNames(await showSignageTemplate(template_id)),
+                decodeEntityNames(
+                    await signage_templates
+                        .show({ id: template_id })
+                        .then(orThrow),
+                ),
             );
             // The group changed while it loaded, so it may be the old group's
             if (this._context.api_group_id() !== group_id) return null;
@@ -208,15 +209,15 @@ export class SignageTemplateService {
 
     public async listApprovedTemplates() {
         if (!this._context.canQueryLists()) return [];
-        const result = await query<SignageTemplate>({
-            path: 'signage/templates',
-            query_params: this._context.groupQueryParams({
-                approved: true,
-                limit: 10_000,
-            }),
-            fn: (data) => new SignageTemplate(decodeEntityNames(data)),
-        });
-        return result.data;
+        const result = await signage_templates
+            .query(
+                this._context.groupQueryParams({
+                    approved: true,
+                    limit: 10_000,
+                }),
+            )
+            .then(orThrowPage);
+        return result.data.map(decodeEntityNames);
     }
 
     /** Refresh assignment counts after template mappings change. */
@@ -228,19 +229,18 @@ export class SignageTemplateService {
         query_params: SignageTemplateMappingQuery,
     ) {
         if (!this._context.canQueryLists()) return [];
-        const result = await query<HydratedSignageTemplateMapping>({
-            path: 'signage/template_mappings',
-            query_params: { ...query_params, limit: 10_000 },
-            fn: (data) =>
-                new HydratedSignageTemplateMapping({
-                    ...data,
-                    template_details: decodeEntityNames(data.template_details),
-                }),
-        });
-        return result.data;
+        const result = await signage_template_mappings
+            .query({ ...query_params, limit: 10_000 })
+            .then(orThrowPage);
+        return result.data.map((data) =>
+            hydratedTemplateMapping({
+                ...data,
+                template_details: decodeEntityNames(data.template_details),
+            }),
+        );
     }
 
-    public readonly selected_template = signal<SignageTemplate | null>(null);
+    public readonly selected_template = signal<SignageTemplateV7 | null>(null);
     public readonly selected_template_requires_approval = computed(() => {
         const template = this.selected_template();
         return !!template?.id && !template.approved;
@@ -254,7 +254,7 @@ export class SignageTemplateService {
     // the selection (or its saved layouts) change, except that unsaved edits
     // survive a refresh of the same template (details edit, approval).
     public readonly template_layout_draft = linkedSignal<
-        SignageTemplate | null,
+        SignageTemplateV7 | null,
         SignageTemplateLayout[]
     >({
         source: this.selected_template,
@@ -268,7 +268,7 @@ export class SignageTemplateService {
                     JSON.stringify(previous_template.layouts ?? []);
             return keep_draft
                 ? previous.value
-                : structuredClone(template?.layouts ?? []);
+                : structuredClone([...(template?.layouts ?? [])]);
         },
     });
     public readonly template_layout_dirty = computed(
@@ -289,8 +289,8 @@ export class SignageTemplateService {
             await import('../shared/template-edit-modal.component');
         const ref = this._dialog.open(TemplateEditModalComponent, {
             data: {
-                template: new SignageTemplate({}),
-                onAdd: (data: Partial<SignageTemplate>) =>
+                template: signageTemplate(),
+                onAdd: (data: SignageTemplateInput) =>
                     this._addSignageTemplate(data),
             },
             panelClass: 'mobile-fullscreen',
@@ -301,7 +301,7 @@ export class SignageTemplateService {
         }
     }
 
-    public async editTemplate(template: SignageTemplate) {
+    public async editTemplate(template: SignageTemplateV7) {
         if (
             !this._context.requirePermission(
                 this._context.can_update_templates(),
@@ -315,8 +315,8 @@ export class SignageTemplateService {
             data: {
                 template,
                 group_id: this._context.api_group_id(),
-                onEdit: (id: string, data: Partial<SignageTemplate>) =>
-                    updateSignageTemplate(id, data),
+                onEdit: (id: string, data: SignageTemplateInput) =>
+                    signage_templates.update({ id, body: data }).then(orThrow),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -339,7 +339,7 @@ export class SignageTemplateService {
         )
             return false;
         if (this.template_mapping_opening()) return false;
-        let templates: SignageTemplate[] = [];
+        let templates: readonly SignageTemplateV7[] = [];
         this.template_mapping_opening.set(true);
         try {
             if (!mapping) templates = await this.listApprovedTemplates();
@@ -357,15 +357,21 @@ export class SignageTemplateService {
                 templates,
                 save: (
                     template_id: string,
-                    schedule: SignagePlaylistSchedule | null,
+                    schedule: PlaylistSchedule | null,
                 ) =>
                     mapping
-                        ? updateSignageTemplateMapping(mapping.id, { schedule })
-                        : addSignageTemplateMapping({
-                              ...target,
-                              template_id,
-                              schedule,
-                          }),
+                        ? signage_template_mappings
+                              .update({ id: mapping.id, body: { schedule } })
+                              .then(orThrow)
+                        : signage_template_mappings
+                              .create({
+                                  body: {
+                                      ...target,
+                                      template_id,
+                                      schedule,
+                                  },
+                              })
+                              .then(orThrow),
             },
             panelClass: 'mobile-fullscreen',
         });
@@ -401,7 +407,10 @@ export class SignageTemplateService {
             {
                 loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
                 error_key: 'SIGNAGE_MANAGER.SVC_TEMPLATE_MAPPING_REMOVE_ERROR',
-                action: () => removeSignageTemplateMapping(mapping.id),
+                action: () =>
+                    signage_template_mappings
+                        .destroy({ id: mapping.id })
+                        .then(orThrow),
             },
         );
         if (!removed) return false;
@@ -410,7 +419,7 @@ export class SignageTemplateService {
         return true;
     }
 
-    public async approveTemplate(template: SignageTemplate) {
+    public async approveTemplate(template: SignageTemplateV7) {
         if (!template?.id || this._templateLayoutUnsaved(template)) return;
         if (
             !this._context.requirePermission(
@@ -427,7 +436,7 @@ export class SignageTemplateService {
         });
     }
 
-    public async requestTemplateApproval(template: SignageTemplate) {
+    public async requestTemplateApproval(template: SignageTemplateV7) {
         if (!template?.id || this.template_approval_request_loading()) return;
         if (this._templateLayoutUnsaved(template)) return;
         await this._context.requestApproval({
@@ -435,11 +444,11 @@ export class SignageTemplateService {
             loading: this.template_approval_request_loading,
             approve: () => this.approveTemplate(template),
             query: (group_id) =>
-                querySignageTemplates({ group_id, limit: 500 }),
+                signage_templates
+                    .query({ group_id, limit: 500 })
+                    .then(orThrowPage),
             list_approvers: (group_id) =>
-                listSignageTemplateApprovers(group_id) as Promise<
-                    SignageTemplateApprover[]
-                >,
+                signage_templates.approvers({ group_id }).then(orThrow),
             pick: async (approvers) => {
                 const { TemplateRequestApprovalModalComponent } =
                     await import('../shared/template-request-approval-modal.component');
@@ -453,12 +462,14 @@ export class SignageTemplateService {
                 return dialogClosed<TemplateRequestApprovalModalResult>(ref);
             },
             request: (group_id, message, approver_id) =>
-                requestApprovalSignageTemplate(
-                    template.id,
-                    group_id,
-                    message,
-                    approver_id,
-                ),
+                signage_templates
+                    .requestApproval({
+                        id: template.id,
+                        group_id,
+                        approver_id,
+                        body: { message },
+                    })
+                    .then(orThrow),
             requested: () =>
                 this.setTemplateApprovalStatus(template.id, false, true),
             no_groups_key: 'SIGNAGE_MANAGER.SVC_NO_GROUPS_FOR_TEMPLATE',
@@ -472,7 +483,7 @@ export class SignageTemplateService {
      * Delete a template after confirmation.
      * @returns Whether the template was deleted
      */
-    public async removeTemplate(template: SignageTemplate) {
+    public async removeTemplate(template: SignageTemplateV7) {
         if (!template?.id) return false;
         if (
             !this._context.requirePermission(
@@ -494,10 +505,12 @@ export class SignageTemplateService {
                 loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
                 error_key: 'SIGNAGE_MANAGER.SVC_TEMPLATE_REMOVE_ERROR',
                 action: () =>
-                    removeSignageTemplate(
-                        template.id,
-                        this._context.groupQueryParams({}),
-                    ),
+                    signage_templates
+                        .destroy({
+                            id: template.id,
+                            ...this._context.groupQueryParams({}),
+                        })
+                        .then(orThrow),
             },
         );
         if (!removed) return false;
@@ -521,7 +534,7 @@ export class SignageTemplateService {
      * unapproved and has no template mappings.
      * @returns The new template, or null when no copy was made
      */
-    public async duplicateTemplate(template: SignageTemplate) {
+    public async duplicateTemplate(template: SignageTemplateV7) {
         if (!template?.id) return null;
         if (
             !this._context.requirePermission(
@@ -553,7 +566,7 @@ export class SignageTemplateService {
         }
     }
 
-    public async shareTemplate(template: SignageTemplate) {
+    public async shareTemplate(template: SignageTemplateV7) {
         if (!template?.id) return;
         await this._context.shareItems('templates', [template.id]);
     }
@@ -573,12 +586,15 @@ export class SignageTemplateService {
             const layouts = this.template_layout_draft().map(
                 applyLayoutPositionDefaults,
             );
-            const response = await updateSignageTemplate(template.id, {
-                layouts,
-            });
-            const result = decodeEntityNames(
-                new SignageTemplate({ ...response, layouts }),
-            );
+            const response = await signage_templates
+                .update({
+                    id: template.id,
+                    body: {
+                        layouts,
+                    },
+                })
+                .then(orThrow);
+            const result = decodeEntityNames({ ...response, layouts });
             this.updateCachedTemplate(result);
             // The draft is kept while dirty, so reset it to the saved layouts
             this.discardTemplateLayoutDraft();
@@ -590,7 +606,7 @@ export class SignageTemplateService {
 
     public discardTemplateLayoutDraft() {
         this.template_layout_draft.set(
-            structuredClone(this.selected_template()?.layouts ?? []),
+            structuredClone([...(this.selected_template()?.layouts ?? [])]),
         );
     }
 
@@ -601,7 +617,7 @@ export class SignageTemplateService {
      */
     public async undoTemplateChanges(
         template_id: string,
-        previous_version: SignageTemplate,
+        previous_version: SignageTemplateV7,
     ) {
         if (
             !this._context.requirePermission(
@@ -623,7 +639,10 @@ export class SignageTemplateService {
             {
                 loading_key: 'SIGNAGE_MANAGER.UNDOING_CHANGES',
                 error_key: 'SIGNAGE_MANAGER.TEMPLATE_REVERT_ERROR',
-                action: () => removeSignageTemplateDraft(template_id),
+                action: () =>
+                    signage_templates
+                        .destroyDraft({ id: template_id })
+                        .then(orThrow),
             },
         );
         if (!undone) return false;
@@ -642,17 +661,15 @@ export class SignageTemplateService {
             this.templates().find((item) => item.id === template_id) ||
             this.selected_template();
         if (!template || template.id !== template_id) return;
-        this.updateCachedTemplate(
-            new SignageTemplate({
-                ...template,
-                approved,
-                approval_requested,
-            }),
-        );
+        this.updateCachedTemplate({
+            ...template,
+            approved,
+            approval_requested,
+        });
     }
 
     /** Replace the loaded copies of a template. Stores it under its live ID. */
-    public updateCachedTemplate(changed: SignageTemplate) {
+    public updateCachedTemplate(changed: SignageTemplateV7) {
         const template = liveSignageTemplate(changed);
         this._holdDraft(template);
         this._template_list.update((items) =>
@@ -675,7 +692,7 @@ export class SignageTemplateService {
      * that was never approved, is held only when it replaces a held draft.
      * @param template A template under its live ID
      */
-    private _holdDraft(template: SignageTemplate) {
+    private _holdDraft(template: SignageTemplateV7) {
         if (template.approved) {
             this._releaseDraft(template.id);
             return;
@@ -699,7 +716,7 @@ export class SignageTemplateService {
     }
 
     /** Warn and return true when `template` has unsaved layout edits */
-    private _templateLayoutUnsaved(template: SignageTemplate) {
+    private _templateLayoutUnsaved(template: SignageTemplateV7) {
         const selected_template = this.selected_template();
         if (
             !selected_template ||
@@ -711,10 +728,12 @@ export class SignageTemplateService {
         return true;
     }
 
-    private _addSignageTemplate(form_data: Partial<SignageTemplate>) {
-        return addSignageTemplate(
-            form_data,
-            this._context.groupQueryParams({}),
-        );
+    private _addSignageTemplate(form_data: SignageTemplateInput) {
+        return signage_templates
+            .create({
+                ...this._context.groupQueryParams({}),
+                body: form_data,
+            })
+            .then(orThrow);
     }
 }

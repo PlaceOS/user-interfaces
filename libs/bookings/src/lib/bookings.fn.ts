@@ -1,27 +1,27 @@
+import { type CallError, type JsonValue } from '@placeos/ts-client';
 import {
-    cleanObject,
-    del,
-    get,
-    patch,
-    post,
-    put,
-    query,
-} from '@placeos/ts-client';
+    CallFailed,
+    orThrow,
+    orThrowPage,
+    type Page,
+} from '@placeos/ts-client/compat';
+import { bookings, Booking as StaffBooking } from '@placeos/ts-client/staff';
 
 import {
     appDetails,
     BookableResource,
     Booking,
     BookingClash,
+    BookingComplete,
     BookingType,
     CalendarEvent,
+    cleanObject,
     currentUser,
     flatten,
     fromBookingRecurrence,
     isRecurrenceInstanceDate,
     readAttendeeFlags,
     setting,
-    toQueryString,
     unique,
     User,
     VERSION,
@@ -39,6 +39,7 @@ import {
     subDays,
 } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
+import { requestBody } from './request-body';
 
 export interface WaitlistWeekStart {
     /** Day of the week the waitlist week starts on. `0` is Sunday */
@@ -119,7 +120,85 @@ export interface BookingsQueryParams {
     rejected?: boolean;
 }
 
-const BOOKINGS_ENDPOINT = `/api/staff/v1/bookings`;
+type StaffBookingQuery = NonNullable<Parameters<typeof bookings.query>[0]>;
+type StaffBookedQuery = NonNullable<Parameters<typeof bookings.booked>[0]>;
+
+/** Input of the staff `bookings.query` operation for the given parameters */
+function bookingQuery(q: BookingsQueryParams): StaffBookingQuery {
+    return {
+        period_start: q.period_start,
+        period_end: q.period_end,
+        type: q.type,
+        zones: q.zones,
+        user: q.user,
+        email: q.email,
+        include_checked_out: q.include_checked_out,
+        include_booked_by: q.include_booked_by,
+        include_deleted: q.include_deleted,
+        deleted: q.deleted,
+        event_id: q.event_id,
+        ical_uid: q.ical_uid,
+        limit: q.limit,
+        rejected: q.rejected,
+    };
+}
+
+/**
+ * Input of the staff `bookings.booked` operation for the given parameters.
+ * The operation has no deleted, checked out or rejected filters
+ */
+function bookedQuery(q: BookingsQueryParams, limit: number): StaffBookedQuery {
+    return {
+        period_start: q.period_start,
+        period_end: q.period_end,
+        type: q.type,
+        zones: q.zones,
+        user: q.user,
+        email: q.email,
+        include_booked_by: q.include_booked_by,
+        event_id: q.event_id,
+        ical_uid: q.ical_uid,
+        limit,
+    };
+}
+
+/**
+ * Integer id of a booking for the staff API. The app types booking ids as
+ * strings, and the API sends and reads them as integers
+ * @param id Id of the booking
+ */
+export function bookingId(id: string | number): number {
+    const value = Number(id);
+    if (`${id}`.trim() === '' || !Number.isSafeInteger(value)) {
+        throw new Error(`Booking id is not an integer: ${id}`);
+    }
+    return value;
+}
+
+/**
+ * App `Booking` from the data of the staff API.
+ * The class reads the raw API data, as it did in 6.x. Its constructor type
+ * has the app types of the fields, such as a string `id`, so the data needs
+ * a cast until the class accepts the staff `Booking` type.
+ * @param data Booking from the staff API
+ */
+export function toBooking(data: StaffBooking): Booking {
+    return new Booking(data as unknown as Partial<BookingComplete>);
+}
+
+/** Page of a list with each item changed by `fn`, also on the next pages */
+function mapPage<T, U>(
+    page: Page<readonly T[]>,
+    fn: (item: T) => U,
+): Page<U[]> {
+    const next = page.next;
+    return {
+        data: page.data.map(fn),
+        total: page.total,
+        next_offset: page.next_offset,
+        next: next ? () => next()?.then((_) => mapPage(_, fn)) ?? null : null,
+    };
+}
 
 function bookingUtmSource() {
     return `${appDetails().app_name}_${VERSION.hash}_${currentUser().email || ''}`;
@@ -137,6 +216,11 @@ function withAppVersion(data: NewBookingData): NewBookingData {
             ...appDetails(),
         },
     };
+}
+
+/** Request body of a booking with the app version in its extension data */
+function bookingBody(data: NewBookingData) {
+    return requestBody(StaffBooking, withAppVersion(data));
 }
 
 /**
@@ -157,9 +241,8 @@ export async function queryBookings(
 export async function queryBookingsOrThrow(
     q: BookingsQueryParams,
 ): Promise<Booking[]> {
-    const query = toQueryString(q);
-    const list = await get(`${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`);
-    return list.map((item) => new Booking(item));
+    const list = await bookings.query(bookingQuery(q)).then(orThrow);
+    return list.map(toBooking);
 }
 
 /**
@@ -171,19 +254,20 @@ export async function bookedResourceList(
     resource_count?: number,
 ): Promise<string[]> {
     try {
-        let { data, next, total } = await query<string>({
-            query_params: { ...q, limit: Math.max(200, resource_count || 0) },
-            endpoint: BOOKINGS_ENDPOINT,
-            path: 'booked',
-        });
-        let list = [...data];
+        let page = await bookings
+            .booked(bookedQuery(q, Math.max(200, resource_count || 0)))
+            .then(orThrowPage);
+        const list = [...page.data];
         let count = 1;
-        while (next && (!total || list.length < total) && count <= MAX_PAGES) {
-            const resp = await next();
-            data = resp.data;
-            next = resp.next;
-            total = resp.total;
-            list = [...list, ...data];
+        while (
+            page.next &&
+            (!page.total || list.length < page.total) &&
+            count <= MAX_PAGES
+        ) {
+            const next = page.next();
+            if (!next) break;
+            page = await next;
+            list.push(...page.data);
             count += 1;
         }
         return unique(list);
@@ -199,6 +283,25 @@ export interface BookingClashQueryOptions {
     include_clash_time?: boolean;
 }
 
+/** Whether a JSON value is an object, not an array or a scalar */
+function isJsonRecord(
+    value: JsonValue,
+): value is { readonly [key: string]: JsonValue } {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/** A clash from the JSON list of the clashing assets endpoint, or `null` */
+export function toBookingClash(item: JsonValue): BookingClash | null {
+    if (!isJsonRecord(item)) return null;
+    const { asset_id, booking_start, booking_end } = item;
+    if (typeof asset_id !== 'string') return null;
+    return {
+        asset_id,
+        booking_start: typeof booking_start === 'number' ? booking_start : 0,
+        booking_end: typeof booking_end === 'number' ? booking_end : 0,
+    };
+}
+
 /**
  * List resources that clash within the given parameters
  * @param q Parameters to pass to the API request
@@ -207,15 +310,17 @@ export async function findBookingClashes(
     booking: Booking,
     q: BookingClashQueryOptions = {},
 ): Promise<string[] | BookingClash[]> {
-    const query = toQueryString({ ...q, limit: 1000 });
     try {
-        const list = await post(
-            `${BOOKINGS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
-            booking.toJSON(),
-        ).catch(() => []);
+        const list = await bookings
+            .clashingAssets({
+                return_available: q.return_available,
+                include_clash_time: q.include_clash_time,
+                body: requestBody(StaffBooking, booking.toJSON()),
+            })
+            .then(orThrow);
         return q.include_clash_time
-            ? (list as BookingClash[])
-            : (list as string[]);
+            ? list.map(toBookingClash).filter((_) => !!_)
+            : list.filter((_): _ is string => typeof _ === 'string');
     } catch (_) {
         return [];
     }
@@ -225,13 +330,13 @@ export async function findBookingClashes(
  * List bookings with link to next page of bookings
  * @param q Parameters to pass to the API request
  */
-export function queryPagedBookings(q: BookingsQueryParams) {
-    return query<Booking>({
-        query_params: q,
-        fn: (item) => new Booking(item),
-        endpoint: BOOKINGS_ENDPOINT,
-        path: '',
-    });
+export function queryPagedBookings(
+    q: BookingsQueryParams,
+): Promise<Page<Booking[]>> {
+    return bookings
+        .query(bookingQuery(q))
+        .then(orThrowPage)
+        .then((page) => mapPage(page, toBooking));
 }
 
 const MAX_PAGES = 50;
@@ -283,20 +388,15 @@ async function queryAllBookingPages(
     signal?: AbortSignal,
 ): Promise<Booking[]> {
     if (signal?.aborted) return [];
-    let { data, next } = await query<Booking>({
-        query_params: q,
-        fn: (item) => new Booking(item),
-        endpoint: BOOKINGS_ENDPOINT,
-        path: '',
-    });
-    const list = [...data];
+    let page = await queryPagedBookings(q);
+    const list = [...page.data];
     let count = 1;
-    while (next && count <= MAX_PAGES) {
+    while (page.next && count <= MAX_PAGES) {
         if (signal?.aborted) return [];
-        const resp = await next();
-        data = resp.data;
-        next = resp.next;
-        list.push(...data);
+        const next = page.next();
+        if (!next) break;
+        page = await next;
+        list.push(...page.data);
         count += 1;
     }
     return signal?.aborted ? [] : list;
@@ -308,9 +408,7 @@ async function queryAllBookingPages(
  * @param q Parameters to pass to the API request
  */
 export async function showBooking(id: string): Promise<Booking> {
-    return new Booking(
-        await get(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`),
-    );
+    return toBooking(await bookings.show({ id: bookingId(id) }).then(orThrow));
 }
 
 /**
@@ -341,32 +439,33 @@ export async function createBooking(
     data: NewBookingData,
     q?: { event_id?: string; ical_uid?: string },
 ): Promise<Booking> {
-    const query = toQueryString({ ...q, utm_source: bookingUtmSource() });
-    return new Booking(
-        await post(
-            `${BOOKINGS_ENDPOINT}${query ? '?' + query : ''}`,
-            withAppVersion(data),
-        ),
-    );
+    const booking = await bookings
+        .create({
+            utm_source: bookingUtmSource(),
+            ...(q?.event_id ? { event_id: q.event_id } : {}),
+            ...(q?.ical_uid ? { ical_uid: q.ical_uid } : {}),
+            body: bookingBody(data),
+        })
+        .then(orThrow);
+    return toBooking(booking);
 }
 
 /**
  * Update an existing booking
  * @param id ID of the booking to update
  * @param data New values for booking fields
- * @param method HTTP verb to use with API request
+ * @param _method Not used. The API has one update action, so PUT and PATCH
+ *   both send PATCH
  */
 export async function updateBooking(
     id: string,
     data: Partial<Booking>,
-    method: 'put' | 'patch' = 'patch',
+    _method: 'put' | 'patch' = 'patch',
 ): Promise<Booking> {
-    return new Booking(
-        await (method === 'patch' ? patch : put)(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}`,
-            withAppVersion(data),
-        ),
-    );
+    const booking = await bookings
+        .update({ id: bookingId(id), body: bookingBody(data) })
+        .then(orThrow);
+    return toBooking(booking);
 }
 
 /**
@@ -378,12 +477,10 @@ export async function updateBookingInductionStatus(
     id: string,
     status: 'tentative' | 'accepted' | 'declined',
 ): Promise<Booking> {
-    return new Booking(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/update_induction?induction=${encodeURIComponent(status)}`,
-            {},
-        ),
-    );
+    const booking = await bookings
+        .updateInduction({ id: bookingId(id), induction: status })
+        .then(orThrow);
+    return toBooking(booking);
 }
 
 /**
@@ -391,20 +488,23 @@ export async function updateBookingInductionStatus(
  * @param id ID of the booking to update
  * @param start_time Unix seconds of the start time of the booking
  * @param data New values for booking fields
- * @param method HTTP verb to use with API request
+ * @param _method Not used. The API has one update action, so PUT and PATCH
+ *   both send PATCH
  */
 export async function updateBookingInstance(
     id: string,
     start_time: number,
     data: Partial<Booking>,
-    method: 'put' | 'patch' = 'patch',
+    _method: 'put' | 'patch' = 'patch',
 ): Promise<Booking> {
-    return new Booking(
-        await (method === 'patch' ? patch : put)(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}`,
-            withAppVersion(data),
-        ),
-    );
+    const booking = await bookings
+        .updateInstance({
+            id: bookingId(id),
+            instance: start_time,
+            body: bookingBody(data),
+        })
+        .then(orThrow);
+    return toBooking(booking);
 }
 
 /**
@@ -442,17 +542,17 @@ export const saveBooking = async (
  * @param q Set `instance` and `start_time` to remove only one instance of a
  *   recurring booking
  */
-export function removeBooking(
+export async function removeBooking(
     id: string,
     q: { instance?: boolean; start_time?: number } = {},
 ): Promise<void> {
     if (q.instance) {
         return removeBookingInstance(id, q.start_time);
     }
-    const query = toQueryString({ utm_source: bookingUtmSource() });
-    return del(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}?${query}`, {
-        response_type: 'void',
-    });
+    return bookings
+        .destroy({ id: bookingId(id), utm_source: bookingUtmSource() })
+        .then(orThrow)
+        .then(() => undefined);
 }
 
 /** Whether two bookings overlap by time-of-day (all-day spans the whole day) */
@@ -490,8 +590,9 @@ async function overlappingRecurringBookings(
     const recurrence = fromBookingRecurrence(booking);
     return existing.filter(
         (other) =>
-            other.id !== booking.id &&
-            other.parent_id !== booking.id &&
+            // The API sends integer ids, and the app can hold string ones
+            `${other.id}` !== `${booking.id}` &&
+            `${other.parent_id}` !== `${booking.id}` &&
             other.status !== 'declined' &&
             other.status !== 'cancelled' &&
             !other.rejected &&
@@ -555,17 +656,18 @@ export async function cancelOverlappingRecurringBookings(
  * @param id ID of the booking to update
  * @param start_time Unix seconds of the start time of the booking
  */
-export function removeBookingInstance(
+export async function removeBookingInstance(
     id: string,
     start_time: number,
 ): Promise<void> {
-    const query = toQueryString({ utm_source: bookingUtmSource() });
-    return del(
-        `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/instance/${start_time}?${query}`,
-        {
-            response_type: 'void',
-        },
-    );
+    return bookings
+        .destroyInstance({
+            id: bookingId(id),
+            instance: start_time,
+            utm_source: bookingUtmSource(),
+        })
+        .then(orThrow)
+        .then(() => undefined);
 }
 
 /**
@@ -574,11 +676,8 @@ export function removeBookingInstance(
  * @param system_id Associated system to approve
  */
 export async function approveBooking(id: string): Promise<Booking> {
-    return new Booking(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve`,
-            '',
-        ),
+    return toBooking(
+        await bookings.approve({ id: bookingId(id) }).then(orThrow),
     );
 }
 
@@ -591,11 +690,10 @@ export async function approveBookingInstance(
     id: string,
     start_time: number,
 ): Promise<Booking> {
-    return new Booking(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/approve/${start_time}`,
-            '',
-        ),
+    return toBooking(
+        await bookings
+            .approveInstance({ id: bookingId(id), instance: start_time })
+            .then(orThrow),
     );
 }
 
@@ -605,8 +703,8 @@ export async function approveBookingInstance(
  * @param system_id Associated system to reject
  */
 export async function rejectBooking(id: string): Promise<Booking> {
-    return new Booking(
-        await post(`${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject`, ''),
+    return toBooking(
+        await bookings.reject({ id: bookingId(id) }).then(orThrow),
     );
 }
 
@@ -619,24 +717,23 @@ export async function rejectBookingInstance(
     id: string,
     start_time: number,
 ): Promise<Booking> {
-    return new Booking(
-        await post(
-            `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/reject/${start_time}`,
-            '',
-        ),
+    return toBooking(
+        await bookings
+            .rejectInstance({ id: bookingId(id), instance: start_time })
+            .then(orThrow),
     );
 }
 
 /**
- * Throw the error message from the body of a failed check-in response. Errors
- * that are not a `Response`, such as a network failure, and bodies that are not
- * JSON are thrown unchanged.
- * @param e Error from the check-in request
+ * Throw the error message from the body of a failed check-in response. A
+ * failure without an HTTP body, such as a network failure, throws the error
+ * of the call.
+ * @param error Error of the check-in call
  */
-async function checkinError(e: unknown): Promise<never> {
-    if (!(e instanceof Response)) throw e;
-    const body = await e.json().catch(() => null);
-    throw body?.error || body?.message || body || e;
+function checkinError(error: CallError): never {
+    const body = error.kind === 'http' ? error.body : null;
+    const record = body !== null && isJsonRecord(body) ? body : {};
+    throw record['error'] || record['message'] || body || new CallFailed(error);
 }
 
 /**
@@ -648,17 +745,13 @@ export async function checkinBooking(
     id: string,
     state: boolean,
 ): Promise<Booking> {
-    const query = toQueryString({ state });
-    try {
-        return new Booking(
-            await post(
-                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in?${query}&utm_source=${bookingUtmSource()}`,
-                '',
-            ),
-        );
-    } catch (e) {
-        return checkinError(e);
-    }
+    const result = await bookings.checkIn({
+        id: bookingId(id),
+        state,
+        utm_source: bookingUtmSource(),
+    });
+    if (result.ok === false) checkinError(result.error);
+    return toBooking(result.value.data);
 }
 
 /**
@@ -672,17 +765,14 @@ export async function checkinBookingInstance(
     start_time: number,
     state: boolean,
 ): Promise<Booking> {
-    const query = toQueryString({ state });
-    try {
-        return new Booking(
-            await post(
-                `${BOOKINGS_ENDPOINT}/${encodeURIComponent(id)}/check_in/${start_time}?${query}&utm_source=${bookingUtmSource()}`,
-                '',
-            ),
-        );
-    } catch (e) {
-        return checkinError(e);
-    }
+    const result = await bookings.checkInInstance({
+        id: bookingId(id),
+        instance: start_time,
+        state,
+        utm_source: bookingUtmSource(),
+    });
+    if (result.ok === false) checkinError(result.error);
+    return toBooking(result.value.data);
 }
 
 /**
@@ -731,7 +821,7 @@ export async function queryResourceAvailability(
             !bookings.find(
                 (b) =>
                     (b.asset_id === id || b.asset_ids.includes(id)) &&
-                    (!ignore || ignore !== b.id),
+                    (!ignore || ignore !== `${b.id}`),
             ),
     );
 }

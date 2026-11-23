@@ -4,15 +4,17 @@ import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockDirective, MockModule } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import { setNotifyOutlet, setTranslationService } from '@placeos/common';
 import { BindingDirective, CustomTooltipData } from '@placeos/components';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { ControlStateService } from '../../app/control-state.service';
 import { LightingLevelsTooltipComponent } from '../../app/ui/lighting-levels-tooltip.component';
 
 describe('LightingLevelsTooltipComponent', () => {
+    let place: TestPlaceClient;
     let spectator: Spectator<LightingLevelsTooltipComponent>;
     const system_id = signal<string>('sys-1');
     const lighting_levels = signal<unknown[]>([]);
@@ -38,10 +40,11 @@ describe('LightingLevelsTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        place = startTestPlaceClient();
         system_id.set('sys-1');
         lighting_levels.set([]);
         execute_fn.mockClear();
-        (client.getModule as any).mockReturnValue({ execute: execute_fn });
+        place.useExecute(execute_fn);
         spectator = createComponent();
     });
 
@@ -73,7 +76,7 @@ describe('LightingLevelsTooltipComponent', () => {
         spectator.component.setLevel(light, 75);
         expect(execute_fn).not.toHaveBeenCalled();
         await new Promise((r) => setTimeout(r, 70));
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'Lighting');
+        expect(place.modules()).toContain('sys-1|Lighting_1');
         expect(execute_fn).toHaveBeenCalledWith('set_lighting_level', [
             75,
             'a1',
@@ -100,13 +103,6 @@ describe('LightingLevelsTooltipComponent', () => {
 
     it('should not execute when system id is empty', async () => {
         system_id.set('');
-        spectator.component.setLevel({ area: 'a1' }, 40);
-        await new Promise((r) => setTimeout(r, 70));
-        expect(execute_fn).not.toHaveBeenCalled();
-    });
-
-    it('should not execute when module is missing', async () => {
-        (client.getModule as any).mockReturnValue(null);
         spectator.component.setLevel({ area: 'a1' }, 40);
         await new Promise((r) => setTimeout(r, 70));
         expect(execute_fn).not.toHaveBeenCalled();

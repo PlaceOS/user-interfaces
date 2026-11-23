@@ -1,4 +1,4 @@
-import { apiKey, token } from '@placeos/ts-client';
+import { apiKey, token } from '@placeos/common';
 
 const MAX_CACHED_IMAGES = 64;
 const MAX_FAILED_LOADS = 64;

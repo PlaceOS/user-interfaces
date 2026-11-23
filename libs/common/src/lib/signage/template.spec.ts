@@ -8,7 +8,14 @@ import {
 const layout = (
     position: SignageTemplateLayout['position'],
     values: Partial<SignageTemplateLayout> = {},
-): SignageTemplateLayout => ({ position, plugin_params: {}, ...values });
+): SignageTemplateLayout => ({
+    plugin_id: null,
+    position,
+    x_pos: null,
+    y_pos: null,
+    plugin_params: {},
+    ...values,
+});
 
 /** Rectangles of the layouts, in order */
 const rects = (layouts: SignageTemplateLayout[]) =>

@@ -2,7 +2,8 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { listSignagePlaylistMediaRevisions } from '@placeos/ts-client';
+import { playlist } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { MediaPreviewService } from '../../app/media/media-preview.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { PlaylistRequestApprovalModalComponent } from '../../app/shared/playlist-request-approval-modal.component';
@@ -38,31 +39,33 @@ describe('PlaylistRequestApprovalModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         context.can_update.set(true);
-        (listSignagePlaylistMediaRevisions as any).mockResolvedValue([
-            {
-                id: 'current-version',
-                items: ['media-1', 'media-3'],
-                media: [
-                    {
-                        id: 'media-1',
-                        name: 'Media 1',
-                    },
-                    {
-                        id: 'media-3',
-                        name: 'Plugin',
-                        media_type: 'plugin',
-                    },
-                ],
-                updated_at: 1,
-            },
-            {
-                id: 'previous-version',
-                items: ['media-2'],
-                media: [{ id: 'media-2', name: 'Media 2' }],
-                updated_at: 2,
-                approved: true,
-            },
-        ]);
+        (playlist.mediaRevisions as any).mockResolvedValue(
+            mockReply([
+                {
+                    id: 'current-version',
+                    items: ['media-1', 'media-3'],
+                    media: [
+                        {
+                            id: 'media-1',
+                            name: 'Media 1',
+                        },
+                        {
+                            id: 'media-3',
+                            name: 'Plugin',
+                            media_type: 'plugin',
+                        },
+                    ],
+                    updated_at: 1,
+                },
+                {
+                    id: 'previous-version',
+                    items: ['media-2'],
+                    media: [{ id: 'media-2', name: 'Media 2' }],
+                    updated_at: 2,
+                    approved: true,
+                },
+            ]),
+        );
         await TestBed.configureTestingModule({
             imports: [PlaylistRequestApprovalModalComponent],
             providers: [
@@ -161,7 +164,7 @@ describe('PlaylistRequestApprovalModalComponent', () => {
     });
 
     it('shows an error, not empty versions, when the versions fail to load', async () => {
-        (listSignagePlaylistMediaRevisions as any).mockRejectedValue(
+        (playlist.mediaRevisions as any).mockRejectedValue(
             new Error('Forbidden'),
         );
         const fixture = TestBed.createComponent(

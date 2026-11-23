@@ -1,5 +1,6 @@
 import { HashMap } from '@placeos/common';
-import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
+import { type SignagePlugin } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 
 export interface MediaPlayerItem {
     id: string;

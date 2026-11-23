@@ -1,10 +1,11 @@
 import { Component, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as ts_client from '@placeos/ts-client';
 import { AuthenticatedImageDirective } from '../lib/authenticated-image.directive';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 @Component({
     template: `<video auth [source]="source()"></video>`,
@@ -23,6 +24,10 @@ class ImageHostComponent {
 }
 
 describe('AuthenticatedImageDirective', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     afterEach(() => {
         vi.useRealTimers();
         vi.restoreAllMocks();
@@ -31,8 +36,8 @@ describe('AuthenticatedImageDirective', () => {
 
     it('streams API video with a refreshed auth cookie, not a download', async () => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth' } as any);
-        vi.mocked(ts_client.token).mockReturnValue('token-1');
+        place.setAuthority({ id: 'auth' });
+        place.setToken('token-1');
         const fetch_mock = vi.fn();
         vi.stubGlobal('fetch', fetch_mock);
         const set_cookie = vi.spyOn(document, 'cookie', 'set');
@@ -56,8 +61,8 @@ describe('AuthenticatedImageDirective', () => {
 
     it('renews the cookie before media requests and retries a failed load once', async () => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth' } as any);
-        vi.mocked(ts_client.token).mockReturnValue('token-1');
+        place.setAuthority({ id: 'auth' });
+        place.setToken('token-1');
         const set_cookie = vi.spyOn(document, 'cookie', 'set');
         const load = vi
             .spyOn(HTMLMediaElement.prototype, 'load')
@@ -89,8 +94,8 @@ describe('AuthenticatedImageDirective', () => {
 
     it('loads signage thumbnails with the auth cookie, not a fetch', async () => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth' } as any);
-        vi.mocked(ts_client.token).mockReturnValue('token-1');
+        place.setAuthority({ id: 'auth' });
+        place.setToken('token-1');
         const fetch_mock = vi.fn();
         vi.stubGlobal('fetch', fetch_mock);
         const set_cookie = vi.spyOn(document, 'cookie', 'set');

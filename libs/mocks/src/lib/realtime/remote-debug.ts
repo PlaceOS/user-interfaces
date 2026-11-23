@@ -22,7 +22,7 @@ import {
     RemoteLogRequestOptions,
     RemoteLogsView,
 } from '@placeos/common';
-import { registerSystem } from '@placeos/ts-client';
+import { registerSystem } from '@placeos/ts-client/compat';
 
 /** System with the mock RemoteDebug driver. The zone `bindings` mock points `remote_debug` at it */
 export const REMOTE_DEBUG_MOCK_SYSTEM = 'sys-remote-debug';
@@ -40,19 +40,16 @@ const COMMAND_TIMEOUT_MS = 15 * 60 * 1000;
 /** Binding access of a mock module. Methods run with the module as `this` */
 interface MockModule {
     [name: string]: unknown;
-    listen(name: string): unknown;
 }
 
 /** Registered mock module of the RemoteDebug driver */
-export type MockRemoteDebugModule = MockModule &
-    RemoteDebugModule & {
-        /** Run the `$<command>` method of the module */
-        call(command: string, args?: unknown[]): unknown;
-    };
+export type MockRemoteDebugModule = MockModule & RemoteDebugModule;
 
-/** Set a binding that the mock module may not have yet */
+/**
+ * Set a binding that the mock module may not have yet. The first binding of
+ * a new name keeps the value.
+ */
 function setBinding(mod: MockModule, name: string, value: unknown) {
-    mod.listen(name);
     mod[name] = value;
 }
 

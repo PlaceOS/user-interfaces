@@ -12,9 +12,7 @@ import {
     StaffUser,
 } from '@placeos/common';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as client from '@placeos/ts-client';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { ChatService } from '../lib/chat/chat.service';
 
 /** WebSocket stand-in that records instances */
@@ -72,15 +70,8 @@ describe('ChatService', () => {
         setNotifyOutlet(snackbar as never);
         FakeSocket.instances = [];
         (window as unknown as { WebSocket: unknown }).WebSocket = FakeSocket;
-        vi.mocked(client.getModule).mockImplementation(
-            () =>
-                ({
-                    variable: () => ({
-                        bind: () => () => null,
-                        listen: () => ({ subscribe: () => () => null }),
-                    }),
-                }) as unknown as ReturnType<typeof client.getModule>,
-        );
+        // The hint binding goes to the mock systems
+        startMockPlaceClient();
         setCurrentUser(new StaffUser({ id: 'user-1' }));
         spectator = createService();
         spectator.service.setBinding('sys-1');

@@ -17,6 +17,7 @@ import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    authority,
     csvToJson,
     currentUser,
     downloadFile,
@@ -42,7 +43,8 @@ import {
     type AttendeeFlags,
     type VisitorInternalOrExternal,
 } from '@placeos/common';
-import { authority, queryUsers } from '@placeos/ts-client';
+import { users as users_v7 } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import { openConfirmModal } from 'libs/components/src/lib/confirm-modal.component';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -458,9 +460,10 @@ export class UserListFieldComponent
         // Preserve the shared attendee search, including directory guests,
         // independently of staff/host directory restrictions.
         return this._use_basic_user_search()
-            ? queryUsers({ q, authority_id: authority()?.id }).then((_) =>
-                  _.data.map((u) => new User(u)),
-              )
+            ? users_v7
+                  .query({ q, authority_id: authority()?.id })
+                  .then(orThrowPage)
+                  .then((_) => _.data.map((u) => new User(u)))
             : searchStaff(q, { signal, exclude_guests: false });
     }
 

@@ -10,7 +10,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceAlertDashboard } from '@placeos/ts-client';
+import { type AlertDashboard } from '@placeos/ts-client';
 import { DashboardsService } from './dashboards.service';
 
 @Component({
@@ -251,7 +251,7 @@ export class DashboardListComponent implements OnInit {
         this._service.loadDashboards();
     }
 
-    public async toggleChildren(dashboard: PlaceAlertDashboard) {
+    public async toggleChildren(dashboard: AlertDashboard) {
         const state = this.show_children()[dashboard.id];
         if (!state) await this._service.loadDashboardAlerts(dashboard.id);
         this.show_children.set({ [dashboard.id]: !state });

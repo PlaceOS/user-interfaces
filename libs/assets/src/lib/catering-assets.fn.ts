@@ -1,10 +1,11 @@
-import { CateringItem, flatten } from '@placeos/common';
+import { CateringItem, flatten, toJsonValue } from '@placeos/common';
 import {
-    PlaceAsset,
-    queryAssets,
-    queryAssetTypes,
-    removeAsset,
+    type Asset,
+    type AssetType,
+    asset_types,
+    assets as assets_v7,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import {
     ensureAssetType,
     ensureHiddenCategory,
@@ -18,7 +19,7 @@ const STANDALONE_CATERER_NAME = '_STANDALONE_';
 const STANDALONE_CATERER_LABEL = 'standalone';
 
 let _catering_category_id_promise: Promise<string> | null = null;
-let _catering_types_promise: Promise<unknown[]> | null = null;
+let _catering_types_promise: Promise<readonly AssetType[]> | null = null;
 
 function normalise_name(name: string = '') {
     return name.trim().toLowerCase();
@@ -67,11 +68,17 @@ export function resolveCateringCategoryId(): Promise<string> {
 }
 
 /** Prefixed catering types. A failed load resolves empty and is not cached. */
-function query_catering_types(): Promise<any[]> {
+function query_catering_types(): Promise<readonly AssetType[]> {
     if (!_catering_types_promise) {
         const request = resolveCateringCategoryId()
-            .then((category_id) => queryAssetTypes({ category_id, limit: 500 }))
-            .then((_) => _.data.filter((type) => isCateringTypeName(type.name)))
+            .then((category_id) =>
+                asset_types
+                    .query({ category_id, limit: 500 })
+                    .then(orThrowPage),
+            )
+            .then((_) =>
+                _.data.filter((type) => isCateringTypeName(type.name || '')),
+            )
             .catch(() => {
                 if (_catering_types_promise === request) {
                     _catering_types_promise = null;
@@ -97,7 +104,7 @@ export async function resolveCateringTypeId(
     return created.id;
 }
 
-export function toCateringItem(asset: PlaceAsset, caterer: string) {
+export function toCateringItem(asset: Asset, caterer: string) {
     const details = (asset.other_data || {}) as any;
     return new CateringItem({
         id: asset.id,
@@ -128,7 +135,7 @@ function to_asset_data(
     item: Partial<CateringItem>,
     zone_id: string,
     asset_type_id: string,
-): Partial<PlaceAsset> {
+): Partial<Asset> {
     const id = item.id || undefined;
     return {
         id,
@@ -137,7 +144,7 @@ function to_asset_data(
         zone_id,
         asset_type_id,
         images: [...(item.images || [])],
-        other_data: {
+        other_data: toJsonValue({
             category: item.category || '',
             description: item.description || '',
             unit_price: item.unit_price || 0,
@@ -147,7 +154,7 @@ function to_asset_data(
             accept_points: !!item.accept_points,
             discount_cap: item.discount_cap || 0,
             hide_for_zones: item.hide_for_zones || [],
-        } as any,
+        }),
     };
 }
 
@@ -159,15 +166,17 @@ export async function queryCateringItems(
     if (!types.length) return [];
     const results = await Promise.all(
         types.map((type) =>
-            queryAssets({
-                zone_id,
-                type_id: type.id,
-                limit: 500,
-            }).then((assets) =>
-                assets.data.map((asset) =>
-                    toCateringItem(asset, fromCateringTypeName(type.name)),
+            assets_v7
+                .query({ zone_id, type_id: type.id, limit: 500 })
+                .then(orThrowPage)
+                .then((assets) =>
+                    assets.data.map((asset) =>
+                        toCateringItem(
+                            asset,
+                            fromCateringTypeName(type.name || ''),
+                        ),
+                    ),
                 ),
-            ),
         ),
     );
     return flatten<CateringItem>(results).sort((a, b) =>
@@ -181,7 +190,7 @@ export async function saveCateringItem(
 ): Promise<CateringItem> {
     const asset_type_id = await resolveCateringTypeId(item.caterer);
     const asset = to_asset_data(item, zone_id, asset_type_id);
-    let saved: PlaceAsset;
+    let saved: Asset;
     try {
         saved = await saveAsset(asset);
     } catch (error) {
@@ -196,5 +205,5 @@ export async function saveCateringItem(
 }
 
 export function deleteCateringItem(id: string) {
-    return removeAsset(id);
+    return assets_v7.destroy({ id }).then(orThrow);
 }

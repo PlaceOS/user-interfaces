@@ -28,8 +28,13 @@ import { ExploreStateService } from '../lib/explore-state.service';
 import { SetDatetimeModalComponent } from '../lib/set-datetime-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import { bookings, Booking as StaffBooking } from '@placeos/ts-client/staff';
+
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 import { MockProvider } from 'ng-mocks';
 
@@ -65,18 +70,31 @@ describe('ExploreDesksService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showMetadata).mockImplementation(
-            (_, name) =>
-                Promise.resolve(
-                    `${name}`.includes('restrictions')
-                        ? []
-                        : {
-                              details: [
-                                  { id: 'desk-1', name: '1', bookable: true },
-                                  { id: 'desk-2', name: '2', bookable: false },
-                              ],
-                          },
-                ) as any,
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                (_, name) =>
+                    Promise.resolve(
+                        `${name}`.includes('restrictions')
+                            ? []
+                            : {
+                                  details: [
+                                      {
+                                          id: 'desk-1',
+                                          name: '1',
+                                          bookable: true,
+                                      },
+                                      {
+                                          id: 'desk-2',
+                                          name: '2',
+                                          bookable: false,
+                                      },
+                                  ],
+                              },
+                    ) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
         spectator = createService();
     });
@@ -133,7 +151,7 @@ describe('ExploreDesksService', () => {
             id: 'desk-1',
             name: 'Desk 1',
             bookable: true,
-            zone: new ts_client.PlaceZone({ id: 'lvl-1', parent_id: 'bld-1' }),
+            zone: mockData(ts_client.Zone, { id: 'lvl-1', parent_id: 'bld-1' }),
         });
 
     describe('desk statuses', () => {
@@ -154,11 +172,16 @@ describe('ExploreDesksService', () => {
         /** Show the level with the desks, then return the latest desk styles */
         async function deskStyles(options = {}) {
             vi.useFakeTimers();
-            vi.mocked(ts_client.showMetadata).mockImplementation(
-                (_, name) =>
-                    Promise.resolve({
-                        details: name === 'desks' ? DESKS : [],
-                    }) as any,
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    (_, name) =>
+                        Promise.resolve({
+                            details: name === 'desks' ? DESKS : [],
+                        }) as any,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
             );
             const state = spectator.inject(ExploreStateService);
             spectator.service.setOptions(options);
@@ -187,9 +210,15 @@ describe('ExploreDesksService', () => {
         });
 
         it('should use API bookings instead of the binding for a future date', async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([
-                { id: 'booking-1', asset_id: 'desk-3', checked_in: true },
-            ] as any);
+            vi.mocked(bookings.query).mockResolvedValue(
+                mockReply([
+                    mockData(StaffBooking, {
+                        id: 1,
+                        asset_id: 'desk-3',
+                        checked_in: true,
+                    }),
+                ]),
+            );
 
             const styles = await deskStyles({
                 date: endOfDay(Date.now()).valueOf() + 60 * 60 * 1000,
@@ -346,14 +375,13 @@ describe('ExploreDesksService', () => {
     it('should give device features the AreaManagement system id', () => {
         const device = { location: 'wireless', mac: 'aa:bb', x: 1, y: 1 };
         const variable = vi.fn(() => ({
-            bindThenSubscribe: (cb: (d: any) => void) => {
+            subscribe: (cb: (d: any) => void) => {
                 cb({ value: [device] });
                 return () => null;
             },
         }));
+        // The system id comes from the `area_management` binding: `sys-1`
         (spectator.inject(OrganisationService) as any).module = vi.fn(() => ({
-            id: 'AreaManagement_1',
-            system: { id: 'sys-1' },
             variable,
         }));
         const state = spectator.inject(ExploreStateService);
@@ -472,15 +500,22 @@ describe('ExploreDesksService', () => {
     });
 
     it('should refuse to book a desk hidden by the booking rules', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [
-                {
-                    zone: '*',
-                    rules: { hidden: true },
-                    conditions: { resource_ids: ['desk-1'] },
-                },
-            ],
-        } as Awaited<ReturnType<typeof ts_client.showMetadata>>);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: [
+                        {
+                            zone: '*',
+                            rules: { hidden: true },
+                            conditions: { resource_ids: ['desk-1'] },
+                        },
+                    ],
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         TestBed.tick();
         await TestBed.inject(ApplicationRef).whenStable();
         const notified = captureNotifications();

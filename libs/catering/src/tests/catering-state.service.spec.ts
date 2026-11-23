@@ -26,6 +26,7 @@ import { CateringOption } from '../lib/catering.interfaces';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
 
 const dialog_close = vi.fn();
 const dialog_loading = signal<boolean | string>(false);
@@ -69,42 +70,67 @@ describe('CateringStateService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         dialog_loading.set(false);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
-        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(() => ({}) as any, ['id', 'name'], 'data', 'name'),
+        );
+        vi.mocked(ts_client.metadata.update).mockResolvedValue(
+            mockReply({} as any),
+        );
         // Hidden `_CATERING_` category + standalone catering asset type so the
         // real assets helpers resolve an existing type without creating one.
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'cat-1', name: '_CATERING_', hidden: true }],
-        } as any);
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [
-                {
-                    id: 'type-1',
-                    name: 'CATERING:_STANDALONE_',
-                    category_id: 'cat-1',
-                },
-            ],
-        } as any);
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.addAsset).mockImplementation((asset: any) =>
-            Promise.resolve({ ...asset, id: asset.id || 'saved-id' }),
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'cat-1', name: '_CATERING_', hidden: true }],
+            } as any),
         );
-        vi.mocked(ts_client.updateAsset).mockImplementation(
-            (_id: string, asset: any) => Promise.resolve({ ...asset }),
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'type-1',
+                        name: 'CATERING:_STANDALONE_',
+                        category_id: 'cat-1',
+                    },
+                ],
+            } as any),
         );
-        vi.mocked(ts_client.removeAsset).mockResolvedValue({});
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({
-            id: 'type-1',
-        } as any);
-        vi.mocked(ts_client.updateAssetType).mockResolvedValue({
-            id: 'type-1',
-        } as any);
-        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({
-            id: 'cat-1',
-        } as any);
-        vi.mocked(ts_client.updateAssetCategory).mockResolvedValue({
-            id: 'cat-1',
-        } as any);
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({ data: [] } as any),
+        );
+        vi.mocked(ts_client.assets.create).mockImplementation(
+            fromV1Mock(
+                (asset: any) =>
+                    Promise.resolve({ ...asset, id: asset.id || 'saved-id' }),
+                ['body'],
+            ),
+        );
+        vi.mocked(ts_client.assets.update).mockImplementation(
+            fromV1Mock(
+                (_id: string, asset: any) => Promise.resolve({ ...asset }),
+                ['id', 'body'],
+            ),
+        );
+        vi.mocked(ts_client.assets.destroy).mockResolvedValue(mockReply(''));
+        vi.mocked(ts_client.asset_types.create).mockResolvedValue(
+            mockReply({
+                id: 'type-1',
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.update).mockResolvedValue(
+            mockReply({
+                id: 'type-1',
+            } as any),
+        );
+        vi.mocked(ts_client.asset_categories.create).mockResolvedValue(
+            mockReply({
+                id: 'cat-1',
+            } as any),
+        );
+        vi.mocked(ts_client.asset_categories.update).mockResolvedValue(
+            mockReply({
+                id: 'cat-1',
+            } as any),
+        );
         spectator = createService();
         // The settings mock is shared by all tests
         vi.mocked(spectator.inject(SettingsService).get).mockReset();
@@ -128,7 +154,7 @@ describe('CateringStateService', () => {
         openDialog(closedDialog());
         await spectator.service.addItem();
         await flush();
-        expect(ts_client.addAsset).not.toHaveBeenCalled();
+        expect(ts_client.assets.create).not.toHaveBeenCalled();
     });
 
     it('should save a new item to the building and close the modal', async () => {
@@ -136,18 +162,18 @@ describe('CateringStateService', () => {
         openDialog(doneDialog({ item: new CateringItem({ name: 'Tea' }) }));
         await spectator.service.addItem();
         await flush();
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 zone_id: 'bld-1',
                 asset_type_id: 'type-1',
             }),
-        );
+        });
         expect(spectator.service.menu().map((i) => i.id)).toEqual(['saved-id']);
         expect(dialog_close).toHaveBeenCalled();
     });
 
     it('should keep the item modal open when the save fails', async () => {
-        vi.mocked(ts_client.addAsset).mockRejectedValueOnce('offline');
+        vi.mocked(ts_client.assets.create).mockRejectedValueOnce('offline');
         openDialog(doneDialog({ item: new CateringItem() }));
         dialog_loading.set(true);
         await spectator.service.addItem();
@@ -160,7 +186,7 @@ describe('CateringStateService', () => {
         openDialog(closedDialog());
         await spectator.service.addOption(new CateringItem());
         await flush();
-        expect(ts_client.addAsset).not.toHaveBeenCalled();
+        expect(ts_client.assets.create).not.toHaveBeenCalled();
     });
 
     it('should save the item with the new option and close the modal', async () => {
@@ -206,11 +232,11 @@ describe('CateringStateService', () => {
         openDialog(closedDialog());
         await spectator.service.deleteItem(coffee);
         await flush();
-        expect(ts_client.removeAsset).not.toHaveBeenCalled();
+        expect(ts_client.assets.destroy).not.toHaveBeenCalled();
         openDialog(doneDialog());
         await spectator.service.deleteItem(coffee);
         await flush();
-        expect(ts_client.removeAsset).toHaveBeenCalledWith('a');
+        expect(ts_client.assets.destroy).toHaveBeenCalledWith({ id: 'a' });
         expect(spectator.service.menu().map((i) => i.id)).toEqual(['b']);
     });
 
@@ -226,7 +252,7 @@ describe('CateringStateService', () => {
         openDialog(closedDialog());
         await spectator.service.deleteOption(cake, milk);
         await flush();
-        expect(ts_client.updateAsset).not.toHaveBeenCalled();
+        expect(ts_client.assets.update).not.toHaveBeenCalled();
 
         openDialog(doneDialog());
         await spectator.service.deleteOption(cake, milk);
@@ -265,7 +291,7 @@ describe('CateringStateService', () => {
         }));
         setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
         openDialog(doneDialog());
-        vi.mocked(ts_client.addAsset).mockRejectedValueOnce('save failed');
+        vi.mocked(ts_client.assets.create).mockRejectedValueOnce('save failed');
 
         await spectator.service.deleteOption(
             new CateringItem({ name: 'Cake' }),
@@ -285,17 +311,19 @@ describe('CateringStateService', () => {
         openDialog(doneDialog([{ name: '*', rules: [] }]));
         await spectator.service.editConfig();
         await flush();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith('bld-1', {
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
             id: 'bld-1',
-            name: 'catering_config',
-            details: [{ name: '*', rules: [] }],
-            description: 'Catering menu config for bld-1',
+            body: {
+                name: 'catering_config',
+                details: [{ name: '*', rules: [] }],
+                description: 'Catering menu config for bld-1',
+            },
         });
         expect(dialog_close).toHaveBeenCalled();
     });
 
     it('should keep the config modal open when the save fails', async () => {
-        vi.mocked(ts_client.updateMetadata).mockRejectedValueOnce('offline');
+        vi.mocked(ts_client.metadata.update).mockRejectedValueOnce('offline');
         openDialog(doneDialog([]));
         dialog_loading.set(true);
         await spectator.service.editConfig();
@@ -335,15 +363,15 @@ describe('CateringStateService', () => {
             change.next(['room-2']);
             await settle();
 
-            expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-                'bld-1',
-                expect.objectContaining({
+            expect(ts_client.metadata.update).toHaveBeenCalledWith({
+                id: 'bld-1',
+                body: expect.objectContaining({
                     name: 'catering-settings',
                     details: expect.objectContaining({
                         disabled_rooms: ['room-2'],
                     }),
                 }),
-            );
+            });
             expect(notify_open).toHaveBeenCalledWith(
                 'Room availability settings saved',
                 'OK',
@@ -353,7 +381,7 @@ describe('CateringStateService', () => {
         });
 
         it('should show the error and stop loading when the save fails', async () => {
-            vi.mocked(ts_client.updateMetadata).mockRejectedValueOnce(
+            vi.mocked(ts_client.metadata.update).mockRejectedValueOnce(
                 new Error('save failed'),
             );
             spectator.service.setRoomAvailability();
@@ -374,27 +402,43 @@ describe('CateringStateService', () => {
 
     it('should get the catering rules of a zone, or none when not a list', async () => {
         const details = [{ name: '*', rules: [] }];
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details,
-        } as never);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details,
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await expect(
             spectator.service.getCateringConfig('bld-2'),
         ).resolves.toEqual(details);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-2',
-            'catering_config',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-2',
+            name: 'catering_config',
+        });
 
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: { name: '*' },
-        } as never);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: { name: '*' },
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await expect(spectator.service.getCateringConfig()).resolves.toEqual(
             [],
         );
-        expect(ts_client.showMetadata).toHaveBeenLastCalledWith(
-            'bld-1',
-            'catering_config',
-        );
+        expect(ts_client.metadata.show).toHaveBeenLastCalledWith({
+            id: 'bld-1',
+            name: 'catering_config',
+        });
     });
 
     describe('importMenu', () => {
@@ -434,10 +478,10 @@ describe('CateringStateService', () => {
 
         it('should keep the menu and close the modal when a save fails', async () => {
             setMenu([new CateringItem({ id: 'a', name: 'Coffee' })]);
-            vi.mocked(ts_client.addAsset).mockRejectedValue(
+            vi.mocked(ts_client.assets.create).mockRejectedValue(
                 new Error('offline'),
             );
-            vi.mocked(ts_client.updateAsset).mockRejectedValue(
+            vi.mocked(ts_client.assets.update).mockRejectedValue(
                 new Error('offline'),
             );
             importItems([new CateringItem({ id: 'c', name: 'Muffin' })]);
@@ -477,8 +521,10 @@ describe('CateringStateService', () => {
         await spectator.service.setItemsEnabled(items, 'z1', true);
         await flush();
 
-        expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
-        expect(vi.mocked(ts_client.updateAsset).mock.calls[0][0]).toBe('a');
+        expect(ts_client.assets.update).toHaveBeenCalledTimes(1);
+        expect(vi.mocked(ts_client.assets.update).mock.calls[0][0].id).toBe(
+            'a',
+        );
     });
 
     it('should save the other items and show an error when one save fails', async () => {
@@ -492,7 +538,7 @@ describe('CateringStateService', () => {
             new CateringItem({ id: 'b', name: 'B' }),
         ];
         setMenu(items);
-        vi.mocked(ts_client.updateAsset).mockRejectedValueOnce('offline');
+        vi.mocked(ts_client.assets.update).mockRejectedValueOnce('offline');
         openDialog(doneDialog());
 
         await spectator.service.setItemsEnabled(items, 'z1', false);
@@ -513,20 +559,28 @@ describe('CateringStateService', () => {
 
     describe('building load', () => {
         it('should load the catering settings of the building', async () => {
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details: {
-                    require_notes: true,
-                    charge_codes: ['CC-1'],
-                    disabled_rooms: ['room-1'],
-                },
-            } as any);
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        ({
+                            details: {
+                                require_notes: true,
+                                charge_codes: ['CC-1'],
+                                disabled_rooms: ['room-1'],
+                            },
+                        }) as any,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
             TestBed.tick();
             await flush();
 
-            expect(ts_client.showMetadata).toHaveBeenCalledWith(
-                'bld-1',
-                'catering-settings',
-            );
+            expect(ts_client.metadata.show).toHaveBeenCalledWith({
+                id: 'bld-1',
+                name: 'catering-settings',
+            });
             expect(spectator.service.charge_codes()).toEqual(['CC-1']);
             expect(spectator.service.availability()).toEqual(['room-1']);
             expect(spectator.inject(SettingsService).post).toHaveBeenCalledWith(

@@ -14,13 +14,14 @@ import {
 import { ControlValueAccessor } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import {
+    apiKey,
     AsyncHandler,
     i18n,
     notifyError,
     provideValueAccessor,
+    token,
     UploadsService,
 } from '@placeos/common';
-import { apiKey, token } from '@placeos/ts-client';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { escapeHtml } from './escape-html';

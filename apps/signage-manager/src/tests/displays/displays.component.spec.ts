@@ -4,12 +4,14 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { setNotifyOutlet } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { PlaceSystem, show } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { DisplaysSectionComponent } from '../../app/displays/displays.component';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SectionTabsComponent } from '../../app/shared/section-tabs.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signageSystem } from '../../app/signage-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -179,23 +181,23 @@ describe('DisplaysSectionComponent', () => {
 
     it('loads a routed display that the loaded pages do not include', async () => {
         displays.set([{ id: 'd1' }]);
-        const display = new PlaceSystem({ id: 'd-far', name: 'Far' });
-        vi.mocked(show).mockResolvedValue(display);
+        const display = signageSystem({ id: 'd-far', name: 'Far' });
+        vi.mocked(systems.show).mockResolvedValue(mockReply(display));
         const [, fixture] = await make();
         fixture.componentRef.setInput('id', 'd-far');
         fixture.detectChanges();
         TestBed.flushEffects();
 
-        await vi.waitFor(() => expect(selected_display()).toBe(display));
-        expect(show).toHaveBeenCalledExactlyOnceWith(
-            expect.objectContaining({ id: 'd-far', path: 'systems' }),
-        );
+        await vi.waitFor(() => expect(selected_display()?.id).toBe('d-far'));
+        expect(systems.show).toHaveBeenCalledExactlyOnceWith({
+            sys_id: 'd-far',
+        });
     });
 
     it('loads a linked display again after going back to it', async () => {
         displays.set([{ id: 'd1' }]);
-        const far = new PlaceSystem({ id: 'd-far', name: 'Far' });
-        vi.mocked(show).mockResolvedValue(far);
+        const far = signageSystem({ id: 'd-far', name: 'Far' });
+        vi.mocked(systems.show).mockResolvedValue(mockReply(far));
         const [, fixture] = await make();
         const route = (id: string) => {
             fixture.componentRef.setInput('id', id);
@@ -204,13 +206,13 @@ describe('DisplaysSectionComponent', () => {
         };
 
         route('d-far');
-        await vi.waitFor(() => expect(selected_display()).toBe(far));
+        await vi.waitFor(() => expect(selected_display()?.id).toBe('d-far'));
         route('d1');
         expect(selected_display()?.id).toBe('d1');
         route('d-far');
 
-        await vi.waitFor(() => expect(selected_display()).toBe(far));
-        expect(show).toHaveBeenCalledTimes(2);
+        await vi.waitFor(() => expect(selected_display()?.id).toBe('d-far'));
+        expect(systems.show).toHaveBeenCalledTimes(2);
     });
 
     it('shows an error when a linked display cannot be loaded', async () => {
@@ -219,7 +221,7 @@ describe('DisplaysSectionComponent', () => {
             dismiss: vi.fn(),
         }));
         setNotifyOutlet({ open: notify_open } as unknown as MatSnackBar, true);
-        vi.mocked(show).mockRejectedValue(new Error('Not found'));
+        vi.mocked(systems.show).mockRejectedValue(new Error('Not found'));
         const [, fixture] = await make();
         fixture.componentRef.setInput('id', 'd-gone');
         fixture.detectChanges();

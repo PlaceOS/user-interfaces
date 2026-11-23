@@ -5,13 +5,13 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { HotkeysService, setNotifyOutlet } from '@placeos/common';
-import { SignageMedia, SignageTemplate } from '@placeos/ts-client';
 import { of } from 'rxjs';
 import { MediaSelectModalComponent } from '../../app/shared/media-select-modal.component';
 import { TemplateEditModalComponent } from '../../app/shared/template-edit-modal.component';
+import { signageMedia, signageTemplate } from '../../app/signage-models';
 
 describe('TemplateEditModalComponent', () => {
-    const selected_media = new SignageMedia({
+    const selected_media = signageMedia({
         id: 'media-2',
         name: 'Office photo',
         media_type: 'image',
@@ -35,7 +35,7 @@ describe('TemplateEditModalComponent', () => {
                 {
                     provide: MAT_DIALOG_DATA,
                     useValue: {
-                        template: new SignageTemplate({
+                        template: signageTemplate({
                             id,
                             merge,
                             name: 'Welcome',
@@ -62,8 +62,8 @@ describe('TemplateEditModalComponent', () => {
         vi.clearAllMocks();
         dialog_ref.disableClose = false;
         dialog.openDialogs = [dialog_ref];
-        onEdit.mockResolvedValue(new SignageTemplate({ id: 'template-1' }));
-        onAdd.mockResolvedValue(new SignageTemplate({ id: 'template-1' }));
+        onEdit.mockResolvedValue(signageTemplate({ id: 'template-1' }));
+        onAdd.mockResolvedValue(signageTemplate({ id: 'template-1' }));
         setNotifyOutlet(
             {
                 open: vi.fn(() => ({

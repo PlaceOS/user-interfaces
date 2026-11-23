@@ -3,13 +3,15 @@ import {
     AsyncHandler,
     OrganisationService,
     SettingsService,
+    apiKey,
     currentUser,
+    getModule,
     i18n,
     log,
     notifyError,
     randomString,
+    token,
 } from '@placeos/common';
-import { apiKey, getModule, token } from '@placeos/ts-client';
 
 import { Marked, Renderer } from 'marked';
 
@@ -301,11 +303,10 @@ export class ChatService extends AsyncHandler {
 
     private _bindHint(id: string) {
         const mod = getModule(id, 'LLM');
-        const binding = mod.variable('user_hint');
-        this.subscription(`binding:LLM:user_hint`, binding.bind());
+        const binding = mod.variable<string>('user_hint');
         this.subscription(
-            `listen:LLM:user_hint`,
-            binding.listen().subscribe((value) => this.chat_hint.set(value)),
+            `binding:LLM:user_hint`,
+            binding.subscribe((value) => this.chat_hint.set(value)),
         );
     }
 }

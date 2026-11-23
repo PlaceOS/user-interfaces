@@ -4,11 +4,11 @@ import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { By } from '@angular/platform-browser';
 import { setNotifyOutlet } from '@placeos/common';
-import { SignagePlaylistItemSchedule } from '@placeos/ts-client';
 import {
     PlaylistItemScheduleModalComponent,
     PlaylistItemScheduleModalData,
 } from '../../app/shared/playlist-item-schedule-modal.component';
+import { playlistItemSchedule } from '../../app/signage-models';
 
 @Component({ selector: 'fullscreen-modal-shell', template: '<ng-content />' })
 class ModalShellStubComponent {
@@ -193,7 +193,7 @@ describe('PlaylistItemScheduleModalComponent', () => {
             play_period: 60,
             play_takeover: false,
         };
-        modal_data.item = new SignagePlaylistItemSchedule({
+        modal_data.item = playlistItemSchedule({
             item_id: 'item-1',
             schedules: [schedule, schedule, schedule],
         });

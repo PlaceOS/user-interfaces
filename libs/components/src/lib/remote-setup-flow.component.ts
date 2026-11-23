@@ -23,17 +23,18 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
-    PlaceModuleBinding,
-    PlaceSystem,
-    querySignageTemplates,
-    querySystems,
-    SignageTemplate,
+    signage_templates,
+    type SignageTemplate,
+    type System,
+    systems,
 } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import {
     i18n,
     initialisationComplete,
     isRemoteSetupCommand,
+    ModuleHandle,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -529,7 +530,7 @@ export class RemoteSetupFlowComponent {
     /** Applications that this flow sets up */
     public readonly apps = input.required<RemoteSetupApp[]>();
 
-    private readonly _module = signal<PlaceModuleBinding | null>(null);
+    private readonly _module = signal<ModuleHandle | null>(null);
     /** Whether the driver is connected. `null` until the binding loads */
     private readonly _connected = signal<boolean | null>(null);
     private readonly _devices = signal<Record<string, RemoteSetupDevice>>({});
@@ -669,14 +670,18 @@ export class RemoteSetupFlowComponent {
                 'signage',
         }),
         loader: async ({ params }) => {
-            if (params.q.length < 2) return [] as PlaceSystem[];
-            const { data } = await querySystems({
-                q: params.q,
-                limit: 20,
-                zone_id: this._org.organisation?.id,
-                fields: ['id', 'name', 'display_name'].join(','),
-                ...(params.signage ? { signage: true } : {}),
-            });
+            if (params.q.length < 2) return [] as System[];
+            const { data } = await systems
+                .query({
+                    q: params.q,
+                    limit: 20,
+                    zone_id: this._org.organisation?.id
+                        ? [this._org.organisation.id]
+                        : undefined,
+                    fields: ['id', 'name', 'display_name'],
+                    ...(params.signage ? { signage: true } : {}),
+                })
+                .then(orThrowPage);
             return data;
         },
     });
@@ -689,10 +694,11 @@ export class RemoteSetupFlowComponent {
         params: () => this.setup_app() === 'signage',
         loader: async ({ params: enabled }) => {
             if (!enabled) return [] as SignageTemplate[];
-            const { data } = await querySignageTemplates({ limit: 500 }).catch(
-                () => ({ data: [] as SignageTemplate[] }),
-            );
-            return data.sort((a, b) => a.name.localeCompare(b.name));
+            const { data } = await signage_templates
+                .query({ limit: 500 })
+                .then(orThrowPage)
+                .catch(() => ({ data: [] as SignageTemplate[] }));
+            return [...data].sort((a, b) => a.name.localeCompare(b.name));
         },
     });
     /** Signage templates for a signage device */
@@ -714,17 +720,17 @@ export class RemoteSetupFlowComponent {
             if (!mod) return;
             const unbind_connected = mod
                 .variable<boolean>('connected')
-                .bindThenSubscribe((value) =>
+                .subscribe((value) =>
                     this._connected.set(value === undefined ? null : !!value),
                 );
             const unbind_clear_list = mod
                 .variable<unknown>(REMOTE_SETUP_CLEAR_LIST)
-                .bindThenSubscribe((value) =>
+                .subscribe((value) =>
                     this._clear_list.set(remoteSetupClearList(value)),
                 );
             const unbind_devices = mod
                 .variable<Record<string, RemoteSetupDevice> | null>('devices')
-                .bindThenSubscribe((value) =>
+                .subscribe((value) =>
                     this._devices.set(
                         value && typeof value === 'object' ? value : {},
                     ),
@@ -742,7 +748,7 @@ export class RemoteSetupFlowComponent {
             if (!mod || !device_id) return;
             const unbind = mod
                 .variable<unknown>(remoteSetupCommandBinding(device_id))
-                .bindThenSubscribe((value) => this._command.set(value));
+                .subscribe((value) => this._command.set(value));
             on_cleanup(unbind);
         });
     }

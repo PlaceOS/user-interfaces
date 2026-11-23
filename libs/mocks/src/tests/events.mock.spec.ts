@@ -1,5 +1,5 @@
 import { HashMap } from '@placeos/common';
-import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
+import { mockSystem, registerMockEndpoint } from '@placeos/ts-client/compat';
 
 import { MOCK_EVENTS } from '../lib/api/events.data';
 import { registerMockEvents } from '../lib/api/events.mock';
@@ -7,7 +7,7 @@ import { MOCK_SPACES } from '../lib/api/spaces.data';
 import { ACTIVE_USER } from '../lib/api/users.data';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const API = '/api/staff/v1/events';
 /** Far after the generated mock events, so only test events match */

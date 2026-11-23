@@ -17,6 +17,7 @@ import {
 } from '../../app/map-manager/map-management.service';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -61,19 +62,40 @@ describe('MapManagementService', () => {
         };
         settings = { get: vi.fn(() => undefined) };
         uploads = { uploadFileToCompletion: vi.fn(async () => 'upload-9') };
-        vi.mocked(ts_client.updateZone).mockImplementation(
-            async (id: string, form: any) =>
-                ({ id, ...form, tags: ['level'] }) as any,
+        vi.mocked(ts_client.zones.update).mockImplementation(
+            fromV1Mock(
+                async (id: string, form: any) =>
+                    ({ id, ...form, tags: ['level'] }) as any,
+                ['id', 'body'],
+            ),
         );
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [
-                { upload_id: 'u1', map_id: '/m/1', at: 1, by: '', summary: '' },
-            ],
-        } as any);
-        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as any);
-        vi.mocked(ts_client.showZone).mockResolvedValue({
-            map_id: '/maps/elsewhere.svg',
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [
+                            {
+                                upload_id: 'u1',
+                                map_id: '/m/1',
+                                at: 1,
+                                by: '',
+                                summary: '',
+                            },
+                        ],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.metadata.update).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.zones.show).mockResolvedValue(
+            mockReply({
+                map_id: '/maps/elsewhere.svg',
+            } as any),
+        );
         spectator = createService({
             providers: [
                 { provide: OrganisationService, useValue: org },
@@ -106,9 +128,9 @@ describe('MapManagementService', () => {
         expect(file.type).toBe('image/svg+xml');
         expect(saved.upload_id).toBe('upload-9');
         expect(saved.map_id).toBe('/api/engine/v2/uploads/upload-9/url');
-        expect(ts_client.updateZone).toHaveBeenCalledWith('l1', {
+        expect(ts_client.zones.update).toHaveBeenCalledWith({
             id: 'l1',
-            map_id: '/api/engine/v2/uploads/upload-9/url',
+            body: { map_id: '/api/engine/v2/uploads/upload-9/url' },
         });
         expect(org.addZone).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -117,12 +139,13 @@ describe('MapManagementService', () => {
                 tags: ['level'],
             }),
         );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'l1',
-            MAP_HISTORY_KEY,
-        );
-        const [metadata_id, metadata] = vi.mocked(ts_client.updateMetadata).mock
-            .calls[0] as any[];
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'l1',
+            name: MAP_HISTORY_KEY,
+        });
+        const [{ id: metadata_id, body: metadata }] = vi.mocked(
+            ts_client.metadata.update,
+        ).mock.calls[0] as any[];
         expect(metadata_id).toBe('l1');
         expect(metadata.name).toBe(MAP_HISTORY_KEY);
         expect(metadata.details[0]).toMatchObject({
@@ -140,25 +163,35 @@ describe('MapManagementService', () => {
             id: 'l9',
             map_id: '/api/engine/v2/uploads/u7/url',
         });
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [
-                {
-                    upload_id: 'u7',
-                    map_id: '/api/engine/v2/uploads/u7/url',
-                    at: 1,
-                    by: '',
-                    summary: '',
-                    file_name: 'ground-floor.svg',
-                },
-            ],
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [
+                            {
+                                upload_id: 'u7',
+                                map_id: '/api/engine/v2/uploads/u7/url',
+                                at: 1,
+                                by: '',
+                                summary: '',
+                                file_name: 'ground-floor.svg',
+                            },
+                        ],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await spectator.service.saveLevelMap(uploaded, '<svg/>', '');
         const file: File = uploads.uploadFileToCompletion.mock.calls[0][0];
         expect(file.name).toBe('ground-floor.svg');
     });
 
     it('still saves when the history write fails', async () => {
-        vi.mocked(ts_client.updateMetadata).mockRejectedValue(new Error('403'));
+        vi.mocked(ts_client.metadata.update).mockRejectedValue(
+            new Error('403'),
+        );
         const warn = vi
             .spyOn(console, 'warn')
             .mockImplementation(() => undefined);
@@ -176,7 +209,7 @@ describe('MapManagementService', () => {
         await expect(
             spectator.service.saveLevelMap(level, '<svg/>', ''),
         ).rejects.toThrow('no storage');
-        expect(ts_client.updateZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.update).not.toHaveBeenCalled();
         expect(org.addZone).not.toHaveBeenCalled();
     });
 
@@ -201,21 +234,34 @@ describe('MapManagementService', () => {
         );
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            page([
-                {
-                    id: 'asset-1',
-                    zone_id: 'l1',
-                    identifier: 'Desk 1',
-                    map_id: 'desk-1',
-                },
-            ]) as any,
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    page([
+                        {
+                            id: 'asset-1',
+                            zone_id: 'l1',
+                            identifier: 'Desk 1',
+                            map_id: 'desk-1',
+                        },
+                    ]) as any,
+                ['...'],
+                'page',
+            ),
         );
 
         const sources = spectator.service.protectedIdSources({
@@ -225,7 +271,10 @@ describe('MapManagementService', () => {
         await expect(sources.desks()).resolves.toEqual([
             { id: 'desk-1', kind: 'desk', label: 'Desk 1' },
         ]);
-        expect(ts_client.showMetadata).not.toHaveBeenCalledWith('l1', 'desks');
+        expect(ts_client.metadata.show).not.toHaveBeenCalledWith({
+            id: 'l1',
+            name: 'desks',
+        });
     });
 
     it('stores an AI snapshot as a file and answers with the upload id', async () => {

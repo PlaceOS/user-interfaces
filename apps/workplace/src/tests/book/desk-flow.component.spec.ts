@@ -7,15 +7,20 @@ import {
 import { BookingAsset, BookingFormService } from '@placeos/bookings';
 import { BuildingLevel, OrganisationService, Space } from '@placeos/common';
 import { SpacePipe } from '@placeos/events';
-import * as ts_client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
 import { NewDeskFlowComponent } from '../../app/book/desk-flow.component';
 import { NewDeskFlowFormComponent } from '../../app/book/desk-flow/desk-flow-form.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 describe('NewDeskFlowComponent', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: SpectatorRouting<NewDeskFlowComponent>;
     const createComponent = createRoutingFactory({
         component: NewDeskFlowComponent,
@@ -70,6 +75,10 @@ describe('NewDeskFlowComponent', () => {
 });
 
 describe('NewDeskFlowComponent nearby desk', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     // Desk metadata without `map_id`, as desks commonly use their ID on the map.
     const desks: BookingAsset[] = ['desk-1', 'desk-2'].map((id, index) => ({
         id,
@@ -111,10 +120,8 @@ describe('NewDeskFlowComponent nearby desk', () => {
         vi.spyOn(SpacePipe.prototype, 'transform').mockResolvedValue(
             new Space({ id: 'space-1', map_id: 'area-1', zones: ['lvl-1'] }),
         );
-        vi.mocked(ts_client.authority).mockReturnValue(
-            {} as ReturnType<typeof ts_client.authority>,
-        );
-        vi.mocked(ts_client.token).mockReturnValue('');
+        place.setAuthority({});
+        place.setToken('');
         // jsdom has no SVG geometry, so the nearest desk is the first one.
         vi.stubGlobal(
             'fetch',

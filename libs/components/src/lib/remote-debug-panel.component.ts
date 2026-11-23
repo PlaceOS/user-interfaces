@@ -1151,7 +1151,7 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
             'state',
             mod
                 .variable<unknown>(remoteDebugDeviceBinding(device_id))
-                .bindThenSubscribe((value) => {
+                .subscribe((value) => {
                     const state: RemoteDebugDeviceState =
                         value && typeof value === 'object' ? value : {};
                     // A new request sets the selected level. While calls
@@ -1174,7 +1174,7 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
             'logs',
             mod
                 .variable<unknown>(remoteDebugLogsBinding(device_id))
-                .bindThenSubscribe((raw) => {
+                .subscribe((raw) => {
                     const value = readRemoteLogsView(raw);
                     // A reloaded device starts its `seq` again, so the cursor no longer applies
                     const started_at = value?.device?.started_at;
@@ -1196,7 +1196,7 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
             'results',
             mod
                 .variable<unknown>(remoteDebugResultsBinding(device_id))
-                .bindThenSubscribe((value) =>
+                .subscribe((value) =>
                     this._results.set(readRemoteDebugResults(value)),
                 ),
         );

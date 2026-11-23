@@ -1,5 +1,5 @@
 import { BookingType, User } from '@placeos/common';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 
 export type BookingFlowView = 'form' | 'map' | 'confirm' | 'success';
 
@@ -36,8 +36,8 @@ export interface BookingAsset {
     display_name?: string;
     name: string;
     bookable: boolean;
-    zone?: PlaceZone;
-    level?: PlaceZone;
+    zone?: Zone;
+    level?: Zone;
     location?: string;
     images?: string[];
     groups?: string[];

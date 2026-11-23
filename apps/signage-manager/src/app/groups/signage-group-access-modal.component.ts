@@ -24,8 +24,8 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceGroup, PlaceGroupAdMappings } from '@placeos/ts-client';
-import { adGroupKey } from '../signage-group-access';
+import { type Group } from '@placeos/ts-client';
+import { adGroupKey, type GroupAdMappings } from '../signage-group-access';
 import { dialogClosed } from '../signage-service.util';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupPermissionLabelsComponent } from './signage-group-permission-labels.component';
@@ -361,7 +361,7 @@ interface AdGroupRow {
     ],
 })
 export class SignageGroupAccessModalComponent {
-    private readonly _data = inject<{ group: PlaceGroup }>(MAT_DIALOG_DATA);
+    private readonly _data = inject<{ group: Group }>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<SignageGroupAccessModalComponent>>(MatDialogRef);
     private readonly _dialog = inject(MatDialog);
@@ -372,7 +372,7 @@ export class SignageGroupAccessModalComponent {
     public readonly loaded = signal(false);
     public readonly saving = signal(false);
     public readonly default_permissions = signal(0);
-    public readonly mappings = signal<PlaceGroupAdMappings>({});
+    public readonly mappings = signal<GroupAdMappings>({});
     public readonly mapping_list = computed<AdGroupRow[]>(() =>
         Object.entries(this.mappings()).map(([id, [name, permissions]]) => ({
             id,

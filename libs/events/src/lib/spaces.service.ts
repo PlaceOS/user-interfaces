@@ -1,5 +1,6 @@
 import { computed, effect, inject, Injectable, signal } from '@angular/core';
-import { querySystems, showSystem } from '@placeos/ts-client';
+import { systems as systems_v7 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 
 import { OrganisationService } from '@placeos/common';
 
@@ -79,7 +80,9 @@ export class SpacesService {
     }
 
     public async loadSpace(space_id: string) {
-        const system = await showSystem(space_id);
+        const system = await systems_v7
+            .show({ sys_id: space_id })
+            .then(orThrow);
         const space = new Space({
             ...(system as any),
             level: this._org.levelWithID([...system.zones]),
@@ -103,13 +106,18 @@ export class SpacesService {
      * request is logged here. The previous space list stays in use.
      */
     private async loadSpaces(): Promise<void> {
-        const response = await querySystems({
-            zone_id: this._org.organisation?.id,
-            limit: 5000,
-        }).catch((error: unknown) => {
-            console.warn('Failed to load spaces.', error);
-            return null;
-        });
+        const response = await systems_v7
+            .query({
+                zone_id: this._org.organisation?.id
+                    ? [this._org.organisation.id]
+                    : undefined,
+                limit: 5000,
+            })
+            .then(orThrowPage)
+            .catch((error: unknown) => {
+                console.warn('Failed to load spaces.', error);
+                return null;
+            });
         if (!response) return;
         const systems = response.data;
         const space_list = systems.map(

@@ -1,7 +1,17 @@
 import { Desk } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
+
+/** A v7 asset with the given fields. The other fields are empty */
+function asset_data(data: ts_client.AssetInput): ts_client.Asset {
+    const result = ts_client.parseResponse(ts_client.Asset, data, {
+        missing_fields: 'zero',
+    });
+    if (result.ok === false) throw new Error(result.error.path);
+    return result.value;
+}
 
 function response(data: any[]) {
     return Promise.resolve({
@@ -19,61 +29,101 @@ describe('[Desk Assets]', () => {
     beforeEach(() => {
         vi.resetModules();
         vi.clearAllMocks();
-        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client.removeAsset).mockResolvedValue(undefined);
+        vi.mocked(ts_client.asset_categories.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.asset_types.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.assets.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.assets.destroy).mockResolvedValue(
+            mockReply(undefined),
+        );
     });
 
     it('should reuse the existing hidden desk category and type', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([{ id: 'type-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'type-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
 
         expect(await desks.resolveDeskTypeId()).toBe('type-1');
-        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.addAssetType).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.create).not.toHaveBeenCalled();
+        expect(ts_client.asset_types.create).not.toHaveBeenCalled();
     });
 
     it('should create the hidden desk category and type when missing', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(response([]));
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
-        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({
-            id: 'cat-1',
-            name: '_DESKS_',
-        } as any);
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({
-            id: 'type-1',
-            name: '_DESKS_',
-        } as any);
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(() => response([]), ['...'], 'page'),
+        );
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(() => response([]), ['...'], 'page'),
+        );
+        vi.mocked(ts_client.asset_categories.create).mockResolvedValue(
+            mockReply({
+                id: 'cat-1',
+                name: '_DESKS_',
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.create).mockResolvedValue(
+            mockReply({
+                id: 'type-1',
+                name: '_DESKS_',
+            } as any),
+        );
 
         expect(await desks.resolveDeskTypeId()).toBe('type-1');
-        expect(ts_client.addAssetCategory).toHaveBeenCalledWith({
-            name: '_DESKS_',
-            hidden: true,
+        expect(ts_client.asset_categories.create).toHaveBeenCalledWith({
+            body: {
+                name: '_DESKS_',
+                hidden: true,
+            },
         });
-        expect(ts_client.addAssetType).toHaveBeenCalledWith({
-            name: '_DESKS_',
-            brand: 'PlaceOS',
-            category_id: 'cat-1',
+        expect(ts_client.asset_types.create).toHaveBeenCalledWith({
+            body: {
+                name: '_DESKS_',
+                brand: 'PlaceOS',
+                category_id: 'cat-1',
+            },
         });
     });
 
     it('should query and flatten desk assets for the requested zones', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([{ id: 'type-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'type-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockImplementation(({ zone_id }) =>
-            response([{ id: `${zone_id}-desk` }]),
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                ({ zone_id }) => response([{ id: `${zone_id}-desk` }]),
+                ['...'],
+                'page',
+            ),
         );
 
         const list = await desks.queryDeskAssetsForZones([
@@ -89,11 +139,27 @@ describe('[Desk Assets]', () => {
 
     it('should retry resolving the desk type after a failure', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories)
-            .mockReturnValueOnce(Promise.reject('offline') as any)
-            .mockReturnValue(response([{ id: 'cat-1', name: '_DESKS_' }]));
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([{ id: 'type-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_categories.query)
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => Promise.reject('offline') as any,
+                    ['...'],
+                    'page',
+                ),
+            )
+            .mockImplementation(
+                fromV1Mock(
+                    () => response([{ id: 'cat-1', name: '_DESKS_' }]),
+                    ['...'],
+                    'page',
+                ),
+            );
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'type-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
 
         await expect(desks.resolveDeskTypeId()).rejects.toBe('offline');
@@ -102,23 +168,36 @@ describe('[Desk Assets]', () => {
 
     it('should load every page of desk assets on a level', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([{ id: 'type-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'type-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            Promise.resolve({
-                data: [{ id: 'asset-1' }],
-                total: 2,
-                next: () =>
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
                     Promise.resolve({
-                        data: [{ id: 'asset-2' }],
+                        data: [{ id: 'asset-1' }],
                         total: 2,
-                        next: () => null,
-                    }),
-            }) as any,
+                        next: () =>
+                            Promise.resolve({
+                                data: [{ id: 'asset-2' }],
+                                total: 2,
+                                next: () => null,
+                            }),
+                    }) as any,
+                ['...'],
+                'page',
+            ),
         );
 
         const assets = await desks.queryDeskAssets('level-1');
@@ -127,7 +206,7 @@ describe('[Desk Assets]', () => {
 
     it('should map asset fields to and from a desk', async () => {
         const desks = await load_module();
-        const asset = new ts_client.PlaceAsset({
+        const asset = asset_data({
             id: 'asset-1',
             asset_type_id: 'type-1',
             zone_id: 'level-1',
@@ -160,7 +239,7 @@ describe('[Desk Assets]', () => {
 
     it('should expose custom desk fields from other_data and client_ids and save them back', async () => {
         const desks = await load_module();
-        const asset = new ts_client.PlaceAsset({
+        const asset = asset_data({
             id: 'asset-1',
             asset_type_id: 'type-1',
             zone_id: 'level-1',
@@ -239,7 +318,7 @@ describe('[Desk Assets]', () => {
 
     it('should move string fields saved in other_data to client_ids', async () => {
         const desks = await load_module();
-        const asset = new ts_client.PlaceAsset({
+        const asset = asset_data({
             id: 'asset-1',
             asset_type_id: 'type-1',
             map_id: 'desk-1',
@@ -253,15 +332,14 @@ describe('[Desk Assets]', () => {
 
     it('should use the asset map id or id, not other_data, for the map id', async () => {
         const desks = await load_module();
-        const asset = new ts_client.PlaceAsset({
+        const asset = asset_data({
             id: 'asset-1',
             other_data: { map_id: 'desk-legacy' },
         });
         expect(desks.deskFromAsset(asset).map_id).toBe('asset-1');
         expect(
-            desks.deskFromAsset(
-                new ts_client.PlaceAsset({ id: 'asset-1', map_id: 'desk-1' }),
-            ).map_id,
+            desks.deskFromAsset(asset_data({ id: 'asset-1', map_id: 'desk-1' }))
+                .map_id,
         ).toBe('desk-1');
     });
 
@@ -292,28 +370,41 @@ describe('[Desk Assets]', () => {
 
     it('should find the desk asset in a building by its original desk id', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([{ id: 'type-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'type-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            response([
-                { id: 'asset-1', map_id: 'desk-1' },
-                {
-                    id: 'asset-2',
-                    map_id: 'map-2',
-                    client_ids: { place_id: 'desk-1' },
-                },
-            ]),
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        { id: 'asset-1', map_id: 'desk-1' },
+                        {
+                            id: 'asset-2',
+                            map_id: 'map-2',
+                            client_ids: { place_id: 'desk-1' },
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
 
         const asset = await desks.queryDeskAssetByLegacyId('bld-1', 'desk-1');
 
         expect(asset?.id).toBe('asset-2');
-        expect(ts_client.queryAssets).toHaveBeenCalledWith(
-            expect.objectContaining({ zones: 'bld-1', type_id: 'type-1' }),
+        expect(ts_client.assets.query).toHaveBeenCalledWith(
+            expect.objectContaining({ zones: ['bld-1'], type_id: 'type-1' }),
         );
         expect(
             await desks.queryDeskAssetByLegacyId('bld-1', 'missing'),
@@ -324,33 +415,43 @@ describe('[Desk Assets]', () => {
         const desks = await load_module();
 
         expect(await desks.queryDeskAssetsInZone('')).toEqual([]);
-        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
-        expect(ts_client.queryAssets).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.query).not.toHaveBeenCalled();
+        expect(ts_client.assets.query).not.toHaveBeenCalled();
     });
 
     it('should save new desk assets with the desk type', async () => {
         const desks = await load_module();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([{ id: 'type-1', name: '_DESKS_' }]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'type-1', name: '_DESKS_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.addAsset).mockResolvedValue({
-            id: 'asset-1',
-        } as any);
+        vi.mocked(ts_client.assets.create).mockResolvedValue(
+            mockReply({
+                id: 'asset-1',
+            } as any),
+        );
 
         await desks.saveDeskAsset(
             { id: 'desk-map-1', map_id: 'desk-map-1', name: 'Desk 1' } as any,
             'level-1',
         );
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 asset_type_id: 'type-1',
                 zone_id: 'level-1',
                 identifier: 'Desk 1',
                 map_id: 'desk-map-1',
             }),
-        );
+        });
     });
 });

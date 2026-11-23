@@ -1,4 +1,4 @@
-import { PlaceZone } from '@placeos/ts-client';
+import { parseResponse, Zone } from '@placeos/ts-client';
 import type { BookingAsset } from '../lib/booking-form.types';
 import {
     pickAutoAllocatedResource,
@@ -9,8 +9,14 @@ const asset = (
     id: string,
     extra: Partial<BookingAsset> = {},
 ): BookingAsset => ({ id, name: id, bookable: true, features: [], ...extra });
+/** Zone with the given id and empty values for its other fields */
+const zone = (id: string): Zone => {
+    const result = parseResponse(Zone, { id }, { missing_fields: 'zero' });
+    if (result.ok === false) throw new Error(`Invalid zone ${id}`);
+    return result.value;
+};
 const onLevel = (id: string, level_id: string) =>
-    asset(id, { zone: new PlaceZone({ id: level_id }) });
+    asset(id, { zone: zone(level_id) });
 
 describe('preferredAllocationPool', () => {
     const tag_only = asset('tag', { tags: ['eng'] });

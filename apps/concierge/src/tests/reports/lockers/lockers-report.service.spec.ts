@@ -10,6 +10,7 @@ import { MockProvider } from 'ng-mocks';
 import { queryLockerAssetsForZones } from '@placeos/assets';
 
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
 import { LockersReportService } from 'apps/concierge/src/app/reports/lockers/lockers-report.service';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
@@ -55,22 +56,34 @@ describe('LockersReportService', () => {
             { zones: ['level-2'] },
         ];
         // queryLockerAssetsForZones -> (bootstrap) + queryAssets one layer down
-        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'cat-lock', name: '_LOCKERS_', hidden: true }],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
-            data: [
-                { id: 'type-lock', name: '_LOCKERS_', category_id: 'cat-lock' },
-            ],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssets).mockImplementation(
-            () =>
-                Promise.resolve({
-                    data: locker_assets,
-                    next: undefined,
-                }) as any,
+        vi.mocked(ts_client_mod.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'cat-lock', name: '_LOCKERS_', hidden: true }],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'type-lock',
+                        name: '_LOCKERS_',
+                        category_id: 'cat-lock',
+                    },
+                ],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({
+                        data: locker_assets,
+                        next: undefined,
+                    }) as any,
+                ['...'],
+                'page',
+            ),
         );
         spectator = createService({
             providers: [
@@ -153,11 +166,11 @@ describe('LockersReportService', () => {
         spectator.service.setOptions({ zones: ['level-1'], start: 1, end: 2 });
         await settle();
         expect(spectator.service.counts()).toEqual({ 'level-1': 2 });
-        const calls = vi.mocked(ts_client_mod.queryAssets).mock.calls.length;
+        const calls = vi.mocked(ts_client_mod.assets.query).mock.calls.length;
 
         spectator.service.setOptions({ start: 3, end: 4 });
         await settle();
-        expect(ts_client_mod.queryAssets).toHaveBeenCalledTimes(calls);
+        expect(ts_client_mod.assets.query).toHaveBeenCalledTimes(calls);
     });
 
     it('should count lockers again for a new building or a refresh', async () => {
@@ -166,7 +179,7 @@ describe('LockersReportService', () => {
         await settle();
         const zone_ids = () =>
             vi
-                .mocked(ts_client_mod.queryAssets)
+                .mocked(ts_client_mod.assets.query)
                 .mock.calls.map(([q]: any) => q.zone_id);
         expect(zone_ids()).toEqual(['building-1']);
 

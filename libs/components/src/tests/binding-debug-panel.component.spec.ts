@@ -1,6 +1,9 @@
 import { Clipboard } from '@angular/cdk/clipboard';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
-import { getModule, showSystem } from '@placeos/ts-client';
+import { getModule, placeRealtime } from '@placeos/common';
+import { startMockPlaceClient } from '@placeos/common/tests';
+import { systems, type BindingState, type JsonValue } from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
 import {
     BindingDebugPanelComponent,
@@ -13,6 +16,10 @@ describe('BindingDebugPanelComponent', () => {
     let spectator: Spectator<BindingDebugPanelComponent>;
     const copy = vi.fn<(text: string) => boolean>();
     let hotkey_callback: () => void;
+    /** Listener of each binding, by `sys|name`, to send driver values */
+    const drivers = new Map<string, (state: BindingState) => void>();
+    const driverValue = (system_id: string, name: string, value: JsonValue) =>
+        drivers.get(`${system_id}|${name}`)?.({ kind: 'value', value });
 
     const createComponent = createComponentFactory({
         component: BindingDebugPanelComponent,
@@ -31,9 +38,21 @@ describe('BindingDebugPanelComponent', () => {
     });
 
     beforeEach(() => {
+        // The hooks wrap this realtime client when the panel is made
+        startMockPlaceClient();
+        drivers.clear();
+        vi.spyOn(placeRealtime(), 'bind').mockImplementation(
+            (target, listener) => {
+                drivers.set(`${target.sys}|${target.name}`, listener);
+                return () => undefined;
+            },
+        );
         copy.mockReset().mockReturnValue(true);
-        vi.mocked(showSystem).mockImplementation(
-            async (id) => ({ id, name: id }) as any,
+        vi.mocked(systems.show).mockImplementation(
+            fromV1Mock(
+                async (id) => ({ id, name: id }) as any,
+                ['sys_id', '...'],
+            ),
         );
         spectator = createComponent();
     });
@@ -121,9 +140,10 @@ describe('BindingDebugPanelComponent', () => {
 
     it('groups observed bindings and reports their active count', () => {
         const system_id = `sys-${Date.now()}`;
-        const binding = getModule(system_id, 'Display', 2).variable('power');
-        (binding as any)._binding_count = 2;
-        (binding.listen() as any).set(true);
+        const power = getModule(system_id, 'Display', 2).variable('power');
+        power.subscribe(() => undefined);
+        power.subscribe(() => undefined);
+        driverValue(system_id, 'power', true);
 
         const system = spectator.component
             .systems()
@@ -140,17 +160,22 @@ describe('BindingDebugPanelComponent', () => {
 
     it('resolves system IDs to their display names', async () => {
         const system_id = `sys-${Date.now()}-name`;
-        vi.mocked(showSystem).mockImplementation(
-            async (id) =>
-                (id === system_id
-                    ? {
-                          id,
-                          name: 'Internal room name',
-                          display_name: 'Boardroom 1',
-                      }
-                    : { id, name: id }) as any,
+        vi.mocked(systems.show).mockImplementation(
+            fromV1Mock(
+                async (id) =>
+                    (id === system_id
+                        ? {
+                              id,
+                              name: 'Internal room name',
+                              display_name: 'Boardroom 1',
+                          }
+                        : { id, name: id }) as any,
+                ['sys_id', '...'],
+            ),
         );
-        getModule(system_id, 'Display').variable('power');
+        getModule(system_id, 'Display')
+            .variable('power')
+            .subscribe(() => undefined);
 
         spectator.component.show.set(true);
 
@@ -166,8 +191,9 @@ describe('BindingDebugPanelComponent', () => {
     it('restores the latest driver value after clearing an override', () => {
         const system_id = `sys-${Date.now()}-override`;
         const binding = getModule(system_id, 'Display').variable('input');
-        const source = binding.listen() as any;
-        source.set('HDMI 1');
+        const seen: JsonValue[] = [];
+        binding.subscribe((value) => seen.push(value));
+        driverValue(system_id, 'input', 'HDMI 1');
         const row = spectator.component
             .systems()
             .find((item) => item.id === system_id).modules[0].bindings[0];
@@ -175,13 +201,14 @@ describe('BindingDebugPanelComponent', () => {
         spectator.component.startOverride(row);
         spectator.component.edit_value.set('HDMI 2');
         spectator.component.saveOverride(row);
-        expect(binding.value).toBe('HDMI 2');
+        expect(seen.at(-1)).toBe('HDMI 2');
+        expect(binding.value()).toBe('HDMI 2');
 
-        source.set('USB-C');
-        expect(binding.value).toBe('HDMI 2');
+        driverValue(system_id, 'input', 'USB-C');
+        expect(seen.at(-1)).toBe('HDMI 2');
 
         spectator.component.clearOverride(row);
-        expect(binding.value).toBe('USB-C');
+        expect(seen.at(-1)).toBe('USB-C');
     });
     it('allows search results to collapse without changing the unfiltered groups', () => {
         spectator.component.filter.set('power');
@@ -194,17 +221,17 @@ describe('BindingDebugPanelComponent', () => {
 
     it('preserves JSON-like strings when an override is applied unchanged', () => {
         const system_id = `sys-${Date.now()}-string`;
-        const binding = getModule(system_id, 'Display').variable('label');
-        const source = binding.listen() as unknown as {
-            set(value: string): void;
-        };
-        source.set('true');
+        const seen: JsonValue[] = [];
+        getModule(system_id, 'Display')
+            .variable('label')
+            .subscribe((value) => seen.push(value));
+        driverValue(system_id, 'label', 'true');
         const row = spectator.component
             .systems()
             .find((item) => item.id === system_id)!.modules[0].bindings[0];
         spectator.component.startOverride(row);
         spectator.component.saveOverride(row);
-        expect(binding.value).toBe('true');
+        expect(seen.at(-1)).toBe('true');
         spectator.component.clearOverride(row);
     });
 
@@ -228,11 +255,10 @@ describe('BindingDebugPanelComponent', () => {
             data: 'long value '.repeat(1000),
             nested: { enabled: true },
         };
-        const binding = getModule(system_id, 'Display').variable('payload');
-        const source = binding.listen() as unknown as {
-            set(value: unknown): void;
-        };
-        source.set(value);
+        getModule(system_id, 'Display')
+            .variable('payload')
+            .subscribe(() => undefined);
+        driverValue(system_id, 'payload', value);
         spectator.component.show.set(true);
         spectator.component.filter.set(system_id);
         spectator.detectChanges();

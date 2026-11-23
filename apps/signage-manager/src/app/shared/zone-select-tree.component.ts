@@ -20,12 +20,12 @@ import {
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 import { IntersectDirective } from './intersect.directive';
 import { PagedSearch } from './paged-search';
 
 interface ZoneSelectTreeNode {
-    zone: PlaceZone;
+    zone: Zone;
     children: ZoneSelectTreeNode[];
     children_loaded: boolean;
     children_loading: boolean;
@@ -35,7 +35,7 @@ interface ZoneSelectTreeNode {
 }
 
 /** Placeholder of a zone search: within the zone, or every reachable zone */
-export function zoneSearchLabel(zone: PlaceZone | null) {
+export function zoneSearchLabel(zone: Zone | null) {
     return zone?.id
         ? {
               key: 'SIGNAGE_MANAGER.SEARCH_IN_ZONE',
@@ -268,15 +268,15 @@ export function zoneSearchLabel(zone: PlaceZone | null) {
     ],
 })
 export class ZoneSelectTreeComponent {
-    public readonly list = input.required<PagedSearch<PlaceZone>>();
-    public readonly roots = input<PlaceZone[] | null>(null);
+    public readonly list = input.required<PagedSearch<Zone>>();
+    public readonly roots = input<Zone[] | null>(null);
     public readonly load_children = input<
-        ((parent_id: string) => Promise<PlaceZone[]>) | null
+        ((parent_id: string) => Promise<Zone[]>) | null
     >(null);
     public readonly exclude_ids = input<string[]>([]);
     public readonly scoped_search = input(false);
-    public readonly selected = model<PlaceZone | null>(null);
-    public readonly zoneSelected = output<PlaceZone>();
+    public readonly selected = model<Zone | null>(null);
+    public readonly zoneSelected = output<Zone>();
     public readonly expanded_zones = signal<Record<string, boolean>>({});
     /** Zone the search is limited to. Null searches every reachable zone. */
     public readonly search_scope = computed(() =>
@@ -357,7 +357,7 @@ export class ZoneSelectTreeComponent {
         });
     }
 
-    public selectZone(zone: PlaceZone) {
+    public selectZone(zone: Zone) {
         if (this.scoped_search()) {
             this.list().search.set('');
             this.selected.set(zone);
@@ -432,11 +432,7 @@ export class ZoneSelectTreeComponent {
             : node.zone.children_count || node.zone.count || 0;
     }
 
-    private buildTree(
-        zones: PlaceZone[],
-        excluded_ids: Set<string>,
-        lazy: boolean,
-    ) {
+    private buildTree(zones: Zone[], excluded_ids: Set<string>, lazy: boolean) {
         const nodes = new Map<string, ZoneSelectTreeNode>();
         for (const zone of zones) {
             if (excluded_ids.has(zone.id)) continue;
@@ -451,7 +447,7 @@ export class ZoneSelectTreeComponent {
         return roots;
     }
 
-    private createNode(zone: PlaceZone, lazy: boolean): ZoneSelectTreeNode {
+    private createNode(zone: Zone, lazy: boolean): ZoneSelectTreeNode {
         return {
             zone,
             children: [],

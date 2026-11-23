@@ -12,14 +12,16 @@ import {
 } from '@placeos/common';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { mockData } from '@placeos/common/tests';
 import { FullscreenModalShellComponent } from '@placeos/components';
 import { UserListFieldComponent } from '@placeos/form-fields';
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { events, PlaceCalendarEvent } from '@placeos/ts-client/staff';
 import { BroadcastEmailModalComponent } from '../../app/email-templates/broadcast-email-modal.component';
 
-// `queryAllEvents` (from the inlined `@placeos/events` lib) resolves through the
-// `@placeos/ts-client` `query` boundary, which is the interceptable layer.
-vi.mock('@placeos/ts-client', { spy: true });
+// `queryAllEvents` (from the inlined `@placeos/events` lib) calls the staff
+// `events.query` operation, which is the interceptable layer.
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('BroadcastEmailModalComponent', () => {
     let spectator: Spectator<BroadcastEmailModalComponent>;
@@ -85,15 +87,14 @@ describe('BroadcastEmailModalComponent', () => {
     });
 
     it('should resolve room hosts and attendees for the rooms group', async () => {
-        (ts_client.query as any).mockResolvedValue({
-            data: [
-                {
+        vi.mocked(events.query).mockResolvedValue(
+            mockReply([
+                mockData(PlaceCalendarEvent, {
                     host: 'host@example.com',
                     attendees: [{ email: 'guest@example.com' }],
-                },
-            ],
-            next: undefined,
-        });
+                }),
+            ]),
+        );
         spectator.component.model.update((m) => ({
             ...m,
             recipient_group: 'rooms',
@@ -101,7 +102,7 @@ describe('BroadcastEmailModalComponent', () => {
 
         await spectator.component.updateRecipients();
 
-        expect(ts_client.query).toHaveBeenCalled();
+        expect(events.query).toHaveBeenCalled();
         expect(spectator.component.recipients().sort()).toEqual([
             'guest@example.com',
             'host@example.com',
@@ -109,22 +110,21 @@ describe('BroadcastEmailModalComponent', () => {
     });
 
     it('should exclude room addresses from resolved recipients', async () => {
-        (ts_client.query as any).mockResolvedValue({
-            data: [
-                {
+        // The staff event schema has no `resources`, so only the system
+        // address and the resource attendees mark room addresses
+        vi.mocked(events.query).mockResolvedValue(
+            mockReply([
+                mockData(PlaceCalendarEvent, {
                     host: 'room@example.com',
-                    system: { email: 'room@example.com' },
-                    resources: [{ email: 'overflow-room@example.com' }],
+                    system: { id: 'sys-1', email: 'room@example.com' },
                     attendees: [
                         { email: 'guest@example.com' },
                         { email: 'room@example.com' },
-                        { email: 'overflow-room@example.com' },
                         { email: 'resource@example.com', resource: true },
                     ],
-                },
-            ],
-            next: undefined,
-        });
+                }),
+            ]),
+        );
         spectator.component.model.update((m) => ({
             ...m,
             recipient_group: 'rooms',

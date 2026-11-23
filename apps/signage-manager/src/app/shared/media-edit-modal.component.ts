@@ -41,11 +41,8 @@ import {
     DateFieldComponent,
     ItemListFieldComponent,
 } from '@placeos/form-fields';
-import {
-    MediaAnimation,
-    SignageMedia,
-    SignagePlugin,
-} from '@placeos/ts-client';
+import { type PlaylistItem, type SignagePlugin } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     getVideoContainer,
@@ -53,14 +50,17 @@ import {
     SignageMediaMetadata,
     validateSignageMediaDimensions,
 } from '../signage-media-upload.util';
+import { signageMedia } from '../signage-models';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import {
+    jsonRecord,
     objectHasKeys,
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
 import {
     isWebPageUrl,
+    mediaUrl,
     normaliseWebPageUrl,
     webPageFrameUrl,
 } from '../signage-url.util';
@@ -71,11 +71,11 @@ import { SignageSharedWithComponent } from './signage-shared-with.component';
 /** Media fields the modal saves. `thumbnail_image` is a picked image as a
  * data URL, which the service uploads before it saves the item. */
 export type MediaEditChanges = {
-    -readonly [K in keyof SignageMedia]?: SignageMedia[K];
+    -readonly [K in keyof PlaylistItem]?: PlaylistItem[K];
 } & { thumbnail_image?: string };
 
 export interface MediaEditModalData {
-    media: SignageMedia;
+    media: PlaylistItem;
     file?: File;
     file_metadata?: SignageMediaMetadata;
     /** Thumbnail of a new file. It can arrive after the modal opens. */
@@ -89,14 +89,14 @@ export interface MediaEditModalData {
     generateThumbnail?: (file: File) => Promise<string>;
     onAdd: (
         f: File,
-        m: SignageMedia,
+        m: PlaylistItem,
         file_metadata?: SignageMediaMetadata,
         thumbnail?: string,
         /** Supplies a thumbnail when the server screenshot fails */
         fallback_thumbnail?: () => Promise<string>,
-    ) => Promise<SignageMedia>;
+    ) => Promise<PlaylistItem>;
     onEdit: (id: string, data: MediaEditChanges) => Promise<void>;
-    preview: (item: SignageMedia) => void;
+    preview: (item: PlaylistItem) => void;
 }
 
 interface MediaEditFormModel {
@@ -602,7 +602,7 @@ export class MediaEditModalComponent implements OnDestroy {
         animation: mediaAnimation(this._data.media.animation),
         start_time: this._data.media.start_time || 0,
         play_time: this._data.media.play_time || 0,
-        tags: this._data.media.tags || [],
+        tags: [...(this._data.media.tags || [])],
         plugin_params: this._data.media.plugin_params || {},
         valid_from: this._data.media.valid_from
             ? this._data.media.valid_from * 1000
@@ -632,12 +632,12 @@ export class MediaEditModalComponent implements OnDestroy {
     public readonly preview = () =>
         this._data.preview(
             // No id: this previews the unsaved form, not the stored item
-            new SignageMedia({
+            signageMedia({
                 media_uri: this.url,
                 media_type: this.media_type,
                 name: this.model().name,
                 plugin_id: this.item.plugin_id || this.plugin()?.id,
-                plugin_params: this.plugin_config(),
+                plugin_params: jsonRecord(this.plugin_config()),
             }),
         );
 
@@ -682,7 +682,7 @@ export class MediaEditModalComponent implements OnDestroy {
         if (this.media_type === 'webpage') {
             return this.model().media_uri || this.item.media_uri;
         }
-        if (this.item.id) return this.item.media_url;
+        if (this.item.id) return mediaUrl(this.item);
         if (this.item.media_uri) return this.item.media_uri;
         if (this._file_url) return this._file_url;
         this._file_url = URL.createObjectURL(this.file);
@@ -693,7 +693,7 @@ export class MediaEditModalComponent implements OnDestroy {
         saveHotkey(this._dialog_ref, () => this.saveMedia());
         if (this.media_type === 'webpage') {
             this.preview_url.set(
-                webPageFrameUrl(this.item.media_uri || this.item.media_url),
+                webPageFrameUrl(this.item.media_uri || mediaUrl(this.item)),
             );
             effect((onCleanup) => {
                 const url = this.model().media_uri;
@@ -784,6 +784,7 @@ export class MediaEditModalComponent implements OnDestroy {
             const new_media: MediaEditChanges = {
                 ...this.item,
                 ...form_value,
+                plugin_params: jsonRecord(form_value.plugin_params),
             };
             if (this.media_type === 'webpage') {
                 new_media.media_uri =
@@ -796,12 +797,12 @@ export class MediaEditModalComponent implements OnDestroy {
             if (this.media_type === 'plugin') {
                 const plugin_config = this.plugin_config();
                 if (objectHasKeys(plugin_config)) {
-                    new_media.plugin_params = plugin_config;
+                    new_media.plugin_params = jsonRecord(plugin_config);
                 } else {
                     delete new_media.plugin_params;
                 }
             } else if (form_value.plugin_params) {
-                new_media.plugin_params = form_value.plugin_params;
+                new_media.plugin_params = jsonRecord(form_value.plugin_params);
             } else {
                 delete new_media.plugin_params;
             }
@@ -828,7 +829,7 @@ export class MediaEditModalComponent implements OnDestroy {
                 } else {
                     await this._data.onAdd(
                         this.file,
-                        new SignageMedia(new_media),
+                        signageMedia(new_media),
                         this._data.file_metadata,
                         this.custom_thumbnail(),
                         () => this._capturePluginThumbnail(),

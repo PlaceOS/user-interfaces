@@ -2,12 +2,12 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { SignagePlugin } from '@placeos/ts-client';
 import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { MediaListHeaderComponent } from '../../app/media/media-list-header.component';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaAddModalComponent } from '../../app/shared/media-add-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signagePlugin } from '../../app/signage-models';
 import { SignagePluginService } from '../../app/signage-plugin.service';
 
 const notify_open = vi.fn(() => ({
@@ -144,7 +144,7 @@ describe('MediaListHeaderComponent', () => {
 
     it('adds media from the selected plugin and resets the selection', async () => {
         const component = await make();
-        const plugin = new SignagePlugin({
+        const plugin = signagePlugin({
             id: 'plugin-1',
             name: 'Clock',
             plugin_type: 'plugin',
@@ -158,7 +158,7 @@ describe('MediaListHeaderComponent', () => {
 
     it('excludes widget plugins from media items', async () => {
         const component = await make();
-        const widget = new SignagePlugin({
+        const widget = signagePlugin({
             id: 'widget-1',
             name: 'Clock',
             plugin_type: 'widget',

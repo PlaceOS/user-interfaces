@@ -3,6 +3,7 @@ import {
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 import { LocaleService } from '../lib/locale.service';
 
@@ -183,18 +184,28 @@ describe('LocaleService', () => {
             ok: true,
             json: async () => ({ COMMON: { HELLO: 'Hello', BYE: 'Goodbye' } }),
         }));
-        vi.mocked(ts_client.showMetadata).mockResolvedValue(
-            new ts_client.PlaceMetadata({
-                details: { COMMON: { HELLO: 'G’day' } },
+        vi.mocked(ts_client.metadata.show).mockResolvedValue(
+            mockReply({
+                'locale_en-AU': {
+                    name: 'locale_en-AU',
+                    description: '',
+                    details: { COMMON: { HELLO: 'G’day' } },
+                    parent_id: 'zone-1',
+                    schema_id: null,
+                    editors: [],
+                    modified_by_id: null,
+                    updated_at: 0,
+                    created_at: 0,
+                },
             }),
         );
         spectator.service.zone_id = 'zone-1';
         spectator.service.setLocale('en-AU');
         await spectator.service.loaded();
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            'locale_en-AU',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-1',
+            name: 'locale_en-AU',
+        });
         expect(spectator.service.get('COMMON.HELLO')).toBe('G’day');
         expect(spectator.service.get('COMMON.BYE')).toBe('Goodbye');
     });
@@ -204,7 +215,7 @@ describe('LocaleService', () => {
             ok: true,
             json: async () => ({ COMMON: { HELLO: 'Hello' } }),
         }));
-        vi.mocked(ts_client.showMetadata).mockRejectedValue(
+        vi.mocked(ts_client.metadata.show).mockRejectedValue(
             new Error('offline'),
         );
         spectator.service.zone_id = 'zone-1';

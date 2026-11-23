@@ -1,6 +1,5 @@
 import { computed, inject, Injectable, Signal } from '@angular/core';
-import { i18n, notifyError } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
+import { getModule, i18n, notifyError } from '@placeos/common';
 import { ControlStateService } from '../control-state.service';
 import { errorText } from '../error-text';
 import { systemBinding } from '../system-binding';

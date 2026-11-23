@@ -36,12 +36,12 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
-    addSurvey,
-    SurveyPage,
-    SurveyQuestion,
-    updateSurvey,
-} from '@placeos/ts-client';
+    type SurveyPage,
+    type SurveyQuestion,
+    surveys,
+} from '@placeos/ts-client/staff';
 
 import {
     IconComponent,
@@ -52,7 +52,13 @@ import { restoreFocusAfterRender } from '../ui/restore-focus';
 import { HasUnsavedChanges } from '../ui/unsaved-changes.guard';
 import { NewSurveyService, QuestionFilters } from './new-survey.service';
 import { QuestionComponent } from './question.component';
-import { QuestionTypeMap, QuestionTypeOptions, TriggerOptions } from './types';
+import {
+    questionDraft,
+    QuestionTypeMap,
+    QuestionTypeOptions,
+    surveyTrigger,
+    TriggerOptions,
+} from './types';
 
 @Component({
     selector: 'survey-builder',
@@ -599,7 +605,12 @@ export class SurveyBuilderComponent
     public readonly questions = this._service.filtered_questions;
     /** All loaded questions by ID, for rendering a page's question order. */
     private readonly _question_map = computed(
-        () => new Map(this._service.questions().map((q) => [`${q.id}`, q])),
+        () =>
+            new Map(
+                this._service
+                    .questions()
+                    .map((q) => [`${q.id}`, questionDraft(q)]),
+            ),
     );
 
     public questionFor(id: string | number) {
@@ -648,7 +659,7 @@ export class SurveyBuilderComponent
             trigger: survey.trigger?.toUpperCase() ?? m.trigger,
             building_id: survey.building_id ?? m.building_id,
             zone_id: survey.zone_id ?? m.zone_id,
-            pages: survey.pages?.length ? survey.pages : m.pages,
+            pages: survey.pages?.length ? [...survey.pages] : m.pages,
         }));
         this._saved_model = JSON.stringify(untracked(this.model));
     });
@@ -796,10 +807,13 @@ export class SurveyBuilderComponent
         // The API rejects an empty ID or trigger, so leave out the ID for
         // new surveys and default the trigger.
         const { id: survey_id, ...details } = survey;
-        const body = { ...details, trigger: details.trigger || 'NONE' };
-        const call = survey_id
-            ? updateSurvey(`${survey_id}`, { ...body, id: survey_id } as any)
-            : addSurvey(body);
+        const body = { ...details, trigger: surveyTrigger(details.trigger) };
+        const id_number = Number(survey_id);
+        const call = id_number
+            ? surveys
+                  .update({ id: id_number, body: { ...body, id: id_number } })
+                  .then(orThrow)
+            : surveys.create({ body }).then(orThrow);
         const saved = await call
             .catch((error) => {
                 notifyError('Failed to save survey details. Error: ', error);

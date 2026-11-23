@@ -21,25 +21,11 @@ export const RECORDER_GRID_URL = '/#/recorder-grid';
  * Must be called before navigating to app pages.
  */
 export async function initializeAppWithMock(page: Page): Promise<void> {
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-    await page
-        .evaluate(() => {
-            localStorage.setItem('mock', 'true');
-        })
-        .catch(() => {
-            /* Ignore context errors during navigation */
-        });
-
+    // Set before the first load: without mock mode the app starts the login
+    // at once, and that redirect would interrupt a later navigation.
+    await page.addInitScript(() => localStorage.setItem('mock', 'true'));
     await page.goto('/?mock=true');
     await page.waitForLoadState('domcontentloaded');
-    await page
-        .evaluate(() => {
-            localStorage.setItem('mock', 'true');
-        })
-        .catch(() => {
-            /* Ignore context errors during navigation */
-        });
 
     await page
         .locator('app-root')

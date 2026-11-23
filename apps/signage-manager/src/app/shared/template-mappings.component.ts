@@ -9,10 +9,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import {
-    mediaThumbnail,
-    type SignagePlaylistSchedule,
-} from '@placeos/ts-client';
+import { type PlaylistSchedule } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import {
     playlistScheduleExpiryTooltip,
@@ -22,6 +19,7 @@ import {
     HydratedSignageTemplateMapping,
     SignageTemplateMappingTarget,
 } from '../signage-template-mapping';
+import { mediaThumbnailUrl, mediaUrl } from '../signage-url.util';
 import { SignageTemplateService } from '../templates/signage-template.service';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { scheduleSummary } from './schedule-summary.util';
@@ -391,9 +389,9 @@ export class TemplateMappingsComponent {
                 ]),
         );
         return this.mappings().map((mapping) => {
-            const { items } = computeTemplateLayout(
-                mapping.template_details.layouts || [],
-            );
+            const { items } = computeTemplateLayout([
+                ...(mapping.template_details.layouts || []),
+            ]);
             return {
                 mapping,
                 zone_name: zone_names.get(mapping.zone_id) || mapping.zone_id,
@@ -409,18 +407,19 @@ export class TemplateMappingsComponent {
     public backgroundUrl(mapping: HydratedSignageTemplateMapping) {
         const template = mapping.template_details;
         return (
-            template.background_media?.media_url ||
+            (template.background_media &&
+                mediaUrl(template.background_media)) ||
             (template.background_item_id
-                ? mediaThumbnail(template.background_item_id)
+                ? mediaThumbnailUrl(template.background_item_id)
                 : '')
         );
     }
 
-    public scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+    public scheduleLabel(schedule: Partial<PlaylistSchedule>) {
         return scheduleSummary(schedule, this._locale.locale);
     }
 
-    public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
+    public scheduleTooltip(schedule: Partial<PlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);
         const expiry = playlistScheduleExpiryTooltip(schedule);
         return [

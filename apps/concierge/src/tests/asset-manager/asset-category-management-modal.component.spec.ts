@@ -4,6 +4,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { AssetCategoryManagementModalComponent } from '../../app/asset-manager/asset-category-management-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -20,7 +21,7 @@ describe('AssetCategoryManagementModalComponent', () => {
 
     beforeEach(() => {
         edit = vi.fn();
-        (ts_client.removeAssetCategory as any).mockClear();
+        (ts_client.asset_categories.destroy as any).mockClear();
         spectator = createComponent({
             providers: [
                 {
@@ -43,13 +44,17 @@ describe('AssetCategoryManagementModalComponent', () => {
     });
 
     it('should remove a category and emit a change event', async () => {
-        vi.mocked(ts_client.removeAssetCategory).mockResolvedValue({});
+        vi.mocked(ts_client.asset_categories.destroy).mockResolvedValue(
+            mockReply(''),
+        );
         const changed = vi.fn();
         spectator.component.changed.subscribe(changed);
 
         await spectator.component.remove({ id: 'c1' } as any);
 
-        expect(ts_client.removeAssetCategory).toHaveBeenCalledWith('c1');
+        expect(ts_client.asset_categories.destroy).toHaveBeenCalledWith({
+            id: 'c1',
+        });
         expect(changed).toHaveBeenCalled();
     });
 });

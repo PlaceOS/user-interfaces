@@ -5,8 +5,11 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
+import { mockData } from '@placeos/common/tests';
 import { VirtualKeyboardComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
+import { SignageTemplate, System } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 
 import { BootstrapComponent } from '../app/bootstrap.component';
@@ -37,24 +40,32 @@ describe('BootstrapComponent', () => {
             levelWithID: vi.fn(() => ({ id: 'level-1', name: 'Level 1' })),
             limit_init: false,
         };
-        (ts_client.querySystems as any).mockReturnValue(
-            Promise.resolve({
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
                 data: [
-                    {
+                    mockData(System, {
                         id: 'display-1',
                         name: 'Display 1',
                         display_name: 'Display One',
                         zones: ['level-1', 'building-1'],
-                    },
+                    }),
                 ],
             }),
         );
-        (ts_client.querySignageTemplates as any).mockResolvedValue({
-            data: [
-                { id: 'template-2', name: 'Template B' },
-                { id: 'template-1', name: 'Template A' },
-            ],
-        });
+        vi.mocked(ts_client.signage_templates.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(SignageTemplate, {
+                        id: 'template-2',
+                        name: 'Template B',
+                    }),
+                    mockData(SignageTemplate, {
+                        id: 'template-1',
+                        name: 'Template A',
+                    }),
+                ],
+            }),
+        );
     });
 
     afterEach(() => {
@@ -96,9 +107,10 @@ describe('BootstrapComponent', () => {
         spectator.detectChanges();
         await spectator.fixture.whenStable();
 
-        expect(ts_client.querySystems).toHaveBeenCalledWith(
+        expect(ts_client.systems.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                fields: 'id,name,display_name,email,zones',
+                zone_id: ['org-1'],
+                fields: ['id', 'name', 'display_name', 'email', 'zones'],
             }),
         );
         expect(spectator.component.displays().map((_) => _.id)).toEqual([
@@ -107,13 +119,23 @@ describe('BootstrapComponent', () => {
     });
 
     it('should list displays by display name, or by name without one', async () => {
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                { id: 'c', name: 'Zeta', display_name: 'Charlie' },
-                { id: 'b', name: 'Bravo' },
-                { id: 'a', name: 'Yankee', display_name: 'Alpha' },
-            ],
-        } as any);
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(System, {
+                        id: 'c',
+                        name: 'Zeta',
+                        display_name: 'Charlie',
+                    }),
+                    mockData(System, { id: 'b', name: 'Bravo' }),
+                    mockData(System, {
+                        id: 'a',
+                        name: 'Yankee',
+                        display_name: 'Alpha',
+                    }),
+                ],
+            }),
+        );
         build_component();
 
         await vi.waitFor(() => {
@@ -132,7 +154,7 @@ describe('BootstrapComponent', () => {
         await spectator.fixture.whenStable();
 
         expect(spectator.query('[name="template"]')).toBeNull();
-        expect(ts_client.querySignageTemplates).not.toHaveBeenCalled();
+        expect(ts_client.signage_templates.query).not.toHaveBeenCalled();
         expect(spectator.component.templates()).toEqual([]);
     });
 
@@ -145,7 +167,7 @@ describe('BootstrapComponent', () => {
         });
 
         expect(spectator.query('[name="template"]')).not.toBeNull();
-        expect(ts_client.querySignageTemplates).toHaveBeenCalledWith({
+        expect(ts_client.signage_templates.query).toHaveBeenCalledWith({
             limit: 500,
         });
         expect(spectator.component.templates().map((item) => item.id)).toEqual([
@@ -188,7 +210,7 @@ describe('BootstrapComponent', () => {
     );
 
     it('should show an error with a retry when displays fail to load', async () => {
-        vi.mocked(ts_client.querySystems).mockRejectedValueOnce(
+        vi.mocked(ts_client.systems.query).mockRejectedValueOnce(
             new Error('Service unavailable'),
         );
         build_component();

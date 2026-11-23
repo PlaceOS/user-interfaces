@@ -17,33 +17,35 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceSystem, PlaceZone, QueryResponse } from '@placeos/ts-client';
+import { type System, type SystemInput, type Zone } from '@placeos/ts-client';
+import { type QueryResponse } from '../shared/paged-list';
 import { byDisplayName, PagedSearch } from '../shared/paged-search';
 import { ZoneSelectTreeComponent } from '../shared/zone-select-tree.component';
+import { signageZone } from '../signage-models';
 
 export interface DisplayEditModalData {
-    display: PlaceSystem;
+    display: System;
     default_zone_ids: string[];
-    roots: () => PlaceZone[];
-    zones: () => PlaceZone[];
-    load_children: (parent_id: string) => Promise<PlaceZone[]>;
+    roots: () => Zone[];
+    zones: () => Zone[];
+    load_children: (parent_id: string) => Promise<Zone[]>;
     query_zones: (
         search: string,
         parent_id: string,
-    ) => QueryResponse<PlaceZone> | null;
+    ) => QueryResponse<Zone> | null;
     /** Ids of a zone and its ancestors, parent first */
-    zone_ids: (zone: PlaceZone) => Promise<string[]>;
+    zone_ids: (zone: Zone) => Promise<string[]>;
     /** Load a zone outside the loaded lists, or null when it cannot be read */
-    load_zone: (zone_id: string) => Promise<PlaceZone | null>;
-    onAdd: (data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
-    onEdit: (id: string, data: Partial<PlaceSystem>) => Promise<PlaceSystem>;
+    load_zone: (zone_id: string) => Promise<Zone | null>;
+    onAdd: (data: SystemInput) => Promise<System>;
+    onEdit: (id: string, data: SystemInput) => Promise<System>;
 }
 
 interface DisplayEditFormModel {
     name: string;
     display_name: string;
     description: string;
-    orientation: PlaceSystem['orientation'];
+    orientation: System['orientation'];
     zones: string[];
 }
 
@@ -212,21 +214,18 @@ export class DisplayEditModalComponent {
         MatDialogRef<DisplayEditModalComponent>,
     );
     // Zones picked or loaded in the modal, which the zone lists can lack
-    private readonly _selected_zone_items = signal<PlaceZone[]>([]);
+    private readonly _selected_zone_items = signal<Zone[]>([]);
     // Zone ids requested once, so a zone that fails to load shows its id
     private readonly _requested_zone_ids = new Set<string>();
 
     public readonly display = this._data.display;
     public readonly loading = signal(false);
     public readonly roots = this._data.roots;
-    public readonly selected_zone = linkedSignal<PlaceZone[], PlaceZone | null>(
-        {
-            source: this.roots,
-            computation: (roots, previous) =>
-                previous?.value || roots[0] || null,
-        },
-    );
-    public readonly zone_list = new PagedSearch<PlaceZone>((search) => {
+    public readonly selected_zone = linkedSignal<Zone[], Zone | null>({
+        source: this.roots,
+        computation: (roots, previous) => previous?.value || roots[0] || null,
+    });
+    public readonly zone_list = new PagedSearch<Zone>((search) => {
         const parent_id = this.selected_zone()?.id;
         return search.trim()
             ? this._data.query_zones(search, parent_id || '')
@@ -251,7 +250,7 @@ export class DisplayEditModalComponent {
             ),
         );
         return selected_zone_ids.map(
-            (zone_id) => zones.get(zone_id) || new PlaceZone({ id: zone_id }),
+            (zone_id) => zones.get(zone_id) || signageZone({ id: zone_id }),
         );
     });
 
@@ -281,7 +280,7 @@ export class DisplayEditModalComponent {
     }
 
     /** Add a zone and its ancestors, so playlists of a building reach the display */
-    public async addZone(zone: PlaceZone) {
+    public async addZone(zone: Zone) {
         this._selected_zone_items.update((zones) => [
             ...zones.filter((item) => item.id !== zone.id),
             zone,
@@ -305,7 +304,7 @@ export class DisplayEditModalComponent {
             this.loading.set(true);
             this._dialog_ref.disableClose = true;
             const form_value = this.model();
-            const data: Partial<PlaceSystem> = {
+            const data: SystemInput = {
                 name: form_value.name,
                 display_name: form_value.display_name,
                 description: form_value.description,

@@ -1,5 +1,4 @@
 import { Component, computed, effect, inject, signal } from '@angular/core';
-import { showMetadata } from '@placeos/ts-client';
 
 import {
     AsyncHandler,
@@ -28,6 +27,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { UserDetails, UserLabelComponent } from '@placeos/users';
+import { showMetadata } from '../metadata';
 import { ParkingStateService } from '../parking/parking-state.service';
 import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 import { PulseOnChangeDirective } from '../ui/pulse-on-change.directive';

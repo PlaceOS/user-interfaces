@@ -18,20 +18,21 @@ import {
     withTimeout,
 } from '@placeos/common';
 import {
-    PlaceSystem,
-    PlaceZone,
-    type QueryResponse,
-    queryZones,
-    removeSystem,
-    showZone,
-    SignagePlaylist,
+    type Playlist,
+    type System,
+    type SystemInput,
+    systems,
+    type Zone,
+    zones,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
-import { PagedList } from '../shared/paged-list';
+import { PagedList, type QueryResponse } from '../shared/paged-list';
 import { PlaylistAssignments } from '../shared/playlist-assignments';
 import { SignageContextService } from '../signage-context.service';
+import { signageSystem } from '../signage-models';
 import {
     dialogClosed,
     mergeItems,
@@ -67,9 +68,7 @@ export class SignageDisplayService {
     private readonly _playlist_service = inject(SignagePlaylistService);
     private readonly _template_service = inject(SignageTemplateService);
 
-    private readonly _display_overrides = signal<Record<string, PlaceSystem>>(
-        {},
-    );
+    private readonly _display_overrides = signal<Record<string, System>>({});
 
     // --- Displays (paged incrementally as the user scrolls) ---
     // Searching is done by the backend so results are paged like the full
@@ -83,10 +82,10 @@ export class SignageDisplayService {
     // Every display seen since the group last changed, keyed by id. Zone,
     // schedule and playlist views resolve displays by id, so they need the
     // whole set rather than whatever the current search narrowed it to.
-    private readonly _display_cache = signal<Record<string, PlaceSystem>>({});
+    private readonly _display_cache = signal<Record<string, System>>({});
     private _display_cache_group: string | null = null;
     private _display_search: string | null = null;
-    private readonly _display_list = new PagedList<PlaceSystem>({
+    private readonly _display_list = new PagedList<System>({
         filter: (item) => item.signage,
         on_page: (items) =>
             this._display_cache.update((cache) => {
@@ -156,7 +155,7 @@ export class SignageDisplayService {
      * Paged queries for the picker modals, which search on their own without
      * disturbing the lists behind them. Null when the user may not query.
      */
-    public queryDisplays(search = ''): QueryResponse<PlaceSystem> | null {
+    public queryDisplays(search = ''): QueryResponse<System> | null {
         if (!this._context.canQueryLists()) return null;
         return querySignageDisplays({
             ...this._context.orgZoneQueryParams({}),
@@ -227,14 +226,12 @@ export class SignageDisplayService {
     }
 
     // Cleared when the user switches group
-    public readonly selected_display = linkedSignal<number, PlaceSystem | null>(
-        {
-            source: this._context.group_switch,
-            computation: () => null,
-        },
-    );
+    public readonly selected_display = linkedSignal<number, System | null>({
+        source: this._context.group_switch,
+        computation: () => null,
+    });
 
-    private readonly _assignments = new PlaylistAssignments<PlaceSystem>({
+    private readonly _assignments = new PlaylistAssignments<System>({
         context: this._context,
         playlist_service: this._playlist_service,
         dialog: this._dialog,
@@ -274,13 +271,17 @@ export class SignageDisplayService {
             };
         },
         loader: async ({ params }) => {
-            // Users without admin rights may only query zones in a group
-            const { data } = await queryZones(
-                this._context.groupQueryParams(
-                    { control_system_id: params.id, limit: 500 },
-                    params.group_id,
-                ),
-            );
+            // Users without admin rights may only query zones in a group.
+            // The zone index of 7.x of ts-client has no `control_system_id`,
+            // so the zones of the display are found in the group zones.
+            const { data } = await zones
+                .query(
+                    this._context.groupQueryParams(
+                        { limit: 500 },
+                        params.group_id,
+                    ),
+                )
+                .then(orThrowPage);
             return (data || [])
                 .filter(({ id }) => params.zone_ids.includes(id))
                 .map(decodeEntityNames);
@@ -318,7 +319,7 @@ export class SignageDisplayService {
                         limit: PAGE_SIZE,
                         signage: true,
                     }),
-                    zone_id: params.id,
+                    zone_id: [params.id],
                 }),
             ),
     });
@@ -369,7 +370,7 @@ export class SignageDisplayService {
         () => !!this._selected_display_template_mappings.error(),
     );
 
-    private _addDisplayToList(display: PlaceSystem) {
+    private _addDisplayToList(display: System) {
         const item = decodeEntityNames(display);
         if (!item?.id) return item;
         this._display_list.update((items) => [
@@ -409,14 +410,14 @@ export class SignageDisplayService {
         )
             return null;
         const display = await this._openDisplayEditModal(
-            new PlaceSystem({}),
+            signageSystem(),
             await this._defaultDisplayZoneIds(),
         );
         if (display) this._display_list.adjustTotal(1);
         return display;
     }
 
-    public async editDisplay(display: PlaceSystem) {
+    public async editDisplay(display: System) {
         if (
             !this._context.requirePermission(
                 this._context.can_update(),
@@ -432,7 +433,7 @@ export class SignageDisplayService {
      * @returns The saved display, or null when the modal was cancelled
      */
     private async _openDisplayEditModal(
-        display: PlaceSystem,
+        display: System,
         default_zone_ids: string[],
     ) {
         const { DisplayEditModalComponent } =
@@ -442,17 +443,20 @@ export class SignageDisplayService {
                 display,
                 default_zone_ids,
                 ...this._zone_service.zoneTreeData(),
-                zone_ids: (zone: PlaceZone) =>
+                zone_ids: (zone: Zone) =>
                     this._zone_service.zoneIdsWithAncestors([zone]),
                 load_zone: (zone_id: string) =>
-                    showZone(zone_id).then(decodeEntityNames, () => null),
-                onAdd: (data: Partial<PlaceSystem>) => addSignageDisplay(data),
-                onEdit: (id: string, data: Partial<PlaceSystem>) =>
+                    zones
+                        .show({ id: zone_id })
+                        .then(orThrow)
+                        .then(decodeEntityNames, () => null),
+                onAdd: (data: SystemInput) => addSignageDisplay(data),
+                onEdit: (id: string, data: SystemInput) =>
                     updateSignageDisplay(id, data),
             },
             panelClass: 'mobile-fullscreen',
         });
-        const result = await dialogClosed<PlaceSystem>(ref);
+        const result = await dialogClosed<System>(ref);
         if (!result) return null;
         const saved = this._addDisplayToList(result);
         this.selected_display.set(saved);
@@ -462,7 +466,7 @@ export class SignageDisplayService {
         return saved;
     }
 
-    public async removeDisplay(display: PlaceSystem) {
+    public async removeDisplay(display: System) {
         if (!display?.id) return false;
         if (
             !this._context.requirePermission(
@@ -474,8 +478,7 @@ export class SignageDisplayService {
         const used_elsewhere = !!(
             display.map_id ||
             display.email ||
-            display.modules.length ||
-            display.module_list.length
+            display.modules?.length
         );
         const removed = await confirmThenRun(
             this._dialog,
@@ -491,8 +494,11 @@ export class SignageDisplayService {
                 error_key: 'SIGNAGE_MANAGER.SVC_DISPLAY_REMOVE_ERROR',
                 action: () =>
                     used_elsewhere
-                        ? updateSignageDisplay(display.id, { signage: false })
-                        : removeSystem(display.id),
+                        ? updateSignageDisplay(display.id, {
+                              signage: false,
+                              version: display.version,
+                          })
+                        : systems.destroy({ sys_id: display.id }).then(orThrow),
             },
         );
         if (!removed) return false;
@@ -515,18 +521,21 @@ export class SignageDisplayService {
               ? [active_zone]
               : [];
         if (group_id && !roots.length) {
-            const result = await queryZones(
-                this._context.groupQueryParams(
-                    { limit: 500, include_children_count: true },
-                    group_id,
-                ),
-            ).catch(() => null);
+            const result = await zones
+                .query(
+                    this._context.groupQueryParams(
+                        { limit: 500, include_children_count: true },
+                        group_id,
+                    ),
+                )
+                .then(orThrowPage)
+                .catch(() => null);
             roots = (result?.data || []).map(decodeEntityNames);
         }
         return this._zone_service.zoneIdsWithAncestors(roots);
     }
 
-    public async addDisplayToZone(zone: PlaceZone) {
+    public async addDisplayToZone(zone: Zone) {
         if (!this._assignments.canAssign()) return;
         const display = await this._pickDisplay();
         if (display === undefined) return;
@@ -551,7 +560,7 @@ export class SignageDisplayService {
         );
     }
 
-    public async addPlaylistToDisplay(display: PlaceSystem) {
+    public async addPlaylistToDisplay(display: System) {
         if (!this._assignments.canAssign()) return;
         const playlist_id = await this._assignments.pickPlaylist();
         if (!playlist_id) return;
@@ -563,7 +572,7 @@ export class SignageDisplayService {
         if (updated) this.selected_display.set(updated);
     }
 
-    public async addDisplayToPlaylist(playlist: SignagePlaylist) {
+    public async addDisplayToPlaylist(playlist: Playlist) {
         if (!this._assignments.canAssign()) return;
         const display = await this._pickDisplay();
         if (display === undefined) return;
@@ -580,8 +589,8 @@ export class SignageDisplayService {
     }
 
     public async removeDisplayFromPlaylist(
-        playlist: SignagePlaylist,
-        display: PlaceSystem,
+        playlist: Playlist,
+        display: System,
     ) {
         const updated = await this._assignments.remove(
             display,
@@ -592,7 +601,7 @@ export class SignageDisplayService {
     }
 
     public async removePlaylistFromDisplay(
-        display: PlaceSystem,
+        display: System,
         playlist_id: string,
     ) {
         const updated = await this._assignments.remove(

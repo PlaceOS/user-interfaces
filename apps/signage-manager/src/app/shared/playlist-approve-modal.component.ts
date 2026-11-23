@@ -15,10 +15,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    approveSignagePlaylist,
-    SignageMedia,
-    SignagePlaylist,
+    type Playlist,
+    playlist as playlist_v7,
+    type PlaylistItem,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { SignageContextService } from '../signage-context.service';
@@ -30,7 +31,7 @@ import {
 } from './playlist-approval.util';
 
 interface PlaylistApproveModalData {
-    playlist: SignagePlaylist;
+    playlist: Playlist;
 }
 
 @Component({
@@ -207,7 +208,7 @@ export class PlaylistApproveModalComponent {
                 this._playlist_versions.reload();
                 return;
             }
-            await approveSignagePlaylist(playlist_id);
+            await playlist_v7.approveMedia({ id: playlist_id }).then(orThrow);
             this._playlist_service.setPlaylistApprovalStatus(playlist_id, true);
             notifySuccess(i18n('SIGNAGE_MANAGER.PLAYLIST_APPROVED'));
             this._dialog_ref.close(true);
@@ -220,7 +221,7 @@ export class PlaylistApproveModalComponent {
         }
     }
 
-    public previewItem(item: SignageMedia) {
+    public previewItem(item: PlaylistItem) {
         this._media_preview.previewMedia(item);
     }
 }

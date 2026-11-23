@@ -1,8 +1,12 @@
 import { Injectable, computed, resource, signal } from '@angular/core';
 import { email, form, required, validate } from '@angular/forms/signals';
-import { CalendarEvent, parseJWT, patchSignalModel } from '@placeos/common';
+import {
+    CalendarEvent,
+    parseJWT,
+    patchSignalModel,
+    setToken,
+} from '@placeos/common';
 import { checkinEventGuest, showEvent } from '@placeos/events';
-import { setToken } from '@placeos/ts-client';
 import { showGuest, updateGuest } from '@placeos/users';
 import { getUnixTime } from 'date-fns';
 
@@ -141,7 +145,7 @@ export class EnrolmentStateService {
                 this.setError('link');
                 return;
             }
-            setToken(token);
+            setToken(token, data.exp * 1000);
             this._event_id.set(event_id);
             this._guest_id.set(user.e);
         } catch {

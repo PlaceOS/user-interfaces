@@ -4,6 +4,7 @@ import { OrganisationService } from '@placeos/common';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
 import {
     assignedDeskBuilding,
     hasAssignedDesk,
@@ -29,11 +30,14 @@ describe('booking resource loaders', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.listChildMetadata).mockImplementation(
-            async (id: string) =>
-                (id === 'bld-2'
-                    ? desksIn('lvl-2', 'Me@Example.com')
-                    : desksIn('lvl-1')) as any,
+        vi.mocked(ts_client.metadata.childrenMetadata).mockImplementation(
+            fromV1Mock(
+                async (id: string) =>
+                    (id === 'bld-2'
+                        ? desksIn('lvl-2', 'Me@Example.com')
+                        : desksIn('lvl-1')) as any,
+                ['id', '...'],
+            ),
         );
     });
 
@@ -46,7 +50,7 @@ describe('booking resource loaders', () => {
         expect(desks.map((desk) => desk.id)).toEqual(['lvl-1-desk']);
         expect(home).toBe('bld-2');
         // One request for each building, not one for each caller
-        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledTimes(2);
     });
 
     it('should share an in-flight assignment scan between callers', async () => {
@@ -57,25 +61,28 @@ describe('booking resource loaders', () => {
 
         expect(home).toBe('bld-2');
         expect(has_desk).toBe(true);
-        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledTimes(2);
         expect(await hasAssignedDesk(org, 'other@example.com', false)).toBe(
             false,
         );
     });
 
     it('should load the metadata of every building in the region', async () => {
-        vi.mocked(ts_client.listChildMetadata).mockImplementation(
-            async (id: string) =>
-                [
-                    {
-                        zone: { id: `${id}-lvl` },
-                        metadata: {
-                            desks: { details: [{ map_id: `${id}-m` }] },
+        vi.mocked(ts_client.metadata.childrenMetadata).mockImplementation(
+            fromV1Mock(
+                async (id: string) =>
+                    [
+                        {
+                            zone: { id: `${id}-lvl` },
+                            metadata: {
+                                desks: { details: [{ map_id: `${id}-m` }] },
+                            },
                         },
-                    },
-                    // A level without the metadata adds nothing
-                    { zone: { id: `${id}-empty` }, metadata: {} },
-                ] as never,
+                        // A level without the metadata adds nothing
+                        { zone: { id: `${id}-empty` }, metadata: {} },
+                    ] as never,
+                ['id', '...'],
+            ),
         );
         const region_org = {
             building: { id: 'bld-1', parent_id: 'reg-1' },
@@ -92,34 +99,33 @@ describe('booking resource loaders', () => {
             ['bld-1-m', 'bld-1-lvl'],
             ['bld-2-m', 'bld-2-lvl'],
         ]);
-        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledTimes(2);
     });
 
     it('should query parking spaces on the parking levels only', async () => {
-        const page = (data: object[]) =>
-            Promise.resolve({
-                data,
-                total: data.length,
-                next: () => null,
-            }) as never;
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            page([{ id: 'cat-p', name: '_PARKING_', hidden: true }]),
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'cat-p', name: '_PARKING_', hidden: true }],
+            } as any),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            page([{ id: 'type-p', name: '_PARKING_SPACES_' }]),
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'type-p', name: '_PARKING_SPACES_' }],
+            } as any),
         );
-        vi.mocked(ts_client.queryAssets).mockImplementation((query) =>
-            page(
-                query.zone_id === 'lvl-p'
-                    ? [
-                          {
-                              map_id: 'bay-1',
-                              zone_id: 'lvl-p',
-                              place_groups: ['staff'],
-                          },
-                      ]
-                    : [],
-            ),
+        vi.mocked(ts_client.assets.query).mockImplementation(async (query) =>
+            mockPage({
+                data:
+                    query.zone_id === 'lvl-p'
+                        ? [
+                              {
+                                  map_id: 'bay-1',
+                                  zone_id: 'lvl-p',
+                                  place_groups: ['staff'],
+                              },
+                          ]
+                        : [],
+            } as any),
         );
         const parking_org = {
             levelsForBuilding: () => [
@@ -140,7 +146,7 @@ describe('booking resource loaders', () => {
         ]);
         expect(
             vi
-                .mocked(ts_client.queryAssets)
+                .mocked(ts_client.assets.query)
                 .mock.calls.map(([query]) => query.zone_id),
         ).toEqual(['lvl-p']);
     });
@@ -157,34 +163,46 @@ describe('booking resource loaders', () => {
         } as unknown as OrganisationService;
 
         beforeEach(() => {
-            vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-                page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+            vi.mocked(ts_client.asset_categories.query).mockImplementation(
+                fromV1Mock(
+                    () => page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+                    ['...'],
+                    'page',
+                ),
             );
-            vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-                page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+            vi.mocked(ts_client.asset_types.query).mockImplementation(
+                fromV1Mock(
+                    () => page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+                    ['...'],
+                    'page',
+                ),
             );
-            vi.mocked(ts_client.queryAssets).mockImplementation(
-                (query: any) =>
-                    page(
-                        query.zones === 'bld-2'
-                            ? [
-                                  {
-                                      id: 'asset-2',
-                                      zone_id: 'lvl-2',
-                                      identifier: 'Desk 2',
-                                      assigned_to: 'Me@Example.com',
-                                  },
-                              ]
-                            : query.zones === 'bld-1'
-                              ? [
-                                    {
-                                        id: 'asset-1',
-                                        zone_id: 'lvl-1',
-                                        identifier: 'Desk 1',
-                                    },
-                                ]
-                              : [],
-                    ) as any,
+            vi.mocked(ts_client.assets.query).mockImplementation(
+                fromV1Mock(
+                    (query: any) =>
+                        page(
+                            `${query.zones}` === 'bld-2'
+                                ? [
+                                      {
+                                          id: 'asset-2',
+                                          zone_id: 'lvl-2',
+                                          identifier: 'Desk 2',
+                                          assigned_to: 'Me@Example.com',
+                                      },
+                                  ]
+                                : `${query.zones}` === 'bld-1'
+                                  ? [
+                                        {
+                                            id: 'asset-1',
+                                            zone_id: 'lvl-1',
+                                            identifier: 'Desk 1',
+                                        },
+                                    ]
+                                  : [],
+                        ) as any,
+                    ['...'],
+                    'page',
+                ),
             );
         });
 
@@ -192,9 +210,12 @@ describe('booking resource loaders', () => {
             const desks = await loadDeskResources(asset_org, false);
 
             expect(desks.map((desk) => desk.id)).toEqual(['asset-1']);
-            expect(ts_client.queryAssets).toHaveBeenCalledTimes(1);
-            expect(ts_client.queryAssets).toHaveBeenCalledWith(
-                expect.objectContaining({ zones: 'bld-1', type_id: 'type-1' }),
+            expect(ts_client.assets.query).toHaveBeenCalledTimes(1);
+            expect(ts_client.assets.query).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    zones: ['bld-1'],
+                    type_id: 'type-1',
+                }),
             );
         });
 
@@ -204,8 +225,8 @@ describe('booking resource loaders', () => {
             ).toBe('bld-2');
             expect(
                 vi
-                    .mocked(ts_client.queryAssets)
-                    .mock.calls.map(([query]: any[]) => query.zones)
+                    .mocked(ts_client.assets.query)
+                    .mock.calls.map(([query]: any[]) => `${query.zones}`)
                     .sort(),
             ).toEqual(['bld-1', 'bld-2']);
         });

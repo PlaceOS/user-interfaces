@@ -10,7 +10,7 @@ import {
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { SignageMediaService } from '../media/signage-media.service';
 import { FileDropDirective } from '../shared/file-drop.directive';
 import { IntersectDirective } from '../shared/intersect.directive';
@@ -228,11 +228,11 @@ export class PlaylistListComponent {
     }
 
     /** Upload files dropped on a playlist, then add them to it */
-    public async uploadFiles(playlist: SignagePlaylist, files: File[]) {
+    public async uploadFiles(playlist: Playlist, files: File[]) {
         await this._media_service.uploadFilesToPlaylist(playlist.id, files);
     }
 
-    public getStatus(playlist: SignagePlaylist) {
+    public getStatus(playlist: Playlist) {
         return playlistStatus(
             playlist,
             this.playlist_approval_status(),

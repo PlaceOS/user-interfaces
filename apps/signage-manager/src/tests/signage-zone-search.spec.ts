@@ -7,8 +7,10 @@ import {
     SettingsService,
     UploadsService,
 } from '@placeos/common';
-import { PlaceZone, queryZones } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { SignageContextService } from '../app/signage-context.service';
+import { signageZone } from '../app/signage-models';
 import { SignageZoneService } from '../app/zones/signage-zone.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -24,7 +26,9 @@ describe('SignageZoneService zone search', () => {
             email: 'a@b.c',
             sys_admin: true,
         } as any);
-        (queryZones as any).mockResolvedValue({ data: [], total: 0 });
+        (zones.query as any).mockResolvedValue(
+            mockPage({ data: [], total: 0 }),
+        );
         TestBed.configureTestingModule({
             providers: [
                 { provide: UploadsService, useValue: {} },
@@ -54,20 +58,22 @@ describe('SignageZoneService zone search', () => {
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
-        (queryZones as any).mockResolvedValue({
-            data: [new PlaceZone({ id: 'lobby', display_name: 'Lobby' })],
-            total: 1,
-        });
+        (zones.query as any).mockResolvedValue(
+            mockPage({
+                data: [signageZone({ id: 'lobby', display_name: 'Lobby' })],
+                total: 1,
+            }),
+        );
 
-        service.selected_zone.set(new PlaceZone({ id: 'parent-1' }));
+        service.selected_zone.set(signageZone({ id: 'parent-1' }));
         service.zone_search_term.set(' lobby ');
         await vi.advanceTimersByTimeAsync(500);
         TestBed.tick();
         await flush();
 
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+        expect((zones.query as any).mock.calls.at(-1)[0]).toEqual({
             q: 'lobby',
-            parent_id: 'parent-1',
+            parent_id: ['parent-1'],
             limit: 2500,
             include_children_count: true,
         });
@@ -77,18 +83,20 @@ describe('SignageZoneService zone search', () => {
     });
 
     it('reports a failed zone load and loads it again on retry', async () => {
-        vi.mocked(queryZones).mockRejectedValue(new Error('offline'));
+        vi.mocked(zones.query).mockRejectedValue(new Error('offline'));
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
         expect(service.zones_error()).toBe(true);
         expect(service.all_zones()).toEqual([]);
 
-        vi.mocked(queryZones).mockResolvedValue({
-            data: [new PlaceZone({ id: 'z1', tags: ['signage'] })],
-            total: 7,
-            next: null,
-        });
+        vi.mocked(zones.query).mockResolvedValue(
+            mockPage({
+                data: [signageZone({ id: 'z1', tags: ['signage'] })],
+                total: 7,
+                next: null,
+            }),
+        );
         service.reloadZones();
         TestBed.tick();
         await flush();
@@ -100,33 +108,34 @@ describe('SignageZoneService zone search', () => {
     });
 
     it('counts signage zones from the server total', async () => {
-        vi.mocked(queryZones).mockResolvedValue({
-            data: [new PlaceZone({ id: 'z1', tags: ['signage'] })],
-            total: 7,
-            next: null,
-        });
+        vi.mocked(zones.query).mockResolvedValue(
+            mockPage({
+                data: [signageZone({ id: 'z1', tags: ['signage'] })],
+                total: 7,
+                next: null,
+            }),
+        );
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
 
         expect(service.signage_zone_count()).toBe(7);
-        expect(queryZones).toHaveBeenCalledWith(
-            expect.objectContaining({ tags: 'signage' }),
+        expect(zones.query).toHaveBeenCalledWith(
+            expect.objectContaining({ tags: ['signage'] }),
         );
     });
 
     // The tree loads from other lists, so it can look complete without it
     it('reports a failed signage zone count and loads it again on retry', async () => {
         let fail_count = true;
-        vi.mocked(queryZones).mockImplementation(async (params) => {
-            if (params?.tags === 'signage' && fail_count) {
+        vi.mocked(zones.query).mockImplementation(async (input) => {
+            if (input?.tags?.includes('signage') && fail_count) {
                 throw new Error('offline');
             }
-            return {
-                data: [new PlaceZone({ id: 'z1', tags: ['signage'] })],
+            return mockPage({
+                data: [signageZone({ id: 'z1', tags: ['signage'] })],
                 total: 7,
-                next: null,
-            };
+            });
         });
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
@@ -150,9 +159,9 @@ describe('SignageZoneService zone search', () => {
 
         service.querySelectableZones(' lobby ', 'parent-1');
 
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+        expect((zones.query as any).mock.calls.at(-1)[0]).toEqual({
             q: 'lobby',
-            parent_id: 'parent-1',
+            parent_id: ['parent-1'],
             limit: 2500,
             include_children_count: true,
         });
@@ -162,16 +171,18 @@ describe('SignageZoneService zone search', () => {
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
-        (queryZones as any).mockResolvedValue({
-            data: [new PlaceZone({ id: 'lobby', name: 'Lobby' })],
-            total: 1,
-        });
+        (zones.query as any).mockResolvedValue(
+            mockPage({
+                data: [signageZone({ id: 'lobby', name: 'Lobby' })],
+                total: 1,
+            }),
+        );
         service.zone_search_term.set(' lobby ');
         await vi.advanceTimersByTimeAsync(500);
         TestBed.tick();
         await flush();
 
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+        expect((zones.query as any).mock.calls.at(-1)[0]).toEqual({
             q: 'lobby',
             limit: 2500,
             include_children_count: true,
@@ -191,7 +202,7 @@ describe('SignageZoneService zone search', () => {
         TestBed.tick();
         await flush();
 
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+        expect((zones.query as any).mock.calls.at(-1)[0]).toEqual({
             q: 'lobby',
             group_id: 'group-1',
             descendants: true,
@@ -202,7 +213,7 @@ describe('SignageZoneService zone search', () => {
         group_id.set('group-2');
         TestBed.tick();
         await flush();
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+        expect((zones.query as any).mock.calls.at(-1)[0]).toEqual({
             q: 'lobby',
             group_id: 'group-2',
             descendants: true,
@@ -214,9 +225,9 @@ describe('SignageZoneService zone search', () => {
     it('keeps selected-zone searches limited to direct children even with a group', () => {
         const service = TestBed.inject(SignageZoneService);
         service.querySelectableZones(' lobby ', 'parent-1', 'group-1');
-        expect((queryZones as any).mock.calls.at(-1)[0]).toEqual({
+        expect((zones.query as any).mock.calls.at(-1)[0]).toEqual({
             q: 'lobby',
-            parent_id: 'parent-1',
+            parent_id: ['parent-1'],
             limit: 2500,
             include_children_count: true,
         });
@@ -226,17 +237,19 @@ describe('SignageZoneService zone search', () => {
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
-        (queryZones as any).mockRejectedValue(new Error('403'));
+        (zones.query as any).mockRejectedValue(new Error('403'));
         service.zone_search_term.set('lobby');
         await vi.advanceTimersByTimeAsync(500);
         TestBed.tick();
         await flush();
         expect(service.filtered_zones()).toEqual([]);
 
-        (queryZones as any).mockResolvedValue({
-            data: [new PlaceZone({ id: 'hall', name: 'Hall' })],
-            total: 1,
-        });
+        (zones.query as any).mockResolvedValue(
+            mockPage({
+                data: [signageZone({ id: 'hall', name: 'Hall' })],
+                total: 1,
+            }),
+        );
         service.zone_search_term.set('hall');
         await vi.advanceTimersByTimeAsync(500);
         TestBed.tick();
@@ -247,30 +260,30 @@ describe('SignageZoneService zone search', () => {
     it('does not query on an empty search without a selection', () => {
         const service = TestBed.inject(SignageZoneService);
         expect(service.querySelectableZones('  ', '')).toBeNull();
-        expect(queryZones).not.toHaveBeenCalled();
+        expect(zones.query).not.toHaveBeenCalled();
     });
 
     it('does not promote an updated child zone into the root zone list', async () => {
-        (queryZones as any).mockImplementation((params: any) =>
-            Promise.resolve({
-                data:
-                    params.parent_id === 'root'
-                        ? [
-                              new PlaceZone({
-                                  id: 'org-1',
-                                  display_name: 'Organisation',
-                              }),
-                          ]
-                        : [],
-                total: params.parent_id === 'root' ? 1 : 0,
-            }),
-        );
+        vi.mocked(zones.query).mockImplementation(async (input) => {
+            const root = !!input?.parent_id?.includes('root');
+            return mockPage({
+                data: root
+                    ? [
+                          signageZone({
+                              id: 'org-1',
+                              display_name: 'Organisation',
+                          }),
+                      ]
+                    : [],
+                total: root ? 1 : 0,
+            });
+        });
         const service = TestBed.inject(SignageZoneService);
         TestBed.tick();
         await flush();
 
         (service as any)._assignments.cache(
-            new PlaceZone({ id: 'level-1', display_name: 'Level 1' }),
+            signageZone({ id: 'level-1', display_name: 'Level 1' }),
         );
 
         expect(service.root_zones().map((zone) => zone.id)).toEqual(['org-1']);

@@ -1,6 +1,7 @@
 import { convertToParamMap } from '@angular/router';
 import { Booking, CalendarEvent, User } from '@placeos/common';
-import { PlaceSystem } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { System } from '@placeos/ts-client';
 import {
     activeReportBookings,
     activeReportEvents,
@@ -111,7 +112,7 @@ describe('report utilities', () => {
                 attendees: ['a@x', 'b@x', 'c@x'].map(
                     (email) => new User({ email }),
                 ),
-                system: new PlaceSystem({ id: 'sys-1', capacity }),
+                system: mockData(System, { id: 'sys-1', capacity }),
             });
 
         it('should cap attendees at the room capacity', () => {

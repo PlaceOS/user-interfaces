@@ -4,7 +4,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { setNotifyOutlet } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { events as staff_events } from '@placeos/ts-client/staff';
 import { MockComponent, MockPipe } from 'ng-mocks';
 import { NEVER, of, tap } from 'rxjs';
 
@@ -12,8 +13,8 @@ import { ControlStateService } from '../../app/control-state.service';
 import { SelectMeetingModalComponent } from '../../app/ui/select-meeting-modal.component';
 
 // `queryEvents` can't be mocked under the bundling builder, so stub the
-// ts-client `get` that it calls.
-vi.mock('@placeos/ts-client', { spy: true });
+// staff API call that it makes.
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 /** Raw API event with a meeting URL that the room supports */
 const STANDUP = {
@@ -26,9 +27,8 @@ const STANDUP = {
 /** Make the events API answer with the given raw events */
 const respond = (events: Promise<unknown[]> | unknown[]) =>
     vi
-        .mocked(ts_client.get)
-        .mockImplementation((() =>
-            Promise.resolve(events)) as unknown as typeof ts_client.get);
+        .mocked(staff_events.query)
+        .mockImplementation(fromV1Mock(() => events, ['...']));
 
 describe('SelectMeetingModalComponent', () => {
     let spectator: Spectator<SelectMeetingModalComponent>;
@@ -96,7 +96,7 @@ describe('SelectMeetingModalComponent', () => {
     });
 
     it('should not load events before the modal opens', () => {
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(staff_events.query).not.toHaveBeenCalled();
     });
 
     it("should list today's events for the room's meeting URL", async () => {
@@ -105,8 +105,8 @@ describe('SelectMeetingModalComponent', () => {
             { id: 'e2', title: 'Other', meeting_url: 'https://other.site/abc' },
         ]);
         await open();
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('calendars=c1'),
+        expect(staff_events.query).toHaveBeenCalledWith(
+            expect.objectContaining({ calendars: 'c1' }),
         );
         expect(spectator.queryAll('button[btn]')).toHaveLength(1);
         expect(spectator.query('button[btn]')).toContainText('Standup');

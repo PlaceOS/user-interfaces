@@ -1,10 +1,7 @@
 import { computed, inject, Injectable, resource } from '@angular/core';
 import { OrganisationService } from '@placeos/common';
-import {
-    querySignagePlugins,
-    SignagePlugin,
-    type SignagePluginType,
-} from '@placeos/ts-client';
+import { signage_plugins, type SignagePlugin } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
 import { byName } from './shared/paged-search';
 import { SignageContextService } from './signage-context.service';
@@ -19,7 +16,7 @@ export class SignagePluginService {
 
     // Plugins available to the selected group. Signage edits never change
     // plugins, so these lists follow the group but not `changed()`.
-    private _pluginResource(plugin_type: SignagePluginType) {
+    private _pluginResource(plugin_type: SignagePlugin['plugin_type']) {
         return resource({
             params: () => ({
                 initialised: this._org.initialised(),
@@ -31,12 +28,11 @@ export class SignagePluginService {
                     return [] as SignagePlugin[];
                 }
                 try {
-                    const result = await querySignagePlugins(
-                        this._context.orgZoneQueryParams(
-                            { limit: 500, plugin_type },
-                            params.group_id,
-                        ),
-                    );
+                    // The plugin index takes no group or zone. The group
+                    // features pick the plugins of the group.
+                    const result = await signage_plugins
+                        .query({ limit: 500, plugin_type })
+                        .then(orThrowPage);
                     return (result.data || [])
                         .filter((plugin: SignagePlugin) => plugin.enabled)
                         .map(decodeEntityNames)
@@ -72,10 +68,10 @@ export class SignagePluginService {
         if (!plugin_id) return undefined;
         const loaded = this.all_plugins().find(({ id }) => id === plugin_id);
         if (loaded) return loaded;
-        const result = await querySignagePlugins({
-            limit: 500,
-            plugin_type: 'plugin',
-        }).catch(() => ({ data: [] as SignagePlugin[] }));
+        const result = await signage_plugins
+            .query({ limit: 500, plugin_type: 'plugin' })
+            .then(orThrowPage)
+            .catch(() => ({ data: [] as SignagePlugin[] }));
         return (result.data || []).find(({ id }) => id === plugin_id);
     }
 }

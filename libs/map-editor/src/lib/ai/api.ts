@@ -1,5 +1,5 @@
-import { apiEndpoint, get, post } from '@placeos/ts-client';
 import { errorStatus } from 'libs/common/src/lib/api';
+import { API_PATH, placeFetchJson } from 'libs/common/src/lib/place-client';
 
 import {
     MapAICapabilities,
@@ -19,13 +19,21 @@ export interface MapAiTransport {
     post(url: string, body: unknown): Promise<unknown>;
 }
 
-/** The ts-client HTTP functions, which attach the session's bearer token. */
+/**
+ * Requests with the credential of the session. The `map_ai` operations of
+ * ts-client type the ops, questions, usage and resolution of a job as JSON,
+ * so these requests keep the types of `./types`.
+ */
 export const PLACEOS_TRANSPORT: MapAiTransport = {
-    get: (url) => get(url),
-    post: (url, body) => post(url, body),
+    get: (url) => placeFetchJson<unknown>(url),
+    post: (url, body) =>
+        placeFetchJson<unknown>(url, {
+            method: 'POST',
+            body: JSON.stringify(body),
+        }),
 };
 
-const PATH = () => `${apiEndpoint()}/maps/ai`;
+const PATH = () => `${API_PATH}/maps/ai`;
 
 /** `?a=1&b=2` from the defined entries, empty when there are none. */
 export function toQuery(params: object): string {

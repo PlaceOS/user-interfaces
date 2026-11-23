@@ -4,7 +4,6 @@ import { UntypedFormGroup } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
@@ -21,6 +20,8 @@ import { ExploreStateService } from '../lib/explore-state.service';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { startTestPlaceClient } from 'libs/components/src/tests/test-place-client';
 
 describe('ExploreSpacesService', () => {
     let spectator: SpectatorService<ExploreSpacesService>;
@@ -57,9 +58,17 @@ describe('ExploreSpacesService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService();
         // Provider mocks are shared, so clear settings from earlier tests
         vi.mocked(spectator.inject(SettingsService).get).mockReset();
@@ -69,21 +78,21 @@ describe('ExploreSpacesService', () => {
 
     it('should bind to spaces', () => {
         vi.useFakeTimers();
-        const bindThenSubscribe = vi.fn(() => of().subscribe());
-        const variableBinding = { bindThenSubscribe };
-        const binding = vi.fn(() => variableBinding);
-        const getModuleMock = vi.fn(() => ({ variable: binding }));
-        vi.mocked(ts_client.getModule).mockImplementation(getModuleMock as any);
+        const client = startTestPlaceClient();
         const state = spectator.inject(ExploreStateService);
         (state.spaces as any).set([
             { id: 'space-1', name: 'Test', bookable: true },
         ]);
         TestBed.tick();
         vi.runOnlyPendingTimers();
-        expect(getModuleMock).toHaveBeenCalledWith('space-1', 'Bookings');
-        expect(binding).toHaveBeenCalledWith('bookings');
-        expect(binding).toHaveBeenCalledWith('status');
-        expect(binding).toHaveBeenCalledWith('presence');
+        expect(client.bind.mock.calls.map(([target]) => target)).toEqual(
+            ['bookings', 'status', 'presence'].map((name) => ({
+                sys: 'space-1',
+                mod: 'Bookings',
+                index: 1,
+                name,
+            })),
+        );
         expect(state.setActions).toHaveBeenCalled();
         vi.useRealTimers();
     });
@@ -134,9 +143,16 @@ describe('ExploreSpacesService', () => {
 
         /** Load the booking rules and room alerts resources */
         async function load(metadata: Record<string, unknown> = {}) {
-            vi.mocked(ts_client.showMetadata).mockImplementation(
-                (_, name) =>
-                    Promise.resolve({ details: metadata[name] ?? {} }) as any,
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    (_, name) =>
+                        Promise.resolve({
+                            details: metadata[name] ?? {},
+                        }) as any,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
             );
             TestBed.tick();
             await TestBed.inject(ApplicationRef).whenStable();
@@ -349,18 +365,7 @@ describe('ExploreSpacesService', () => {
 
     it('should keep stable room features and update their data in place', () => {
         vi.useFakeTimers();
-        const callbacks: Record<string, (value: unknown) => void> = {};
-        vi.mocked(ts_client.getModule).mockImplementation(
-            (id: string) =>
-                ({
-                    variable: (name: string) => ({
-                        bindThenSubscribe: (callback) => {
-                            callbacks[`${id}:${name}`] = callback;
-                            return () => null;
-                        },
-                    }),
-                }) as any,
-        );
+        const client = startTestPlaceClient();
         const state = spectator.inject(ExploreStateService);
         (state.spaces as any).set([
             new Space({ id: 'space-1', map_id: 'map-1', bookable: true }),
@@ -377,8 +382,8 @@ describe('ExploreSpacesService', () => {
         expect(data.status()).toBe('not-bookable');
 
         // Status and booking changes update the signals, not the features
-        callbacks['space-1:status']('busy');
-        callbacks['space-1:bookings']([
+        client.emit('space-1', 'Bookings', 'status', 'busy');
+        client.emit('space-1', 'Bookings', 'bookings', [
             { id: 'event-1', date: Date.now(), duration: 30 },
         ]);
         vi.runOnlyPendingTimers();

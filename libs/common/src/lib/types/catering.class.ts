@@ -1,7 +1,6 @@
-import { cleanObject } from '@placeos/ts-client';
 import { addDays, addMinutes, set, startOfDay, startOfMinute } from 'date-fns';
 
-import { randomInt } from '../general';
+import { cleanObject, randomInt } from '../general';
 import type { CalendarEvent } from './event.class';
 
 // Event catering order interfaces

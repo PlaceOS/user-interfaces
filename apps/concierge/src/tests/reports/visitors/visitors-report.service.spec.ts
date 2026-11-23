@@ -4,18 +4,19 @@ import {
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import {
-    Booking,
     OrganisationService,
     setNotifyOutlet,
     SettingsService,
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockPage } from '@placeos/ts-client/compat';
+import { bookings, Booking as StaffBooking } from '@placeos/ts-client/staff';
 import { VisitorsReportService } from 'apps/concierge/src/app/reports/visitors/visitors-report.service';
 import { captureDownloads } from '../download-capture.helper';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('VisitorsReportService', () => {
     let spectator: SpectatorService<VisitorsReportService>;
@@ -63,27 +64,30 @@ describe('VisitorsReportService', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         downloads = captureDownloads();
-        // queryAllBookings -> query (ts-client)
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [
-                {
-                    id: 'v1',
-                    asset_id: 'v1',
-                    user_email: 'host@x.com',
-                    date: day_1,
-                    duration: 60,
-                    extension_data: {},
-                },
-                {
-                    id: 'v2',
-                    asset_id: 'v2',
-                    user_email: 'host@x.com',
-                    date: day_1,
-                    duration: 120,
-                    extension_data: {},
-                },
-            ].map((details) => new Booking(details)),
-        } as any);
+        // queryAllBookings -> bookings.query (staff API)
+        const start = day_1 / 1000;
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(StaffBooking, {
+                        id: 1,
+                        asset_id: 'v1',
+                        user_email: 'host@x.com',
+                        booking_start: start,
+                        booking_end: start + 60 * 60,
+                        extension_data: {},
+                    }),
+                    mockData(StaffBooking, {
+                        id: 2,
+                        asset_id: 'v2',
+                        user_email: 'host@x.com',
+                        booking_start: start,
+                        booking_end: start + 120 * 60,
+                        extension_data: {},
+                    }),
+                ],
+            }),
+        );
         spectator = createService();
     });
 
@@ -94,7 +98,7 @@ describe('VisitorsReportService', () => {
 
     it('should not load bookings until a report is requested', async () => {
         await settle();
-        expect(ts_client.query).not.toHaveBeenCalled();
+        expect(bookings.query).not.toHaveBeenCalled();
         expect(spectator.service.bookings()).toEqual([]);
     });
 
@@ -102,13 +106,11 @@ describe('VisitorsReportService', () => {
         spectator.service.setOptions({ start: day_1, end: day_1 });
         spectator.service.generateReport();
         await settle();
-        expect(ts_client.query).toHaveBeenCalledWith(
+        expect(bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    type: 'visitor',
-                    zones: 'building-1',
-                    include_deleted: true,
-                }),
+                type: 'visitor',
+                zones: 'building-1',
+                include_deleted: true,
             }),
         );
         expect(spectator.service.bookings()).toHaveLength(2);
@@ -123,7 +125,7 @@ describe('VisitorsReportService', () => {
     });
 
     it('should notify an error when no visitor bookings are returned', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
+        vi.mocked(bookings.query).mockResolvedValue(mockPage({ data: [] }));
         spectator.service.generateReport();
         await settle();
         expect(notify_open).toHaveBeenCalledWith(
@@ -144,17 +146,26 @@ describe('VisitorsReportService', () => {
     });
 
     it('should retain cancelled visitors in the full export and omit them from the filtered export', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [
-                { id: 'current', asset_id: 'current-visitor', date: day_1 },
-                {
-                    id: 'cancelled',
-                    asset_id: 'cancelled-visitor',
-                    date: day_1,
-                    deleted: true,
-                },
-            ].map((details) => new Booking(details)),
-        } as any);
+        const start = day_1 / 1000;
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(StaffBooking, {
+                        id: 1,
+                        asset_id: 'current-visitor',
+                        booking_start: start,
+                        booking_end: start + 60 * 60,
+                    }),
+                    mockData(StaffBooking, {
+                        id: 2,
+                        asset_id: 'cancelled-visitor',
+                        booking_start: start,
+                        booking_end: start + 60 * 60,
+                        deleted: true,
+                    }),
+                ],
+            }),
+        );
         spectator.service.generateReport();
         await settle();
 

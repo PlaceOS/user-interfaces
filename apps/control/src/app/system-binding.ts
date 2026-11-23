@@ -1,5 +1,5 @@
 import { effect, Signal, signal } from '@angular/core';
-import { getModule } from '@placeos/ts-client';
+import { getModule } from '@placeos/common';
 
 /**
  * Create a signal that mirrors a status variable binding on a system module.
@@ -18,20 +18,13 @@ export function systemBinding<T>(
     const value = signal<T>(initial);
     effect((onCleanup) => {
         const id = system_id();
-        if (!id) {
-            value.set(initial);
-            return;
-        }
-        const binding = getModule(id, mod).variable(name);
-        const unbind = binding.bind();
-        const listener = binding.listen();
-        const update = () => value.set((listener() ?? initial) as T);
-        update();
-        const unsubscribe = listener.subscribe(() => update());
-        onCleanup(() => {
-            unsubscribe();
-            unbind();
-        });
+        // Show the initial value until the new binding has a value
+        value.set(initial);
+        if (!id) return;
+        const release = getModule(id, mod)
+            .variable<T>(name)
+            .subscribe((next) => value.set(next ?? initial));
+        onCleanup(release);
     });
     return value.asReadonly();
 }

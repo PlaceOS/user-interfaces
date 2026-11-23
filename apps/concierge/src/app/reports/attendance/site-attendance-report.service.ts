@@ -19,7 +19,6 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
-import { showMetadata } from '@placeos/ts-client';
 import {
     differenceInBusinessDays,
     differenceInCalendarDays,
@@ -31,6 +30,7 @@ import {
     startOfDay,
 } from 'date-fns';
 
+import { jsonList, showMetadata } from '../../metadata';
 import {
     activeReportBookings,
     activeReportEvents,
@@ -378,7 +378,7 @@ export class SiteAttendanceReportService {
                           .then((desks) => desks.length)
                           .catch(() => 0)
                     : showMetadata(zone, 'desks')
-                          .then((metadata) => metadata.details?.length || 0)
+                          .then((metadata) => jsonList(metadata.details).length)
                           .catch(() => 0),
             ),
         );

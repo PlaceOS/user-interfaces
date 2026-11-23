@@ -1,4 +1,4 @@
-import { type SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 
 export const MEDIA_SORTS = ['newest', 'oldest', 'name', 'expiry'] as const;
 export const MEDIA_TYPE_FILTERS = [
@@ -30,7 +30,7 @@ export const DEFAULT_MEDIA_VIEW: MediaViewOptions = {
 const MEDIA_EXPIRING_DAYS = 7;
 
 type ViewableMedia = Pick<
-    SignageMedia,
+    PlaylistItem,
     'name' | 'media_type' | 'created_at' | 'valid_until'
 >;
 
@@ -38,7 +38,7 @@ type ViewableMedia = Pick<
  * Type group of a media item. Matches the type badge on media cards, which
  * shows every other type as video.
  */
-function mediaTypeGroup(item: Pick<SignageMedia, 'media_type'>) {
+function mediaTypeGroup(item: Pick<PlaylistItem, 'media_type'>) {
     switch (item.media_type) {
         case 'image':
         case 'webpage':

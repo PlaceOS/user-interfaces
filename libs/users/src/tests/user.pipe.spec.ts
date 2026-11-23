@@ -1,128 +1,146 @@
-vi.mock('@placeos/ts-client');
-
 import { GuestUser, StaffUser } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { startMockPlaceClient } from '@placeos/common/tests';
+import {
+    clearMockEndpoints,
+    type MockHttpRequest,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
+
 import { addUser, UserPipe } from '../lib/user.pipe';
 
-const mockGet = vi.mocked(
-    ts_client.get as unknown as (url: string) => Promise<unknown>,
-);
+const STAFF = '/api/staff/v1/people';
+const GUESTS = '/api/staff/v1/guests';
+
+/** Answers GET requests to `path` in mock mode. Throw `{ status }` to fail. */
+function serve(path: string, callback: (request: MockHttpRequest) => unknown) {
+    const handler = vi.fn(callback);
+    registerMockEndpoint({ path, method: 'GET', callback: handler });
+    return handler;
+}
+
+const notFound = () => {
+    throw { status: 404 };
+};
 
 describe('UserPipe', () => {
     let pipe: UserPipe;
+    let staff: ReturnType<typeof serve>;
+    let guests: ReturnType<typeof serve>;
 
     beforeEach(() => {
+        startMockPlaceClient();
         pipe = new UserPipe();
-        // `showStaff`/`showGuest` wrap ts-client `get`; stub it one layer down
-        // instead of module-mocking the sibling `.fn` files.
-        mockGet.mockReset();
+        staff = serve(`${STAFF}/:id`, notFound);
+        guests = serve(`${GUESTS}/:id`, notFound);
     });
+
+    afterEach(() => clearMockEndpoints());
 
     it('should return an empty user when no id is passed', async () => {
         const user = await pipe.transform('');
         expect(user).toEqual({});
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(staff).not.toHaveBeenCalled();
     });
 
     it('should return a cached user matched by id', async () => {
-        const staff = new StaffUser({ id: 'user-id-1', email: 'a@place.tech' });
-        addUser(staff);
+        const cached = new StaffUser({
+            id: 'user-id-1',
+            email: 'a@place.tech',
+        });
+        addUser(cached);
         const user = await pipe.transform('user-id-1');
-        expect(user).toBe(staff);
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(user).toBe(cached);
+        expect(staff).not.toHaveBeenCalled();
     });
 
     it('should return a cached user matched by email', async () => {
-        const staff = new StaffUser({
+        const cached = new StaffUser({
             id: 'user-id-2',
             email: 'b@place.tech',
         });
-        addUser(staff);
+        addUser(cached);
         const user = await pipe.transform('b@place.tech');
-        expect(user).toBe(staff);
+        expect(user).toBe(cached);
     });
 
     it('should fetch staff details for an unknown id', async () => {
-        mockGet.mockResolvedValue({
-            id: 'user-id-4',
+        staff = serve(`${STAFF}/:id`, ({ route_params }) => ({
+            id: route_params['id'],
             email: 'd@place.tech',
-        });
+        }));
         const user = await pipe.transform('user-id-4');
-        expect(ts_client.get).toHaveBeenCalledWith(
-            '/api/staff/v1/people/user-id-4',
+        expect(staff).toHaveBeenCalledWith(
+            expect.objectContaining({ route_params: { id: 'user-id-4' } }),
         );
         expect(user).toBeInstanceOf(StaffUser);
         expect(user.id).toBe('user-id-4');
         // Subsequent lookups should now hit the cache
-        mockGet.mockClear();
+        staff.mockClear();
         const cached = await pipe.transform('user-id-4');
         expect(cached).toBe(user);
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(staff).not.toHaveBeenCalled();
     });
 
     it('should fall back to guest details when staff lookup fails', async () => {
-        mockGet.mockImplementation(async (url: string) => {
-            if (url.includes('/people')) throw new Error('nope');
-            return { id: 'user-id-5', email: 'e@place.tech' };
-        });
+        guests = serve(`${GUESTS}/:id`, ({ route_params }) => ({
+            id: route_params['id'],
+            email: 'e@place.tech',
+        }));
         const user = await pipe.transform('user-id-5');
-        expect(ts_client.get).toHaveBeenCalledWith(
-            '/api/staff/v1/people/user-id-5',
-        );
-        expect(ts_client.get).toHaveBeenCalledWith(
-            '/api/staff/v1/guests/user-id-5',
+        expect(staff).toHaveBeenCalledTimes(1);
+        expect(guests).toHaveBeenCalledWith(
+            expect.objectContaining({ route_params: { id: 'user-id-5' } }),
         );
         expect(user).toBeInstanceOf(GuestUser);
         expect(user.email).toBe('e@place.tech');
-        mockGet.mockClear();
+        guests.mockClear();
         expect(await pipe.transform('e@place.tech')).toBe(user);
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(guests).not.toHaveBeenCalled();
     });
 
     it('should return an empty user when neither is found, and retry later', async () => {
-        mockGet.mockRejectedValue(new Error('nope'));
         expect(await pipe.transform('user-id-6')).toEqual({});
-        mockGet.mockResolvedValue({ id: 'user-id-6' });
+        serve(`${STAFF}/:id`, () => ({ id: 'user-id-6' }));
         const user = await pipe.transform('user-id-6');
         expect(user).toBeInstanceOf(StaffUser);
         expect(user.id).toBe('user-id-6');
     });
 
     it('should de-duplicate concurrent lookups for the same id', async () => {
-        let resolve_fn: (value: unknown) => void = () => undefined;
-        mockGet.mockReturnValue(
-            new Promise((resolve) => (resolve_fn = resolve)),
-        );
+        staff = serve(`${STAFF}/:id`, () => ({
+            id: 'user-id-7',
+            email: 'f@place.tech',
+        }));
         const first = pipe.transform('user-id-7');
         const second = pipe.transform('user-id-7');
-        resolve_fn({ id: 'user-id-7', email: 'f@place.tech' });
         const [a, b] = await Promise.all([first, second]);
         expect(a).toBe(b);
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(staff).toHaveBeenCalledTimes(1);
     });
 
     describe('email-prefix lookup', () => {
         it('should return the matched name with the requested email', async () => {
             // A cached exact match must not short-circuit a prefix lookup
             addUser(new StaffUser({ id: 'p1', email: 'pat@other.tech' }));
-            mockGet.mockResolvedValue([
+            const search = serve(STAFF, () => [
                 { id: 'staff-pat', name: 'Pat Smith', email: 'pat@place.tech' },
             ]);
             const user = await pipe.transform('pat@other.tech', 'email-prefix');
-            const url = new URL(mockGet.mock.calls[0][0], location.origin);
-            expect(url.searchParams.get('filter')).toBe(
-                "startsWith(mail,'pat')",
+            expect(search).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    query_params: { filter: "startsWith(mail,'pat')" },
+                }),
             );
             expect(user.name).toBe('Pat Smith');
             expect(user.email).toBe('pat@other.tech');
         });
 
         it('should return an empty user when no staff match or the search fails', async () => {
-            mockGet.mockResolvedValueOnce([]);
+            serve(STAFF, () => []);
             expect(
                 await pipe.transform('x@place.tech', 'email-prefix'),
             ).toEqual({});
-            mockGet.mockRejectedValueOnce(new Error('nope'));
+            serve(STAFF, notFound);
             expect(
                 await pipe.transform('y@place.tech', 'email-prefix'),
             ).toEqual({});

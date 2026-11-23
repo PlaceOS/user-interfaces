@@ -7,11 +7,18 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { EMPTY_USER, User } from '@placeos/common';
-import { get, showUser } from '@placeos/ts-client';
+import { User as PlaceUser, users } from '@placeos/ts-client';
+import {
+    clearMockEndpoints,
+    mockReply,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
+import { mockData } from 'libs/common/src/tests/mock-data';
+import { startMockPlaceClient } from 'libs/common/src/tests/test-helpers';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { generateMockUser } from 'libs/users/src/lib/user.utilities';
 
-// ts-client runs for real via passthrough spies; showUser is stubbed per test.
+// ts-client runs for real via passthrough spies; users.show is stubbed per test.
 vi.mock('@placeos/ts-client', { spy: true });
 
 import { SettingsService } from '@placeos/common';
@@ -34,7 +41,7 @@ describe('UserSearchFieldComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(showUser).mockResolvedValue(null);
+        vi.mocked(users.show).mockResolvedValue(mockReply(null));
         spectator = createComponent();
     });
 
@@ -177,12 +184,16 @@ describe('UserSearchFieldComponent', () => {
             name: 'Photo User',
             email: 'photo@example.com',
         });
-        vi.mocked(showUser).mockResolvedValueOnce({
-            id: 'user-1',
-            name: 'Photo User',
-            email: 'photo@example.com',
-            photo: 'photo.png',
-        } as any);
+        vi.mocked(users.show).mockResolvedValueOnce(
+            mockReply(
+                mockData(PlaceUser, {
+                    id: 'user-1',
+                    name: 'Photo User',
+                    email: 'photo@example.com',
+                    image: 'photo.png',
+                }),
+            ),
+        );
         (spectator.component as any).use_basic_search.set(false);
 
         spectator.component.setValue(user);
@@ -194,16 +205,24 @@ describe('UserSearchFieldComponent', () => {
     });
 
     it('should ignore user details for an older selection', async () => {
-        let resolve_first: (_: any) => void;
-        vi.mocked(showUser).mockReturnValueOnce(
-            new Promise((r) => (resolve_first = r)) as any,
+        let resolve_first: (_: ReturnType<typeof mockReply<PlaceUser>>) => void;
+        vi.mocked(users.show).mockImplementationOnce(
+            () => new Promise((r) => (resolve_first = r)),
         );
         (spectator.component as any).use_basic_search.set(false);
         const first = new User({ id: 'a', name: 'A', email: 'a@example.com' });
         const second = new User({ id: 'b', name: 'B', email: 'b@example.com' });
         spectator.component.setValue(first);
         spectator.component.setValue(second);
-        resolve_first({ id: 'a', name: 'A', email: 'a@example.com' });
+        resolve_first(
+            mockReply(
+                mockData(PlaceUser, {
+                    id: 'a',
+                    name: 'A',
+                    email: 'a@example.com',
+                }),
+            ),
+        );
         await new Promise((r) => setTimeout(r, 10));
         expect(spectator.component.user().email).toBe('b@example.com');
     });
@@ -220,7 +239,7 @@ describe('UserSearchFieldComponent', () => {
             email: 'jane@external.com',
         });
         // A typed email is not a directory user, so no details are loaded
-        expect(showUser).not.toHaveBeenCalled();
+        expect(users.show).not.toHaveBeenCalled();
     });
 
     it('should validate email addresses correctly', () => {
@@ -258,25 +277,23 @@ describe('UserSearchFieldComponent', () => {
 
     describe('default directory search', () => {
         beforeEach(() => {
-            vi.mocked(get).mockImplementation(((url: string) =>
-                Promise.resolve(
-                    url.includes('/guests')
-                        ? [
-                              {
-                                  id: 'g1',
-                                  name: 'Guest Ann',
-                                  email: 'ann@guest.com',
-                              },
-                          ]
-                        : [
-                              {
-                                  id: 's1',
-                                  name: 'Staff Zoe',
-                                  email: 'zoe@place.tech',
-                              },
-                          ],
-                )) as any);
+            startMockPlaceClient();
+            registerMockEndpoint({
+                path: '/api/staff/v1/guests',
+                method: 'GET',
+                callback: () => [
+                    { id: 'g1', name: 'Guest Ann', email: 'ann@guest.com' },
+                ],
+            });
+            registerMockEndpoint({
+                path: '/api/staff/v1/people',
+                method: 'GET',
+                callback: () => [
+                    { id: 's1', name: 'Staff Zoe', email: 'zoe@place.tech' },
+                ],
+            });
         });
+        afterEach(() => clearMockEndpoints());
 
         it.each([
             [{}, ['Staff Zoe']],

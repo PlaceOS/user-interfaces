@@ -20,7 +20,6 @@ import {
     setTranslationService,
     setupCache,
     setupPlace,
-    storeApiKeyFromUrl,
     waitForCurrentUser,
     withTimeout,
 } from '@placeos/common';
@@ -32,11 +31,6 @@ import {
 } from '@placeos/components';
 
 import { mocksInit } from '@placeos/mocks';
-import {
-    clientId,
-    convertPairStringToMap,
-    setAPI_Key,
-} from '@placeos/ts-client';
 
 const START_QUERY = location.search;
 
@@ -113,9 +107,6 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 this._locale?.setLocale(locale);
                 localStorage.setItem('PLACEOS.locale', locale);
             }
-            if (params.has('x-api-key')) {
-                setAPI_Key(params.get('x-api-key'));
-            }
         });
         /** Wait for settings to initialise */
         await firstTruthyValueFrom(this._settings.initialised);
@@ -132,7 +123,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         }
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
-            const query = convertPairStringToMap(START_QUERY.substring(1));
+            const query = Object.fromEntries(new URLSearchParams(START_QUERY));
             // The first navigation can still be in progress here, so the
             // router state has no route yet. Read the route from the browser
             // URL, or the app opens at the root route.
@@ -143,7 +134,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
         /** Wait for authentication details to load */
         try {
             await setupPlace(settings).finally(() =>
-                this._storeApiKeyFromUrl(),
+                this._removeApiKeyFromRoute(),
             );
         } catch (error) {
             console.error(error);
@@ -176,16 +167,13 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     /**
-     * Store the `x-api-key` and remove it from the URL, so it does not stay in
-     * the browser history. Runs when `setupPlace` settles, as ts-client stores
-     * the key under the client ID that setup computes. The key can be in the
-     * page query and in the hash route, which gets a copy of the page query.
+     * Remove the `x-api-key` from the hash route, which gets a copy of the
+     * page query. The login session keeps the key and removes it from the
+     * URL, but the router state still has it, so a later navigation that
+     * merges the query would put it back. Runs when `setupPlace` settles.
      */
-    private _storeApiKeyFromUrl() {
-        storeApiKeyFromUrl();
-        const api_key = this._route.snapshot.queryParamMap.get('x-api-key');
-        if (!api_key || !clientId()) return;
-        setAPI_Key(api_key);
+    private _removeApiKeyFromRoute() {
+        if (!this._route.snapshot.queryParamMap.has('x-api-key')) return;
         this._router.navigate([], {
             queryParams: { 'x-api-key': null },
             queryParamsHandling: 'merge',

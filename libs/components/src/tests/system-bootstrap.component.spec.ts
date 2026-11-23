@@ -13,6 +13,7 @@ import { MockModule, MockProvider } from 'ng-mocks';
 
 import { OrganisationService, SettingsService } from '@placeos/common';
 import * as client from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { SystemBootstrapComponent } from '../lib/system-bootstrap.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -113,18 +114,20 @@ describe('SystemBootstrapComponent', () => {
     });
 
     it('should show no results when the system search fails', async () => {
-        vi.mocked(client.querySystems).mockRejectedValue(new Error('401'));
+        vi.mocked(client.systems.query).mockRejectedValue(new Error('401'));
         spectator.component.system_id.set('Room');
         spectator.detectChanges();
         await vi.advanceTimersByTimeAsync(400);
-        expect(client.querySystems).toHaveBeenCalled();
+        expect(client.systems.query).toHaveBeenCalled();
         expect(spectator.component.space_list()).toEqual([]);
         expect(spectator.component.search_state()).toBe('error');
         expect(() => spectator.detectChanges()).not.toThrow();
     });
 
     it('should say when a search finds no systems', async () => {
-        vi.mocked(client.querySystems).mockResolvedValue({ data: [] } as never);
+        vi.mocked(client.systems.query).mockResolvedValue(
+            mockPage({ data: [] } as never),
+        );
         spectator.component.system_id.set('Room');
         spectator.detectChanges();
         await vi.advanceTimersByTimeAsync(400);
@@ -132,17 +135,19 @@ describe('SystemBootstrapComponent', () => {
     });
 
     it('should wait for the organisation before searching', async () => {
-        vi.mocked(client.querySystems).mockResolvedValue({ data: [] } as never);
+        vi.mocked(client.systems.query).mockResolvedValue(
+            mockPage({ data: [] } as never),
+        );
         org_ready.set(false);
         spectator.component.system_id.set('Room');
         spectator.detectChanges();
         await vi.advanceTimersByTimeAsync(400);
-        expect(client.querySystems).not.toHaveBeenCalled();
+        expect(client.systems.query).not.toHaveBeenCalled();
         org_ready.set(true);
         spectator.detectChanges();
         await vi.advanceTimersByTimeAsync(0);
-        expect(client.querySystems).toHaveBeenCalledWith(
-            expect.objectContaining({ q: 'Room', zone_id: 'org-1' }),
+        expect(client.systems.query).toHaveBeenCalledWith(
+            expect.objectContaining({ q: 'Room', zone_id: ['org-1'] }),
         );
     });
 });

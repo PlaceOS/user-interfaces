@@ -47,7 +47,8 @@ import {
     unique,
     User,
 } from '@placeos/common';
-import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
+import { type QueryResponse } from '@placeos/ts-client/compat';
 import { addHours, getUnixTime } from 'date-fns';
 
 import { openConfirmModal, runBulkAction } from '@placeos/components';
@@ -72,7 +73,7 @@ function lockerBankToAsset(
     bank: Partial<LockerBank>,
     zone_id: string,
     zones: string[],
-): Partial<PlaceAsset> {
+): Partial<Asset> {
     return {
         ...(bank.id ? { id: bank.id } : {}),
         identifier: bank.name || '',
@@ -88,14 +89,14 @@ function lockerBankToAsset(
             tags: JSON.stringify(bank.tags || []),
             images: JSON.stringify(bank.images || []),
         },
-    } as unknown as Partial<PlaceAsset>;
+    } as unknown as Partial<Asset>;
 }
 
 function lockerToAsset(
     locker: Partial<Locker>,
     zone_id: string,
     zones: string[],
-): Partial<PlaceAsset> {
+): Partial<Asset> {
     return {
         ...(locker.id ? { id: locker.id } : {}),
         identifier: locker.name || '',
@@ -117,7 +118,7 @@ function lockerToAsset(
             size: JSON.stringify(locker.size || [1, 1]),
             features: JSON.stringify(locker.features || []),
         },
-    } as unknown as Partial<PlaceAsset>;
+    } as unknown as Partial<Asset>;
 }
 
 import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
@@ -702,7 +703,7 @@ export class LockerStateService extends AsyncHandler {
             data: { locker, bank },
         });
         await saveFromModal(ref, async (state) => {
-            let saved: PlaceAsset;
+            let saved: Asset;
             try {
                 // banks list every zone they are in, `level_id` is the bank's level
                 const zone_id =

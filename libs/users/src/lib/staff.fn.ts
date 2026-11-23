@@ -1,7 +1,24 @@
-import { setting, StaffUser, toQueryString } from '@placeos/common';
-import { get, parseLinkHeader, responseHeaders } from '@placeos/ts-client';
+import { placeFetch, setting, StaffUser, toQueryString } from '@placeos/common';
+import { orThrow } from '@placeos/ts-client/compat';
+import { staff } from '@placeos/ts-client/staff';
 
 const STAFF_ENDPOINT = '/api/staff/v1/people';
+/** Most directory pages that one search reads */
+const STAFF_PAGES_MAX = 20;
+
+/** Directory user data of the staff API, with the fields that 6.x asked for */
+type DirectoryUser = Partial<StaffUser> & {
+    unmapped?: { userType?: string };
+};
+
+/** URL of the `rel="next"` link of a `Link` header, or `''` */
+function nextLink(header: string | null): string {
+    for (const part of (header || '').split(',')) {
+        const match = /<([^>]*)>\s*;\s*rel="?next"?/.exec(part);
+        if (match) return match[1];
+    }
+    return '';
+}
 
 export interface StaffSearchOptions {
     /** Override the application setting for this search. */
@@ -41,7 +58,7 @@ export async function searchStaff(
     // Graph's default page contains 100 users. A page may consist entirely of
     // guests, so keep following the Staff API Link until we have member matches.
     const limit = 100;
-    while (url) {
+    for (let page = 0; url && page < STAFF_PAGES_MAX; page++) {
         signal?.throwIfAborted();
         const absolute_url = new URL(url, document.baseURI);
         if (
@@ -52,9 +69,18 @@ export async function searchStaff(
             throw new Error('Invalid staff directory pagination link');
         }
         visited.add(absolute_url.href);
-        const list = (await get(url)) as unknown as (Partial<StaffUser> & {
-            unmapped?: { userType?: string };
-        })[];
+        // The `people` operation has no `fields` parameter, and the
+        // `unmapped` field comes only when `fields` asks for it.
+        const response = await placeFetch(
+            `${absolute_url.pathname}${absolute_url.search}`,
+            { signal },
+        );
+        if (!response.ok) {
+            throw Object.assign(new Error(response.statusText), {
+                status: response.status,
+            });
+        }
+        const list: DirectoryUser[] = await response.json();
         signal?.throwIfAborted();
         for (const item of list) {
             // userType is returned in unmapped by the Office365 adapter.
@@ -70,8 +96,7 @@ export async function searchStaff(
             if (exclude_guests && users.length >= limit) return users;
         }
         if (!exclude_guests) return users;
-        const link = responseHeaders(absolute_url.href).link;
-        url = link ? parseLinkHeader(link).next || '' : '';
+        url = nextLink(response.headers.get('Link'));
     }
     return users;
 }
@@ -81,12 +106,9 @@ export async function searchStaffByEmailPrefix(
     email_prefix: string,
 ): Promise<StaffUser[]> {
     const escaped_prefix = email_prefix.replace(/'/g, "''");
-    const query = toQueryString({
-        filter: `startsWith(mail,'${escaped_prefix}')`,
-    });
-    const list = (await get(
-        `${STAFF_ENDPOINT}?${query}`,
-    )) as unknown as Partial<StaffUser>[];
+    const list = await staff
+        .query({ filter: `startsWith(mail,'${escaped_prefix}')` })
+        .then(orThrow);
     return list.map((item) => new StaffUser(item));
 }
 
@@ -95,7 +117,5 @@ export async function searchStaffByEmailPrefix(
  * @param id User ID or email
  */
 export async function showStaff(id: string): Promise<StaffUser> {
-    return new StaffUser(
-        await get(`${STAFF_ENDPOINT}/${encodeURIComponent(id)}`),
-    );
+    return new StaffUser(await staff.show({ id }).then(orThrow));
 }

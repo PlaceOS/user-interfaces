@@ -16,12 +16,12 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceCurrentGroup } from '@placeos/ts-client';
+import { GroupsCurrentGroup } from '@placeos/ts-client';
 import { groupHierarchy } from '../signage-context.service';
 
 export interface GroupSelectModalData {
     title: string;
-    groups: PlaceCurrentGroup[];
+    groups: GroupsCurrentGroup[];
     selected_group_id?: string;
     show_all_groups?: boolean;
     child_content?: {

@@ -1,10 +1,10 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { registerMockEndpoint } from '@placeos/ts-client/compat';
 
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from '../lib/api/users.data';
 import { registerMockUsers } from '../lib/api/users.mock';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 type User = (typeof MOCK_STAFF)[number];
 type Guest = (typeof MOCK_GUESTS)[number];
@@ -79,13 +79,16 @@ describe('registerMockUsers', () => {
 
         it('should add a visitor that is not on file, and change one that is', () => {
             const known = MOCK_GUESTS[0];
-            expect(saveGuest(known.email, { company: 'Acme' })).toBe(known);
-            expect(known.company).toBe('Acme');
+            expect(saveGuest(known.email, { organisation: 'Acme' })).toBe(
+                known,
+            );
+            expect(known.organisation).toBe('Acme');
 
             const count = MOCK_GUESTS.length;
             const added = saveGuest('new+guest@acme.com', { name: 'New' });
+            // Staff API guest IDs are integers
             expect(added).toEqual({
-                id: 'new+guest@acme.com',
+                id: count + 1,
                 email: 'new+guest@acme.com',
                 name: 'New',
             });

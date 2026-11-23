@@ -14,15 +14,22 @@ import {
 } from '@placeos/common';
 import { EventFormService, SpacePipe, SpacesService } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import { events as staff_events } from '@placeos/ts-client/staff';
 import { addMinutes, getUnixTime } from 'date-fns';
 import { Subject } from 'rxjs';
 
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { EmbeddedControlModalComponent } from '../app/overlays/embedded-control-modal.component';
 import { PanelSettings, PanelStateService } from '../app/panel-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 /** Whole seconds, because `CalendarEvent` stores times as unix seconds */
 const NOW = new Date('2026-07-04T09:00:00.000Z').valueOf();
@@ -34,11 +41,18 @@ describe('PanelStateService', () => {
     const app_settings: Record<string, unknown> = {};
     const room = new Space({ id: 'test-room', email: 'room@example.com' });
     const host = new User({ email: 'host@example.com' });
-    const module = new ts_client.PlaceModuleBinding(
-        new ts_client.PlaceSystemBinding(room.id),
-        'Bookings_1',
-    );
-    const execute = vi.spyOn(module, 'execute');
+    const execute =
+        vi.fn<
+            (method: string, args?: readonly unknown[]) => Promise<unknown>
+        >();
+    let place: TestPlaceClient;
+    /** Send a realtime status to the listeners */
+    const wsStatus = (open: boolean) =>
+        place.setStatus(
+            open
+                ? { kind: 'open', since_ms: Date.now() }
+                : { kind: 'waiting', attempt: 1, delay_ms: 1000 },
+        );
     const close = vi.fn();
     const open = vi.fn();
     const notify_open = vi.fn((_msg: string) => ({
@@ -47,7 +61,6 @@ describe('PanelStateService', () => {
     const messages = () => notify_open.mock.calls.map(([msg]) => msg);
     const org_initialised = signal(false);
     const navigate = vi.fn();
-    let ws_status: Subject<boolean>;
     let after_closed: Subject<void>;
     const event_form = {
         newForm: vi.fn(),
@@ -84,12 +97,8 @@ describe('PanelStateService', () => {
             close,
         });
         org_initialised.set(false);
-        // A Subject emits repeated values. A ts-client signal drops them.
-        ws_status = new Subject<boolean>();
-        vi.mocked(ts_client.status).mockReturnValue(
-            ws_status as unknown as ts_client.Signal<boolean>,
-        );
-        vi.mocked(ts_client.getModule).mockReturnValue(module);
+        place = startTestPlaceClient();
+        place.useExecute(execute);
         vi.spyOn(SpacePipe.prototype, 'transform').mockResolvedValue(room);
         TestBed.configureTestingModule({
             providers: [
@@ -309,16 +318,21 @@ describe('PanelStateService', () => {
         const current = event({ date: minutes(-10), duration: 30 });
 
         beforeEach(() => {
-            vi.mocked(ts_client.patch).mockResolvedValue(undefined);
+            vi.mocked(staff_events.update).mockImplementation(
+                fromV1Mock(() => ({ id: 'event-1' }), ['...']),
+            );
             service._current.set(current);
         });
 
         it('moves the end of the current booking by 15 minutes', async () => {
             await service.extendMeeting();
-            expect(ts_client.patch).toHaveBeenCalledWith(
-                expect.stringContaining('/event-1?system_id=test-room'),
+            expect(staff_events.update).toHaveBeenCalledWith(
                 expect.objectContaining({
-                    event_end: current.event_end + 15 * 60,
+                    id: 'event-1',
+                    system_id: 'test-room',
+                    body: expect.objectContaining({
+                        event_end: current.event_end + 15 * 60,
+                    }),
                 }),
             );
             expect(messages()).toContain('Extended meeting by 15 minutes.');
@@ -333,11 +347,11 @@ describe('PanelStateService', () => {
             expect(messages()).toContain(
                 'Unable to extend. The room is booked after.',
             );
-            expect(ts_client.patch).not.toHaveBeenCalled();
+            expect(staff_events.update).not.toHaveBeenCalled();
         });
 
         it('shows an error when the update fails', async () => {
-            vi.mocked(ts_client.patch).mockRejectedValue('Forbidden');
+            vi.mocked(staff_events.update).mockRejectedValue('Forbidden');
             await service.extendMeeting();
             expect(messages()).toContain('Error extending meeting. Forbidden');
             expect(messages()).not.toContain('Extended meeting by 15 minutes.');
@@ -576,16 +590,21 @@ describe('PanelStateService', () => {
     });
 
     it('keeps the first offline time until the websocket reconnects', () => {
-        ws_status.next(false);
+        wsStatus(false);
         expect(service.offline_since()).toBe(NOW);
         vi.advanceTimersByTime(60 * 1000);
-        ws_status.next(false);
+        wsStatus(false);
         expect(service.offline_since()).toBe(NOW);
-        ws_status.next(true);
+        wsStatus(true);
         expect(service.offline_since()).toBe(0);
     });
 
     describe('system binding', () => {
+        /** The system of the room, as the API sends it */
+        const system = {
+            id: room.id,
+            zones: [],
+        } as unknown as ts_client.System;
         /** Values the fake driver bindings return */
         const values: Record<string, unknown> = {
             room_name: 'Board Room',
@@ -605,24 +624,16 @@ describe('PanelStateService', () => {
                 ],
             });
             vi.setSystemTime(NOW);
-            vi.spyOn(module, 'variable').mockImplementation(
-                (name: string) =>
-                    ({
-                        bindThenSubscribe: (next: (value: unknown) => void) => {
-                            next(values[name]);
-                            return () => undefined;
-                        },
-                        bind: () => () => undefined,
-                        listen: () => ts_client.createSignal(values[name]),
-                    }) as unknown as ts_client.PlaceVariableBinding,
-            );
+            for (const [name, value] of Object.entries(values)) {
+                place.emit(room.id, 'Bookings', name, value);
+            }
             org_initialised.set(true);
             TestBed.tick();
         });
 
         it('binds the settings and bookings, then loads the room', async () => {
-            vi.mocked(ts_client.showSystem).mockResolvedValue(
-                new ts_client.PlaceSystem({ id: room.id }),
+            vi.mocked(ts_client.systems.show).mockResolvedValue(
+                mockReply(system),
             );
             expect(service.setting('room_name')).toBe('Board Room');
             expect(service.bookings().map(({ id }) => id)).toEqual(['b1']);
@@ -630,45 +641,54 @@ describe('PanelStateService', () => {
             expect(service.space()).toBeNull();
 
             await vi.advanceTimersByTimeAsync(1000);
-            expect(ts_client.showSystem).toHaveBeenCalledWith(room.id);
+            expect(ts_client.systems.show).toHaveBeenCalledWith({
+                sys_id: room.id,
+            });
             expect(service.space()?.id).toBe(room.id);
         });
 
         it('returns to the setup screen when the system does not exist', async () => {
-            vi.mocked(ts_client.showSystem).mockRejectedValue({
+            vi.mocked(ts_client.systems.show).mockRejectedValue({
                 status: 404,
                 message: 'Not found',
             });
             await vi.advanceTimersByTimeAsync(10 * 1000);
             expect(navigate).toHaveBeenCalledWith(['/bootstrap']);
-            expect(ts_client.showSystem).toHaveBeenCalledOnce();
+            expect(ts_client.systems.show).toHaveBeenCalledOnce();
         });
 
         it('retries the load after other errors', async () => {
-            vi.mocked(ts_client.showSystem)
+            vi.mocked(ts_client.systems.show)
                 .mockRejectedValueOnce({ status: 500, message: 'Down' })
-                .mockResolvedValue(new ts_client.PlaceSystem({ id: room.id }));
+                .mockResolvedValue(mockReply(system));
             await vi.advanceTimersByTimeAsync(1000);
-            expect(ts_client.showSystem).toHaveBeenCalledOnce();
+            expect(ts_client.systems.show).toHaveBeenCalledOnce();
             // Retries after 2 to 5 seconds, then waits 1 second to load
             await vi.advanceTimersByTimeAsync(6000);
-            expect(ts_client.showSystem).toHaveBeenCalledTimes(2);
+            expect(ts_client.systems.show).toHaveBeenCalledTimes(2);
             expect(service.space()?.id).toBe(room.id);
             expect(navigate).not.toHaveBeenCalled();
         });
 
         it('ignores a load that finishes after the system changes', async () => {
-            let finish: (system: ts_client.PlaceSystem) => void = () =>
-                undefined;
-            vi.mocked(ts_client.showSystem)
-                .mockReturnValueOnce(
-                    new Promise((resolve) => (finish = resolve)),
+            let finish: (system: ts_client.System) => void = () => undefined;
+            vi.mocked(ts_client.systems.show)
+                .mockImplementationOnce(
+                    fromV1Mock(
+                        () => new Promise((resolve) => (finish = resolve)),
+                        ['sys_id', '...'],
+                    ),
                 )
-                .mockReturnValue(new Promise(() => undefined));
+                .mockImplementation(
+                    fromV1Mock(
+                        () => new Promise(() => undefined),
+                        ['sys_id', '...'],
+                    ),
+                );
             await vi.advanceTimersByTimeAsync(1000);
             service.system = 'other-room';
             TestBed.tick();
-            finish(new ts_client.PlaceSystem({ id: room.id }));
+            finish(system);
             await vi.advanceTimersByTimeAsync(0);
             expect(service.space()).toBeNull();
         });
@@ -677,7 +697,7 @@ describe('PanelStateService', () => {
             service.system = '';
             TestBed.tick();
             await vi.advanceTimersByTimeAsync(1000);
-            expect(ts_client.showSystem).not.toHaveBeenCalled();
+            expect(ts_client.systems.show).not.toHaveBeenCalled();
             expect(service.settings()).toEqual({});
             expect(service.bookings()).toEqual([]);
             expect(service.current()).toBeNull();

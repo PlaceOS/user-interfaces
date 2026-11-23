@@ -3,6 +3,16 @@ import { InjectionToken } from '@angular/core';
 /** Generic Dictionary type */
 export type HashMap<T = any> = Record<string, T>;
 
+/**
+ * Partial data for a class constructor. Arrays can be `readonly`, so data
+ * from the API, such as a v7 `Zone` or `User`, can be passed directly.
+ */
+export type ClassData<T> = {
+    readonly [K in keyof T]?: T[K] extends readonly (infer U)[]
+        ? readonly U[]
+        : T[K];
+};
+
 export interface LinkedBooking {
     id: string;
     parent_id?: string;

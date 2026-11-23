@@ -1,5 +1,5 @@
 import { localToTimezone, toQueryString, unique, User } from '@placeos/common';
-import { PlaceSystem } from '@placeos/ts-client';
+import { type System } from '@placeos/ts-client';
 import { addDays, addMinutes, format } from 'date-fns';
 
 export interface CalEvent {
@@ -17,7 +17,7 @@ export interface CalEvent {
     attendees: string[];
     resources?: string[];
     meeting_url?: string;
-    system?: PlaceSystem;
+    system?: System;
 }
 
 function formatUTC(date: Date | number) {

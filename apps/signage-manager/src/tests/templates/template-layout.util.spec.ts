@@ -13,7 +13,14 @@ import {
 const layout = (
     position: SignageTemplateLayout['position'],
     extra: Partial<SignageTemplateLayout> = {},
-): SignageTemplateLayout => ({ position, plugin_params: {}, ...extra });
+): SignageTemplateLayout => ({
+    position,
+    plugin_id: null,
+    x_pos: null,
+    y_pos: null,
+    plugin_params: {},
+    ...extra,
+});
 
 describe('applyLayoutPositionDefaults', () => {
     it('adds the displayed default for each layout position', () => {

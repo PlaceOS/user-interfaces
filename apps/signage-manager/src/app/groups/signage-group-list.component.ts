@@ -12,13 +12,13 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { PlaceGroup } from '@placeos/ts-client';
+import { type Group } from '@placeos/ts-client';
 import { groupHierarchy } from '../signage-context.service';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 
 /** Group in the flat tree, with its depth */
 interface GroupListRow {
-    group: PlaceGroup;
+    group: Group;
     level: number;
 }
 
@@ -296,7 +296,7 @@ export class SignageGroupListComponent {
     public readonly expansionKey = (row: GroupListRow) => row.group.id;
     /** Child groups of each group, sorted by name */
     public readonly child_lookup = computed(() => {
-        const lookup: Record<string, PlaceGroup[]> = {};
+        const lookup: Record<string, Group[]> = {};
         for (const group of this.groups()) {
             if (!group.parent_id) continue;
             lookup[group.parent_id] ||= [];
@@ -331,7 +331,7 @@ export class SignageGroupListComponent {
         const rows: GroupListRow[] = [];
         // Each group shows once, so a parent cycle cannot loop forever
         const seen = new Set<string>();
-        const visit = (group: PlaceGroup, level: number) => {
+        const visit = (group: Group, level: number) => {
             if (seen.has(group.id)) return;
             seen.add(group.id);
             rows.push({ group, level });
@@ -354,28 +354,28 @@ export class SignageGroupListComponent {
         });
     }
 
-    public setExpanded(group: PlaceGroup, expanded: boolean) {
+    public setExpanded(group: Group, expanded: boolean) {
         this.expanded_groups.update((state) => ({
             ...state,
             [group.id]: expanded,
         }));
     }
 
-    public isExpanded(group: PlaceGroup) {
+    public isExpanded(group: Group) {
         return !!this.expanded_groups()[group.id];
     }
 
-    public childCount(group: PlaceGroup) {
+    public childCount(group: Group) {
         return this.child_lookup()[group.id]?.length || 0;
     }
 
-    public selectGroup(group: PlaceGroup) {
+    public selectGroup(group: Group) {
         this._group_admin.managed_group_id.set(group.id);
     }
 
     // Expands the ancestors of the group, and the group itself when it has
     // children
-    private _expandPath(group: PlaceGroup, groups: PlaceGroup[]) {
+    private _expandPath(group: Group, groups: Group[]) {
         const path = groupHierarchy(group, groups);
         if (!this.childCount(group)) path.pop();
         const state = this.expanded_groups();

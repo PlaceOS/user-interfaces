@@ -1,15 +1,16 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { PlaylistActionsComponent } from '../../app/playlists/playlist-actions.component';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signagePlaylist } from '../../app/signage-models';
 
 describe('PlaylistActionsComponent', () => {
-    const playlist = new SignagePlaylist({ id: 'playlist-1' });
+    const playlist = signagePlaylist({ id: 'playlist-1' });
     const playlist_service = {
-        selected_playlist: signal<SignagePlaylist | null>(playlist),
+        selected_playlist: signal<Playlist | null>(playlist),
         selected_playlist_requires_approval: signal(true),
         playlist_approval_request_loading: signal(false),
         playlist_duplicating: signal(false),
@@ -89,7 +90,7 @@ describe('PlaylistActionsComponent', () => {
     it('opens the copy after duplicating, and stays when the copy fails', async () => {
         const component = make().componentInstance;
         playlist_service.duplicatePlaylist.mockResolvedValueOnce(
-            new SignagePlaylist({ id: 'copy-1' }),
+            signagePlaylist({ id: 'copy-1' }),
         );
 
         await component.duplicatePlaylist();

@@ -10,7 +10,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 import { byDisplayName, PagedSearch } from '../shared/paged-search';
 import { ZoneSelectTreeComponent } from '../shared/zone-select-tree.component';
 import { SignageGroupAdminService } from './signage-group-admin.service';
@@ -62,14 +62,14 @@ export class SignageGroupZoneSelectModalComponent {
         MatDialogRef<SignageGroupZoneSelectModalComponent>,
     );
 
-    public readonly list = new PagedSearch<PlaceZone>(
+    public readonly list = new PagedSearch<Zone>(
         (search) => this._group_admin.queryGroupZones(search),
         byDisplayName,
         300,
     );
     public readonly exclude_ids = this._data.exclude_ids || [];
 
-    public selectZone(zone: PlaceZone) {
+    public selectZone(zone: Zone) {
         this._dialog_ref.close(zone);
     }
 }

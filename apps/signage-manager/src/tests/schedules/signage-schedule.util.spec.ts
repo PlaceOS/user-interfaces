@@ -1,4 +1,4 @@
-import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
+import { type Playlist, PlaylistSchedule } from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
 import {
     buildDayTimelineBlocks,
@@ -7,6 +7,7 @@ import {
     buildZoneScheduleAssignments,
     hasTakeoverSchedule,
 } from '../../app/schedules/signage-schedule.util';
+import { signagePlaylist } from '../../app/signage-models';
 
 describe('signage-schedule.util', () => {
     it('applies the repeating mask before adding timeline blocks', () => {
@@ -17,7 +18,7 @@ describe('signage-schedule.util', () => {
         const blocks = buildScheduleBlocks(
             [
                 {
-                    playlist: new SignagePlaylist({
+                    playlist: signagePlaylist({
                         id: 'masked',
                         name: 'Masked',
                         schedules: [
@@ -27,7 +28,7 @@ describe('signage-schedule.util', () => {
                                 play_takeover: false,
                                 valid_from: days[0].getTime() / 1000,
                                 mask: '10',
-                            } as SignagePlaylistSchedule,
+                            } as PlaylistSchedule,
                         ],
                     }),
                 },
@@ -139,7 +140,7 @@ describe('signage-schedule.util', () => {
                 { play_cron: '0 9 * * *' },
                 { play_at: timestamp },
             ]) {
-                const schedule: SignagePlaylistSchedule = {
+                const schedule: Partial<PlaylistSchedule> = {
                     play_cron: '0 9 * * *',
                     ...timing,
                     play_period: 30,
@@ -150,7 +151,7 @@ describe('signage-schedule.util', () => {
                 const blocks = buildScheduleBlocks(
                     [
                         {
-                            playlist: new SignagePlaylist({
+                            playlist: signagePlaylist({
                                 id: 'playlist-1',
                                 schedules: [schedule],
                             }),
@@ -285,13 +286,13 @@ describe('signage-schedule.util', () => {
         const day = new Date(2026, 2, 2);
         const at = (hours: number) => getUnixTime(new Date(2026, 2, 2, hours));
         const blocksOf = (
-            schedule: Partial<SignagePlaylistSchedule>,
+            schedule: Partial<PlaylistSchedule>,
             dates: { valid_from?: number; valid_until?: number } = {},
         ) =>
             buildScheduleBlocks(
                 [
                     {
-                        playlist: new SignagePlaylist({
+                        playlist: signagePlaylist({
                             id: 'p',
                             name: 'P',
                             schedules: [
@@ -364,7 +365,7 @@ describe('signage-schedule.util', () => {
                 play_cron: '0 9 * * *',
                 play_period: 60,
                 play_takeover: true,
-            } as unknown as SignagePlaylist;
+            } as unknown as Playlist;
             const blocks = buildScheduleBlocks([{ playlist }], [day]);
 
             expect(hasTakeoverSchedule(playlist)).toBe(false);
@@ -387,7 +388,7 @@ describe('signage-schedule.util', () => {
                 const blocks = buildScheduleBlocks(
                     [
                         {
-                            playlist: new SignagePlaylist({
+                            playlist: signagePlaylist({
                                 id: 'p',
                                 schedules: [
                                     {
@@ -411,7 +412,7 @@ describe('signage-schedule.util', () => {
                     buildScheduleBlocks(
                         [
                             {
-                                playlist: new SignagePlaylist({
+                                playlist: signagePlaylist({
                                     id: 'p',
                                     schedules: [
                                         {
@@ -441,7 +442,7 @@ describe('signage-schedule.util', () => {
     describe('day timeline', () => {
         const day = new Date(2026, 2, 3);
         const assign = (id: string, play_cron?: string, play_period = 60) => ({
-            playlist: new SignagePlaylist({
+            playlist: signagePlaylist({
                 id,
                 name: id,
                 schedules: play_cron

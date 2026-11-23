@@ -6,6 +6,7 @@ import {
 } from '@ngneat/spectator/vitest';
 import { OrganisationService } from '@placeos/common';
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of, Subject } from 'rxjs';
 
@@ -59,14 +60,22 @@ describe('DealsService', () => {
         vi.clearAllMocks();
         stored_deals = [];
         dialog_open = vi.fn();
-        vi.mocked(ts_client_mod.showMetadata).mockImplementation(
-            async () => ({ details: stored_deals }) as any,
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                async () => ({ details: stored_deals }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
-        vi.mocked(ts_client_mod.updateMetadata).mockImplementation(
-            async (_id: string, metadata: any) => {
-                stored_deals = metadata.details;
-                return {} as any;
-            },
+        vi.mocked(ts_client_mod.metadata.update).mockImplementation(
+            fromV1Mock(
+                async (_id: string, metadata: any) => {
+                    stored_deals = metadata.details;
+                    return {} as any;
+                },
+                ['id', 'body'],
+            ),
         );
         spectator = createService();
     });
@@ -75,15 +84,15 @@ describe('DealsService', () => {
         const saved = await spectator.service.saveDeal({ name: 'Coffee Deal' });
 
         expect(saved.id).toMatch(/^deal-/);
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            expect.objectContaining({
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'bld-1',
+            body: expect.objectContaining({
                 name: 'deals-n-offers',
                 details: expect.arrayContaining([
                     expect.objectContaining({ name: 'Coffee Deal' }),
                 ]),
             }),
-        );
+        });
     });
 
     it('should replace an existing deal instead of duplicating when saving', async () => {
@@ -101,7 +110,7 @@ describe('DealsService', () => {
     });
 
     it('should not write deals when they cannot be read', async () => {
-        vi.mocked(ts_client_mod.showMetadata).mockRejectedValue('offline');
+        vi.mocked(ts_client_mod.metadata.show).mockRejectedValue('offline');
         dialog_open.mockReturnValue(makeConfirmRef());
 
         await expect(
@@ -111,7 +120,7 @@ describe('DealsService', () => {
             await spectator.service.removeDeal({ id: 'deal-1' } as any),
         ).toBe(false);
 
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should return metadata details as the current deal list', async () => {
@@ -132,7 +141,7 @@ describe('DealsService', () => {
         // Confirmation dialog was opened...
         expect(dialog_open).toHaveBeenCalled();
         // ...and the change was persisted through ts-client metadata.
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).toHaveBeenCalled();
         expect(stored_deals).toEqual([{ id: 'deal-2' }]);
     });
 
@@ -145,7 +154,7 @@ describe('DealsService', () => {
         } as any);
 
         expect(result).toBe(false);
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
         expect(stored_deals).toEqual([{ id: 'deal-1' }]);
     });
 
@@ -159,7 +168,7 @@ describe('DealsService', () => {
 
         expect(result).toBe(true);
         expect(dialog_open).not.toHaveBeenCalled();
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).toHaveBeenCalled();
         expect(stored_deals).toEqual([]);
     });
 

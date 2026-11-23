@@ -195,23 +195,11 @@ export async function installMediaRoutes(page: Page): Promise<void> {
  * Initialize the app with mock mode enabled
  */
 export async function initializeAppWithMock(page: Page): Promise<void> {
-    await page.goto('/');
-    await page.waitForLoadState('domcontentloaded');
-
-    await page
-        .evaluate(() => {
-            localStorage.setItem('mock', 'true');
-        })
-        .catch(() => undefined);
-
+    // Set before the first load: without mock mode the app starts the login
+    // at once, and that redirect would interrupt a later navigation.
+    await page.addInitScript(() => localStorage.setItem('mock', 'true'));
     await page.goto('/?mock=true');
     await page.waitForLoadState('domcontentloaded');
-
-    await page
-        .evaluate(() => {
-            localStorage.setItem('mock', 'true');
-        })
-        .catch(() => undefined);
 
     await page
         .locator('app-root')

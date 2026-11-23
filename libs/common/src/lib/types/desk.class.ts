@@ -1,6 +1,15 @@
-import { PlaceZone, cleanObject } from '@placeos/ts-client';
+import { parseResponse, Zone } from '@placeos/ts-client';
+
+import { cleanObject } from '../general';
 
 const IGNORE_KEYS = ['zone', 'qr_code', 'toJSON'];
+
+/** Zone with empty fields, for a desk without a zone */
+function emptyZone(): Zone {
+    const result = parseResponse(Zone, {}, { missing_fields: 'zero' });
+    if (result.ok === false) throw new Error('Empty zone does not parse');
+    return result.value;
+}
 
 export class Desk implements Record<string, any> {
     /** ID of the desk also map_id */
@@ -12,7 +21,7 @@ export class Desk implements Record<string, any> {
     /** Whether desk is available / bookable */
     public readonly bookable: boolean;
     /** Zone/Level of the desk */
-    public readonly zone: PlaceZone;
+    public readonly zone: Zone;
     /** Group/Department allocated to the desk */
     public readonly groups: string[];
     /** QR code image data */
@@ -37,7 +46,7 @@ export class Desk implements Record<string, any> {
         this.map_id = data.map_id || data.id || '';
         this.name = data.name || '';
         this.bookable = data.bookable ?? false;
-        this.zone = data.zone || new PlaceZone();
+        this.zone = data.zone || emptyZone();
         this.assigned_to = data.assigned_to || '';
         this.groups = data.groups || [];
         this.qr_code = data.qr_code || '';

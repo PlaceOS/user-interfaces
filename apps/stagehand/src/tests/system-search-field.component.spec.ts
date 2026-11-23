@@ -1,7 +1,9 @@
 import { signal } from '@angular/core';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { PlaceSystem, querySystems } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { System, type SystemInput, systems } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 
 import { SystemSearchFieldComponent } from '../app/dashboards/system-search-field.component';
@@ -10,8 +12,8 @@ import { SupportGroupsService } from '../app/support-groups.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-function makeSystem(data: Partial<PlaceSystem>): PlaceSystem {
-    return new PlaceSystem(data);
+function makeSystem(data: SystemInput): System {
+    return mockData(System, data);
 }
 
 const zone = (id: string, parent_id = '', tags: string[] = []) =>
@@ -47,7 +49,9 @@ describe('SystemSearchFieldComponent', () => {
         vi.clearAllMocks();
         group_id.set('');
         scope.set(null);
-        vi.mocked(querySystems).mockResolvedValue({ data: [] } as any);
+        vi.mocked(systems.query).mockResolvedValue(
+            mockPage({ data: [] } as any),
+        );
         spectator = create_component();
         component = spectator.component;
     });
@@ -105,7 +109,7 @@ describe('SystemSearchFieldComponent', () => {
     });
 
     it('should drop results for a search the user has since changed', async () => {
-        let resolve_old: (_: PlaceSystem[]) => void;
+        let resolve_old: (_: System[]) => void;
         const query_fn = vi
             .fn()
             .mockReturnValueOnce(new Promise((r) => (resolve_old = r)))
@@ -144,29 +148,31 @@ describe('SystemSearchFieldComponent', () => {
             group_id.set('group-1');
             // granted the building, denied its second level
             scope.set(groupScope([building, level], [building, denied]));
-            vi.mocked(querySystems).mockResolvedValue({
-                data: [
-                    makeSystem({
-                        id: 'in',
-                        name: 'Room In',
-                        zones: ['org-1', 'bld-1', 'lvl-1'],
-                    }),
-                    makeSystem({
-                        id: 'denied',
-                        name: 'Room Denied',
-                        zones: ['org-1', 'bld-1', 'lvl-2'],
-                    }),
-                    makeSystem({
-                        id: 'other',
-                        name: 'Room Other',
-                        zones: ['org-1', 'bld-9'],
-                    }),
-                ],
-            } as any);
+            vi.mocked(systems.query).mockResolvedValue(
+                mockPage({
+                    data: [
+                        makeSystem({
+                            id: 'in',
+                            name: 'Room In',
+                            zones: ['org-1', 'bld-1', 'lvl-1'],
+                        }),
+                        makeSystem({
+                            id: 'denied',
+                            name: 'Room Denied',
+                            zones: ['org-1', 'bld-1', 'lvl-2'],
+                        }),
+                        makeSystem({
+                            id: 'other',
+                            name: 'Room Other',
+                            zones: ['org-1', 'bld-9'],
+                        }),
+                    ],
+                } as any),
+            );
 
             await search('room');
 
-            expect(querySystems).toHaveBeenCalledWith({
+            expect(systems.query).toHaveBeenCalledWith({
                 q: 'room',
                 group_id: 'group-1',
             });
@@ -175,13 +181,13 @@ describe('SystemSearchFieldComponent', () => {
 
         it('should search every system for "All groups"', async () => {
             await search('room');
-            expect(querySystems).toHaveBeenCalledWith({ q: 'room' });
+            expect(systems.query).toHaveBeenCalledWith({ q: 'room' });
         });
 
         it('should find nothing, without a query, for a user in no group', async () => {
             scope.set(groupScope([], []));
             await search('room');
-            expect(querySystems).not.toHaveBeenCalled();
+            expect(systems.query).not.toHaveBeenCalled();
             expect(component.item_list()).toEqual([]);
         });
     });

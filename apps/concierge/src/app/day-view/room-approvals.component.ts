@@ -450,11 +450,9 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod) return;
         this._setInProgress([event], 'accept');
         try {
-            await mod.execute(
-                'accept_event',
-                [event.mailbox, event.id],
-                30 * 1000,
-            );
+            await mod.execute('accept_event', [event.mailbox, event.id], {
+                timeout_ms: 30 * 1000,
+            });
         } catch (e) {
             this._clearInProgress([event]);
             return notifyError(`Failed to approve booking: ${errorText(e)}`);
@@ -527,7 +525,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             await mod.execute(
                 'accept_recurring_event',
                 [event.mailbox, event.recurring_event_id || event.id],
-                30 * 1000,
+                { timeout_ms: 30 * 1000 },
             );
         } catch (e) {
             this._clearInProgress(events);
@@ -544,11 +542,9 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         if (!mod || !(await this._confirmDecline(event, false))) return;
         this._setInProgress([event], 'decline');
         try {
-            await mod.execute(
-                'decline_event',
-                [event.mailbox, event.id],
-                30 * 1000,
-            );
+            await mod.execute('decline_event', [event.mailbox, event.id], {
+                timeout_ms: 30 * 1000,
+            });
         } catch (e) {
             this._clearInProgress([event]);
             return notifyError(`Failed to decline booking: ${errorText(e)}`);
@@ -568,7 +564,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
             await mod.execute(
                 'decline_recurring_event',
                 [event.mailbox, event.recurring_event_id || event.id],
-                30 * 1000,
+                { timeout_ms: 30 * 1000 },
             );
         } catch (e) {
             this._clearInProgress(events);

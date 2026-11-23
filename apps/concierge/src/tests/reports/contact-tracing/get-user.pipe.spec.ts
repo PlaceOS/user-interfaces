@@ -1,27 +1,34 @@
 import { StaffUser } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { startMockPlaceClient } from '@placeos/common/tests';
+import { clearMockEndpoints } from '@placeos/ts-client/compat';
 
 import { GetUserPipe } from 'apps/concierge/src/app/reports/contact-tracing/get-user.pipe';
+import { httpStatus, mockHttp } from '../../mock-http';
 
-vi.mock('@placeos/ts-client', { spy: true });
+const PEOPLE = '/api/staff/v1/people';
 
 describe('GetUserPipe', () => {
     let pipe: GetUserPipe;
 
+    let people: ReturnType<typeof mockHttp>;
+
     beforeEach(() => {
         vi.clearAllMocks();
+        // searchStaff() reads the directory with placeFetch()
+        startMockPlaceClient();
+        people = mockHttp('GET', PEOPLE, []);
         pipe = new GetUserPipe();
     });
 
+    afterEach(() => clearMockEndpoints());
+
     it('should resolve null for empty identifiers', async () => {
         await expect(pipe.transform('')).resolves.toBeNull();
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(people).not.toHaveBeenCalled();
     });
 
     it('should look up staff and cache the result', async () => {
-        (ts_client.get as any).mockResolvedValue([
-            { id: 'user-1', name: 'User One' },
-        ]);
+        people = mockHttp('GET', PEOPLE, [{ id: 'user-1', name: 'User One' }]);
 
         const first = await pipe.transform('user-1');
         const second = await pipe.transform('user-1');
@@ -31,11 +38,11 @@ describe('GetUserPipe', () => {
         expect(first.name).toBe('User One');
         // Second lookup should hit the cache, returning the same instance
         expect(second).toBe(first);
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(people).toHaveBeenCalledTimes(1);
     });
 
     it('should fall back to a placeholder user when no staff match', async () => {
-        (ts_client.get as any).mockResolvedValue([]);
+        mockHttp('GET', PEOPLE, []);
 
         const result = await pipe.transform('unknown-2');
 
@@ -45,7 +52,9 @@ describe('GetUserPipe', () => {
     });
 
     it('should fall back to a placeholder user when the lookup fails', async () => {
-        (ts_client.get as any).mockRejectedValue(new Error('nope'));
+        mockHttp('GET', PEOPLE, () => {
+            throw httpStatus(500);
+        });
 
         const result = await pipe.transform('error-3');
 
@@ -60,6 +69,6 @@ describe('GetUserPipe', () => {
         const result = await pipe.transform('seed-4');
 
         expect(result).toBe(staff);
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(people).not.toHaveBeenCalled();
     });
 });

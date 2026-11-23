@@ -5,11 +5,10 @@ import {
     RemoteLogEntry,
     RemoteLogsView,
 } from '@placeos/common';
-import { mockSystem } from '@placeos/ts-client';
+import { mockSystem, type MockModule } from '@placeos/ts-client/compat';
 
 import {
     createRemoteDebugSystem,
-    MockRemoteDebugModule,
     REMOTE_DEBUG_MOCK_SYSTEM,
 } from '../lib/realtime/remote-debug';
 
@@ -31,7 +30,8 @@ describe('mock RemoteDebug driver', () => {
         source: 'console',
         message: `line ${seq}`,
     });
-    let mod: MockRemoteDebugModule;
+    /** The registered module. Its functions take JSON, as from a device */
+    let mod: MockModule;
 
     beforeEach(() => {
         vi.useFakeTimers();
@@ -45,22 +45,18 @@ describe('mock RemoteDebug driver', () => {
     const view = () => mod[`logs:${device_id}`] as RemoteLogsView;
 
     it('should set, change and clear the log request of a device', () => {
-        const id = mod.call('request_logs', [
-            device_id,
-            'info',
-            { history: 50 },
-        ]);
+        const id = mod.$request_logs(device_id, 'info', { history: 50 });
         expect(state().logs).toEqual({ id, level: 'info', history: 50 });
 
-        mod.call('set_level', [device_id, 'debug']);
+        mod.$set_level(device_id, 'debug');
         expect(state().logs).toMatchObject({ id, level: 'debug' });
 
-        mod.call('stop_logs', [device_id]);
+        mod.$stop_logs(device_id);
         expect(state().logs).toBeNull();
     });
 
     it('should clear the log request when the duration ends', () => {
-        mod.call('request_logs', [device_id, 'warn', { duration: 5000 }]);
+        mod.$request_logs(device_id, 'warn', { duration: 5000 });
 
         vi.advanceTimersByTime(5000);
 
@@ -68,9 +64,9 @@ describe('mock RemoteDebug driver', () => {
     });
 
     it('should start the duration again when the level changes', () => {
-        mod.call('request_logs', [device_id, 'warn', { duration: 5000 }]);
+        mod.$request_logs(device_id, 'warn', { duration: 5000 });
         vi.advanceTimersByTime(4000);
-        mod.call('set_level', [device_id, 'debug']);
+        mod.$set_level(device_id, 'debug');
 
         vi.advanceTimersByTime(4000);
         expect(state().logs).toMatchObject({ level: 'debug' });
@@ -79,27 +75,25 @@ describe('mock RemoteDebug driver', () => {
     });
 
     it('should keep posted entries once each and start again after a reload', () => {
-        const id = mod.call('request_logs', [device_id, 'info']);
-        mod.call('post_logs', [device_id, 'old-request', [entry(9)], device]);
-        mod.call('post_logs', [device_id, id, [entry(2), entry(1)], device]);
-        mod.call('post_logs', [device_id, id, [entry(2), entry(3)], device]);
+        const id = mod.$request_logs(device_id, 'info');
+        mod.$post_logs(device_id, 'old-request', [entry(9)], device);
+        mod.$post_logs(device_id, id, [entry(2), entry(1)], device);
+        mod.$post_logs(device_id, id, [entry(2), entry(3)], device);
 
         expect(view().entries.map((_) => _.seq)).toEqual([1, 2, 3]);
 
         const reloaded = { ...device, started_at: 2000 };
-        mod.call('post_logs', [device_id, id, [entry(1)], reloaded]);
+        mod.$post_logs(device_id, id, [entry(1)], reloaded);
 
         expect(view()).toEqual({ device: reloaded, entries: [entry(1)] });
         expect(mod.devices[device_id]).toMatchObject({ started_at: 2000 });
     });
 
     it('should keep the log request when it adds a command, and keep the result', () => {
-        const request_id = mod.call('request_logs', [device_id, 'info']);
-        const command_id = mod.call('send_command', [
-            device_id,
-            'settings',
-            { keys: ['app.title'] },
-        ]);
+        const request_id = mod.$request_logs(device_id, 'info');
+        const command_id = mod.$send_command(device_id, 'settings', {
+            keys: ['app.title'],
+        });
         expect(state()).toEqual({
             logs: expect.objectContaining({ id: request_id }),
             commands: [
@@ -108,7 +102,7 @@ describe('mock RemoteDebug driver', () => {
         });
 
         const result = { ok: true, data: { 'app.title': 'Panel' } };
-        mod.call('command_result', [device_id, command_id, result, device]);
+        mod.$command_result(device_id, command_id, result, device);
 
         expect(state().commands).toEqual([]);
         const results = mod[
@@ -126,14 +120,14 @@ describe('mock RemoteDebug driver', () => {
 
     it('should not add commands that are not valid', () => {
         expect(
-            mod.call('send_command', [device_id, 'navigate', { path: 'x' }]),
+            mod.$send_command(device_id, 'navigate', { path: 'x' }),
         ).toBeNull();
-        expect(mod.call('send_command', [device_id, 'run_script'])).toBeNull();
+        expect(mod.$send_command(device_id, 'run_script')).toBeNull();
         expect(state()).toBeFalsy();
     });
 
     it('should list a device that registers', () => {
-        mod.call('register', [device]);
+        mod.$register(device);
 
         expect(mod.devices[device_id]).toMatchObject({
             app: 'control',
@@ -145,18 +139,18 @@ describe('mock RemoteDebug driver', () => {
         const revoke = vi
             .spyOn(URL, 'revokeObjectURL')
             .mockImplementation(() => undefined);
-        const command_id = mod.call('send_command', [device_id, 'snapshot']);
-        mod.call('command_result', [
+        const command_id = mod.$send_command(device_id, 'snapshot');
+        mod.$command_result(
             device_id,
             command_id,
             { ok: true, data: { upload_id: 'blob:snapshot-1' } },
             device,
-        ]);
+        );
         vi.advanceTimersByTime(1);
 
         // 1,000 newer devices push out the oldest one
         for (let i = 0; i < 1000; i++) {
-            mod.call('register', [{ ...device, id: `DEV-NEW${i}` }]);
+            mod.$register({ ...device, id: `DEV-NEW${i}` });
         }
 
         expect(mod.devices[device_id]).toBeUndefined();

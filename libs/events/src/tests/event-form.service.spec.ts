@@ -18,19 +18,65 @@ import {
     Space,
     User,
 } from '@placeos/common';
-import { of, Subject, throwError } from 'rxjs';
+import { Subject } from 'rxjs';
 
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import type { Payment } from 'libs/payments/src/lib/payment.types';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { System, type SystemInput } from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    type BookingInput,
+    bookings,
+    calendars,
+    events,
+    PlaceCalendarEvent,
+    type PlaceCalendarEventInput,
+    Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 import { CalendarService } from '../lib/calendar.service';
 import { EventFormService } from '../lib/event-form.service';
+import { httpFailure } from './staff-test-data';
 
-// Only the ts-client API layer is stubbed; the real events.fn wrappers run
-// (findEventClashes is steered by stubbing the ts-client `post` beneath it).
+// Only the ts-client API layers are stubbed; the real events.fn and
+// bookings.fn wrappers run (findEventClashes is steered by stubbing the staff
+// `events.clashingAssets` beneath it).
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+/** Staff API booking with the given fields */
+const staffBooking = (data: BookingInput) => mockData(StaffBooking, data);
+/** Staff API event with the given fields */
+const staffEvent = (data: PlaceCalendarEventInput) =>
+    mockData(PlaceCalendarEvent, data);
+/** REST API system with the given fields */
+const system = (data: SystemInput) => mockData(System, data);
+
+/** Answers each booking create with the posted booking and the given id */
+const echoBookingCreate = (id: number) =>
+    vi
+        .mocked(bookings.create)
+        .mockImplementation(async (input) =>
+            mockReply(staffBooking({ ...input.body, id })),
+        );
+
+/** Result of a call that the API refused with a 400 */
+const HTTP_400 = httpFailure(400);
+
+/** Body of each booking create call */
+const createdBookings = () =>
+    vi.mocked(bookings.create).mock.calls.map(([input]) => input.body);
+
+/** Answers each booking list with the bookings for the type */
+const mockBookingLists = (lists: Record<string, BookingInput[]> = {}) =>
+    vi
+        .mocked(bookings.query)
+        .mockImplementation(async (input) =>
+            mockReply((lists[input?.type ?? ''] ?? []).map(staffBooking)),
+        );
 
 describe('EventFormService', () => {
     let service: EventFormService;
@@ -111,10 +157,18 @@ describe('EventFormService', () => {
             ],
         });
 
-        vi.mocked(ts_client.showMetadata).mockReset();
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockReset();
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         service = TestBed.inject(EventFormService);
     });
 
@@ -153,19 +207,14 @@ describe('EventFormService', () => {
                 (key: string) =>
                     key === 'app.bookings.no_approval' || undefined,
             );
-            vi.mocked<(url: string, data: object) => Promise<unknown>>(
-                ts_client.post,
-            ).mockImplementation(async (_, data) => ({
-                ...data,
-                id: 'booking-1',
-            }));
+            vi.mocked(bookings.create).mockClear();
+            echoBookingCreate(1);
         });
 
         it('should leave approval to the backend for a standard user', async () => {
             await performBooking(service);
 
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/api/staff/v1/bookings'),
+            expect(createdBookings()).toContainEqual(
                 expect.objectContaining({ approved: false }),
             );
         });
@@ -179,8 +228,7 @@ describe('EventFormService', () => {
 
             await performBooking(service);
 
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/api/staff/v1/bookings'),
+            expect(createdBookings()).toContainEqual(
                 expect.objectContaining({ approved: true }),
             );
         });
@@ -210,14 +258,8 @@ describe('EventFormService', () => {
                     end,
                 },
             });
-            const post = vi.mocked<
-                (url: string, data: object) => Promise<unknown>
-            >(ts_client.post);
-            post.mockClear();
-            post.mockImplementation(async (_, data) => ({
-                ...data,
-                id: 'booking-weekly',
-            }));
+            vi.mocked(bookings.create).mockClear();
+            echoBookingCreate(2);
 
             await (
                 service as unknown as {
@@ -228,8 +270,7 @@ describe('EventFormService', () => {
                 }
             )._performBooking(event, {});
 
-            expect(post).toHaveBeenCalledWith(
-                expect.stringContaining('/api/staff/v1/bookings'),
+            expect(createdBookings()).toContainEqual(
                 expect.objectContaining({
                     booking_type: 'room',
                     asset_id: room.id,
@@ -258,15 +299,11 @@ describe('EventFormService', () => {
                     async (event) =>
                         new CalendarEvent({ ...event, id: 'event-1' }),
                 );
-            vi.mocked<(url: string) => Promise<unknown>>(
-                ts_client.get,
-            ).mockResolvedValue([]);
-            vi.mocked(ts_client.post).mockClear();
-            vi.mocked<(url: string, data: object) => Promise<unknown>>(
-                ts_client.post,
-            ).mockResolvedValue({
-                id: 'visitor-booking-1',
-            });
+            mockBookingLists();
+            vi.mocked(bookings.create).mockClear();
+            vi.mocked(bookings.create).mockResolvedValue(
+                mockReply(staffBooking({ id: 101 })),
+            );
             const guest = new User({
                 name: 'Test Visitor',
                 email: 'visitor@example.com',
@@ -315,13 +352,16 @@ describe('EventFormService', () => {
                     (user) => user.email === guest.email,
                 )?.name,
             ).toBe(guest.name);
-            expect(ts_client.post).toHaveBeenCalledTimes(1);
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/bookings?'),
+            expect(bookings.create).toHaveBeenCalledTimes(1);
+            // The staff `Booking` schema has no `asset_name`, so the name is
+            // only in the extension data
+            expect(createdBookings()).toContainEqual(
                 expect.objectContaining({
                     booking_type: 'visitor',
                     asset_id: guest.email,
-                    asset_name: guest.name,
+                    extension_data: expect.objectContaining({
+                        name: guest.name,
+                    }),
                     attendees: [
                         expect.objectContaining({
                             email: guest.email,
@@ -354,9 +394,7 @@ describe('EventFormService', () => {
             .mockImplementation(
                 async (event) => new CalendarEvent({ ...event, id: 'event-1' }),
             );
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockResolvedValue([]);
+        mockBookingLists();
         service.newForm();
         service.model.update((model) => ({
             ...model,
@@ -433,6 +471,9 @@ describe('EventFormService', () => {
                 .spyOn(payments, 'cancel')
                 .mockResolvedValue(payment);
             const capture = vi.spyOn(payments, 'capture');
+            vi.mocked(bookings.query).mockClear();
+            vi.mocked(bookings.create).mockClear();
+            mockBookingLists();
             service.newForm();
             service.model.update((model) => ({
                 ...model,
@@ -452,12 +493,12 @@ describe('EventFormService', () => {
             expect(cancel).toHaveBeenCalledWith(payment);
             expect(capture).not.toHaveBeenCalled();
             // The payment held the catering, so it is not ordered
-            const urls = vi
-                .mocked<(url: string) => Promise<unknown>>(ts_client.get)
-                .mock.calls.map(([url]) => url);
-            expect(
-                urls.filter((url) => url.includes('catering-order')),
-            ).toEqual([]);
+            expect(bookings.query).not.toHaveBeenCalledWith(
+                expect.objectContaining({ type: 'catering-order' }),
+            );
+            expect(createdBookings()).not.toContainEqual(
+                expect.objectContaining({ booking_type: 'catering-order' }),
+            );
         },
     );
 
@@ -500,9 +541,7 @@ describe('EventFormService', () => {
                 async (email) => rooms.find((_) => _.email === email) as Space,
             );
             vi.spyOn(internals, '_performBooking').mockImplementation(save);
-            vi.mocked<(url: string) => Promise<unknown>>(
-                ts_client.get,
-            ).mockResolvedValue([]);
+            mockBookingLists();
             const payments = TestBed.inject(PaymentsService);
             vi.spyOn(payments, 'can_checkout', 'get').mockReturnValue(true);
             const spies = {
@@ -616,24 +655,17 @@ describe('EventFormService', () => {
             },
             '_performBooking',
         ).mockImplementation(async (event) => new CalendarEvent(event));
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockImplementation(async (url) =>
-            url.includes('type=visitor')
-                ? [
-                      {
-                          id: 'visitor-booking-1',
-                          booking_type: 'visitor',
-                          extension_data: { parent_id: 'event-1' },
-                      },
-                  ]
-                : [],
-        );
-        vi.mocked<(url: string, data: object) => Promise<unknown>>(
-            ts_client.post,
-        ).mockResolvedValue([]);
-        vi.mocked(ts_client.del).mockClear();
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as never);
+        mockBookingLists({
+            visitor: [
+                {
+                    id: 101,
+                    booking_type: 'visitor',
+                    extension_data: { parent_id: 'event-1' },
+                },
+            ],
+        });
+        vi.mocked(bookings.destroy).mockClear();
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
         const room = new Space({ id: 'space-1', email: 'room@test.com' });
         const date = new Date(2028, 5, 16, 16).valueOf();
         sessionStorage.setItem(
@@ -661,9 +693,8 @@ describe('EventFormService', () => {
 
         await service.postForm(true);
 
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/visitor-booking-1?'),
-            expect.anything(),
+        expect(bookings.destroy).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 101 }),
         );
     });
 
@@ -676,24 +707,18 @@ describe('EventFormService', () => {
             },
             '_performBooking',
         ).mockImplementation(async (event) => new CalendarEvent(event));
-        const get = vi.mocked<(url: string) => Promise<unknown>>(ts_client.get);
-        get.mockClear();
-        get.mockImplementation(async (url) =>
-            url.includes('type=catering-order')
-                ? [
-                      {
-                          id: 'catering-booking-1',
-                          booking_type: 'catering-order',
-                          extension_data: { parent_id: 'event-1' },
-                      },
-                  ]
-                : [],
-        );
-        vi.mocked<(url: string, data: object) => Promise<unknown>>(
-            ts_client.post,
-        ).mockResolvedValue([]);
-        vi.mocked(ts_client.del).mockClear();
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as never);
+        vi.mocked(bookings.query).mockClear();
+        mockBookingLists({
+            'catering-order': [
+                {
+                    id: 102,
+                    booking_type: 'catering-order',
+                    extension_data: { parent_id: 'event-1' },
+                },
+            ],
+        });
+        vi.mocked(bookings.destroy).mockClear();
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
         const room = new Space({ id: 'space-1', email: 'room@test.com' });
         const date = new Date(2028, 5, 16, 16).valueOf();
         sessionStorage.setItem(
@@ -722,18 +747,17 @@ describe('EventFormService', () => {
 
         await service.postForm(true);
 
-        expect(
-            get.mock.calls.some(([url]) => url.includes('type=visitor')),
-        ).toBe(true);
-        expect(
-            get.mock.calls.some(([url]) => url.includes('type=catering-order')),
-        ).toBe(false);
-        expect(ts_client.del).not.toHaveBeenCalled();
+        const types = vi
+            .mocked(bookings.query)
+            .mock.calls.map(([input]) => input?.type);
+        expect(types).toContain('visitor');
+        expect(types).not.toContain('catering-order');
+        expect(bookings.destroy).not.toHaveBeenCalled();
     });
 
     it('should recreate the visitor booking when the host change moves the event', async () => {
         const old_booking = {
-            id: 'visitor-booking-1',
+            id: 101,
             booking_type: 'visitor',
             user_email: 'host@test.com',
             extension_data: { parent_id: 'event-1' },
@@ -754,18 +778,13 @@ describe('EventFormService', () => {
                     linked_bookings: [old_booking] as never,
                 }),
         );
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockImplementation(async (url) =>
-            url.includes('type=visitor') ? [old_booking] : [],
+        mockBookingLists({ visitor: [old_booking] });
+        vi.mocked(bookings.create).mockClear();
+        vi.mocked(bookings.create).mockResolvedValue(
+            mockReply(staffBooking({ id: 103 })),
         );
-        const post = vi.mocked<(url: string, data: object) => Promise<unknown>>(
-            ts_client.post,
-        );
-        post.mockClear();
-        post.mockResolvedValue({ id: 'visitor-booking-2' });
-        vi.mocked(ts_client.del).mockClear();
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as never);
+        vi.mocked(bookings.destroy).mockClear();
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
         const room = new Space({ id: 'space-1', email: 'room@test.com' });
         const date = new Date(2028, 5, 16, 16).valueOf();
         sessionStorage.setItem(
@@ -801,14 +820,13 @@ describe('EventFormService', () => {
 
         await service.postForm(true);
 
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/visitor-booking-1?'),
-            expect.anything(),
+        expect(bookings.destroy).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 101 }),
         );
-        const created = post.mock.calls.find(([url]) =>
-            url.includes('event_id=event-2'),
-        );
-        expect(created?.[1]).toMatchObject({
+        const created = vi
+            .mocked(bookings.create)
+            .mock.calls.find(([input]) => input.event_id === 'event-2');
+        expect(created?.[0].body).toMatchObject({
             booking_type: 'visitor',
             user_email: 'new.host@test.com',
             extension_data: { parent_id: 'event-2' },
@@ -880,33 +898,31 @@ describe('EventFormService', () => {
         };
 
         it('should not load booking rules until a form opens', async () => {
-            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
-                of({ data: [] }) as unknown as ReturnType<
-                    typeof ts_client.querySystems
-                >,
+            vi.mocked(ts_client.systems.query).mockResolvedValueOnce(
+                mockPage({ data: [] }),
             );
             makeRequestsReady('bld-1');
             TestBed.tick();
             // Wait longer than the 300ms zone debounce
             await new Promise((resolve) => setTimeout(resolve, 350));
             TestBed.tick();
-            expect(ts_client.showMetadata).not.toHaveBeenCalled();
+            expect(ts_client.metadata.show).not.toHaveBeenCalled();
 
             service.newForm();
 
             await vi.waitFor(() => {
                 TestBed.tick();
-                expect(ts_client.showMetadata).toHaveBeenCalledWith(
-                    'bld-1',
-                    'room_booking_rules',
-                );
+                expect(ts_client.metadata.show).toHaveBeenCalledWith({
+                    id: 'bld-1',
+                    name: 'room_booking_rules',
+                });
             });
         });
 
         it('should list only bookable rooms with an email and no external booking link', async () => {
             const zone = 'bld-space-list';
-            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
-                of({
+            vi.mocked(ts_client.systems.query).mockResolvedValueOnce(
+                mockPage({
                     data: [
                         { id: 'room-1', bookable: true, email: 'r1@test.com' },
                         { id: 'room-2', bookable: false, email: 'r2@test.com' },
@@ -917,8 +933,8 @@ describe('EventFormService', () => {
                             email: 'r4@test.com',
                             room_booking_url: 'https://rooms.example.com',
                         },
-                    ],
-                }) as unknown as ReturnType<typeof ts_client.querySystems>,
+                    ].map(system),
+                }),
             );
             makeRequestsReady(zone);
             service.newForm();
@@ -935,10 +951,8 @@ describe('EventFormService', () => {
         });
 
         it('should flag a failed room list load', async () => {
-            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
-                throwError(() => new Error('offline')) as unknown as ReturnType<
-                    typeof ts_client.querySystems
-                >,
+            vi.mocked(ts_client.systems.query).mockRejectedValueOnce(
+                new Error('offline'),
             );
             makeRequestsReady('bld-space-list-error');
             service.newForm();
@@ -1076,21 +1090,23 @@ describe('EventFormService', () => {
                 )._space_pipe,
                 'transform',
             ).mockResolvedValue(space);
-            // The client overload includes text responses; these endpoints return JSON.
-            vi.mocked(ts_client.get).mockImplementation((async (
-                path: string,
-            ) =>
-                path.includes('/free_busy')
-                    ? [
-                          {
-                              id: space.email,
-                              resource: space,
-                              availability: [
-                                  { date, duration: 60, status: 'busy' },
-                              ],
-                          },
-                      ]
-                    : []) as unknown as typeof ts_client.get);
+            vi.mocked(calendars.freeBusy).mockClear();
+            vi.mocked(calendars.freeBusy).mockResolvedValue(
+                mockReply([
+                    {
+                        id: space.email,
+                        system: null,
+                        availability: [
+                            {
+                                status: 'busy',
+                                starts_at: date / 1000,
+                                ends_at: date / 1000 + 3600,
+                                timezone: 'UTC',
+                            },
+                        ],
+                    },
+                ]),
+            );
             const save = vi
                 .spyOn(
                     service as unknown as {
@@ -1118,9 +1134,7 @@ describe('EventFormService', () => {
                 }),
             );
             expect(save).not.toHaveBeenCalled();
-            expect(ts_client.get).not.toHaveBeenCalledWith(
-                expect.stringContaining('/free_busy'),
-            );
+            expect(calendars.freeBusy).not.toHaveBeenCalled();
         },
     );
 
@@ -1851,18 +1865,23 @@ describe('EventFormService', () => {
             true,
         );
         vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(true);
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [{ id: 'asset-type-1', name: 'Projectors' }],
-            total: 1,
-        } as any);
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({
-            data: [{ id: 'asset-1', asset_type_id: 'asset-type-1' }],
-            total: 1,
-        } as any);
-        vi.mocked(ts_client.post).mockResolvedValue({
-            id: 'asset-booking-1',
-        } as any);
+        mockBookingLists();
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'asset-type-1', name: 'Projectors' }],
+                total: 1,
+            } as any),
+        );
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'asset-1', asset_type_id: 'asset-type-1' }],
+                total: 1,
+            } as any),
+        );
+        vi.mocked(bookings.create).mockClear();
+        vi.mocked(bookings.create).mockResolvedValue(
+            mockReply(staffBooking({ id: 104 })),
+        );
         vi.spyOn(service as any, '_performBooking').mockResolvedValue(
             new CalendarEvent({
                 id: 'event-1',
@@ -1899,13 +1918,12 @@ describe('EventFormService', () => {
         await expect(service.postForm(true)).resolves.toMatchObject({
             id: 'event-1',
         });
-        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith(
+        expect(ts_client.asset_types.query).toHaveBeenCalledWith(
             expect.objectContaining({
                 zone_id: 'org-1,reg-1,bld-1',
             }),
         );
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings?'),
+        expect(createdBookings()).toContainEqual(
             expect.objectContaining({
                 asset_id: 'asset-1',
                 asset_ids: ['asset-1'],
@@ -1915,17 +1933,15 @@ describe('EventFormService', () => {
 
     it('should remove a new room booking when its asset request fails', async () => {
         prepareRoomAssetBooking(['asset-1']);
-        vi.mocked(ts_client.post).mockRejectedValue({
-            status: 400,
-        });
-        vi.mocked(ts_client.del).mockResolvedValue(undefined);
+        vi.mocked(bookings.create).mockResolvedValue(HTTP_400);
+        vi.mocked(events.destroy).mockClear();
+        vi.mocked(events.destroy).mockResolvedValue(mockReply(''));
 
         await expect(service.postForm(true)).rejects.toBe(
             i18n('CALENDAR_EVENT.ASSETS_ERROR'),
         );
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/events/event-1?'),
-            expect.objectContaining({ response_type: 'void' }),
+        expect(events.destroy).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 'event-1' }),
         );
     });
 
@@ -1940,18 +1956,17 @@ describe('EventFormService', () => {
                 resources: [new Space({ id: 'space-1', zones: ['bld-1'] })],
             }),
         );
-        vi.mocked(ts_client.post).mockClear();
-        vi.mocked(ts_client.post).mockRejectedValue({ status: 400 });
-        vi.mocked(ts_client.del).mockClear();
+        vi.mocked(bookings.create).mockClear();
+        vi.mocked(bookings.create).mockResolvedValue(HTTP_400);
+        vi.mocked(events.destroy).mockClear();
 
         await expect(service.postForm(true)).rejects.toBe(
             i18n('CALENDAR_EVENT.ASSETS_PARTIAL_ERROR'),
         );
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings?'),
+        expect(createdBookings()).toContainEqual(
             expect.objectContaining({ asset_id: 'asset-1' }),
         );
-        expect(ts_client.del).not.toHaveBeenCalled();
+        expect(events.destroy).not.toHaveBeenCalled();
     });
 
     it('should not save a meeting with external guests and no room', async () => {
@@ -2001,13 +2016,9 @@ describe('EventFormService', () => {
                     resources: [room],
                 }),
             );
-            vi.mocked<(url: string) => Promise<unknown>>(
-                ts_client.get,
-            ).mockResolvedValue([]);
-            vi.mocked(ts_client.post).mockClear();
-            vi.mocked<(url: string, data: object) => Promise<unknown>>(
-                ts_client.post,
-            ).mockImplementation(async (_, data) => ({ ...data, id: 'b-1' }));
+            mockBookingLists();
+            vi.mocked(bookings.create).mockClear();
+            echoBookingCreate(105);
             sessionStorage.setItem(
                 'PLACEOS.event',
                 JSON.stringify(
@@ -2057,8 +2068,7 @@ describe('EventFormService', () => {
             await postCateredForm('');
 
             expect(place_orders).toHaveBeenCalledTimes(1);
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/bookings?'),
+            expect(createdBookings()).toContainEqual(
                 expect.objectContaining({
                     booking_type: 'catering-order',
                     extension_data: expect.objectContaining({
@@ -2075,8 +2085,7 @@ describe('EventFormService', () => {
             await postCateredForm('event-1');
 
             expect(place_orders).not.toHaveBeenCalled();
-            expect(ts_client.post).not.toHaveBeenCalledWith(
-                expect.anything(),
+            expect(createdBookings()).not.toContainEqual(
                 expect.objectContaining({ booking_type: 'catering-order' }),
             );
         });
@@ -2361,12 +2370,10 @@ describe('EventFormService', () => {
                 async (event) =>
                     new CalendarEvent({ ...(event as any), id: 'event-1' }),
             );
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockResolvedValue([]);
-        vi.mocked<(url: string, data: object) => Promise<unknown>>(
-            ts_client.post,
-        ).mockResolvedValue({});
+        mockBookingLists();
+        vi.mocked(bookings.create).mockResolvedValue(
+            mockReply(staffBooking({ id: 106 })),
+        );
         vi.spyOn((service as any)._space_pipe, 'transform').mockImplementation(
             async (email: string) => resources.find((_) => _.email === email),
         );
@@ -2606,9 +2613,23 @@ describe('EventFormService', () => {
         // The booking panel submits bookings before the reactive rules
         // resource has loaded, so the rules metadata must be fetched on
         // demand and still block hidden rooms.
-        vi.mocked(ts_client.showMetadata).mockResolvedValueOnce({
-            details: [{ zone: '*', conditions: {}, rules: { hidden: true } }],
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementationOnce(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [
+                            {
+                                zone: '*',
+                                conditions: {},
+                                rules: { hidden: true },
+                            },
+                        ],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         const space = {
             id: 'space-1',
             email: 'space-1@example.com',
@@ -2624,16 +2645,30 @@ describe('EventFormService', () => {
                 currentUser().email,
             ),
         ).rejects.toBe(i18n('CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN'));
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            'room_booking_rules',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-1',
+            name: 'room_booking_rules',
+        });
     });
 
     it('should allow bookings when on-demand rules do not hide the room', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValueOnce({
-            details: [{ zone: '*', conditions: {}, rules: { hidden: false } }],
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementationOnce(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [
+                            {
+                                zone: '*',
+                                conditions: {},
+                                rules: { hidden: false },
+                            },
+                        ],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         const space = {
             id: 'space-1',
             email: 'space-1@example.com',
@@ -2723,16 +2758,24 @@ describe('EventFormService', () => {
                     zone_lists.some((zones) => zones.includes(building.id)),
                 ),
         );
-        vi.mocked(ts_client.showMetadata).mockImplementation((id: string) =>
-            Promise.resolve({
-                details: [
-                    {
-                        zone: '*',
-                        conditions: {},
-                        rules: { hidden: id === 'bld-2' },
-                    },
-                ],
-            } as unknown as Awaited<ReturnType<typeof ts_client.showMetadata>>),
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                (id: string) =>
+                    Promise.resolve({
+                        details: [
+                            {
+                                zone: '*',
+                                conditions: {},
+                                rules: { hidden: id === 'bld-2' },
+                            },
+                        ],
+                    } as unknown as Awaited<
+                        ReturnType<typeof ts_client.metadata.show>
+                    >),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
         const spaces = [
             new Space({ id: 'space-1', zones: ['bld-1'] }),
@@ -2756,28 +2799,31 @@ describe('EventFormService', () => {
                 currentUser().email,
             ),
         ).rejects.toBe(i18n('CALENDAR_EVENT.SPACE_BOOKING_RULES_HIDDEN'));
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            'room_booking_rules',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-2',
-            'room_booking_rules',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-1',
+            name: 'room_booking_rules',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-2',
+            name: 'room_booking_rules',
+        });
     });
 
     it('should block recurring room bookings that clash by default', async () => {
         const date = new Date(2028, 5, 15, 10, 0, 0, 0).valueOf();
-        // Real findEventClashes runs; stub the ts-client POST beneath it so
+        // Real findEventClashes runs; stub the staff operation beneath it so
         // it returns a clash on a later instance (not the first one).
-        vi.mocked(ts_client.post).mockClear();
-        vi.mocked(ts_client.post).mockResolvedValue([
-            {
-                asset_id: 'space-1',
-                booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
-                booking_end: Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
-            },
-        ] as any);
+        vi.mocked(events.clashingAssets).mockClear();
+        vi.mocked(events.clashingAssets).mockResolvedValue(
+            mockReply([
+                {
+                    asset_id: 'space-1',
+                    booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
+                    booking_end:
+                        Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
+                },
+            ]),
+        );
         const event = new CalendarEvent({
             id: 'event-1',
             date,
@@ -2815,32 +2861,33 @@ describe('EventFormService', () => {
                 }
             )._checkRecurringClashes(event),
         ).rejects.toBe(i18n('CALENDAR_EVENT.RECURRING_CLASHES_NOT_ALLOWED'));
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('clashing-assets'),
+        expect(events.clashingAssets).toHaveBeenCalledWith(
             expect.objectContaining({
-                attendees: expect.arrayContaining([
-                    expect.objectContaining({
-                        email: 'space-1@example.com',
-                        resource: true,
-                    }),
-                    expect.objectContaining({
-                        email: 'space-2@example.com',
-                        resource: true,
-                    }),
-                ]),
+                body: expect.objectContaining({
+                    attendees: expect.arrayContaining([
+                        expect.objectContaining({
+                            email: 'space-1@example.com',
+                            resource: true,
+                        }),
+                        expect.objectContaining({
+                            email: 'space-2@example.com',
+                            resource: true,
+                        }),
+                    ]),
+                }),
             }),
         );
         expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
     });
 
     it('should remove the old room from the attendees when the room changes', async () => {
-        vi.mocked<(url: string, data: object) => Promise<unknown>>(
-            ts_client.post,
-        ).mockImplementation(async (_, data) => ({ ...data, id: 'event-1' }));
+        vi.mocked(events.create).mockImplementation(async (input) =>
+            mockReply(staffEvent({ ...input.body, id: 'event-1' })),
+        );
         const event = new CalendarEvent({
             date: new Date(2028, 5, 18, 9).valueOf(),
             duration: 60,
-            old_system: new ts_client.PlaceSystem({
+            old_system: system({
                 id: 'sys-old',
                 email: 'old-room@dev.place.tech',
             }),

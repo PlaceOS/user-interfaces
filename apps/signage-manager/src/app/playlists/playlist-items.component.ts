@@ -27,15 +27,16 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    SignageMedia,
-    SignagePlaylistItemSchedule,
-    type SignagePlaylistSchedule,
+    type PlaylistItem,
+    type PlaylistItemSchedule,
+    type PlaylistSchedule,
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { scheduleSummary } from '../shared/schedule-summary.util';
 import { storedSignal } from '../shared/stored-signal';
 import { SignageContextService } from '../signage-context.service';
+import { playlistItemSchedule } from '../signage-models';
 import {
     playlistLoopDuration,
     playlistNextPlayTime,
@@ -857,12 +858,12 @@ export class PlaylistItemsComponent {
         if (playlist) this._playlist_service.pickMediaForPlaylist(playlist);
     }
 
-    public selectItem(item: SignageMedia, index: number) {
+    public selectItem(item: PlaylistItem, index: number) {
         this._playlist_service.selected_playlist_item.set(item);
         this._playlist_service.selected_playlist_item_index.set(index);
     }
 
-    public isItemSelected(item: SignageMedia, index: number) {
+    public isItemSelected(item: PlaylistItem, index: number) {
         return (
             this.selected_item()?.id === item.id &&
             this.selected_item_index() === index
@@ -891,10 +892,10 @@ export class PlaylistItemsComponent {
      * Schedule of the item at an index. Distribution items are schedule
      * item ids, so each copy of a media item has its own schedule.
      */
-    public itemSchedule(item: SignageMedia, index = -1) {
+    public itemSchedule(item: PlaylistItem, index = -1) {
         return (
             this.item_schedules().get(this._itemId(item, index)) ||
-            new SignagePlaylistItemSchedule({
+            playlistItemSchedule({
                 item_id: item.id,
                 media: item,
             })
@@ -905,7 +906,7 @@ export class PlaylistItemsComponent {
         this.sort_by_next_play.update((sorted) => !sorted);
     }
 
-    public scheduleLabel(schedule: Partial<SignagePlaylistSchedule>) {
+    public scheduleLabel(schedule: Partial<PlaylistSchedule>) {
         return scheduleSummary(schedule, this._locale.locale);
     }
 
@@ -922,7 +923,7 @@ export class PlaylistItemsComponent {
             ),
     );
 
-    public scheduleTooltip(schedule: Partial<SignagePlaylistSchedule>) {
+    public scheduleTooltip(schedule: Partial<PlaylistSchedule>) {
         const labels = playlistScheduleNextPlayLabels(schedule);
         const expiry = playlistScheduleExpiryTooltip(schedule);
         return [
@@ -934,16 +935,16 @@ export class PlaylistItemsComponent {
         ].join('\n');
     }
 
-    public scheduleKey(item: SignageMedia, index: number) {
+    public scheduleKey(item: PlaylistItem, index: number) {
         const schedule = this.itemSchedule(item, index);
         return `${schedule.id || schedule.item_id || item.id}:${index}`;
     }
 
-    public schedulesOpen(item: SignageMedia, index: number) {
+    public schedulesOpen(item: PlaylistItem, index: number) {
         return !this.collapsed_schedules()[this.scheduleKey(item, index)];
     }
 
-    public toggleSchedules(event: Event, item: SignageMedia, index: number) {
+    public toggleSchedules(event: Event, item: PlaylistItem, index: number) {
         event.preventDefault();
         event.stopPropagation();
         const key = this.scheduleKey(item, index);
@@ -975,11 +976,11 @@ export class PlaylistItemsComponent {
         this.collapsed_schedules.set(collapsed);
     }
 
-    public previewItem(item: SignageMedia) {
+    public previewItem(item: PlaylistItem) {
         this._media_preview.previewMedia(item);
     }
 
-    public editItemSchedule(schedule: SignagePlaylistItemSchedule) {
+    public editItemSchedule(schedule: PlaylistItemSchedule) {
         this._playlist_service.editPlaylistItemSchedules([schedule]);
     }
 
@@ -992,7 +993,7 @@ export class PlaylistItemsComponent {
         }
     }
 
-    public async removeItem(item: SignageMedia, item_index: number) {
+    public async removeItem(item: PlaylistItem, item_index: number) {
         const playlist = this.selected_playlist();
         if (!playlist?.id || !item?.id) return;
         await this._playlist_service.removeMediaFromPlaylist(
@@ -1024,7 +1025,7 @@ export class PlaylistItemsComponent {
     }
 
     /** Saved item id of the item at an index */
-    private _itemId(item: SignageMedia, index: number) {
+    private _itemId(item: PlaylistItem, index: number) {
         return this._entries()[index]?.id || item.id;
     }
 
@@ -1032,7 +1033,7 @@ export class PlaylistItemsComponent {
         this._playlist_service.reloadPlaylistMedia();
     }
 
-    public async onDrop(event: CdkDragDrop<SignageMedia[]>) {
+    public async onDrop(event: CdkDragDrop<PlaylistItem[]>) {
         await this._reorder(event.previousIndex, event.currentIndex);
     }
 

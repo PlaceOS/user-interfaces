@@ -6,7 +6,8 @@ import {
     unique,
 } from '@placeos/common';
 import { queryEventsOrThrow } from '@placeos/events';
-import { querySystemsWithEmails } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
 export interface GroupEventOptions {
@@ -81,7 +82,9 @@ export class GroupEventsStateService {
                 failed = true;
                 return null;
             };
-            const sys = await querySystemsWithEmails({ in: this.calendar })
+            const sys = await systems
+                .findByEmail({ in: this.calendar })
+                .then(orThrowPage)
                 .then((r) => r.data?.[0])
                 .catch(onError);
             const list = sys

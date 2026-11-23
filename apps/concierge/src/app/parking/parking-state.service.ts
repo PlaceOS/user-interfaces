@@ -59,7 +59,8 @@ import {
     User,
 } from '@placeos/common';
 import { openConfirmModal, runBulkAction } from '@placeos/components';
-import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
+import { type QueryResponse } from '@placeos/ts-client/compat';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
@@ -99,7 +100,7 @@ export interface ParkingOptions {
     request_filter: ParkingRequestFilter;
 }
 
-export type ParkingSpace = PlaceAsset;
+export type ParkingSpace = Asset;
 
 export type { ParkingFleetVehicle, ParkingUser } from '@placeos/assets';
 
@@ -231,7 +232,7 @@ export class ParkingStateService extends AsyncHandler {
      */
     private readonly _recent_level_spaces = new Map<
         string,
-        { at: number; request: Promise<PlaceAsset[]> }
+        { at: number; request: Promise<Asset[]> }
     >();
 
     private _takeRecentLevelSpaces(zone_id: string) {
@@ -789,7 +790,7 @@ export class ParkingStateService extends AsyncHandler {
             const zones = assetZones(this._org, zone_id);
             let success_count = 0;
             let error_count = 0;
-            const saved_spaces: PlaceAsset[] = [];
+            const saved_spaces: Asset[] = [];
             const loaded_spaces = new Map(
                 this.spaces().map((space) => [space.id, space]),
             );
@@ -1376,7 +1377,7 @@ export class ParkingStateService extends AsyncHandler {
             await this._createAssignedParkingBooking(
                 resource,
                 resource.assigned_to,
-                unique(resource.zones || []).filter((_) => _),
+                unique([...(resource.zones || [])]).filter((_) => _),
             ),
         );
     }
@@ -1423,7 +1424,7 @@ export class ParkingStateService extends AsyncHandler {
      * lags new records by about a second, so a reload straight after a create
      * misses them. Setting the value also cancels that stale reload.
      */
-    private _upsertSpaces(saved: PlaceAsset[]) {
+    private _upsertSpaces(saved: Asset[]) {
         if (!saved.length) return;
         const zone_ids = this._spaces_params_debounced.value()?.zone_ids || [];
         const by_id = new Map(saved.map((space) => [space.id, space]));

@@ -9,10 +9,14 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { SpacesService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import { Booking as StaffBooking, bookings } from '@placeos/ts-client/staff';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('AssetManagerStateService', () => {
     let spectator: SpectatorService<AssetManagerStateService>;
@@ -50,36 +54,58 @@ describe('AssetManagerStateService', () => {
         // The workspace asset/booking wrappers cannot be spied under this
         // builder, so stub the ts-client primitives they call with safe
         // defaults. Individual tests override these as needed.
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        vi.mocked(ts_client.queryAssetPurchaseOrders).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
-        vi.mocked(ts_client.showAssetType).mockResolvedValue({} as any);
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.post).mockResolvedValue({} as any);
-        vi.mocked(ts_client.patch).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAsset).mockResolvedValue({
-            id: 'asset-1',
-        } as any);
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        vi.mocked(ts_client.asset_purchase_orders.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.asset_types.show).mockResolvedValue(
+            mockReply({} as any),
+        );
+        // @placeos/bookings calls the staff `bookings` operations
+        vi.mocked(bookings.query).mockResolvedValue(mockPage({ data: [] }));
+        vi.mocked(bookings.update).mockResolvedValue(
+            mockReply(mockData(StaffBooking, { id: 1 })),
+        );
+        vi.mocked(ts_client.assets.create).mockResolvedValue(
+            mockReply({
+                id: 'asset-1',
+            } as any),
+        );
         spectator = createService();
     });
 
@@ -102,8 +128,8 @@ describe('AssetManagerStateService', () => {
     it('should load only the lists that a view uses', async () => {
         TestBed.flushEffects();
         await new Promise((resolve) => setTimeout(resolve, 20));
-        expect(ts_client.queryAssetPurchaseOrders).not.toHaveBeenCalled();
-        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+        expect(ts_client.asset_purchase_orders.query).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.query).not.toHaveBeenCalled();
 
         TestBed.runInInjectionContext(() =>
             spectator.service.use('purchase_orders'),
@@ -111,29 +137,38 @@ describe('AssetManagerStateService', () => {
         TestBed.flushEffects();
         await new Promise((resolve) => setTimeout(resolve, 20));
 
-        expect(ts_client.queryAssetPurchaseOrders).toHaveBeenCalledTimes(1);
-        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
+        expect(ts_client.asset_purchase_orders.query).toHaveBeenCalledTimes(1);
+        expect(ts_client.asset_categories.query).not.toHaveBeenCalled();
     });
 
     it('should group loaded products by category', async () => {
         // getGroupsWithAssets -> queryAssetTypes filters by visible category
         // ids, so both categories must be returned by queryAssetCategories.
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [
-                { id: 'g1', name: 'Chair', category_id: 'cat-1', assets: [] },
-                { id: 'g2', name: 'Desk', category_id: '', assets: [] },
-            ],
-            total: 2,
-            next: null,
-        } as any);
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [
-                { id: 'cat-1', name: 'Furniture' },
-                { id: '', name: 'Uncategorised' },
-            ],
-            total: 2,
-            next: null,
-        } as any);
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'g1',
+                        name: 'Chair',
+                        category_id: 'cat-1',
+                        assets: [],
+                    },
+                    { id: 'g2', name: 'Desk', category_id: '', assets: [] },
+                ],
+                total: 2,
+                next: null,
+            } as any),
+        );
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'cat-1', name: 'Furniture' },
+                    { id: '', name: 'Uncategorised' },
+                ],
+                total: 2,
+                next: null,
+            } as any),
+        );
         TestBed.runInInjectionContext(() =>
             spectator.service.use('products', 'categories'),
         );
@@ -151,24 +186,33 @@ describe('AssetManagerStateService', () => {
     });
 
     it('should filter loaded products by the search option', async () => {
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [
-                { id: 'g1', name: 'Office Chair', category_id: '', assets: [] },
-                {
-                    id: 'g2',
-                    name: 'Standing Desk',
-                    category_id: '',
-                    assets: [],
-                },
-            ],
-            total: 2,
-            next: null,
-        } as any);
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [{ id: '', name: 'Uncategorised' }],
-            total: 1,
-            next: null,
-        } as any);
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'g1',
+                        name: 'Office Chair',
+                        category_id: '',
+                        assets: [],
+                    },
+                    {
+                        id: 'g2',
+                        name: 'Standing Desk',
+                        category_id: '',
+                        assets: [],
+                    },
+                ],
+                total: 2,
+                next: null,
+            } as any),
+        );
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: '', name: 'Uncategorised' }],
+                total: 1,
+                next: null,
+            } as any),
+        );
         TestBed.runInInjectionContext(() =>
             spectator.service.use('products', 'categories'),
         );
@@ -184,71 +228,66 @@ describe('AssetManagerStateService', () => {
     });
 
     it('should approve bookings when setting an approved status', async () => {
-        // approveBooking -> post(<endpoint>/<id>/approve, '')
-        vi.mocked(ts_client.post).mockResolvedValue({
-            id: 'b-1',
-            status: 'approved',
-        } as any);
-        const item = { id: 'b-1' } as any;
+        // approveBooking -> bookings.approve({ id })
+        vi.mocked(bookings.approve).mockResolvedValue(
+            mockReply(
+                mockData(StaffBooking, {
+                    id: 1,
+                    approved: true,
+                    // In the future, so the booking has not ended
+                    booking_start: Math.floor(Date.now() / 1000) + 3600,
+                    booking_end: Math.floor(Date.now() / 1000) + 7200,
+                }),
+            ),
+        );
+        const item = { id: '1' } as any;
 
         const result = await spectator.service.setStatus(item, 'approved');
 
-        expect(ts_client.post).toHaveBeenCalledWith(
-            '/api/staff/v1/bookings/b-1/approve',
-            '',
-        );
-        expect(ts_client.post).not.toHaveBeenCalledWith(
-            '/api/staff/v1/bookings/b-1/reject',
-            '',
-        );
+        expect(bookings.approve).toHaveBeenCalledWith({ id: 1 });
+        expect(bookings.reject).not.toHaveBeenCalled();
         expect(result).toEqual(expect.objectContaining({ status: 'approved' }));
     });
 
     it('should reject bookings when setting a declined status', async () => {
-        vi.mocked(ts_client.post).mockResolvedValue({
-            id: 'b-1',
-            status: 'declined',
-        } as any);
-        const item = { id: 'b-1' } as any;
+        vi.mocked(bookings.reject).mockResolvedValue(
+            mockReply(mockData(StaffBooking, { id: 1, rejected: true })),
+        );
+        const item = { id: '1' } as any;
 
         await spectator.service.setStatus(item, 'declined');
 
-        expect(ts_client.post).toHaveBeenCalledWith(
-            '/api/staff/v1/bookings/b-1/reject',
-            '',
-        );
-        expect(ts_client.post).not.toHaveBeenCalledWith(
-            '/api/staff/v1/bookings/b-1/approve',
-            '',
-        );
+        expect(bookings.reject).toHaveBeenCalledWith({ id: 1 });
+        expect(bookings.approve).not.toHaveBeenCalled();
     });
 
     it('should persist tracking state onto the booking extension data', async () => {
-        vi.mocked(ts_client.patch).mockResolvedValue({ id: 'b-1' } as any);
         const item = {
-            id: 'b-1',
+            id: '1',
             extension_data: { existing: true },
-            toJSON: () => ({ id: 'b-1', name: 'Booking' }),
+            toJSON: () => ({ id: '1', title: 'Booking' }),
         } as any;
 
         await spectator.service.setTracking(item, 'in_transit');
 
-        // updateBooking -> patch(<endpoint>/<id>, withAppVersion(data))
-        expect(ts_client.patch).toHaveBeenCalledWith(
-            '/api/staff/v1/bookings/b-1',
-            expect.objectContaining({
+        // updateBooking -> bookings.update({ id, body })
+        expect(bookings.update).toHaveBeenCalledWith({
+            id: 1,
+            body: expect.objectContaining({
                 extension_data: expect.objectContaining({
                     existing: true,
                     tracking: 'in_transit',
                 }),
             }),
-        );
+        });
     });
 
     it('should save the asset form model with non-core fields moved to other_data', async () => {
-        vi.mocked(ts_client.addAsset).mockResolvedValue({
-            id: 'asset-1',
-        } as any);
+        vi.mocked(ts_client.assets.create).mockResolvedValue(
+            mockReply({
+                id: 'asset-1',
+            } as any),
+        );
         // Drive the real signal form: asset_type_id makes it valid, extra
         // fields (warranty, serial_number) must land in other_data.
         (spectator.service.model as any).set({
@@ -271,13 +310,13 @@ describe('AssetManagerStateService', () => {
         const id = await spectator.service.postForm();
 
         // saveAsset -> addAsset for new (id-less) assets
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 name: 'Chair',
                 other_data: expect.objectContaining({ warranty: '2 years' }),
             }),
-        );
-        const saved = vi.mocked(ts_client.addAsset).mock.calls[0][0];
+        });
+        const saved = vi.mocked(ts_client.assets.create).mock.calls[0][0].body;
         expect(saved.other_data).not.toHaveProperty('name');
         expect(saved.other_data).not.toHaveProperty('id');
         expect(id).toBe('asset-1');
@@ -290,7 +329,7 @@ describe('AssetManagerStateService', () => {
 
         await spectator.service.postForm();
 
-        expect(ts_client.addAsset).not.toHaveBeenCalled();
+        expect(ts_client.assets.create).not.toHaveBeenCalled();
     });
 
     it('should return a stop callback when polling starts', () => {

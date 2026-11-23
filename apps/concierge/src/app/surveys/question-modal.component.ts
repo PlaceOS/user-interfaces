@@ -7,12 +7,13 @@ import {
 } from '@angular/material/dialog';
 import { notifySuccess } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
-    addQuestion,
-    SurveyQuestion,
-    updateQuestion,
-} from '@placeos/ts-client';
+    type SurveyQuestion,
+    surveys_questions,
+} from '@placeos/ts-client/staff';
 import { QuestionComponent } from './question.component';
+import { type QuestionDraft, questionDraft } from './types';
 
 @Component({
     selector: 'question-modal',
@@ -65,18 +66,20 @@ import { QuestionComponent } from './question.component';
     ],
 })
 export class QuestionModalComponent implements OnInit {
-    private _data: SurveyQuestion = inject(MAT_DIALOG_DATA);
+    private _data: Partial<SurveyQuestion | QuestionDraft> =
+        inject(MAT_DIALOG_DATA);
     private _dialog_ref = inject(MatDialogRef<QuestionModalComponent>);
 
     public readonly question_el = viewChild<QuestionComponent>('question_el');
 
     public readonly is_edit = signal(false);
     public readonly loading = signal(false);
-    public readonly question = signal<SurveyQuestion | undefined>(undefined);
+    public readonly question = signal<QuestionDraft | undefined>(undefined);
 
     public ngOnInit() {
         this.is_edit.set(!!(this._data?.id > 0));
-        this.question.set(this._data || new SurveyQuestion({ type: 'text' }));
+        // Edit a copy, so that a cancelled edit does not change the list
+        this.question.set(questionDraft(this._data || { type: 'text' }));
     }
 
     public async save() {
@@ -84,8 +87,15 @@ export class QuestionModalComponent implements OnInit {
         if (!question_el?.valid()) return;
         this.loading.set(true);
         const call = this.is_edit()
-            ? updateQuestion(`${this.question().id}`, question_el.question())
-            : addQuestion(question_el.question());
+            ? surveys_questions
+                  .update({
+                      id: this.question().id,
+                      body: question_el.question(),
+                  })
+                  .then(orThrow)
+            : surveys_questions
+                  .create({ body: question_el.question() })
+                  .then(orThrow);
         await call;
         this._dialog_ref.close(true);
         notifySuccess('Successfully updated question bank.');

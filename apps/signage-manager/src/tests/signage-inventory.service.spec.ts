@@ -6,16 +6,20 @@ import {
     listSignagePlaylistMedia,
     PlaceSystem,
     PlaceZone,
-    query,
-    querySignageMedia,
-    querySignagePlaylists,
-    queryZones,
-    showSignageMedia,
-    SignageMedia,
+    playlist,
+    playlist_media,
     SignagePlaylist,
+    systems,
+    zones,
 } from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
 import { SignageContextService } from '../app/signage-context.service';
 import { SignageInventoryService } from '../app/signage-inventory.service';
+import {
+    signageMedia,
+    signagePlaylist,
+    signageSystem,
+} from '../app/signage-models';
 
 type SignageInventoryServiceTestAccess = SignageInventoryService &
     Record<string, unknown>;
@@ -64,17 +68,17 @@ describe('SignageInventoryService', () => {
             'canQueryLists',
         ).mockReturnValue(true);
         const empty_page = { data: [], total: 0, next: null };
-        vi.mocked(querySignagePlaylists).mockResolvedValue(empty_page as never);
-        vi.mocked(queryZones).mockResolvedValue(empty_page as never);
-        vi.mocked(query).mockImplementation(((params: {
-            fn: (raw: Partial<PlaceSystem>) => PlaceSystem;
-        }) =>
-            Promise.resolve({
+        vi.mocked(playlist.query).mockResolvedValue(
+            mockPage(empty_page as never),
+        );
+        vi.mocked(zones.query).mockResolvedValue(mockPage(empty_page as never));
+        vi.mocked(systems.query).mockResolvedValue(
+            mockPage({
                 // A saved name of `R&amp;D`, encoded once by the backend
-                data: [params.fn({ id: 'd1', name: 'R&amp;amp;D' })],
+                data: [signageSystem({ id: 'd1', name: 'R&amp;amp;D' })],
                 total: 1,
-                next: null,
-            })) as unknown as typeof query);
+            }),
+        );
 
         const { displays } = await service.loadSignageInventory();
 
@@ -88,27 +92,31 @@ describe('SignageInventoryService', () => {
         const context = TestBed.inject(SignageContextService);
         vi.spyOn(context, 'canQueryLists').mockReturnValue(true);
         const empty_page = { data: [], total: 0, next: null };
-        vi.mocked(querySignagePlaylists).mockResolvedValue(empty_page as never);
-        vi.mocked(query).mockResolvedValue(empty_page as never);
-        vi.mocked(queryZones)
+        vi.mocked(playlist.query).mockResolvedValue(
+            mockPage(empty_page as never),
+        );
+        vi.mocked(systems.query).mockResolvedValue(
+            mockPage(empty_page as never),
+        );
+        vi.mocked(zones.query)
             .mockRejectedValueOnce(new Error('offline'))
-            .mockResolvedValue(empty_page as never);
+            .mockResolvedValue(mockPage(empty_page as never));
 
         await expect(service.loadSignageInventory()).rejects.toThrow();
         await Promise.all([
             service.loadSignageInventory(),
             service.loadSignageInventory(),
         ]);
-        expect(queryZones).toHaveBeenCalledTimes(2);
+        expect(zones.query).toHaveBeenCalledTimes(2);
 
         context.changed();
         await service.loadSignageInventory();
-        expect(queryZones).toHaveBeenCalledTimes(3);
+        expect(zones.query).toHaveBeenCalledTimes(3);
     });
 
     describe('content report', () => {
         const takeover = (id: string, play_cron: string) =>
-            new SignagePlaylist({
+            signagePlaylist({
                 id,
                 name: id,
                 schedules: [
@@ -117,18 +125,18 @@ describe('SignageInventoryService', () => {
             });
         const inventory = {
             displays: [
-                new PlaceSystem({
+                signageSystem({
                     id: 'd1',
                     name: 'Lobby',
                     playlists: ['a'],
                 }),
-                new PlaceSystem({ id: 'd2', name: 'Cafe' }),
+                signageSystem({ id: 'd2', name: 'Cafe' }),
             ],
             zones: [],
             playlists: [
                 takeover('a', '0 9 * * *'),
                 takeover('b', '30 9 * * *'),
-                new SignagePlaylist({ id: 'c', name: 'Old', valid_until: 1 }),
+                signagePlaylist({ id: 'c', name: 'Old', valid_until: 1 }),
             ],
         };
 
@@ -140,7 +148,7 @@ describe('SignageInventoryService', () => {
                 ...inventory,
                 displays: [
                     ...inventory.displays,
-                    new PlaceSystem({
+                    signageSystem({
                         id: 'd3',
                         name: 'Hall',
                         playlists: ['c'],
@@ -434,36 +442,40 @@ describe('SignageInventoryService', () => {
                 'canQueryLists',
             ).mockReturnValue(true);
             // `queryAll` reads every page, so one page holds all the media
-            vi.mocked(querySignageMedia).mockResolvedValue({
-                data: Array.from(
-                    { length: 105 },
-                    (_, i) =>
-                        new SignageMedia({
+            vi.mocked(playlist_media.query).mockResolvedValue(
+                mockPage({
+                    data: Array.from({ length: 105 }, (_, i) =>
+                        signageMedia({
                             id: `m${i}`,
                             name: `m${i}`,
                             valid_until: 1,
                         }),
-                ),
-            } as Awaited<ReturnType<typeof querySignageMedia>>);
+                    ),
+                }),
+            );
             let active = 0;
             let most_active = 0;
-            vi.mocked(showSignageMedia).mockImplementation(async (id) => {
-                most_active = Math.max(most_active, ++active);
-                await new Promise((resolve) => setTimeout(resolve));
-                active--;
-                return new SignageMedia({
-                    playlists:
-                        id === 'm0'
-                            ? [new SignagePlaylist({ name: 'News' })]
-                            : [],
-                });
-            });
+            vi.mocked(playlist_media.show).mockImplementation(
+                async ({ id }) => {
+                    most_active = Math.max(most_active, ++active);
+                    await new Promise((resolve) => setTimeout(resolve));
+                    active--;
+                    return mockReply(
+                        signageMedia({
+                            playlists:
+                                id === 'm0'
+                                    ? [signagePlaylist({ name: 'News' })]
+                                    : [],
+                        }),
+                    );
+                },
+            );
 
             const result = await test_service['_expiredMediaInPlaylists'](
                 Date.now(),
             );
 
-            expect(showSignageMedia).toHaveBeenCalledTimes(100);
+            expect(playlist_media.show).toHaveBeenCalledTimes(100);
             expect(most_active).toBeLessThanOrEqual(6);
             expect(result.unchecked).toBe(5);
             expect(result.items.map(({ media }) => media.id)).toEqual(['m0']);
@@ -474,7 +486,7 @@ describe('SignageInventoryService', () => {
             const test_service =
                 service as unknown as SignageInventoryServiceTestAccess;
             const ended = (id: string, valid_until: number[]) =>
-                new SignagePlaylist({
+                signagePlaylist({
                     id,
                     name: id,
                     schedules: valid_until.map((end) => ({
@@ -486,7 +498,7 @@ describe('SignageInventoryService', () => {
                 });
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [
-                    new PlaceSystem({
+                    signageSystem({
                         id: 'd1',
                         name: 'Lobby',
                         playlists: ['all', 'some'],

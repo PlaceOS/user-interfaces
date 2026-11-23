@@ -8,15 +8,13 @@ import {
 } from '@angular/core';
 import { user_groups_loaded, userSignal } from '@placeos/common';
 import {
-    currentGroups,
-    PlaceCurrentGroup,
-    PlaceUser,
-    PlaceZone,
-    PlaceZoneQueryOptions,
-    queryGroups,
-    queryZones,
-    showZone,
+    groups as groups_v7,
+    type GroupsCurrentGroup,
+    type User,
+    type Zone,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import {
     GroupScope,
     groupScope,
@@ -38,11 +36,6 @@ const EMPTY_SCOPE: GroupScope = {
     zones: new Map(),
 };
 
-type GroupZoneQuery = PlaceZoneQueryOptions & {
-    group_id: string;
-    descendants?: boolean;
-};
-
 function loadSelectedGroupId() {
     try {
         return localStorage.getItem(GROUP_STORAGE_KEY) || '';
@@ -62,9 +55,9 @@ function persistSelectedGroupId(group_id: string) {
 }
 
 /** Zones above `zones` that are not in it, fetched a level at a time */
-async function loadAncestors(zones: PlaceZone[]) {
+async function loadAncestors(zones: Zone[]) {
     const known = new Map(zones.map((zone) => [zone.id, zone]));
-    const ancestors: PlaceZone[] = [];
+    const ancestors: Zone[] = [];
     let pending = zones;
     for (let depth = 0; depth < MAX_ANCESTOR_DEPTH; depth++) {
         const missing = [
@@ -77,9 +70,14 @@ async function loadAncestors(zones: PlaceZone[]) {
         if (!missing.length) break;
         pending = (
             await Promise.all(
-                missing.map((id) => showZone(id).catch(() => null)),
+                missing.map((id) =>
+                    zones_v7
+                        .show({ id })
+                        .then(orThrow)
+                        .catch(() => null),
+                ),
             )
-        ).filter((zone): zone is PlaceZone => !!zone);
+        ).filter((zone): zone is Zone => !!zone);
         for (const zone of pending) known.set(zone.id, zone);
         ancestors.push(...pending);
     }
@@ -88,13 +86,19 @@ async function loadAncestors(zones: PlaceZone[]) {
 
 /** What a support group can see, and the zones above it */
 export async function loadGroupScope(group_id: string): Promise<GroupScope> {
-    const query = (params: Partial<GroupZoneQuery>) =>
+    const query = (descendants: boolean) =>
         queryAll(
-            queryZones({ group_id, limit: 500, ...params } as GroupZoneQuery),
+            zones_v7
+                .query({
+                    group_id,
+                    limit: 500,
+                    ...(descendants ? { descendants } : {}),
+                })
+                .then(orThrowPage),
         );
     const [reachable, assigned] = await Promise.all([
-        query({ descendants: true }),
-        query({}),
+        query(true),
+        query(false),
     ]);
     return groupScope(reachable, assigned, await loadAncestors(reachable));
 }
@@ -109,14 +113,14 @@ export async function loadGroupScope(group_id: string): Promise<GroupScope> {
 export class SupportGroupsService {
     public readonly current_user = userSignal();
     public readonly is_sys_admin = computed(() => {
-        const user: Partial<Pick<PlaceUser, 'groups' | 'sys_admin'>> =
+        const user: Partial<Pick<User, 'groups' | 'sys_admin'>> =
             this.current_user() || {};
         return (
             !!user.sys_admin || (user.groups || []).includes('placeos_admin')
         );
     });
     private readonly _is_support = computed(() => {
-        const user: Partial<Pick<PlaceUser, 'groups' | 'support'>> =
+        const user: Partial<Pick<User, 'groups' | 'support'>> =
             this.current_user() || {};
         return (
             !!user.support || (user.groups || []).includes('placeos_support')
@@ -143,14 +147,12 @@ export class SupportGroupsService {
                   }
                 : undefined,
         loader: async ({ params }) => {
-            if (!params.email) return [] as PlaceCurrentGroup[];
+            if (!params.email) return [] as GroupsCurrentGroup[];
             const groups = params.view_all
                 ? (
                       await queryAll(
-                          queryGroups({
-                              limit: 200,
-                              subsystem: SUPPORT_SUBSYSTEM,
-                          } as Parameters<typeof queryGroups>[0]),
+                          // The query has no subsystem filter in 7.x
+                          groups_v7.query({ limit: 200 }).then(orThrowPage),
                       )
                   )
                       .filter((group) =>
@@ -160,8 +162,10 @@ export class SupportGroupsService {
                           group,
                           permissions: SupportGroupPermission.Manage,
                       }))
-                : await currentGroups({ subsystem: SUPPORT_SUBSYSTEM });
-            return groups.sort((a, b) =>
+                : await groups_v7
+                      .current({ subsystem: SUPPORT_SUBSYSTEM })
+                      .then(orThrow);
+            return [...groups].sort((a, b) =>
                 a.group.name.localeCompare(b.group.name),
             );
         },

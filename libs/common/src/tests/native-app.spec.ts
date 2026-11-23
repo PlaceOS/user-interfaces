@@ -177,6 +177,18 @@ describe('native app bridge', () => {
             expect(sessionStorage.getItem('pkce')).toBe('abc');
         });
 
+        it('should restore a 6.x backup under the 7.x verifier key', () => {
+            localStorage.setItem(
+                backup,
+                JSON.stringify({ key: 'cid_challenge', verifier: 'abc' }),
+            );
+
+            restoreNativePkceVerifier();
+
+            expect(sessionStorage.getItem('cid_code_verifier')).toBe('abc');
+            expect(sessionStorage.getItem('cid_challenge')).toBeNull();
+        });
+
         it('should keep a verifier that session storage already has', () => {
             sessionStorage.setItem('pkce', 'current');
             localStorage.setItem(

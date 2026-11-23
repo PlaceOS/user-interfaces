@@ -6,7 +6,8 @@ import {
     i18n,
     notifySuccess,
 } from '@placeos/common';
-import { PlaceZone, removeZone } from '@placeos/ts-client';
+import { type Zone, zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { BuildingModalComponent } from './building-modal.component';
 import { ItemListModalComponent } from './item-list-modal.component';
 
@@ -59,7 +60,7 @@ export class BuildingManagementService {
         this._options.update((current) => ({ ...current, search }));
     }
 
-    public editBuilding(building: PlaceZone = new PlaceZone()) {
+    public editBuilding(building: Partial<Zone> = {}) {
         const ref = this._dialog.open(BuildingModalComponent, {
             data: building,
         });
@@ -68,7 +69,7 @@ export class BuildingManagementService {
         });
     }
 
-    public async setAutoRelease(building: PlaceZone) {
+    public async setAutoRelease(building: Zone) {
         if (!building?.id) return;
         // Loads on demand, so the zone screens do not download its YAML parser
         const { AutoReleaseSettingsModalComponent } =
@@ -78,7 +79,7 @@ export class BuildingManagementService {
         });
     }
 
-    public async setInduction(building: PlaceZone) {
+    public async setInduction(building: Zone) {
         if (!building?.id) return;
         const { InductionSettingsModalComponent } =
             await import('./induction-settings-modal.component');
@@ -87,7 +88,7 @@ export class BuildingManagementService {
         });
     }
 
-    public setSupportIssueTypes(building: PlaceZone) {
+    public setSupportIssueTypes(building: Zone) {
         if (!building?.id) return;
         this._dialog.open(ItemListModalComponent, {
             data: building.id,
@@ -107,7 +108,7 @@ export class BuildingManagementService {
             },
             {
                 loading: i18n('APP.CONCIERGE.BUILDINGS_REMOVE_LOADING'),
-                action: () => removeZone(building.id),
+                action: () => zones.destroy({ id: building.id }).then(orThrow),
                 error: (e) =>
                     i18n('APP.CONCIERGE.BUILDINGS_REMOVE_ERROR', {
                         error: errorText(e),

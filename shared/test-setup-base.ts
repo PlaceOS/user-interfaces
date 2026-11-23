@@ -3,8 +3,11 @@
 // imports): the root package marks modules as free of side effects, so the
 // bundler drops side-effect-only imports.
 import { defineGlobalsInjections, Spectator } from '@ngneat/spectator';
-import { setNotifyOutlet } from '@placeos/common';
+// A deep import, not the `@placeos/common` barrel: the barrel loads every
+// module that it exports, such as the PlaceOS client, before the `vi.mock`
+// of a spec applies. Those modules then call the real `@placeos/ts-client`.
 import { TextDecoder, TextEncoder } from 'util';
+import { setNotifyOutlet } from '../libs/common/src/lib/notifications';
 import { installTestStorage } from '../libs/common/src/test-storage';
 
 global.TextEncoder = TextEncoder;

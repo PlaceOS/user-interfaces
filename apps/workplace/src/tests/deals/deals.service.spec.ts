@@ -11,6 +11,7 @@ import { MockProvider } from 'ng-mocks';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { DealDetailsModalComponent } from '../../app/deals/deal-details-modal.component';
 import { DealsService } from '../../app/deals/deals.service';
 
@@ -32,41 +33,65 @@ describe('DealsService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         active_building.set(null);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService();
     });
 
     it('should clear deals and not query metadata without an active building', () => {
         TestBed.flushEffects();
 
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.show).not.toHaveBeenCalled();
         expect(spectator.service.deals()).toEqual([]);
     });
 
     it('should load deals metadata for the active building', async () => {
         const deals = [{ id: 'a', name: 'Deal A' }];
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: deals,
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: deals,
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         active_building.set({ id: 'bld-1' });
 
         TestBed.flushEffects();
         await wait(10);
 
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            'deals-n-offers',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-1',
+            name: 'deals-n-offers',
+        });
         expect(spectator.service.deals()).toEqual(deals);
         expect(spectator.service.loading()).toBe(false);
     });
 
     it('should fall back to an empty list when metadata is not an array', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: null,
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: null,
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         active_building.set({ id: 'bld-1' });
 
         TestBed.flushEffects();
@@ -76,7 +101,7 @@ describe('DealsService', () => {
     });
 
     it('should flag a failed load and clear the flag when a reload succeeds', async () => {
-        vi.mocked(ts_client.showMetadata).mockRejectedValueOnce(
+        vi.mocked(ts_client.metadata.show).mockRejectedValueOnce(
             new Error('nope'),
         );
         active_building.set({ id: 'bld-1' });
@@ -89,9 +114,17 @@ describe('DealsService', () => {
         expect(spectator.service.loading()).toBe(false);
 
         const deals = [{ id: 'a', name: 'Deal A' }];
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: deals,
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: deals,
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator.service.reload();
         TestBed.flushEffects();
         await wait(10);
@@ -102,10 +135,17 @@ describe('DealsService', () => {
 
     it('should not show the deals of a building that is no longer active', async () => {
         let resolveOld: (value: unknown) => void = () => undefined;
-        vi.mocked(ts_client.showMetadata).mockImplementation(((id: string) =>
-            id === 'bld-old'
-                ? new Promise((resolve) => (resolveOld = resolve))
-                : Promise.resolve({ details: [{ id: 'new' }] })) as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                ((id: string) =>
+                    id === 'bld-old'
+                        ? new Promise((resolve) => (resolveOld = resolve))
+                        : Promise.resolve({ details: [{ id: 'new' }] })) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         active_building.set({ id: 'bld-old' });
         TestBed.flushEffects();
         active_building.set({ id: 'bld-new' });

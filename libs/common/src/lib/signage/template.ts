@@ -41,8 +41,11 @@ export interface ComputedTemplateLayout {
 const clamp = (value: number, max = 100) =>
     Math.min(Math.max(value, 0), Math.max(max, 0));
 
-function percentage(value: number | undefined, fallback: number) {
-    return value === undefined ? fallback : clamp(value * 100);
+/** `fallback` when the API has no value: v7 data has `null` for it */
+function percentage(value: number | null | undefined, fallback: number) {
+    return value === undefined || value === null
+        ? fallback
+        : clamp(value * 100);
 }
 
 /**

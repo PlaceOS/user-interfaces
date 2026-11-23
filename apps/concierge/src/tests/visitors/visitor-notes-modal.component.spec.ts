@@ -6,19 +6,22 @@ import { setNotifyOutlet } from '@placeos/common';
 
 import { VisitorNotesModalComponent } from '../../app/visitors/visitor-notes-modal.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { bookings, Booking as StaffBooking } from '@placeos/ts-client/staff';
 
 describe('VisitorNotesModalComponent', () => {
     let spectator: Spectator<VisitorNotesModalComponent>;
     let dialog_ref: { close: unknown; disableClose: boolean };
 
+    // Staff API booking IDs are integers
     const item = {
-        id: 'booking-1',
+        id: '1',
         asset_name: 'John Doe',
         extension_data: { notes: 'existing note', other: 'keep' },
-        toJSON: () => ({ id: 'booking-1', asset_name: 'John Doe' }),
+        toJSON: () => ({ id: '1', asset_name: 'John Doe' }),
     };
 
     const createComponent = createComponentFactory({
@@ -39,7 +42,9 @@ describe('VisitorNotesModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.patch).mockResolvedValue({} as any);
+        vi.mocked(bookings.update).mockResolvedValue(
+            mockReply(mockData(StaffBooking, { id: 1 })),
+        );
         setNotifyOutlet(null, true);
         dialog_ref = { close: vi.fn(), disableClose: false };
         spectator = createComponent({
@@ -57,22 +62,22 @@ describe('VisitorNotesModalComponent', () => {
         spectator.component.notes.set('updated note');
         await spectator.component.save();
 
-        // updateBooking -> ts-client `patch` at the API boundary
-        expect(ts_client.patch).toHaveBeenCalledWith(
-            expect.stringContaining('booking-1'),
-            expect.objectContaining({
+        // updateBooking -> bookings.update()
+        expect(bookings.update).toHaveBeenCalledWith({
+            id: 1,
+            body: expect.objectContaining({
                 extension_data: expect.objectContaining({
                     notes: 'updated note',
                     other: 'keep',
                 }),
             }),
-        );
+        });
         expect(dialog_ref.close).toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
     });
 
     it('should restore state and rethrow when saving fails', async () => {
-        vi.mocked(ts_client.patch).mockRejectedValue(new Error('nope'));
+        vi.mocked(bookings.update).mockRejectedValue(new Error('nope'));
 
         await expect(spectator.component.save()).rejects.toThrow('nope');
         expect(dialog_ref.close).not.toHaveBeenCalled();

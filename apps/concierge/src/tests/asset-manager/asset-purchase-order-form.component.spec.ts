@@ -7,6 +7,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 import { AssetPurchaseOrderFormComponent } from '../../app/asset-manager/asset-purchase-order-form.component';
 
@@ -50,10 +51,12 @@ describe('AssetPurchaseOrderFormComponent', () => {
             ).valueOf(),
             unit_price: '150',
         };
-        (ts_client.addAssetPurchaseOrder as any).mockReset();
-        (ts_client.addAssetPurchaseOrder as any).mockResolvedValue({
-            id: 'po-1',
-        });
+        (ts_client.asset_purchase_orders.create as any).mockReset();
+        (ts_client.asset_purchase_orders.create as any).mockResolvedValue(
+            mockReply({
+                id: 'po-1',
+            }),
+        );
         spectator = createComponent();
         spectator.component.model.set(model_data as any);
     });
@@ -61,15 +64,15 @@ describe('AssetPurchaseOrderFormComponent', () => {
     it('should convert dates to unix time and coerce the unit price on save', async () => {
         await spectator.component.save();
 
-        expect(ts_client.addAssetPurchaseOrder).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.asset_purchase_orders.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 purchase_date: getUnixTime(model_data.purchase_date),
                 expected_service_start_date: getUnixTime(
                     model_data.expected_service_start_date,
                 ),
                 unit_price: 150,
             }),
-        );
+        });
     });
 
     it('should return to the purchase order list when not scoped to a product', async () => {

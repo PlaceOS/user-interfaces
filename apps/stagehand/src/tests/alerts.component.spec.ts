@@ -3,7 +3,8 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { PlaceSystem, showSystem } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import type { Mock } from 'vitest';
 
@@ -47,7 +48,9 @@ describe('AlertsComponent', () => {
     });
 
     const build = (query_params: Record<string, string> = {}, id = null) => {
-        vi.mocked(showSystem).mockReturnValue(Promise.resolve(null));
+        vi.mocked(systems.show).mockImplementation(
+            fromV1Mock(() => Promise.resolve(null), ['sys_id', '...']),
+        );
         dashboard_alerts = signal<unknown[]>([]);
         dashboard_list = signal<unknown[]>([]);
         region_id = signal('');
@@ -144,13 +147,15 @@ describe('AlertsComponent', () => {
 
     it("should name each alert's location after its system", async () => {
         spectator = build();
-        vi.mocked(showSystem).mockImplementation((id: string) =>
-            Promise.resolve(
-                new PlaceSystem(
-                    id === 'sys-1'
-                        ? { id, name: 'room-1', display_name: 'Room 1' }
-                        : { id, name: 'room-2' },
-                ),
+        vi.mocked(systems.show).mockImplementation(
+            fromV1Mock(
+                (id: string) =>
+                    Promise.resolve(
+                        id === 'sys-1'
+                            ? { id, name: 'room-1', display_name: 'Room 1' }
+                            : { id, name: 'room-2' },
+                    ),
+                ['sys_id', '...'],
             ),
         );
         dashboard_alerts.set([
@@ -167,7 +172,7 @@ describe('AlertsComponent', () => {
 
     it('should ask for each location name once', async () => {
         spectator = build();
-        vi.mocked(showSystem).mockClear();
+        vi.mocked(systems.show).mockClear();
         dashboard_alerts.set([make_alert()]);
         TestBed.tick();
         dashboard_alerts.set([make_alert(), make_alert({ id: 'a-2' })]);
@@ -175,7 +180,7 @@ describe('AlertsComponent', () => {
         await Promise.resolve();
         dashboard_alerts.set([make_alert()]);
         TestBed.tick();
-        expect(showSystem).toHaveBeenCalledTimes(1);
+        expect(systems.show).toHaveBeenCalledTimes(1);
     });
 
     it('should load filter values from query parameters on init', () => {

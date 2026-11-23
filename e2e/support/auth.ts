@@ -7,22 +7,21 @@
  * boots already authenticated. No login form is driven, no SSO round-trip.
  *
  * Why a synthetic storageState rather than clicking through /login:
- *  - ts-client stores its bearer in `localStorage[${cid}_access_token]` /
- *    `_expires_at`, where `cid = Md5(redirect_uri)`
- *    (ts-client/src/auth/functions.ts:306, :175-177).
- *  - workplace leaves `storage` unset, so ts-client resolves it to localStorage
- *    (functions.ts:303) — and Playwright's storageState DOES persist localStorage.
- *    Seeding those two keys is all the SPA needs for `hasToken()` to be true, so
- *    it never bounces to the login redirect.
- *  - The `_expires_at` we write must be in the FUTURE or ts-client treats the
- *    token as stale and triggers a re-auth redirect mid-test.
+ *  - The storageState carries the cookies of the server session. ts-client 7
+ *    sees `session: true` on `/auth/authority` and gets a token through the
+ *    authorize page in a hidden frame, so the SPA never bounces to /login.
+ *  - It also seeds `localStorage[${cid}_access_token]` / `_expires_at` /
+ *    `_refresh_token`, where `cid = Md5(redirect_uri)`. ts-client 7 reads these
+ *    keys only for a trusted app (`trust=true`); workplace is not trusted, so
+ *    for it the cookies are what sign it in.
+ *  - The `_expires_at` we write must be in the FUTURE, or a trusted app treats
+ *    the token as stale and starts a new login mid-test.
  */
 import { APIRequestContext, request as pwRequest } from '@playwright/test';
 import { createHash, randomBytes } from 'crypto';
 
 /**
  * client_id as computed by ts-client: Md5(redirect_uri), 32 hex chars.
- * `Md5.hashStr(_options.redirect_uri, false)` — ts-client/src/auth/functions.ts:306.
  * The same value is what `init` stores as the application's `uid`
  * (`Digest::MD5.hexdigest(redirect_uri)` — init/src/tasks/entities.cr:118), so an
  * application row MUST exist for this exact redirect_uri or authorize will refuse.

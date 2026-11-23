@@ -25,8 +25,18 @@ import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
+import {
+    bookings as staff_bookings,
+    events as staff_events,
+} from '@placeos/ts-client/staff';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import {
     bookingTypeCounts,
     isBookingForOtherUser,
@@ -102,21 +112,35 @@ describe('ScheduleStateService', () => {
         spaces.loadSpace.mockReset();
         // The schedule fns (queryAllBookings/queryEvents/requestSpacesForZone/
         // loadLockerResources) are workspace fns that can't be spied; they all
-        // funnel into ts-client `get`/`query`/`querySystems`, so stub + assert
-        // one layer down.
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockResolvedValue([]);
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [],
-            next: null,
-            total: 0,
-        } as any);
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.post).mockResolvedValue({} as any);
-        vi.mocked(ts_client.del).mockResolvedValue(undefined as any);
+        // funnel into the staff `bookings` and `events` operations and
+        // `systems.query`, so stub + assert one layer down.
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => ({ data: [], next: null, total: 0 }),
+                ['...'],
+                'page',
+            ),
+        );
+        vi.mocked(staff_events.query).mockImplementation(
+            fromV1Mock(() => [], ['...']),
+        );
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(staff_bookings.checkIn).mockImplementation(
+            fromV1Mock(() => ({}), ['...']),
+        );
+        vi.mocked(staff_bookings.destroy).mockImplementation(
+            fromV1Mock(() => '', ['...']),
+        );
+        vi.mocked(staff_bookings.destroyInstance).mockImplementation(
+            fromV1Mock(() => '', ['...']),
+        );
+        vi.mocked(staff_events.destroy).mockImplementation(
+            fromV1Mock(() => '', ['...']),
+        );
         spectator = createService();
     });
 
@@ -219,7 +243,7 @@ describe('ScheduleStateService', () => {
         const triggerPoll = vi.spyOn(spectator.service, 'triggerPoll');
         const removeItem = vi.spyOn(spectator.service, 'removeItem');
         const booking = new Booking({
-            id: 'booking-1',
+            id: '701',
             booking_type: 'desk',
             type: 'desk',
             asset_id: 'desk-1',
@@ -230,10 +254,9 @@ describe('ScheduleStateService', () => {
 
         await spectator.service.end(booking);
 
-        expect(ts_client.post).toHaveBeenCalled();
-        const [url] = vi.mocked(ts_client.post).mock.calls[0];
-        expect(url).toContain('booking-1');
-        expect(url).toContain('check_in');
+        expect(staff_bookings.checkIn).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 701 }),
+        );
         expect(triggerPoll).toHaveBeenCalled();
         expect(removeItem).not.toHaveBeenCalled();
     });
@@ -242,7 +265,7 @@ describe('ScheduleStateService', () => {
         const triggerPoll = vi.spyOn(spectator.service, 'triggerPoll');
         const removeItem = vi.spyOn(spectator.service, 'removeItem');
         const booking = new Booking({
-            id: 'booking-1',
+            id: '701',
             booking_type: 'visitor',
             type: 'visitor',
             asset_id: 'visitor@example.com',
@@ -251,24 +274,24 @@ describe('ScheduleStateService', () => {
 
         await spectator.service.remove(booking);
 
-        expect(ts_client.del).toHaveBeenCalled();
+        expect(staff_bookings.destroy).toHaveBeenCalled();
         expect(triggerPoll).toHaveBeenCalled();
         expect(removeItem).not.toHaveBeenCalled();
     });
 
     it('should not make schedule requests before schedule data is consumed', () => {
         expect(parking_factory).not.toHaveBeenCalled();
-        expect(ts_client.get).not.toHaveBeenCalled();
-        expect(ts_client.query).not.toHaveBeenCalled();
-        expect(ts_client.querySystems).not.toHaveBeenCalled();
+        expect(staff_events.query).not.toHaveBeenCalled();
+        expect(staff_bookings.query).not.toHaveBeenCalled();
+        expect(ts_client.systems.query).not.toHaveBeenCalled();
     });
 
     it('should not make schedule requests for disabled features when consumed', () => {
         spectator.service.bookings();
 
-        expect(ts_client.get).not.toHaveBeenCalled();
-        expect(ts_client.query).not.toHaveBeenCalled();
-        expect(ts_client.querySystems).not.toHaveBeenCalled();
+        expect(staff_events.query).not.toHaveBeenCalled();
+        expect(staff_bookings.query).not.toHaveBeenCalled();
+        expect(ts_client.systems.query).not.toHaveBeenCalled();
     });
 
     it('should only mark enabled feature booking types as loadable', () => {
@@ -509,8 +532,7 @@ describe('ScheduleStateService', () => {
             spectator.service.date(),
             spectator.service.end_date(),
         );
-        const params = vi.mocked(ts_client.query).mock.lastCall?.[0]
-            ?.query_params as Record<string, unknown>;
+        const params = vi.mocked(staff_bookings.query).mock.lastCall?.[0];
         expect(params).toMatchObject({
             period_start: getUnixTime(startOfDay(day(12))),
             period_end: getUnixTime(endOfDay(day(12))),
@@ -570,7 +592,7 @@ describe('ScheduleStateService', () => {
             (spectator.service as any)._bookingQuery('desk', 'day', date),
         ]);
 
-        expect(ts_client.query).toHaveBeenCalledTimes(1);
+        expect(staff_bookings.query).toHaveBeenCalledTimes(1);
     });
 
     it('should not reuse in-flight booking queries after a poll is triggered', async () => {
@@ -589,7 +611,7 @@ describe('ScheduleStateService', () => {
         );
         await Promise.all([first, second]);
 
-        expect(ts_client.query).toHaveBeenCalledTimes(2);
+        expect(staff_bookings.query).toHaveBeenCalledTimes(2);
     });
 
     it('should share identical in-flight event queries', async () => {
@@ -603,7 +625,7 @@ describe('ScheduleStateService', () => {
             (spectator.service as any)._eventQuery(query, false),
         ]);
 
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(staff_events.query).toHaveBeenCalledTimes(1);
     });
 
     it('should not reuse in-flight event queries after a poll is triggered', async () => {
@@ -617,7 +639,7 @@ describe('ScheduleStateService', () => {
         const second = (spectator.service as any)._eventQuery(query, false);
         await Promise.all([first, second]);
 
-        expect(ts_client.get).toHaveBeenCalledTimes(2);
+        expect(staff_events.query).toHaveBeenCalledTimes(2);
     });
 
     it('should make one events request while the schedule settings load', async () => {
@@ -631,13 +653,12 @@ describe('ScheduleStateService', () => {
             key === 'app.features' ? features : undefined,
         );
         let resolve_events: (list: unknown[]) => void = () => undefined;
-        vi.mocked<(url: string) => Promise<unknown>>(ts_client.get)
-            .mockReset()
-            .mockImplementation((url) =>
-                url.includes('/events')
-                    ? new Promise((resolve) => (resolve_events = resolve))
-                    : Promise.resolve([]),
-            );
+        vi.mocked(staff_events.query).mockImplementation(
+            fromV1Mock(
+                () => new Promise((resolve) => (resolve_events = resolve)),
+                ['...'],
+            ),
+        );
         const settle = async () => {
             for (let i = 0; i < 4; i++) {
                 TestBed.tick();
@@ -657,9 +678,7 @@ describe('ScheduleStateService', () => {
             settings.overrides.set([{}, {}, {}, {}]);
             await settle();
 
-            const event_requests = vi
-                .mocked(ts_client.get)
-                .mock.calls.filter(([url]) => String(url).includes('/events'));
+            const event_requests = vi.mocked(staff_events.query).mock.calls;
             expect(event_requests).toHaveLength(1);
             expect(spectator.service.loading()).toBe(true);
             resolve_events([]);
@@ -674,21 +693,30 @@ describe('ScheduleStateService', () => {
     });
 
     it('should list every page of a day, not only the first', async () => {
-        vi.mocked(ts_client.query).mockResolvedValueOnce({
-            total: 3,
-            data: [
-                new Booking({ id: 'page-1-a', booking_type: 'desk' }),
-                new Booking({ id: 'page-1-b', booking_type: 'desk' }),
-            ],
-            next: () =>
-                Promise.resolve({
+        vi.mocked(staff_bookings.query).mockImplementationOnce(
+            fromV1Mock(
+                () => ({
                     total: 3,
                     data: [
-                        new Booking({ id: 'page-2-a', booking_type: 'desk' }),
+                        new Booking({ id: 'page-1-a', booking_type: 'desk' }),
+                        new Booking({ id: 'page-1-b', booking_type: 'desk' }),
                     ],
-                    next: null,
+                    next: () =>
+                        Promise.resolve({
+                            total: 3,
+                            data: [
+                                new Booking({
+                                    id: 'page-2-a',
+                                    booking_type: 'desk',
+                                }),
+                            ],
+                            next: null,
+                        }),
                 }),
-        } as any);
+                ['...'],
+                'page',
+            ),
+        );
 
         const bookings = await spectator.service['_bookingQuery'](
             'desk',
@@ -704,30 +732,39 @@ describe('ScheduleStateService', () => {
     });
 
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            total: 4,
-            next: null,
-            // `query` maps rows through `new Booking` itself; a stub has to.
-            data: [
-                new Booking({ id: 'retained', booking_type: 'visitor' }),
-                new Booking({
-                    id: 'cancelled',
-                    booking_type: 'visitor',
-                    deleted: true,
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    total: 4,
+                    next: null,
+                    // The rows go through `new Booking` again, as the API data does
+                    data: [
+                        new Booking({
+                            id: 'retained',
+                            booking_type: 'visitor',
+                        }),
+                        new Booking({
+                            id: 'cancelled',
+                            booking_type: 'visitor',
+                            deleted: true,
+                        }),
+                        new Booking({
+                            id: 'removed',
+                            booking_type: 'visitor',
+                            deleted: true,
+                            extension_data: { removed_from_group: true },
+                        }),
+                        new Booking({
+                            id: 'failed-removal',
+                            booking_type: 'visitor',
+                            extension_data: { removed_from_group: true },
+                        }),
+                    ],
                 }),
-                new Booking({
-                    id: 'removed',
-                    booking_type: 'visitor',
-                    deleted: true,
-                    extension_data: { removed_from_group: true },
-                }),
-                new Booking({
-                    id: 'failed-removal',
-                    booking_type: 'visitor',
-                    extension_data: { removed_from_group: true },
-                }),
-            ],
-        } as any);
+                ['...'],
+                'page',
+            ),
+        );
 
         const bookings = await spectator.service['_bookingQuery'](
             'visitor',
@@ -749,8 +786,7 @@ describe('ScheduleStateService', () => {
             new Date(2026, 5, 22, 9).valueOf(),
         );
 
-        const params = vi.mocked(ts_client.query).mock.lastCall?.[0]
-            ?.query_params as Record<string, unknown>;
+        const params = vi.mocked(staff_bookings.query).mock.lastCall?.[0];
         expect(params).toMatchObject({
             include_checked_out: true,
             include_deleted: true,
@@ -778,7 +814,7 @@ describe('ScheduleStateService', () => {
 
         function deskBooking(fields: Partial<Booking> = {}) {
             return new Booking({
-                id: 'desk-booking-1',
+                id: '702',
                 booking_type: 'desk',
                 asset_id: 'desk-1',
                 booking_start: start,
@@ -793,11 +829,10 @@ describe('ScheduleStateService', () => {
 
             await spectator.service.remove(deskBooking({ instance: start }));
 
-            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(
-                    new RegExp(`/bookings/desk-booking-1/instance/${start}\\?`),
-                ),
-                { response_type: 'void' },
+            expect(
+                staff_bookings.destroyInstance,
+            ).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 702, instance: start }),
             );
             expect(poll).toHaveBeenCalled();
         });
@@ -810,9 +845,8 @@ describe('ScheduleStateService', () => {
                 true,
             );
 
-            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(/\/bookings\/desk-booking-1\?/),
-                { response_type: 'void' },
+            expect(staff_bookings.destroy).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 702 }),
             );
         });
 
@@ -822,8 +856,8 @@ describe('ScheduleStateService', () => {
             await spectator.service.end(deskBooking());
 
             expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
-            expect(ts_client.post).not.toHaveBeenCalled();
-            expect(ts_client.del).not.toHaveBeenCalled();
+            expect(staff_bookings.checkIn).not.toHaveBeenCalled();
+            expect(staff_bookings.destroy).not.toHaveBeenCalled();
         });
 
         it('removes a booking that has not started when it is ended', async () => {
@@ -832,11 +866,10 @@ describe('ScheduleStateService', () => {
 
             await spectator.service.end(deskBooking());
 
-            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(/\/bookings\/desk-booking-1\?/),
-                { response_type: 'void' },
+            expect(staff_bookings.destroy).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 702 }),
             );
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(staff_bookings.checkIn).not.toHaveBeenCalled();
         });
 
         it('checks out a booking in progress when it is ended', async () => {
@@ -846,13 +879,10 @@ describe('ScheduleStateService', () => {
 
             await spectator.service.end(deskBooking());
 
-            expect(ts_client.post).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(
-                    /\/bookings\/desk-booking-1\/check_in\?state=false/,
-                ),
-                '',
+            expect(staff_bookings.checkIn).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 702, state: false }),
             );
-            expect(ts_client.del).not.toHaveBeenCalled();
+            expect(staff_bookings.destroy).not.toHaveBeenCalled();
             expect(poll).toHaveBeenCalled();
         });
     });
@@ -861,7 +891,7 @@ describe('ScheduleStateService', () => {
         function nativeRoom() {
             return newCalendarEventFromBooking(
                 new Booking({
-                    id: 'room-booking-1',
+                    id: '703',
                     booking_type: 'room',
                     asset_id: 'room-1',
                     user_email: 'staff@example.com',
@@ -884,11 +914,10 @@ describe('ScheduleStateService', () => {
 
                 await spectator.service.remove(booking);
 
-                expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                    expect.stringMatching(/\/bookings\/room-booking-1\?/),
-                    { response_type: 'void' },
+                expect(staff_bookings.destroy).toHaveBeenCalledExactlyOnceWith(
+                    expect.objectContaining({ id: 703 }),
                 );
-                expect(ts_client.get).not.toHaveBeenCalled();
+                expect(staff_events.destroy).not.toHaveBeenCalled();
                 expect(removeItem).toHaveBeenCalledWith(booking);
             },
         );
@@ -903,9 +932,8 @@ describe('ScheduleStateService', () => {
 
             await spectator.service.remove(event);
 
-            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(/\/events\/calendar-event-1\?/),
-                { response_type: 'void' },
+            expect(staff_events.destroy).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 'calendar-event-1' }),
             );
         });
 
@@ -914,15 +942,15 @@ describe('ScheduleStateService', () => {
 
             await spectator.service.remove(nativeRoom());
 
-            expect(ts_client.del).not.toHaveBeenCalled();
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(staff_bookings.destroy).not.toHaveBeenCalled();
+            expect(staff_events.destroy).not.toHaveBeenCalled();
         });
 
         it('keeps the booking visible when native cancellation fails', async () => {
             const close = confirmRemoval();
             const removeItem = vi.spyOn(spectator.service, 'removeItem');
             const error = new Error('Cancellation failed');
-            vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+            vi.mocked(staff_bookings.destroy).mockRejectedValueOnce(error);
 
             await expect(
                 spectator.service.remove(nativeRoom()),
@@ -957,17 +985,20 @@ describe('ScheduleStateService', () => {
                     return undefined;
                 },
             );
-            vi.mocked<(url: string) => Promise<unknown>>(
-                ts_client.get,
-            ).mockResolvedValue([
-                {
-                    id: 'desk-booking-1',
-                    booking_type: 'desk',
-                    asset_id: 'desk-1',
-                    booking_start: now / 1000,
-                    booking_end: now / 1000 + 3600,
-                },
-            ]);
+            vi.mocked(staff_bookings.query).mockImplementation(
+                fromV1Mock(
+                    () => [
+                        {
+                            id: 702,
+                            booking_type: 'desk',
+                            asset_id: 'desk-1',
+                            booking_start: now / 1000,
+                            booking_end: now / 1000 + 3600,
+                        },
+                    ],
+                    ['...'],
+                ),
+            );
         }
         const check = () => (spectator.service as any)._checkCancel();
 
@@ -978,11 +1009,8 @@ describe('ScheduleStateService', () => {
             await check();
 
             expect(spectator.inject(MatDialog).open).toHaveBeenCalledTimes(1);
-            expect(ts_client.post).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(
-                    /\/bookings\/desk-booking-1\/check_in\?state=true/,
-                ),
-                '',
+            expect(staff_bookings.checkIn).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 702, state: true }),
             );
         });
 
@@ -994,7 +1022,7 @@ describe('ScheduleStateService', () => {
             await check();
 
             expect(spectator.inject(MatDialog).open).toHaveBeenCalledTimes(1);
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(staff_bookings.checkIn).not.toHaveBeenCalled();
         });
 
         it('should not check the bookings of a user who works in the office', async () => {
@@ -1002,7 +1030,7 @@ describe('ScheduleStateService', () => {
 
             await check();
 
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(staff_bookings.query).not.toHaveBeenCalled();
             expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
         });
     });
@@ -1061,24 +1089,20 @@ describe('ScheduleStateService', () => {
                 }
                 return undefined;
             });
-            vi.mocked(ts_client.querySystems).mockResolvedValue({
-                data: [
-                    { id: 'sys-1', email: 'room-1@example.com' },
-                    { id: 'sys-2', email: 'room-2@example.com' },
-                ],
-            } as any);
-            vi.mocked(ts_client.getModule).mockImplementation(
-                () =>
-                    ({
-                        variable: () => ({
-                            bindThenSubscribe: (callback) => {
-                                open_bindings++;
-                                callback([]);
-                                return () => open_bindings--;
-                            },
-                        }),
-                    }) as any,
+            vi.mocked(ts_client.systems.query).mockResolvedValue(
+                mockPage({
+                    data: [
+                        { id: 'sys-1', email: 'room-1@example.com' },
+                        { id: 'sys-2', email: 'room-2@example.com' },
+                    ],
+                } as any),
             );
+            const place: TestPlaceClient = startTestPlaceClient();
+            place.bind.mockImplementation((_target, listener) => {
+                open_bindings++;
+                listener({ kind: 'value', value: [] });
+                return () => open_bindings--;
+            });
         });
 
         // The organisation mock is shared between tests. Stop the requests of
@@ -1092,7 +1116,7 @@ describe('ScheduleStateService', () => {
             await open('bld-api-only', ['api']);
 
             expect(spectator.service.event_sources()).toEqual(['api']);
-            expect(ts_client.querySystems).not.toHaveBeenCalled();
+            expect(ts_client.systems.query).not.toHaveBeenCalled();
             expect(open_bindings).toBe(0);
         });
 
@@ -1107,8 +1131,15 @@ describe('ScheduleStateService', () => {
 
         it('should not bind rooms when the source changes while the room list loads', async () => {
             let resolveSpaces: (value: unknown) => void = () => null;
-            vi.mocked(ts_client.querySystems).mockReturnValueOnce(
-                new Promise((resolve) => (resolveSpaces = resolve)) as any,
+            vi.mocked(ts_client.systems.query).mockImplementationOnce(
+                fromV1Mock(
+                    () =>
+                        new Promise(
+                            (resolve) => (resolveSpaces = resolve),
+                        ) as any,
+                    ['...'],
+                    'page',
+                ),
             );
             await open('bld-slow', ['ws']);
             spectator.service.setEventSources(['api']);

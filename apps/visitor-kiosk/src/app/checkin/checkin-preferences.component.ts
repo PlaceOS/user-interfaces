@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { queryCateringItems } from '@placeos/assets';
-import { setToken } from '@placeos/ts-client';
 
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -24,6 +23,7 @@ import {
     OrganisationService,
     parseJWT,
     settingSignal,
+    setToken,
 } from '@placeos/common';
 import {
     AnnounceDirective,

@@ -26,9 +26,17 @@ import { BookingDetailsModalComponent } from '../lib/booking-details-modal.compo
 
 // `checkinBooking` runs for real; only the ts-client `post` beneath it is
 // stubbed so the check-in request resolves.
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    type Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
+
+/** Reply of a staff booking operation with partial test data */
+const bookingReply = (data: Partial<StaffBooking>) =>
+    mockReply({ ...data } as StaffBooking);
 
 describe('BookingDetailsModalComponent', () => {
     let spectator: Spectator<BookingDetailsModalComponent>;
@@ -41,7 +49,7 @@ describe('BookingDetailsModalComponent', () => {
         providers: [
             MockProvider(MAT_DIALOG_DATA, {
                 booking: new Booking({
-                    id: 'booking-1',
+                    id: '101',
                     booking_type: 'desk',
                     type: 'desk',
                     asset_id: 'desk-1',
@@ -96,7 +104,7 @@ describe('BookingDetailsModalComponent', () => {
 
     it('should not delete ended bookings', () => {
         const booking = new Booking({
-            id: 'booking-1',
+            id: '101',
             booking_type: 'desk',
             type: 'desk',
             checked_out_at: Math.floor(Date.now() / 1000) - 60,
@@ -312,7 +320,7 @@ describe('BookingDetailsModalComponent', () => {
     it('should show cancel series for a recurring booking by default', () => {
         spectator.component.booking.set(
             new Booking({
-                id: 'booking-1',
+                id: '101',
                 booking_type: 'desk',
                 type: 'desk',
                 instance: Math.floor(Date.now() / 1000),
@@ -328,7 +336,7 @@ describe('BookingDetailsModalComponent', () => {
     it('should hide cancel series for an assigned booking by default', () => {
         spectator.component.booking.set(
             new Booking({
-                id: 'booking-1',
+                id: '101',
                 booking_type: 'locker',
                 type: 'locker',
                 instance: Math.floor(Date.now() / 1000),
@@ -424,10 +432,9 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should refresh parent state after toggling checked in', async () => {
-        vi.mocked(ts_client.post).mockResolvedValue({
-            id: 'booking-1',
-            checked_in: true,
-        } as any);
+        vi.mocked(bookings.checkIn).mockResolvedValue(
+            bookingReply({ id: 101, checked_in: true }),
+        );
 
         await spectator.component.toggleCheckedIn();
 
@@ -436,11 +443,16 @@ describe('BookingDetailsModalComponent', () => {
     });
 
     it('should keep the booking and report the error when check-in fails', async () => {
-        vi.mocked(ts_client.post).mockRejectedValue(
-            new Response(JSON.stringify({ error: 'Desk is not available' }), {
+        vi.mocked(bookings.checkIn).mockResolvedValue({
+            ok: false,
+            error: {
+                kind: 'http',
                 status: 409,
-            }),
-        );
+                message: 'Desk is not available',
+                body: { error: 'Desk is not available' },
+                text: null,
+            },
+        });
 
         await expect(spectator.component.toggleCheckedIn()).rejects.toBe(
             'Desk is not available',
@@ -460,7 +472,7 @@ describe('BookingDetailsModalComponent', () => {
         } as any);
         spectator.component.booking.set(
             new Booking({
-                id: 'booking-1',
+                id: '101',
                 checked_in: true,
             }),
         );
@@ -477,7 +489,7 @@ describe('BookingDetailsModalComponent', () => {
                 }),
             }),
         );
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.checkIn).not.toHaveBeenCalled();
     });
 
     it('should check out parking and refresh the parent state', async () => {
@@ -493,19 +505,20 @@ describe('BookingDetailsModalComponent', () => {
         } as any);
         spectator.component.booking.set(
             new Booking({
-                id: 'parking-booking-1',
+                id: '102',
                 booking_type: 'parking',
                 type: 'parking',
                 checked_in: true,
             }),
         );
-        vi.mocked(ts_client.post).mockResolvedValue({
-            id: 'parking-booking-1',
-            booking_type: 'parking',
-            type: 'parking',
-            checked_in: false,
-            checked_out_at: Math.floor(Date.now() / 1000),
-        } as any);
+        vi.mocked(bookings.checkIn).mockResolvedValue(
+            bookingReply({
+                id: 102,
+                booking_type: 'parking',
+                checked_in: false,
+                checked_out_at: Math.floor(Date.now() / 1000),
+            }),
+        );
 
         await spectator.component.toggleCheckedIn();
 
@@ -520,9 +533,8 @@ describe('BookingDetailsModalComponent', () => {
                 }),
             }),
         );
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('parking-booking-1/check_in?state=false'),
-            '',
+        expect(bookings.checkIn).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 102, state: false }),
         );
         expect(spectator.component.booking().checked_in).toBe(false);
         expect(spectator.component.checked_out()).toBe(true);

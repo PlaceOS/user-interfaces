@@ -1,17 +1,16 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { isPlayOnceSchedule, mapWithLimit, withTimeout } from '@placeos/common';
 import {
-    listSignagePlaylistMedia,
-    PlaceSystem,
-    PlaceZone,
-    querySignageMedia,
-    querySignagePlaylists,
-    queryZones,
-    showSignageMedia,
-    SignageMedia,
-    SignagePlaylist,
-    type SignagePlaylistSchedule,
+    type Playlist,
+    playlist_media,
+    playlist as playlist_v7,
+    type PlaylistItem,
+    type PlaylistSchedule,
+    type System,
+    type Zone,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import { isDisplayOnline } from './displays/display-status.util';
 import { querySignageDisplays } from './displays/signage-display';
 import {
@@ -32,9 +31,9 @@ import { PAGE_SIZE, queryAll } from './signage-service.util';
 
 /** Every display, zone and playlist in the active group */
 export interface SignageInventory {
-    displays: PlaceSystem[];
-    zones: PlaceZone[];
-    playlists: SignagePlaylist[];
+    displays: System[];
+    zones: Zone[];
+    playlists: Playlist[];
 }
 
 /** Content that needs attention, shown on the report page */
@@ -43,28 +42,28 @@ export interface ContentReport {
      * Displays with no playlist that can play, from the display or its zones.
      * Disabled and expired playlists cannot play.
      */
-    empty_displays: PlaceSystem[];
+    empty_displays: System[];
     /** Playlists not assigned to any display or zone */
-    unassigned_playlists: SignagePlaylist[];
+    unassigned_playlists: Playlist[];
     /** Time in milliseconds that the report checked against */
     checked_at: number;
     /** Displays whose player has not checked in recently, or never */
-    offline_displays: PlaceSystem[];
+    offline_displays: System[];
     /** Expired playlists, or playlists with only expired schedules, that are still assigned */
-    expired_playlists: SignagePlaylist[];
+    expired_playlists: Playlist[];
     /** Assigned playlists that expire within `EXPIRING_DAYS` */
-    expiring_playlists: SignagePlaylist[];
+    expiring_playlists: Playlist[];
     /** Expired media that is still in a playlist */
-    expired_media: { media: SignageMedia; playlists: SignagePlaylist[] }[];
+    expired_media: { media: PlaylistItem; playlists: Playlist[] }[];
     /** Expired media items not checked, because the report checks at most 100 */
     expired_media_unchecked: number;
     /**
      * Enabled, assigned playlists that play all day but that the players
      * have never played, though they were made over a day ago
      */
-    never_played: SignagePlaylist[];
+    never_played: Playlist[];
     /** Playlists whose approval was requested and not given yet */
-    awaiting_review: SignagePlaylist[];
+    awaiting_review: Playlist[];
     /** Playlists not checked for review, because the report checks at most 100 */
     awaiting_review_unchecked: number;
     /** Takeover playlists that overlap on a display in the coming weeks */
@@ -80,7 +79,7 @@ const NEW_PLAYLIST_MS = 24 * 60 * 60 * 1000;
  * Whether a schedule has played all day, every day, for over a day and
  * still does: the background schedule of a playlist that should play.
  */
-function playsAllDay(schedule: Partial<SignagePlaylistSchedule>, now: number) {
+function playsAllDay(schedule: Partial<PlaylistSchedule>, now: number) {
     return (
         schedule.play_cron?.trim().split(/\s+/).join(' ') === '0 0 * * *' &&
         playPeriodMinutes(schedule) >= MINUTES_PER_DAY &&
@@ -176,17 +175,19 @@ export class SignageInventoryService {
                 }),
             ),
             queryAll(
-                queryZones(
-                    this._context.groupQueryParams({
-                        limit,
-                        tags: 'signage',
-                    }),
-                ),
+                zones_v7
+                    .query(
+                        this._context.groupQueryParams({
+                            limit,
+                            tags: ['signage'],
+                        }),
+                    )
+                    .then(orThrowPage),
             ),
             queryAll(
-                querySignagePlaylists(
-                    this._context.orgZoneQueryParams({ limit }),
-                ),
+                playlist_v7
+                    .query(this._context.groupQueryParams({ limit }))
+                    .then(orThrowPage),
             ),
         ]);
         return { displays, zones, playlists };
@@ -288,7 +289,7 @@ export class SignageInventoryService {
      * the limit, failed, late, or skipped after `signal` aborts
      */
     private async _playlistsAwaitingReview(
-        playlists: SignagePlaylist[],
+        playlists: Playlist[],
         signal?: AbortSignal,
     ) {
         const checked = playlists.slice(0, MAX_REVIEW_CHECKS);
@@ -302,7 +303,7 @@ export class SignageInventoryService {
                 signal?.aborted || timed_out
                     ? Promise.resolve(null)
                     : withTimeout(
-                          listSignagePlaylistMedia(playlist.id),
+                          playlist_v7.media({ id: playlist.id }).then(orThrow),
                           REVIEW_CHECK_TIMEOUT_MS,
                           'timeout',
                           () => (timed_out = true),
@@ -330,25 +331,30 @@ export class SignageInventoryService {
             return { items: [], unchecked: 0 };
         }
         const media = await queryAll(
-            querySignageMedia(
-                this._context.orgZoneQueryParams({ limit: PAGE_SIZE }),
-            ),
+            playlist_media
+                .query(this._context.groupQueryParams({ limit: PAGE_SIZE }))
+                .then(orThrowPage),
         );
         const all_expired = media.filter(
             (item) => !!item.valid_until && item.valid_until * 1000 < now,
         );
         const expired = all_expired.slice(0, MAX_EXPIRED_MEDIA_CHECKS);
-        const query_params = this._context.groupQueryParams({});
         // Results keep the media order, whichever request ends first
         const usage = await mapWithLimit(
             expired,
             EXPIRED_MEDIA_CONCURRENCY,
             (media) =>
-                showSignageMedia(media.id, query_params).then(
-                    (detail) => ({ media, playlists: detail.playlists || [] }),
-                    // Media that cannot be read is left out below
-                    () => ({ media, playlists: [] as SignagePlaylist[] }),
-                ),
+                playlist_media
+                    .show({ id: media.id })
+                    .then(orThrow)
+                    .then(
+                        (detail) => ({
+                            media,
+                            playlists: [...(detail.playlists || [])],
+                        }),
+                        // Media that cannot be read is left out below
+                        () => ({ media, playlists: [] as Playlist[] }),
+                    ),
         );
         return {
             items: usage.filter((item) => item.playlists.length),

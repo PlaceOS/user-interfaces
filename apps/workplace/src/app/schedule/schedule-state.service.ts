@@ -25,6 +25,7 @@ import {
     CalendarEvent,
     currentUser,
     flatten,
+    getModule,
     i18n,
     MINUTES,
     notifyError,
@@ -44,7 +45,6 @@ import {
     requestSpacesForZone,
     SpacesService,
 } from '@placeos/events';
-import { getModule } from '@placeos/ts-client';
 import {
     addMinutes,
     addWeeks,
@@ -216,6 +216,14 @@ function deduplicateEventsByIcalUid(
     }
 
     return result;
+}
+
+/** A locker of the user, from `lockers_allocated_to_me` of `LockerLocations` */
+interface LockerAllocation {
+    locker_id: string;
+    locker_name: string;
+    level?: string;
+    building?: string;
 }
 
 @Injectable({
@@ -694,20 +702,19 @@ export class ScheduleStateService extends AsyncHandler {
                 if (!active) return;
                 const events_by_space: CalendarEvent[][] = [];
                 for (const [idx, space] of (spaces || []).entries()) {
-                    const binding = getModule(space.id, 'Bookings').variable(
-                        'bookings',
-                    );
+                    const binding = getModule(space.id, 'Bookings').variable<
+                        Partial<CalendarEvent>[]
+                    >('bookings');
                     cleanups.push(
-                        binding.bindThenSubscribe((event_list) => {
+                        binding.subscribe((event_list) => {
                             events_by_space[idx] = (event_list || []).map(
                                 (i) =>
+                                    // Without `resources`, the event takes
+                                    // the attendees that are resources or
+                                    // have the email of the space
                                     new CalendarEvent({
                                         ...i,
-                                        resources: i.attendees.filter(
-                                            (_) =>
-                                                _.email === space.email ||
-                                                _.resource,
-                                        ),
+                                        resources: undefined,
                                         system: space,
                                     }),
                             );
@@ -744,13 +751,13 @@ export class ScheduleStateService extends AsyncHandler {
                     'LocationServices',
                 );
                 let failed = false;
-                const list = mod?.system
-                    ? await this._track(mod.execute('my_bookings')).catch(
-                          () => {
-                              failed = true;
-                              return [];
-                          },
-                      )
+                const list = mod
+                    ? await this._track(
+                          mod.execute<Partial<CalendarEvent>[]>('my_bookings'),
+                      ).catch(() => {
+                          failed = true;
+                          return [];
+                      })
                     : [];
                 this._user_bookings.set(
                     (list || []).map((_) => new CalendarEvent(_)),
@@ -857,8 +864,10 @@ export class ScheduleStateService extends AsyncHandler {
                 const mod = this._org.module('lockers', 'LockerLocations');
                 const my_lockers = mod
                     ? await mod
-                          .execute('lockers_allocated_to_me')
-                          .catch(() => [])
+                          .execute<
+                              LockerAllocation[]
+                          >('lockers_allocated_to_me')
+                          .catch((): LockerAllocation[] => [])
                     : [];
                 this._lockers.set(
                     my_lockers

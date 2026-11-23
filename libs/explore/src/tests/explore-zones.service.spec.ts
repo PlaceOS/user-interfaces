@@ -14,6 +14,7 @@ import { ExploreZonesService } from '../lib/explore-zones.service';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 
 describe('ExploreZonesService', () => {
@@ -46,7 +47,9 @@ describe('ExploreZonesService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({} as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(() => ({}) as any, ['id', 'name'], 'data', 'name'),
+        );
         spectator = createService();
         // Provider mocks are shared, so reset implementations set by a test
         vi.mocked(spectator.inject(ExploreStateService).has).mockReturnValue(
@@ -93,22 +96,30 @@ describe('ExploreZonesService', () => {
         const org = spectator.inject(OrganisationService);
         const state = spectator.inject(ExploreStateService);
         (org as any).levels = [{ id: 'lvl-1' }];
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {
-                areas: [
-                    {
-                        id: 'area-1',
-                        map_id: 'map-zone-1',
-                        geometry: {
-                            coordinates: [
-                                [0.2, 0.2],
-                                [0.4, 0.4],
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {
+                            areas: [
+                                {
+                                    id: 'area-1',
+                                    map_id: 'map-zone-1',
+                                    geometry: {
+                                        coordinates: [
+                                            [0.2, 0.2],
+                                            [0.4, 0.4],
+                                        ],
+                                    },
+                                },
                             ],
                         },
-                    },
-                ],
-            },
-        } as any);
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
 
         await spectator.service.init();
         spectator.service.parseData([
@@ -232,19 +243,33 @@ describe('ExploreZonesService', () => {
             [0.3, 0.3],
         ];
         (org as any).levels = [{ id: 'lvl-1' }];
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {
-                areas: [
-                    {
-                        id: 'drawn',
-                        properties: { draw_polygon: true },
-                        geometry: { coordinates: points },
-                    },
-                    { id: 'styled', geometry: { coordinates: points } },
-                    { id: 'plain', geometry: { coordinates: points } },
-                ],
-            },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {
+                            areas: [
+                                {
+                                    id: 'drawn',
+                                    properties: { draw_polygon: true },
+                                    geometry: { coordinates: points },
+                                },
+                                {
+                                    id: 'styled',
+                                    geometry: { coordinates: points },
+                                },
+                                {
+                                    id: 'plain',
+                                    geometry: { coordinates: points },
+                                },
+                            ],
+                        },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         // Another map group already styles this zone, so it gets a pin
         vi.mocked(state.has).mockImplementation((_, id) => id === 'styled');
         await spectator.service.init();

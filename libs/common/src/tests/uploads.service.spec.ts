@@ -6,11 +6,10 @@ import {
 import { BehaviorSubject } from 'rxjs';
 
 import * as cloud_uploads from '@placeos/cloud-uploads';
-import * as ts_client from '@placeos/ts-client';
-
 import { UploadsService } from '../lib/uploads.service';
+import { FakeSession, startFakePlaceClient } from './fake-session';
 
-// Only the external cloud-uploads and ts-client API layers are stubbed; the
+// Only the external cloud-uploads and PlaceOS client layers are stubbed; the
 // service's own upload orchestration runs for real.
 vi.mock('@placeos/cloud-uploads', { spy: true });
 vi.mock('@placeos/ts-client', { spy: true });
@@ -23,6 +22,7 @@ describe('UploadsService', () => {
     });
 
     let state: BehaviorSubject<unknown>;
+    let place: FakeSession;
     let mock_upload: any;
 
     beforeEach(() => {
@@ -33,9 +33,8 @@ describe('UploadsService', () => {
         vi.mocked(cloud_uploads.initUploads).mockReturnValue(undefined);
         vi.mocked(cloud_uploads.humanReadableByteCount).mockReturnValue('1 KB');
         vi.mocked(cloud_uploads.uploadFile).mockResolvedValue(mock_upload);
-        vi.mocked(ts_client.token).mockReturnValue('valid-token');
-        vi.mocked(ts_client.apiKey).mockReturnValue('');
-        vi.mocked(ts_client.authorise).mockResolvedValue('new-token');
+        place = startFakePlaceClient();
+        place.setCredential({ kind: 'bearer', token: 'valid-token' });
     });
 
     const flush = () => new Promise((resolve) => setTimeout(resolve));
@@ -59,21 +58,18 @@ describe('UploadsService', () => {
     });
 
     it('should refresh the token and retry a failed upload', async () => {
-        let current = 'expired-token';
-        vi.mocked(ts_client.token).mockImplementation((return_expired) =>
-            return_expired === false && current === 'expired-token'
-                ? ''
-                : current,
-        );
-        vi.mocked(ts_client.authorise).mockImplementation(async () => {
-            current = 'new-token';
-            return current;
+        // An expired token is not a valid credential
+        place.setCredential(null);
+        vi.mocked(place.session.authorize).mockImplementation(async () => {
+            const credential = { kind: 'bearer', token: 'new-token' } as const;
+            place.setCredential(credential);
+            return { ok: true, value: credential };
         });
         const promise = spectator.service.uploadFile(new File([], 'test.png'));
         await flush();
         state.next({ status: 'FAILED', progress: 10 });
         await flush();
-        expect(ts_client.authorise).toHaveBeenCalled();
+        expect(place.session.authorize).toHaveBeenCalled();
         // The manager reads the token on each request, so it is not set up
         // again, which would end the hash workers of other uploads
         expect(cloud_uploads.initUploads).toHaveBeenCalledOnce();
@@ -171,7 +167,7 @@ describe('UploadsService', () => {
 
     describe('credentials', () => {
         it('should send an api key when the session uses one', async () => {
-            vi.mocked(ts_client.apiKey).mockReturnValue('secret-key');
+            place.setCredential({ kind: 'api_key', key: 'secret-key' });
             const promise = spectator.service.uploadFile(
                 new File([], 'test.png'),
             );
@@ -192,7 +188,7 @@ describe('UploadsService', () => {
             await flush();
             state.next({ status: 'COMPLETED', progress: 100 });
             await first;
-            vi.mocked(ts_client.apiKey).mockReturnValue('secret-key');
+            place.setCredential({ kind: 'api_key', key: 'secret-key' });
             const second = spectator.service.uploadFile(new File([], 'b.png'));
             await flush();
             state.next({ status: 'COMPLETED', progress: 100 });
@@ -204,15 +200,14 @@ describe('UploadsService', () => {
         });
 
         it('should not re-authorise when an api key is present', async () => {
-            vi.mocked(ts_client.apiKey).mockReturnValue('secret-key');
-            vi.mocked(ts_client.token).mockReturnValue('');
+            place.setCredential({ kind: 'api_key', key: 'secret-key' });
             const promise = spectator.service.uploadFile(
                 new File([], 'test.png'),
             );
             await flush();
             state.next({ status: 'COMPLETED', progress: 100 });
             await promise;
-            expect(ts_client.authorise).not.toHaveBeenCalled();
+            expect(place.session.authorize).not.toHaveBeenCalled();
         });
     });
 });

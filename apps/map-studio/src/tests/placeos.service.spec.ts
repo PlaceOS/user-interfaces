@@ -1,32 +1,59 @@
-vi.mock('@placeos/ts-client', () => ({
-    authorise: vi.fn(async () => ''),
-    authority: () => ({
-        domain: 'place.example.com',
-        config: {
-            org_zone: 'org-2',
-            map_builder: {
-                llm_system_id: 'sys-ai',
-                llm_model: 'gpt-5.1',
-            },
-        },
-    }),
-    setToken: vi.fn(),
-    setup: vi.fn(async () => undefined),
-    showMetadata: vi.fn(async () => ({ details: {} })),
-    token: vi.fn(() => 'session-token'),
-    updateMetadata: vi.fn(async () => undefined),
-}));
-
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
 import {
-    authorise,
-    setToken,
-    setup,
-    showMetadata,
-    token,
-    updateMetadata,
+    createAuthSession,
+    type DomainAuthorityInput,
+    type JsonValue,
+    type Metadata,
+    metadata,
 } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+
+// The login session is a fake and the metadata operations are stubs
+vi.mock('@placeos/ts-client', { spy: true });
+
+const AUTHORITY: DomainAuthorityInput = {
+    id: 'authority-1',
+    domain: 'place.example.com',
+    login_url: '/login?continue={{url}}',
+    config: {
+        org_zone: 'org-2',
+        map_builder: {
+            llm_system_id: 'sys-ai',
+            llm_model: 'gpt-5.1',
+        },
+    },
+};
+
+/** The floorplan metadata of a level, as `metadata.show` gives it */
+function floorplanMetadata(details: JsonValue, updated_at = 0): Metadata {
+    return {
+        name: 'map-studio',
+        description: '',
+        details,
+        parent_id: 'level-1',
+        schema_id: null,
+        editors: [],
+        modified_by_id: null,
+        updated_at,
+        created_at: 0,
+    };
+}
+
+/** A failed 7.x result with this HTTP status */
+function httpFailure(status: number) {
+    return {
+        ok: false as const,
+        error: {
+            kind: 'http' as const,
+            status,
+            message: null,
+            body: null,
+            text: null,
+        },
+    };
+}
 
 import { PlaceOSService } from '../app/data/placeos.service';
 
@@ -123,20 +150,33 @@ function stubFetch(authority_ok: boolean) {
 
 describe('PlaceOSService', () => {
     let service: PlaceOSService;
+    let go_to_login: ReturnType<typeof vi.spyOn>;
+    let fake: FakeSession;
 
     beforeEach(() => {
         vi.clearAllMocks();
         localStorage.clear();
-        vi.mocked(setup).mockResolvedValue(undefined);
-        vi.mocked(token).mockReturnValue('session-token');
-        vi.mocked(setToken).mockImplementation(() => undefined);
+        // The service starts the client with this session
+        fake = startFakePlaceClient();
+        fake.signIn(AUTHORITY, 'session-token');
+        vi.mocked(createAuthSession).mockClear();
+        vi.mocked(metadata.show).mockResolvedValue(
+            mockReply({ 'map-studio': floorplanMetadata({}) }),
+        );
+        vi.mocked(metadata.update).mockResolvedValue(
+            mockReply(floorplanMetadata({})),
+        );
         TestBed.configureTestingModule({
             providers: [provideZonelessChangeDetection()],
         });
         service = TestBed.inject(PlaceOSService);
+        go_to_login = vi
+            .spyOn(service, 'goToLogin')
+            .mockImplementation(() => undefined);
     });
 
     afterEach(() => {
+        vi.useRealTimers();
         vi.unstubAllGlobals();
         Object.defineProperty(window, 'opener', {
             value: null,
@@ -158,10 +198,160 @@ describe('PlaceOSService', () => {
         await service.getZones();
         const [url, options] = calls[calls.length - 1];
         expect(url).toContain('/api/engine/v2/zones');
-        expect(url.startsWith('/api')).toBe(true);
-        expect((options.headers as Record<string, string>).Authorization).toBe(
+        expect(new URL(url).origin).toBe(location.origin);
+        expect(new Headers(options.headers).get('Authorization')).toBe(
             'Bearer session-token',
         );
+    });
+
+    it('sends a domain request again with the renewed credential after a 401', async () => {
+        stubFetch(true);
+        await service.init();
+        const auth = fake.session.client_auth;
+        if (auth.kind !== 'credential') throw new Error('Expected a session');
+        vi.spyOn(auth, 'rejected').mockImplementation(async () => {
+            fake.setCredential({ kind: 'bearer', token: 'renewed-token' });
+            return true;
+        });
+        const fetch = vi.mocked(globalThis.fetch);
+        fetch.mockClear();
+        fetch.mockResolvedValueOnce(new Response(null, { status: 401 }));
+
+        await expect(service.getZone('level-1')).resolves.toEqual({
+            map_id: '/maps/level-1.svg',
+        });
+
+        expect(fetch).toHaveBeenCalledTimes(2);
+        expect(
+            new Headers(fetch.mock.calls[1][1]?.headers).get('Authorization'),
+        ).toBe('Bearer renewed-token');
+    });
+
+    it.each([401, 511])(
+        'gives a domain request that still gets a %i to the caller',
+        async (status) => {
+            stubFetch(true);
+            await service.init();
+            // The session renews nothing, so `placeFetch` gives the status
+            vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+                new Response(null, { status }),
+            );
+
+            await expect(service.getZone('level-1')).rejects.toMatchObject({
+                status,
+            });
+
+            expect(go_to_login).not.toHaveBeenCalled();
+        },
+    );
+
+    it('goes to login when a floorplan metadata read gets a 511', async () => {
+        stubFetch(true);
+        await service.init();
+        vi.mocked(metadata.show).mockResolvedValueOnce(httpFailure(511));
+
+        await expect(
+            service.getFloorplanMetadata('level-1'),
+        ).rejects.toMatchObject({ status: 511 });
+
+        expect(go_to_login).toHaveBeenCalledWith(
+            `/login?continue=${encodeURIComponent(location.href)}`,
+        );
+    });
+
+    it('goes to login when the session has no credential for a floorplan metadata read', async () => {
+        stubFetch(true);
+        await service.init();
+        // The session dropped its token after a 511 and could not renew it
+        vi.mocked(metadata.show).mockResolvedValueOnce({
+            ok: false,
+            error: { kind: 'auth_missing' },
+        });
+
+        await expect(
+            service.getFloorplanMetadata('level-1'),
+        ).rejects.toMatchObject({ error: { kind: 'auth_missing' } });
+
+        expect(go_to_login).toHaveBeenCalledWith(
+            `/login?continue=${encodeURIComponent(location.href)}`,
+        );
+    });
+
+    it('goes to login one time when parallel floorplan metadata calls get a 511', async () => {
+        stubFetch(true);
+        await service.init();
+        vi.mocked(metadata.show).mockResolvedValue(httpFailure(511));
+
+        const results = await Promise.allSettled([
+            service.getFloorplanMetadata('level-1'),
+            service.getFloorplanMetadata('level-2'),
+        ]);
+
+        expect(results.map((_) => _.status)).toEqual(['rejected', 'rejected']);
+        expect(go_to_login).toHaveBeenCalledTimes(1);
+    });
+
+    it('goes to login again for a signed-out metadata call after the cooldown', async () => {
+        stubFetch(true);
+        await service.init();
+        vi.mocked(metadata.show).mockResolvedValue(httpFailure(511));
+        // The user stayed on the page at the unload prompt
+        vi.useFakeTimers({ toFake: ['Date'] });
+        vi.setSystemTime(1_000_000);
+        const read = () =>
+            service.getFloorplanMetadata('level-1').catch(() => undefined);
+
+        await read();
+        vi.setSystemTime(1_005_000);
+        await read();
+        expect(go_to_login).toHaveBeenCalledTimes(1);
+        vi.setSystemTime(1_005_001);
+        await read();
+
+        expect(go_to_login).toHaveBeenCalledTimes(2);
+    });
+
+    it('does not go to login when a floorplan metadata read gets a 401', async () => {
+        stubFetch(true);
+        await service.init();
+        vi.mocked(metadata.show).mockResolvedValueOnce(httpFailure(401));
+
+        await expect(
+            service.getFloorplanMetadata('level-1'),
+        ).rejects.toMatchObject({ status: 401 });
+
+        expect(go_to_login).not.toHaveBeenCalled();
+    });
+
+    it('reads floorplan details that the API gives as a JSON string', async () => {
+        stubFetch(true);
+        await service.init();
+        vi.mocked(metadata.show).mockResolvedValueOnce(
+            mockReply({
+                'map-studio': floorplanMetadata(
+                    JSON.stringify({ floor_name: 'Saved Level' }),
+                ),
+            }),
+        );
+
+        await expect(service.getFloorplanMetadata('level-1')).resolves.toEqual({
+            floor_name: 'Saved Level',
+        });
+    });
+
+    it('does not go to login after a 401 with an API key', async () => {
+        stubFetch(false);
+        await service.init();
+        service.setConfig('https://other.example.com/', 'secret');
+        vi.mocked(globalThis.fetch).mockResolvedValueOnce(
+            new Response(null, { status: 401 }),
+        );
+
+        await expect(service.getZone('level-1')).rejects.toMatchObject({
+            status: 401,
+        });
+
+        expect(go_to_login).not.toHaveBeenCalled();
     });
 
     it('falls back to manual setup when authority discovery does not settle', async () => {
@@ -205,41 +395,58 @@ describe('PlaceOSService', () => {
 
     it('does not start domain requests while login is redirecting', async () => {
         stubFetch(true);
-        vi.mocked(token).mockReturnValue('');
+        fake.setCredential(null);
         await service.init();
         expect(service.mode()).toBe('checking');
-        expect(authorise).toHaveBeenCalled();
+        expect(go_to_login).toHaveBeenCalledWith(
+            `/login?continue=${encodeURIComponent(location.href)}`,
+        );
+    });
+
+    it('does not go to a login URL that is not HTTP', async () => {
+        stubFetch(true);
+        fake.signIn(
+            { ...AUTHORITY, login_url: 'javascript:alert(1)//{{url}}' },
+            null,
+        );
+        await service.init();
+        expect(go_to_login).not.toHaveBeenCalled();
+        expect(service.mode()).toBe('manual');
     });
 
     it('signs in with the token of the app that opened it', async () => {
         stubFetch(true);
         const expires_at = Date.now() + 60 * 60 * 1000;
-        let current = '';
-        vi.mocked(token).mockImplementation(() => current);
-        vi.mocked(setToken).mockImplementation((value) => (current = value));
+        fake.setCredential(null);
         openedBy({ token: 'concierge-token', expires_at });
         await service.init();
-        expect(setup).toHaveBeenCalledWith(
-            expect.objectContaining({ handle_login: true }),
+        // The session does not go to the login before the opener answers
+        expect(createAuthSession).toHaveBeenCalledWith(
+            expect.objectContaining({ handle_login: false }),
         );
-        expect(setToken).toHaveBeenCalledWith('concierge-token', expires_at);
-        expect(authorise).not.toHaveBeenCalled();
+        expect(fake.session.useToken).toHaveBeenCalledWith(
+            'concierge-token',
+            expires_at,
+        );
+        expect(go_to_login).not.toHaveBeenCalled();
         expect(service.mode()).toBe('domain');
     });
 
     it('goes to login when the opener hands over an expired token', async () => {
         stubFetch(true);
-        vi.mocked(token).mockReturnValue('');
+        fake.setCredential(null);
         openedBy({ token: 'stale', expires_at: Date.now() - 1000 });
         await service.init();
-        expect(setToken).not.toHaveBeenCalled();
-        expect(authorise).toHaveBeenCalled();
+        expect(fake.session.useToken).not.toHaveBeenCalled();
+        expect(go_to_login).toHaveBeenCalled();
     });
 
     it('falls back to manual setup when PlaceOS setup does not settle', async () => {
         vi.useFakeTimers();
         stubFetch(true);
-        vi.mocked(setup).mockReturnValue(new Promise(() => undefined));
+        vi.mocked(fake.session.start).mockReturnValue(
+            new Promise(() => undefined),
+        );
 
         const result = service.init();
         await vi.advanceTimersByTimeAsync(10_000);
@@ -258,7 +465,9 @@ describe('PlaceOSService', () => {
         ).resolves.toBe('{"outline":null,"rooms":[]}');
 
         const [url, options] = calls[calls.length - 1];
-        expect(url).toBe('/api/engine/v2/systems/sys-ai/LLM_1/chat');
+        expect(url).toBe(
+            `${location.origin}/api/engine/v2/systems/sys-ai/LLM_1/chat`,
+        );
         expect(options.method).toBe('POST');
         expect(JSON.parse(options.body as string)).toEqual([
             'gpt-5.1',
@@ -293,7 +502,7 @@ describe('PlaceOSService', () => {
         const [, options] = calls.find(([url]) =>
             url.endsWith('/maps/level-1.svg'),
         )!;
-        expect((options.headers as Record<string, string>).Authorization).toBe(
+        expect(new Headers(options.headers).get('Authorization')).toBe(
             'Bearer session-token',
         );
     });
@@ -314,13 +523,18 @@ describe('PlaceOSService', () => {
     it('loads and saves floorplan metadata on a level', async () => {
         stubFetch(true);
         await service.init();
-        vi.mocked(showMetadata).mockResolvedValueOnce({
-            details: {
-                floor_name: 'Saved Level',
-                updated_at: '2020-01-01T00:00:00.000Z',
-            },
-            updated_at: Date.parse('2026-08-06T01:02:03.000Z'),
-        } as never);
+        // The API gives Unix seconds
+        vi.mocked(metadata.show).mockResolvedValueOnce(
+            mockReply({
+                'map-studio': floorplanMetadata(
+                    {
+                        floor_name: 'Saved Level',
+                        updated_at: '2020-01-01T00:00:00.000Z',
+                    },
+                    Date.parse('2026-08-06T01:02:03.000Z') / 1000,
+                ),
+            }),
+        );
 
         await expect(service.getFloorplanMetadata('level-1')).resolves.toEqual({
             floor_name: 'Saved Level',
@@ -335,18 +549,21 @@ describe('PlaceOSService', () => {
             updated_at: '2026-08-06T01:02:03.000Z',
         } as never);
 
-        expect(showMetadata).toHaveBeenCalledWith('level-1', 'map-studio');
-        expect(updateMetadata).toHaveBeenCalledWith(
-            'level-1',
-            expect.objectContaining({
-                id: 'level-1',
+        expect(metadata.show).toHaveBeenCalledWith({
+            id: 'level-1',
+            name: 'map-studio',
+        });
+        expect(metadata.update).toHaveBeenCalledWith({
+            id: 'level-1',
+            body: expect.objectContaining({
+                parent_id: 'level-1',
                 name: 'map-studio',
                 details: {
                     floor_name: 'Saved Level',
                     updated_at: '2026-08-06T01:02:03.000Z',
                 },
             }),
-        );
+        });
     });
 
     it('reads every page of zones', async () => {
@@ -419,7 +636,7 @@ describe('PlaceOSService', () => {
             string,
             RequestInit,
         ][];
-        expect(reserve[0]).toBe('/api/engine/v2/uploads');
+        expect(reserve[0]).toBe(`${location.origin}/api/engine/v2/uploads`);
         expect(JSON.parse(reserve[1].body as string)).toMatchObject({
             file_name: 'level-1.svg',
             file_size: 6,
@@ -433,7 +650,9 @@ describe('PlaceOSService', () => {
                 'x-amz-acl': 'public-read',
             },
         });
-        expect(complete[0]).toBe('/api/engine/v2/uploads/up-1');
+        expect(complete[0]).toBe(
+            `${location.origin}/api/engine/v2/uploads/up-1`,
+        );
         expect(JSON.parse(complete[1].body as string)).toEqual({
             upload_complete: true,
         });
@@ -484,11 +703,7 @@ describe('PlaceOSService', () => {
 
     it('sends an imported SVG once, not as both source and output', async () => {
         const details = () =>
-            (
-                vi.mocked(updateMetadata).mock.calls.at(-1)?.[1] as {
-                    details: Record<string, unknown>;
-                }
-            ).details;
+            vi.mocked(metadata.update).mock.calls.at(-1)?.[0].body?.details;
         const floorplan = { id: 'local', floor_name: 'Level 1' };
 
         await service.saveFloorplanMetadata('level-1', {

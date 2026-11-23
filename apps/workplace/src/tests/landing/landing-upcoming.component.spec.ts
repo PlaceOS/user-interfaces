@@ -12,13 +12,17 @@ import {
     EventFormService,
     newCalendarEventFromBooking,
 } from '@placeos/events';
-import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import {
+    bookings as staff_bookings,
+    events as staff_events,
+} from '@placeos/ts-client/staff';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { LandingUpcomingComponent } from '../../app/landing/landing-upcoming.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('LandingUpcomingComponent', () => {
     let spectator: SpectatorRouting<LandingUpcomingComponent>;
@@ -54,7 +58,12 @@ describe('LandingUpcomingComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.del).mockResolvedValue(undefined);
+        vi.mocked(staff_bookings.destroy).mockImplementation(
+            fromV1Mock(() => '', ['...']),
+        );
+        vi.mocked(staff_events.destroy).mockImplementation(
+            fromV1Mock(() => '', ['...']),
+        );
         upcoming_events.set([]);
         spectator = createComponent();
     });
@@ -145,7 +154,8 @@ describe('LandingUpcomingComponent', () => {
         function nativeRoom() {
             return newCalendarEventFromBooking(
                 new Booking({
-                    id: 'room-booking-1',
+                    // Staff booking ids are integers
+                    id: '601',
                     booking_type: 'room',
                     asset_id: 'room-1',
                     user_email: 'staff@example.com',
@@ -167,11 +177,10 @@ describe('LandingUpcomingComponent', () => {
 
                 await spectator.component.remove(booking);
 
-                expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                    expect.stringMatching(/\/bookings\/room-booking-1\?/),
-                    { response_type: 'void' },
+                expect(staff_bookings.destroy).toHaveBeenCalledExactlyOnceWith(
+                    expect.objectContaining({ id: 601 }),
                 );
-                expect(ts_client.get).not.toHaveBeenCalled();
+                expect(staff_events.destroy).not.toHaveBeenCalled();
                 expect(
                     spectator.inject(LandingStateService).refreshUpcomingEvents,
                 ).toHaveBeenCalled();
@@ -188,9 +197,8 @@ describe('LandingUpcomingComponent', () => {
 
             await spectator.component.remove(event);
 
-            expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(/\/events\/calendar-event-1\?/),
-                { response_type: 'void' },
+            expect(staff_events.destroy).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({ id: 'calendar-event-1' }),
             );
         });
 
@@ -199,14 +207,14 @@ describe('LandingUpcomingComponent', () => {
 
             await spectator.component.remove(nativeRoom());
 
-            expect(ts_client.del).not.toHaveBeenCalled();
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(staff_bookings.destroy).not.toHaveBeenCalled();
+            expect(staff_events.destroy).not.toHaveBeenCalled();
         });
 
         it('keeps the booking visible when native cancellation fails', async () => {
             const close = confirmRemoval();
             const error = new Error('Cancellation failed');
-            vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+            vi.mocked(staff_bookings.destroy).mockRejectedValueOnce(error);
 
             await expect(
                 spectator.component.remove(nativeRoom()),

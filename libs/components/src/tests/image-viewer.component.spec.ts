@@ -1,15 +1,19 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import { authority } from '@placeos/ts-client';
-
 import { ImageViewerComponent } from '../lib/image-viewer.component';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 const TEST_URL = 'https://images.example.com/photo.png';
 
 describe('ImageViewerComponent', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: Spectator<ImageViewerComponent>;
     const createComponent = createComponentFactory({
         component: ImageViewerComponent,
@@ -20,7 +24,7 @@ describe('ImageViewerComponent', () => {
     });
 
     beforeEach(() => {
-        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
+        place.setAuthority({ id: 'test' });
         spectator = createComponent();
     });
 

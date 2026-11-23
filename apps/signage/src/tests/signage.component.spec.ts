@@ -9,7 +9,7 @@ import {
     reloadForNewVersion,
     SettingsService,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 
 import { MediaPlayerComponent } from '../app/media-player.component';
@@ -17,8 +17,6 @@ import { SignagePanelComponent } from '../app/signage.component';
 import { SignageService } from '../app/signage.service';
 import { MediaPlayerItem } from '../app/types';
 import { resetWatchdog, watchdogState } from '../app/watchdog';
-
-vi.mock('@placeos/ts-client', { spy: true });
 
 describe('SignagePanelComponent', () => {
     let spectator: SpectatorRouting<SignagePanelComponent>;
@@ -446,7 +444,8 @@ describe('SignagePanelComponent', () => {
         beforeEach(() => {
             vi.useFakeTimers();
             clearCacheCheck();
-            vi.mocked(ts_client.isOnline).mockReturnValue(true);
+            // Mock mode is online, which lets the reload go ahead
+            startMockPlaceClient();
             reload = vi.fn();
             location_descriptor = Object.getOwnPropertyDescriptor(
                 globalThis,

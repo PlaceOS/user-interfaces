@@ -9,11 +9,12 @@ import { setCurrentUser } from '@placeos/common';
 import { of } from 'rxjs';
 
 // The real `current_user` store and user-groups signals run for real (driven
-// via `setCurrentUser` / `user_groups`); only ts-client helpers are stubbed.
+// via `setCurrentUser` / `user_groups`); only the client session is stubbed.
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as common_lib from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 
 import { OrganisationService } from '@placeos/common';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
@@ -22,8 +23,16 @@ import {
     AuthorisedUserGuard,
     PLACEOS_APP_ACCESS,
 } from '../lib/authorised-user.guard';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 describe('AuthorisedUserGuard', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: SpectatorService<AuthorisedUserGuard>;
     const access_mock = { group: '' };
     const settings_mock = {
@@ -60,10 +69,11 @@ describe('AuthorisedUserGuard', () => {
             key === 'app.allow_access_groups' ? [] : undefined,
         );
         setCurrentUser({ groups: [] } as any);
-        vi.mocked(ts_client.authority).mockReturnValue(undefined);
-        vi.mocked(ts_client.currentGroups).mockReturnValue(of([]) as any);
-        vi.mocked(ts_client.onlineState).mockReturnValue(of(true) as any);
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
+        place.setAuthority(null);
+        vi.mocked(ts_client.groups.current).mockImplementation(
+            fromV1Mock(() => of([]) as any, ['...']),
+        );
+        place.setOnline(true);
         common_lib.user_groups.set([]);
         common_lib.user_groups_loaded.set(true);
         common_lib.user_groups_failed.set(false);
@@ -82,7 +92,7 @@ describe('AuthorisedUserGuard', () => {
         );
         // ts-client reports an api-key session as the token `x-api-key`; fixed
         // devices authenticate this way, so offline boot depends on it.
-        vi.mocked(ts_client.token).mockReturnValue('x-api-key');
+        place.setToken('x-api-key');
 
         const result = spectator.service.canActivate();
         await vi.advanceTimersByTimeAsync(21_000);
@@ -101,7 +111,7 @@ describe('AuthorisedUserGuard', () => {
         wait_until_initialised.mockImplementation(
             () => new Promise(() => undefined),
         );
-        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+        place.setToken('cached-token');
         const result = spectator.service.canActivate();
         await vi.advanceTimersByTimeAsync(21_000);
 
@@ -111,10 +121,10 @@ describe('AuthorisedUserGuard', () => {
 
     it('should use cached access, not a denial, when the user permissions failed to load', async () => {
         localStorage.setItem('PLACEOS.access_allowed.workplace', '1');
-        vi.mocked(ts_client.authority).mockReturnValue({
+        place.setAuthority({
             config: { use_group_subsystem_access: true },
-        } as any);
-        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+        });
+        place.setToken('cached-token');
         common_lib.user_groups_failed.set(true);
         await expect(spectator.service.canActivate()).resolves.toBe(true);
         expect(spectator.inject(Router).navigate).not.toHaveBeenCalled();
@@ -131,7 +141,7 @@ describe('AuthorisedUserGuard', () => {
         wait_until_initialised.mockImplementation(
             () => new Promise(() => undefined),
         );
-        vi.mocked(ts_client.token).mockReturnValue('');
+        place.setToken('');
         const router = spectator.inject(Router);
 
         const result = spectator.service.canActivate();
@@ -149,10 +159,8 @@ describe('AuthorisedUserGuard', () => {
             if (key === 'app.allow_access_groups') return ['signage-users'];
             return undefined;
         });
-        vi.mocked(ts_client.waitForSignal).mockImplementation(
-            () => new Promise(() => undefined),
-        );
-        vi.mocked(ts_client.token).mockReturnValue('cached-token');
+        place.setOnline(false);
+        place.setToken('cached-token');
 
         const result = spectator.service.canActivate();
         await vi.advanceTimersByTimeAsync(21_000);
@@ -217,9 +225,9 @@ describe('AuthorisedUserGuard', () => {
     });
 
     it('should require read access to the app subsystem when enabled', async () => {
-        vi.mocked(ts_client.authority).mockReturnValue({
+        place.setAuthority({
             config: { use_group_subsystem_access: true },
-        } as any);
+        });
         setCurrentUser({ groups: [] } as any);
         common_lib.user_groups.set([
             {
@@ -229,13 +237,13 @@ describe('AuthorisedUserGuard', () => {
         ]);
 
         await expect(spectator.service.canActivate()).resolves.toBe(true);
-        expect(ts_client.currentGroups).not.toHaveBeenCalled();
+        expect(ts_client.groups.current).not.toHaveBeenCalled();
     });
 
     it('should use the configured access subsystem over the app name', async () => {
-        vi.mocked(ts_client.authority).mockReturnValue({
+        place.setAuthority({
             config: { use_group_subsystem_access: true },
-        } as any);
+        });
         settings_mock.app_name = 'signage-manager';
         settings_mock.get.mockImplementation((key) =>
             key === 'app.access_subsystem' ? 'signage' : undefined,
@@ -252,9 +260,9 @@ describe('AuthorisedUserGuard', () => {
     });
 
     it('should block users without read access to the app subsystem', async () => {
-        vi.mocked(ts_client.authority).mockReturnValue({
+        place.setAuthority({
             config: { use_group_subsystem_access: true },
-        } as any);
+        });
         setCurrentUser({ groups: [] } as any);
         common_lib.user_groups.set([
             {
@@ -264,6 +272,6 @@ describe('AuthorisedUserGuard', () => {
         ]);
 
         await expect(spectator.service.canActivate()).resolves.toBe(false);
-        expect(ts_client.currentGroups).not.toHaveBeenCalled();
+        expect(ts_client.groups.current).not.toHaveBeenCalled();
     });
 });

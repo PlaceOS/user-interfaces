@@ -36,8 +36,10 @@ import {
 } from '@placeos/components';
 import { requestSpacesForZone } from '@placeos/events';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
-import { listChildMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { endOfDay, startOfDay } from 'date-fns';
+import { jsonList } from '../metadata';
 import { queryParamsWriter } from '../ui/page-transitions';
 import { ReportOptions, reportUsesRegion } from './reports-state.service';
 
@@ -329,16 +331,15 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
                         desks.filter((desk) => desk.bookable),
                     );
                 }
-                const list = await listChildMetadata(scope_id, {
-                    name: 'desks',
-                });
+                const list = await metadata
+                    .childrenMetadata({ id: scope_id, name: 'desks' })
+                    .then(orThrow);
                 const zones = new Set<string>();
                 for (const meta of list) {
-                    const details = meta.metadata?.desks?.details;
-                    if (
-                        details instanceof Array &&
-                        details.some((desk) => desk.bookable)
-                    ) {
+                    const details = jsonList<{ bookable?: boolean }>(
+                        meta.metadata?.desks?.details,
+                    );
+                    if (details.some((desk) => desk.bookable)) {
                         if (meta.zone?.id) zones.add(meta.zone.id);
                     }
                 }

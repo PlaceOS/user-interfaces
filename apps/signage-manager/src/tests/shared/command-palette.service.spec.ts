@@ -2,12 +2,13 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import {
-    query,
-    querySignageMedia,
-    querySignagePlaylists,
-    querySignageTemplates,
-    queryZones,
+    playlist,
+    playlist_media,
+    signage_templates,
+    systems,
+    zones,
 } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { Subject } from 'rxjs';
 import { CommandPaletteService } from '../../app/shared/command-palette.service';
 import { SignageContextService } from '../../app/signage-context.service';
@@ -79,21 +80,27 @@ describe('CommandPaletteService', () => {
 
     describe('searchAll', () => {
         beforeEach(() => {
-            vi.mocked(query).mockResolvedValue({
-                data: [{ id: 'display-1', name: 'Lobby' }],
-            } as never);
-            vi.mocked(querySignagePlaylists).mockRejectedValue(
-                new Error('down'),
+            vi.mocked(systems.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'display-1', name: 'Lobby' }],
+                } as never),
             );
-            vi.mocked(querySignageTemplates).mockResolvedValue({
-                data: [{ id: 'template-1' }],
-            } as never);
-            vi.mocked(queryZones).mockResolvedValue({
-                data: [{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }],
-            } as never);
-            vi.mocked(querySignageMedia).mockResolvedValue({
-                data: [],
-            } as never);
+            vi.mocked(playlist.query).mockRejectedValue(new Error('down'));
+            vi.mocked(signage_templates.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'template-1' }],
+                } as never),
+            );
+            vi.mocked(zones.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'z1' }, { id: 'z2' }, { id: 'z3' }],
+                } as never),
+            );
+            vi.mocked(playlist_media.query).mockResolvedValue(
+                mockPage({
+                    data: [],
+                } as never),
+            );
         });
 
         it('leaves only the type whose query fails empty and keeps the limit', async () => {
@@ -105,8 +112,8 @@ describe('CommandPaletteService', () => {
                 'template-1',
             ]);
             expect(results.zones.map(({ id }) => id)).toEqual(['z1', 'z2']);
-            expect(queryZones).toHaveBeenCalledWith(
-                expect.objectContaining({ q: 'lobby', tags: 'signage' }),
+            expect(zones.query).toHaveBeenCalledWith(
+                expect.objectContaining({ q: 'lobby', tags: ['signage'] }),
             );
         });
 
@@ -115,7 +122,7 @@ describe('CommandPaletteService', () => {
 
             const results = await make().searchAll('lobby');
 
-            expect(querySignageTemplates).not.toHaveBeenCalled();
+            expect(signage_templates.query).not.toHaveBeenCalled();
             expect(results.templates).toEqual([]);
         });
     });

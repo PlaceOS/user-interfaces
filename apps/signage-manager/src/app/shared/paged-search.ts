@@ -1,6 +1,5 @@
 import { debounced, effect, Signal, signal, untracked } from '@angular/core';
-import { QueryResponse } from '@placeos/ts-client';
-import { PagedList } from './paged-list';
+import { PagedList, type QueryResponse } from './paged-list';
 
 /**
  * Backend search paged as the user scrolls, for the picker modals. Filtering

@@ -6,13 +6,14 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { setNotifyOutlet } from '@placeos/common';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { SurveyQuestion, surveys_questions } from '@placeos/ts-client/staff';
 import { QuestionModalComponent } from '../../app/surveys/question-modal.component';
 import { QuestionComponent } from '../../app/surveys/question.component';
+import { questionDraft } from '../../app/surveys/types';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-const { SurveyQuestion } = ts_client;
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('QuestionModalComponent', () => {
     let spectator: Spectator<QuestionModalComponent>;
@@ -44,11 +45,11 @@ describe('QuestionModalComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        vi.mocked(ts_client.addQuestion).mockResolvedValue(
-            new SurveyQuestion({}) as never,
+        vi.mocked(surveys_questions.create).mockResolvedValue(
+            mockReply(mockData(SurveyQuestion, {})),
         );
-        vi.mocked(ts_client.updateQuestion).mockResolvedValue(
-            new SurveyQuestion({}) as never,
+        vi.mocked(surveys_questions.update).mockResolvedValue(
+            mockReply(mockData(SurveyQuestion, {})),
         );
         dialog_data = null;
     });
@@ -58,7 +59,7 @@ describe('QuestionModalComponent', () => {
     });
 
     it('should treat existing questions as edits', () => {
-        dialog_data = new SurveyQuestion({ id: 5, title: 'Existing' });
+        dialog_data = mockData(SurveyQuestion, { id: 5, title: 'Existing' });
         spectator = createComponent();
         spectator.component.ngOnInit();
 
@@ -79,13 +80,15 @@ describe('QuestionModalComponent', () => {
         dialog_data = null;
         spectator = createComponent();
         spectator.component.ngOnInit();
-        const question = new SurveyQuestion({ title: 'New Q', type: 'text' });
+        const question = questionDraft({ title: 'New Q', type: 'text' });
         setQuestionEl(true, question);
 
         await spectator.component.save();
 
-        expect(ts_client.addQuestion).toHaveBeenCalledWith(question);
-        expect(ts_client.updateQuestion).not.toHaveBeenCalled();
+        expect(surveys_questions.create).toHaveBeenCalledWith({
+            body: question,
+        });
+        expect(surveys_questions.update).not.toHaveBeenCalled();
         expect(dialog_close).toHaveBeenCalledWith(true);
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
@@ -95,16 +98,19 @@ describe('QuestionModalComponent', () => {
     });
 
     it('should update an existing question on save', async () => {
-        dialog_data = new SurveyQuestion({ id: 9, title: 'Old' });
+        dialog_data = mockData(SurveyQuestion, { id: 9, title: 'Old' });
         spectator = createComponent();
         spectator.component.ngOnInit();
-        const question = new SurveyQuestion({ id: 9, title: 'Updated' });
+        const question = questionDraft({ id: 9, title: 'Updated' });
         setQuestionEl(true, question);
 
         await spectator.component.save();
 
-        expect(ts_client.updateQuestion).toHaveBeenCalledWith('9', question);
-        expect(ts_client.addQuestion).not.toHaveBeenCalled();
+        expect(surveys_questions.update).toHaveBeenCalledWith({
+            id: 9,
+            body: question,
+        });
+        expect(surveys_questions.create).not.toHaveBeenCalled();
         expect(dialog_close).toHaveBeenCalledWith(true);
     });
 
@@ -116,7 +122,7 @@ describe('QuestionModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.addQuestion).not.toHaveBeenCalled();
+        expect(surveys_questions.create).not.toHaveBeenCalled();
         expect(dialog_close).not.toHaveBeenCalled();
     });
 });

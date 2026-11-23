@@ -14,17 +14,26 @@ import {
     SettingsService,
 } from '@placeos/common';
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings as staff_bookings,
+    events as staff_events,
+    Booking as StaffBooking,
+    type PlaceCalendarEvent,
+} from '@placeos/ts-client/staff';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 
+import { mockData } from '@placeos/common/tests';
 import { captureDownloads } from './download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('ReportsStateService', () => {
     let spectator: SpectatorService<ReportsStateService>;
     let settings_map: Record<string, any>;
-    let booking_data: any[];
-    let event_data: any[];
+    let booking_data: StaffBooking[];
+    let event_data: PlaceCalendarEvent[];
     let notify_open: ReturnType<typeof vi.fn>;
     let downloads: ReturnType<typeof captureDownloads>;
 
@@ -49,36 +58,52 @@ describe('ReportsStateService', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         downloads = captureDownloads();
 
-        // queryAllBookings (query_params.type) / queryAllEvents (no type),
-        // both routed through the ts-client `query` seam one layer down.
-        vi.mocked(ts_client_mod.query).mockImplementation((req: any) => {
-            const params = req?.query_params || {};
-            const data = params.type ? booking_data : event_data;
-            return Promise.resolve({ data, next: undefined }) as any;
-        });
+        // queryAllBookings -> bookings.query, queryAllEvents -> events.query
+        vi.mocked(staff_bookings.query).mockImplementation(async () =>
+            mockPage({ data: booking_data }),
+        );
+        vi.mocked(staff_events.query).mockImplementation(async () =>
+            mockReply(event_data),
+        );
         // Defensive stubs so any resource loaders that fire never hit real HTTP.
-        vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
-            data: [],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
-            data: [],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
-            data: [
-                { id: 'cat-park', name: '_PARKING_', hidden: true },
-                { id: 'cat-lock', name: '_LOCKERS_', hidden: true },
-            ],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
-            data: [],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
+        vi.mocked(ts_client_mod.systems.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'cat-park', name: '_PARKING_', hidden: true },
+                    { id: 'cat-lock', name: '_LOCKERS_', hidden: true },
+                ],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService({
             providers: [
                 // New signals for each test, so that services from earlier
@@ -188,7 +213,7 @@ describe('ReportsStateService', () => {
     });
 
     it('should clear loading when the options change during a load', async () => {
-        vi.mocked(ts_client_mod.query).mockReturnValue(
+        vi.mocked(staff_bookings.query).mockReturnValue(
             new Promise(() => undefined),
         );
         spectator.service.setOptions({
@@ -213,37 +238,47 @@ describe('ReportsStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1' },
             { id: 'lvl-2', parent_id: 'bld-1' },
         ];
-        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
-            data: [
-                {
-                    id: 'type-bank',
-                    name: '_LOCKER_BANKS_',
-                    category_id: 'cat-lock',
-                },
-                { id: 'type-lock', name: '_LOCKERS_', category_id: 'cat-lock' },
-            ],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssets).mockImplementation(
-            ({ type_id }: any) =>
-                Promise.resolve({
-                    data:
-                        type_id === 'type-lock'
-                            ? [
-                                  { id: 'l1', parent_id: 'bank-1' },
-                                  { id: 'l2', parent_id: 'bank-2' },
-                                  {
-                                      id: 'l3',
-                                      parent_id: 'bank-2',
-                                      bookable: false,
-                                  },
-                              ]
-                            : [
-                                  { id: 'bank-1', zones: ['lvl-1'] },
-                                  { id: 'bank-2', zones: ['lvl-2'] },
-                              ],
-                    next: undefined,
-                }) as any,
+        vi.mocked(ts_client_mod.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'type-bank',
+                        name: '_LOCKER_BANKS_',
+                        category_id: 'cat-lock',
+                    },
+                    {
+                        id: 'type-lock',
+                        name: '_LOCKERS_',
+                        category_id: 'cat-lock',
+                    },
+                ],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockImplementation(
+            fromV1Mock(
+                ({ type_id }: any) =>
+                    Promise.resolve({
+                        data:
+                            type_id === 'type-lock'
+                                ? [
+                                      { id: 'l1', parent_id: 'bank-1' },
+                                      { id: 'l2', parent_id: 'bank-2' },
+                                      {
+                                          id: 'l3',
+                                          parent_id: 'bank-2',
+                                          bookable: false,
+                                      },
+                                  ]
+                                : [
+                                      { id: 'bank-1', zones: ['lvl-1'] },
+                                      { id: 'bank-2', zones: ['lvl-2'] },
+                                  ],
+                        next: undefined,
+                    }) as any,
+                ['...'],
+                'page',
+            ),
         );
         spectator.service.setOptions({
             type: 'lockers',
@@ -253,21 +288,29 @@ describe('ReportsStateService', () => {
 
         expect(spectator.service.counts()).toEqual({ 'lvl-1': 1, 'lvl-2': 1 });
         const zone_ids = vi
-            .mocked(ts_client_mod.queryAssets)
+            .mocked(ts_client_mod.assets.query)
             .mock.calls.map(([q]: any) => q.zone_id);
         expect(zone_ids).toEqual(['bld-1', 'bld-1']);
 
         spectator.service.setOptions({ start: 5000, end: 6000 });
         await TestBed.inject(ApplicationRef).whenStable();
-        expect(ts_client_mod.queryAssets).toHaveBeenCalledTimes(2);
+        expect(ts_client_mod.assets.query).toHaveBeenCalledTimes(2);
     });
 
     it('should load the counts again when the building changes with no zones selected', async () => {
         const org = TestBed.inject(OrganisationService) as any;
         const app = TestBed.inject(ApplicationRef);
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [{}, {}],
-        } as any);
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [{}, {}],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator.service.setOptions({ type: 'desks', zones: [] });
         await app.whenStable();
         expect(spectator.service.counts()).toEqual({ 'lvl-1': 2, 'lvl-2': 2 });
@@ -276,10 +319,10 @@ describe('ReportsStateService', () => {
         await app.whenStable();
         expect(spectator.service.counts()).toEqual({ 'lvl-3': 2 });
 
-        vi.mocked(ts_client_mod.showMetadata).mockClear();
+        vi.mocked(ts_client_mod.metadata.show).mockClear();
         spectator.service.setOptions({ start: 5000, end: 6000 });
         await app.whenStable();
-        expect(ts_client_mod.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.show).not.toHaveBeenCalled();
     });
 
     it('should load the inventory again when a report is generated', async () => {
@@ -287,28 +330,47 @@ describe('ReportsStateService', () => {
         vi.spyOn(spectator.service as any, 'timeout').mockImplementation(
             () => undefined,
         );
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [{}],
-        } as any);
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [{}],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator.service.setOptions({ type: 'desks', zones: ['lvl-1'] });
         await app.whenStable();
         expect(spectator.service.counts()).toEqual({ 'lvl-1': 1 });
 
         // An inventory edit made elsewhere, with the same type and zones
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [{}, {}, {}],
-        } as any);
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [{}, {}, {}],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator.service.generateReport();
         await app.whenStable();
         expect(spectator.service.counts()).toEqual({ 'lvl-1': 3 });
     });
 
     it('should query desk bookings and store the filtered results', async () => {
-        const booking = {
-            date: new Date('2026-04-06T12:00:00').valueOf(),
-            toJSON: () => ({}),
-        };
-        booking_data = [booking];
+        const booking_start = getUnixTime(new Date('2026-04-06T12:00:00'));
+        booking_data = [
+            mockData(StaffBooking, {
+                id: 1,
+                booking_start,
+                booking_end: booking_start + 3600,
+            }),
+        ];
         spectator.service.setOptions({
             type: 'desks',
             zones: ['z1'],
@@ -318,26 +380,26 @@ describe('ReportsStateService', () => {
 
         await (spectator.service as any)._loadBookings();
 
-        expect(ts_client_mod.query).toHaveBeenCalledWith(
+        expect(staff_bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    type: 'desk',
-                    zones: 'z1',
-                    limit: 200,
-                }),
+                type: 'desk',
+                zones: 'z1',
+                limit: 200,
             }),
         );
-        expect(spectator.service.bookings()).toEqual([booking]);
+        // The staff API sends numeric booking IDs
+        expect(spectator.service.bookings().map((_) => `${_.id}`)).toEqual([
+            '1',
+        ]);
     });
 
     it('should scope only the parking report to the region with parking.use_region', async () => {
         settings_map['app.parking.use_region'] = true;
         const zonesFor = async (type: 'parking' | 'desks') => {
-            vi.mocked(ts_client_mod.query).mockClear();
+            vi.mocked(staff_bookings.query).mockClear();
             spectator.service.setOptions({ type, zones: [] });
             await (spectator.service as any)._loadBookings();
-            return vi.mocked(ts_client_mod.query).mock.calls[0][0].query_params
-                .zones;
+            return vi.mocked(staff_bookings.query).mock.calls[0][0]?.zones;
         };
 
         expect(await zonesFor('parking')).toBe('region-1');
@@ -357,13 +419,11 @@ describe('ReportsStateService', () => {
         await (spectator.service as any)._loadBookings();
 
         // Auckland is UTC+12 on 6 April 2026, after daylight saving ends
-        expect(ts_client_mod.query).toHaveBeenCalledWith(
+        expect(staff_bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    period_start: getUnixTime(new Date('2026-04-05T12:00:00Z')),
-                    period_end: getUnixTime(new Date('2026-04-06T11:59:59Z')),
-                    type: 'parking',
-                }),
+                period_start: getUnixTime(new Date('2026-04-05T12:00:00Z')),
+                period_end: getUnixTime(new Date('2026-04-06T11:59:59Z')),
+                type: 'parking',
             }),
         );
     });
@@ -387,7 +447,7 @@ describe('ReportsStateService', () => {
     });
 
     it('should offer a retry when a booking load fails', async () => {
-        vi.mocked(ts_client_mod.query).mockRejectedValue(new Error('500'));
+        vi.mocked(staff_bookings.query).mockRejectedValue(new Error('500'));
         spectator.service.setOptions({
             type: 'desks',
             zones: ['z1'],

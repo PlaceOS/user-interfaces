@@ -1,4 +1,4 @@
-import { mockSystem } from '@placeos/ts-client';
+import { mockSystem } from '@placeos/ts-client/compat';
 
 import { createRemoteDebugSystem } from '../realtime/remote-debug';
 import { createRemoteSetupSystem } from '../realtime/remote-setup';
@@ -101,7 +101,8 @@ export function registerMockSystems() {
         },
     });
 
-    // State of one module, such as `System_1`
+    // State of one module, such as `System_1`. The engine sends each value
+    // as a JSON string.
     registerMockEndpoint({
         path: '/api/engine/v2/systems/:id/:module',
         method: 'GET',
@@ -112,7 +113,12 @@ export function registerMockSystems() {
                 parts.join('_')
             ]?.[index - 1];
             if (!mod) throw { status: 404, message: 'Module not found' };
-            return moduleState(mod);
+            return Object.fromEntries(
+                Object.entries(moduleState(mod)).map(([key, value]) => [
+                    key,
+                    JSON.stringify(value),
+                ]),
+            );
         },
     });
 

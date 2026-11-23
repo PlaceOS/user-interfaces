@@ -21,7 +21,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
-import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { playlistAnimation } from '../signage-playlist.util';
 import { ANIMATION_OPTIONS } from './media-labels.util';
@@ -38,18 +39,15 @@ import { saveHotkey } from './save-hotkey';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 export interface PlaylistEditModalData {
-    playlist: SignagePlaylist;
+    playlist: Playlist;
     /** Signage group the playlist is being viewed from */
     group_id?: string;
     /** Saves a new playlist. Set when the modal opens without a playlist ID. */
-    onAdd?: (data: Partial<SignagePlaylist>) => Promise<SignagePlaylist>;
+    onAdd?: (data: Partial<Playlist>) => Promise<Playlist>;
     /** Saves an existing playlist. Set when the playlist has an ID. */
-    onEdit?: (
-        id: string,
-        data: Partial<SignagePlaylist>,
-    ) => Promise<SignagePlaylist>;
+    onEdit?: (id: string, data: Partial<Playlist>) => Promise<Playlist>;
     /** Runs before an existing playlist is saved. Return false to stop the save. */
-    beforeSave?: (data: Partial<SignagePlaylist>) => Promise<boolean>;
+    beforeSave?: (data: Partial<Playlist>) => Promise<boolean>;
 }
 
 export interface PlaylistEditFormModel {
@@ -59,7 +57,7 @@ export interface PlaylistEditFormModel {
     distribution: boolean;
     random: boolean;
     default_animation: MediaAnimation;
-    orientation: string;
+    orientation: Playlist['orientation'];
     default_duration: number;
     schedules: PlaylistScheduleFormModel[];
     valid_from: number | null;
@@ -379,11 +377,10 @@ export class PlaylistEditModalComponent {
                 default_animation,
                 ...fields
             } = this.model();
-            const data: Partial<SignagePlaylist> = {
+            const data: Partial<Playlist> = {
                 ...fields,
-                // Send the animation only when the user changes it. The
-                // loaded value can be a guess (see `playlistAnimation`), and
-                // saving must not change it.
+                // Send the animation only when the user changes it, so
+                // saving other fields does not change it.
                 ...(default_animation !== this._loaded_animation
                     ? { default_animation }
                     : {}),
@@ -413,7 +410,7 @@ export class PlaylistEditModalComponent {
                 return;
             }
             try {
-                let result: SignagePlaylist;
+                let result: Playlist;
                 if (this.playlist.id) {
                     result = await this._data.onEdit(this.playlist.id, data);
                 } else {

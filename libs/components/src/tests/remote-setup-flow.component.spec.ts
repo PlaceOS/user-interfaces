@@ -20,11 +20,12 @@ import {
     RemoteSetupDevice,
     SettingsService,
 } from '@placeos/common';
-import * as client from '@placeos/ts-client';
 
 import { RemoteSetupFlowComponent } from '../lib/remote-setup-flow.component';
-
-vi.mock('@placeos/ts-client', { spy: true });
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 const DEVICES: Record<string, RemoteSetupDevice> = {
     'DEV-1': { id: 'DEV-1', app: 'booking-panel', config: null, last_seen: 2 },
@@ -39,8 +40,14 @@ const DEVICES: Record<string, RemoteSetupDevice> = {
 
 describe('RemoteSetupFlowComponent', () => {
     let spectator: SpectatorRouting<RemoteSetupFlowComponent>;
-    let listeners: Record<string, (value: unknown) => void>;
-    let execute: ReturnType<typeof vi.fn>;
+    let place: TestPlaceClient;
+    /** The driver calls, by method name and arguments */
+    let execute: ReturnType<
+        typeof vi.fn<(method: string, args: readonly unknown[]) => unknown>
+    >;
+    /** Send a status value of the remote setup driver */
+    const send = (name: string, value: unknown) =>
+        place.emit('sys-rs', 'RemoteSetup', name, value);
 
     const createComponent = createRoutingFactory({
         component: RemoteSetupFlowComponent,
@@ -80,27 +87,19 @@ describe('RemoteSetupFlowComponent', () => {
             queryParams: query,
         });
         spectator.detectChanges();
-        listeners['connected']?.(true);
-        listeners['devices']?.(DEVICES);
+        send('connected', true);
+        send('devices', DEVICES);
         spectator.detectChanges();
     }
 
     beforeEach(() => {
         vi.clearAllMocks();
-        listeners = {};
-        execute = vi.fn(() => Promise.resolve('cmd-1'));
-        vi.mocked(client.authority).mockReturnValue({
+        place = startTestPlaceClient();
+        place.setAuthority({
             config: { remote_setup: { system_id: 'sys-rs' } },
-        } as never);
-        vi.mocked(client.getModule).mockReturnValue({
-            execute,
-            variable: (name: string) => ({
-                bindThenSubscribe: (next: (value: unknown) => void) => {
-                    listeners[name] = next;
-                    return () => delete listeners[name];
-                },
-            }),
-        } as never);
+        });
+        execute = vi.fn(() => 'cmd-1');
+        place.useExecute(execute);
         markInitialisationComplete();
     });
 
@@ -115,7 +114,7 @@ describe('RemoteSetupFlowComponent', () => {
 
     it('should say when the driver is not connected', () => {
         open();
-        listeners['connected'](false);
+        send('connected', false);
         spectator.detectChanges();
         expect('[unavailable]').toExist();
     });
@@ -149,16 +148,20 @@ describe('RemoteSetupFlowComponent', () => {
                 { system_id: 'sys-9', event_view: true },
             ]),
         );
+        // The flow keeps the command ID when the call resolves
+        await vi.waitFor(() =>
+            expect(spectator.component.sending()).toBe(false),
+        );
 
-        listeners['device_DEV-1']({
+        send('device_DEV-1', {
             id: 'cmd-1',
             config: { system_id: 'sys-9' },
         });
         spectator.detectChanges();
         expect('[pending]').toExist();
 
-        listeners['device_DEV-1'](null);
-        listeners['devices']({
+        send('device_DEV-1', null);
+        send('devices', {
             ...DEVICES,
             'DEV-1': {
                 ...DEVICES['DEV-1'],
@@ -173,7 +176,7 @@ describe('RemoteSetupFlowComponent', () => {
 
     it('should clear the device after the user confirms', async () => {
         open({ device: 'DEV-2' });
-        listeners['clear_list'](['DEV-1']);
+        send('clear_list', ['DEV-1']);
         spectator.click('button[clear]');
         await vi.waitFor(() =>
             expect(execute).toHaveBeenCalledWith('clear', ['DEV-2']),
@@ -181,11 +184,11 @@ describe('RemoteSetupFlowComponent', () => {
         spectator.detectChanges();
         expect('[done]').not.toExist();
 
-        listeners['clear_list'](['DEV-1', 'DEV-2']);
+        send('clear_list', ['DEV-1', 'DEV-2']);
         spectator.detectChanges();
         expect('[pending]').toExist();
 
-        listeners['clear_list'](['DEV-1']);
+        send('clear_list', ['DEV-1']);
         spectator.detectChanges();
         expect('[pending]').not.toExist();
         expect('[done]').toExist();
@@ -218,8 +221,12 @@ describe('RemoteSetupFlowComponent', () => {
                 { system_id: 'sys-9' },
             ]),
         );
+        // The flow keeps the command ID when the call resolves
+        await vi.waitFor(() =>
+            expect(spectator.component.sending()).toBe(false),
+        );
 
-        listeners['devices']({
+        send('devices', {
             ...DEVICES,
             'DEV-00000000ABCD': {
                 id: 'DEV-00000000ABCD',

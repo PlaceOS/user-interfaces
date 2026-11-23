@@ -1,13 +1,11 @@
 import { signal } from '@angular/core';
 import {
-    removeSignageMedia,
-    removeSignagePlaylist,
-    removeSignageTemplate,
-    showSignageMedia,
-    showSignagePlaylist,
-    showSignageTemplate,
-    SignageMedia,
+    playlist,
+    playlist_media,
+    type PlaylistItem,
+    signage_templates,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 const _shared_groups_change = signal(0);
 
@@ -22,20 +20,16 @@ export function markSignageSharedGroupsChanged() {
 export type SignageShareableType = 'media' | 'playlists' | 'templates';
 
 /** Signage group holding a copy of a shared signage item */
-export type SignageSharedGroup = SignageMedia['shared_with'][number];
+export type SignageSharedGroup = PlaylistItem['shared_with'][number];
 
-function showSignageItem(
-    type: SignageShareableType,
-    id: string,
-    query_params: { group_id?: string },
-) {
+function showSignageItem(type: SignageShareableType, id: string) {
     switch (type) {
         case 'media':
-            return showSignageMedia(id, query_params);
+            return playlist_media.show({ id }).then(orThrow);
         case 'playlists':
-            return showSignagePlaylist(id, query_params);
+            return playlist.show({ id }).then(orThrow);
         case 'templates':
-            return showSignageTemplate(id);
+            return signage_templates.show({ id }).then(orThrow);
     }
 }
 
@@ -47,16 +41,11 @@ function showSignageItem(
 export async function listSignageSharedGroups(
     type: SignageShareableType,
     id: string,
-    group_id = '',
 ): Promise<SignageSharedGroup[]> {
     if (!id) return [];
     try {
-        const item = await showSignageItem(
-            type,
-            id,
-            group_id ? { group_id } : {},
-        );
-        return item.shared_with ?? [];
+        const item = await showSignageItem(type, id);
+        return [...(item.shared_with ?? [])];
     } catch {
         return [];
     }
@@ -74,10 +63,10 @@ export function unshareSignageItem(
 ) {
     switch (type) {
         case 'media':
-            return removeSignageMedia(id, { group_id });
+            return playlist_media.destroy({ id, group_id }).then(orThrow);
         case 'playlists':
-            return removeSignagePlaylist(id, { group_id });
+            return playlist.destroy({ id, group_id }).then(orThrow);
         case 'templates':
-            return removeSignageTemplate(id, { group_id });
+            return signage_templates.destroy({ id, group_id }).then(orThrow);
     }
 }

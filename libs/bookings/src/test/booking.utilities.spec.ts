@@ -29,7 +29,8 @@ import type { LockerBank } from '../lib/locker.class';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
-import { PlaceAsset, PlaceSystem } from '@placeos/ts-client';
+import { type Asset, parseResponse, System } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 
 describe('Booking Utilities', () => {
     let injector: Injector;
@@ -40,7 +41,13 @@ describe('Booking Utilities', () => {
 
     describe('bookingLocationString', () => {
         const system_level = new BuildingLevel({ id: 'lvl-2', name: 'L2' });
-        const system = new PlaceSystem({ id: 'sys-1', zones: ['lvl-2'] });
+        const parsed = parseResponse(
+            System,
+            { id: 'sys-1', zones: ['lvl-2'] },
+            { missing_fields: 'zero' },
+        );
+        if (parsed.ok === false) throw new Error('Invalid system');
+        const system = parsed.value;
         const org = {
             levelWithID: (ids: string[]) =>
                 ids.includes('lvl-2') ? system_level : undefined,
@@ -459,7 +466,7 @@ describe('Booking Utilities', () => {
                         size: 'not json',
                         features: '["usb"]',
                     },
-                } as Partial<PlaceAsset> as PlaceAsset,
+                } as Partial<Asset> as Asset,
                 [bank],
             );
 
@@ -484,7 +491,7 @@ describe('Booking Utilities', () => {
                     parent_id: 'bank-x',
                     bookable: false,
                     other_data: { accessible: 'false' },
-                } as Partial<PlaceAsset> as PlaceAsset,
+                } as Partial<Asset> as Asset,
                 [bank],
             );
 
@@ -501,39 +508,47 @@ describe('Booking Utilities', () => {
 
     describe('loadLockersForScope', () => {
         it('should list lockers under their bank without a reference cycle', async () => {
-            vi.spyOn(ts_client, 'queryAssetCategories').mockResolvedValue({
-                total: 1,
-                next: null,
-                data: [{ id: 'category-1', name: '_LOCKERS_', hidden: true }],
-            } as any);
-            vi.spyOn(ts_client, 'queryAssetTypes').mockResolvedValue({
-                total: 1,
-                next: null,
-                data: [{ id: 'type-1', name: '_LOCKERS_' }],
-            } as any);
-            vi.spyOn(ts_client, 'queryAssets').mockResolvedValue({
-                total: 1,
-                next: null,
-                data: [
-                    {
-                        id: 'locker-1',
-                        identifier: 'Locker 1',
-                        parent_id: 'bank-1',
-                        zone_id: 'level-1',
-                        asset_type_id: 'type-1',
-                        other_data: {},
-                    },
-                    // A locker whose bank is not loaded is not listed
-                    {
-                        id: 'locker-2',
-                        identifier: 'Locker 2',
-                        parent_id: 'bank-x',
-                        zone_id: 'level-1',
-                        asset_type_id: 'type-1',
-                        other_data: {},
-                    },
-                ],
-            } as any);
+            vi.spyOn(ts_client.asset_categories, 'query').mockResolvedValue(
+                mockPage({
+                    total: 1,
+                    next: null,
+                    data: [
+                        { id: 'category-1', name: '_LOCKERS_', hidden: true },
+                    ],
+                } as any),
+            );
+            vi.spyOn(ts_client.asset_types, 'query').mockResolvedValue(
+                mockPage({
+                    total: 1,
+                    next: null,
+                    data: [{ id: 'type-1', name: '_LOCKERS_' }],
+                } as any),
+            );
+            vi.spyOn(ts_client.assets, 'query').mockResolvedValue(
+                mockPage({
+                    total: 1,
+                    next: null,
+                    data: [
+                        {
+                            id: 'locker-1',
+                            identifier: 'Locker 1',
+                            parent_id: 'bank-1',
+                            zone_id: 'level-1',
+                            asset_type_id: 'type-1',
+                            other_data: {},
+                        },
+                        // A locker whose bank is not loaded is not listed
+                        {
+                            id: 'locker-2',
+                            identifier: 'Locker 2',
+                            parent_id: 'bank-x',
+                            zone_id: 'level-1',
+                            asset_type_id: 'type-1',
+                            other_data: {},
+                        },
+                    ],
+                } as any),
+            );
             const bank = { id: 'bank-1', name: 'Bank 1', lockers: [] } as any;
 
             const lockers = await loadLockersForScope(
@@ -554,11 +569,11 @@ describe('Booking Utilities', () => {
             const org = {
                 levelWithID: () => null,
             } as Partial<OrganisationService> as OrganisationService;
-            vi.spyOn(ts_client, 'queryAssetCategories').mockRejectedValue(
+            vi.spyOn(ts_client.asset_categories, 'query').mockRejectedValue(
                 new Error('offline'),
             );
             const query = vi
-                .spyOn(ts_client, 'queryAssets')
+                .spyOn(ts_client.assets, 'query')
                 .mockRejectedValue(new Error('offline'));
             query.mockClear();
 

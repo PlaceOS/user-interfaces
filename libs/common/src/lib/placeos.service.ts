@@ -3,18 +3,6 @@ import { Location } from '@angular/common';
 import { ErrorHandler, inject, Injectable, signal } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { SwUpdate } from '@angular/service-worker';
-import {
-    authority,
-    clientId,
-    convertPairStringToMap,
-    invalidateToken,
-    isFixedDevice,
-    isMock,
-    refreshToken,
-    setAPI_Key,
-    setToken,
-    token,
-} from '@placeos/ts-client';
 import { addHours } from 'date-fns';
 import { filter } from 'rxjs/operators';
 
@@ -58,11 +46,31 @@ import {
 } from './native-app';
 import { lazySnackbar, notifySuccess, setNotifyOutlet } from './notifications';
 import { OrganisationService } from './org/organisation.service';
-import { createNativeAuthUrl, mockModeRequested, setupPlace } from './placeos';
+import {
+    authority,
+    clientId,
+    invalidateToken,
+    isFixedDevice,
+    isMock,
+    setApiKey,
+    setToken,
+    stopPlaceClient,
+    token,
+} from './place-client';
+import {
+    createNativeAuthUrl,
+    mockModeRequested,
+    pastedTokenKey,
+    setupPlace,
+} from './placeos';
 import { RemoteDebugService } from './remote-debug';
 import { initSentryFromSettings } from './sentry';
 import { SettingsService } from './settings.service';
-import { finishTeamsSignIn, startTeamsHost } from './teams-host';
+import {
+    finishTeamsSignIn,
+    startTeamsHost,
+    teamsEntraToken,
+} from './teams-host';
 import { setInternalUserDomain } from './types/user.class';
 import { currentUser, waitForCurrentUser } from './user-state';
 
@@ -263,7 +271,7 @@ export class PlaceOS_Service extends AsyncHandler {
             notifySuccess('Toggled dark mode.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyC'], () => {
-            this._clipboard.copy(`${token()}|${refreshToken()}`);
+            this._clipboard.copy(token());
             notifySuccess('Successfully copied token.');
         });
         this._hotkey.listen(['Control', 'Alt', 'Shift', 'KeyV'], () => {
@@ -286,8 +294,9 @@ export class PlaceOS_Service extends AsyncHandler {
                 this._locale?.setLocale(locale);
                 localStorage.setItem('PLACEOS.locale', locale);
             }
-            if (params.has('x-api-key')) {
-                setAPI_Key(params.get('x-api-key'));
+            // A native app uses the key of its managed configuration
+            if (params.has('x-api-key') && !isNativeApp()) {
+                setApiKey(params.get('x-api-key'));
             }
             if (params.has('region_id')) {
                 this._region = params.get('region_id');
@@ -312,12 +321,14 @@ export class PlaceOS_Service extends AsyncHandler {
             (_mocks && location.origin.includes('demo.place.tech'));
         /** Add query parameters if removed due to hash routing */
         if (START_QUERY) {
-            const query = convertPairStringToMap(START_QUERY.substring(1));
+            const query = Object.fromEntries(new URLSearchParams(START_QUERY));
             // The first navigation can still wait on a route guard here, so
             // the router state has no route yet. Read the route from the
             // browser URL, or the app opens at the root route.
             const url = this._router.parseUrl(this._location.path() || '/');
             url.queryParams = { ...query, ...url.queryParams };
+            // A native app uses the key of its managed configuration
+            if (isNativeApp()) delete url.queryParams['x-api-key'];
             this._router.navigateByUrl(url, { replaceUrl: true });
         }
         /** Apply any server settings pushed to the device via MDM. */
@@ -388,23 +399,17 @@ export class PlaceOS_Service extends AsyncHandler {
             settings.protocol = 'https:';
             settings.use_domain = true;
             setLoadingMessage('Authenticating...');
-            const auth_error = await setupPlace(settings)
+            // The key of the managed configuration, or '' to remove a key
+            // that the session kept: setupPlace applies it before the login,
+            // so the first request uses it and the OAuth sign-in below is
+            // skipped. When setup fails, stopPlaceClient below retires the
+            // session, so a request still in flight cannot write tokens.
+            const auth_error = await setupPlace(settings, undefined, {
+                api_key: getNativeApiKey() || '',
+            })
                 .then(() => null)
                 .catch((_) => _);
             if (!auth_error) {
-                // Apply after setupPlace so ts-client stores the key under
-                // the client ID computed during setup. With a key set,
-                // token() resolves and the OAuth sign-in below is skipped.
-                const api_key = getNativeApiKey();
-                const client_key = `${clientId()}_x-api-key`;
-                if (api_key) setAPI_Key(api_key);
-                else if (localStorage.getItem(client_key)) {
-                    // Key removed during setup — also purge the copy (and
-                    // the long-lived token) ts-client persisted, or it keeps
-                    // authenticating with the old key.
-                    localStorage.removeItem(client_key);
-                    invalidateToken();
-                }
                 // Authenticate with the Intune MS token. Set after setupPlace
                 // so it's stored under the computed client ID, and makes
                 // token() truthy so the OAuth sign-in below is skipped.
@@ -414,31 +419,33 @@ export class PlaceOS_Service extends AsyncHandler {
                 break;
             }
             log('APP', 'Auth failed, resetting domain.', auth_error, 'warn');
+            stopPlaceClient();
             clearNativeDomain();
             clearNativeApiKey();
             DOMAIN_ERROR.set(
                 `Unable to connect to "${domain}". The server may be unavailable, or the email address may be for a different server. Try again.`,
             );
         }
-        if (isNativeApp() && !token(false)) {
+        if (isNativeApp() && !token()) {
             const boot_params = new URLSearchParams(START_QUERY);
             if (boot_params.has('code')) {
                 // The exchange runs inside setupPlace — landing here with a
-                // code in the URL means it was dropped or failed. ts-client
-                // silently discards the code when state and nonce differ.
-                // Logs reach the remote Logger, so show only whether they match
-                const state_matches =
-                    boot_params.get('state') ===
-                    localStorage.getItem(`${clientId()}_nonce`);
+                // code in the URL means it was dropped or failed. The session
+                // logs the reason, such as a state that is not its nonce.
                 console.warn(
                     '[AUTH] Auth code was present on load but the token exchange did not complete.',
-                    `State matches nonce: ${state_matches}`,
                 );
             }
         }
         // Only open the sign-in browser when there is no valid token AND no
-        // refresh token — with a refresh token ts-client renews it silently.
-        if (isNativeApp() && !token(false) && !refreshToken() && authority()) {
+        // refresh token, as 6.x did: with a refresh token, such as after the
+        // token endpoint failed for a moment, requests renew it later. A
+        // native app is trusted, so the session keeps the refresh token in
+        // local storage.
+        const has_refresh_token = !!localStorage.getItem(
+            `${clientId()}_refresh_token`,
+        );
+        if (isNativeApp() && !token() && !has_refresh_token && authority()) {
             const auth_error = consumeNativeAuthError();
             if (auth_error) {
                 // Wait for the user to confirm via the overlay so a failed or
@@ -460,15 +467,18 @@ export class PlaceOS_Service extends AsyncHandler {
             const teams_mode = await startTeamsHost();
             if (teams_mode) settings.local_login = teams_mode === 'tab';
             setLoadingMessage('Authenticating...');
-            // `setup` resolves only once the authority has loaded, and it never
-            // rejects - a failure retries in the background forever. Waiting on
-            // it therefore parks startup indefinitely on a device with no
-            // network. Everything needed below it (storage prefix, config,
-            // token) is already set synchronously, and the authority arrives on
-            // its own once the network is back.
-            await setupPlace(settings, AUTHORITY_WAIT_MS).catch((_) =>
-                console.error(_),
-            );
+            // Startup stops waiting for the login after AUTHORITY_WAIT_MS, so
+            // a device with no network does not stay on the loading screen.
+            // The client is configured before the wait, the login attempt
+            // continues, and the client loads the authority again later.
+            // A Teams tab waits for its SSO attempt in finishTeamsSignIn.
+            await setupPlace(settings, AUTHORITY_WAIT_MS, {
+                // A Teams tab signs in with the SSO token of the host
+                entra_token: teams_mode === 'tab' ? teamsEntraToken : undefined,
+                // Keep the tokens of the tab and the sign-in window over a
+                // reload
+                trusted: !!teams_mode,
+            }).catch((_) => console.error(_));
             if (teams_mode) {
                 setLoadingMessage('Waiting for Microsoft sign in...');
                 if (!(await finishTeamsSignIn(teams_mode))) return;
@@ -545,7 +555,7 @@ export class PlaceOS_Service extends AsyncHandler {
         }
         // Keep a valid token on slow networks — the user fetch timing out
         // doesn't mean the token is bad, so just retry with a reload.
-        else if (!token(false)) invalidateToken();
+        else if (!token()) invalidateToken();
         // Routed rather than reloaded directly: an app that never manages to
         // load the current user would otherwise restart every thirty seconds
         // for as long as that keeps failing.
@@ -619,14 +629,22 @@ export class PlaceOS_Service extends AsyncHandler {
         }
     }
 
+    /**
+     * Uses a token from the clipboard, such as one copied from another app,
+     * as `access` or `access|refresh`. The token can be for another account,
+     * so the app reloads and the login uses it one time (see
+     * `pastedTokenKey`).
+     */
     private _pasteToken(tkn: string) {
-        const parts = tkn.split('|');
-        const id = clientId();
-        localStorage.setItem(`${id}_access_token`, `${parts[0]}`);
-        localStorage.setItem(`${id}_refresh_token`, `${parts[1]}`);
-        localStorage.setItem(
-            `${id}_expires_at`,
-            `${addHours(new Date(), 6).valueOf()}`,
+        const [token, refresh_token] = tkn.split('|').map((_) => _.trim());
+        if (!token) return;
+        sessionStorage.setItem(
+            pastedTokenKey(clientId()),
+            JSON.stringify({
+                token,
+                refresh_token: refresh_token || null,
+                expires_at: addHours(new Date(), 6).valueOf(),
+            }),
         );
         notifySuccess('Successfully pasted token.');
         setTimeout(() => location.reload(), 2000);

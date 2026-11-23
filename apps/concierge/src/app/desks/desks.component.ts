@@ -44,7 +44,7 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateOptionsComponent } from '@placeos/form-fields';
-import { showMetadata } from '@placeos/ts-client';
+import { showMetadata } from '../metadata';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { BookingRulesModalComponent } from '../ui/booking-rules-modal.component';
 import { queryParamsWriter } from '../ui/page-transitions';

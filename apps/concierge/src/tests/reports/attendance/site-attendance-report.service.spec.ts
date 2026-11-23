@@ -10,10 +10,63 @@ import {
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    PlaceCalendarEvent,
+    bookings as staff_bookings,
+    events as staff_events,
+    Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 import { SiteAttendanceReportService } from 'apps/concierge/src/app/reports/attendance/site-attendance-report.service';
+import { serverData } from '../../mock-http';
 import { captureDownloads } from '../download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+/** Test data in the app shape: `date` and `date_end` in ms, `duration` in minutes */
+interface TimedItem {
+    date: number;
+    date_end?: number;
+    duration: number;
+    [key: string]: unknown;
+}
+
+/** Start and end in seconds of the app shaped test data */
+function period({ date, date_end, duration }: TimedItem) {
+    const start = Math.floor(date / 1000);
+    const end = date_end ? Math.floor(date_end / 1000) : start + duration * 60;
+    return { start, end };
+}
+
+/** A staff API booking from the app shaped test data */
+function staffBooking(item: TimedItem, id: number) {
+    const { start, end } = period(item);
+    const { date, date_end, duration, ...rest } = item;
+    return serverData(StaffBooking, {
+        ...rest,
+        id,
+        booking_start: start,
+        booking_end: end,
+    });
+}
+
+/** A staff API event from the app shaped test data */
+function staffEvent(item: TimedItem) {
+    const { start, end } = period(item);
+    const { date, date_end, duration, ...rest } = item;
+    return serverData(PlaceCalendarEvent, {
+        ...rest,
+        event_start: start,
+        event_end: end,
+    });
+}
+
+/** The input of each list request of the staff API */
+const listInputs = () => [
+    ...vi.mocked(staff_bookings.query).mock.calls.map(([input]) => input),
+    ...vi.mocked(staff_events.query).mock.calls.map(([input]) => input),
+];
 
 describe('SiteAttendanceReportService', () => {
     let spectator: SpectatorService<SiteAttendanceReportService>;
@@ -23,9 +76,11 @@ describe('SiteAttendanceReportService', () => {
     let downloads: ReturnType<typeof captureDownloads>;
     // Booking payloads keyed by the `type` passed to `queryAllBookings`, and
     // the event payload for `queryAllEvents`. Both aggregation functions run
-    // for real; only the underlying ts-client `query` seam is stubbed here.
-    let booking_data: Record<string, any[]>;
-    let event_data: any[];
+    // for real; only the staff API `bookings.query` and `events.query` are
+    // stubbed here. The app shaped data goes through the app classes and the
+    // schema, as data from the server does.
+    let booking_data: Record<string, TimedItem[]>;
+    let event_data: TimedItem[];
     let space_systems: any[];
 
     const day_1 = new Date('2026-04-06T12:00:00').valueOf();
@@ -151,73 +206,81 @@ describe('SiteAttendanceReportService', () => {
         ];
         space_systems = [{ id: 'room-1' }, { id: 'room-2' }, { id: 'room-3' }];
 
-        // `query` backs both `queryAllBookings` (has query_params.type) and
-        // `queryAllEvents` (no type). Add a synthetic id so the real
-        // `unique(list, 'id')` in `queryAllBookings` keeps every row.
-        vi.mocked(ts_client_mod.query).mockImplementation((req: any) => {
-            const params = req?.query_params || {};
-            if (params.type) {
-                const list = booking_data[params.type] || [];
-                return Promise.resolve({
-                    data: list.map((item, index) => ({
-                        id: item.id ?? `${params.type}-${index}`,
-                        ...item,
-                    })),
-                    next: undefined,
-                });
-            }
-            return Promise.resolve({
-                data: event_data,
-                next: undefined,
-            }) as any;
-        });
-        // requestSpacesForZone -> querySystems
-        vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
-            data: space_systems,
-            next: undefined,
-        } as any);
-        // parking/locker asset bootstrap + counts
-        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
-            data: [
-                { id: 'cat-park', name: '_PARKING_', hidden: true },
-                { id: 'cat-lock', name: '_LOCKERS_', hidden: true },
-            ],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetTypes).mockImplementation(
-            ({ category_id }) =>
-                Promise.resolve({
-                    data:
-                        category_id === 'cat-park'
-                            ? [
-                                  {
-                                      id: 'type-park',
-                                      name: '_PARKING_SPACES_',
-                                      category_id,
-                                  },
-                              ]
-                            : [
-                                  {
-                                      id: 'type-lock',
-                                      name: '_LOCKERS_',
-                                      category_id,
-                                  },
-                              ],
-                    next: undefined,
-                }) as any,
+        // Add a synthetic numeric id so the real `unique(list, 'id')` in
+        // `queryAllBookings` keeps every row.
+        let booking_id = 0;
+        vi.mocked(staff_bookings.query).mockImplementation(async (input) =>
+            mockPage({
+                data: (booking_data[input?.type] || []).map((item) =>
+                    staffBooking(item, ++booking_id),
+                ),
+            }),
         );
-        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
-            data: [],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.showMetadata).mockImplementation(
-            (_zone: string, key: string) =>
-                Promise.resolve({
-                    details:
-                        key === 'desks'
-                            ? [{ id: 'desk-a' }, { id: 'desk-b' }]
-                            : [{ id: 'locker-a' }],
-                }) as any,
+        vi.mocked(staff_events.query).mockImplementation(async () =>
+            mockReply(event_data.map(staffEvent)),
+        );
+        // requestSpacesForZone -> querySystems
+        vi.mocked(ts_client_mod.systems.query).mockResolvedValue(
+            mockPage({
+                data: space_systems,
+                next: undefined,
+            } as any),
+        );
+        // parking/locker asset bootstrap + counts
+        vi.mocked(ts_client_mod.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'cat-park', name: '_PARKING_', hidden: true },
+                    { id: 'cat-lock', name: '_LOCKERS_', hidden: true },
+                ],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.asset_types.query).mockImplementation(
+            fromV1Mock(
+                ({ category_id }) =>
+                    Promise.resolve({
+                        data:
+                            category_id === 'cat-park'
+                                ? [
+                                      {
+                                          id: 'type-park',
+                                          name: '_PARKING_SPACES_',
+                                          category_id,
+                                      },
+                                  ]
+                                : [
+                                      {
+                                          id: 'type-lock',
+                                          name: '_LOCKERS_',
+                                          category_id,
+                                      },
+                                  ],
+                        next: undefined,
+                    }) as any,
+                ['...'],
+                'page',
+            ),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                (_zone: string, key: string) =>
+                    Promise.resolve({
+                        details:
+                            key === 'desks'
+                                ? [{ id: 'desk-a' }, { id: 'desk-b' }]
+                                : [{ id: 'locker-a' }],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
         spectator = createService();
     });
@@ -236,31 +299,24 @@ describe('SiteAttendanceReportService', () => {
         await spectator.service.generateReport();
         const report = spectator.service.report();
 
-        expect(ts_client_mod.query).toHaveBeenCalledWith(
+        // The events API has no `limit`
+        expect(staff_events.query).toHaveBeenCalledWith(
+            expect.objectContaining({ zone_ids: 'building-1' }),
+            expect.anything(),
+        );
+        expect(staff_bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    zone_ids: 'building-1',
-                    limit: 200,
-                }),
+                zones: 'building-1',
+                type: 'desk',
+                include_checked_out: true,
             }),
         );
-        expect(ts_client_mod.query).toHaveBeenCalledWith(
+        expect(staff_bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    zones: 'building-1',
-                    type: 'desk',
-                    include_checked_out: true,
-                }),
-            }),
-        );
-        expect(ts_client_mod.query).toHaveBeenCalledWith(
-            expect.objectContaining({
-                query_params: expect.objectContaining({
-                    zones: 'building-1',
-                    type: 'visitor',
-                    include_checked_out: true,
-                    limit: 200,
-                }),
+                zones: 'building-1',
+                type: 'visitor',
+                include_checked_out: true,
+                limit: 200,
             }),
         );
         expect(report.total_attendance).toBe(9);
@@ -339,13 +395,23 @@ describe('SiteAttendanceReportService', () => {
         booking_data = { desk: [], parking: [], locker: [], visitor: [] };
         event_data = [];
         space_systems = [];
-        vi.mocked(ts_client_mod.querySystems).mockResolvedValue({
-            data: [],
-            next: undefined,
-        } as any);
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
+        vi.mocked(ts_client_mod.systems.query).mockResolvedValue(
+            mockPage({
+                data: [],
+                next: undefined,
+            } as any),
+        );
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
 
         await spectator.service.generateReport();
         const report = spectator.service.report();
@@ -405,7 +471,8 @@ describe('SiteAttendanceReportService', () => {
                 duration: 30,
                 attendees: [{ email: 'setup.attendee@example.com' }],
                 extension_data: { people_count: { max: 2 } },
-                is_system_event: true,
+                // The API marks a setup or breakdown event in its body
+                body: 'main_event_id: event-1',
                 system: { id: 'room-1' },
                 title: 'Setup',
             },
@@ -450,7 +517,8 @@ describe('SiteAttendanceReportService', () => {
                 user_email: 'cancelled.desk@example.com',
                 date: day_1,
                 duration: 480,
-                status: 'cancelled',
+                // The bookings API has no status: a cancelled booking is deleted
+                deleted: true,
             },
         ];
         event_data = [
@@ -466,9 +534,16 @@ describe('SiteAttendanceReportService', () => {
                 host: 'rejected.host@example.com',
                 date: day_1,
                 duration: 60,
-                attendees: [{ email: 'rejected.attendee@example.com' }],
+                // The room declined the event
+                attendees: [
+                    { email: 'rejected.attendee@example.com' },
+                    {
+                        email: 'room-2@example.com',
+                        resource: true,
+                        response_status: 'declined',
+                    },
+                ],
                 extension_data: { people_count: { max: 2 } },
-                rejected: true,
                 system: { id: 'room-2' },
             },
             {
@@ -512,34 +587,30 @@ describe('SiteAttendanceReportService', () => {
         const report = spectator.service.report();
 
         // events disabled -> query only ever called for the desk bookings
-        expect(ts_client_mod.query).toHaveBeenCalledTimes(1);
-        expect(ts_client_mod.query).toHaveBeenCalledWith(
+        expect(listInputs()).toHaveLength(1);
+        expect(staff_bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    type: 'desk',
-                    include_checked_out: true,
-                }),
+                type: 'desk',
+                include_checked_out: true,
             }),
         );
-        expect(ts_client_mod.query).not.toHaveBeenCalledWith(
-            expect.objectContaining({
-                query_params: expect.objectContaining({ type: 'visitor' }),
-            }),
+        expect(staff_bookings.query).not.toHaveBeenCalledWith(
+            expect.objectContaining({ type: 'visitor' }),
         );
         // parking disabled -> parking asset lookup never runs
-        expect(ts_client_mod.queryAssets).not.toHaveBeenCalled();
-        expect(ts_client_mod.showMetadata).toHaveBeenCalledWith(
-            'level-1',
-            'desks',
-        );
-        expect(ts_client_mod.showMetadata).toHaveBeenCalledWith(
-            'level-2',
-            'desks',
-        );
-        expect(ts_client_mod.showMetadata).not.toHaveBeenCalledWith(
-            expect.any(String),
-            'lockers-spaces',
-        );
+        expect(ts_client_mod.assets.query).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.show).toHaveBeenCalledWith({
+            id: 'level-1',
+            name: 'desks',
+        });
+        expect(ts_client_mod.metadata.show).toHaveBeenCalledWith({
+            id: 'level-2',
+            name: 'desks',
+        });
+        expect(ts_client_mod.metadata.show).not.toHaveBeenCalledWith({
+            id: expect.any(String),
+            name: 'lockers-spaces',
+        });
         expect(report.cards.map((card) => card.id)).toEqual(['desks']);
     });
 

@@ -4,18 +4,20 @@ import { MatSliderModule } from '@angular/material/slider';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { mockComponent, mockDirective } from '@placeos/common/tests';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import {
     BindingDirective,
     CustomTooltipData,
     IconComponent,
 } from '@placeos/components';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { ControlStateService } from '../../app/control-state.service';
 import { MicrophoneTooltipComponent } from '../../app/ui/microphone-tooltip.component';
 
 describe('MicrophoneTooltipComponent', () => {
+    let place: TestPlaceClient;
     let spectator: Spectator<MicrophoneTooltipComponent>;
     const mic_list = signal<unknown[]>([]);
     const microphones = signal<unknown[]>([]);
@@ -40,12 +42,11 @@ describe('MicrophoneTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        place = startTestPlaceClient();
         mic_list.set([]);
         microphones.set([]);
         execute.mockReset();
-        vi.mocked(client.getModule).mockReturnValue({
-            execute,
-        } as unknown as ReturnType<typeof client.getModule>);
+        place.useExecute(execute);
         spectator = createComponent();
     });
 

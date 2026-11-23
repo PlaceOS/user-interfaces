@@ -1,7 +1,17 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import * as ts_client from '@placeos/ts-client';
+import {
+    createRealtime,
+    metadata,
+    MetadataInterface,
+    type BindingState,
+    type JsonValue,
+    type Realtime,
+    type RealtimeStatus,
+    type RealtimeTarget,
+} from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 import { deviceId } from '../lib/device-id';
 import { OrganisationService } from '../lib/org/organisation.service';
@@ -19,40 +29,80 @@ import {
 import { MAX_CAPTURE_BYTES } from '../lib/screen-capture';
 import { SettingsService } from '../lib/settings.service';
 import { UploadsService } from '../lib/uploads.service';
+import { startFakePlaceClient, type FakeSession } from './fake-session';
+import { mockData } from './mock-data';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-/** RemoteDebug driver module whose device binding the test sets */
-function fakeModule() {
-    let listener: ((value: unknown) => void) | undefined;
-    const execute = vi.fn((_method: string, _args?: unknown[]) =>
-        Promise.resolve(),
+/** Reply of `metadata.show` for the `bindings` of a zone */
+function bindingsReply(details: Record<string, JsonValue>) {
+    return mockReply({
+        bindings: mockData(MetadataInterface, { name: 'bindings', details }),
+    });
+}
+
+/**
+ * RemoteDebug driver behind a fake realtime client of `startPlaceClient`.
+ * `execute` gets each module call with its method name, and its result or
+ * error goes to the caller. `emit` sends a value of the device binding.
+ */
+function fakeDriver() {
+    let listener: ((state: BindingState) => void) | undefined;
+    let status: RealtimeStatus = { kind: 'open', since_ms: 0 };
+    const execute = vi.fn(
+        async (
+            _method: string,
+            _args: readonly unknown[],
+            _options?: { readonly timeout_ms?: number },
+        ): Promise<unknown> => undefined,
     );
-    const mod = {
-        id: 'RemoteDebug_1',
-        name: 'RemoteDebug',
-        index: 1,
-        system: { id: 'sys-debug' },
-        execute,
-        variable: vi.fn((_name: string) => ({
-            bindThenSubscribe: (next: (value: unknown) => void) => {
-                listener = next;
-                return () => (listener = undefined);
-            },
-        })),
+    const bind = vi.fn(
+        (_target: RealtimeTarget, next: (state: BindingState) => void) => {
+            listener = next;
+            return () => (listener = undefined);
+        },
+    );
+    const realtime: Realtime = {
+        start: () => undefined,
+        stop: () => undefined,
+        status: () => status,
+        subscribe: () => () => undefined,
+        exec: async (target, args = [], options) => {
+            try {
+                await execute(target.name, args, options);
+                return { ok: true, value: null };
+            } catch {
+                return { ok: false, error: { kind: 'disconnected' } };
+            }
+        },
+        bind,
+        value: () => ({ kind: 'unknown' }),
+        debug: () => () => undefined,
     };
-    const emit = (value: unknown) => listener?.(value);
+    vi.mocked(createRealtime).mockReturnValue(realtime);
+    // Test data of the app types, as the driver sends it in JSON
+    const emit = (value: unknown) =>
+        listener?.({ kind: 'value', value: value as JsonValue });
     return {
-        mod,
         execute,
+        bind,
         emit,
         emitLogs: (logs: RemoteLogRequest) => emit({ logs }),
         emitCommands: (commands: RemoteDebugCommand[]) => emit({ commands }),
+        /** Modules that got a binding, such as `sys-1 RemoteDebug_1` */
+        bound: () =>
+            bind.mock.calls.map(([_]) => `${_.sys} ${_.mod}_${_.index}`),
+        /** Open or close the websocket */
+        setConnected(open: boolean) {
+            status = open
+                ? { kind: 'open', since_ms: 0 }
+                : { kind: 'waiting', attempt: 1, delay_ms: 1000 };
+        },
     };
 }
 
 /** Messages of the entries in each `post_logs` call */
-function sentMessages(execute: ReturnType<typeof fakeModule>['execute']) {
+function sentMessages(execute: ReturnType<typeof fakeDriver>['execute']) {
     return execute.mock.calls
         .filter(([method]) => method === 'post_logs')
         .map(([, args]) =>
@@ -61,7 +111,7 @@ function sentMessages(execute: ReturnType<typeof fakeModule>['execute']) {
 }
 
 /** Results of the `command_result` calls, by command ID */
-function sentResults(execute: ReturnType<typeof fakeModule>['execute']) {
+function sentResults(execute: ReturnType<typeof fakeDriver>['execute']) {
     return Object.fromEntries(
         execute.mock.calls
             .filter(([method]) => method === 'command_result')
@@ -72,7 +122,8 @@ function sentResults(execute: ReturnType<typeof fakeModule>['execute']) {
 describe('RemoteDebugService', () => {
     const methods = ['log', 'debug', 'info', 'warn', 'error'] as const;
     let originals: Record<string, Console[(typeof methods)[number]]>;
-    let driver: ReturnType<typeof fakeModule>;
+    let driver: ReturnType<typeof fakeDriver>;
+    let session: FakeSession;
     let org: {
         initialised: ReturnType<typeof signal<boolean>>;
         organisation: { id: string } | undefined;
@@ -96,12 +147,12 @@ describe('RemoteDebugService', () => {
         vi.useFakeTimers();
         originals = Object.fromEntries(methods.map((_) => [_, console[_]]));
         for (const method of methods) console[method] = vi.fn();
-        driver = fakeModule();
+        driver = fakeDriver();
+        session = startFakePlaceClient();
         org = { initialised: signal(false), organisation: { id: 'org-1' } };
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: { remote_debug: { id: 'sys-debug' } },
-        } as never);
-        vi.mocked(ts_client.getModule).mockReturnValue(driver.mod as never);
+        vi.mocked(metadata.show).mockResolvedValue(
+            bindingsReply({ remote_debug: { id: 'sys-debug' } }),
+        );
         TestBed.configureTestingModule({
             providers: [
                 provideRouter([{ path: 'bootstrap', children: [] }]),
@@ -152,30 +203,22 @@ describe('RemoteDebugService', () => {
     it('should read the binding of the organisation zone', async () => {
         await connect();
 
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'org-1',
-            'bindings',
-        );
-        expect(ts_client.getModule).toHaveBeenCalledWith(
-            'sys-debug',
-            'RemoteDebug',
-        );
+        expect(metadata.show).toHaveBeenCalledWith({
+            id: 'org-1',
+            name: 'bindings',
+        });
+        expect(driver.bound()).toEqual(['sys-debug RemoteDebug_1']);
     });
 
     it('should keep capture and read the bindings again after a failed read', async () => {
-        vi.mocked(ts_client.showMetadata).mockRejectedValueOnce(
-            new Error('offline'),
-        );
+        vi.mocked(metadata.show).mockRejectedValueOnce(new Error('offline'));
         await connect();
         console.info('while offline');
-        expect(ts_client.getModule).not.toHaveBeenCalled();
+        expect(driver.bind).not.toHaveBeenCalled();
 
         await vi.advanceTimersByTimeAsync(60_000);
 
-        expect(ts_client.getModule).toHaveBeenCalledWith(
-            'sys-debug',
-            'RemoteDebug',
-        );
+        expect(driver.bound()).toEqual(['sys-debug RemoteDebug_1']);
         expect(service.entries.map((_) => _.message)).toContain(
             'while offline',
         );
@@ -184,24 +227,20 @@ describe('RemoteDebugService', () => {
     it('should use the organisation zone of the authority on a limited start', async () => {
         org.organisation = undefined;
         // The authority is not available yet after an offline start
-        vi.mocked(ts_client.authority).mockReturnValue(undefined as never);
         await connect();
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(metadata.show).not.toHaveBeenCalled();
 
-        vi.mocked(ts_client.authority).mockReturnValue({
-            config: { org_zone: 'org-2' },
-        } as never);
+        session.setAuthority({ id: 'auth-1', config: { org_zone: 'org-2' } });
         await vi.advanceTimersByTimeAsync(60_000);
 
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'org-2',
-            'bindings',
-        );
+        expect(metadata.show).toHaveBeenCalledWith({
+            id: 'org-2',
+            name: 'bindings',
+        });
     });
 
     it('should register a fixed device, then each 15 minutes', async () => {
-        vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
-        vi.mocked(ts_client.is_connected).mockReturnValue(true);
+        session.setCredential({ kind: 'api_key', key: 'key-1' });
         const registers = () =>
             driver.execute.mock.calls.filter(([m]) => m === 'register');
         await connect();
@@ -218,14 +257,14 @@ describe('RemoteDebugService', () => {
     });
 
     it('should not register while the websocket is down', async () => {
-        vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
-        vi.mocked(ts_client.is_connected).mockReturnValue(false);
+        session.setCredential({ kind: 'api_key', key: 'key-1' });
+        driver.setConnected(false);
         await connect();
         await vi.advanceTimersByTimeAsync(5 * 60_000);
         expect(driver.execute).not.toHaveBeenCalled();
 
         // After the reconnect, the next try is in a random wait of 1 minute maximum
-        vi.mocked(ts_client.is_connected).mockReturnValue(true);
+        driver.setConnected(true);
         await vi.advanceTimersByTimeAsync(60_000);
 
         expect(
@@ -234,14 +273,12 @@ describe('RemoteDebugService', () => {
     });
 
     it('should register a device only after it becomes fixed', async () => {
-        vi.mocked(ts_client.isFixedDevice).mockReturnValue(false);
-        vi.mocked(ts_client.is_connected).mockReturnValue(true);
         await connect();
         await vi.advanceTimersByTimeAsync(16 * 60_000);
         expect(driver.execute).not.toHaveBeenCalled();
 
         // The bootstrap screen sets up a panel without a reload
-        vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
+        session.setCredential({ kind: 'api_key', key: 'key-1' });
         await vi.advanceTimersByTimeAsync(60_000);
 
         expect(
@@ -250,16 +287,14 @@ describe('RemoteDebugService', () => {
     });
 
     it('should stop capture when the organisation has no binding', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as never);
+        vi.mocked(metadata.show).mockResolvedValue(bindingsReply({}));
         console.info('before init');
         expect(service.entries.length).toBe(1);
 
         await connect();
         console.info('after init');
 
-        expect(ts_client.getModule).not.toHaveBeenCalled();
+        expect(driver.bind).not.toHaveBeenCalled();
         expect(service.entries).toEqual([]);
     });
 
@@ -267,8 +302,9 @@ describe('RemoteDebugService', () => {
         console.debug('debug line');
         console.warn('startup warning');
         await connect();
-        expect(driver.mod.variable).toHaveBeenCalledWith(
-            `device:${deviceId()}`,
+        expect(driver.bind).toHaveBeenCalledWith(
+            expect.objectContaining({ name: `device:${deviceId()}` }),
+            expect.any(Function),
         );
 
         driver.emitLogs({ id: 'req-1', level: 'info' });
@@ -284,7 +320,7 @@ describe('RemoteDebugService', () => {
                 [expect.objectContaining({ level: 'warn', source: 'console' })],
                 expect.objectContaining({ id: deviceId() }),
             ],
-            30_000,
+            { timeout_ms: 30_000 },
         );
         expect(sentMessages(driver.execute)).toEqual([
             ['startup warning'],
@@ -312,23 +348,17 @@ describe('RemoteDebugService', () => {
         expect([older[0], older[999]]).toEqual(['line 6002', 'line 7001']);
     });
 
-    it('should not send the ts-client lines of its own calls', async () => {
+    it('should not send the ts-client lines of its own binding changes', async () => {
         await connect();
-        driver.execute.mockImplementation(async (method: string) => {
+        driver.execute.mockImplementation(async () => {
+            // The binding change that the call causes. ts-client does not
+            // log the calls.
             console.debug(
-                `%c[PlaceOS]%c[WS] %c[EXEC](1) sys-debug, RemoteDebug_1, ${method}`,
+                `%c[PlaceOS]%c[WS]%c sys-debug RemoteDebug_1 logs:${deviceId()} changed`,
                 'color: #0288D1',
                 'color: #009688',
                 'color: default',
-            );
-            console.debug('[PlaceOS][WS] [SUCCESS](1)');
-            // The binding change that the call causes
-            console.debug(
-                `%c[PlaceOS]%c[WS] %c[NOTIFY] sys-debug, RemoteDebug_1, logs:${deviceId()} changed`,
-                'color: #0288D1',
-                'color: #009688',
-                'color: default',
-                [],
+                { value: [] },
             );
         });
         console.warn('real warning');

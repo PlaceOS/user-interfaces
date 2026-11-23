@@ -1,5 +1,7 @@
-import { PlaceZone } from '@placeos/ts-client';
+import { Zone } from '@placeos/ts-client';
+
 import { Desk } from '../lib/types/desk.class';
+import { mockData } from './mock-data';
 
 describe('Desk', () => {
     it('should use the ID as the map ID when none is given', () => {
@@ -18,7 +20,7 @@ describe('Desk', () => {
     it('should remove the zone and QR code when serialised', () => {
         const json = new Desk({
             id: 'desk-1',
-            zone: new PlaceZone({ id: 'zone-1' }),
+            zone: mockData(Zone, { id: 'zone-1' }),
             qr_code: 'data:image/png',
             groups: ['Admin'],
         }).toJSON();

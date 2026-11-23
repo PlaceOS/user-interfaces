@@ -46,7 +46,7 @@ import {
     DurationFieldComponent,
     TimeFieldComponent,
 } from '@placeos/form-fields';
-import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
+import { type Playlist, PlaylistSchedule } from '@placeos/ts-client';
 import { endOfDay, fromUnixTime, getUnixTime, startOfDay } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { nextCronDates } from '../signage-cron.util';
@@ -187,13 +187,13 @@ function buildRecurringCron(value: {
 }
 
 function scheduleTypeFor(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
 ): PlaylistScheduleType {
     return isPlayOnceSchedule(schedule) ? 'play_at' : 'play_cron';
 }
 
-function currentPlaylistSchedule(playlist: SignagePlaylist) {
-    const legacy_playlist = playlist as SignagePlaylist & {
+function currentPlaylistSchedule(playlist: Playlist) {
+    const legacy_playlist = playlist as Playlist & {
         play_at?: number;
         play_cron?: string;
         play_period?: number;
@@ -209,7 +209,7 @@ function currentPlaylistSchedule(playlist: SignagePlaylist) {
     );
 }
 
-export function playlistSchedules(playlist: SignagePlaylist) {
+export function playlistSchedules(playlist: Playlist) {
     const schedule = currentPlaylistSchedule(playlist);
     return playlist.schedules?.length ? playlist.schedules : [schedule];
 }
@@ -347,7 +347,7 @@ export class ScheduleList {
 }
 
 export function createPlaylistScheduleModel(
-    schedule?: Partial<SignagePlaylistSchedule>,
+    schedule?: Partial<PlaylistSchedule>,
 ): PlaylistScheduleFormModel {
     const source = schedule || {};
     const recurring_schedule = parseRecurringCron(source.play_cron);
@@ -425,7 +425,7 @@ export const playlistScheduleSchema = schema<PlaylistScheduleFormModel>(
 
 export function playlistSchedulePayload(
     value: PlaylistScheduleFormModel,
-): SignagePlaylistSchedule {
+): PlaylistSchedule {
     return value.schedule_type === 'play_at'
         ? {
               play_at:

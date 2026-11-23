@@ -5,11 +5,12 @@ import {
     queryCateringItems,
     saveCateringItem,
 } from '@placeos/assets';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
-    PlaceMetadata,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
+    cateringSettingsFromJson,
+    rulesetsFromJson,
+} from './catering-metadata';
 
 import {
     AsyncHandler,
@@ -21,6 +22,7 @@ import {
     notifyError,
     notifySuccess,
     responseErrorMessage,
+    toJsonValue,
     unique,
     user_group_names,
 } from '@placeos/common';
@@ -452,12 +454,16 @@ export class CateringStateService extends AsyncHandler {
 
     public async saveSettings(settings: CateringSettings) {
         const old_settings = this.settings();
-        const result = await updateMetadata(this._org.building.id, {
-            id: this._org.building.id,
-            name: 'catering-settings',
-            details: { ...old_settings, ...settings },
-            description: `Catering settings for ${this._org.building.id}`,
-        });
+        const result = await metadata_v7
+            .update({
+                id: this._org.building.id,
+                body: {
+                    name: 'catering-settings',
+                    details: toJsonValue({ ...old_settings, ...settings }),
+                    description: `Catering settings for ${this._org.building.id}`,
+                },
+            })
+            .then(orThrow);
         this._change.set(Date.now());
         return result;
     }
@@ -465,17 +471,23 @@ export class CateringStateService extends AsyncHandler {
     public async getCateringConfig(
         zone_id: string = this._org.building.id,
     ): Promise<AttachedResourceRuleset[]> {
-        const rules = (await showMetadata(zone_id, 'catering_config')).details;
-        return rules instanceof Array ? rules : [];
+        const data = await metadata_v7
+            .show({ id: zone_id, name: 'catering_config' })
+            .then(orThrow);
+        return rulesetsFromJson(data['catering_config']?.details);
     }
 
     private updateConfig(zone_id: string, config: AttachedResourceRuleset[]) {
-        return updateMetadata(zone_id, {
-            id: zone_id,
-            name: 'catering_config',
-            details: config,
-            description: `Catering menu config for ${zone_id}`,
-        });
+        return metadata_v7
+            .update({
+                id: zone_id,
+                body: {
+                    name: 'catering_config',
+                    details: toJsonValue(config),
+                    description: `Catering menu config for ${zone_id}`,
+                },
+            })
+            .then(orThrow);
     }
 
     private async _loadBuilding(building_id: string, currency: string) {
@@ -490,11 +502,12 @@ export class CateringStateService extends AsyncHandler {
     }
 
     private async _loadSettings(building_id: string) {
-        const metadata = await showMetadata(
-            building_id,
-            'catering-settings',
-        ).catch(() => ({}) as PlaceMetadata);
-        const settings = (metadata.details as CateringSettings) || {};
+        const metadata = await metadata_v7
+            .show({ id: building_id, name: 'catering-settings' })
+            .then(orThrow)
+            .then((data) => data['catering-settings'])
+            .catch(() => null);
+        const settings = cateringSettingsFromJson(metadata?.details);
         this._settings_data.set(settings);
         this._settings.post(
             'require_catering_notes',

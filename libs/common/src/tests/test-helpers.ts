@@ -8,6 +8,8 @@ import {
 } from 'ng-mocks';
 import { of } from 'rxjs';
 
+import { startPlaceClient } from '../lib/place-client';
+
 // Runner-agnostic spy factory: this helper is shared by vitest-based specs
 // (libs) and jest-based specs (apps). `vi` lives on globalThis (globals:
 // true) while jest injects `jest` into each module's scope rather than the
@@ -205,3 +207,22 @@ export const createSettingsServiceMock = (
         ...overrides,
     } as any;
 };
+
+/**
+ * Starts the PlaceOS client in mock mode for a test, without `setupPlace`.
+ * HTTP calls go to the mock endpoints of `registerMockEndpoint`, and
+ * `getModule` goes to the mock systems of `registerSystem`, both from
+ * `@placeos/ts-client/compat`.
+ */
+export function startMockPlaceClient() {
+    return startPlaceClient({
+        base_url: '',
+        mock: true,
+        headers: {},
+        auth: {
+            redirect_uri: 'http://localhost/oauth-resp.html',
+            scope: 'public',
+            grant: { kind: 'code' },
+        },
+    });
+}

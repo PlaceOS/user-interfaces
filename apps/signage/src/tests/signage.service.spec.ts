@@ -2,8 +2,16 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import * as ts_client from '@placeos/ts-client';
-import { MediaAnimation } from '@placeos/ts-client';
+import { mockData, startMockPlaceClient } from '@placeos/common/tests';
+import { signage, signage_plugins, SignagePlugin } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    mockFetch,
+    mockPage,
+    mockReply,
+    mockSystem,
+    registerSystem,
+} from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 
 import { MediaCacheService } from '../app/media-cache.service';
@@ -13,18 +21,62 @@ import { SignageService } from '../app/signage.service';
 /**
  * Flush the microtask queue so the async display load (and its downstream
  * media-cache sync / schedule checks) settle. Fake timers do not auto-flush
- * promises, so several rounds are awaited to cover the chained awaits.
+ * promises, so several rounds are awaited to cover the chained awaits,
+ * including the read of the response body.
  */
 const flush = async () => {
-    for (let i = 0; i < 8; i++) await Promise.resolve();
+    for (let i = 0; i < 40; i++) await Promise.resolve();
 };
 
 vi.mock('@placeos/ts-client', { spy: true });
+// Mock mode sends the requests of `placeFetch` through `mockFetch`
+vi.mock('@placeos/ts-client/compat', { spy: true });
+
+/**
+ * Body of the display details reply, from the display ID, the query and the
+ * request options with lowercase header names. A rejection with a `Response`
+ * is that reply, such as a 304.
+ */
+const show_display =
+    vi.fn<
+        (
+            id: string,
+            query: Record<string, boolean | string>,
+            init: RequestInit,
+        ) => Promise<unknown>
+    >();
+/** Headers of the display details reply, from the request path */
+const response_headers = vi.fn<(path: string) => Record<string, string>>();
+
+/** `mockFetch` for `GET /api/engine/v2/signage/{system_id}` */
+async function fetchDisplay(path: string, init: RequestInit) {
+    const url = new URL(path, 'http://localhost');
+    const id = decodeURIComponent(
+        url.pathname.replace('/api/engine/v2/signage/', ''),
+    );
+    const query = Object.fromEntries(
+        [...url.searchParams].map(([key, value]) => [
+            key,
+            key === 'preview' ? value === 'true' : value,
+        ]),
+    );
+    try {
+        const body = await show_display(id, query, {
+            headers: Object.fromEntries(new Headers(init.headers)),
+            cache: init.cache,
+        });
+        return new Response(JSON.stringify(body ?? null), {
+            headers: response_headers(path),
+        });
+    } catch (e) {
+        if (e instanceof Response) return e;
+        throw e;
+    }
+}
 
 describe('SignageService', () => {
     let spectator: SpectatorService<SignageService>;
     let media_cache: any;
-    let trigger_binding: any;
 
     const create_service = createServiceFactory({
         service: SignageService,
@@ -178,20 +230,17 @@ describe('SignageService', () => {
                 files: [],
             })),
         };
-        (ts_client.showSignage as any).mockReturnValue(
-            Promise.resolve(create_display()),
+        show_display.mockReset();
+        show_display.mockReturnValue(Promise.resolve(create_display()));
+        response_headers.mockReset();
+        response_headers.mockReturnValue({});
+        startMockPlaceClient();
+        vi.mocked(mockFetch).mockImplementation(fetchDisplay);
+        registerSystem('display-1', { _TRIGGER_: [{ 'trig-fire': false }] });
+        vi.mocked(signage_plugins.query).mockResolvedValue(
+            mockPage({ data: [] }),
         );
-        (ts_client.querySignagePlugins as any).mockReturnValue(
-            Promise.resolve({ data: [] }),
-        );
-        (ts_client.responseHeaders as any).mockReturnValue({});
-        trigger_binding = {
-            bindThenSubscribe: vi.fn(() => ({ unsubscribe: vi.fn() })),
-        };
-        (ts_client.getModule as any).mockReturnValue({
-            variable: vi.fn(() => trigger_binding),
-        });
-        (ts_client.post as any).mockReturnValue(Promise.resolve({}));
+        vi.mocked(signage.updateMetrics).mockResolvedValue(mockReply(''));
         spectator = create_service({
             providers: [MockProvider(MediaCacheService, media_cache)],
         });
@@ -238,7 +287,7 @@ describe('SignageService', () => {
                 },
             ],
         });
-        vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+        show_display.mockResolvedValue(display);
         spectator.service.setDisplay('display-1');
         await flush();
         expect(
@@ -278,7 +327,7 @@ describe('SignageService', () => {
 
     it('should list upcoming schedules in playback order', async () => {
         vi.setSystemTime(new Date('2026-01-01T10:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['evening', 'morning'] },
@@ -364,7 +413,7 @@ describe('SignageService', () => {
                     { template_id: 'masked-template', schedule },
                 ],
             });
-            vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+            show_display.mockResolvedValue(display);
             spectator.service.setDisplay('display-1');
             await flush();
             const playback = () =>
@@ -414,7 +463,7 @@ describe('SignageService', () => {
                     ],
                 },
             });
-            vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+            show_display.mockResolvedValue(display);
             spectator.service.setDisplay('display-1');
             await flush();
             expect(spectator.service.diagnostics().upcoming_schedules).toEqual(
@@ -456,7 +505,7 @@ describe('SignageService', () => {
                 ],
             },
         });
-        vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+        show_display.mockResolvedValue(display);
         spectator.service.setDisplay('display-1');
         await flush();
         expect(spectator.service.playlist()).toHaveLength(0);
@@ -495,7 +544,7 @@ describe('SignageService', () => {
                 ],
             },
         });
-        vi.mocked(ts_client.showSignage).mockResolvedValue(display);
+        show_display.mockResolvedValue(display);
         spectator.service.setDisplay('display-1');
         await flush();
         expect(spectator.service.playlist()).toHaveLength(0);
@@ -504,7 +553,7 @@ describe('SignageService', () => {
     it('ignores a one-off run that starts before its schedule is valid', async () => {
         const now = new Date(2026, 2, 2, 9).getTime();
         vi.setSystemTime(now);
-        vi.mocked(ts_client.showSignage).mockResolvedValue(
+        show_display.mockResolvedValue(
             display_with_schedules([
                 {
                     play_at: now / 1000 - 60,
@@ -524,7 +573,7 @@ describe('SignageService', () => {
     });
 
     it('keeps playing other playlists when a schedule has a malformed cron', async () => {
-        vi.mocked(ts_client.showSignage).mockResolvedValue(
+        show_display.mockResolvedValue(
             display_with_schedules([{ play_cron: '0 9 * *', play_period: 60 }]),
         );
 
@@ -544,7 +593,7 @@ describe('SignageService', () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);
         const valid_until = Math.floor((now.getTime() + 30_000) / 1000);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -600,7 +649,7 @@ describe('SignageService', () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);
         const expired_at = Math.floor((now.getTime() - 1_000) / 1000);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -639,9 +688,11 @@ describe('SignageService', () => {
     });
 
     it('should finish reloading when trigger binding fails', async () => {
-        (ts_client.getModule as any).mockImplementation(() => {
-            throw new Error('module unavailable');
-        });
+        vi.spyOn(spectator.service as any, '_bindTriggers').mockImplementation(
+            () => {
+                throw new Error('module unavailable');
+            },
+        );
 
         spectator.service.setDisplay('display-1');
         await flush();
@@ -768,7 +819,7 @@ describe('SignageService', () => {
         vi.setSystemTime(now);
         const play_at = (minutes_ago: number) =>
             Math.floor((now.getTime() - minutes_ago * 60_000) / 1000);
-        (ts_client.showSignage as any).mockResolvedValue(
+        show_display.mockResolvedValue(
             create_display({
                 template_schedules: [
                     {
@@ -813,7 +864,7 @@ describe('SignageService', () => {
     it('should use the default template when no schedule is active', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);
-        (ts_client.showSignage as any).mockResolvedValue(
+        show_display.mockResolvedValue(
             create_display({
                 template_schedules: [
                     {
@@ -849,7 +900,7 @@ describe('SignageService', () => {
     });
 
     it('should keep polling the display while nothing is scheduled', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': [] },
@@ -860,18 +911,18 @@ describe('SignageService', () => {
         spectator.service.setDisplay('display-1');
         await flush();
         expect(spectator.service.playlist()).toHaveLength(0);
-        (ts_client.showSignage as any).mockClear();
+        show_display.mockClear();
 
         for (let i = 0; i < 3; i++) {
             vi.advanceTimersByTime(60_000);
             await flush();
         }
 
-        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+        expect(show_display.mock.calls.length).toBe(3);
     });
 
     it('should keep polling over a long idle period', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': [] },
@@ -881,7 +932,7 @@ describe('SignageService', () => {
         );
         spectator.service.setDisplay('display-1');
         await flush();
-        (ts_client.showSignage as any).mockClear();
+        show_display.mockClear();
 
         // Four hours, stepped at the schedule tick interval
         for (let i = 0; i < 4 * 60 * 4; i++) {
@@ -889,23 +940,23 @@ describe('SignageService', () => {
             await Promise.resolve();
         }
 
-        expect((ts_client.showSignage as any).mock.calls.length).toBe(4 * 60);
+        expect(show_display.mock.calls.length).toBe(4 * 60);
     });
 
     it('should keep polling after the display request fails', async () => {
-        (ts_client.showSignage as any).mockImplementation(() =>
+        show_display.mockImplementation(() =>
             Promise.reject(new Error('backend unavailable')),
         );
         spectator.service.setDisplay('display-1');
         await flush();
-        (ts_client.showSignage as any).mockClear();
+        show_display.mockClear();
 
         for (let i = 0; i < 3; i++) {
             vi.advanceTimersByTime(60_000);
             await flush();
         }
 
-        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+        expect(show_display.mock.calls.length).toBe(3);
     });
 
     it('should abandon a display request that never settles', async () => {
@@ -913,9 +964,7 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details.display-1',
             JSON.stringify(create_display()),
         );
-        (ts_client.showSignage as any).mockImplementation(
-            () => new Promise(() => undefined),
-        );
+        show_display.mockImplementation(() => new Promise(() => undefined));
         spectator.service.setDisplay('display-1');
         await flush();
         expect((spectator.service as any)._poll_in_flight).toBe(true);
@@ -933,23 +982,21 @@ describe('SignageService', () => {
     });
 
     it('should keep polling after the display request never settles', async () => {
-        (ts_client.showSignage as any).mockImplementation(
-            () => new Promise(() => undefined),
-        );
+        show_display.mockImplementation(() => new Promise(() => undefined));
         spectator.service.setDisplay('display-1');
         await flush();
-        (ts_client.showSignage as any).mockClear();
+        show_display.mockClear();
 
         for (let i = 0; i < 3; i++) {
             vi.advanceTimersByTime(60_000);
             await flush();
         }
 
-        expect((ts_client.showSignage as any).mock.calls.length).toBe(3);
+        expect(show_display.mock.calls.length).toBe(3);
     });
 
     it('should recover the display once the backend comes back', async () => {
-        (ts_client.showSignage as any).mockImplementationOnce(() =>
+        show_display.mockImplementationOnce(() =>
             Promise.reject(new Error('backend unavailable')),
         );
         spectator.service.setDisplay('display-1');
@@ -970,21 +1017,21 @@ describe('SignageService', () => {
         await flush();
         // Simulate the interval being lost without the service knowing
         (spectator.service as any).clearInterval('poll');
-        (ts_client.showSignage as any).mockClear();
+        show_display.mockClear();
 
         vi.advanceTimersByTime(4 * 60_000);
         await flush();
-        (ts_client.showSignage as any).mockClear();
+        show_display.mockClear();
         vi.advanceTimersByTime(60_000);
         await flush();
 
-        expect((ts_client.showSignage as any).mock.calls.length).toBe(1);
+        expect(show_display.mock.calls.length).toBe(1);
     });
 
     it('should only ask for a preview when debug is enabled', async () => {
         spectator.service.setDisplay('display-1');
         await flush();
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             {},
             { headers: {}, cache: 'no-store' },
@@ -994,7 +1041,7 @@ describe('SignageService', () => {
         vi.advanceTimersByTime(60_000);
         await flush();
 
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             { preview: true },
             { headers: {}, cache: 'no-store' },
@@ -1010,7 +1057,7 @@ describe('SignageService', () => {
             etag: 'W/"display-v2"',
             'last-modified': 'Thu, 03 Sep 2026 01:03:04 GMT',
         };
-        (ts_client.responseHeaders as any)
+        response_headers
             .mockReturnValueOnce(first_validators)
             .mockReturnValueOnce(next_validators);
         spectator.service.setDisplay('display-1');
@@ -1020,18 +1067,18 @@ describe('SignageService', () => {
         await (spectator.service as any)._reloadDisplay();
         await flush();
 
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             { item_id: 'media / 1' },
             {
                 headers: {
-                    'If-None-Match': first_validators.etag,
-                    'If-Modified-Since': first_validators['last-modified'],
+                    'if-none-match': first_validators.etag,
+                    'if-modified-since': first_validators['last-modified'],
                 },
                 cache: 'no-store',
             },
         );
-        expect(ts_client.responseHeaders).toHaveBeenLastCalledWith(
+        expect(response_headers).toHaveBeenLastCalledWith(
             expect.stringContaining(
                 '/signage/display-1?item_id=media%20%2F%201',
             ),
@@ -1040,20 +1087,18 @@ describe('SignageService', () => {
         localStorage.clear();
         spectator.service.playing_id.set('media-2');
         const parse = vi.spyOn(spectator.service as any, '_parseDisplay');
-        (ts_client.showSignage as any).mockRejectedValueOnce(
-            new Response(null, { status: 304 }),
-        );
+        show_display.mockRejectedValueOnce(new Response(null, { status: 304 }));
 
         await (spectator.service as any)._reloadDisplay();
         await flush();
 
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             { item_id: 'media-2' },
             {
                 headers: {
-                    'If-None-Match': next_validators.etag,
-                    'If-Modified-Since': next_validators['last-modified'],
+                    'if-none-match': next_validators.etag,
+                    'if-modified-since': next_validators['last-modified'],
                 },
                 cache: 'no-store',
             },
@@ -1063,7 +1108,7 @@ describe('SignageService', () => {
     });
 
     it('should not send the validators of one display when fetching another', async () => {
-        (ts_client.responseHeaders as any).mockReturnValue({
+        response_headers.mockReturnValue({
             etag: '"display-1-v1"',
             'last-modified': 'Thu, 03 Sep 2026 01:02:03 GMT',
         });
@@ -1074,7 +1119,7 @@ describe('SignageService', () => {
         await flush();
 
         // A 304 for display 2 would otherwise keep display 1 on screen
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-2',
             {},
             { headers: {}, cache: 'no-store' },
@@ -1086,7 +1131,7 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details',
             JSON.stringify(create_display()),
         );
-        (ts_client.showSignage as any).mockImplementation(() =>
+        show_display.mockImplementation(() =>
             Promise.reject(new Error('backend unavailable')),
         );
 
@@ -1101,7 +1146,7 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details',
             JSON.stringify(create_display()),
         );
-        (ts_client.showSignage as any).mockImplementation(() =>
+        show_display.mockImplementation(() =>
             Promise.reject(new Error('backend unavailable')),
         );
 
@@ -1114,9 +1159,7 @@ describe('SignageService', () => {
 
     it('should not reload the display when the payload is unchanged', async () => {
         const display = create_display();
-        (ts_client.showSignage as any).mockImplementation(() =>
-            Promise.resolve(display),
-        );
+        show_display.mockImplementation(() => Promise.resolve(display));
         spectator.service.setDisplay('display-1');
         await flush();
         media_cache.requestFilesToCache.mockClear();
@@ -1155,7 +1198,7 @@ describe('SignageService', () => {
 
     it('should cache media for playlists scheduled later in the day', async () => {
         vi.setSystemTime(new Date('2026-01-01T22:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['morning-playlist'] },
@@ -1194,7 +1237,7 @@ describe('SignageService', () => {
 
     it('should cache media once a schedule comes into look-ahead range', async () => {
         vi.setSystemTime(new Date('2026-01-01T00:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['monthly-playlist'] },
@@ -1244,7 +1287,7 @@ describe('SignageService', () => {
     it('should release cached media once a schedule has finished', async () => {
         const now = new Date('2026-01-01T10:00:00');
         vi.setSystemTime(now);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -1307,7 +1350,7 @@ describe('SignageService', () => {
     });
 
     it('should not re-sync the media cache for playlists that play in random order', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['random-playlist'] },
@@ -1343,7 +1386,7 @@ describe('SignageService', () => {
     });
 
     it('should keep the order of a random playlist across schedule ticks', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['random-playlist'] },
@@ -1383,7 +1426,7 @@ describe('SignageService', () => {
 
     it('should not cache media for playlists scheduled beyond the look-ahead', async () => {
         vi.setSystemTime(new Date('2026-01-01T22:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['monthly-playlist'] },
@@ -1421,7 +1464,7 @@ describe('SignageService', () => {
 
     it('should rank active media ahead of look-ahead media for cache eviction', async () => {
         vi.setSystemTime(new Date('2026-01-01T22:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -1564,7 +1607,7 @@ describe('SignageService', () => {
             value: vi.fn(() => 'blob:morning'),
         });
         vi.setSystemTime(new Date('2026-01-01T22:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: { 'display-1': ['morning-playlist'] },
@@ -1617,26 +1660,21 @@ describe('SignageService', () => {
     });
 
     describe('trigger playlists', () => {
-        let emit: (value: unknown) => void;
-
         const override_ids = () =>
             spectator.service.override_playlist().playlist.map((_) => _.id);
 
-        beforeEach(() => {
-            emit = () => undefined;
-            trigger_binding.bindThenSubscribe.mockImplementation(
-                (next: (value: unknown) => void) => {
-                    emit = next;
-                    next(trigger_binding.value);
-                    return () => undefined;
-                },
-            );
-        });
+        /** Set the trigger and let the mock socket send the new value */
+        const emit = async (value: boolean) => {
+            mockSystem('display-1')['_TRIGGER_'][0]['trig-fire'] = value;
+            await vi.advanceTimersByTimeAsync(1);
+        };
 
         it('should take over only when a trigger value turns true', async () => {
             // Held true when the display binds, so it must not replay
-            trigger_binding.value = true;
-            (ts_client.showSignage as any).mockResolvedValue(
+            registerSystem('display-1', {
+                _TRIGGER_: [{ 'trig-fire': true }],
+            });
+            show_display.mockResolvedValue(
                 create_display({
                     playlist_mappings: {
                         'display-1': ['base-playlist'],
@@ -1646,23 +1684,49 @@ describe('SignageService', () => {
             );
             spectator.service.setDisplay('display-1');
             await flush();
-            expect(ts_client.getModule).toHaveBeenCalledWith(
-                'display-1',
-                '_TRIGGER__1',
-            );
+            await vi.advanceTimersByTimeAsync(1);
             expect(override_ids()).toEqual([]);
 
-            emit(false);
+            await emit(false);
             await flush();
             expect(override_ids()).toEqual([]);
 
-            emit(true);
+            await emit(true);
             await flush();
             expect(override_ids()).toEqual(['media-4']);
 
             spectator.service.clearPlaylistOverride();
-            emit(true);
+            await emit(true);
             await flush();
+            expect(override_ids()).toEqual([]);
+        });
+
+        it('should not replay a held trigger when the display config changes', async () => {
+            const playlist_mappings = {
+                'display-1': ['base-playlist'],
+                'trig-fire': ['trigger-playlist'],
+            };
+            show_display.mockResolvedValue(
+                create_display({ playlist_mappings }),
+            );
+            spectator.service.setDisplay('display-1');
+            await flush();
+            await vi.advanceTimersByTimeAsync(1);
+            await emit(true);
+            await flush();
+            expect(override_ids()).toEqual(['media-4']);
+            spectator.service.clearPlaylistOverride();
+
+            // The trigger stays true while the display config changes
+            show_display.mockResolvedValue(
+                create_display({ name: 'Renamed', playlist_mappings }),
+            );
+            await (spectator.service as any)._reloadDisplay();
+            await flush();
+            await vi.advanceTimersByTimeAsync(1);
+            await flush();
+
+            expect(spectator.service.display()?.name).toBe('Renamed');
             expect(override_ids()).toEqual([]);
         });
 
@@ -1671,7 +1735,7 @@ describe('SignageService', () => {
             await flush();
             expect(override_ids()).toEqual(['media-3']);
 
-            emit(true);
+            await emit(true);
             await flush();
 
             expect(override_ids()).toEqual(['media-3']);
@@ -1679,7 +1743,7 @@ describe('SignageService', () => {
     });
 
     it('should resolve plugin media URLs from the plugin catalogue', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -1713,15 +1777,15 @@ describe('SignageService', () => {
                 }),
             ),
         );
-        (ts_client.querySignagePlugins as any).mockReturnValue(
-            Promise.resolve({
+        vi.mocked(signage_plugins.query).mockResolvedValue(
+            mockPage({
                 data: [
-                    {
+                    mockData(SignagePlugin, {
                         id: 'weather-plugin',
                         name: 'Weather',
                         uri: '/plugins/weather/index.html',
                         defaults: { units: 'metric' },
-                    },
+                    }),
                 ],
             }),
         );
@@ -1742,7 +1806,7 @@ describe('SignageService', () => {
     it('should track whether playlist or media validity controls the item window', async () => {
         const now = Date.UTC(2026, 0, 1, 10, 0, 0);
         setMockTime(now);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -1830,7 +1894,7 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details.display-1',
             JSON.stringify(create_display()),
         );
-        (ts_client.showSignage as any).mockImplementation(() =>
+        show_display.mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
         spectator.service.setDisplay('display-2');
@@ -1856,7 +1920,7 @@ describe('SignageService', () => {
     });
 
     it('should not prune media cache when display loading has no matching fallback', async () => {
-        (ts_client.showSignage as any).mockImplementation(() =>
+        show_display.mockImplementation(() =>
             Promise.reject(new Error('display unavailable')),
         );
         media_cache.availableFiles.mockClear();
@@ -1903,7 +1967,7 @@ describe('SignageService', () => {
                     ],
                 },
             });
-        (ts_client.showSignage as any)
+        show_display
             .mockResolvedValueOnce(scheduled_display('0 9 * * *'))
             .mockResolvedValueOnce(scheduled_display('0 10 * * *'));
         spectator.service.setDisplay('display-1');
@@ -1916,7 +1980,7 @@ describe('SignageService', () => {
         expect(spectator.service.playlist().map((_) => _.id)).toEqual([
             'media-3',
         ]);
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             expect.any(Object),
             { headers: {}, cache: 'no-store' },
@@ -1924,7 +1988,7 @@ describe('SignageService', () => {
     });
 
     it('should not include signage media that embeds the same display', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -1969,7 +2033,7 @@ describe('SignageService', () => {
             spectator.service as any,
             '_isNestedPlayerWindow',
         ).mockReturnValue(true);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -2025,7 +2089,7 @@ describe('SignageService', () => {
     });
 
     it('should clear a scheduled override removed from the display', async () => {
-        (ts_client.showSignage as any)
+        show_display
             .mockResolvedValueOnce(create_display())
             .mockResolvedValueOnce(
                 create_display({
@@ -2079,7 +2143,7 @@ describe('SignageService', () => {
                     'second-takeover': [second_takeover, ['media-5']],
                 },
             });
-        (ts_client.showSignage as any)
+        show_display
             .mockResolvedValueOnce(
                 display_with(['scheduled-playlist', 'second-takeover']),
             )
@@ -2114,7 +2178,7 @@ describe('SignageService', () => {
     it('should update non-takeover scheduled playlists on the schedule timer', async () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -2167,7 +2231,7 @@ describe('SignageService', () => {
         const now = new Date('2026-01-01T10:00:00Z');
         vi.setSystemTime(now);
         setMockTime(now.getTime(), 64);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -2219,7 +2283,7 @@ describe('SignageService', () => {
     it('should end late-detected scheduled overrides at the schedule end time', async () => {
         const starts_at = new Date('2026-01-01T10:00:00Z').getTime();
         vi.setSystemTime(starts_at + 5 * 60 * 1000);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -2260,7 +2324,7 @@ describe('SignageService', () => {
         // Boot the display two hours into an eight-hour takeover window.
         vi.setSystemTime(fired_at.getTime() + 2 * 60 * 60 * 1000);
         const cron = `${fired_at.getMinutes()} ${fired_at.getHours()} * * *`;
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -2303,7 +2367,7 @@ describe('SignageService', () => {
         // Fires every 6 hours and each run lasts 12 hours, so at 07:00 the
         // 06:00 run is the active one and it should end at 18:00.
         vi.setSystemTime(new Date('2026-01-01T07:00:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -2342,7 +2406,7 @@ describe('SignageService', () => {
     it('should not expire single-pass scheduled media with the trigger window', async () => {
         const fired_at = new Date('2026-01-01T06:00:00');
         vi.setSystemTime(fired_at.getTime() + 2000);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -2382,7 +2446,7 @@ describe('SignageService', () => {
     it('should still expire scheduled media at the end of a play period', async () => {
         const fired_at = new Date('2026-01-01T06:00:00');
         vi.setSystemTime(fired_at.getTime() + 2000);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -2422,7 +2486,7 @@ describe('SignageService', () => {
     it('should not retrigger completed single-pass scheduled overrides', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         vi.setSystemTime(now);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -2464,7 +2528,7 @@ describe('SignageService', () => {
     it('should not treat background schedules of a takeover playlist as takeovers', async () => {
         const day = (time: string) => new Date(`2026-01-05T${time}`).getTime();
         vi.setSystemTime(day('12:02:00'));
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 // Background first, so it is not picked just by coming first
                 display_with_schedules([
@@ -2529,7 +2593,7 @@ describe('SignageService', () => {
                 { id: 'media-7', name: 'Seven', media_type: 'image' },
             ],
         });
-        (ts_client.showSignage as any).mockResolvedValue(display(true));
+        show_display.mockResolvedValue(display(true));
         spectator.service.setDisplay('display-1');
         await flush();
         const override_ids = () =>
@@ -2554,7 +2618,7 @@ describe('SignageService', () => {
         expect(override_ids()).toEqual(media);
         vi.advanceTimersByTime(45_000);
         await flush();
-        (ts_client.showSignage as any).mockResolvedValue(display(false));
+        show_display.mockResolvedValue(display(false));
         await (spectator.service as any)._reloadDisplay();
         await flush();
         expect(override_ids()).toEqual([]);
@@ -2613,14 +2677,14 @@ describe('SignageService', () => {
 
         it('should not keep playing a disabled timed takeover beside a single pass', async () => {
             vi.setSystemTime(day('10:00:02'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display('0 10 * * *', '0 10 * * *', 60),
             );
             spectator.service.setDisplay('display-1');
             await flush();
             await tick(60_000);
 
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display('0 10 * * *', '0 10 * * *', 60, false),
             );
             await (spectator.service as any)._reloadDisplay();
@@ -2634,7 +2698,7 @@ describe('SignageService', () => {
 
         it('should let a single pass outlast the end of a timed takeover', async () => {
             vi.setSystemTime(day('09:59:02'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display('59 9 * * *', '50 9 * * *', 10),
             );
             spectator.service.setDisplay('display-1');
@@ -2649,7 +2713,7 @@ describe('SignageService', () => {
 
         it('should not expire single-pass media with a timed run on the same playlist', async () => {
             vi.setSystemTime(day('09:59:02'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 // The timed run is listed first and ends at 10:00
                 display_with_schedules([
                     {
@@ -2674,7 +2738,7 @@ describe('SignageService', () => {
 
         it('should start a timed takeover once a held single pass finishes', async () => {
             vi.setSystemTime(day('10:00:02'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display('0 10 * * *', '1 10 * * *', 10),
             );
             spectator.service.setDisplay('display-1');
@@ -2695,7 +2759,7 @@ describe('SignageService', () => {
     it('should not start a takeover whose playlist has expired', async () => {
         const now = new Date('2026-01-05T09:05:00').getTime();
         vi.setSystemTime(now);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 display_with_schedules(
                     [
@@ -2725,7 +2789,7 @@ describe('SignageService', () => {
         const display = display_with_schedules([
             { play_cron: '0 9 * * *', play_period: 60, play_takeover: true },
         ]);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve({
                 ...display,
                 playlist_media: display.playlist_media.map((item) =>
@@ -2786,7 +2850,7 @@ describe('SignageService', () => {
 
         it('should end a takeover once its only media item expires', async () => {
             vi.setSystemTime(day('09:05:00'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display({
                     'media-3': { valid_until: seconds(day('09:10:00')) },
                 }),
@@ -2803,7 +2867,7 @@ describe('SignageService', () => {
 
         it('should end a takeover once all of its media items expire', async () => {
             vi.setSystemTime(day('09:05:00'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display(
                     {
                         'media-3': { valid_until: seconds(day('09:08:00')) },
@@ -2831,7 +2895,7 @@ describe('SignageService', () => {
 
         it('should end a takeover whose media expires while the display is unchanged', async () => {
             vi.setSystemTime(day('09:05:00'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display({
                     'media-3': { valid_until: seconds(day('09:06:00')) },
                 }),
@@ -2850,7 +2914,7 @@ describe('SignageService', () => {
 
         it('should resume a takeover when a later media item becomes valid', async () => {
             vi.setSystemTime(day('09:05:00'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display(
                     {
                         'media-3': { valid_until: seconds(day('09:10:00')) },
@@ -2879,7 +2943,7 @@ describe('SignageService', () => {
 
         it('should not take over with a playlist that has no media', async () => {
             vi.setSystemTime(day('09:05:00'));
-            (ts_client.showSignage as any).mockResolvedValue(display({}, []));
+            show_display.mockResolvedValue(display({}, []));
             spectator.service.setDisplay('display-1');
             await flush();
 
@@ -2889,7 +2953,7 @@ describe('SignageService', () => {
 
         it('should end a held single pass once its media expires', async () => {
             vi.setSystemTime(day('09:00:02'));
-            (ts_client.showSignage as any).mockResolvedValue(
+            show_display.mockResolvedValue(
                 display(
                     { 'media-3': { valid_until: seconds(day('09:01:00')) } },
                     ['media-3'],
@@ -2924,7 +2988,7 @@ describe('SignageService', () => {
     });
 
     it('should store metric events and ignore playlist counts for random playlists', async () => {
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_mappings: {
@@ -2973,14 +3037,14 @@ describe('SignageService', () => {
         vi.runOnlyPendingTimers();
         await Promise.resolve();
 
-        expect(ts_client.post).toHaveBeenCalledWith(
-            '/api/engine/v2/signage/display-1/metrics',
-            {
+        expect(signage.updateMetrics).toHaveBeenCalledWith({
+            system_id: 'display-1',
+            body: {
                 media_counts: { 'media-1': 1 },
                 playlist_counts: {},
                 play_through_counts: {},
             },
-        );
+        });
         expect((spectator.service as any)._metrics).toEqual({
             media_counts: {},
             playlist_counts: {},
@@ -2990,9 +3054,11 @@ describe('SignageService', () => {
 
     it('should keep metrics recorded while a post is in flight', async () => {
         let finishPost = () => undefined as void;
-        (ts_client.post as any).mockClear();
-        (ts_client.post as any).mockReturnValue(
-            new Promise<void>((resolve) => (finishPost = resolve)),
+        vi.mocked(signage.updateMetrics).mockClear();
+        vi.mocked(signage.updateMetrics).mockReturnValue(
+            new Promise(
+                (resolve) => (finishPost = () => resolve(mockReply(''))),
+            ),
         );
         spectator.service.setDisplay('display-1');
         await spectator.service.storeMetricEvent({
@@ -3001,7 +3067,7 @@ describe('SignageService', () => {
         });
         (spectator.service as any)._postMetrics();
         vi.advanceTimersByTime(60);
-        expect(ts_client.post).toHaveBeenCalledTimes(1);
+        expect(signage.updateMetrics).toHaveBeenCalledTimes(1);
 
         await spectator.service.storeMetricEvent({
             type: 'media_count',
@@ -3016,8 +3082,8 @@ describe('SignageService', () => {
     });
 
     it('should keep metrics that fail to post for the next attempt', async () => {
-        (ts_client.post as any).mockReturnValueOnce(
-            Promise.reject(new Error('backend unavailable')),
+        vi.mocked(signage.updateMetrics).mockRejectedValueOnce(
+            new Error('backend unavailable'),
         );
         spectator.service.setDisplay('display-1');
         await spectator.service.storeMetricEvent({
@@ -3036,18 +3102,18 @@ describe('SignageService', () => {
         vi.advanceTimersByTime(60);
         await flush();
 
-        expect(ts_client.post).toHaveBeenLastCalledWith(
-            '/api/engine/v2/signage/display-1/metrics',
-            {
+        expect(signage.updateMetrics).toHaveBeenLastCalledWith({
+            system_id: 'display-1',
+            body: {
                 media_counts: { 'media-1': 2 },
                 playlist_counts: {},
                 play_through_counts: {},
             },
-        );
+        });
     });
 
     it('should not keep the validators of a display that failed to apply', async () => {
-        (ts_client.responseHeaders as any).mockReturnValue({
+        response_headers.mockReturnValue({
             etag: '"display-v1"',
         });
         vi.spyOn(
@@ -3062,18 +3128,18 @@ describe('SignageService', () => {
         // A conditional request here would get a 304 for the payload that
         // failed, and it would never be applied.
         await (spectator.service as any)._reloadDisplay();
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             {},
             { headers: {}, cache: 'no-store' },
         );
 
         await (spectator.service as any)._reloadDisplay();
-        expect(ts_client.showSignage).toHaveBeenLastCalledWith(
+        expect(show_display).toHaveBeenLastCalledWith(
             'display-1',
             {},
             {
-                headers: { 'If-None-Match': '"display-v1"' },
+                headers: { 'if-none-match': '"display-v1"' },
                 cache: 'no-store',
             },
         );
@@ -3106,7 +3172,7 @@ describe('SignageService', () => {
 
         expect(saves()).toBe(1);
 
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(create_display({ name: 'Renamed' })),
         );
         await spectator.service.refresh();
@@ -3119,7 +3185,7 @@ describe('SignageService', () => {
             'PlaceOS.SIGNAGE.display_details.display-1',
             '{not json',
         );
-        (ts_client.showSignage as any).mockImplementation(() =>
+        show_display.mockImplementation(() =>
             Promise.reject(new Error('backend unavailable')),
         );
 
@@ -3132,7 +3198,7 @@ describe('SignageService', () => {
     });
 
     it('should only record a poll success when the backend answers', async () => {
-        (ts_client.showSignage as any).mockImplementationOnce(() =>
+        show_display.mockImplementationOnce(() =>
             Promise.reject(new Error('backend unavailable')),
         );
         localStorage.setItem(
@@ -3172,7 +3238,7 @@ describe('SignageService', () => {
     it('should forget a completed takeover run once its window has passed', async () => {
         const now = new Date('2026-01-01T10:00:00Z').getTime();
         vi.setSystemTime(now);
-        (ts_client.showSignage as any).mockReturnValue(
+        show_display.mockReturnValue(
             Promise.resolve(
                 create_display({
                     playlist_config: {
@@ -3241,14 +3307,12 @@ describe('SignageService', () => {
                 ],
             },
         });
-        (ts_client.showSignage as any).mockReturnValue(
-            Promise.resolve(display),
-        );
+        show_display.mockReturnValue(Promise.resolve(display));
         spectator.service.setDisplay('display-1');
         await flush();
         spectator.service.clearPlaylistOverride();
 
-        (ts_client.showSignage as any).mockReturnValueOnce(
+        show_display.mockReturnValueOnce(
             Promise.resolve({
                 ...display,
                 playlist_mappings: { 'display-1': ['base-playlist'] },

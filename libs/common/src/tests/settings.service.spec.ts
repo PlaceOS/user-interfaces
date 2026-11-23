@@ -6,10 +6,12 @@ import {
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 
 import { GoogleAnalyticsService } from '../lib/google-analytics.service';
 import { SettingsService } from '../lib/settings.service';
 import { setCurrentUser } from '../lib/user-state';
+import { startStubApi } from './stub-api';
 
 // Only the external ts-client API layer is stubbed; the real user-state store
 // is seeded with a loaded user so settings initialisation can complete.
@@ -20,9 +22,17 @@ describe('SettingsService', () => {
     const createService = createServiceFactory(SettingsService);
 
     beforeEach(() => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         setCurrentUser({ id: 'test-user' } as any);
         spectator = createService({
             providers: [MockProvider(Title, { setTitle: vi.fn() })],
@@ -119,13 +129,21 @@ describe('SettingsService renamed user settings', () => {
     const createService = createServiceFactory(SettingsService);
 
     it('should read favourites saved under the old setting keys', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {
-                favourite_spaces: ['room-1'],
-                favourite_parking_spaces: ['bay-1'],
-                favourite_parking: ['bay-2'],
-            },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {
+                            favourite_spaces: ['room-1'],
+                            favourite_parking_spaces: ['bay-1'],
+                            favourite_parking: ['bay-2'],
+                        },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         setCurrentUser({ id: 'test-user' } as any);
         const service = createService({
             providers: [MockProvider(Title, { setTitle: vi.fn() })],
@@ -145,12 +163,18 @@ describe('SettingsService user settings', () => {
     afterEach(() => vi.useRealTimers());
 
     it('should save changes in one request, merged with the stored settings', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: { theme: 'dark', font_size: 16 },
-        } as any);
-        vi.mocked(ts_client.updateMetadata)
-            .mockClear()
-            .mockResolvedValue({} as any);
+        // The real operations send to the stub API
+        vi.mocked(ts_client.metadata.show).mockReset();
+        vi.mocked(ts_client.metadata.update).mockReset();
+        const api = startStubApi();
+        api.on('GET', '/api/engine/v2/metadata/:id', () => ({
+            settings: {
+                name: 'settings',
+                details: { theme: 'dark', font_size: 16 },
+            },
+        }));
+        api.on('PUT', '/api/engine/v2/metadata/:id', () => ({}));
+        const saves = () => api.requests.filter((r) => r.method === 'PUT');
         setCurrentUser({ id: 'test-user' } as any);
         const service = createService({
             providers: [MockProvider(Title, { setTitle: vi.fn() })],
@@ -161,18 +185,28 @@ describe('SettingsService user settings', () => {
         service.saveUserSetting('use_24_hour_time', true);
         await vi.advanceTimersByTimeAsync(1000);
         service.saveUserSetting('font_size', 18);
+        // A value that is not JSON, which the 7.x client rejects
+        service.saveUserSetting('layout', { columns: 2, width: undefined });
 
         // Unsaved changes are read before the stored settings
         expect(service.get('font_size')).toBe(18);
         // Each change restarts the 2.4 second wait
         await vi.advanceTimersByTimeAsync(2399);
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(saves()).toEqual([]);
         await vi.advanceTimersByTimeAsync(1);
-        expect(ts_client.updateMetadata).toHaveBeenCalledTimes(1);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith('test-user', {
+        expect(saves()).toHaveLength(1);
+        expect(saves()[0].url.pathname).toBe(
+            '/api/engine/v2/metadata/test-user',
+        );
+        expect(saves()[0].body).toEqual({
             name: 'settings',
             description: '',
-            details: { theme: 'dark', font_size: 18, use_24_hour_time: true },
+            details: {
+                theme: 'dark',
+                font_size: 18,
+                use_24_hour_time: true,
+                layout: { columns: 2 },
+            },
         });
     });
 });
@@ -207,9 +241,17 @@ describe('SettingsService theme', () => {
     // Setting signals are cached per module, so this test must be the first
     // to create the `allow_dark_mode` signal.
     it('should use the light theme when dark mode is not set', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: { theme: 'dark' },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: { theme: 'dark' },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         setCurrentUser({ id: 'test-user' } as any);
         const service = createService({
             providers: [MockProvider(Title, { setTitle: vi.fn() })],
@@ -222,9 +264,17 @@ describe('SettingsService theme', () => {
     });
 
     it('should use the light theme when dark mode is disabled', async () => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: { theme: 'dark' },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: { theme: 'dark' },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         setCurrentUser({ id: 'test-user' } as any);
         const service = createService({
             providers: [MockProvider(Title, { setTitle: vi.fn() })],

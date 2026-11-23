@@ -7,12 +7,14 @@ import {
     signal,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
+import { metadata, users } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { format, isSameDay } from 'date-fns';
 
 import { AsyncHandler } from './async-handler.class';
 import { SETTING_KEYS } from './constants';
 import { getItemWithKeys, log, setAppName } from './general';
+import { toJsonValue } from './json';
 import { DEFAULT_SETTINGS } from './settings';
 import { ApplicationIcon, HashMap } from './types';
 
@@ -297,8 +299,25 @@ export class SettingsService extends AsyncHandler {
             window.setting = (key) => this.get(key);
         }
         const user = await this._currentUser();
-        const data = await showMetadata(user.id, 'settings');
-        this._user_settings.set(withLegacyUserSettings(data.details || {}));
+        // Without saved settings the app uses the defaults
+        const data = await metadata
+            .show({ id: user.id, name: 'settings' })
+            .then(orThrow)
+            .then((data) => data['settings'])
+            .catch((error) => {
+                log('Settings', 'Unable to load user settings', error, 'warn');
+                return null;
+            });
+        const details = data?.details;
+        this._user_settings.set(
+            withLegacyUserSettings(
+                details &&
+                    typeof details === 'object' &&
+                    !Array.isArray(details)
+                    ? details
+                    : {},
+            ),
+        );
         this._updateSignals();
         this.timeout(
             'init',
@@ -356,7 +375,9 @@ export class SettingsService extends AsyncHandler {
     }
 
     public async updateLocatable(locatable: boolean) {
-        await updateUser(currentUser().id, { locatable }, 'patch');
+        await users
+            .update({ id: currentUser().id, body: { locatable } })
+            .then(orThrow);
         reloadUserData();
     }
 
@@ -405,14 +426,19 @@ export class SettingsService extends AsyncHandler {
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
         this._updateSignals();
-        await updateMetadata(user.id, {
-            name: 'settings',
-            description: '',
-            details: {
-                ...this._user_settings(),
-                ...this._pending_settings,
-            },
-        });
+        await metadata
+            .update({
+                id: user.id,
+                body: {
+                    name: 'settings',
+                    description: '',
+                    details: toJsonValue({
+                        ...this._user_settings(),
+                        ...this._pending_settings,
+                    }),
+                },
+            })
+            .then(orThrow);
         this._user_settings.set({
             ...this._user_settings(),
             ...this._pending_settings,

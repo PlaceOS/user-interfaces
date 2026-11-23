@@ -7,13 +7,13 @@ import { setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { SurveyQuestion, surveys_questions } from '@placeos/ts-client/staff';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
 import { QuestionModalComponent } from '../../app/surveys/question-modal.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-const { SurveyQuestion } = ts_client;
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('NewSurveyService', () => {
     let spectator: SpectatorService<NewSurveyService>;
@@ -32,9 +32,7 @@ describe('NewSurveyService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        vi.mocked(ts_client.removeQuestion).mockResolvedValue(
-            undefined as never,
-        );
+        vi.mocked(surveys_questions.destroy).mockResolvedValue(mockReply(''));
         dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         spectator = createService({
             providers: [MockProvider(MatDialog, { open: dialog_open })],
@@ -46,7 +44,7 @@ describe('NewSurveyService', () => {
     });
 
     it('should open the question modal when editing a question', () => {
-        const question = new SurveyQuestion({ id: 3, title: 'Q' });
+        const question = mockData(SurveyQuestion, { id: 3, title: 'Q' });
 
         spectator.service.editQuestion(question);
 
@@ -62,9 +60,9 @@ describe('NewSurveyService', () => {
             close: vi.fn(),
         });
 
-        await spectator.service.removeQuestion(new SurveyQuestion({ id: 5 }));
+        await spectator.service.removeQuestion({ id: 5 });
 
-        expect(ts_client.removeQuestion).toHaveBeenCalledWith('5');
+        expect(surveys_questions.destroy).toHaveBeenCalledWith({ id: 5 });
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             'OK',

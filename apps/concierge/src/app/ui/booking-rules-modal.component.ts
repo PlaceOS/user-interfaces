@@ -29,8 +29,10 @@ import {
     TranslatePipe,
     openConfirmModal,
 } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { BookingRulesFormComponent } from 'libs/form-fields/src/lib/booking-rules-form.component';
+import { jsonList, showMetadata, toJsonValue } from '../metadata';
 import { restoreFocusAfterRender } from './restore-focus';
 
 @Component({
@@ -495,9 +497,9 @@ export class BookingRulesModalComponent {
                     params.building,
                     `${this._data.type}_booking_rules`,
                 );
-                return details instanceof Array
-                    ? this.normaliseRulesetIds(details)
-                    : [];
+                return this.normaliseRulesetIds(
+                    jsonList<BookingRuleset>(details),
+                );
             } catch {
                 this.load_failed.set(true);
                 return [];
@@ -613,11 +615,16 @@ export class BookingRulesModalComponent {
         try {
             if (index >= 0) {
                 rules.splice(index, 1);
-                await updateMetadata(this._org.building.id, {
-                    name: `${this.type}_booking_rules`,
-                    description: `${this.type} Booking Rules`,
-                    details: rules,
-                });
+                await metadata
+                    .update({
+                        id: this._org.building.id,
+                        body: {
+                            name: `${this.type}_booking_rules`,
+                            description: `${this.type} Booking Rules`,
+                            details: toJsonValue(rules),
+                        },
+                    })
+                    .then(orThrow);
                 this.change.set(Date.now());
             }
             notifySuccess('Successfully removed booking rules.');
@@ -647,11 +654,16 @@ export class BookingRulesModalComponent {
         this._booking_rules.value.set(rules);
         this.saving_order.set(true);
         try {
-            await updateMetadata(this._org.building.id, {
-                name: `${this.type}_booking_rules`,
-                description: `${this.type} Booking Rules`,
-                details: rules,
-            });
+            await metadata
+                .update({
+                    id: this._org.building.id,
+                    body: {
+                        name: `${this.type}_booking_rules`,
+                        description: `${this.type} Booking Rules`,
+                        details: toJsonValue(rules),
+                    },
+                })
+                .then(orThrow);
             notifySuccess('Successfully updated booking rules order.');
             this._announcer.announce(
                 i18n('COMMON.MOVED_TO_POSITION', {
@@ -686,11 +698,16 @@ export class BookingRulesModalComponent {
         }
         const unique_rules = this.normaliseRulesetIds(rules);
         try {
-            await updateMetadata(this._org.building.id, {
-                name: `${this.type}_booking_rules`,
-                description: `${this.type} Booking Rules`,
-                details: unique_rules,
-            });
+            await metadata
+                .update({
+                    id: this._org.building.id,
+                    body: {
+                        name: `${this.type}_booking_rules`,
+                        description: `${this.type} Booking Rules`,
+                        details: toJsonValue(unique_rules),
+                    },
+                })
+                .then(orThrow);
         } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.BOOKING_RULESET_ERROR', { error: e }),

@@ -3,8 +3,6 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import {
     clearCacheCheck,
     failInitialisation,
@@ -15,22 +13,23 @@ import {
     setLoadingMessage,
     SettingsService,
 } from '@placeos/common';
-import {
-    authority,
-    createSignal,
-    onlineState,
-    token,
-} from '@placeos/ts-client';
 
 import { LocaleService } from 'libs/common/src/lib/locale.service';
 import {
     GlobalLoadingComponent,
     NativeDomainOverlayLoaderComponent,
 } from '../lib/global-loading.component';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 describe('GlobalLoadingComponent', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: Spectator<GlobalLoadingComponent>;
-    let online: ReturnType<typeof createSignal<boolean>>;
     const createComponent = createComponentFactory({
         component: GlobalLoadingComponent,
         detectChanges: false,
@@ -49,10 +48,9 @@ describe('GlobalLoadingComponent', () => {
 
     beforeEach(() => {
         vi.useFakeTimers();
-        vi.mocked(authority).mockReturnValue(undefined);
-        vi.mocked(token).mockReturnValue(undefined);
-        online = createSignal(true);
-        vi.mocked(onlineState).mockReturnValue(online);
+        place.setAuthority(null);
+        place.setToken('');
+        place.setOnline(true);
         needsNativeDomain().set(false);
         clearCacheCheck();
         sessionStorage.clear();
@@ -125,13 +123,13 @@ describe('GlobalLoadingComponent', () => {
             spectator.detectChanges();
             expect(background()).toBe('');
 
-            vi.mocked(authority).mockReturnValue({
+            place.setAuthority({
                 id: 'test',
                 config: { loading_gradient: ['#f15b55', '#f68c50'] },
-            } as any);
+            });
             // The client loads the domain, then reports online
-            online.set(false);
-            online.set(true);
+            place.setOnline(false);
+            place.setOnline(true);
             spectator.detectChanges();
 
             expect(background()).toContain('linear-gradient');
@@ -141,10 +139,10 @@ describe('GlobalLoadingComponent', () => {
         });
 
         it('should keep the default gradient for values that are not colours', () => {
-            vi.mocked(authority).mockReturnValue({
+            place.setAuthority({
                 id: 'test',
                 config: { loading_gradient: ['#f15b55', 'url(//example.com)'] },
-            } as any);
+            });
             vi.advanceTimersByTime(1000);
             spectator.detectChanges();
 
@@ -164,9 +162,9 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should show a server down message while offline', () => {
-        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
-        vi.mocked(token).mockReturnValue('test-token');
-        online.set(false);
+        place.setAuthority({ id: 'test' });
+        place.setToken('test-token');
+        place.setOnline(false);
         spectator.detectChanges();
         vi.advanceTimersByTime(5000);
         spectator.detectChanges();
@@ -175,7 +173,7 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should report an offline server while initialisation is pending', () => {
-        online.set(false);
+        place.setOnline(false);
 
         spectator.detectChanges();
         vi.advanceTimersByTime(5000);
@@ -186,7 +184,7 @@ describe('GlobalLoadingComponent', () => {
     });
 
     it('should keep the server warning hidden while the first connection starts', () => {
-        online.set(false);
+        place.setOnline(false);
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
 
@@ -194,7 +192,7 @@ describe('GlobalLoadingComponent', () => {
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
 
-        online.set(true);
+        place.setOnline(true);
         vi.advanceTimersByTime(4000);
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
@@ -202,11 +200,11 @@ describe('GlobalLoadingComponent', () => {
 
     it('should report a lost connection without waiting for the startup grace period', () => {
         spectator.detectChanges();
-        online.set(false);
+        place.setOnline(false);
         spectator.detectChanges();
         expect('div.bg-error').toExist();
 
-        online.set(true);
+        place.setOnline(true);
         spectator.detectChanges();
         expect('div.bg-error').not.toExist();
     });

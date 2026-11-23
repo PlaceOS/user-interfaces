@@ -1,5 +1,11 @@
-import { Desk } from '@placeos/common';
-import { PlaceAsset, PlaceZone, removeAsset } from '@placeos/ts-client';
+import { Desk, jsonRecord } from '@placeos/common';
+import {
+    type Asset,
+    assets as assets_v7,
+    parseResponse,
+    Zone,
+} from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     queryTypeAssetsForZones,
     queryTypeAssetsInZone,
@@ -10,8 +16,8 @@ import {
 const DESK_CATEGORY_NAME = '_DESKS_';
 const DESK_TYPE_NAME = '_DESKS_';
 
-type DeskZone = Pick<PlaceZone, 'id'> &
-    Partial<Pick<PlaceZone, 'name' | 'display_name' | 'parent_id' | 'map_id'>>;
+type DeskZone = Pick<Zone, 'id'> &
+    Partial<Pick<Zone, 'name' | 'display_name' | 'parent_id' | 'map_id'>>;
 
 /** Resolve the hidden asset type used for desk resources. */
 export function resolveDeskTypeId(): Promise<string> {
@@ -19,14 +25,14 @@ export function resolveDeskTypeId(): Promise<string> {
 }
 
 /** Query desk assets for one level. */
-export async function queryDeskAssets(zone_id: string): Promise<PlaceAsset[]> {
+export async function queryDeskAssets(zone_id: string): Promise<Asset[]> {
     return queryDeskAssetsForZones([zone_id]);
 }
 
 /** Query desk assets for multiple levels. */
 export async function queryDeskAssetsForZones(
     zone_ids: string[],
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     if (!zone_ids.length) return [];
     return queryTypeAssetsForZones(await resolveDeskTypeId(), zone_ids);
 }
@@ -35,9 +41,7 @@ export async function queryDeskAssetsForZones(
  * Query the desk assets within a building or region. Desk assets list every
  * zone they are in (org, region, building and level) in `zones`.
  */
-export async function queryDeskAssetsInZone(
-    zone_id: string,
-): Promise<PlaceAsset[]> {
+export async function queryDeskAssetsInZone(zone_id: string): Promise<Asset[]> {
     // an empty `zones` filter is not a scope, e.g. the building is not loaded
     if (!zone_id) return [];
     return queryTypeAssetsInZone(await resolveDeskTypeId(), zone_id);
@@ -66,7 +70,7 @@ export function findDeskByLegacyId<
 export async function queryDeskAssetByLegacyId(
     zone_id: string,
     id: string,
-): Promise<PlaceAsset | undefined> {
+): Promise<Asset | undefined> {
     const assets = await queryDeskAssetsInZone(zone_id);
     const desks = assets.map((asset) => deskFromAsset(asset));
     return assets[desks.indexOf(findDeskByLegacyId(desks, id))];
@@ -119,19 +123,31 @@ function isPlainValue(value: unknown) {
 /** String custom fields that are still kept in `other_data` */
 const DESK_OTHER_DATA_KEYS = new Set(['homebase']);
 
+/**
+ * A full zone from the known fields of the desk's zone. The other fields get
+ * their empty value, as the 6.x `PlaceZone` class gave them.
+ */
+function deskZone(zone: DeskZone): Zone {
+    const result = parseResponse(Zone, zone, { missing_fields: 'zero' });
+    if (result.ok === false) throw new Error(`Invalid desk zone ${zone.id}`);
+    return result.value;
+}
+
 /** Convert a desk asset to the desk model used by booking and map views. */
-export function deskFromAsset(asset: PlaceAsset, zone?: DeskZone): Desk {
+export function deskFromAsset(asset: Asset, zone?: DeskZone): Desk {
     const security = asset.security_system_groups?.[0] || '';
     return new Desk({
         // custom desk fields: tags and homebase live in `other_data`, third
         // party ids and the legacy desk id (`place_id`) in `client_ids`
-        ...(asset.other_data || {}),
-        ...(asset.client_ids || {}),
+        ...jsonRecord(asset.other_data),
+        ...jsonRecord(asset.client_ids),
         ...asset,
         name: asset.identifier || asset.name,
         map_id: asset.map_id || asset.id,
-        zone: new PlaceZone(zone || { id: asset.zone_id }),
-        groups: asset.place_groups,
+        zone: deskZone(zone || { id: asset.zone_id }),
+        groups: [...(asset.place_groups || [])],
+        features: [...(asset.features || [])],
+        images: [...(asset.images || [])],
         security,
     });
 }
@@ -179,7 +195,7 @@ export function deskToAsset(
     desk: Desk,
     zone_id: string,
     zones?: string[],
-): Partial<PlaceAsset> {
+): Partial<Asset> {
     const is_existing_asset = !!desk['asset_type_id'];
     const { client_ids, other_data } = deskCustomData(desk);
     return {
@@ -208,7 +224,7 @@ export async function saveDeskAsset(
     desk: Desk,
     zone_id: string,
     zones?: string[],
-): Promise<PlaceAsset> {
+): Promise<Asset> {
     const asset_type_id = await resolveDeskTypeId();
     return saveAsset({
         ...deskToAsset(desk, zone_id, zones),
@@ -218,5 +234,5 @@ export async function saveDeskAsset(
 
 /** Delete a desk asset. */
 export function deleteDeskAsset(id: string) {
-    return removeAsset(id);
+    return assets_v7.destroy({ id }).then(orThrow);
 }

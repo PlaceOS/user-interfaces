@@ -12,16 +12,18 @@ import {
     nextValueFrom,
     notifyError,
     notifySuccess,
+    toJsonValue,
 } from '@placeos/common';
 import {
-    EncryptionLevel,
-    PlaceSettings,
-    addSettings,
-    querySettings,
-    showMetadata,
-    updateMetadata,
-    updateSettings,
+    metadata as metadata_v7,
+    settings as settings_v7,
+    type SettingsInput,
 } from '@placeos/ts-client';
+import {
+    EncryptionLevel,
+    orThrow,
+    orThrowPage,
+} from '@placeos/ts-client/compat';
 import {
     set,
     setDay,
@@ -50,6 +52,7 @@ import {
 } from '@placeos/form-fields';
 
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
+import { showMetadata } from '../metadata';
 import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 import { errorText } from '../ui/modal-actions';
 
@@ -401,7 +404,9 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_LOADING'));
         this.settings.set({ custom: [] });
         try {
-            const settings = (await querySettings({ parent_id: id })).data;
+            const settings = (
+                await settings_v7.query({ parent_id: [id] }).then(orThrowPage)
+            ).data;
             const unencrypted = settings.find(
                 (_) => _.encryption_level === EncryptionLevel.None,
             );
@@ -436,40 +441,52 @@ export class AutoReleaseSettingsModalComponent implements OnInit {
     public async save() {
         this.loading.set(i18n('APP.CONCIERGE.AUTO_RELEASE_SAVING'));
         try {
-            const settings = (await querySettings({ parent_id: this.id })).data;
-            let unencrypted = settings.find(
+            const settings = (
+                await settings_v7
+                    .query({ parent_id: [this.id] })
+                    .then(orThrowPage)
+            ).data;
+            const unencrypted = settings.find(
                 (_) => _.encryption_level === EncryptionLevel.None,
             );
-            if (!unencrypted) {
-                unencrypted = new PlaceSettings({
-                    parent_id: this.id,
-                    encryption_level: EncryptionLevel.None,
-                    settings_string: '',
-                });
-            }
-            const new_settings = { ...this.settings() };
-            delete new_settings.custom;
+            const edited = { ...this.settings() };
+            delete edited.custom;
+            // Plain JSON for both writes. Unset timings are `undefined`,
+            // which the metadata request does not accept.
+            const new_settings = toJsonValue(edited);
             let old_settings = {};
             try {
-                old_settings = parseYaml(unencrypted.settings_string) || {};
+                old_settings =
+                    parseYaml(unencrypted?.settings_string ?? '') || {};
             } catch {}
-            (unencrypted as any).settings_string = stringifyYaml({
-                ...old_settings,
-                auto_release: new_settings,
-            });
-            unencrypted.id
-                ? await updateSettings(unencrypted.id, unencrypted)
-                : await addSettings(unencrypted);
+            const body: SettingsInput = {
+                parent_id: this.id,
+                encryption_level: EncryptionLevel.None,
+                settings_string: stringifyYaml({
+                    ...old_settings,
+                    auto_release: new_settings,
+                }),
+            };
+            unencrypted?.id
+                ? await settings_v7
+                      .update({ id: unencrypted.id, body })
+                      .then(orThrow)
+                : await settings_v7.create({ body }).then(orThrow);
 
             const metadata_key = appMetadataKey(this._settings, 'workplace');
             const metadata = await showMetadata(this.id, metadata_key);
             const details: any = metadata.details || {};
             details.auto_release = new_settings;
-            await updateMetadata(this.id, {
-                name: metadata_key,
-                details,
-                description: '',
-            });
+            await metadata_v7
+                .update({
+                    id: this.id,
+                    body: {
+                        name: metadata_key,
+                        details,
+                        description: '',
+                    },
+                })
+                .then(orThrow);
             notifySuccess(i18n('APP.CONCIERGE.AUTO_RELEASE_SUCCESS'));
             this._dialog_ref.close();
         } catch (e) {

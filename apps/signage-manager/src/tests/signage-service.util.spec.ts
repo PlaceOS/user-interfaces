@@ -1,4 +1,4 @@
-import { type QueryResponse } from '@placeos/ts-client';
+import { type QueryResponse } from '../app/shared/paged-list';
 import { mergeItems, queryAll, searchParam } from '../app/signage-service.util';
 
 interface Item {
@@ -18,6 +18,7 @@ function pagedQuery(pages: Item[][], reads = { count: 0 }) {
         return Promise.resolve({
             data: pages[index] || [],
             total: pages.flat().length,
+            next_offset: null,
             next: () => (index + 1 < pages.length ? page(index + 1) : null),
         });
     };
@@ -43,6 +44,7 @@ describe('queryAll', () => {
                 return Promise.resolve({
                     data: [item(`p${reads.count}`)],
                     total: 0,
+                    next_offset: null,
                     next: () => page(),
                 });
             })();
@@ -67,11 +69,8 @@ describe('queryAll', () => {
 });
 
 describe('searchParam', () => {
-    it('sends the trimmed term with the search fields', () => {
-        expect(searchParam('  lobby ')).toEqual({
-            q: 'lobby',
-            fields: 'id,name,display_name,description,tags',
-        });
+    it('sends the trimmed term', () => {
+        expect(searchParam('  lobby ')).toEqual({ q: 'lobby' });
     });
 
     it('sends nothing for a blank term', () => {

@@ -1,11 +1,12 @@
 import { Injector, signal } from '@angular/core';
 import { form, required } from '@angular/forms/signals';
 import {
+    Asset,
+    AssetCategory,
     AssetGroup,
+    AssetPurchaseOrder,
     CalendarEvent,
-    PlaceAsset,
-    PlaceAssetCategory,
-    PlaceAssetPurchaseOrder,
+    jsonRecord,
     SignalFormRef,
     stringToMinutes,
 } from '@placeos/common';
@@ -16,7 +17,7 @@ import {
 } from 'libs/components/src/lib/attached-resource-config-modal.component';
 
 export function generateAssetCategoryForm(
-    category: Partial<PlaceAssetCategory> = {},
+    category: Partial<AssetCategory> = {},
     injector?: Injector,
 ): SignalFormRef<{
     id: string;
@@ -35,7 +36,7 @@ export function generateAssetCategoryForm(
 }
 
 export function generateAssetPurchaseOrderForm(
-    order: Partial<PlaceAssetPurchaseOrder> = {},
+    order: Partial<AssetPurchaseOrder> = {},
     injector?: Injector,
 ): SignalFormRef<{
     id: string;
@@ -96,7 +97,7 @@ export function generateAssetGroupForm(
 }
 
 export function generateAssetForm(
-    asset: Partial<PlaceAsset> = {},
+    asset: Partial<Asset> = {},
     injector?: Injector,
 ): SignalFormRef<{
     id: string;
@@ -115,7 +116,7 @@ export function generateAssetForm(
         serial_number: asset.serial_number || '',
         barcode: asset.barcode || '',
         identifier: asset.identifier || '',
-        other_data: asset.other_data || {},
+        other_data: { ...jsonRecord(asset.other_data) },
         purchase_order_id: asset.purchase_order_id || '',
     });
     const ref_form = form(model, (p) => required(p.asset_type_id), {

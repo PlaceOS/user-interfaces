@@ -23,7 +23,7 @@ describe('PlaylistApprovalPreviewComponent', () => {
         ).toBe('/api/engine/v2/signage/media/media-1/thumbnail');
     });
 
-    it('falls back to the media thumbnail url for unsaved media', () => {
+    it('falls back to the upload of the thumbnail for unsaved media', () => {
         const fixture = TestBed.createComponent(
             PlaylistApprovalPreviewComponent,
         );
@@ -33,9 +33,8 @@ describe('PlaylistApprovalPreviewComponent', () => {
             component.thumbnailUrl({
                 name: 'Media 1',
                 thumbnail_id: 'thumb-1',
-                thumbnail_url: 'https://example.com/thumb.jpg',
             } as any),
-        ).toBe('https://example.com/thumb.jpg');
+        ).toBe('/api/engine/v2/uploads/thumb-1/url');
     });
 
     it('has no thumbnail url when the media has no thumbnail', () => {
@@ -48,7 +47,6 @@ describe('PlaylistApprovalPreviewComponent', () => {
             component.thumbnailUrl({
                 id: 'media-1',
                 name: 'Media 1',
-                thumbnail_url: '/api/engine/v2/uploads//url',
             } as any),
         ).toBe('');
     });

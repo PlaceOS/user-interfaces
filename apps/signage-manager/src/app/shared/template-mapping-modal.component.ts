@@ -18,14 +18,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    mediaThumbnail,
-    type SignagePlaylistSchedule,
-    SignageTemplate,
+    type PlaylistSchedule,
+    type SignageTemplate,
 } from '@placeos/ts-client';
-import {
-    HydratedSignageTemplate,
-    HydratedSignageTemplateMapping,
-} from '../signage-template-mapping';
+import { type HydratedSignageTemplateMapping } from '../signage-template-mapping';
+import { mediaThumbnailUrl, mediaUrl } from '../signage-url.util';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
@@ -36,10 +33,10 @@ import {
 
 export interface TemplateMappingModalData {
     mapping: HydratedSignageTemplateMapping | null;
-    templates: SignageTemplate[];
+    templates: readonly SignageTemplate[];
     save: (
         template_id: string,
-        schedule: SignagePlaylistSchedule | null,
+        schedule: PlaylistSchedule | null,
     ) => Promise<unknown>;
 }
 
@@ -231,14 +228,15 @@ export class TemplateMappingModalComponent {
     public readonly background_url = computed(() => {
         const template = this.selected_template();
         if (!template) return '';
+        // The template of a mapping comes with its background media
         if (
-            template instanceof HydratedSignageTemplate &&
+            template === this.mapping?.template_details &&
             template.background_media
         ) {
-            return template.background_media.media_url;
+            return mediaUrl(template.background_media);
         }
         return template.background_item_id
-            ? mediaThumbnail(template.background_item_id)
+            ? mediaThumbnailUrl(template.background_item_id)
             : '';
     });
 

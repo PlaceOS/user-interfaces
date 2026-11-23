@@ -23,6 +23,7 @@ import { ConciergeSettingsFormModalComponent } from '../../../app/ui/app-setting
 import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-button.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -40,9 +41,15 @@ describe('ConciergeSettingsFormModalComponent', () => {
     /** Return the given metadata details for each zone ID. */
     const mockMetadata = (details: Record<string, Record<string, unknown>>) =>
         vi
-            .mocked(ts_client.showMetadata)
+            .mocked(ts_client.metadata.show)
             .mockImplementation(
-                async (id: string) => ({ details: details[id] || {} }) as never,
+                fromV1Mock(
+                    async (id: string) =>
+                        ({ details: details[id] || {} }) as never,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
             );
 
     const createComponent = createComponentFactory({
@@ -74,10 +81,20 @@ describe('ConciergeSettingsFormModalComponent', () => {
     });
 
     beforeEach(() => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as never);
-        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.metadata.update).mockResolvedValue(
+            mockReply({} as never),
+        );
         notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
             dismiss: () => undefined,
@@ -113,7 +130,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
     });
 
     it('should close with an error when existing settings fail to load', async () => {
-        vi.mocked(ts_client.showMetadata).mockRejectedValue('offline');
+        vi.mocked(ts_client.metadata.show).mockRejectedValue('offline');
 
         await spectator.component.ngOnInit();
 
@@ -128,18 +145,18 @@ describe('ConciergeSettingsFormModalComponent', () => {
 
     it('should load metadata from org, parent, and zone', async () => {
         await spectator.component.ngOnInit();
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'org-1',
-            'concierge_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-parent',
-            'concierge_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            'concierge_app',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'org-1',
+            name: 'concierge_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-parent',
+            name: 'concierge_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-1',
+            name: 'concierge_app',
+        });
         expect(spectator.component.loading()).toBe('');
     });
 
@@ -152,14 +169,14 @@ describe('ConciergeSettingsFormModalComponent', () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: {
                     edited_by: expect.any(Object),
                 },
             }),
-        );
+        });
     });
 
     it('should save a locker period that differs from the inherited booking period', async () => {
@@ -171,15 +188,15 @@ describe('ConciergeSettingsFormModalComponent', () => {
         spectator.component.form.lockers.available_period().value.set(7);
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: {
                     lockers: { available_period: 7 },
                     edited_by: expect.any(Object),
                 },
             }),
-        );
+        });
     });
 
     it('should save a booking period chosen from unset', async () => {
@@ -190,15 +207,15 @@ describe('ConciergeSettingsFormModalComponent', () => {
         spectator.component.form.bookings.available_period().value.set(7);
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: {
                     bookings: { available_period: 7 },
                     edited_by: expect.any(Object),
                 },
             }),
-        );
+        });
     });
 
     it('should save only stored settings when nothing changed', async () => {
@@ -213,16 +230,16 @@ describe('ConciergeSettingsFormModalComponent', () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: {
                     default_route: '/visitors',
                     lockers: { max_duration: 240 },
                     edited_by: expect.any(Object),
                 },
             }),
-        );
+        });
     });
 
     it('should save a toggle turned on from an unset default', async () => {
@@ -234,15 +251,15 @@ describe('ConciergeSettingsFormModalComponent', () => {
         }));
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: {
                     events: { allow_edit: true },
                     edited_by: expect.any(Object),
                 },
             }),
-        );
+        });
     });
 
     it('should save settings via updateMetadata', async () => {
@@ -252,12 +269,12 @@ describe('ConciergeSettingsFormModalComponent', () => {
             default_route: '/custom-route',
         }));
         await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 name: 'concierge_app',
             }),
-        );
+        });
     });
 
     it('should close dialog after successful save', async () => {
@@ -278,7 +295,7 @@ describe('ConciergeSettingsFormModalComponent', () => {
     });
 
     it('should show error notification when save fails', async () => {
-        (ts_client.updateMetadata as any).mockRejectedValueOnce({
+        (ts_client.metadata.update as any).mockRejectedValueOnce({
             message: 'Network error',
         } as never);
         await spectator.component.ngOnInit();
@@ -292,10 +309,14 @@ describe('ConciergeSettingsFormModalComponent', () => {
 
     it('should set loading state during save', async () => {
         let resolve_save: (v?: unknown) => void;
-        vi.mocked(ts_client.updateMetadata).mockReturnValue(
-            new Promise<any>((res) => {
-                resolve_save = res;
-            }) as any,
+        vi.mocked(ts_client.metadata.update).mockImplementation(
+            fromV1Mock(
+                () =>
+                    new Promise<any>((res) => {
+                        resolve_save = res;
+                    }) as any,
+                ['id', 'body'],
+            ),
         );
         await spectator.component.ngOnInit();
         const save_promise = spectator.component.save();

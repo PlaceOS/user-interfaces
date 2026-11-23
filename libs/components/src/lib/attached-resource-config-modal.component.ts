@@ -9,7 +9,8 @@ import {
 import { MatRippleModule } from '@angular/material/core';
 import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { AsyncHandler } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -46,10 +47,13 @@ export function zoneRulesetLoader(metadata_name: string) {
     return (zone_id: string, fresh = false) => {
         if (!zone_id) return Promise.resolve([] as AttachedResourceRuleset[]);
         if (!requests[zone_id] || fresh) {
-            requests[zone_id] = showMetadata(zone_id, metadata_name)
+            requests[zone_id] = metadata
+                .show({ id: zone_id, name: metadata_name })
+                .then(orThrow)
+                .then((data) => data[metadata_name])
                 .then((_) =>
                     _.details instanceof Array
-                        ? (_.details as AttachedResourceRuleset[])
+                        ? (_.details as unknown as AttachedResourceRuleset[])
                         : [],
                 )
                 .catch(() => [] as AttachedResourceRuleset[]);

@@ -1,10 +1,20 @@
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 // The real assets.fn save helpers run; only the ts-client add/update/query
 // layer beneath them is stubbed. Assertions that used to target
 // assets_fn.saveAssetCategory / saveAssetType now target the ts-client
 // add/update calls those helpers make.
 vi.mock('@placeos/ts-client', { spy: true });
+
+/** A v7 asset with the given fields. The other fields are empty */
+function asset_data(data: ts_client.AssetInput): ts_client.Asset {
+    const result = ts_client.parseResponse(ts_client.Asset, data, {
+        missing_fields: 'zero',
+    });
+    if (result.ok === false) throw new Error(result.error.path);
+    return result.value;
+}
 
 function response(data: any[]) {
     return Promise.resolve({
@@ -23,9 +33,15 @@ describe('[Parking Assets]', () => {
     beforeEach(() => {
         vi.resetModules();
         vi.clearAllMocks();
-        vi.mocked(ts_client.addAssetCategory).mockResolvedValue({} as any);
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({} as any);
-        vi.mocked(ts_client.updateAssetType).mockResolvedValue({} as any);
+        vi.mocked(ts_client.asset_categories.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.asset_types.create).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.asset_types.update).mockResolvedValue(
+            mockReply({} as any),
+        );
     });
 
     it('should store parking user flags as strings and read them back', async () => {
@@ -59,53 +75,76 @@ describe('[Parking Assets]', () => {
 
     it('should reuse existing parking category and type names', async () => {
         const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: ' _parking_ ' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: ' _parking_ ' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                {
-                    id: 'type-1',
-                    name: '_parking_spaces_',
-                    category_id: 'cat-1',
-                },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        {
+                            id: 'type-1',
+                            name: '_parking_spaces_',
+                            category_id: 'cat-1',
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
 
         const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-1');
-        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.updateAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.addAssetType).not.toHaveBeenCalled();
-        expect(ts_client.updateAssetType).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.create).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.update).not.toHaveBeenCalled();
+        expect(ts_client.asset_types.create).not.toHaveBeenCalled();
+        expect(ts_client.asset_types.update).not.toHaveBeenCalled();
     });
 
     it('should load every page of parking spaces on a level', async () => {
         const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_PARKING_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_PARKING_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                {
-                    id: 'type-1',
-                    name: '_PARKING_SPACES_',
-                    category_id: 'cat-1',
-                },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        {
+                            id: 'type-1',
+                            name: '_PARKING_SPACES_',
+                            category_id: 'cat-1',
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            Promise.resolve({
-                data: [{ id: 'bay-1' }],
-                total: 2,
-                next: () =>
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
                     Promise.resolve({
-                        data: [{ id: 'bay-2' }],
+                        data: [{ id: 'bay-1' }],
                         total: 2,
-                        next: () => null,
-                    }),
-            }) as any,
+                        next: () =>
+                            Promise.resolve({
+                                data: [{ id: 'bay-2' }],
+                                total: 2,
+                                next: () => null,
+                            }),
+                    }) as any,
+                ['...'],
+                'page',
+            ),
         );
 
         const spaces = await parking_assets.queryParkingSpaces('level-1');
@@ -114,117 +153,169 @@ describe('[Parking Assets]', () => {
 
     it('should re-query the category when create collides', async () => {
         const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories)
-            .mockReturnValueOnce(response([]))
-            .mockReturnValueOnce(response([]))
-            .mockReturnValueOnce(
-                response([{ id: 'cat-1', name: '_PARKING_' }]),
+        vi.mocked(ts_client.asset_categories.query)
+            .mockImplementationOnce(
+                fromV1Mock(() => response([]), ['...'], 'page'),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(() => response([]), ['...'], 'page'),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => response([{ id: 'cat-1', name: '_PARKING_' }]),
+                    ['...'],
+                    'page',
+                ),
             );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                {
-                    id: 'type-1',
-                    name: '_PARKING_SPACES_',
-                    category_id: 'cat-1',
-                },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        {
+                            id: 'type-1',
+                            name: '_PARKING_SPACES_',
+                            category_id: 'cat-1',
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.addAssetCategory).mockRejectedValue({
+        vi.mocked(ts_client.asset_categories.create).mockRejectedValue({
             status: 409,
         });
 
         const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-1');
-        expect(ts_client.addAssetCategory).toHaveBeenCalledWith({
-            name: '_PARKING_',
-            hidden: true,
+        expect(ts_client.asset_categories.create).toHaveBeenCalledWith({
+            body: {
+                name: '_PARKING_',
+                hidden: true,
+            },
         });
     });
 
     it('should re-query the type when create collides', async () => {
         const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_PARKING_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_PARKING_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes)
-            .mockReturnValueOnce(response([]))
-            .mockReturnValueOnce(
-                response([
-                    {
-                        id: 'type-1',
-                        name: '_PARKING_SPACES_',
-                        category_id: 'cat-1',
-                    },
-                ]),
+        vi.mocked(ts_client.asset_types.query)
+            .mockImplementationOnce(
+                fromV1Mock(() => response([]), ['...'], 'page'),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () =>
+                        response([
+                            {
+                                id: 'type-1',
+                                name: '_PARKING_SPACES_',
+                                category_id: 'cat-1',
+                            },
+                        ]),
+                    ['...'],
+                    'page',
+                ),
             );
-        vi.mocked(ts_client.addAssetType).mockRejectedValue({ status: 409 });
+        vi.mocked(ts_client.asset_types.create).mockRejectedValue({
+            status: 409,
+        });
 
         const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-1');
-        expect(ts_client.addAssetType).toHaveBeenCalledWith({
-            name: '_PARKING_SPACES_',
-            brand: 'PlaceOS',
-            category_id: 'cat-1',
+        expect(ts_client.asset_types.create).toHaveBeenCalledWith({
+            body: {
+                name: '_PARKING_SPACES_',
+                brand: 'PlaceOS',
+                category_id: 'cat-1',
+            },
         });
     });
 
     it('should ignore legacy parking categories when resolving parking types', async () => {
         const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([
-                { id: 'cat-new', name: '_PARKING_' },
-                { id: 'cat-old', name: '_PARKING_SPACES_' },
-            ]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        { id: 'cat-new', name: '_PARKING_' },
+                        { id: 'cat-old', name: '_PARKING_SPACES_' },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockImplementation(
-            ({ category_id }) =>
-                response(
-                    category_id === 'cat-old'
-                        ? [
-                              {
-                                  id: 'type-1',
-                                  name: '_PARKING_SPACES_',
-                                  category_id: 'cat-old',
-                                  brand: 'PlaceOS',
-                              },
-                          ]
-                        : [],
-                ),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                ({ category_id }) =>
+                    response(
+                        category_id === 'cat-old'
+                            ? [
+                                  {
+                                      id: 'type-1',
+                                      name: '_PARKING_SPACES_',
+                                      category_id: 'cat-old',
+                                      brand: 'PlaceOS',
+                                  },
+                              ]
+                            : [],
+                    ),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.addAssetType).mockResolvedValue({
-            id: 'type-new',
-            name: '_PARKING_SPACES_',
-            category_id: 'cat-new',
-            brand: 'PlaceOS',
-        } as any);
+        vi.mocked(ts_client.asset_types.create).mockResolvedValue(
+            mockReply({
+                id: 'type-new',
+                name: '_PARKING_SPACES_',
+                category_id: 'cat-new',
+                brand: 'PlaceOS',
+            } as any),
+        );
 
         const type_id = await parking_assets.resolveParkingTypeId();
 
         expect(type_id).toBe('type-new');
-        expect(ts_client.queryAssetTypes).toHaveBeenCalledTimes(1);
-        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith({
+        expect(ts_client.asset_types.query).toHaveBeenCalledTimes(1);
+        expect(ts_client.asset_types.query).toHaveBeenCalledWith({
             category_id: 'cat-new',
             limit: 500,
         });
-        expect(ts_client.addAssetType).toHaveBeenCalledWith({
-            name: '_PARKING_SPACES_',
-            brand: 'PlaceOS',
-            category_id: 'cat-new',
+        expect(ts_client.asset_types.create).toHaveBeenCalledWith({
+            body: {
+                name: '_PARKING_SPACES_',
+                brand: 'PlaceOS',
+                category_id: 'cat-new',
+            },
         });
     });
 
     it('should resolve parking user and fleet types in the parking category', async () => {
         const { parking_assets } = await load_modules();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'cat-1', name: '_PARKING_' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'cat-1', name: '_PARKING_' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                { id: 'type-users', name: '_PARKING_USERS_' },
-                { id: 'type-fleet', name: '_PARKING_FLEET_VEHICLES_' },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        { id: 'type-users', name: '_PARKING_USERS_' },
+                        { id: 'type-fleet', name: '_PARKING_FLEET_VEHICLES_' },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
 
         expect(await parking_assets.resolveParkingUserTypeId()).toBe(
@@ -233,7 +324,7 @@ describe('[Parking Assets]', () => {
         expect(await parking_assets.resolveParkingFleetTypeId()).toBe(
             'type-fleet',
         );
-        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith({
+        expect(ts_client.asset_types.query).toHaveBeenCalledWith({
             category_id: 'cat-1',
             limit: 500,
         });
@@ -243,8 +334,8 @@ describe('[Parking Assets]', () => {
         const { parking_assets } = await load_modules();
 
         expect(await parking_assets.queryParkingSpacesInZone('')).toEqual([]);
-        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
-        expect(ts_client.queryAssets).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.query).not.toHaveBeenCalled();
+        expect(ts_client.assets.query).not.toHaveBeenCalled();
     });
 
     it('should map fleet vehicles to assets and back', async () => {
@@ -265,11 +356,9 @@ describe('[Parking Assets]', () => {
             notes: 'Charge after use',
             zone_id: 'bld-1',
         });
-        expect(
-            parking_assets.toParkingFleetVehicle(
-                new ts_client.PlaceAsset(asset),
-            ),
-        ).toEqual(vehicle);
+        expect(parking_assets.toParkingFleetVehicle(asset_data(asset))).toEqual(
+            vehicle,
+        );
         expect(
             'id' in parking_assets.fromParkingFleetVehicle({}, 'bld-1'),
         ).toBe(false);

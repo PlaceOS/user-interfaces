@@ -12,7 +12,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -455,7 +455,7 @@ const DEVICE_FIELD_OPTIONS = [
 })
 export class VisitorKioskSettingsFormModalComponent implements OnInit {
     private _data = inject<{
-        zone: PlaceZone;
+        zone: Zone;
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<VisitorKioskSettingsFormModalComponent>>(

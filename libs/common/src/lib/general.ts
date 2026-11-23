@@ -6,6 +6,7 @@ import {
     type WritableSignal,
 } from '@angular/core';
 import type { AbstractControl, FormGroup } from '@angular/forms';
+import { CallFailed } from '@placeos/ts-client/compat';
 import {
     addDays,
     addHours,
@@ -159,6 +160,20 @@ export function toggleListItem<T>(list: readonly T[], item: T): T[] {
     return list.includes(item)
         ? list.filter((_) => _ !== item)
         : [...list, item];
+}
+
+/**
+ * Removes the keys of `object` whose value is one of `remove`, such as
+ * `[undefined, null, '']`. Changes `object` and returns it.
+ */
+export function cleanObject<T extends object>(
+    object: T,
+    remove: readonly unknown[],
+): T {
+    for (const key of Object.keys(object)) {
+        if (remove.includes(object[key])) delete object[key];
+    }
+    return object;
 }
 
 /**
@@ -1774,12 +1789,19 @@ export function errorMessage(error: unknown): string {
 }
 
 /**
- * Async form of {@link errorMessage} that also reads failed API requests. The
- * API client throws the fetch `Response`, so this reads a JSON or plain text
- * body for the message. Falls back to the HTTP status when the body has no
- * readable message.
+ * Async form of {@link errorMessage} that also reads failed API requests: a
+ * `CallFailed` of a ts-client call (`.then(orThrow)`), or a fetch `Response`.
+ * It reads the message from a JSON or plain text body, and falls back to the
+ * HTTP status when the body has no readable message.
  */
 export async function responseErrorMessage(error: unknown): Promise<string> {
+    if (error instanceof CallFailed && error.error.kind === 'http') {
+        const { body, text, status } = error.error;
+        // An HTML body, such as a proxy error page, is not a message
+        const plain = text?.trim() ?? '';
+        const readable = plain && !plain.startsWith('<') ? plain : '';
+        return errorMessage(body) || readable || `${status}`;
+    }
     if (!(error instanceof Response)) return errorMessage(error);
     const type = (error.headers.get('content-type') || '').toLowerCase();
     const body = await error

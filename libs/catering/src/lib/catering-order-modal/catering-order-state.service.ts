@@ -9,7 +9,9 @@ import {
     Space,
     unique,
 } from '@placeos/common';
-import { PlaceMetadata, showMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { cateringSettingsFromJson } from '../catering-metadata';
 import { CateringSettings } from '../catering-state.service';
 import { cateringItemAvailable, getCateringRulesForZone } from '../utilities';
 
@@ -141,12 +143,13 @@ export class CateringOrderStateService {
     }
 
     private async _loadSettings(building_id: string) {
-        const metadata = await showMetadata(
-            building_id,
-            'catering-settings',
-        ).catch(() => ({}) as PlaceMetadata);
-        const settings = metadata.details as CateringSettings;
-        this._settings_data.set(settings || {});
+        const metadata = await metadata_v7
+            .show({ id: building_id, name: 'catering-settings' })
+            .then(orThrow)
+            .then((data) => data['catering-settings'])
+            .catch(() => null);
+        const settings = cateringSettingsFromJson(metadata?.details);
+        this._settings_data.set(settings);
         this._settings.post(
             'require_catering_notes',
             !!settings?.require_notes,

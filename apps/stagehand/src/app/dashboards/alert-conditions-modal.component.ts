@@ -7,19 +7,19 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    PlaceAlert,
-    PlaceSystem,
-    TriggerComparison,
-    TriggerConditionOperator,
-    TriggerStatusVariable,
+    type Alert,
+    type System,
+    type TriggerConditionsComparison as TriggerComparison,
+    type TriggerConditionsComparisonStatusVariable as TriggerStatusVariable,
 } from '@placeos/ts-client';
+import { TriggerConditionOperator } from '@placeos/ts-client/compat';
 import { AlertConditionComparisonFormComponent } from './alert-condition-compare-form.component';
 
 export interface AlertConditionData {
     /** Item to add/update the trigger on */
-    system: PlaceSystem;
+    system: System;
     /** Trigger to add/update */
-    alert: PlaceAlert;
+    alert: Alert;
     /** Trigger Condition to edit */
     condition?: TriggerComparison;
 }
@@ -127,12 +127,12 @@ export class AlertConditionModalComponent extends AsyncHandler {
     }
 
     /** Template system to use for status variable bindings */
-    public get system(): PlaceSystem {
+    public get system(): System {
         return this._data.system;
     }
 
     /** Template system to use for status variable bindings */
-    public get alert(): PlaceAlert {
+    public get alert(): Alert {
         return this._data.alert;
     }
 

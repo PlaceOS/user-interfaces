@@ -49,8 +49,11 @@ export function layoutPositionLabel(position: SignageTemplateLayoutPosition) {
 const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), Math.max(min, max));
 
-function layoutRatioToPercentage(value?: number) {
-    return value === undefined ? null : clamp(value, 0, 1) * 100;
+/** Percentage of a ratio from the API. Null when unset: the API sends null. */
+function layoutRatioToPercentage(value?: number | null) {
+    return value === undefined || value === null
+        ? null
+        : clamp(value, 0, 1) * 100;
 }
 
 export function layoutPercentageToRatio(value: number | null) {
@@ -128,6 +131,7 @@ export function layoutPositionValid(layout: SignageTemplateLayout) {
         return x_pos !== undefined && y_pos !== undefined;
     }
     return [x_pos, y_pos].every(
-        (value) => value === undefined || (value > 0 && value < 1),
+        (value) =>
+            value === undefined || value === null || (value > 0 && value < 1),
     );
 }

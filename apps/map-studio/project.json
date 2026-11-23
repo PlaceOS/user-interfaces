@@ -20,7 +20,7 @@
                     "apps/map-studio/src/favicon.svg",
                     {
                         "glob": "oauth-resp.html",
-                        "input": "node_modules/@placeos/ts-client/dist",
+                        "input": "node_modules/@placeos/ts-client/",
                         "output": "/"
                     },
                     "apps/map-studio/src/assets",

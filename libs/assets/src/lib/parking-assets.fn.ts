@@ -1,4 +1,6 @@
-import { PlaceAsset, removeAsset } from '@placeos/ts-client';
+import { jsonRecord, jsonText } from '@placeos/common';
+import { type Asset, assets as assets_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     queryTypeAssetsForZones,
     queryTypeAssetsInZone,
@@ -15,16 +17,14 @@ export function resolveParkingTypeId(): Promise<string> {
 }
 
 /** Query parking spaces for a single zone */
-export async function queryParkingSpaces(
-    zone_id: string,
-): Promise<PlaceAsset[]> {
+export async function queryParkingSpaces(zone_id: string): Promise<Asset[]> {
     return queryTypeAssetsForZones(await resolveParkingTypeId(), [zone_id]);
 }
 
 /** Query parking spaces across multiple zones, flattening results */
 export async function queryParkingSpacesForZones(
     zone_ids: string[],
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     if (!zone_ids?.length) return [];
     return queryTypeAssetsForZones(await resolveParkingTypeId(), zone_ids);
 }
@@ -35,23 +35,21 @@ export async function queryParkingSpacesForZones(
  */
 export async function queryParkingSpacesInZone(
     zone_id: string,
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     // an empty `zones` filter is not a scope, e.g. the building is not loaded
     if (!zone_id) return [];
     return queryTypeAssetsInZone(await resolveParkingTypeId(), zone_id);
 }
 
 /** Save (create or update) a parking space asset */
-export async function saveParkingSpace(
-    space: Partial<PlaceAsset>,
-): Promise<PlaceAsset> {
+export async function saveParkingSpace(space: Partial<Asset>): Promise<Asset> {
     const type_id = await resolveParkingTypeId();
     return saveAsset({ ...space, asset_type_id: type_id });
 }
 
 /** Delete a parking space asset by ID */
 export function deleteParkingSpace(id: string) {
-    return removeAsset(id);
+    return assets_v7.destroy({ id }).then(orThrow);
 }
 
 export interface ParkingUser {
@@ -77,28 +75,28 @@ export function resolveParkingUserTypeId(): Promise<string> {
     );
 }
 
-/** Convert a PlaceAsset to a ParkingUser */
-export function toParkingUser(asset: PlaceAsset): ParkingUser {
-    const data = asset.other_data || {};
+/** Convert a Asset to a ParkingUser */
+export function toParkingUser(asset: Asset): ParkingUser {
+    const data = jsonRecord(asset.other_data);
     return {
         id: asset.id,
         name: asset.identifier || '',
-        email: data.email || '',
-        car_model: data.car_model || '',
-        car_colour: data.car_colour || '',
-        plate_number: data.plate_number || '',
-        phone: data.phone || '',
+        email: jsonText(data.email),
+        car_model: jsonText(data.car_model),
+        car_colour: jsonText(data.car_colour),
+        plate_number: jsonText(data.plate_number),
+        phone: jsonText(data.phone),
         notes: asset.notes || '',
         deny: String(data.deny) === 'true',
         special_needs: String(data.special_needs) === 'true',
     };
 }
 
-/** Convert a ParkingUser to a partial PlaceAsset for saving */
+/** Convert a ParkingUser to a partial Asset for saving */
 export function fromParkingUser(
     user: Partial<ParkingUser>,
     zone_id: string,
-): Partial<PlaceAsset> {
+): Partial<Asset> {
     return {
         ...(user.id ? { id: user.id } : {}),
         identifier: user.name || '',
@@ -114,7 +112,7 @@ export function fromParkingUser(
             deny: user.deny ? 'true' : 'false',
             special_needs: user.special_needs ? 'true' : 'false',
         },
-    } as Partial<PlaceAsset>;
+    };
 }
 
 /** Query parking users for a zone */
@@ -132,7 +130,7 @@ export async function queryParkingUsers(
 export async function saveParkingUser(
     user: Partial<ParkingUser>,
     zone_id: string,
-): Promise<PlaceAsset> {
+): Promise<Asset> {
     const asset = fromParkingUser(user, zone_id);
     const type_id = await resolveParkingUserTypeId();
     return saveAsset({ ...asset, asset_type_id: type_id });
@@ -140,7 +138,7 @@ export async function saveParkingUser(
 
 /** Delete a parking user asset by ID */
 export function deleteParkingUser(id: string) {
-    return removeAsset(id);
+    return assets_v7.destroy({ id }).then(orThrow);
 }
 
 export interface ParkingFleetVehicle {
@@ -165,24 +163,24 @@ export function resolveParkingFleetTypeId(): Promise<string> {
     );
 }
 
-/** Convert a PlaceAsset to a ParkingFleetVehicle */
-export function toParkingFleetVehicle(asset: PlaceAsset): ParkingFleetVehicle {
-    const data = asset.other_data || {};
+/** Convert a Asset to a ParkingFleetVehicle */
+export function toParkingFleetVehicle(asset: Asset): ParkingFleetVehicle {
+    const data = jsonRecord(asset.other_data);
     return {
         id: asset.id,
         name: asset.identifier || '',
-        car_model: data.car_model || '',
-        car_colour: data.car_colour || '',
-        plate_number: data.plate_number || '',
+        car_model: jsonText(data.car_model),
+        car_colour: jsonText(data.car_colour),
+        plate_number: jsonText(data.plate_number),
         notes: asset.notes || '',
     };
 }
 
-/** Convert a ParkingFleetVehicle to a partial PlaceAsset for saving */
+/** Convert a ParkingFleetVehicle to a partial Asset for saving */
 export function fromParkingFleetVehicle(
     vehicle: Partial<ParkingFleetVehicle>,
     zone_id: string,
-): Partial<PlaceAsset> {
+): Partial<Asset> {
     return {
         ...(vehicle.id ? { id: vehicle.id } : {}),
         identifier: vehicle.name || '',
@@ -194,7 +192,7 @@ export function fromParkingFleetVehicle(
             car_colour: vehicle.car_colour || '',
             plate_number: vehicle.plate_number || '',
         },
-    } as Partial<PlaceAsset>;
+    };
 }
 
 /** Query fleet vehicles for a zone */
@@ -212,7 +210,7 @@ export async function queryParkingFleetVehicles(
 export async function saveParkingFleetVehicle(
     vehicle: Partial<ParkingFleetVehicle>,
     zone_id: string,
-): Promise<PlaceAsset> {
+): Promise<Asset> {
     const asset = fromParkingFleetVehicle(vehicle, zone_id);
     const type_id = await resolveParkingFleetTypeId();
     return saveAsset({ ...asset, asset_type_id: type_id });
@@ -220,5 +218,5 @@ export async function saveParkingFleetVehicle(
 
 /** Delete a fleet vehicle asset by ID */
 export function deleteParkingFleetVehicle(id: string) {
-    return removeAsset(id);
+    return assets_v7.destroy({ id }).then(orThrow);
 }

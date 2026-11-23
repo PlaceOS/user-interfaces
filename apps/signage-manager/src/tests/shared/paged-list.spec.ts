@@ -182,6 +182,7 @@ describe('PagedList', () => {
                     { id: 'b', name: 'b', signage: false },
                 ],
                 total: 2,
+                next_offset: null,
                 next: null,
             }),
         );

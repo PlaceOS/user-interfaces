@@ -14,7 +14,8 @@ import {
     ViewerLabel,
     ViewerStyles,
 } from '@placeos/common';
-import { querySystems } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import {
     BuildingLevel,
@@ -98,10 +99,12 @@ export class ExploreStateService {
         }),
         loader: ({ params: { level, initialised } }) =>
             initialised
-                ? querySystems({
-                      zone_id: level?.id || this._org.organisation.id,
-                      limit: 50,
-                  })
+                ? systems
+                      .query({
+                          zone_id: [level?.id || this._org.organisation.id],
+                          limit: 50,
+                      })
+                      .then(orThrowPage)
                       .then(({ data }) => data.map((_) => new Space(_ as any)))
                       .catch((_) => [] as Space[])
                 : Promise.resolve([] as Space[]),

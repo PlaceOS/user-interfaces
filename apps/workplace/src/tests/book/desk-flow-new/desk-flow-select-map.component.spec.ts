@@ -6,10 +6,11 @@ import { Booking, OrganisationService, SettingsService } from '@placeos/common';
 import { mockComponent } from '@placeos/common/tests';
 import { InteractiveMapComponent } from '@placeos/components';
 import { DEFAULT_COLOURS } from '@placeos/explore';
-import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import { DeskFlowSelectMapComponent } from '../../../app/book/desk-flow-new/desk-flow-select-map.component';
 
@@ -102,11 +103,13 @@ describe('DeskFlowSelectMapComponent', () => {
         vi.clearAllMocks();
         use_region = signal(false);
         show_users = signal(true);
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        } as any);
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => ({ data: [], total: 0, next: null }),
+                ['...'],
+                'page',
+            ),
+        );
         resources = signal<any[]>([desk_1, desk_2]);
         available_resources = signal<any[]>([desk_1]);
         model = signal<any>({ resources: [] });
@@ -200,28 +203,34 @@ describe('DeskFlowSelectMapComponent', () => {
         const date = new Date(2026, 8, 23, 9).valueOf();
         model.set({ resources: [], date, duration: 60 });
         spectator.component.level.set(level_1 as any);
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [
-                new Booking({
-                    id: 'b-1',
-                    asset_id: 'desk-2',
-                    user_name: 'Taylor',
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    data: [
+                        new Booking({
+                            id: 'b-1',
+                            asset_id: 'desk-2',
+                            user_name: 'Taylor',
+                        }),
+                        new Booking({
+                            id: 'b-2',
+                            asset_id: 'desk-2',
+                            user_name: 'Jordan',
+                        }),
+                        new Booking({
+                            id: 'b-3',
+                            asset_id: 'desk-1',
+                            user_name: 'Casey',
+                            deleted: true,
+                        }),
+                    ],
+                    total: 3,
+                    next: null,
                 }),
-                new Booking({
-                    id: 'b-2',
-                    asset_id: 'desk-2',
-                    user_name: 'Jordan',
-                }),
-                new Booking({
-                    id: 'b-3',
-                    asset_id: 'desk-1',
-                    user_name: 'Casey',
-                    deleted: true,
-                }),
-            ],
-            total: 3,
-            next: null,
-        } as any);
+                ['...'],
+                'page',
+            ),
+        );
         TestBed.flushEffects();
         await vi.waitFor(() =>
             expect(spectator.component.features()[1].data.user()).toBe(
@@ -229,14 +238,12 @@ describe('DeskFlowSelectMapComponent', () => {
             ),
         );
 
-        expect(ts_client.query).toHaveBeenCalledWith(
+        expect(staff_bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    type: 'desk',
-                    zones: 'level-1',
-                    period_start: date / 1000,
-                    period_end: date / 1000 + 3600,
-                }),
+                type: 'desk',
+                zones: 'level-1',
+                period_start: date / 1000,
+                period_end: date / 1000 + 3600,
             }),
         );
         // Cancelled bookings do not name the desk user
@@ -249,7 +256,7 @@ describe('DeskFlowSelectMapComponent', () => {
         spectator.component.level.set(level_1 as any);
         TestBed.flushEffects();
 
-        expect(ts_client.query).not.toHaveBeenCalled();
+        expect(staff_bookings.query).not.toHaveBeenCalled();
     });
 
     it('should emit the desk when a map action callback fires', () => {

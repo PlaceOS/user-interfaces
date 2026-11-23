@@ -15,6 +15,7 @@ import {
     AsyncHandler,
     DialogEvent,
     getInvalidSignalFields,
+    getModule,
     HashMap,
     i18n,
     notifyError,
@@ -31,7 +32,6 @@ import {
     TimeFieldComponent,
     UserSearchFieldComponent,
 } from '@placeos/form-fields';
-import { getModule } from '@placeos/ts-client';
 
 export interface BookingModalData extends HashMap {
     title?: string;

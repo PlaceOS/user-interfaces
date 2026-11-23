@@ -25,11 +25,10 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { mediaThumbnail } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePluginService } from '../signage-plugin.service';
 import { pluginName } from '../signage-plugin.util';
-import { signagePlayerUrl } from '../signage-url.util';
+import { mediaThumbnailUrl, signagePlayerUrl } from '../signage-url.util';
 import { SignageTemplateService } from './signage-template.service';
 import {
     applyLayoutPositionDefaults,
@@ -315,7 +314,7 @@ export class TemplatePreviewComponent {
     public readonly background_url = computed(() => {
         const background_id =
             this._template_service.selected_template()?.background_item_id;
-        return background_id ? mediaThumbnail(background_id) : '';
+        return background_id ? mediaThumbnailUrl(background_id) : '';
     });
 
     public readonly live_template_id = computed(() => {

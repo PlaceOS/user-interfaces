@@ -17,8 +17,14 @@ import { ParkingService } from '../lib/parking.service';
 // the ts-client API layer beneath them is stubbed. `queryParkingSpacesForZones`
 // resolves to `queryAssets`, and `queryBookings` resolves to `get`.
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    type Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 
 describe('ParkingService', () => {
     let spectator: SpectatorService<ParkingService>;
@@ -66,31 +72,36 @@ describe('ParkingService', () => {
         vi.clearAllMocks();
         // Tests change the settings, so reset them before the next service
         settings_get.mockImplementation(() => true);
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
-        } as any);
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [
-                {
-                    id: 'type-parking',
-                    name: '_PARKING_SPACES_',
-                    category_id: 'cat-parking',
-                },
-                {
-                    id: 'type-parking-users',
-                    name: '_PARKING_USERS_',
-                    category_id: 'cat-parking',
-                },
-            ],
-        } as any);
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({
-            data: [{ id: 'park-1', assigned_to: 'user@example.com' }],
-        } as any);
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        // The real token() starts a re-authorise timer that can fire after
-        // the test environment is torn down
-        vi.mocked(ts_client.token).mockReturnValue('token');
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'type-parking',
+                        name: '_PARKING_SPACES_',
+                        category_id: 'cat-parking',
+                    },
+                    {
+                        id: 'type-parking-users',
+                        name: '_PARKING_USERS_',
+                        category_id: 'cat-parking',
+                    },
+                ],
+            } as any),
+        );
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'park-1', assigned_to: 'user@example.com' }],
+            } as any),
+        );
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([]),
+        );
+        vi.mocked(bookings.query).mockResolvedValue(mockPage({ data: [] }));
         spectator = createService();
         TestBed.tick();
         await new Promise((resolve) => setTimeout(resolve, 50));
@@ -118,30 +129,40 @@ describe('ParkingService', () => {
 
     it('should not load parking bookings before requested', () => {
         // Parking spaces are queried up-front (queryParkingSpacesForZones ->
-        // queryAssets), but bookings (queryBookings -> get) are not.
-        expect(ts_client.queryAssets).toHaveBeenCalled();
-        expect(ts_client.get).not.toHaveBeenCalled();
+        // queryAssets), but bookings (queryBookings) are not.
+        expect(ts_client.assets.query).toHaveBeenCalled();
+        expect(bookings.query).not.toHaveBeenCalled();
     });
 
     it('should find the booked space when parking bookings are requested', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { id: 'bkn-1', booking_type: 'parking', asset_id: 'park-1' },
-        ] as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 1,
+                        booking_type: 'parking',
+                        asset_id: 'park-1',
+                    } as StaffBooking,
+                ],
+            }),
+        );
 
         spectator.service.loadBookings();
         TestBed.tick();
         await new Promise((resolve) => setTimeout(resolve, 50));
 
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('/api/staff/v1/bookings'),
+        expect(bookings.query).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ type: 'parking' }),
         );
         expect(spectator.service.has_booking()).toBe(true);
         expect(spectator.service.booked_space()?.id).toBe('park-1');
     });
 
     it('should have no booking when the parking bookings request fails', async () => {
-        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        vi.mocked(bookings.query).mockResolvedValue({
+            ok: false,
+            error: { kind: 'network', message: 'offline' },
+        });
 
         spectator.service.loadBookings();
         TestBed.tick();
@@ -160,31 +181,35 @@ describe('ParkingService', () => {
     });
 
     it('should deny parking to a user that the building parking users deny', async () => {
-        vi.mocked(ts_client.queryAssets).mockImplementation((async (q: {
-            type_id?: string;
-        }) => ({
-            data:
-                q?.type_id === 'type-parking-users'
-                    ? [
-                          {
-                              id: 'pu-1',
-                              identifier: 'Me',
-                              other_data: {
-                                  email: 'ME@example.com',
-                                  deny: 'true',
-                              },
-                          },
-                          {
-                              id: 'pu-2',
-                              identifier: 'Allowed',
-                              other_data: {
-                                  email: 'allowed@example.com',
-                                  deny: 'false',
-                              },
-                          },
-                      ]
-                    : [],
-        })) as any);
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                (async (q: { type_id?: string }) => ({
+                    data:
+                        q?.type_id === 'type-parking-users'
+                            ? [
+                                  {
+                                      id: 'pu-1',
+                                      identifier: 'Me',
+                                      other_data: {
+                                          email: 'ME@example.com',
+                                          deny: 'true',
+                                      },
+                                  },
+                                  {
+                                      id: 'pu-2',
+                                      identifier: 'Allowed',
+                                      other_data: {
+                                          email: 'allowed@example.com',
+                                          deny: 'false',
+                                      },
+                                  },
+                              ]
+                            : [],
+                })) as any,
+                ['...'],
+                'page',
+            ),
+        );
         const org = spectator.inject(OrganisationService) as any;
         // A new building object loads the parking users again
         org.active_building.set({ id: 'bld-1' });
@@ -208,28 +233,30 @@ describe('ParkingService', () => {
             key === 'app.parking.restrict_home_location'
                 ? restrict
                 : false) as any);
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                zone: { id: 'lvl-1' },
-                metadata: {
-                    desks: {
-                        details: [
-                            { id: 'desk-1', assigned_to: 'me@example.com' },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    zone: { id: 'lvl-1' },
+                    metadata: {
+                        desks: {
+                            details: [
+                                { id: 'desk-1', assigned_to: 'me@example.com' },
+                            ],
+                        },
                     },
                 },
-            },
-        ] as any);
+            ] as any),
+        );
         const org = spectator.inject(OrganisationService) as any;
         const settle = async () => {
             TestBed.tick();
             await new Promise((resolve) => setTimeout(resolve, 20));
         };
-        vi.mocked(ts_client.listChildMetadata).mockClear();
+        vi.mocked(ts_client.metadata.childrenMetadata).mockClear();
 
         org.building_list.set([{ id: 'bld-1' }, { id: 'bld-2' }]);
         await settle();
-        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.childrenMetadata).not.toHaveBeenCalled();
         expect(spectator.service.home_building_id()).toBeNull();
 
         restrict = true;
@@ -238,7 +265,8 @@ describe('ParkingService', () => {
         // Services from earlier tests share the organisation mock, so check
         // the buildings that were read, not the request count
         for (const id of ['bld-1', 'bld-2']) {
-            expect(ts_client.listChildMetadata).toHaveBeenCalledWith(id, {
+            expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledWith({
+                id,
                 name: 'desks',
             });
         }
@@ -254,18 +282,20 @@ describe('ParkingService', () => {
                 key === 'app.parking.restrict_home_location' ||
                 key === 'app.use_region',
         );
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                zone: { id: 'lvl-1' },
-                metadata: {
-                    desks: {
-                        details: [
-                            { id: 'desk-1', assigned_to: 'me@example.com' },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    zone: { id: 'lvl-1' },
+                    metadata: {
+                        desks: {
+                            details: [
+                                { id: 'desk-1', assigned_to: 'me@example.com' },
+                            ],
+                        },
                     },
                 },
-            },
-        ] as any);
+            ] as any),
+        );
         const org = spectator.inject(OrganisationService) as any;
         const settle = async () => {
             TestBed.tick();

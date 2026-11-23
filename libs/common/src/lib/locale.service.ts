@@ -1,6 +1,7 @@
 import { Injectable, signal } from '@angular/core';
 
-import { showMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { log } from './general';
 
 let _service: LocaleService;
@@ -233,11 +234,11 @@ export class LocaleService {
     private async _loadOverrides(locale: string) {
         if (!this.zone_id) return {};
         try {
-            const metadata = await showMetadata(
-                this.zone_id,
-                `locale_${locale}`,
-            );
-            return metadata.details;
+            const name = `locale_${locale}`;
+            const map = await metadata
+                .show({ id: this.zone_id, name })
+                .then(orThrow);
+            return map[name]?.details ?? {};
         } catch (error) {
             console.error(
                 `Failed to load locale overrides for "${locale}".`,

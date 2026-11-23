@@ -1,5 +1,4 @@
-import { i18n, notifyError } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
+import { getModule, i18n, notifyError } from '@placeos/common';
 import { RoomInput } from '../control-state.service';
 import { errorText } from '../error-text';
 import { JoystickPan, JoystickTilt } from './joystick.component';

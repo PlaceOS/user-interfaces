@@ -5,11 +5,11 @@ import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { IconComponent } from '@placeos/components';
-import { PlaceCurrentGroup } from '@placeos/ts-client';
+import type { GroupsCurrentGroup } from '@placeos/ts-client';
 import { groupHierarchy } from '../support-groups';
 
 export interface GroupSelectModalData {
-    groups: PlaceCurrentGroup[];
+    groups: GroupsCurrentGroup[];
     selected_group_id?: string;
     show_all_groups?: boolean;
 }

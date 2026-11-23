@@ -8,7 +8,8 @@ import {
     UploadsService,
 } from '@placeos/common';
 import { loadAuthenticatedImage } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { flipLightness, inkIsLight } from '../branding/logo-variant';
 import { uploadUrl } from '../signage-url.util';
@@ -274,15 +275,17 @@ export class ImageGenService extends AsyncHandler {
 
         // replace rather than merge: the API deep merges a PATCH, so a colour
         // taken out of the palette would survive the save.
-        await updateMetadata(
-            this._org_zone,
-            {
-                name: 'signage_ai',
-                description: 'Brand kit used when generating signage artwork',
-                details: details as unknown as Record<string, unknown>,
-            },
-            'put',
-        );
+        await metadata_v7
+            .update({
+                id: this._org_zone,
+                body: {
+                    name: 'signage_ai',
+                    description:
+                        'Brand kit used when generating signage artwork',
+                    details,
+                },
+            })
+            .then(orThrow);
 
         this.brand_kit.set(details);
         return details;
@@ -303,9 +306,11 @@ export class ImageGenService extends AsyncHandler {
     /** re-read the kit, for a page opened before start up finished */
     public async reloadBrandKit(): Promise<ImageGenBrandKit | null> {
         if (!this._org_zone) return null;
-        const metadata = await showMetadata(this._org_zone, 'signage_ai').catch(
-            () => null,
-        );
+        const metadata = await metadata_v7
+            .show({ id: this._org_zone, name: 'signage_ai' })
+            .then(orThrow)
+            .then((data) => data['signage_ai'])
+            .catch(() => null);
         if (!metadata) {
             this.brand_kit_read.set('failed');
             return this.brand_kit();

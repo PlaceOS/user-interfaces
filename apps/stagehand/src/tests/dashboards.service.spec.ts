@@ -10,7 +10,16 @@ import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
+import {
+    mockPage,
+    mockReply,
+    TriggerConditionOperator,
+} from '@placeos/ts-client/compat';
 
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { DashboardsService } from '../app/dashboards/dashboards.service';
 import { AlertNotificationService } from '../app/push-notification.service';
 import { GroupScope, groupScope } from '../app/support-groups';
@@ -52,7 +61,7 @@ const disconnected = {
         comparisons: [
             {
                 left: 'connected',
-                operator: ts_client.TriggerConditionOperator.EQ,
+                operator: TriggerConditionOperator.EQ,
                 right: false,
             },
         ],
@@ -61,6 +70,20 @@ const disconnected = {
 
 describe('DashboardsService', () => {
     let spectator: SpectatorService<DashboardsService>;
+    let place: TestPlaceClient;
+    /** Make the next token request wait. Call the result with the token */
+    const pendingToken = () => {
+        let renew: (token: string) => void = () => undefined;
+        place.authorize.mockReturnValue(
+            new Promise((resolve) => {
+                renew = (token) => {
+                    place.setToken(token);
+                    resolve({ ok: true, value: { kind: 'bearer', token } });
+                };
+            }),
+        );
+        return (token: string) => renew(token);
+    };
     const group_id = signal('');
     const scope = signal<GroupScope | null>(null);
     const scope_ready = signal(true);
@@ -95,17 +118,30 @@ describe('DashboardsService', () => {
 
         // Passthrough spies (spy: true) call the real ts-client otherwise, so
         // stub each function the service touches with a safe default.
-        vi.mocked(ts_client.showAlert).mockResolvedValue({} as any);
-        vi.mocked(ts_client.showAlertDashboard).mockResolvedValue({} as any);
-        vi.mocked(ts_client.queryAlertDashboards).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.listDashboardAlerts).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.removeAlertDashboard).mockResolvedValue(undefined);
-        vi.mocked(ts_client.removeAlert).mockResolvedValue(undefined);
-        vi.mocked(ts_client.authorise).mockResolvedValue('jwt-token');
+        vi.mocked(ts_client.alerts.show).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.alert_dashboards.show).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client.alert_dashboards.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.alert_dashboards.alerts).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.alert_dashboards.destroy).mockResolvedValue(
+            mockReply(undefined),
+        );
+        vi.mocked(ts_client.alerts.destroy).mockResolvedValue(
+            mockReply(undefined),
+        );
+        place = startTestPlaceClient();
+        place.setToken('jwt-token');
         const broker = mock_mqtt_connect() as any;
         broker.options = {};
         mock_mqtt_connect.mockClear();
@@ -286,11 +322,15 @@ describe('DashboardsService', () => {
     describe('setAlert', () => {
         it('should load the alert and clear the loading flag', async () => {
             const alert = { id: 'alert-1', name: 'Alert One' };
-            vi.mocked(ts_client.showAlert).mockResolvedValue(alert as any);
+            vi.mocked(ts_client.alerts.show).mockResolvedValue(
+                mockReply(alert as any),
+            );
 
             await spectator.service.setAlert('alert-1');
 
-            expect(ts_client.showAlert).toHaveBeenCalledWith('alert-1');
+            expect(ts_client.alerts.show).toHaveBeenCalledWith({
+                id: 'alert-1',
+            });
             expect(spectator.service.alert()).toBe(alert);
             expect(spectator.service.loading()).not.toContain('ALERT');
         });
@@ -304,31 +344,35 @@ describe('DashboardsService', () => {
 
             expect(spectator.service.dashboard()).toBeNull();
             expect(spectator.service.alerts_list()).toEqual([]);
-            expect(ts_client.showAlertDashboard).not.toHaveBeenCalled();
+            expect(ts_client.alert_dashboards.show).not.toHaveBeenCalled();
         });
 
         it('should load the dashboard and its alerts', async () => {
             const dashboard = { id: 'dash-1', name: 'Dash' };
-            vi.mocked(ts_client.showAlertDashboard).mockResolvedValue(
-                dashboard as any,
+            vi.mocked(ts_client.alert_dashboards.show).mockResolvedValue(
+                mockReply(dashboard as any),
             );
-            vi.mocked(ts_client.listDashboardAlerts).mockResolvedValue({
-                data: [{ id: 'a1' }],
-            } as any);
+            vi.mocked(ts_client.alert_dashboards.alerts).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'a1' }],
+                } as any),
+            );
 
             await spectator.service.setDashboard('dash-1');
             await flush();
 
-            expect(ts_client.showAlertDashboard).toHaveBeenCalledWith('dash-1');
+            expect(ts_client.alert_dashboards.show).toHaveBeenCalledWith({
+                id: 'dash-1',
+            });
             expect(spectator.service.dashboard()).toBe(dashboard);
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
-                'dash-1',
-            );
+            expect(ts_client.alert_dashboards.alerts).toHaveBeenCalledWith({
+                id: 'dash-1',
+            });
             expect(spectator.service.alerts_list()).toEqual([{ id: 'a1' }]);
         });
 
         it('should clear the loading flag and report a failed load', async () => {
-            vi.mocked(ts_client.showAlertDashboard).mockRejectedValue(
+            vi.mocked(ts_client.alert_dashboards.show).mockRejectedValue(
                 new Error('offline'),
             );
 
@@ -341,13 +385,15 @@ describe('DashboardsService', () => {
 
     describe('loadDashboards', () => {
         it('should query dashboards and populate the list', async () => {
-            vi.mocked(ts_client.queryAlertDashboards).mockResolvedValue({
-                data: [{ id: 'd1' }, { id: 'd2' }],
-            } as any);
+            vi.mocked(ts_client.alert_dashboards.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'd1' }, { id: 'd2' }],
+                } as any),
+            );
 
             await spectator.service.loadDashboards();
 
-            expect(ts_client.queryAlertDashboards).toHaveBeenCalledWith({
+            expect(ts_client.alert_dashboards.query).toHaveBeenCalledWith({
                 limit: 100,
             });
             expect(spectator.service.dashboard_list()).toEqual([
@@ -367,7 +413,7 @@ describe('DashboardsService', () => {
                 name: 'Dash',
             } as any);
 
-            expect(ts_client.removeAlertDashboard).not.toHaveBeenCalled();
+            expect(ts_client.alert_dashboards.destroy).not.toHaveBeenCalled();
             expect(notify_open).not.toHaveBeenCalled();
         });
 
@@ -380,17 +426,17 @@ describe('DashboardsService', () => {
             } as any);
             await flush();
 
-            expect(ts_client.removeAlertDashboard).toHaveBeenCalledWith(
-                'dash-1',
-            );
+            expect(ts_client.alert_dashboards.destroy).toHaveBeenCalledWith({
+                id: 'dash-1',
+            });
             expect(dialog_close).toHaveBeenCalled();
             expect(notify_open).toHaveBeenCalled();
-            expect(ts_client.queryAlertDashboards).toHaveBeenCalled();
+            expect(ts_client.alert_dashboards.query).toHaveBeenCalled();
         });
 
         it('should close the confirmation and report a failed removal', async () => {
             confirm_reason = 'done';
-            vi.mocked(ts_client.removeAlertDashboard).mockRejectedValue(
+            vi.mocked(ts_client.alert_dashboards.destroy).mockRejectedValue(
                 new Error('offline'),
             );
 
@@ -402,7 +448,7 @@ describe('DashboardsService', () => {
 
             expect(dialog_close).toHaveBeenCalled();
             expect(notify_open).toHaveBeenCalled();
-            expect(ts_client.queryAlertDashboards).not.toHaveBeenCalled();
+            expect(ts_client.alert_dashboards.query).not.toHaveBeenCalled();
         });
     });
 
@@ -415,7 +461,7 @@ describe('DashboardsService', () => {
                 name: 'Alert',
             } as any);
 
-            expect(ts_client.removeAlert).not.toHaveBeenCalled();
+            expect(ts_client.alerts.destroy).not.toHaveBeenCalled();
             expect(notify_open).not.toHaveBeenCalled();
         });
 
@@ -429,12 +475,14 @@ describe('DashboardsService', () => {
             } as any);
             await flush();
 
-            expect(ts_client.removeAlert).toHaveBeenCalledWith('alert-1');
+            expect(ts_client.alerts.destroy).toHaveBeenCalledWith({
+                id: 'alert-1',
+            });
             expect(dialog_close).toHaveBeenCalled();
             expect(notify_open).toHaveBeenCalled();
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
-                'dash-1',
-            );
+            expect(ts_client.alert_dashboards.alerts).toHaveBeenCalledWith({
+                id: 'dash-1',
+            });
         });
 
         it("should refresh the alert's dashboard row in the dashboard list", async () => {
@@ -450,9 +498,9 @@ describe('DashboardsService', () => {
             } as any);
             await flush();
 
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
-                'dash-2',
-            );
+            expect(ts_client.alert_dashboards.alerts).toHaveBeenCalledWith({
+                id: 'dash-2',
+            });
             expect(spectator.service.dashboard_alert_map()['dash-2']).toEqual(
                 [],
             );
@@ -462,35 +510,39 @@ describe('DashboardsService', () => {
     describe('loadDashboardAlerts', () => {
         it('should not query when there is no dashboard and no id', async () => {
             await spectator.service.loadDashboardAlerts();
-            expect(ts_client.listDashboardAlerts).not.toHaveBeenCalled();
+            expect(ts_client.alert_dashboards.alerts).not.toHaveBeenCalled();
         });
 
         it('should populate alerts_list for the active dashboard', async () => {
             spectator.service.dashboard.set({ id: 'dash-1' } as any);
-            vi.mocked(ts_client.listDashboardAlerts).mockResolvedValue({
-                data: [{ id: 'alert-a' }],
-            } as any);
+            vi.mocked(ts_client.alert_dashboards.alerts).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'alert-a' }],
+                } as any),
+            );
 
             await spectator.service.loadDashboardAlerts();
 
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
-                'dash-1',
-            );
+            expect(ts_client.alert_dashboards.alerts).toHaveBeenCalledWith({
+                id: 'dash-1',
+            });
             expect(spectator.service.alerts_list()).toEqual([
                 { id: 'alert-a' },
             ]);
         });
 
         it('should populate the dashboard alert map when an id is provided', async () => {
-            vi.mocked(ts_client.listDashboardAlerts).mockResolvedValue({
-                data: [{ id: 'alert-b' }],
-            } as any);
+            vi.mocked(ts_client.alert_dashboards.alerts).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'alert-b' }],
+                } as any),
+            );
 
             await spectator.service.loadDashboardAlerts('dash-2');
 
-            expect(ts_client.listDashboardAlerts).toHaveBeenCalledWith(
-                'dash-2',
-            );
+            expect(ts_client.alert_dashboards.alerts).toHaveBeenCalledWith({
+                id: 'dash-2',
+            });
             expect(spectator.service.dashboard_alert_map()['dash-2']).toEqual([
                 { id: 'alert-b' },
             ]);
@@ -553,22 +605,19 @@ describe('DashboardsService', () => {
         });
 
         it('reconnects with a renewed token once the connection drops', async () => {
-            vi.mocked(ts_client.authorise).mockResolvedValue('fresh-token');
+            place.setToken('fresh-token');
 
             handler('close')();
             await vi.advanceTimersByTimeAsync(1000);
 
-            expect(ts_client.authorise).toHaveBeenCalled();
+            expect(place.authorize).toHaveBeenCalled();
             expect(broker().options.username).toBe('fresh-token');
             expect(broker().options.password).toBe('fresh-token');
             expect(broker().reconnect).toHaveBeenCalledTimes(1);
         });
 
         it('does not reconnect before a token is available', async () => {
-            let renew: (token: string) => void = () => undefined;
-            vi.mocked(ts_client.authorise).mockReturnValue(
-                new Promise<string>((resolve) => (renew = resolve)),
-            );
+            const renew = pendingToken();
 
             handler('close')();
             await vi.advanceTimersByTimeAsync(5000);
@@ -581,9 +630,8 @@ describe('DashboardsService', () => {
         });
 
         it('tries again, backing off, when the token cannot be renewed', async () => {
-            vi.mocked(ts_client.authorise)
-                .mockRejectedValueOnce('Failed to generate token')
-                .mockResolvedValue('fresh-token');
+            place.setToken('fresh-token');
+            place.authorize.mockRejectedValueOnce('Failed to generate token');
 
             handler('close')();
             await vi.advanceTimersByTimeAsync(1000);
@@ -611,17 +659,14 @@ describe('DashboardsService', () => {
         });
 
         it('does not open another connection while authorising one', async () => {
-            let renew: (token: string) => void = () => undefined;
-            vi.mocked(ts_client.authorise).mockReturnValue(
-                new Promise<string>((resolve) => (renew = resolve)),
-            );
+            const renew = pendingToken();
 
             handler('close')();
             await vi.advanceTimersByTimeAsync(1000);
-            const requests = vi.mocked(ts_client.authorise).mock.calls.length;
+            const requests = place.authorize.mock.calls.length;
             await (spectator.service as any)._connectBroker();
             await vi.advanceTimersByTimeAsync(0);
-            expect(ts_client.authorise).toHaveBeenCalledTimes(requests);
+            expect(place.authorize).toHaveBeenCalledTimes(requests);
 
             renew('fresh-token');
             await flush();
@@ -635,16 +680,16 @@ describe('DashboardsService', () => {
         });
 
         it('backs off to at most 3 minutes between attempts', async () => {
-            vi.mocked(ts_client.authorise).mockRejectedValue('offline');
+            place.authorize.mockRejectedValue('offline');
             handler('close')();
             // 1s, 2s, 4s ... 128s, then capped at 180s
             await vi.advanceTimersByTimeAsync(255_000);
-            const attempts = vi.mocked(ts_client.authorise).mock.calls.length;
+            const attempts = place.authorize.mock.calls.length;
 
             await vi.advanceTimersByTimeAsync(179_000);
-            expect(ts_client.authorise).toHaveBeenCalledTimes(attempts);
+            expect(place.authorize).toHaveBeenCalledTimes(attempts);
             await vi.advanceTimersByTimeAsync(1000);
-            expect(ts_client.authorise).toHaveBeenCalledTimes(attempts + 1);
+            expect(place.authorize).toHaveBeenCalledTimes(attempts + 1);
         });
 
         it('stops reconnecting once destroyed', async () => {

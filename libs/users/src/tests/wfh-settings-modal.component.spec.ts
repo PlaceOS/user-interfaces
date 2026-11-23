@@ -1,4 +1,4 @@
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -14,8 +14,11 @@ import {
     WorktimePreference,
 } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { User } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { MockComponent } from 'ng-mocks';
 
+import { mockData } from 'libs/common/src/tests/mock-data';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TimeFieldComponent } from 'libs/form-fields/src/lib/time-field.component';
 import { WFHSettingsModalComponent } from '../lib/wfh-settings-modal.component';
@@ -194,25 +197,24 @@ describe('WFHSettingsModalComponent', () => {
         expect(saved.map((d) => d.day_of_week)).toEqual([0, 1, 2, 3, 4, 5, 6]);
         expect(saved[1].blocks).toEqual([]);
         expect(saved[5].blocks).toHaveLength(1);
-        expect(ts_client.updateUser).not.toHaveBeenCalled();
+        expect(ts_client.users.update).not.toHaveBeenCalled();
     });
 
     it('should save preferences to the current user without system groups', async () => {
         spectator = createComponent();
         spectator.component.setWeekdayEnabled(2, true);
         spectator.component.initialiseDay(2);
-        vi.mocked(ts_client.showUser).mockResolvedValue({
+        const user = mockData(User, {
             id: 'user-1',
             groups: ['placeos_admin', 'team-a'],
-        } as Awaited<ReturnType<typeof ts_client.showUser>>);
-        vi.mocked(ts_client.updateUser).mockResolvedValue(
-            {} as Awaited<ReturnType<typeof ts_client.updateUser>>,
-        );
+        });
+        vi.mocked(ts_client.users.current).mockResolvedValue(mockReply(user));
+        vi.mocked(ts_client.users.update).mockResolvedValue(mockReply(user));
         await spectator.component.saveChanges(false);
-        const [id, body] = vi.mocked(ts_client.updateUser).mock.calls[0];
+        const [{ id, body }] = vi.mocked(ts_client.users.update).mock.calls[0];
         expect(id).toBe('user-1');
-        expect(body.groups).toEqual(['team-a']);
-        expect(body.work_preferences[2].blocks).toHaveLength(1);
+        expect(body).toMatchObject({ groups: ['team-a'] });
+        expect(body['work_preferences'][2].blocks).toHaveLength(1);
         expect(spectator.component.loading()).toBe(false);
     });
 
@@ -220,18 +222,17 @@ describe('WFHSettingsModalComponent', () => {
         // Keep the user reload that runs after closing from firing
         vi.useFakeTimers({ toFake: ['setTimeout'] });
         spectator = createComponent();
-        vi.mocked(ts_client.showUser).mockResolvedValue({
-            id: 'user-1',
-            groups: [],
-        } as Awaited<ReturnType<typeof ts_client.showUser>>);
+        const user = mockData(User, { id: 'user-1', groups: [] });
+        vi.mocked(ts_client.users.current).mockResolvedValue(mockReply(user));
+        vi.mocked(ts_client.users.update).mockResolvedValue(mockReply(user));
         await spectator.component.saveChanges();
-        const [, body] = vi.mocked(ts_client.updateUser).mock.calls[0];
-        expect(close_fn).toHaveBeenCalledWith(body.work_preferences);
+        const [{ body }] = vi.mocked(ts_client.users.update).mock.calls[0];
+        expect(close_fn).toHaveBeenCalledWith(body['work_preferences']);
     });
 
     it('should stay open and restore modal controls when saving fails', async () => {
         spectator = createComponent();
-        vi.mocked(ts_client.showUser).mockRejectedValue(
+        vi.mocked(ts_client.users.current).mockRejectedValue(
             new Error('Unable to load user'),
         );
 

@@ -5,13 +5,13 @@ import {
     notifySuccess,
     OrganisationService,
 } from '@placeos/common';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
-    queryAnswers,
-    querySurveys,
-    removeSurvey,
-    Survey,
-    SurveyAnswer,
-} from '@placeos/ts-client';
+    type Survey,
+    type SurveyAnswer,
+    surveys as staffSurveys,
+    surveys_answers,
+} from '@placeos/ts-client/staff';
 import { confirmAction, errorText } from '../ui/modal-actions';
 
 /** Most answer requests that run at the same time */
@@ -77,7 +77,8 @@ export class SurveyService {
             },
             {
                 loading: 'Removing survey...',
-                action: () => removeSurvey(`${survey.id}`),
+                action: () =>
+                    staffSurveys.destroy({ id: survey.id }).then(orThrow),
                 error: (e) => `Failed to remove survey. ${errorText(e)}`,
             },
         );
@@ -91,7 +92,9 @@ export class SurveyService {
         if (!buildings) return;
         if (type === LoadType.SURVEYS) {
             const surveys = await Promise.all(
-                buildings.map((bld) => querySurveys({ building_id: bld.id })),
+                buildings.map((bld) =>
+                    staffSurveys.query({ building_id: bld.id }).then(orThrow),
+                ),
             );
             const survey_list = surveys.flat();
             this.survey_list.set(survey_list);
@@ -100,7 +103,10 @@ export class SurveyService {
             const answers = await mapWithLimit(
                 this.survey_list(),
                 ANSWER_REQUEST_LIMIT,
-                (survey) => queryAnswers({ survey_id: survey.id }),
+                (survey) =>
+                    surveys_answers
+                        .query({ survey_id: survey.id })
+                        .then(orThrow),
             );
             this.answer_list.set(answers.flat());
         }

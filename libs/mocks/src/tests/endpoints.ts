@@ -1,4 +1,7 @@
-import { MockHttpRequest, registerMockEndpoint } from '@placeos/ts-client';
+import {
+    type MockHttpRequest,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
 
 /**
  * Callback that a mock group registered for `method` and `path`. Mock

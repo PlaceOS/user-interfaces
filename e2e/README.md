@@ -27,12 +27,12 @@ bunx playwright test --config apps/workplace/playwright.config.ts --project=sett
 bunx playwright test --config apps/workplace/playwright.config.ts --ui               # watch it
 ```
 
-| Project | Specs | Needs the stack | CI (`e2e-advisory.yml`) |
-|---|---|---|---|
-| `local` | `apps/workplace/e2e/local/` | yes | every run |
-| `mock` | `apps/workplace/e2e/*.spec.ts` | no | every run |
-| `settings` | `apps/workplace/e2e/settings/`, except the browser-only ones | yes | nightly and "Run workflow" only |
-| `settings-browser` | the browser-only settings specs (`apps/workplace/e2e/settings/**/*.browser.spec.ts`) | no | every run, on a GitHub-hosted runner |
+| Project            | Specs                                                                                | Needs the stack | CI (`e2e-advisory.yml`)              |
+| ------------------ | ------------------------------------------------------------------------------------ | --------------- | ------------------------------------ |
+| `local`            | `apps/workplace/e2e/local/`                                                          | yes             | every run                            |
+| `mock`             | `apps/workplace/e2e/*.spec.ts`                                                       | no              | every run                            |
+| `settings`         | `apps/workplace/e2e/settings/`, except the browser-only ones                         | yes             | nightly and "Run workflow" only      |
+| `settings-browser` | the browser-only settings specs (`apps/workplace/e2e/settings/**/*.browser.spec.ts`) | no              | every run, on a GitHub-hosted runner |
 
 `local` and `settings` depend on `preflight`, which checks the stack is up. Add
 `--no-deps` to skip it.
@@ -96,12 +96,11 @@ Two things a cold start taught us that a long-lived stack hides:
   and that is where the platform's `/login` page lives. Without it nginx serves a
   bare 404 at `/login`. `up.sh` gates on `/login` returning 200 before seeding.
   (This is the one point where bring-up needs network access to GitHub.)
-- **A fresh authority gets a RELATIVE `login_url`** (`/login?continue={{url}}`),
-  and ts-client resolves that against the authority's `domain` column — a bare
-  host with **no port** — so on any non-default port it navigates to a dead URL
-  (`http://localhost/login`) and the app dead-ends on a browser error page.
-  `seed.ts` patches `login_url` to an absolute URL. A long-lived stack usually has
-  an absolute value already, which is why this never shows up locally.
+- **A fresh authority gets a RELATIVE `login_url`** (`/login?continue={{url}}`).
+  ts-client 7 resolves it against the API origin, so it works on any port.
+  ts-client 6 resolved it against the authority's `domain` column, a bare host
+  with **no port**, and went to a dead URL (`http://localhost/login`).
+  `seed.ts` still patches `login_url` to an absolute URL.
 
 ## MQTT
 
@@ -129,7 +128,7 @@ driver --> redis --> source --> mosquitto:1883      (source publishes, API key a
   or build it (`docker build -t placeos/source:local .` in the source clone), then
   `E2E_SOURCE_IMAGE=placeos/source:local e2e/stack/up.sh`, or recreate just
   that service with `LOG_LEVEL=info E2E_SOURCE_IMAGE=placeos/source:local docker compose -p
-  placeos-e2e -f e2e/stack/docker-compose.yml up -d --no-deps --force-recreate source`.
+placeos-e2e -f e2e/stack/docker-compose.yml up -d --no-deps --force-recreate source`.
   `LOG_LEVEL=info` shows source's `reconciled retained state` and `swept retained state` lines.
 - **Assert the broker against the truth, not a value.** `expectedTopics` (stagehand.api.ts) builds
   every topic a system should have from its module order, names, zones and each module's own
@@ -214,10 +213,10 @@ apps/workplace/
 Under `nx serve` the app and the backend are **different origins**, and conflating
 them is the fastest way to a mysteriously unauthenticated SPA:
 
-| | |
-|---|---|
+|                   |                                                             |
+| ----------------- | ----------------------------------------------------------- |
 | `E2E_BACKEND_URL` | `https://localhost:8443` — the stack (nginx TLS entrypoint) |
-| `E2E_APP_URL` | `http://localhost:4214` — the dev server serving the SPA |
+| `E2E_APP_URL`     | `http://localhost:4214` — the dev server serving the SPA    |
 
 The dev server proxies `/api`, `/auth`, `/control` through to the backend, so the
 browser only ever sees `E2E_APP_URL` — and that is the origin localStorage (and
@@ -228,15 +227,16 @@ therefore the token) belongs to.
 **The real login flow is the primary path.** `login.ts` drives it: unauthenticated
 visit → redirect to the authority's login page (a cross-origin hop, with `continue`
 carrying the return URL) → credentials → back into the app. Use it for anything
-whose *subject* is authentication. `apps/workplace/e2e/local/login.spec.ts` is the
+whose _subject_ is authentication. `apps/workplace/e2e/local/login.spec.ts` is the
 worked example, and it guards the exact class of regression that has bitten
 production: scope surviving a refresh, rotation, and rest-api still accepting the
 refreshed token.
 
 **Injected tokens are a speed optimisation, not the default way in.** The worker
-fixtures mint a bearer over PKCE and write a `storageState` seeding
-`localStorage[${cid}_access_token]`, so a spec that merely needs to *be* logged in
-skips ~5s of form driving. Every spec gets this automatically. Specs that test auth
+fixtures sign in over PKCE and write a `storageState` with the server-session
+cookies and the token keys `localStorage[${cid}_access_token]` (read only by a
+trusted app), so a spec that merely needs to _be_ logged in skips ~5s of form
+driving. Every spec gets this automatically. Specs that test auth
 opt out:
 
 ```ts
@@ -246,17 +246,18 @@ test.use({ storageState: undefined });
 Things that will bite you:
 
 - **After a real login, the access token is NOT in localStorage.** ts-client only
-  persists it when the device is trusted — `_storeTokenDetails` gates the
-  `setItem` on `isTrusted()` (ts-client/src/auth/functions.ts:1042); otherwise the
-  bearer lives in memory and only `${cid}_expires_at` is written. So "the token is
-  in localStorage" is true of a seeded state and **false of a real login**. Assert
-  on the token exchange or on `/users/current`, never on the key.
+  persists it when the device is trusted (`?trust=true`); otherwise the bearer
+  lives in memory. So "the token is in localStorage" is true of a seeded state
+  and **false of a real login**. Assert on the token exchange or on
+  `/users/current`, never on the key.
 - **`cid` is derived from where the app is served.** ts-client computes
   `redirect_uri = ${location.origin}${route}oauth-resp.html` at runtime, so the dev
-  server and a stack-deployed build are *different clients* and each needs its own
+  server and a stack-deployed build are _different clients_ and each needs its own
   registered application. `seed.ts` registers the dev-server one.
-- **`_expires_at` must be in the future** in a seeded state, or ts-client treats the
-  token as stale and triggers a re-auth redirect mid-test.
+- **Seeded token keys are read only by a trusted app.** An app that is not
+  trusted signs in from the seeded server-session cookies, through the authorize
+  page in a hidden frame. For a trusted app, `_expires_at` must be in the future,
+  or ts-client treats the token as stale and starts a new login mid-test.
 - **Do not inject `sessionStorage['ENGINE.auth.params']`.** The app deletes it on
   init; re-adding a stale `code` makes ts-client try to re-exchange it and auth breaks.
 - **nginx gates static assets behind an HMAC `verified` cookie.** Irrelevant while
@@ -273,11 +274,11 @@ and `fixtures.ts` mints per worker, keyed on `parallelIndex`.
 
 Fixtures available:
 
-| Fixture | What |
-|---|---|
-| `page` | authenticated as this worker's **admin** (the default `storageState`) |
-| `staffPage` | a page authenticated as this worker's **non-admin** |
-| `staffApi` | an `APIRequestContext` as this worker's non-admin |
+| Fixture     | What                                                                  |
+| ----------- | --------------------------------------------------------------------- |
+| `page`      | authenticated as this worker's **admin** (the default `storageState`) |
+| `staffPage` | a page authenticated as this worker's **non-admin**                   |
+| `staffApi`  | an `APIRequestContext` as this worker's non-admin                     |
 
 **Assert permission-gated behaviour as `staffPage`/`staffApi`.** A `sys_admin`
 bypasses the checks, so the same assertion made as admin passes whether or not the
@@ -288,12 +289,12 @@ at or below it.
 
 ## What `seed.ts` sets up, and why
 
-| Step | Why |
-|---|---|
-| OAuth application for the dev-server `redirect_uri` | ts-client's `client_id` is `Md5(redirect_uri)`; authorize refuses without a matching `uid`. |
-| An absolute authority `login_url` | A relative one resolves without the port and dead-ends the login redirect (see "The stack"). |
-| A **tenant** for the backend domain | staff-api rejects *every* `/bookings` and `/events` call with "domain does not have a tenant configured" until one exists. |
-| One **non-admin** user per worker | Permission gating needs a non-admin; parallel mutation needs distinct identities. |
+| Step                                                | Why                                                                                                                        |
+| --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| OAuth application for the dev-server `redirect_uri` | ts-client's `client_id` is `Md5(redirect_uri)`; authorize refuses without a matching `uid`.                                |
+| An absolute authority `login_url`                   | A relative one resolves without the port and dead-ends the login redirect (see "The stack").                               |
+| A **tenant** for the backend domain                 | staff-api rejects _every_ `/bookings` and `/events` call with "domain does not have a tenant configured" until one exists. |
+| One **non-admin** user per worker                   | Permission gating needs a non-admin; parallel mutation needs distinct identities.                                          |
 
 `seed.ts` polls for the authority rather than reading it once: `/domains` is
 served from Elasticsearch, so on a cold stack the row exists in Postgres before
@@ -347,16 +348,16 @@ requirements, and the macOS-specific gotchas are in
 
 CI-specific choices worth knowing:
 
-| | |
-|---|---|
-| `E2E_WORKERS: 6` | Higher than the local default of 4. The runner also hosts ~10 containers, a dev server and the browsers. Before the specs paused the animated page background (`support/background.ts`), four workers used all the CPU and six were no faster. Now six workers run both test steps in about 19 minutes, against 23 minutes with four. Seeding reads the same value, so set it once for the job. |
-| `E2E_WEBSERVER_TIMEOUT_MS: '900000'` (settings-browser job only) | The config's webServer timeout, 180000 ms unless set. The GitHub-hosted runner starts `nx serve workplace` cold with no Nx cache, which can take longer than the default. |
-| No `pull_request` trigger | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`. |
-| Reclaim step | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held. |
-| No `vm.max_map_count` bump | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`. |
-| Network access to GitHub | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from. |
-| Network access to the build farm | core fetches driver binaries from build.placeos.run and the S3 bucket it hands out links to. A commit the farm has not built for the runner's architecture is compiled there on the first run that asks. The binaries stay in the `placeos-e2e-core-drivers` volume between runs, so later runs do not ask again. |
-| Network access to Docker Hub, every run | `up.sh --pull-only` runs first as its own step, bounded to 20 minutes and advisory, so `latest` tracks the registry rather than the day the runner was set up. Each image pulls on its own; one that fails or stalls leaves the stack on the image already present, and "Record backend inputs" shows which. `SELF_HOSTED_RUNNER.md` lists the hosts. |
+|                                                                  |                                                                                                                                                                                                                                                                                                                                                                                                 |
+| ---------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `E2E_WORKERS: 6`                                                 | Higher than the local default of 4. The runner also hosts ~10 containers, a dev server and the browsers. Before the specs paused the animated page background (`support/background.ts`), four workers used all the CPU and six were no faster. Now six workers run both test steps in about 19 minutes, against 23 minutes with four. Seeding reads the same value, so set it once for the job. |
+| `E2E_WEBSERVER_TIMEOUT_MS: '900000'` (settings-browser job only) | The config's webServer timeout, 180000 ms unless set. The GitHub-hosted runner starts `nx serve workplace` cold with no Nx cache, which can take longer than the default.                                                                                                                                                                                                                       |
+| No `pull_request` trigger                                        | This repo is public and the runner is self-hosted, so a fork PR could run arbitrary code on an internal machine. Triggers are limited to ones requiring write access. Do not add it back without moving to `ubuntu-latest`.                                                                                                                                                                     |
+| Reclaim step                                                     | A self-hosted machine is not a fresh VM; a previous aborted run can leave the stack up or port 4214 held.                                                                                                                                                                                                                                                                                       |
+| No `vm.max_map_count` bump                                       | Needed on GitHub-hosted Linux, meaningless on macOS — the value lives inside Colima's VM, which already sets it to 1048576. Restore it if reverting to `ubuntu-latest`.                                                                                                                                                                                                                         |
+| Network access to GitHub                                         | `up.sh` clones `PlaceOS/www-core` into the `www` volume once — that is where the platform `/login` page comes from.                                                                                                                                                                                                                                                                             |
+| Network access to the build farm                                 | core fetches driver binaries from build.placeos.run and the S3 bucket it hands out links to. A commit the farm has not built for the runner's architecture is compiled there on the first run that asks. The binaries stay in the `placeos-e2e-core-drivers` volume between runs, so later runs do not ask again.                                                                               |
+| Network access to Docker Hub, every run                          | `up.sh --pull-only` runs first as its own step, bounded to 20 minutes and advisory, so `latest` tracks the registry rather than the day the runner was set up. Each image pulls on its own; one that fails or stalls leaves the stack on the image already present, and "Record backend inputs" shows which. `SELF_HOSTED_RUNNER.md` lists the hosts.                                           |
 
 ## Booking specs: what the backend actually does
 
@@ -371,7 +372,7 @@ failure that looked like something else entirely.
   model field and appears in the controller's `PARAMS`, which makes the source
   misleading; the request 422s with `missing required parameter 'type'`.
 - **Desks come from Zone METADATA, not systems** — `metadata.desks.details[]` on
-  a *level* zone. `groups: []` leaves them unrestricted; a populated `groups`
+  a _level_ zone. `groups: []` leaves them unrestricted; a populated `groups`
   gates them behind membership.
 - **A desk is exclusive for its time range.** Each worker books its own desk, and
   each spec **sweeps that desk before booking** (`releaseAsset`). A post-test

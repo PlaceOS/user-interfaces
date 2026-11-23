@@ -11,10 +11,11 @@ import { getUnixTime } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
+import { type StubApi, startStubApi } from '@placeos/common/tests';
 import { EnrolmentStateService } from '../app/enrolment-state.service';
 import { EnrolmentComponent } from '../app/enrolment.component';
 
+// A stub API answers the requests of the state service
 vi.mock('@placeos/ts-client', { spy: true });
 
 /** Token shaped the way `handleUserToken` expects: `u.e` guest, `u.r[0]` event */
@@ -44,6 +45,7 @@ function param_map(params: Record<string, string>): unknown {
 describe('EnrolmentComponent', () => {
     let spectator: Spectator<EnrolmentComponent>;
     let state: EnrolmentStateService;
+    let api: StubApi;
     let params: BehaviorSubject<unknown>;
     let query_params: BehaviorSubject<unknown>;
     const theme = signal('light');
@@ -81,9 +83,9 @@ describe('EnrolmentComponent', () => {
         settingSignal('logo_light').set('assets/logo-light.svg');
         params = new BehaviorSubject(param_map({}));
         query_params = new BehaviorSubject(param_map({}));
-        (ts_client.get as any).mockReset();
-        (ts_client.get as any).mockResolvedValue({});
-        (ts_client.setToken as any).mockReset();
+        api = startStubApi();
+        api.on('GET', '/api/staff/v1/guests/:id', () => ({}));
+        api.on('GET', '/api/staff/v1/events/:id', () => ({}));
         spectator = createComponent();
         state = spectator.inject(EnrolmentStateService);
         spectator.detectChanges();
@@ -92,6 +94,7 @@ describe('EnrolmentComponent', () => {
     afterEach(() => {
         vi.useRealTimers();
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
 
     it('should show a loading message while details are being fetched', () => {
@@ -128,11 +131,14 @@ describe('EnrolmentComponent', () => {
 
         it('should give the meeting time on the complete view once the meeting loads', async () => {
             const start = getUnixTime(Date.now()) + 3600;
-            (ts_client.get as any).mockImplementation(async (url: string) =>
-                url.includes('/guests/')
-                    ? { id: 'guest@example.com', email: 'guest@example.com' }
-                    : { id: 'event-1', event_start: start },
-            );
+            api.on('GET', '/api/staff/v1/guests/:id', () => ({
+                id: 'guest@example.com',
+                email: 'guest@example.com',
+            }));
+            api.on('GET', '/api/staff/v1/events/:id', () => ({
+                id: 'event-1',
+                event_start: start,
+            }));
             state.setView('complete');
             query_params.next(param_map({ uid: userToken() }));
             for (let i = 0; i < 4; i++) {
@@ -178,7 +184,10 @@ describe('EnrolmentComponent', () => {
         it('should authenticate with the uid query parameter', () => {
             const token = userToken();
             query_params.next(param_map({ uid: token }));
-            expect(ts_client.setToken).toHaveBeenCalledWith(token);
+            expect(api.fake.session.useToken).toHaveBeenCalledWith(
+                token,
+                expect.any(Number),
+            );
         });
 
         it('should error when no uid arrives in time', () => {

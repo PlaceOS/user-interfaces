@@ -12,7 +12,7 @@ import {
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia, SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist, type PlaylistItem } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { FileDropDirective } from '../shared/file-drop.directive';
 import { IntersectDirective } from '../shared/intersect.directive';
@@ -247,8 +247,8 @@ export class PlaylistSidebarComponent {
     }
 
     public async onDrop(
-        playlist: SignagePlaylist,
-        event: CdkDragDrop<SignagePlaylist, SignageMedia[]>,
+        playlist: Playlist,
+        event: CdkDragDrop<Playlist, PlaylistItem[]>,
     ) {
         const media = event.previousContainer.data[event.previousIndex];
         if (!playlist?.id || !media?.id) return;
@@ -260,11 +260,11 @@ export class PlaylistSidebarComponent {
     }
 
     /** Upload files dropped on a playlist, then add them to it */
-    public async uploadFiles(playlist: SignagePlaylist, files: File[]) {
+    public async uploadFiles(playlist: Playlist, files: File[]) {
         await this._media_service.uploadFilesToPlaylist(playlist.id, files);
     }
 
-    public getStatus(playlist: SignagePlaylist) {
+    public getStatus(playlist: Playlist) {
         return playlistStatus(
             playlist,
             this.playlist_approval_status(),

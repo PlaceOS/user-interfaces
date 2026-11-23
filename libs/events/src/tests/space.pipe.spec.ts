@@ -4,6 +4,7 @@ import { SpacePipe, updateSpaceList } from '../lib/space.pipe';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
 
 describe('SpacePipe', () => {
     let pipe: SpacePipe;
@@ -20,45 +21,59 @@ describe('SpacePipe', () => {
     });
 
     it('should load spaces by ID from the API and cache them', async () => {
-        (ts_client.showSystem as any).mockResolvedValue({
-            id: 'sys-by-id',
-            name: 'System 1',
-            zones: [],
-        });
+        (ts_client.systems.show as any).mockResolvedValue(
+            mockReply({
+                id: 'sys-by-id',
+                name: 'System 1',
+                zones: [],
+            }),
+        );
         const space = await pipe.transform('sys-by-id');
         expect(space.id).toBe('sys-by-id');
-        expect(ts_client.showSystem).toHaveBeenCalledWith('sys-by-id');
+        expect(ts_client.systems.show).toHaveBeenCalledWith({
+            sys_id: 'sys-by-id',
+        });
         const cached = await pipe.transform('sys-by-id');
         expect(cached).toBe(space);
-        expect(ts_client.showSystem).toHaveBeenCalledTimes(1);
+        expect(ts_client.systems.show).toHaveBeenCalledTimes(1);
     });
 
     it('should load spaces by email using a system query', async () => {
-        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [{ id: 'sys-by-email', email: 'room@place.tech', zones: [] }],
-        });
+        (ts_client.systems.findByEmail as any).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'sys-by-email', email: 'room@place.tech', zones: [] },
+                ],
+            }),
+        );
         const space = await pipe.transform('room@place.tech');
         expect(space.id).toBe('sys-by-email');
-        expect(ts_client.showSystem).not.toHaveBeenCalled();
-        expect(ts_client.querySystemsWithEmails).toHaveBeenCalledWith({
-            in: 'room@place.tech',
+        expect(ts_client.systems.show).not.toHaveBeenCalled();
+        expect(ts_client.systems.findByEmail).toHaveBeenCalledWith({
+            in: ['room@place.tech'],
         });
     });
 
     it('should return an empty space when no unique match is found', async () => {
-        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [{ id: '1' }, { id: '2' }],
-        });
+        (ts_client.systems.findByEmail as any).mockResolvedValue(
+            mockPage({
+                data: [{ id: '1' }, { id: '2' }],
+            }),
+        );
         const space = await pipe.transform('shared@place.tech');
         expect(space.email).toBe('empty.space@place.os');
     });
 
     it('should share concurrent API requests for the same space', async () => {
         let finish_request!: (system: any) => void;
-        (ts_client.showSystem as any).mockReturnValue(
-            new Promise((resolve) => {
-                finish_request = resolve;
-            }),
+        (ts_client.systems.show as any).mockImplementation(
+            fromV1Mock(
+                () =>
+                    new Promise((resolve) => {
+                        finish_request = resolve;
+                    }),
+                ['sys_id', '...'],
+            ),
         );
 
         const first = pipe.transform('sys-concurrent');
@@ -67,43 +82,49 @@ describe('SpacePipe', () => {
 
         expect((await first).id).toBe('sys-concurrent');
         expect((await second).id).toBe('sys-concurrent');
-        expect(ts_client.showSystem).toHaveBeenCalledTimes(1);
+        expect(ts_client.systems.show).toHaveBeenCalledTimes(1);
     });
 
     it('should briefly cache an unsuccessful lookup', async () => {
-        (ts_client.showSystem as any).mockRejectedValue('404');
-        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [],
-        });
+        (ts_client.systems.show as any).mockRejectedValue('404');
+        (ts_client.systems.findByEmail as any).mockResolvedValue(
+            mockPage({
+                data: [],
+            }),
+        );
 
         await pipe.transform('sys-not-found');
         await pipe.transform('sys-not-found');
 
-        expect(ts_client.showSystem).toHaveBeenCalledTimes(1);
-        expect(ts_client.querySystemsWithEmails).toHaveBeenCalledTimes(1);
+        expect(ts_client.systems.show).toHaveBeenCalledTimes(1);
+        expect(ts_client.systems.findByEmail).toHaveBeenCalledTimes(1);
     });
 
     it('should query a failed lookup again once its retry time passes', async () => {
         const now = Date.now();
         const clock = vi.spyOn(Date, 'now').mockReturnValue(now);
-        (ts_client.showSystem as any).mockRejectedValue('404');
-        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [],
-        });
+        (ts_client.systems.show as any).mockRejectedValue('404');
+        (ts_client.systems.findByEmail as any).mockResolvedValue(
+            mockPage({
+                data: [],
+            }),
+        );
 
         await pipe.transform('sys-retry');
         clock.mockReturnValue(now + 30 * 1000 + 1);
         await pipe.transform('sys-retry');
 
-        expect(ts_client.showSystem).toHaveBeenCalledTimes(2);
+        expect(ts_client.systems.show).toHaveBeenCalledTimes(2);
         clock.mockRestore();
     });
 
     it('should fallback to an email query when the ID lookup fails', async () => {
-        (ts_client.showSystem as any).mockRejectedValue('404');
-        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [{ id: 'sys-fallback', zones: [] }],
-        });
+        (ts_client.systems.show as any).mockRejectedValue('404');
+        (ts_client.systems.findByEmail as any).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'sys-fallback', zones: [] }],
+            }),
+        );
         const space = await pipe.transform('missing-id');
         expect(space.id).toBe('sys-fallback');
     });
@@ -112,7 +133,7 @@ describe('SpacePipe', () => {
         updateSpaceList([new Space({ id: 'sys-local' })]);
         const space = await pipe.transform('sys-local');
         expect(space.id).toBe('sys-local');
-        expect(ts_client.showSystem).not.toHaveBeenCalled();
+        expect(ts_client.systems.show).not.toHaveBeenCalled();
         expect(pipe.get('sys-local').id).toBe('sys-local');
     });
 
