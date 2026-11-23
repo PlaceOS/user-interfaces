@@ -4,21 +4,21 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-TMKG2OAA.js";
+} from "./chunk-JYD4YD4B.js";
 import {
   subMinutes
-} from "./chunk-ZMZTOWBM.js";
+} from "./chunk-23TTAQRB.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-I7C2DACF.js";
+} from "./chunk-IQVD3K54.js";
 import {
   AnnounceDirective
-} from "./chunk-HVTVD3Q7.js";
+} from "./chunk-IEAI3THW.js";
 import {
   TranslatePipe
-} from "./chunk-SXP2OCTU.js";
+} from "./chunk-LFU7IZ4U.js";
 import "./chunk-PGER6XBG.js";
 import {
   LazySentryErrorHandler,
@@ -43,7 +43,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-RHSIQGC5.js";
+} from "./chunk-JHSYZZGU.js";
 import {
   AsyncHandler,
   Bp,
@@ -78,7 +78,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-A6AOC7R7.js";
+} from "./chunk-UMQQCXUS.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
@@ -10131,7 +10131,7 @@ var PaymentsModule = class {
       Object.assign(existing, input, { updated_at: now2() });
       return existing;
     }
-    const item = product(__spreadProps(__spreadValues({}, input), { id: void 0 }));
+    const item = product(__spreadProps(__spreadValues({}, input), { id: `prod-${randomString(8)}` }));
     this._products.push(item);
     return item;
   }
@@ -11045,11 +11045,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-T7JHED33.js").then((m) => m.ChatComponent)
+  import("./chat.component-CFW723UM.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-4TE57CKU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-ZJVCCCJP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11114,9 +11114,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-T7JHED33.js").then((m) => m.ChatComponent),
+    import("./chat.component-CFW723UM.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-4TE57CKU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-ZJVCCCJP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11167,22 +11167,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-66AZIA7A.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-N7FWJKRN.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-QLP6WQKK.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-4Z2XWCEI.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-FY5DVKMT.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-RG6KAHX5.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-X7GD4NHK.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-VMBEEDVU.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11214,5 +11214,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=c12b71f3-f6e0-5f2b-a90a-bcb451f0a82b
+//# debugId=54401c23-948a-53fe-8209-667dd30db17c
 //# sourceMappingURL=main.js.map

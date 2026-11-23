@@ -36,13 +36,13 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-I7C2DACF.js";
+} from "./chunk-IQVD3K54.js";
 import {
   AnnounceDirective
-} from "./chunk-HVTVD3Q7.js";
+} from "./chunk-IEAI3THW.js";
 import {
   TranslatePipe
-} from "./chunk-SXP2OCTU.js";
+} from "./chunk-LFU7IZ4U.js";
 import {
   FormField,
   disabled,
@@ -55,7 +55,7 @@ import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-RHSIQGC5.js";
+} from "./chunk-JHSYZZGU.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -155,7 +155,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-A6AOC7R7.js";
+} from "./chunk-UMQQCXUS.js";
 import {
   IconComponent,
   SafePipe
@@ -7461,6 +7461,16 @@ var _PaymentsService = class _PaymentsService {
     return this.call("cancel_payment", payment.id);
   }
   /**
+   * Release the payment of a booking that did not save. When the release
+   * fails, shows the payment ID, so the user can ask support to release it
+   */
+  async release(payment) {
+    await this.cancel(payment).catch((e) => notifyError(i18n("PAYMENTS.RELEASE_FAILED", {
+      id: payment.id,
+      error: errorMessage(e) || e
+    })));
+  }
+  /**
    * Open the hosted page to add a payment method. Resolves when the user
    * closes the page. Throws when the browser blocks the window.
    */
@@ -9533,7 +9543,7 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       return created_event;
     } catch (e) {
       if (payment)
-        await this._payments.cancel(payment).catch(() => null);
+        await this._payments.release(payment);
       this.removeLoadingTag(Tags.PostBooking);
       if (isPermissionError(e))
         this._clearSavedHostChange();
@@ -13419,5 +13429,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=67283ac5-aafb-59d8-ae15-323e24412814
-//# sourceMappingURL=chunk-WSTGXNND.js.map
+//# debugId=7cd45496-9fad-5d32-9ad9-2c6ab2effba6
+//# sourceMappingURL=chunk-JUXEBPIL.js.map
