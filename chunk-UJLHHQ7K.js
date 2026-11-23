@@ -1,9 +1,9 @@
 import {
   UniqueSelectionDispatcher
-} from "./chunk-C22CVBYM.js";
+} from "./chunk-FG4Q47PU.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-ELXMAXIB.js";
+} from "./chunk-UO26CCHC.js";
 import {
   _MatInternalFormField
 } from "./chunk-FUZAUKV6.js";
@@ -12,7 +12,7 @@ import {
   parentBookingId,
   queryBookings,
   removeBooking
-} from "./chunk-QO6YYJZP.js";
+} from "./chunk-X4YWO65A.js";
 import {
   AssetRequest,
   Booking,
@@ -29,7 +29,7 @@ import {
   orThrowPage,
   startOfDay,
   unique
-} from "./chunk-NGCKLMOI.js";
+} from "./chunk-TEWKAHHL.js";
 import {
   MatRipple,
   MatRippleModule,
@@ -1641,8 +1641,22 @@ function filter_hidden_items(response) {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
+var PAGE_LIMIT = 500;
+var MAX_PAGES = 100;
+async function loadAllPages(first) {
+  let response = first;
+  const data = [...response.data];
+  for (let page = 1; page < MAX_PAGES; page++) {
+    const next = response.next?.();
+    if (!next)
+      break;
+    response = await next;
+    data.push(...response.data);
+  }
+  return { total: response.total, next: () => null, data };
+}
 async function visible_category_ids() {
-  const response = await asset_categories_exports.query({}).then(orThrowPage);
+  const response = await loadAllPages(await asset_categories_exports.query({ limit: PAGE_LIMIT }).then(orThrowPage));
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query = {}) {
@@ -1668,22 +1682,8 @@ function saveAssetCategory(category) {
   return category.id ? asset_categories_exports.update({ id: category.id, body }).then(orThrow) : asset_categories_exports.create({ body }).then(orThrow);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
-var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query = {}) {
-  let response = await assets_exports.query(__spreadProps(__spreadValues({}, query), { limit: query.limit || 500 })).then(orThrowPage);
-  let total = response.total;
-  const data = [...response.data];
-  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
-    if (typeof response.next !== "function")
-      break;
-    const next = response.next();
-    if (!next)
-      break;
-    response = await next;
-    total = response.total;
-    data.push(...response.data);
-  }
-  return { total, next: () => null, data };
+  return loadAllPages(await assets_exports.query(__spreadProps(__spreadValues({}, query), { limit: query.limit || PAGE_LIMIT })).then(orThrowPage));
 }
 async function queryAssetGroupsExtended(query = {}) {
   const cache_key = JSON.stringify({
@@ -1873,5 +1873,5 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# debugId=df8cedba-3cba-556d-82d1-024f157f6989
-//# sourceMappingURL=chunk-35BKPGLF.js.map
+//# debugId=daedb6fc-efd3-5059-87e5-bfa26b1c406c
+//# sourceMappingURL=chunk-UJLHHQ7K.js.map

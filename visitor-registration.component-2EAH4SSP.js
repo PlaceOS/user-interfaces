@@ -1,6 +1,6 @@
 import {
   minuteClock
-} from "./chunk-U4DMULHR.js";
+} from "./chunk-WIRCW4RR.js";
 import {
   PageHeadingDirective
 } from "./chunk-D7UGMEVZ.js";
@@ -8,24 +8,24 @@ import {
   BookingFormService,
   DurationFieldComponent,
   UserSearchFieldComponent
-} from "./chunk-UWGZC74Z.js";
+} from "./chunk-24WBKYHF.js";
 import {
   MatCheckbox,
   MatCheckboxModule
-} from "./chunk-35BKPGLF.js";
+} from "./chunk-UJLHHQ7K.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
 } from "./chunk-CG6UIGGT.js";
-import "./chunk-C22CVBYM.js";
+import "./chunk-FG4Q47PU.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-ELXMAXIB.js";
+} from "./chunk-UO26CCHC.js";
 import "./chunk-DXZYEEFH.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-6H4KT6E7.js";
+} from "./chunk-YY7Y5OSD.js";
 import {
   MatError,
   MatFormField,
@@ -35,20 +35,20 @@ import "./chunk-AMR42YE5.js";
 import "./chunk-FUZAUKV6.js";
 import {
   CheckinStateService
-} from "./chunk-UQXS25KZ.js";
-import "./chunk-MRTWT2ND.js";
+} from "./chunk-PJ3RKJDR.js";
+import "./chunk-QOU4CNFV.js";
 import {
   AnnounceDirective
-} from "./chunk-QO6YYJZP.js";
+} from "./chunk-X4YWO65A.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-OUZQZX5A.js";
+} from "./chunk-DOJPIVHN.js";
 import {
   TranslatePipe
-} from "./chunk-KJH3I6VF.js";
+} from "./chunk-UOKYCVYJ.js";
 import {
   FormField
-} from "./chunk-7O54AWXX.js";
+} from "./chunk-X7G4CAYT.js";
 import {
   IconComponent
 } from "./chunk-3RSZXOUT.js";
@@ -66,7 +66,7 @@ import {
   notifyError,
   settingSignal,
   unique
-} from "./chunk-NGCKLMOI.js";
+} from "./chunk-TEWKAHHL.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -780,4 +780,4 @@ export {
   VisitorRegistrationComponent
 };
 //# debugId=981d1f45-3307-50c9-b068-72f368b45414
-//# sourceMappingURL=visitor-registration.component-SJMMKCNA.js.map
+//# sourceMappingURL=visitor-registration.component-2EAH4SSP.js.map
