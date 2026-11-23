@@ -1,0 +1,4 @@
+import{Jn as at,Rt as Qt,T as EU,Wi as y,ln as Us}from"./chunk-B1UtBMFU.js";var h=(()=>{class t{constructor(){this.pulseOnChange=EU.required(),this._element=y(Qt);let n=!0;Us(()=>{if(this.pulseOnChange(),n){n=!1;return}let e=this._element.nativeElement;e.classList.remove(`motion-pulse`),e.offsetWidth,e.classList.add(`motion-pulse`)})}static{this.ɵfac=function(e){return new(e||t)}}static{this.ɵdir=at({type:t,selectors:[[``,`pulseOnChange`,``]],inputs:{pulseOnChange:[1,`pulseOnChange`]}})}}return t})();export{h as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="ef2f5991-a92c-5aa4-a837-49aed6046748")}catch(e){}}();
+//# debugId=ef2f5991-a92c-5aa4-a837-49aed6046748
+//# sourceMappingURL=chunk-Bc1OqW422.js.map
