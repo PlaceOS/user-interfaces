@@ -5,10 +5,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-DOIQZOFG.js";
+} from "./chunk-HIPY2PV7.js";
 import {
   TranslatePipe
-} from "./chunk-FFNA2NUB.js";
+} from "./chunk-5MH6IHPU.js";
 import "./chunk-4GX44OJ2.js";
 import {
   LazySentryErrorHandler,
@@ -35,7 +35,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-UTZADVP5.js";
+} from "./chunk-TK4GM32A.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -71,7 +71,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-QDSISI5O.js";
+} from "./chunk-7YZJYMV2.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
@@ -5559,19 +5559,19 @@ function registerMockCalendars() {
     });
     return spaces;
   };
+  const roomCalendar = (space) => ({
+    id: space.email,
+    system: space
+  });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/availability",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/free_busy",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/:email/permission",
@@ -11000,11 +11000,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-RUE53OGN.js").then((m) => m.ChatComponent)
+  import("./chat.component-QD2MKHJ3.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-LMZCI5VT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7BQTMGLQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11069,9 +11069,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-RUE53OGN.js").then((m) => m.ChatComponent),
+    import("./chat.component-QD2MKHJ3.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-LMZCI5VT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7BQTMGLQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11119,7 +11119,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-HUW5QTHJ.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-PMR7TW3R.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -11158,5 +11158,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=3c2e99ae-10d4-54b9-b4ed-b0cc7e085843
+//# debugId=a02190c3-de0e-58a5-919d-ae1b0e1da075
 //# sourceMappingURL=main.js.map
