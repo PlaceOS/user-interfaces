@@ -1,7 +1,8 @@
 /**
  * Feature pages that the top menu and the footer menu link to, in top menu
  * order. `id` is the app feature that shows the item and `name` is a locale
- * key. `footer_icon` replaces `icon` in the footer menu.
+ * key. `footer_icon` replaces `icon` in the footer menu. The `payments` item
+ * also needs a payment driver on the building.
  */
 export const FEATURE_MENU_ITEMS = [
     {
@@ -71,6 +72,12 @@ export const FEATURE_MENU_ITEMS = [
         route: '/deals-n-offers',
         icon: 'confirmation_number',
         name: 'APP.WORKPLACE.MENU_DEALS',
+    },
+    {
+        id: 'payments',
+        route: '/payments',
+        icon: 'payments',
+        name: 'APP.WORKPLACE.MENU_PAYMENTS',
     },
     {
         id: 'team-schedule',

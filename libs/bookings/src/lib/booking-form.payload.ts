@@ -62,11 +62,8 @@ export function buildBookingExtensionData(
     const type = value.booking_type;
     return {
         ...formExtensionData(value.extension_data),
-        ...(value.extension_data?.invoice
-            ? {
-                  invoice: value.extension_data.invoice,
-                  invoice_id: value.extension_data.invoice_id,
-              }
+        ...(value.extension_data?.payment_id
+            ? { payment_id: value.extension_data.payment_id }
             : {}),
         // `group` is a getter on `Booking`, so the constructor skips the
         // top-level form value — it has to be set into `extension_data` here.

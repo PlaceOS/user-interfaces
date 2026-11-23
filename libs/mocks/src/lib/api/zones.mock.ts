@@ -7,6 +7,7 @@ import {
     registerMockEndpoint,
 } from '../session';
 import { MOCK_MENU } from './catering.data';
+import { mockPaymentsEnabled } from './payments.data';
 import { MOCK_SPACES } from './spaces.data';
 import { MOCK_STAFF } from './users.data';
 import {
@@ -220,7 +221,10 @@ export function registerMockZones() {
                         contact_tracing: system_id,
                         lockers: system_id,
                         remote_debug: REMOTE_DEBUG_MOCK_SYSTEM,
-                        // payments: system_id,
+                        // Opt in, so that mock booking flows do not ask for payment
+                        ...(mockPaymentsEnabled()
+                            ? { payments: system_id }
+                            : {}),
                     },
                 },
             };

@@ -262,7 +262,12 @@ export class NewDeskFlowConfirmComponent
     public readonly loading = this._state.loading;
     public readonly is_group = computed(() => this._state.options().group);
 
+    /** Set before the first wait, so a second click does not book twice */
+    public readonly submitting = signal(false);
+
     public readonly postForm = async () => {
+        if (this.submitting()) return;
+        this.submitting.set(true);
         try {
             if (this._state.options()?.group) {
                 const booking = new Booking(this._state.model() as any);
@@ -283,6 +288,8 @@ export class NewDeskFlowConfirmComponent
             notifyError(
                 errorMessage(e) || i18n(`BOOKINGS.DESK_AVAILABLE_ERROR`),
             );
+        } finally {
+            this.submitting.set(false);
         }
     };
     public readonly dismiss = (e?) => this._sheet_ref?.dismiss(e);

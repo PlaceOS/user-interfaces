@@ -8,6 +8,7 @@ import {
     startOfDay,
 } from 'date-fns';
 import { mockEventCatering } from './catering.data';
+import { mockLinkedPaymentId } from './payments.data';
 import { MOCK_SPACES } from './spaces.data';
 import { ACTIVE_USER, MOCK_STAFF } from './users.data';
 
@@ -502,6 +503,8 @@ export const MOCK_EVENTS = (() => {
         if (seen.has(event.id)) return false;
         seen.add(event.id);
         event.extension_data.catering = mockEventCatering(event);
+        const payment_id = mockLinkedPaymentId('event', event.id, seen.size);
+        if (payment_id) event.extension_data.payment_id = payment_id;
         return true;
     });
 
