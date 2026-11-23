@@ -15,14 +15,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-BY5WRWI6.js";
+} from "./chunk-SKJTBSUU.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-NWLYK35O.js";
+} from "./chunk-NEDT2QV6.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-JIER72EP.js";
+} from "./chunk-ZKKX2HXH.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-GC6CMDPY.js";
+} from "./chunk-OB7LECWV.js";
 import {
   TranslatePipe
-} from "./chunk-3LFNGRNO.js";
+} from "./chunk-UVCLQN6S.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-DAIRTHYZ.js";
+} from "./chunk-36F5T4WX.js";
 import {
   $,
   AssetRequest,
@@ -180,7 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-7M76WHQB.js";
+} from "./chunk-6Y253CJJ.js";
 import {
   BasePortalOutlet,
   CdkConnectedOverlay,
@@ -16349,14 +16349,15 @@ var PaymentsService = class _PaymentsService {
     return this.call("cancel_payment", payment.id);
   }
   /**
-   * Release the payment of a booking that did not save. When the release
-   * fails, shows the payment ID, so the user can ask support to release it
+   * Release the payment of a booking that did not save. Resolves with the
+   * error to show: `error`, or when the release also fails, a message with
+   * the payment ID, so the user can ask support to release the payment
    */
-  async release(payment) {
-    await this.cancel(payment).catch((e) => notifyError(i18n("PAYMENTS.RELEASE_FAILED", {
+  release(payment, error) {
+    return this.cancel(payment).then(() => error, (e) => i18n("PAYMENTS.RELEASE_FAILED", {
       id: payment.id,
       error: errorMessage(e) || e
-    })));
+    }));
   }
   /**
    * Open the hosted page to add a payment method. Resolves when the user
@@ -17586,15 +17587,12 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       zones
     })).toJSON(), q).catch(async (e) => {
       if (payment)
-        await this._payments.release(payment);
+        e = await this._payments.release(payment, e);
       return this._saveFailure(e);
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
       await this._saveAssetRequests(result, value, booking, zones).catch(async (e) => {
-        if (payment) {
-          await this._payments.release(payment);
-        }
-        throw e;
+        throw payment ? await this._payments.release(payment, e) : e;
       });
     }
     if (payment)
@@ -21608,12 +21606,11 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       this.last_success.set(created_event);
       return created_event;
     } catch (e) {
-      if (payment)
-        await this._payments.release(payment);
+      const error = payment ? await this._payments.release(payment, e) : e;
       this.removeLoadingTag(Tags.PostBooking);
       if (isPermissionError(e))
         this._clearSavedHostChange();
-      throw e;
+      throw error;
     }
   }
   /**
@@ -27844,5 +27841,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=fc1ef440-3ff1-581a-b8a0-deec73c51202
-//# sourceMappingURL=calendar-pane.component-EBIHGGGM.js.map
+//# debugId=948b42ae-7109-541d-aa18-589385df4ee9
+//# sourceMappingURL=calendar-pane.component-Q63T7VMD.js.map
