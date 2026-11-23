@@ -183,6 +183,7 @@ type DetailsView = 'details' | 'invoice' | 'refund';
                                 type="number"
                                 min="0"
                                 [max]="refundable_major()"
+                                [disabled]="refund_unsettled()"
                                 [(ngModel)]="refund_amount"
                             />
                         </mat-form-field>
@@ -190,7 +191,11 @@ type DetailsView = 'details' | 'invoice' | 'refund';
                             <mat-label>{{
                                 'PAYMENTS.REFUND_REASON' | translate
                             }}</mat-label>
-                            <input matInput [(ngModel)]="refund_reason" />
+                            <input
+                                matInput
+                                [disabled]="refund_unsettled()"
+                                [(ngModel)]="refund_reason"
+                            />
                         </mat-form-field>
                     </main>
                     <footer
@@ -463,11 +468,13 @@ export class PaymentDetailsModalComponent implements OnInit {
     public readonly refund_amount = signal<number | null>(null);
     public readonly refund_reason = signal('');
     /**
-     * ID of the last refund request of the open refund view, with its amount
-     * and reason. A retry with the same values sends the same ID, so the
-     * driver does not refund twice when a response is lost
+     * Whether a refund request failed and its result is not known, e.g. its
+     * response was lost. The amount and the reason stay fixed, so a retry
+     * sends the same request with the same ID and the driver refunds once
      */
-    private _refund: { key: string; id: string } | null = null;
+    public readonly refund_unsettled = signal(false);
+    /** ID of the refund of the open refund view */
+    private _refund_id = '';
 
     /** Amount that is not refunded yet, in the minor unit */
     public readonly refundable = computed(
@@ -624,21 +631,35 @@ export class PaymentDetailsModalComponent implements OnInit {
         });
     }
 
-    /** Show the refund view, for a new refund */
-    public openRefund() {
-        this._refund = null;
+    /**
+     * Show the refund view, for a new refund. After a failed request, loads
+     * the payment first, as that request can still have refunded it
+     */
+    public async openRefund() {
+        if (this.refund_unsettled()) {
+            const latest = await this._payments
+                .call('get_payment', this.payment().id)
+                .catch((e) => {
+                    notifyError(
+                        i18n('PAYMENTS.LOAD_ERROR', {
+                            error: errorMessage(e) || e,
+                        }),
+                    );
+                    return null;
+                });
+            if (!latest) return;
+            this.payment.set(latest);
+            this.refund_unsettled.set(false);
+            if (!this.can_refund()) return;
+        }
+        this._refund_id = crypto.randomUUID();
         this.view.set('refund');
     }
 
     public async refund() {
         if (!this.valid_refund()) return;
         const amount = this.refund_amount();
-        // Changed values are a new refund, so they get a new ID
-        const key = JSON.stringify([amount, this.refund_reason()]);
-        if (this._refund?.key !== key) {
-            this._refund = { key, id: crypto.randomUUID() };
-        }
-        const request_id = this._refund.id;
+        this.refund_unsettled.set(true);
         await this._run('PAYMENTS.REFUNDING', async () => {
             this.payment.set(
                 await this._payments.call(
@@ -648,9 +669,10 @@ export class PaymentDetailsModalComponent implements OnInit {
                         ? null
                         : toMinorUnits(amount, this.payment().currency),
                     this.refund_reason(),
-                    request_id,
+                    this._refund_id,
                 ),
             );
+            this.refund_unsettled.set(false);
             notifySuccess(i18n('PAYMENTS.REFUND_SUCCESS'));
         });
     }

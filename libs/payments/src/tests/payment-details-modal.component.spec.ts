@@ -69,37 +69,52 @@ describe('PaymentDetailsModalComponent', () => {
         driver = { list_invoices: vi.fn(() => ({ items: [] })) };
     });
 
-    it('sends the same refund ID on a retry, and a new ID for changed values or a new refund', async () => {
+    it('keeps a failed refund fixed for a retry, and loads the payment before a new refund', async () => {
         capabilities.push('refunds');
         data = { payment: payment() };
+        const partly_refunded = payment({
+            status: 'partially_refunded',
+            amount_refunded: 500,
+        });
         driver.refund_payment = vi
             .fn()
             .mockRejectedValueOnce('Timeout')
             .mockRejectedValueOnce('Timeout')
-            .mockReturnValue(
-                payment({ status: 'partially_refunded', amount_refunded: 500 }),
-            );
+            .mockReturnValue(partly_refunded);
+        driver.get_payment = vi.fn(() => partly_refunded);
         spectator = createComponent();
         spectator.detectChanges();
-        const submit = async () => {
-            spectator.click('button[name="submit-refund"]');
+        const settle = async () => {
             await new Promise((resolve) => setTimeout(resolve));
             spectator.detectChanges();
         };
+        const submit = async () => {
+            spectator.click('button[name="submit-refund"]');
+            await settle();
+        };
+        const amountInput = () =>
+            spectator.query<HTMLInputElement>('input[type="number"]');
 
         spectator.click('button[name="refund"]');
+        await settle();
         await submit();
+        await settle();
+        expect(amountInput()?.disabled).toBe(true);
         await submit();
-        spectator.component.refund_amount.set(5);
-        await submit();
+        // Staff go back, then start a new refund
+        spectator.component.view.set('details');
+        spectator.detectChanges();
         spectator.click('button[name="refund"]');
+        await settle();
+        await settle();
+        expect(driver.get_payment).toHaveBeenCalledWith('pay-1');
+        expect(amountInput()?.disabled).toBe(false);
         await submit();
 
         const ids = driver.refund_payment.mock.calls.map((args) => args[3]);
         expect(ids[0]).toEqual(expect.any(String));
         expect(ids[1]).toBe(ids[0]);
-        expect(ids[2]).not.toBe(ids[1]);
-        expect(ids[3]).not.toBe(ids[2]);
+        expect(ids[2]).not.toBe(ids[0]);
     });
 
     it('lets staff take an authorized payment for the event of the row', async () => {
