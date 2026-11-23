@@ -1,33 +1,36 @@
 import {
-  generateMockSpace
-} from "./chunk-54XCFDXA.js";
-import {
-  MatDialog,
-  setHours
-} from "./chunk-267XANPB.js";
-import {
   parseTokenFromUrl
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-SBAUCHEZ.js";
+} from "./chunk-67W5M4TH.js";
+import {
+  generateMockSpace
+} from "./chunk-IMW72OLU.js";
+import {
+  MatDialog,
+  setHours
+} from "./chunk-TSJAQGSR.js";
 import {
   AnnounceDirective,
   subDays
-} from "./chunk-B3NR4UID.js";
+} from "./chunk-LYY6LI4O.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-AJFTDLQO.js";
-import "./chunk-5NEMJIU3.js";
+} from "./chunk-ARKQHIIV.js";
 import {
   TranslatePipe
-} from "./chunk-JE3WMYHS.js";
+} from "./chunk-PAVWC7JW.js";
+import "./chunk-6H27II2G.js";
 import {
   IconComponent
-} from "./chunk-V7GD6JRX.js";
+} from "./chunk-3RSZXOUT.js";
 import {
+  LazySentryErrorHandler,
+  MAX_REMOTE_DEBUG_COMMANDS,
   OrganisationService,
   PlaceOS_Service,
+  REMOTE_DEBUG_MODULE,
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   autoConfirmNativeDomain,
@@ -35,23 +38,27 @@ import {
   getLoadingMessage,
   initialisationComplete,
   initialisationFailure,
+  isRemoteDebugCommand,
+  isRemoteLogRequest,
   nativeDomainError,
   needsNativeDomain,
   provideServiceWorker,
   registerActiveLocale,
   reloadOnChunkLoadError,
+  remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
   remoteSetupCommandBinding,
   retryInitialisation,
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-KX7G555Y.js";
+} from "./chunk-BZ6GV4CD.js";
 import {
   AsyncHandler,
   Bp,
   GroupPermission,
   J,
-  LazySentryErrorHandler,
   LocaleService,
   Mt,
   Or,
@@ -82,12 +89,12 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-CKRQJIYL.js";
-import "./chunk-SSYVESFM.js";
+} from "./chunk-4S2FSM44.js";
+import "./chunk-WWD2MK5Z.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-T6A6AC5A.js";
+} from "./chunk-ZMX7GYSU.js";
 import {
   NavigationEnd,
   Router,
@@ -97,7 +104,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withViewTransitions
-} from "./chunk-D4OZLUFK.js";
+} from "./chunk-KCFNTXS3.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -168,12 +175,13 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-24GSTF4E.js";
+} from "./chunk-SQTB4YLR.js";
 import {
   __objRest,
+  __restKey,
   __spreadProps,
   __spreadValues
-} from "./chunk-653SOEEV.js";
+} from "./chunk-RQBZITXC.js";
 
 // node_modules/date-fns/setMinutes.js
 function setMinutes(date, minutes, options) {
@@ -778,7 +786,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-AR6SCQN7.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-3Y65WJIA.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -906,7 +914,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-AR6SCQN7.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-3Y65WJIA.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -4912,13 +4920,13 @@ var MOCK_EVENTS = (() => {
       });
     }
   }
-  const seen = /* @__PURE__ */ new Set();
+  const seen2 = /* @__PURE__ */ new Set();
   const uniqueEvents = events.filter((event) => {
-    if (seen.has(event.id))
+    if (seen2.has(event.id))
       return false;
-    seen.add(event.id);
+    seen2.add(event.id);
     event.extension_data.catering = mockEventCatering(event);
-    const payment_id = mockLinkedPaymentId("event", event.id, seen.size);
+    const payment_id = mockLinkedPaymentId("event", event.id, seen2.size);
     if (payment_id)
       event.extension_data.payment_id = payment_id;
     return true;
@@ -6354,10 +6362,12 @@ var MOCK_PLUGINS = [
     params: {}
   }
 ];
+var FACILITIES_GROUP_ID = "signage-group-facilities";
+var MARKETING_GROUP_ID = "signage-group-marketing";
 var SIGNAGE_GROUPS = [
   {
     group: {
-      id: "signage-group-facilities",
+      id: FACILITIES_GROUP_ID,
       name: "Facilities Signage",
       description: "Facility-managed signage content",
       subsystems: ["signage"]
@@ -6366,7 +6376,7 @@ var SIGNAGE_GROUPS = [
   },
   {
     group: {
-      id: "signage-group-marketing",
+      id: MARKETING_GROUP_ID,
       name: "Marketing Signage",
       description: "Marketing managed signage content",
       subsystems: ["signage"]
@@ -6439,11 +6449,36 @@ function filterByGroup(items, group_id = "") {
     return items;
   return items.filter((_, index) => index % 2 === 0);
 }
+function contentGroupIds(item, index) {
+  return item.group_ids ?? (index % 2 === 0 ? [FACILITIES_GROUP_ID, MARKETING_GROUP_ID] : [FACILITIES_GROUP_ID]);
+}
+function contentGroupScope(query_params = {}) {
+  const { group_id, include_child_data } = query_params;
+  if (!group_id)
+    return null;
+  const groups = /* @__PURE__ */ new Set([group_id]);
+  if (`${include_child_data}` === "true") {
+    for (const parent_id of groups) {
+      for (const { group } of SIGNAGE_GROUPS) {
+        if (group.parent_id === parent_id)
+          groups.add(group.id);
+      }
+    }
+  }
+  return groups;
+}
+function filterContentByGroup(items, query_params = {}) {
+  const groups = contentGroupScope(query_params);
+  if (!groups)
+    return items;
+  return items.filter((item, index) => contentGroupIds(item, index).some((id) => groups.has(id)));
+}
 function sharedWithGroups(items, id) {
   const index = items.findIndex((item) => item.id === id);
   if (index < 0)
     return [];
-  const groups = index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
+  const group_ids = items[index].group_ids;
+  const groups = group_ids ? SIGNAGE_GROUPS.filter(({ group }) => group_ids.includes(group.id)) : index % 2 === 0 ? SIGNAGE_GROUPS : [SIGNAGE_GROUPS[0]];
   return groups.map(({ group }) => ({ id: group.id, name: group.name }));
 }
 function toEngineMedia(item) {
@@ -6781,13 +6816,13 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterByGroup(MOCK_MEDIA, request.query_params?.group_id).map(toEngineMedia)
+    callback: (request) => filterContentByGroup(MOCK_MEDIA, request.query_params).map(toEngineMedia)
   });
   registerMockEndpoint({
     path: "/api/engine/v2/signage/media/tags",
     method: "GET",
     callback: (request) => [
-      ...new Set(filterByGroup(MOCK_MEDIA, request.query_params?.group_id).flatMap((item) => item.tags || []).filter((tag) => !!tag))
+      ...new Set(filterContentByGroup(MOCK_MEDIA, request.query_params).flatMap((item) => item.tags || []).filter((tag) => !!tag))
     ]
   });
   registerMockEndpoint({
@@ -6795,7 +6830,7 @@ function registerMockSignage() {
     method: "GET",
     callback: (request) => {
       const counts = {};
-      for (const item of filterByGroup(MOCK_MEDIA, request.query_params?.group_id)) {
+      for (const item of filterContentByGroup(MOCK_MEDIA, request.query_params)) {
         for (const tag of item.tags || []) {
           if (!tag)
             continue;
@@ -6805,7 +6840,7 @@ function registerMockSignage() {
       return counts;
     }
   });
-  const taggedMedia = (query_params, tag) => filterByGroup(MOCK_MEDIA, query_params?.group_id).filter((item) => toEngineMedia(item).tags.includes(tag));
+  const taggedMedia = (query_params, tag) => filterContentByGroup(MOCK_MEDIA, query_params).filter((item) => toEngineMedia(item).tags.includes(tag));
   registerMockEndpoint({
     path: "/api/engine/v2/signage/media/tags",
     method: "PATCH",
@@ -6822,11 +6857,23 @@ function registerMockSignage() {
     method: "DELETE",
     callback: ({ query_params }) => {
       const { tag } = query_params;
-      for (const item of taggedMedia(query_params, tag)) {
-        if (`${query_params.remove_media}` === "true") {
-          removeItem(MOCK_MEDIA, item.id);
-          continue;
+      const items = taggedMedia(query_params, tag);
+      if (`${query_params.remove_media}` === "true") {
+        const scope = contentGroupScope(query_params);
+        const changes = items.map((item) => ({
+          item,
+          remaining_groups: scope ? contentGroupIds(item, MOCK_MEDIA.indexOf(item)).filter((id) => !scope.has(id)) : []
+        }));
+        for (const { item, remaining_groups } of changes) {
+          if (remaining_groups.length) {
+            item.group_ids = remaining_groups;
+          } else {
+            removeItem(MOCK_MEDIA, item.id);
+          }
         }
+        return;
+      }
+      for (const item of items) {
         applyEngineChanges(item, {
           tags: toEngineMedia(item).tags.filter((value) => value !== tag)
         });
@@ -6838,15 +6885,16 @@ function registerMockSignage() {
     method: "POST",
     callback: (request) => {
       const now3 = getUnixTime(Date.now());
-      const item = {
-        id: mockId("media-"),
+      const item = __spreadProps(__spreadValues({
+        id: mockId("media-")
+      }, request.query_params?.group_id ? { group_ids: [request.query_params.group_id] } : {}), {
         name: request.body?.name || "",
         type: request.body?.media_type === "video" ? "video" : "image",
         tags: request.body?.tags || [],
         created_at: now3,
         updated_at: now3,
         engine: __spreadValues({}, request.body)
-      };
+      });
       MOCK_MEDIA.push(item);
       return toEngineMedia(item);
     }
@@ -6918,7 +6966,7 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/playlists",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterByGroup(MOCK_PLAYLISTS, request.query_params?.group_id).map(toEnginePlaylist)
+    callback: (request) => filterContentByGroup(MOCK_PLAYLISTS, request.query_params).map(toEnginePlaylist)
   });
   registerMockEndpoint({
     path: "/api/engine/v2/signage/playlists/approvers",
@@ -6931,8 +6979,9 @@ function registerMockSignage() {
     method: "POST",
     callback: (request) => {
       const now3 = getUnixTime(Date.now());
-      const playlist = {
-        id: mockId("playlist-"),
+      const playlist = __spreadProps(__spreadValues({
+        id: mockId("playlist-")
+      }, request.query_params?.group_id ? { group_ids: [request.query_params.group_id] } : {}), {
         name: request.body?.name || "",
         description: request.body?.description || "",
         status: "active",
@@ -6941,7 +6990,7 @@ function registerMockSignage() {
         created_at: now3,
         updated_at: now3,
         engine: __spreadValues({}, request.body)
-      };
+      });
       MOCK_PLAYLISTS.push(playlist);
       return toEnginePlaylist(playlist);
     }
@@ -8082,11 +8131,213 @@ function registerMockSurveys() {
   });
 }
 
+// libs/mocks/src/lib/realtime/remote-debug.ts
+var REMOTE_DEBUG_MOCK_SYSTEM = "sys-remote-debug";
+var MAX_DEVICE_ENTRIES = 8e3;
+var MAX_DEVICE_RESULTS = 50;
+var MAX_DEVICES = 1e3;
+var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
+var MAX_DURATION_MS = 60 * 60 * 1e3;
+var COMMAND_TIMEOUT_MS = 15 * 60 * 1e3;
+function setBinding(mod, name, value) {
+  mod.listen(name);
+  mod[name] = value;
+}
+var RemoteDebugModule = class {
+  /** Starts with the logs in `seed` */
+  constructor(seed = []) {
+    this.devices = {};
+    this.timers = {};
+    for (const view of seed) {
+      this[remoteDebugLogsBinding(view.device.id)] = view;
+      this.devices[view.device.id] = __spreadProps(__spreadValues({}, view.device), {
+        last_seen: view.entries.at(-1)?.timestamp ?? 0
+      });
+    }
+  }
+  /** Set a new log request for a device. Returns the request ID */
+  $request_logs(device_id, level, options = {}) {
+    const request = __spreadProps(__spreadValues({}, options), {
+      id: randomString(12),
+      level
+    });
+    if (!isRemoteLogRequest(request))
+      return null;
+    setState(this, device_id, { logs: request });
+    startExpiry(this, device_id, request.duration);
+    return request.id;
+  }
+  /** Change the level of the active log request of a device */
+  $set_level(device_id, level) {
+    const logs = deviceState(this, device_id).logs;
+    if (!isRemoteLogRequest(logs) || logs.level === level)
+      return;
+    setState(this, device_id, { logs: __spreadProps(__spreadValues({}, logs), { level }) });
+    startExpiry(this, device_id, logs.duration);
+  }
+  /** End the active log request of a device */
+  $stop_logs(device_id) {
+    clearTimeout(this.timers[device_id]);
+    const _a = this.timers, { [device_id]: _ } = _a, timers = __objRest(_a, [__restKey(device_id)]);
+    this.timers = timers;
+    setState(this, device_id, { logs: null });
+  }
+  /** Add a command for a device. Returns the command ID, or `null` when the command is not valid or the list is full */
+  $send_command(device_id, type, options = {}) {
+    const command = __spreadProps(__spreadValues({}, options), { id: randomString(12), type });
+    const commands = deviceState(this, device_id).commands ?? [];
+    if (!isRemoteDebugCommand(command) || commands.length >= MAX_REMOTE_DEBUG_COMMANDS) {
+      return null;
+    }
+    setState(this, device_id, { commands: [...commands, command] });
+    setTimeout(() => removeCommand(this, device_id, command.id), COMMAND_TIMEOUT_MS);
+    return command.id;
+  }
+  /** Add or update a fixed device in `devices`. Fixed devices call this each 15 minutes */
+  $register(device) {
+    if (typeof device?.id !== "string" || !device.id)
+      return;
+    seen(this, device);
+  }
+  /** Add entries from a device. Ignores calls for a request that is not active */
+  $post_logs(device_id, request_id, entries, device) {
+    const logs = deviceState(this, device_id).logs;
+    if (!isRemoteLogRequest(logs) || logs.id !== request_id)
+      return;
+    seen(this, device);
+    const name = remoteDebugLogsBinding(device_id);
+    const view = this[name];
+    const same_session = view?.device?.started_at === device.started_at;
+    const old = same_session ? view.entries : [];
+    const known = new Set(old.map((_) => _.seq));
+    const added = entries.filter((_) => !known.has(_.seq));
+    if (same_session && !added.length)
+      return;
+    setBinding(this, name, {
+      device,
+      entries: [...old, ...added].sort((a, b) => a.seq - b.seq).slice(-MAX_DEVICE_ENTRIES)
+    });
+  }
+  /** Keep the result of a command and remove the command */
+  $command_result(device_id, command_id, result, device) {
+    const command = (deviceState(this, device_id).commands ?? []).find((_) => _.id === command_id);
+    if (!command)
+      return;
+    seen(this, device);
+    removeCommand(this, device_id, command_id);
+    const name = remoteDebugResultsBinding(device_id);
+    const results = [
+      ...this[name] ?? [],
+      {
+        id: command.id,
+        type: command.type,
+        result,
+        received_at: Date.now()
+      }
+    ];
+    for (const old of results.splice(0, results.length - MAX_DEVICE_RESULTS)) {
+      releaseMedia(old);
+    }
+    setBinding(this, name, results);
+  }
+};
+function releaseMedia(entry) {
+  if (entry.type !== "snapshot" && entry.type !== "animation")
+    return;
+  const upload_id = entry.result.data?.upload_id;
+  if (typeof upload_id === "string" && upload_id.startsWith("blob:")) {
+    URL.revokeObjectURL(upload_id);
+  }
+}
+function startExpiry(mod, device_id, duration = DEFAULT_DURATION_MS) {
+  clearTimeout(mod.timers[device_id]);
+  mod.timers = __spreadProps(__spreadValues({}, mod.timers), {
+    [device_id]: setTimeout(() => mod.$stop_logs(device_id), Math.min(Math.max(duration, 0), MAX_DURATION_MS))
+  });
+}
+function deviceState(mod, device_id) {
+  const state = mod[remoteDebugDeviceBinding(device_id)];
+  return state && typeof state === "object" ? state : {};
+}
+function setState(mod, device_id, change) {
+  setBinding(mod, remoteDebugDeviceBinding(device_id), __spreadValues(__spreadValues({
+    logs: null,
+    commands: []
+  }, deviceState(mod, device_id)), change));
+}
+function removeCommand(mod, device_id, command_id) {
+  const commands = deviceState(mod, device_id).commands ?? [];
+  if (!commands.some((_) => _.id === command_id))
+    return;
+  setState(mod, device_id, {
+    commands: commands.filter((_) => _.id !== command_id)
+  });
+}
+function seen(mod, device) {
+  const list = Object.values(__spreadProps(__spreadValues({}, mod.devices), {
+    [device.id]: __spreadProps(__spreadValues({}, device), { last_seen: Date.now() })
+  })).sort((a, b) => b.last_seen - a.last_seen);
+  for (const removed of list.splice(MAX_DEVICES)) {
+    const results = remoteDebugResultsBinding(removed.id);
+    for (const result of mod[results] ?? []) {
+      releaseMedia(result);
+    }
+    setBinding(mod, remoteDebugLogsBinding(removed.id), null);
+    setBinding(mod, results, null);
+  }
+  mod.devices = Object.fromEntries(list.map((_) => [_.id, _]));
+}
+function seededView(id, app, now3) {
+  const lines = [
+    ["info", `[${app}][APP] Initialising...`],
+    ["debug", `[${app}][Settings] Loaded settings from the server`],
+    ["warn", `[${app}][WS] Websocket closed. Reconnecting in 5s`],
+    ["info", `[${app}][WS] Websocket connected`],
+    [
+      "error",
+      `TypeError: Cannot read properties of undefined (reading 'id')`
+    ]
+  ];
+  return {
+    device: {
+      id,
+      app,
+      version: "mock",
+      build: "mock",
+      url: `https://placeos.test/${app}/`,
+      user_agent: "Mock device",
+      started_at: now3 - 60 * 60 * 1e3
+    },
+    entries: lines.map(([level, message], i) => ({
+      seq: i + 1,
+      timestamp: now3 - (lines.length - i) * 60 * 1e3,
+      level,
+      source: "console",
+      message
+    }))
+  };
+}
+function createRemoteDebugSystem() {
+  const now3 = Date.now();
+  const mod = new RemoteDebugModule([
+    seededView("DEV-MOCK0001", "booking-panel", now3),
+    seededView("DEV-MOCK0002", "control", now3)
+  ]);
+  const system = Bp(REMOTE_DEBUG_MOCK_SYSTEM, {
+    [REMOTE_DEBUG_MODULE]: [mod]
+  });
+  const registered = system?.[REMOTE_DEBUG_MODULE]?.[0];
+  if (registered) {
+    window.app ??= {};
+    window.app["remote_debug"] = registered;
+  }
+}
+
 // libs/mocks/src/lib/realtime/remote-setup.ts
 var APPLY_DELAY_MS = 1500;
-var MAX_DEVICES = 1e3;
+var MAX_DEVICES2 = 1e3;
 var SYSTEM_CLEAR_MS = 15 * 60 * 1e3;
-function setBinding(mod, name, value) {
+function setBinding2(mod, name, value) {
   mod.listen(name);
   mod[name] = value;
 }
@@ -8114,7 +8365,7 @@ var RemoteSetupModule = class {
       config,
       issued_at: Date.now()
     };
-    setBinding(this, remoteSetupCommandBinding(device_id), command);
+    setBinding2(this, remoteSetupCommandBinding(device_id), command);
     if (isSeeded(device_id)) {
       setTimeout(() => this.$complete(device_id, command.id), APPLY_DELAY_MS);
     }
@@ -8122,7 +8373,7 @@ var RemoteSetupModule = class {
   }
   $clear(device_id) {
     if (!this.clear_list.includes(device_id)) {
-      this.clear_list = [...this.clear_list, device_id].slice(-MAX_DEVICES);
+      this.clear_list = [...this.clear_list, device_id].slice(-MAX_DEVICES2);
     }
     const device = this.devices[device_id];
     if (device && isSeeded(device_id)) {
@@ -8134,7 +8385,7 @@ var RemoteSetupModule = class {
     this.clear_systems = [
       ...this.clear_systems.filter((entry) => now3 - entry.issued_at < SYSTEM_CLEAR_MS),
       { id: randomString(12), app, system_id, issued_at: now3 }
-    ].slice(-MAX_DEVICES);
+    ].slice(-MAX_DEVICES2);
     for (const device of Object.values(this.devices)) {
       if (isSeeded(device.id) && device.app === app && device.config?.system_id === system_id) {
         setTimeout(() => this.$register(device.id, device.app), APPLY_DELAY_MS);
@@ -8157,11 +8408,11 @@ var RemoteSetupModule = class {
         last_command: command.id
       }));
     }
-    setBinding(this, name, null);
+    setBinding2(this, name, null);
   }
 };
 function withDevice(devices, device) {
-  const list = Object.values(__spreadProps(__spreadValues({}, devices), { [device.id]: device })).sort((a, b) => b.last_seen - a.last_seen).slice(0, MAX_DEVICES);
+  const list = Object.values(__spreadProps(__spreadValues({}, devices), { [device.id]: device })).sort((a, b) => b.last_seen - a.last_seen).slice(0, MAX_DEVICES2);
   return Object.fromEntries(list.map((d) => [d.id, d]));
 }
 function isSeeded(device_id) {
@@ -9961,6 +10212,7 @@ function registerMockSystems() {
   persist("spaces", MOCK_SPACES);
   MOCK_SPACES.forEach((space) => createSystem(space));
   createRemoteSetupSystem(MOCK_SPACES.map((space) => space.id));
+  createRemoteDebugSystem();
   registerMockEndpoint({
     path: "/api/engine/v2/systems",
     method: "GET",
@@ -10423,7 +10675,8 @@ function registerMockZones() {
             area_management: system_id,
             location_services: system_id,
             contact_tracing: system_id,
-            lockers: system_id
+            lockers: system_id,
+            remote_debug: REMOTE_DEBUG_MOCK_SYSTEM
           }, mockPaymentsEnabled() ? { payments: system_id } : {})
         }
       };
@@ -10763,13 +11016,13 @@ function returnToWelcomeWhenIdle() {
 }
 
 // apps/visitor-kiosk/src/app/app.component.ts
-var AppComponent_Defer_5_DepsFn = () => [
+var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-DFZHJAC7.js").then((m) => m.ChatComponent)
+  import("./chat.component-F4WTQFFO.js").then((m) => m.ChatComponent)
 ];
-var AppComponent_Defer_9_DepsFn = () => [
+var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-QHKPW4OW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-2XV7RLY4.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -10804,7 +11057,9 @@ function AppComponent_Defer_4_Template(rf, ctx) {
     \u0275\u0275element(0, "global-chat");
   }
 }
-function AppComponent_Defer_8_Template(rf, ctx) {
+function AppComponent_DeferError_5_Template(rf, ctx) {
+}
+function AppComponent_Defer_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "settings-debug-panel-launcher", 4);
   }
@@ -10813,9 +11068,11 @@ function AppComponent_Defer_8_Template(rf, ctx) {
     \u0275\u0275property("loadSchema", ctx_r1.load_settings_schema);
   }
 }
+function AppComponent_DeferError_10_Template(rf, ctx) {
+}
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-TVYQQ55J.js");
+    this.load_settings_schema = () => import("./settings.schema-QGTSA3ZT.js");
     this._placeos = inject(PlaceOS_Service);
     this._has_chat = settingSignal("chat.enabled", false);
     this.has_chat = computed(
@@ -10844,25 +11101,25 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 11, vars: 2, consts: [["content", "", 1, "relative", "h-1/2", "w-full", "flex-1", "overflow-hidden"], [1, "bg-base-100", "text-base-content", "fixed", "bottom-8", "left-1/2", "z-50", "flex", "-translate-x-1/2", "items-center", "gap-4", "rounded-sm", "p-4", "shadow-lg"], ["announce", ""], ["btn", "", 1, "w-32", 3, "click"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 13, vars: 2, consts: [["content", "", 1, "relative", "h-1/2", "w-full", "flex-1", "overflow-hidden"], [1, "bg-base-100", "text-base-content", "fixed", "bottom-8", "left-1/2", "z-50", "flex", "-translate-x-1/2", "items-center", "gap-4", "rounded-sm", "p-4", "shadow-lg"], ["announce", ""], ["btn", "", 1, "w-32", 3, "click"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 7, 9, "div", 1);
-        \u0275\u0275domTemplate(4, AppComponent_Defer_4_Template, 1, 0);
-        \u0275\u0275defer(5, 4, AppComponent_Defer_5_DepsFn);
-        \u0275\u0275element(7, "global-loading");
-        \u0275\u0275domTemplate(8, AppComponent_Defer_8_Template, 1, 1);
-        \u0275\u0275defer(9, 8, AppComponent_Defer_9_DepsFn);
+        \u0275\u0275domTemplate(4, AppComponent_Defer_4_Template, 1, 0)(5, AppComponent_DeferError_5_Template, 0, 0);
+        \u0275\u0275defer(6, 4, AppComponent_Defer_6_DepsFn, null, null, 5);
+        \u0275\u0275element(8, "global-loading");
+        \u0275\u0275domTemplate(9, AppComponent_Defer_9_Template, 1, 1)(10, AppComponent_DeferError_10_Template, 0, 0);
+        \u0275\u0275defer(11, 9, AppComponent_Defer_11_DepsFn, null, null, 10);
         \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
         let tmp_0_0;
         \u0275\u0275advance(3);
         \u0275\u0275conditional((tmp_0_0 = ctx.idle.warning_secs()) ? 3 : -1, tmp_0_0);
-        \u0275\u0275advance(2);
+        \u0275\u0275advance(3);
         \u0275\u0275deferWhen(ctx.has_chat());
       }
     }, dependencies: [
@@ -10877,9 +11134,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-DFZHJAC7.js").then((m) => m.ChatComponent),
+    import("./chat.component-F4WTQFFO.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-QHKPW4OW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-2XV7RLY4.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10916,19 +11173,27 @@ var AppComponent = class _AppComponent {
         }
         @defer (when has_chat()) {
             <global-chat />
+        } @error {
+            <!-- Chat is optional. If its chunk fails to download (for
+                 example while offline), show nothing and do not report
+                 an uncaught NG0750 error. -->
         }
         <global-loading />
         @defer (on idle) {
             <settings-debug-panel-launcher
                 [loadSchema]="load_settings_schema"
             />
+        } @error {
+            <!-- The launcher is optional. If its chunk fails to download
+                 (for example while offline), show nothing and do not
+                 report an uncaught NG0750 error. -->
         }
     `, styles: ["/* angular:styles/component:css;f4de4f03d30202ada3cbfd7e96f04e54ce4cff6bc9221f827ecc7e2a22bd067a;/home/runner/work/user-interfaces/user-interfaces/apps/visitor-kiosk/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n  overflow: hidden;\n}\n[content] > * {\n  overflow: hidden;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
     }], null, null);
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/visitor-kiosk/src/app/app.component.ts", lineNumber: 77 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/visitor-kiosk/src/app/app.component.ts", lineNumber: 85 });
 })();
 
 // apps/visitor-kiosk/src/environments/environment.ts
@@ -10941,33 +11206,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-VDJNAECH.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-JBOHPZKA.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-JFR2SBCW.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-7VI3HFNE.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-T4DQQSMP.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-K6R4BYYL.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-YTRBSNJY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-AJGR4FPA.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-TIZBOAMA.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-SJ5UGXGW.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-RYPTVGTW.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-WY6USPOJ.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -11002,5 +11267,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=5c0ceb21-e558-5a99-b69c-a7f8f1c538a6
+//# debugId=4ce019c0-a94a-53d4-a3c7-e937ef04e018
 //# sourceMappingURL=main.js.map
