@@ -5,10 +5,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-DVIHB6JU.js";
+} from "./chunk-YTSETJFC.js";
 import {
   TranslatePipe
-} from "./chunk-7PFLH7PO.js";
+} from "./chunk-U4KEOUI5.js";
 import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
@@ -34,7 +34,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-UTVM5AQJ.js";
+} from "./chunk-36MVDYVX.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-HBUB4MBN.js";
+} from "./chunk-OLRXRWSU.js";
 import "./chunk-C6AMB2L4.js";
 import {
   IconComponent,
@@ -9839,6 +9839,7 @@ var PaymentsModule = class {
     this._payments = seedHistory();
     this._invoices = [];
     this._checkouts = /* @__PURE__ */ new Map();
+    this._refunds = /* @__PURE__ */ new Set();
   }
   $get_config() {
     return {
@@ -9995,13 +9996,18 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason, _request_id) {
+  $refund_payment(id, amount, _reason, request_id) {
     const payment = findPayment(this._payments, id);
+    const key = request_id ? `${id}:${request_id}` : "";
+    if (key && this._refunds.has(key))
+      return payment;
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
     if (refund <= 0 || refund > refundable)
       throw "Invalid refund amount";
     const amount_refunded = payment.amount_refunded + refund;
+    if (key)
+      this._refunds.add(key);
     return updatePayment(this._payments, id, {
       amount_refunded,
       status: amount_refunded >= payment.amount ? "refunded" : "partially_refunded"
@@ -10953,11 +10959,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-LXEJSQXV.js").then((m) => m.ChatComponent)
+  import("./chat.component-YTCYBQFQ.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-W72MXO4Z.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-JFYEBBSC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11022,9 +11028,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-LXEJSQXV.js").then((m) => m.ChatComponent),
+    import("./chat.component-YTCYBQFQ.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-W72MXO4Z.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-JFYEBBSC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11072,7 +11078,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-BKAXS4TX.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-UDNPFJZ7.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -11111,5 +11117,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=1afa87f5-26aa-5e15-a847-f0f512267332
+//# debugId=88867506-2066-5479-8662-a5b0168fefd9
 //# sourceMappingURL=main.js.map
