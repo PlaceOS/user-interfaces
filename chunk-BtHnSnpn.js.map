@@ -1,0 +1,1 @@
+{"version":3,"file":"chunk-BtHnSnpn.js","names":["mocksInit","log"],"sources":["../libs/mocks/src/empty.ts"],"sourcesContent":["import { log } from '@placeos/common';\n\nexport function mocksInit() {\n    log('MOCKS', 'No mocks available in production');\n}\n"],"mappings":"qEAEM,SAAUA,GAAS,CACrBC,GAAI,QAAS,kCAAkC,CACnD","debugId":"ccd857cc-4079-58f0-b870-1b1de5736fd7"}
