@@ -1,0 +1,1 @@
+import{t as Mo}from"./main-LZHMUCEG.js";function n(){Mo(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
