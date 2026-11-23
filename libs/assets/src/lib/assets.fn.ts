@@ -422,9 +422,11 @@ export async function queryAssetGroupsExtended(
     const zone_id = query.zone_id || query.zones || undefined;
     const filters = { zone_id, q: query.q || undefined };
     const [types, assets] = await Promise.all([
-        asset_types
-            .query({ ...filters, category_id: query.category_id || undefined })
-            .then(orThrowPage),
+        // Leaves out the types of hidden categories, such as desks
+        queryAssetTypes({
+            ...filters,
+            category_id: query.category_id || undefined,
+        }),
         queryAllAssetPages({ ...filters, type_id: query.type_id || undefined }),
     ]);
     let groups = [...types.data];

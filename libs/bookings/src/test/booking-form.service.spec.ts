@@ -4367,9 +4367,22 @@ describe('BookingFormService', () => {
             (spectator.inject(PaymentsService) as any).enabled = false;
             // Asset group availability is resolved from the asset APIs before
             // the requests are posted.
+            vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'category-1', name: 'AV' }],
+                    next: null,
+                    total: 1,
+                } as any),
+            );
             vi.mocked(ts_client.asset_types.query).mockResolvedValue(
                 mockPage({
-                    data: [{ id: 'asset-type-1', name: 'Monitors' }],
+                    data: [
+                        {
+                            id: 'asset-type-1',
+                            name: 'Monitors',
+                            category_id: 'category-1',
+                        },
+                    ],
                     next: null,
                     total: 1,
                 } as any),

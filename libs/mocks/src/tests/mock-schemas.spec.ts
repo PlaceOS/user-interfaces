@@ -1,4 +1,5 @@
 import { startMockPlaceClient } from '@placeos/common/tests';
+import { queryCalendarAvailability, querySpaceFreeBusy } from '@placeos/events';
 import {
     alert_dashboards,
     alerts,
@@ -32,6 +33,7 @@ import * as staff_api from '@placeos/ts-client/staff';
 import { addDays, getUnixTime } from 'date-fns';
 
 import { mocksInit } from '../index';
+import { MOCK_SPACES } from '../lib/api/spaces.data';
 import { ACTIVE_USER, MOCK_GUESTS, MOCK_STAFF } from '../lib/api/users.data';
 import { MOCK_BUILDINGS, MOCK_LEVELS } from '../lib/api/zone.data';
 
@@ -43,6 +45,11 @@ const MAX_ITEMS = 25;
 const PERIOD = {
     period_start: getUnixTime(addDays(Date.now(), -60)),
     period_end: getUnixTime(addDays(Date.now(), 60)),
+};
+/** A period after all the mock events, so that each mock room is free */
+const FREE_PERIOD = {
+    period_start: getUnixTime(addDays(Date.now(), 400)),
+    period_end: getUnixTime(addDays(Date.now(), 400)) + 3600,
 };
 const BUILDING_IDS = MOCK_BUILDINGS.map((bld) => bld.id);
 /** Metadata names that the mock zones generate */
@@ -397,11 +404,11 @@ describe('mock data matches the v7 schemas', () => {
                 ok('staff.calendars.query', staff_api.calendars.query()),
                 ok(
                     'staff.calendars.availability',
-                    staff_api.calendars.availability(PERIOD),
+                    staff_api.calendars.availability(FREE_PERIOD),
                 ),
                 ok(
                     'staff.calendars.freeBusy',
-                    staff_api.calendars.freeBusy(PERIOD),
+                    staff_api.calendars.freeBusy(FREE_PERIOD),
                 ),
                 each(
                     'staff.calendars.checkPermission',
@@ -470,5 +477,21 @@ describe('mock data matches the v7 schemas', () => {
         const checks = makeChecks();
         await GROUPS[name](checks);
         expect(checks.failures).toEqual([]);
+    });
+
+    it('should give the app the room of each room calendar', async () => {
+        const [calendars, spaces] = await Promise.all([
+            queryCalendarAvailability(FREE_PERIOD),
+            querySpaceFreeBusy(FREE_PERIOD),
+        ]);
+
+        expect(calendars.map((cal) => cal.resource.id)).toEqual(
+            MOCK_SPACES.map((space) => space.id),
+        );
+        expect(spaces.map((space) => space.id)).toEqual(
+            MOCK_SPACES.filter((space) => space.bookable).map(
+                (space) => space.id,
+            ),
+        );
     });
 });

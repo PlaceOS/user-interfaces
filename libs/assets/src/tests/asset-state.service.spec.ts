@@ -180,10 +180,11 @@ describe('AssetStateService', () => {
             expect(spectator.service.category_list()).toHaveLength(2),
         );
         await vi.waitFor(() =>
-            expect(spectator.service.available_groups()).toHaveLength(4),
+            expect(spectator.service.available_groups()).toHaveLength(3),
         );
 
-        // Sorted by name, without empty groups or groups in unknown categories
+        // The query leaves out the group in an unknown category. The list is
+        // sorted by name, without empty groups
         expect(names()).toEqual(['Projector', 'Speaker']);
         spectator.service.setSearch('LOUD');
         expect(names()).toEqual(['Speaker']);

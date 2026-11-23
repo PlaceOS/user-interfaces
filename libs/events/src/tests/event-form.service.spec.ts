@@ -1866,9 +1866,21 @@ describe('EventFormService', () => {
         );
         vi.spyOn(service as any, '_checkResourceRules').mockResolvedValue(true);
         mockBookingLists();
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'category-1', name: 'AV' }],
+                total: 1,
+            } as any),
+        );
         vi.mocked(ts_client.asset_types.query).mockResolvedValue(
             mockPage({
-                data: [{ id: 'asset-type-1', name: 'Projectors' }],
+                data: [
+                    {
+                        id: 'asset-type-1',
+                        name: 'Projectors',
+                        category_id: 'category-1',
+                    },
+                ],
                 total: 1,
             } as any),
         );

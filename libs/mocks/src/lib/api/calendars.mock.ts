@@ -86,22 +86,24 @@ export function registerMockCalendars() {
         return spaces;
     };
 
+    /** Reply item of the availability endpoints: the room calendar and its system */
+    const roomCalendar = (space: (typeof MOCK_SPACES)[number]) => ({
+        id: space.email,
+        system: space,
+    });
+
     registerMockEndpoint({
         path: '/api/staff/v1/calendars/availability',
         method: 'GET',
         callback: (request) =>
-            handleSpaceAvailability(request).map((_) => ({
-                resource: _,
-            })),
+            handleSpaceAvailability(request).map(roomCalendar),
     });
 
     registerMockEndpoint({
         path: '/api/staff/v1/calendars/free_busy',
         method: 'GET',
         callback: (request) =>
-            handleSpaceAvailability(request).map((_) => ({
-                resource: _,
-            })),
+            handleSpaceAvailability(request).map(roomCalendar),
     });
     // The active user owns their calendar and can edit other staff calendars
     registerMockEndpoint({

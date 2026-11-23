@@ -20,6 +20,21 @@ function response(data: any[]) {
     });
 }
 
+/** Stub the categories: `c1` is visible and `c2` is hidden */
+function stubCategories() {
+    vi.mocked(ts_client.asset_categories.query).mockImplementation(
+        fromV1Mock(
+            () =>
+                response([
+                    { id: 'c1', name: 'A' },
+                    { id: 'c2', name: 'B', hidden: true },
+                ]),
+            ['...'],
+            'page',
+        ),
+    );
+}
+
 async function load_modules() {
     const assets_fn = (await import('./assets.fn')) as any;
     vi.mocked(bookings.query).mockResolvedValue(mockReply([]));
@@ -386,11 +401,17 @@ describe('[Assets]', () => {
     });
 
     describe('queryAssetGroupsExtended', () => {
-        it('should group the assets under the listed types', async () => {
+        beforeEach(stubCategories);
+
+        it('should group the assets under the types of visible categories', async () => {
             const { assets_fn } = await load_modules();
             vi.mocked(ts_client.asset_types.query).mockImplementation(
                 fromV1Mock(
-                    () => response([{ id: 't1', name: 'Chairs' }]),
+                    () =>
+                        response([
+                            { id: 't1', name: 'Chairs', category_id: 'c1' },
+                            { id: 't2', name: 'Desks', category_id: 'c2' },
+                        ]),
                     ['...'],
                     'page',
                 ),
@@ -434,7 +455,10 @@ describe('[Assets]', () => {
             const { assets_fn } = await load_modules();
             vi.mocked(ts_client.asset_types.query).mockImplementation(
                 fromV1Mock(
-                    () => response([{ id: 't1', name: 'Chairs' }]),
+                    () =>
+                        response([
+                            { id: 't1', name: 'Chairs', category_id: 'c1' },
+                        ]),
                     ['...'],
                     'page',
                 ),
@@ -454,8 +478,8 @@ describe('[Assets]', () => {
                 fromV1Mock(
                     () =>
                         response([
-                            { id: 't1', name: 'Chairs' },
-                            { id: 't2', name: 'Tables' },
+                            { id: 't1', name: 'Chairs', category_id: 'c1' },
+                            { id: 't2', name: 'Tables', category_id: 'c1' },
                         ]),
                     ['...'],
                     'page',
@@ -546,11 +570,16 @@ describe('[Assets]', () => {
     });
 
     describe('queryGroupAvailability', () => {
+        beforeEach(stubCategories);
+
         it('should drop assets referenced by active bookings', async () => {
             const { assets_fn } = await load_modules();
             vi.mocked(ts_client.asset_types.query).mockImplementation(
                 fromV1Mock(
-                    () => response([{ id: 't1', name: 'Chairs' }]),
+                    () =>
+                        response([
+                            { id: 't1', name: 'Chairs', category_id: 'c1' },
+                        ]),
                     ['...'],
                     'page',
                 ),
@@ -588,7 +617,10 @@ describe('[Assets]', () => {
             const { assets_fn } = await load_modules();
             vi.mocked(ts_client.asset_types.query).mockImplementation(
                 fromV1Mock(
-                    () => response([{ id: 't1', name: 'Chairs' }]),
+                    () =>
+                        response([
+                            { id: 't1', name: 'Chairs', category_id: 'c1' },
+                        ]),
                     ['...'],
                     'page',
                 ),

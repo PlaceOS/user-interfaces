@@ -83,9 +83,15 @@ describe('AssetsReportService', () => {
             });
 
         // queryAssetGroupsExtended -> queryAssetTypes + queryAssets (ts-client)
+        (ts_client.asset_categories.query as any).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'c1', name: 'IT' }],
+                total: 1,
+            }),
+        );
         (ts_client.asset_types.query as any).mockResolvedValue(
             mockPage({
-                data: [{ id: 't1', name: 'Laptop' }],
+                data: [{ id: 't1', name: 'Laptop', category_id: 'c1' }],
                 total: 1,
             }),
         );

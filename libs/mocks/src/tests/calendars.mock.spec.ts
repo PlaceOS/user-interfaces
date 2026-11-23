@@ -43,7 +43,7 @@ describe('registerMockCalendars', () => {
     describe('availability', () => {
         const [busy, free] = MOCK_SPACES;
         const available = (query_params: Record<string, string>) =>
-            endpoint<{ resource: { id: string } }[]>(
+            endpoint<{ system: { id: string } }[]>(
                 'GET',
                 '/api/staff/v1/calendars/availability',
             )({
@@ -52,7 +52,7 @@ describe('registerMockCalendars', () => {
                     period_end: `${START + HOUR}`,
                     ...query_params,
                 },
-            }).map(({ resource }) => resource.id);
+            }).map(({ system }) => system.id);
 
         beforeAll(() => {
             MOCK_EVENTS.push({

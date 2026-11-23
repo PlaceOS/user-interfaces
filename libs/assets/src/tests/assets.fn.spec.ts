@@ -58,7 +58,16 @@ describe('validateAssetRequestsForResource', () => {
             mockPage({
                 total: 1,
                 next: null,
-                data: [{ id: 'group-1', name: 'Projector' }],
+                data: [
+                    { id: 'group-1', name: 'Projector', category_id: 'cat-1' },
+                ],
+            } as never),
+        );
+        vi.spyOn(ts_client.asset_categories, 'query').mockResolvedValue(
+            mockPage({
+                total: 1,
+                next: null,
+                data: [{ id: 'cat-1', name: 'AV' }],
             } as never),
         );
         vi.spyOn(ts_client.assets, 'query').mockResolvedValue(
