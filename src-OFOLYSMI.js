@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-GKO4CMF3.js";
+} from "./chunk-MZZWAS5A.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,7 +14,7 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-HJ664B5Q.js";
+} from "./chunk-DPBGXWN2.js";
 import {
   addDays,
   addMinutes,
@@ -35,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-C6NP37IS.js";
+} from "./chunk-6RDRATXU.js";
 import "./chunk-COFQG2BS.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -4265,19 +4265,19 @@ function registerMockCalendars() {
     });
     return spaces;
   };
+  const roomCalendar = (space) => ({
+    id: space.email,
+    system: space
+  });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/availability",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/free_busy",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/:email/permission",
@@ -9705,5 +9705,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=af12d499-2eea-5a69-acd9-3fbd95cf2ce5
-//# sourceMappingURL=src-VIWFYFED.js.map
+//# debugId=5d50b9e9-0e1c-51f7-80ed-bc2b2319112e
+//# sourceMappingURL=src-OFOLYSMI.js.map
