@@ -9791,15 +9791,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "19144e9",
-  "hash": "19144e9",
+  "raw": "5f6c7b7",
+  "hash": "5f6c7b7",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "19144e9",
+  "suffix": "5f6c7b7",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795435253132
+  "time": 1795449973337
 };
 
 // libs/common/src/lib/settings.ts
@@ -22196,5 +22196,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=09f791ab-4d9c-5f58-a4f7-c4dec4390654
-//# sourceMappingURL=chunk-3GW6SX46.js.map
+//# debugId=1b5949fe-6b89-5487-b647-72456c71828a
+//# sourceMappingURL=chunk-NGCKLMOI.js.map

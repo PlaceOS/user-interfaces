@@ -1,9 +1,9 @@
 import {
   UniqueSelectionDispatcher
-} from "./chunk-HRANVGXK.js";
+} from "./chunk-C22CVBYM.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-MWSMOOBK.js";
+} from "./chunk-ELXMAXIB.js";
 import {
   _MatInternalFormField
 } from "./chunk-FUZAUKV6.js";
@@ -12,7 +12,7 @@ import {
   parentBookingId,
   queryBookings,
   removeBooking
-} from "./chunk-FJAQDCWR.js";
+} from "./chunk-QO6YYJZP.js";
 import {
   AssetRequest,
   Booking,
@@ -29,7 +29,7 @@ import {
   orThrowPage,
   startOfDay,
   unique
-} from "./chunk-3GW6SX46.js";
+} from "./chunk-NGCKLMOI.js";
 import {
   MatRipple,
   MatRippleModule,
@@ -1641,11 +1641,27 @@ function filter_hidden_items(response) {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
+async function visible_category_ids() {
+  const response = await asset_categories_exports.query({}).then(orThrowPage);
+  return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
+}
 async function queryAssetCategories(query = {}) {
   if (query.hidden === true)
     return asset_categories_exports.query(query).then(orThrowPage);
   const _a = query, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   return filter_hidden_items(await asset_categories_exports.query(rest).then(orThrowPage));
+}
+async function queryAssetTypes(query = {}) {
+  const _a = query, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
+  if (hidden === true)
+    return asset_types_exports.query(rest).then(orThrowPage);
+  const [response, visible_ids] = await Promise.all([
+    asset_types_exports.query(rest).then(orThrowPage),
+    visible_category_ids()
+  ]);
+  return __spreadProps(__spreadValues({}, response), {
+    data: response.data.filter((item) => visible_ids.has(item.category_id))
+  });
 }
 function saveAssetCategory(category) {
   const body = pickFields(category, ASSET_CATEGORY_FIELDS);
@@ -1682,7 +1698,10 @@ async function queryAssetGroupsExtended(query = {}) {
   const zone_id = query.zone_id || query.zones || void 0;
   const filters = { zone_id, q: query.q || void 0 };
   const [types, assets] = await Promise.all([
-    asset_types_exports.query(__spreadProps(__spreadValues({}, filters), { category_id: query.category_id || void 0 })).then(orThrowPage),
+    // Leaves out the types of hidden categories, such as desks
+    queryAssetTypes(__spreadProps(__spreadValues({}, filters), {
+      category_id: query.category_id || void 0
+    })),
     queryAllAssetPages(__spreadProps(__spreadValues({}, filters), { type_id: query.type_id || void 0 }))
   ]);
   let groups = [...types.data];
@@ -1854,5 +1873,5 @@ export {
   queryGroupAvailability,
   validateAssetRequestsForResource
 };
-//# debugId=f0d90909-39c2-57bc-85e5-1a0edaae805c
-//# sourceMappingURL=chunk-QGDAVLCQ.js.map
+//# debugId=df8cedba-3cba-556d-82d1-024f157f6989
+//# sourceMappingURL=chunk-35BKPGLF.js.map
