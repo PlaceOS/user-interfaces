@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-ZKKX2HXH.js";
-import "./chunk-OB7LECWV.js";
+} from "./chunk-ZFEHPFCA.js";
+import "./chunk-UNYT6CMD.js";
 import {
   TranslatePipe
-} from "./chunk-UVCLQN6S.js";
+} from "./chunk-MISAPZCT.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   OrganisationService,
@@ -37,7 +37,7 @@ import {
   serviceWorkerUpdate,
   setupCache,
   toQueryString
-} from "./chunk-36F5T4WX.js";
+} from "./chunk-ML6AR5RW.js";
 import {
   AsyncHandler,
   Bp,
@@ -85,7 +85,7 @@ import {
   waitForCurrentUser,
   wi,
   withTimeout
-} from "./chunk-6Y253CJJ.js";
+} from "./chunk-5OHSCWP4.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -560,7 +560,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-AVBOKRKX.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-PM6QXDGW.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -688,7 +688,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-AVBOKRKX.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-PM6QXDGW.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9564,6 +9564,7 @@ var PaymentsModule = class {
     this._payments = seedHistory();
     this._invoices = [];
     this._checkouts = /* @__PURE__ */ new Map();
+    this._refunds = /* @__PURE__ */ new Set();
   }
   $get_config() {
     return {
@@ -9720,13 +9721,18 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason, _request_id) {
+  $refund_payment(id, amount, _reason, request_id) {
     const payment = findPayment(this._payments, id);
+    const key = request_id ? `${id}:${request_id}` : "";
+    if (key && this._refunds.has(key))
+      return payment;
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
     if (refund <= 0 || refund > refundable)
       throw "Invalid refund amount";
     const amount_refunded = payment.amount_refunded + refund;
+    if (key)
+      this._refunds.add(key);
     return updatePayment(this._payments, id, {
       amount_refunded,
       status: amount_refunded >= payment.amount ? "refunded" : "partially_refunded"
@@ -10717,7 +10723,7 @@ async function authority() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-SLAINPTX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-E3IUDGRE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10929,7 +10935,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-SLAINPTX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-E3IUDGRE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10971,7 +10977,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-Q63T7VMD.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-5VLVZSV3.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -10996,5 +11002,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=136c5d01-87cd-5bc1-84d5-0d236f803045
+//# debugId=1bf1e200-e857-5eff-b83b-d47c59883b73
 //# sourceMappingURL=main.js.map
