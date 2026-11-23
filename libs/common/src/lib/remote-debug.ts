@@ -16,6 +16,7 @@ import {
     PlaceModuleBinding,
     showMetadata,
 } from '@placeos/ts-client';
+import { formatDistance } from 'date-fns';
 
 import { hasNewVersion } from './application';
 import { AsyncHandler } from './async-handler.class';
@@ -325,6 +326,15 @@ export function isRemoteDebugDeviceOnline(
     now: number,
 ) {
     return now - device.last_seen < REMOTE_DEBUG_ONLINE_MS;
+}
+
+/**
+ * Time since a device last called the driver, such as `5 minutes ago`. The
+ * views update `now` each minute, so a newer call shows as `just now`.
+ */
+export function remoteDebugSeenText(last_seen: number, now: number) {
+    if (now - last_seen < 60 * 1000) return 'just now';
+    return formatDistance(last_seen, now, { addSuffix: true });
 }
 
 /** Device that called the driver, in the `devices` binding */

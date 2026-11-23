@@ -77,6 +77,25 @@ describe('RemoteDebugPanelComponent', () => {
         expect(lines()).toHaveLength(1);
     });
 
+    it('should count the entries of each level, and show one level', () => {
+        emit('logs:DEV-1', logs);
+
+        expect(spectator.component.level_counts()).toEqual({
+            debug: 0,
+            info: 2,
+            warn: 0,
+            error: 1,
+        });
+        spectator.component.toggleShownLevel('error');
+        spectator.detectChanges();
+        expect(spectator.queryAll('[logs] ol li')).toHaveLength(1);
+
+        // The same level again shows all entries
+        spectator.component.toggleShownLevel('error');
+        spectator.detectChanges();
+        expect(spectator.queryAll('[logs] ol li')).toHaveLength(3);
+    });
+
     it('should page back through the entries, then ask the device for older ones', async () => {
         emit('logs:DEV-1', {
             device: null,

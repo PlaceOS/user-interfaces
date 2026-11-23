@@ -88,10 +88,19 @@ Most app logs use `log()` from `libs/common/src/lib/general.ts`. These logs show
 
 Admin and support users can debug devices from two places. Both show the logs of a device, start and stop live logs at a level, load older entries, download the logs, send commands, and show the results, including snapshots and animations. The text of the views is in English, the same as the other debugging tools.
 
-- **Concierge, Remote Debugging.** Add `remote-debug` to the Concierge `features` setting to show the link in the admin part of the sidebar. The page lists the devices of the driver, with a green dot for the devices that are online. Type in the field to filter the list by ID, app or address. The list shows 100 devices maximum. You can also open any device ID, for example from the setup screen of the device. The device ID is in the `device` query parameter, so you can share a link to a device.
-- **Signage Manager, display Admin tab.** The tab shows for admin and support users. It lists the devices that show the display: devices that remote setup set up with the display, and devices that the driver saw on the player route of the display. You can also open another device ID.
+- **Concierge, Remote Debugging.** Add `remote-debug` to the Concierge `features` setting to show the link in the admin part of the sidebar. The page lists the devices of the driver, with a green dot for the devices that are online and the time since the last call. Type in the field to filter the list by ID, app or address. The list shows 100 devices maximum. You can also open any device ID, for example from the setup screen of the device. The device ID is in the `device` query parameter, so you can share a link to a device.
+- **Signage Manager, display Admin tab.** The tab shows for admin and support users. It lists the devices that show the display: devices that remote setup set up with the display, and devices that the driver saw on the player route of the display. Each device has a green dot when it is online. Hover over a device to see its app and the time since its last call. You can also open another device ID.
 
-The shared parts are `RemoteDebugPanelComponent` and `RemoteDebugViewService` in `libs/components`.
+The panel of a device has these parts:
+
+- **Device.** The device ID with a copy button, the online state, the app, the version, the load time and the time since the last call. A blue label shows when live logs are on.
+- **Logs.** The level list sets the level that the device sends. The level chips show the number of entries at each level. Select a chip to show only the entries of that level. Select it again to show all entries. Warning and error rows have a colour.
+- **Commands.** The **Inspect** commands only read data. The **Change the device** commands change what the device shows. When the device is offline, a note tells you that the commands wait for the device.
+- **Results.** The results are below the commands, newest first, with the commands that wait for the device. The status result shows as a summary. Values that can be a problem are red, for example a device clock that is more than 1 minute different from the driver, memory or storage that is 80% full, or a new app version that waits. Select **All data** to see the full status. The storage result shows as a table. You can save a snapshot or an animation as a file.
+
+When the panel is wide, the logs and the commands show side by side.
+
+The shared parts are `RemoteDebugPanelComponent` and `RemoteDebugViewService` in `libs/components`. The result views are in `remote-debug-result-view.ts`.
 
 ## Driver interface
 

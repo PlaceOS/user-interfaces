@@ -12,7 +12,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
+    isRemoteDebugDeviceOnline,
     RemoteDebugSeenDevice,
+    remoteDebugSeenText,
     RemoteSetupDevice,
     remoteSetupModule,
 } from '@placeos/common';
@@ -100,21 +102,34 @@ function playerDisplayId(url: string) {
             } @else {
                 <div class="flex flex-wrap items-center gap-2">
                     <span class="text-sm opacity-70">Devices:</span>
-                    @for (id of device_ids(); track id) {
+                    @for (chip of device_chips(); track chip.id) {
                         <button
                             matRipple
                             type="button"
-                            class="border-base-300 rounded-full border px-3 py-1 font-mono text-sm"
-                            [class.bg-secondary]="id === selected()"
-                            [class.text-secondary-content]="id === selected()"
-                            [attr.aria-pressed]="id === selected()"
-                            (click)="pick(id)"
+                            class="border-base-300 flex items-center gap-2 rounded-full border px-3 py-1 font-mono text-sm"
+                            [class.bg-secondary]="chip.id === selected()"
+                            [class.text-secondary-content]="
+                                chip.id === selected()
+                            "
+                            [attr.aria-pressed]="chip.id === selected()"
+                            [title]="chip.details"
+                            (click)="pick(chip.id)"
                         >
-                            {{ id }}
+                            <span
+                                class="size-2 shrink-0 rounded-full"
+                                [class.bg-success]="chip.online"
+                                [class.bg-base-300]="!chip.online"
+                                [attr.aria-label]="
+                                    chip.online ? 'Online' : 'Offline'
+                                "
+                                role="img"
+                            ></span>
+                            {{ chip.id }}
                         </button>
                     } @empty {
                         <span class="text-sm opacity-70" no-devices>
-                            No device is known to show this display.
+                            No device is known to show this display. Enter the
+                            ID from the setup screen of the device.
                         </span>
                     }
                     <form
@@ -196,6 +211,24 @@ export class DisplayAdminComponent extends AsyncHandler {
             previous?.value && previous.source.display_id === display_id
                 ? previous.value
                 : (ids[0] ?? ''),
+    });
+    /**
+     * Devices of the display with their online state, and the app and last
+     * seen time for the tooltip
+     */
+    public readonly device_chips = computed(() => {
+        const now = this._view.now();
+        const seen = new Map(this._view.devices().map((_) => [_.id, _]));
+        return this.device_ids().map((id) => {
+            const device = seen.get(id);
+            return {
+                id,
+                online: !!device && isRemoteDebugDeviceOnline(device, now),
+                details: device
+                    ? `${device.app}, last seen ${remoteDebugSeenText(device.last_seen, now)}`
+                    : 'Remote setup knows this device. The driver did not see it yet.',
+            };
+        });
     });
     public typed_id = '';
 

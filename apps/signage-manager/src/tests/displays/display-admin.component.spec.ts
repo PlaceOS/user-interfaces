@@ -81,7 +81,11 @@ describe('DisplayAdminComponent', () => {
         providers: [
             {
                 provide: RemoteDebugViewService,
-                useValue: { state: signal('ready'), devices },
+                useValue: {
+                    state: signal('ready'),
+                    devices,
+                    now: signal(Date.now()),
+                },
             },
         ],
         overrideComponents: [

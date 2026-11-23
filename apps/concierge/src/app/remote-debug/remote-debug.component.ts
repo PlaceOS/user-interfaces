@@ -9,6 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {
     isRemoteDebugDeviceOnline,
     RemoteDebugSeenDevice,
+    remoteDebugSeenText,
     user_group_names,
 } from '@placeos/common';
 import {
@@ -172,12 +173,16 @@ export function filterRemoteDebugDevices(
                                                 ></span>
                                                 {{ item.id }}
                                             </span>
-                                            <span class="text-xs opacity-70">
-                                                {{ item.app }} ·
-                                                {{
+                                            <span
+                                                class="text-xs opacity-70"
+                                                [title]="
                                                     item.last_seen
-                                                        | date: 'MMM d, h:mm a'
-                                                }}
+                                                        | date
+                                                            : 'MMM d, h:mm:ss a'
+                                                "
+                                            >
+                                                {{ item.app }} ·
+                                                {{ seenText(item) }}
                                             </span>
                                         </button>
                                     </li>
@@ -308,6 +313,14 @@ export class RemoteDebugComponent {
             queryParams: { device: id },
             queryParamsHandling: 'merge',
         });
+    }
+
+    /** Time since the device last called the driver, such as `5 minutes ago` */
+    public seenText(device: RemoteDebugSeenDevice) {
+        return remoteDebugSeenText(
+            device.last_seen,
+            this._view()?.now() ?? Date.now(),
+        );
     }
 
     public isOnline(device: RemoteDebugSeenDevice) {
