@@ -5,39 +5,35 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-7GAOGL2J.js";
+} from "./chunk-2GOGAGAA.js";
 import {
   STORE_DISPLAY_KEY,
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
 import {
   RemoteSetupService
-} from "./chunk-CKTWQ2JG.js";
+} from "./chunk-HVBFF3F3.js";
 import {
   TranslatePipe
-} from "./chunk-IKC47FQB.js";
+} from "./chunk-RWWVF3NT.js";
+import "./chunk-3ONMCSGM.js";
 import {
+  LazySentryErrorHandler,
   OrganisationService,
   PlaceOS_Service,
   autoConfirmNativeDomain,
   firstValueWhere,
   getLoadingMessage,
+  initialisationComplete,
+  initialisationFailure,
   nativeDomainError,
   needsNativeDomain,
   provideServiceWorker,
-  setMocks
-} from "./chunk-RIJCJ7QU.js";
-import {
-  initialisationComplete,
-  initialisationFailure,
   retryInitialisation,
   serviceWorkerUpdate,
-  setInitReloadHandler
-} from "./chunk-FVN6GNQP.js";
-import "./chunk-GLALPF4J.js";
-import {
-  LazySentryErrorHandler
-} from "./chunk-Z5FWMUYJ.js";
+  setInitReloadHandler,
+  setMocks
+} from "./chunk-6O6BLYWD.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -56,16 +52,16 @@ import {
   settingSignal,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-SOK5D6HN.js";
+} from "./chunk-VXXG5E5E.js";
 import {
   IconComponent
-} from "./chunk-OYKUKGCY.js";
+} from "./chunk-QQTV5HMC.js";
 import "./chunk-6AWLGSP6.js";
 import {
   BidiModule,
   LiveAnnouncer,
   _getAnimationsState
-} from "./chunk-LESDQYFQ.js";
+} from "./chunk-Q7YJ5ANP.js";
 import {
   Router,
   RouterLink,
@@ -73,7 +69,7 @@ import {
   provideRouter,
   withHashLocation,
   withNavigationErrorHandler
-} from "./chunk-R7RLK5FR.js";
+} from "./chunk-VX7FOOGQ.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -142,8 +138,8 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-BHPAVDM2.js";
-import "./chunk-653SOEEV.js";
+} from "./chunk-P2RLUWKE.js";
+import "./chunk-RQBZITXC.js";
 
 // libs/common/src/lib/lazy-route-reload.ts
 var LAZY_ROUTE_RELOAD_KEY = "placeos.lazy_route_reload";
@@ -205,12 +201,12 @@ function parseReloadState(state) {
 
 // libs/common/src/lib/locale-data.ts
 var SUPPORTED_LOCALES = {
-  ar: () => import("./ar-4OEKFYQ3.js"),
-  es: () => import("./es-E672VPW4.js"),
-  fr: () => import("./fr-62Q4VGQY.js"),
-  it: () => import("./it-OJSM6IJC.js"),
-  ja: () => import("./ja-5HQXGIBO.js"),
-  zh: () => import("./zh-A5WQQ6XL.js")
+  ar: () => import("./ar-3RMRHXQJ.js"),
+  es: () => import("./es-2ONIP3DI.js"),
+  fr: () => import("./fr-VGOUTF6K.js"),
+  it: () => import("./it-UULPVB4A.js"),
+  ja: () => import("./ja-JE2B3FPC.js"),
+  zh: () => import("./zh-KH6XG5QO.js")
 };
 async function registerActiveLocale(locale) {
   const short = (locale || "en").split("-")[0];
@@ -853,7 +849,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-LESZHGJ3.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-XR2CBAFE.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -981,7 +977,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-LESZHGJ3.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-XR2CBAFE.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -1443,9 +1439,9 @@ function signageRemoteSetup(router) {
 }
 
 // apps/signage/src/app/app.component.ts
-var AppComponent_Defer_5_DepsFn = () => [
+var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-7O4Z5OQO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-X6Z52OTO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1461,9 +1457,11 @@ function AppComponent_Defer_4_Template(rf, ctx) {
     \u0275\u0275property("loadSchema", ctx_r0.load_settings_schema);
   }
 }
+function AppComponent_DeferError_5_Template(rf, ctx) {
+}
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-4VKQ4MMJ.js");
+    this.load_settings_schema = () => import("./settings.schema-73SWWLGL.js");
     this.uses_api_key = hasStoredApiKey();
     this._placeos = inject(PlaceOS_Service);
     this._remote_setup = inject(RemoteSetupService);
@@ -1473,7 +1471,7 @@ var AppComponent = class _AppComponent {
     startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
     setNotifyFilter(() => isDebugMode());
     setInitReloadHandler(() => requestRecovery("init-error"));
-    setMocks(() => import("./src-U4JRWAEE.js").then(({ mocksInit }) => mocksInit()));
+    setMocks(() => import("./src-NUZLXD2A.js").then(({ mocksInit }) => mocksInit()));
     this._placeos.init();
     this._remote_setup.start(signageRemoteSetup(this._router));
   }
@@ -1483,15 +1481,15 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 7, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 8, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
         \u0275\u0275conditionalCreate(3, AppComponent_Conditional_3_Template, 1, 0, "global-loading");
-        \u0275\u0275domTemplate(4, AppComponent_Defer_4_Template, 1, 1);
-        \u0275\u0275defer(5, 4, AppComponent_Defer_5_DepsFn);
+        \u0275\u0275domTemplate(4, AppComponent_Defer_4_Template, 1, 1)(5, AppComponent_DeferError_5_Template, 0, 0);
+        \u0275\u0275defer(6, 4, AppComponent_Defer_6_DepsFn, null, null, 5);
         \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
@@ -1508,7 +1506,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-7O4Z5OQO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-X6Z52OTO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1529,13 +1527,17 @@ var AppComponent = class _AppComponent {
             <settings-debug-panel-launcher
                 [loadSchema]="load_settings_schema"
             />
+        } @error {
+            <!-- The launcher is optional. If its chunk fails to download
+                 (for example while offline), show nothing and do not
+                 report an uncaught NG0750 error. -->
         }
     `, styles: ["/* angular:styles/component:css;2c590c9e56511a088a1469fe4b227d8190323c208f95620a03712f1a8f5bae8d;/home/runner/work/user-interfaces/user-interfaces/apps/signage/src/app/app.component.ts */\n:host {\n  display: flex;\n  flex-direction: column;\n  height: 100%;\n  width: 100%;\n}\n/*# sourceMappingURL=app.component.css.map */\n"] }]
     }], null, null);
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 55 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/signage/src/app/app.component.ts", lineNumber: 59 });
 })();
 
 // apps/signage/src/environments/environment.ts
@@ -1544,7 +1546,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-CH2HG54K.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-X4O2ZUT6.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -1552,7 +1554,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-CG3OA2IN.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-6W5FAZ4F.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
@@ -1614,5 +1616,5 @@ bootstrapApplication(AppComponent, appConfig).then(() => resetBootRetries()).cat
   console.error(err);
   scheduleBootRetry();
 });
-//# debugId=d2d85cf2-9187-5f54-a2c7-44fdcda4132b
+//# debugId=a1bf81db-c4f8-5bc7-840f-07fe7f25387f
 //# sourceMappingURL=main.js.map
