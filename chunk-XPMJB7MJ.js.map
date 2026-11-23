@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/assets/src/lib/parking-space.pipe.ts"
+  ],
+  "sourcesContent": [
+    "import { Pipe } from '@angular/core';\nimport { type Asset, assets } from '@placeos/ts-client';\nimport { orThrow } from '@placeos/ts-client/compat';\n\nconst PARKING_SPACE_LIST: Asset[] = [];\n\nconst EMPTY_PARKING_SPACE: Asset = {} as Asset;\nconst UNALLOCATED_PARKING_SPACE: Asset = {\n    identifier: 'Unallocated',\n} as Asset;\n\n@Pipe({\n    name: 'parkingSpace',\n})\nexport class ParkingSpacePipe {\n    /**\n     * Resolve a parking space asset_id into its Asset\n     * @param asset_id ID of the parking space asset\n     */\n    public async transform(asset_id: string): Promise<Asset> {\n        if (!asset_id) return EMPTY_PARKING_SPACE;\n        if (asset_id.startsWith('unallocated'))\n            return UNALLOCATED_PARKING_SPACE;\n        const cached = PARKING_SPACE_LIST.find(({ id }) => id === asset_id);\n        if (cached) return cached;\n        const space = await assets\n            .show({ id: asset_id })\n            .then(orThrow)\n            .catch(() => null);\n        if (space) {\n            PARKING_SPACE_LIST.push(space);\n            return space;\n        }\n        return EMPTY_PARKING_SPACE;\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;AAIA,IAAM,qBAA8B,CAAA;AAEpC,IAAM,sBAA6B,CAAA;AACnC,IAAM,4BAAmC;EACrC,YAAY;;AAMV,IAAO,mBAAP,MAAO,kBAAgB;;;;;EAKlB,MAAM,UAAU,UAAgB;AACnC,QAAI,CAAC;AAAU,aAAO;AACtB,QAAI,SAAS,WAAW,aAAa;AACjC,aAAO;AACX,UAAM,SAAS,mBAAmB,KAAK,CAAC,EAAE,GAAE,MAAO,OAAO,QAAQ;AAClE,QAAI;AAAQ,aAAO;AACnB,UAAM,QAAQ,MAAM,eACf,KAAK,EAAE,IAAI,SAAQ,CAAE,EACrB,KAAK,OAAO,EACZ,MAAM,MAAM,IAAI;AACrB,QAAI,OAAO;AACP,yBAAmB,KAAK,KAAK;AAC7B,aAAO;IACX;AACA,WAAO;EACX;;;uCApBS,mBAAgB;IAAA;EAAA;;2FAAhB,mBAAgB,MAAA,KAAA,CAAA;EAAA;;;sEAAhB,kBAAgB,CAAA;UAH5B;WAAK;MACF,MAAM;KACT;;;",
+  "names": [],
+  "debugId": "0102cc92-de87-5aaa-bd75-94eec4f45203"
+}

@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/concierge/src/app/metadata.ts"
+  ],
+  "sourcesContent": [
+    "import { isJsonRecord } from '@placeos/common';\nimport { type JsonValue, metadata, type Metadata } from '@placeos/ts-client';\nimport { orThrow } from '@placeos/ts-client/compat';\nexport { jsonList, toJsonValue } from '@placeos/common';\n\n/**\n * The metadata `name` of the zone, system or user `id`. Rejects when the request fails.\n * When the item has no metadata with this name, it gives an empty metadata with\n * `details` set to `{}`, as `showMetadata` of 6.x did.\n */\nexport async function showMetadata(\n    id: string,\n    name: string,\n): Promise<Metadata> {\n    const item = (await metadata.show({ id, name }).then(orThrow))[name];\n    return {\n        name,\n        description: '',\n        parent_id: id,\n        schema_id: null,\n        editors: [],\n        modified_by_id: null,\n        updated_at: 0,\n        created_at: 0,\n        ...item,\n        details: item?.details ?? {},\n    };\n}\n\n/**\n * JSON that this app stores, as the record type `T`. Gives `{}` when the value is\n * not an object. See `jsonList`.\n */\nexport function jsonRecord<T extends object = Record<string, unknown>>(\n    details: JsonValue,\n): Partial<T> {\n    if (!isJsonRecord(details)) return {};\n    const record: object = details;\n    return { ...record } as Partial<T>;\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;AAUA,eAAsB,aAClB,IACA,MAAY;AAEZ,QAAM,QAAQ,MAAM,iBAAS,KAAK,EAAE,IAAI,KAAI,CAAE,EAAE,KAAK,OAAO,GAAG,IAAI;AACnE,SAAO;IACH;IACA,aAAa;IACb,WAAW;IACX,WAAW;IACX,SAAS,CAAA;IACT,gBAAgB;IAChB,YAAY;IACZ,YAAY;KACT,OATA;IAUH,SAAS,MAAM,WAAW,CAAA;;AAElC;AAMM,SAAU,WACZ,SAAkB;AAElB,MAAI,CAAC,aAAa,OAAO;AAAG,WAAO,CAAA;AACnC,QAAM,SAAiB;AACvB,SAAO,mBAAK;AAChB;",
+  "names": [],
+  "debugId": "bcfd15ec-27c8-528e-9245-8cfe253815e1"
+}
