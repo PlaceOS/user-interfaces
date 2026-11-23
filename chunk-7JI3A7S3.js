@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-LULN57NY.js";
+} from "./chunk-R6PN7FBE.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-6YI3E7O6.js";
+} from "./chunk-QZ4Y6VC5.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -28,7 +28,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-FW7OPUQW.js";
+} from "./chunk-HU5IRAG2.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -48,10 +48,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-MBNFILAI.js";
+} from "./chunk-Z7W5B4ET.js";
 import {
   TranslatePipe
-} from "./chunk-6VCIK4DC.js";
+} from "./chunk-6YZZXTKE.js";
 import {
   FormField,
   disabled,
@@ -59,7 +59,7 @@ import {
   form,
   required,
   validate
-} from "./chunk-3EQRT5BM.js";
+} from "./chunk-HL5TUV7Q.js";
 import {
   AbstractControl,
   AssetRequest,
@@ -190,7 +190,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-ZNOWUTA3.js";
+} from "./chunk-HLJFAKJP.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -6021,11 +6021,27 @@ function filter_hidden_items(response) {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
+async function visible_category_ids() {
+  const response = await asset_categories_exports.query({}).then(orThrowPage);
+  return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
+}
 async function queryAssetCategories(query5 = {}) {
   if (query5.hidden === true)
     return asset_categories_exports.query(query5).then(orThrowPage);
   const _a = query5, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   return filter_hidden_items(await asset_categories_exports.query(rest).then(orThrowPage));
+}
+async function queryAssetTypes(query5 = {}) {
+  const _a = query5, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
+  if (hidden === true)
+    return asset_types_exports.query(rest).then(orThrowPage);
+  const [response, visible_ids] = await Promise.all([
+    asset_types_exports.query(rest).then(orThrowPage),
+    visible_category_ids()
+  ]);
+  return __spreadProps(__spreadValues({}, response), {
+    data: response.data.filter((item) => visible_ids.has(item.category_id))
+  });
 }
 function saveAssetCategory(category) {
   const body = pickFields(category, ASSET_CATEGORY_FIELDS);
@@ -6062,7 +6078,10 @@ async function queryAssetGroupsExtended(query5 = {}) {
   const zone_id = query5.zone_id || query5.zones || void 0;
   const filters = { zone_id, q: query5.q || void 0 };
   const [types, assets] = await Promise.all([
-    asset_types_exports.query(__spreadProps(__spreadValues({}, filters), { category_id: query5.category_id || void 0 })).then(orThrowPage),
+    // Leaves out the types of hidden categories, such as desks
+    queryAssetTypes(__spreadProps(__spreadValues({}, filters), {
+      category_id: query5.category_id || void 0
+    })),
     queryAllAssetPages(__spreadProps(__spreadValues({}, filters), { type_id: query5.type_id || void 0 }))
   ]);
   let groups2 = [...types.data];
@@ -22297,5 +22316,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=d24eac3c-58e3-56aa-aaff-201a4e429137
-//# sourceMappingURL=chunk-WUCHH7MU.js.map
+//# debugId=76fd2e31-8188-5064-8319-9f67eb2f361f
+//# sourceMappingURL=chunk-7JI3A7S3.js.map

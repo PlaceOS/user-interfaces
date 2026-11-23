@@ -3,11 +3,11 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-MBNFILAI.js";
+} from "./chunk-Z7W5B4ET.js";
 import {
   TranslatePipe
-} from "./chunk-6VCIK4DC.js";
-import "./chunk-3EQRT5BM.js";
+} from "./chunk-6YZZXTKE.js";
+import "./chunk-HL5TUV7Q.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -68,7 +68,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-ZNOWUTA3.js";
+} from "./chunk-HLJFAKJP.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -756,7 +756,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-MIUEHJAT.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-7KKWKIG4.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -884,7 +884,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-MIUEHJAT.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-7KKWKIG4.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -5479,19 +5479,19 @@ function registerMockCalendars() {
     });
     return spaces;
   };
+  const roomCalendar = (space) => ({
+    id: space.email,
+    system: space
+  });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/availability",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/free_busy",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/:email/permission",
@@ -10920,11 +10920,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-SEVHCA7F.js").then((m) => m.ChatComponent)
+  import("./chat.component-IE6MN27O.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-NKZM3KVU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-UIXRWAYW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10987,9 +10987,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-SEVHCA7F.js").then((m) => m.ChatComponent),
+    import("./chat.component-IE6MN27O.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-NKZM3KVU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-UIXRWAYW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11042,22 +11042,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-P46XFCPD.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-NYTXDUJT.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-Y5TP6T6I.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-EE7ZOXDU.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-YXA2S57L.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-J3MUOGLS.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-GLGC5CQM.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-HE5IVMSM.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11083,5 +11083,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=dcfedd84-2d25-5cae-98f5-3cdcc2298962
+//# debugId=3f3b2b2a-2f93-570e-addc-e2319455ce0f
 //# sourceMappingURL=main.js.map
