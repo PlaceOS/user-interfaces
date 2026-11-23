@@ -468,49 +468,112 @@ export function isRemoteDebugCommand(
  * the admin views leave out values that they cannot show.
  */
 
+/** Whether the fields of `value` can be read */
+function isRecord(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null;
+}
+
+/** Whether `value` is a time in milliseconds that `DatePipe` can show */
+function isTime(value: unknown): value is number {
+    return typeof value === 'number' && !isNaN(new Date(value).getTime());
+}
+
+function readDevice(value: unknown): RemoteDebugDevice | null {
+    if (!isRecord(value)) return null;
+    const { id, app, version, build, url, user_agent, started_at } = value;
+    return typeof id === 'string' &&
+        typeof app === 'string' &&
+        typeof version === 'string' &&
+        typeof build === 'string' &&
+        typeof url === 'string' &&
+        typeof user_agent === 'string' &&
+        isTime(started_at)
+        ? { id, app, version, build, url, user_agent, started_at }
+        : null;
+}
+
+function readEntry(value: unknown): RemoteLogEntry | null {
+    if (!isRecord(value)) return null;
+    const { seq, timestamp, level, source, message } = value;
+    return typeof seq === 'number' &&
+        isTime(timestamp) &&
+        REMOTE_LOG_LEVELS.includes(level as RemoteLogLevel) &&
+        (source === 'console' ||
+            source === 'error' ||
+            source === 'rejection') &&
+        typeof message === 'string'
+        ? { seq, timestamp, level: level as RemoteLogLevel, source, message }
+        : null;
+}
+
+function readResult(value: unknown): RemoteDebugCommandResult | null {
+    if (!isRecord(value) || !isRecord(value['result'])) return null;
+    const { id, type, received_at } = value;
+    const { ok, data, error } = value['result'];
+    return typeof id === 'string' &&
+        REMOTE_DEBUG_COMMANDS.includes(type as RemoteDebugCommandType) &&
+        isTime(received_at) &&
+        typeof ok === 'boolean'
+        ? {
+              id,
+              type: type as RemoteDebugCommandType,
+              received_at,
+              result: {
+                  ok,
+                  data,
+                  error: typeof error === 'string' ? error : undefined,
+              },
+          }
+        : null;
+}
+
+function readSeenDevice(value: unknown): RemoteDebugSeenDevice | null {
+    const device = readDevice(value);
+    const last_seen = isRecord(value) ? value['last_seen'] : null;
+    return device && isTime(last_seen) ? { ...device, last_seen } : null;
+}
+
+/** Items of `list` that `read` gives a value for */
+function readAll<T>(list: unknown[], read: (value: unknown) => T | null) {
+    return list.map(read).filter((_): _ is T => _ !== null);
+}
+
 /** The `logs:<id>` binding, without bad entries. `null` when it has no entries list */
 export function readRemoteLogsView(value: unknown): RemoteLogsView | null {
-    if (!value || typeof value !== 'object') return null;
-    const view = value as Partial<Record<keyof RemoteLogsView, unknown>>;
-    if (!Array.isArray(view.entries)) return null;
+    if (!isRecord(value) || !Array.isArray(value['entries'])) return null;
     return {
-        device:
-            view.device && typeof view.device === 'object'
-                ? (view.device as RemoteDebugDevice)
-                : null,
-        entries: view.entries.filter(
-            (_): _ is RemoteLogEntry =>
-                typeof _?.seq === 'number' &&
-                typeof _.timestamp === 'number' &&
-                typeof _.message === 'string' &&
-                REMOTE_LOG_LEVELS.includes(_.level),
-        ),
+        device: readDevice(value['device']),
+        entries: readAll(value['entries'], readEntry),
     };
 }
 
-/** The `results:<id>` binding, without results that have no `ok` state */
+/** The `results:<id>` binding, without bad results */
 export function readRemoteDebugResults(
     value: unknown,
 ): RemoteDebugCommandResult[] {
-    if (!Array.isArray(value)) return [];
-    return value.filter(
-        (_): _ is RemoteDebugCommandResult =>
-            typeof _?.id === 'string' && typeof _.result?.ok === 'boolean',
-    );
+    return Array.isArray(value) ? readAll(value, readResult) : [];
 }
 
-/** The `devices` binding, without devices that have no ID, app, address or time */
+/** The `devices` binding, without bad devices */
 export function readRemoteDebugDevices(
     value: unknown,
 ): RemoteDebugSeenDevice[] {
-    if (!value || typeof value !== 'object') return [];
-    return Object.values(value).filter(
-        (_): _ is RemoteDebugSeenDevice =>
-            typeof _?.id === 'string' &&
-            typeof _.app === 'string' &&
-            typeof _.url === 'string' &&
-            typeof _.last_seen === 'number',
-    );
+    return isRecord(value) ? readAll(Object.values(value), readSeenDevice) : [];
+}
+
+/** The file of a `snapshot` or `animation` result. `null` for other data */
+export function readRemoteDebugMedia(data: unknown): RemoteDebugMedia | null {
+    if (!isRecord(data)) return null;
+    const { mime, width, height, frames, duration, bytes, upload_id } = data;
+    return typeof mime === 'string' &&
+        typeof width === 'number' &&
+        typeof height === 'number' &&
+        typeof frames === 'number' &&
+        typeof duration === 'number' &&
+        typeof bytes === 'number' &&
+        typeof upload_id === 'string'
+        ? { mime, width, height, frames, duration, bytes, upload_id }
+        : null;
 }
 
 /** Whether an entry at `level` is at `minimum` or higher */

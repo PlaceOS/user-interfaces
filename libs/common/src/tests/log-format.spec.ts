@@ -35,6 +35,12 @@ describe('formatLogArgs', () => {
         );
     });
 
+    it('should keep general names in plain text', () => {
+        expect(formatLogArgs(['Request failed code=503 token=none'])).toBe(
+            'Request failed code=503 token=none',
+        );
+    });
+
     it('should convert numbers like the console and keep %c without an argument', () => {
         expect(
             formatLogArgs([
