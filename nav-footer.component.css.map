@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["nav-footer.component.ts"],
+  "sourcesContent": ["\n            a [active] {\n                transition: opacity 300ms;\n            }\n\n            a:not(.active) [active] {\n                opacity: 0;\n            }\n\n            /* The footer stays in place while a route transition slides the page */\n            nav {\n                view-transition-name: nav-footer;\n            }\n\n            /* The marker slides to the new page in a route transition */\n            a.active [active] {\n                opacity: 1;\n                view-transition-name: nav-marker;\n            }\n        "],
+  "mappings": ";AACY,EAAA,CAAA;AACI,cAAA,QAAA;AACJ;AAEA,CAAA,KAAA,CAAA,QAAA,CAAA;AACI,WAAA;AACJ;AAGA;AACI,wBAAA;AACJ;AAGA,CAAA,CAVA,OAUA,CAAA;AACI,WAAA;AACA,wBAAA;AACJ;",
+  "names": []
+}
