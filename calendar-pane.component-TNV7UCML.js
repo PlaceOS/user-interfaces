@@ -15,14 +15,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-LRFLVMMC.js";
+} from "./chunk-H3LSCR4W.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-MFJQDOTP.js";
+} from "./chunk-AO6THBOS.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-BOT3422H.js";
+} from "./chunk-PJFHAGSS.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-FHQQRAAB.js";
+} from "./chunk-LYE5EEPM.js";
 import {
   TranslatePipe
-} from "./chunk-ET774B2X.js";
+} from "./chunk-J77XHHA2.js";
 import {
   AbstractControl,
   AssetRequest,
@@ -189,7 +189,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-IPSAUJK2.js";
+} from "./chunk-FHFAKJ43.js";
 import {
   BasePortalOutlet,
   CdkConnectedOverlay,
@@ -15528,11 +15528,27 @@ function filter_hidden_items(response) {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
+async function visible_category_ids() {
+  const response = await asset_categories_exports.query({}).then(orThrowPage);
+  return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
+}
 async function queryAssetCategories(query5 = {}) {
   if (query5.hidden === true)
     return asset_categories_exports.query(query5).then(orThrowPage);
   const _a = query5, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
   return filter_hidden_items(await asset_categories_exports.query(rest).then(orThrowPage));
+}
+async function queryAssetTypes(query5 = {}) {
+  const _a = query5, { hidden } = _a, rest = __objRest(_a, ["hidden"]);
+  if (hidden === true)
+    return asset_types_exports.query(rest).then(orThrowPage);
+  const [response, visible_ids] = await Promise.all([
+    asset_types_exports.query(rest).then(orThrowPage),
+    visible_category_ids()
+  ]);
+  return __spreadProps(__spreadValues({}, response), {
+    data: response.data.filter((item) => visible_ids.has(item.category_id))
+  });
 }
 function saveAssetCategory(category) {
   const body = pickFields(category, ASSET_CATEGORY_FIELDS);
@@ -15569,7 +15585,10 @@ async function queryAssetGroupsExtended(query5 = {}) {
   const zone_id = query5.zone_id || query5.zones || void 0;
   const filters = { zone_id, q: query5.q || void 0 };
   const [types, assets] = await Promise.all([
-    asset_types_exports.query(__spreadProps(__spreadValues({}, filters), { category_id: query5.category_id || void 0 })).then(orThrowPage),
+    // Leaves out the types of hidden categories, such as desks
+    queryAssetTypes(__spreadProps(__spreadValues({}, filters), {
+      category_id: query5.category_id || void 0
+    })),
     queryAllAssetPages(__spreadProps(__spreadValues({}, filters), { type_id: query5.type_id || void 0 }))
   ]);
   let groups2 = [...types.data];
@@ -30378,5 +30397,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=15580bbc-52fe-55a9-8481-f8594febe155
-//# sourceMappingURL=calendar-pane.component-GL2YN7QL.js.map
+//# debugId=c2847b3e-8789-5d0b-97d4-e6bb71114d40
+//# sourceMappingURL=calendar-pane.component-TNV7UCML.js.map

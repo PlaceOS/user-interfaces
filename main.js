@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-BOT3422H.js";
-import "./chunk-FHQQRAAB.js";
+} from "./chunk-PJFHAGSS.js";
+import "./chunk-LYE5EEPM.js";
 import {
   TranslatePipe
-} from "./chunk-ET774B2X.js";
+} from "./chunk-J77XHHA2.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -83,7 +83,7 @@ import {
   waitForCurrentUser,
   waitForOnline,
   withTimeout
-} from "./chunk-IPSAUJK2.js";
+} from "./chunk-FHFAKJ43.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -559,7 +559,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-VUXJ37HO.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-FDAG2HTG.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -687,7 +687,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-VUXJ37HO.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-FDAG2HTG.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -5282,19 +5282,19 @@ function registerMockCalendars() {
     });
     return spaces;
   };
+  const roomCalendar = (space) => ({
+    id: space.email,
+    system: space
+  });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/availability",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/free_busy",
     method: "GET",
-    callback: (request) => handleSpaceAvailability(request).map((_) => ({
-      resource: _
-    }))
+    callback: (request) => handleSpaceAvailability(request).map(roomCalendar)
   });
   registerMockEndpoint2({
     path: "/api/staff/v1/calendars/:email/permission",
@@ -10762,7 +10762,7 @@ async function authority2() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-2X35CXR7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-6BQ3GBZU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10980,7 +10980,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-2X35CXR7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-6BQ3GBZU.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11022,7 +11022,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-GL2YN7QL.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-TNV7UCML.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -11047,5 +11047,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=c8b7ec53-fc2a-5567-ad9e-cbd652187dd9
+//# debugId=db0a3c9b-e154-5f52-ae8f-08d7ba8c95b4
 //# sourceMappingURL=main.js.map
