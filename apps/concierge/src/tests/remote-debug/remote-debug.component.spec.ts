@@ -135,6 +135,10 @@ describe('RemoteDebugComponent', () => {
 
         spectator.component.query.set('signage');
         spectator.detectChanges();
+        // The user sees the device before Open goes to it
+        expect(spectator.query('[device-count]')).toHaveText(
+            'Open shows DEV-BBB.',
+        );
         spectator.dispatchFakeEvent('form', 'submit');
         expect(router.navigate).toHaveBeenLastCalledWith([], {
             queryParams: { device: 'DEV-BBB' },

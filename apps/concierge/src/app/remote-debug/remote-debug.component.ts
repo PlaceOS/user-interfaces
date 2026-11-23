@@ -128,6 +128,8 @@ export function filterRemoteDebugDevices(
                                 }
                                 @if (query().trim() && !openable()) {
                                     Select a device in the list.
+                                } @else if (opens_other()) {
+                                    Open shows {{ openable() }}.
                                 }
                             </p>
                             <ul
@@ -269,18 +271,26 @@ export class RemoteDebugComponent {
 
     /**
      * Device ID that Open opens: the device with the typed ID, or the only
-     * device that matches the filter. Text that matches no device is a
-     * device ID. Text that matches more devices only filters the list.
+     * device that matches the filter. A full device ID, or text that matches
+     * no device, is a device ID. Text that matches more devices only filters
+     * the list.
      */
     public readonly openable = computed(() => {
         const text = this.query().trim();
-        if (!text) return '';
+        if (!text || DEVICE_ID_FORMAT.test(text)) return text;
         const matching = this.matching();
         const device =
             matching.find((_) => _.id.toLowerCase() === text.toLowerCase()) ??
             (matching.length === 1 ? matching[0] : null);
         return device?.id ?? (matching.length ? '' : text);
     });
+
+    /** Whether Open goes to a device other than the typed text, such as `panel-10` for `panel-1` */
+    public readonly opens_other = computed(
+        () =>
+            !!this.openable() &&
+            this.openable().toLowerCase() !== this.query().trim().toLowerCase(),
+    );
 
     public openQuery() {
         this.open(this.openable());
