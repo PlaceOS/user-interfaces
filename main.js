@@ -3,11 +3,11 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-GYB37XA2.js";
+} from "./chunk-SNSFQQUU.js";
 import {
   TranslatePipe
-} from "./chunk-2IED4GRH.js";
-import "./chunk-IH4F2LRI.js";
+} from "./chunk-CLREAN3W.js";
+import "./chunk-MFR5O3X2.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -35,7 +35,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-X3BUNKBO.js";
+} from "./chunk-JLBD7SRT.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-INTBHU6M.js";
+} from "./chunk-EYIO4RWU.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -757,7 +757,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-XK5BODOU.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-LOH6L2BU.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -885,7 +885,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-XK5BODOU.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-LOH6L2BU.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -10881,11 +10881,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-4QNU6ITA.js").then((m) => m.ChatComponent)
+  import("./chat.component-BU67WD5X.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-ZEBJL2R5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-65R5M4PJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10948,9 +10948,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-4QNU6ITA.js").then((m) => m.ChatComponent),
+    import("./chat.component-BU67WD5X.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-ZEBJL2R5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-65R5M4PJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11003,22 +11003,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-6EH4UXJS.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-HWTE5ORQ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-KIXLNPF2.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-7DPURGLV.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-U4AGOO6J.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-JANWQWX2.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-UY5USFN3.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-RR54RT6K.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
