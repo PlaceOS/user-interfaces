@@ -2,8 +2,8 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-F5RFDXDQ.js";
-import "./chunk-O4FYOX37.js";
+} from "./chunk-3P3YJ3NW.js";
+import "./chunk-NRLIHAEJ.js";
 import {
   PageHeadingDirective
 } from "./chunk-D7UGMEVZ.js";
@@ -19,7 +19,7 @@ import {
   MatRadioModule,
   UserAvatarComponent,
   ensureHiddenCategory
-} from "./chunk-OEI6Q6EQ.js";
+} from "./chunk-YHJPYL75.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
@@ -27,14 +27,14 @@ import {
 import {
   MatSelect,
   MatSelectModule
-} from "./chunk-65B2YJB2.js";
+} from "./chunk-Z27LWJBB.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-6V324NUQ.js";
+} from "./chunk-PP7664LR.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-UT3UN2X3.js";
+} from "./chunk-OM6FPM3Q.js";
 import {
   MatError,
   MatFormField,
@@ -48,24 +48,24 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-WPON5KUU.js";
+} from "./chunk-BDZCHQSJ.js";
 import {
   AnnounceDirective,
   getGuestCateringItem,
   setGuestCateringItem
-} from "./chunk-5IAAJF52.js";
+} from "./chunk-EN3CYCLU.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-NUXASCII.js";
+} from "./chunk-HQD72SSL.js";
 import {
   TranslatePipe
-} from "./chunk-ALYSKAN5.js";
+} from "./chunk-Z544LH4C.js";
 import {
   FormField,
   email,
   form,
   required
-} from "./chunk-Q2NEJNHT.js";
+} from "./chunk-KLXRVWLM.js";
 import {
   IconComponent
 } from "./chunk-3RSZXOUT.js";
@@ -74,7 +74,7 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-YW247LWX.js";
+} from "./chunk-GFTFCLXF.js";
 import {
   AsyncHandler,
   CateringItem,
@@ -94,7 +94,7 @@ import {
   themedLogo,
   up,
   withTimeout
-} from "./chunk-YPJ5EE6B.js";
+} from "./chunk-CNCMZOQ3.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -2831,4 +2831,4 @@ export {
   ROUTES
 };
 //# debugId=52d69178-e203-50b7-ad27-b57c2d47ef31
-//# sourceMappingURL=checkin.routes-4NYGC65G.js.map
+//# sourceMappingURL=checkin.routes-AOTAX5RB.js.map

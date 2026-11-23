@@ -1,6 +1,6 @@
 import {
   startOfMinute
-} from "./chunk-YPJ5EE6B.js";
+} from "./chunk-CNCMZOQ3.js";
 import {
   DestroyRef,
   inject,
@@ -33,4 +33,4 @@ export {
   minuteClock
 };
 //# debugId=c766a6c6-83a9-5c36-9695-9de4dcbd63e1
-//# sourceMappingURL=chunk-O4FYOX37.js.map
+//# sourceMappingURL=chunk-NRLIHAEJ.js.map
