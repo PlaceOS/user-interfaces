@@ -1,7 +1,7 @@
 import { AssetGroup } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
 import { type Asset } from '@placeos/ts-client';
-import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
 import { bookings, type Booking } from '@placeos/ts-client/staff';
 
 // The asset API calls are stubbed on ts-client. The booking helpers of
@@ -449,6 +449,34 @@ describe('[Assets]', () => {
             expect(query.period_start).toBeUndefined();
             expect(query.type).toBeUndefined();
             expect(query.rejected).toBeUndefined();
+        });
+
+        it('should keep the types of a visible category on a later page', async () => {
+            const { assets_fn } = await load_modules();
+            vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'c2', name: 'B', hidden: true }],
+                    next: () =>
+                        Promise.resolve({ data: [{ id: 'c1', name: 'A' }] }),
+                } as never),
+            );
+            vi.mocked(ts_client.asset_types.query).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        response([
+                            { id: 't1', name: 'Chairs', category_id: 'c1' },
+                        ]),
+                    ['...'],
+                    'page',
+                ),
+            );
+            vi.mocked(ts_client.assets.query).mockImplementation(
+                fromV1Mock(() => response([]), ['...'], 'page'),
+            );
+
+            const groups = await assets_fn.queryAssetGroupsExtended({});
+
+            expect(groups.map((g: AssetGroup) => g.id)).toEqual(['t1']);
         });
 
         it('should cache results by query', async () => {

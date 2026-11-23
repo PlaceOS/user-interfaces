@@ -21,7 +21,7 @@ import {
     type AssetType,
     type AssetTypeInput,
 } from '@placeos/ts-client';
-import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
+import { orThrow, orThrowPage, type Page } from '@placeos/ts-client/compat';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BookingsQueryParams,
@@ -315,8 +315,32 @@ function filter_hidden_items<T extends { data: readonly AssetCategory[] }>(
     };
 }
 
+/** Page size of the queries that load each page */
+const PAGE_LIMIT = 500;
+/** Upper bound on pages loaded by `loadAllPages` (100 × 500 items) */
+const MAX_PAGES = 100;
+
+/**
+ * Data of `first` and of the pages after it, up to `MAX_PAGES` pages.
+ * `total` is the total of the last page loaded.
+ */
+async function loadAllPages<T>(first: Page<readonly T[]>) {
+    let response = first;
+    const data: T[] = [...response.data];
+    for (let page = 1; page < MAX_PAGES; page++) {
+        const next = response.next?.();
+        if (!next) break;
+        response = await next;
+        data.push(...response.data);
+    }
+    return { total: response.total, next: () => null, data };
+}
+
+/** IDs of the categories that are not hidden, from all pages */
 async function visible_category_ids() {
-    const response = await asset_categories.query({}).then(orThrowPage);
+    const response = await loadAllPages(
+        await asset_categories.query({ limit: PAGE_LIMIT }).then(orThrowPage),
+    );
     return new Set(
         response.data.filter((item) => !item?.hidden).map((item) => item.id),
     );
@@ -382,28 +406,16 @@ export function saveAssetCategory(category: Partial<AssetCategory>) {
 
 const _GROUPS_CACHE = new Map<string, AssetGroup[]>();
 
-/** Upper bound on pages loaded by `queryAllAssetPages` (100 × 500 assets) */
-const MAX_ASSET_PAGES = 100;
-
 /**
  * Query assets, following pagination until every page is loaded.
  * `zones` is a comma separated list, assets must be in every zone listed.
  */
 async function queryAllAssetPages(query: AssetQuery = {}) {
-    let response = await assets_v7
-        .query({ ...query, limit: query.limit || 500 })
-        .then(orThrowPage);
-    let total = response.total;
-    const data: Asset[] = [...response.data];
-    for (let page = 1; page < MAX_ASSET_PAGES; page++) {
-        if (typeof response.next !== 'function') break;
-        const next = response.next();
-        if (!next) break;
-        response = await next;
-        total = response.total;
-        data.push(...response.data);
-    }
-    return { total, next: () => null, data };
+    return loadAllPages(
+        await assets_v7
+            .query({ ...query, limit: query.limit || PAGE_LIMIT })
+            .then(orThrowPage),
+    );
 }
 
 export async function queryAssetGroupsExtended(
