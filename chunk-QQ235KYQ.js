@@ -36,13 +36,13 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-N5O7N6G4.js";
+} from "./chunk-5TUX3OZ5.js";
 import {
   AnnounceDirective
-} from "./chunk-BHSPFTUW.js";
+} from "./chunk-VZB2DALN.js";
 import {
   TranslatePipe
-} from "./chunk-ETBBCSZJ.js";
+} from "./chunk-FLOJP6VU.js";
 import {
   FormField,
   disabled,
@@ -56,7 +56,7 @@ import {
   firstValueWhere,
   getModule,
   toQueryString
-} from "./chunk-FOK73WRS.js";
+} from "./chunk-WLUK5CRY.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -166,7 +166,7 @@ import {
   unique,
   user_group_names,
   users_exports
-} from "./chunk-UF3UHGQQ.js";
+} from "./chunk-K7O6O2H5.js";
 import {
   IconComponent,
   SafePipe
@@ -7575,8 +7575,23 @@ function filter_hidden_items(response) {
     data: response.data.filter((item) => !(item == null ? void 0 : item.hidden))
   });
 }
+var PAGE_LIMIT = 500;
+var MAX_PAGES = 100;
+async function loadAllPages(first2) {
+  var _a;
+  let response = first2;
+  const data = [...response.data];
+  for (let page = 1; page < MAX_PAGES; page++) {
+    const next = (_a = response.next) == null ? void 0 : _a.call(response);
+    if (!next)
+      break;
+    response = await next;
+    data.push(...response.data);
+  }
+  return { total: response.total, next: () => null, data };
+}
 async function visible_category_ids() {
-  const response = await asset_categories_exports.query({}).then(orThrowPage);
+  const response = await loadAllPages(await asset_categories_exports.query({ limit: PAGE_LIMIT }).then(orThrowPage));
   return new Set(response.data.filter((item) => !(item == null ? void 0 : item.hidden)).map((item) => item.id));
 }
 async function queryAssetCategories(query5 = {}) {
@@ -7598,22 +7613,8 @@ async function queryAssetTypes(query5 = {}) {
   });
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
-var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query5 = {}) {
-  let response = await assets_exports.query(__spreadProps(__spreadValues({}, query5), { limit: query5.limit || 500 })).then(orThrowPage);
-  let total = response.total;
-  const data = [...response.data];
-  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
-    if (typeof response.next !== "function")
-      break;
-    const next = response.next();
-    if (!next)
-      break;
-    response = await next;
-    total = response.total;
-    data.push(...response.data);
-  }
-  return { total, next: () => null, data };
+  return loadAllPages(await assets_exports.query(__spreadProps(__spreadValues({}, query5), { limit: query5.limit || PAGE_LIMIT })).then(orThrowPage));
 }
 async function queryAssetGroupsExtended(query5 = {}) {
   const cache_key = JSON.stringify({
@@ -15888,5 +15889,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=3c58b3a6-e29e-557e-ae49-a07ab76b2100
-//# sourceMappingURL=chunk-SDCMBJCV.js.map
+//# debugId=9a2fa19e-897d-53b1-853a-897f594b0f69
+//# sourceMappingURL=chunk-QQ235KYQ.js.map
