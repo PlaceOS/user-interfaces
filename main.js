@@ -3,16 +3,16 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-G6WV7UT4.js";
-import "./chunk-T3MTHRM3.js";
+} from "./chunk-6CD5IMQH.js";
+import "./chunk-P6KYFBR4.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-IAXHPCCG.js";
+} from "./chunk-4LCEGV37.js";
 import "./chunk-M533ZSP3.js";
 import {
   TranslatePipe
-} from "./chunk-HRJ42G5D.js";
+} from "./chunk-OQNLUMDO.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-QWUCZF7W.js";
+} from "./chunk-WJNDFHSS.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-6TEULIMP.js";
+} from "./chunk-NE5UCCRH.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -10105,7 +10105,7 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason) {
+  $refund_payment(id, amount, _reason, _request_id) {
     const payment = findPayment(this._payments, id);
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
@@ -11083,7 +11083,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-VQAOKNOQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-STSSTWFO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11127,7 +11127,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-VQAOKNOQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-STSSTWFO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11200,22 +11200,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-YBS3DTN6.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-AMMODOMS.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-FVWDXHHA.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-6PC6YIQK.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-3ZY7TBAL.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-N6D5ZEUO.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-YY3YHK27.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-XYZ2GWTZ.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11243,5 +11243,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=9478b3d0-6c51-5ee0-b244-101fe1ee2b63
+//# debugId=6eb6df9a-1b89-5b48-ac66-71708a36b0e8
 //# sourceMappingURL=main.js.map
