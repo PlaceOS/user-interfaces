@@ -3,10 +3,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-YSQMFFEL.js";
+} from "./chunk-POLP6TGS.js";
 import {
   TranslatePipe
-} from "./chunk-PSG6IHWO.js";
+} from "./chunk-DRT3M6WU.js";
 import "./chunk-73745V4N.js";
 import {
   LazySentryErrorHandler,
@@ -31,7 +31,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-77W4LBSJ.js";
+} from "./chunk-GB3VK46L.js";
 import {
   AsyncHandler,
   Bp,
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-RJKTYMCT.js";
+} from "./chunk-PYSJKRNG.js";
 import "./chunk-FUB2AYYJ.js";
 import {
   IconComponent
@@ -10027,7 +10027,7 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason) {
+  $refund_payment(id, amount, _reason, _request_id) {
     const payment = findPayment(this._payments, id);
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
@@ -10985,11 +10985,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-O5TLNJCJ.js").then((m) => m.ChatComponent)
+  import("./chat.component-AB7T6NJC.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-S2WNXYQT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-6XSFZBGN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11053,9 +11053,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-O5TLNJCJ.js").then((m) => m.ChatComponent),
+    import("./chat.component-AB7T6NJC.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-S2WNXYQT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-6XSFZBGN.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11105,12 +11105,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-UAUPIPXI.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-2RUEH5V6.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-BB3X5ZRK.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-54EVFIOE.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11138,5 +11138,5 @@ if (environment.production) {
 }
 console.log("Production:", !!environment.production);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=3bbc03ed-fc61-5225-b49c-49d08e679510
+//# debugId=a71f504e-7728-5cd6-adca-210d8d46c7f8
 //# sourceMappingURL=main.js.map
