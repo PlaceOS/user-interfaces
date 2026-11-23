@@ -1,21 +1,21 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-ESQAS76J.js";
+} from "./chunk-5TMRCFXQ.js";
 import "./chunk-FJP5RVRJ.js";
 import {
   TranslatePipe
-} from "./chunk-DRT3M6WU.js";
+} from "./chunk-VBNU25TR.js";
 import {
   OrganisationService
-} from "./chunk-GB3VK46L.js";
+} from "./chunk-BMEVTTOV.js";
 import {
   AsyncHandler,
   J,
   Mt,
   currentUser,
   et
-} from "./chunk-PYSJKRNG.js";
+} from "./chunk-QCIOGT4L.js";
 import {
   IconComponent
 } from "./chunk-UQYXXIWO.js";
@@ -2958,4 +2958,4 @@ export {
   PanelViewComponent
 };
 //# debugId=221d0749-31d1-59a0-916e-c5fca1b96cbc
-//# sourceMappingURL=panel-view.component-54EVFIOE.js.map
+//# sourceMappingURL=panel-view.component-OAXQHBIM.js.map

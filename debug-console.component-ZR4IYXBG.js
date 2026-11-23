@@ -1,20 +1,20 @@
 import {
   ConsoleHistoryService
-} from "./chunk-CEX7B7PM.js";
+} from "./chunk-FRNCJ3JU.js";
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-GQZONAYW.js";
+} from "./chunk-VNY4KCBI.js";
 import "./chunk-FJP5RVRJ.js";
 import {
   TranslatePipe
-} from "./chunk-DRT3M6WU.js";
-import "./chunk-GB3VK46L.js";
+} from "./chunk-VBNU25TR.js";
+import "./chunk-BMEVTTOV.js";
 import {
   AsyncHandler,
   HotkeysService,
   SettingsService
-} from "./chunk-PYSJKRNG.js";
+} from "./chunk-QCIOGT4L.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -680,4 +680,4 @@ export {
   DebugConsoleComponent
 };
 //# debugId=0f5f0301-70c9-5839-8c99-bfe0cd76f931
-//# sourceMappingURL=debug-console.component-DPNJ4234.js.map
+//# sourceMappingURL=debug-console.component-ZR4IYXBG.js.map
