@@ -306,8 +306,16 @@ export interface PaymentDriver {
     remove_payment_method(id: string): void;
     request_invoice(payment_id: string, billing: BillingDetails): Invoice;
     list_invoices(query: InvoiceQuery): PaymentPage<Invoice>;
-    /** Privileged. Refund all of a payment when `amount` is `null` */
-    refund_payment(id: string, amount: number | null, reason: string): Payment;
+    /**
+     * Privileged. Refund all of a payment when `amount` is `null`. A retry
+     * with the same `request_id` does not refund again
+     */
+    refund_payment(
+        id: string,
+        amount: number | null,
+        reason: string,
+        request_id?: string | null,
+    ): Payment;
     /** Privileged. Send a requested or draft invoice. `email` replaces the address of the user */
     send_invoice(id: string, email: string | null): Invoice;
     /** Privileged */

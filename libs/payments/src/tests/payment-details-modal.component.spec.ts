@@ -64,8 +64,38 @@ describe('PaymentDetailsModalComponent', () => {
             new StaffUser({ email: 'staff@test.com', name: 'Staff' }),
         );
         privileged.set(true);
+        capabilities.splice(0, capabilities.length, 'invoices');
         capture.mockReset();
         driver = { list_invoices: vi.fn(() => ({ items: [] })) };
+    });
+
+    it('sends the same refund ID on a retry, and a new ID for a new refund', async () => {
+        capabilities.push('refunds');
+        data = { payment: payment() };
+        driver.refund_payment = vi
+            .fn()
+            .mockRejectedValueOnce('Timeout')
+            .mockReturnValue(
+                payment({ status: 'partially_refunded', amount_refunded: 500 }),
+            );
+        spectator = createComponent();
+        spectator.detectChanges();
+        const submit = async () => {
+            spectator.click('button[name="submit-refund"]');
+            await new Promise((resolve) => setTimeout(resolve));
+            spectator.detectChanges();
+        };
+
+        spectator.click('button[name="refund"]');
+        await submit();
+        await submit();
+        spectator.click('button[name="refund"]');
+        await submit();
+
+        const ids = driver.refund_payment.mock.calls.map((args) => args[3]);
+        expect(ids[0]).toEqual(expect.any(String));
+        expect(ids[1]).toBe(ids[0]);
+        expect(ids[2]).not.toBe(ids[0]);
     });
 
     it('lets staff take an authorized payment for the event of the row', async () => {

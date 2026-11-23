@@ -65,7 +65,7 @@ Only Workplace asks for payment. An app turns the checkout on when it provides t
 6. The app saves the booking or the event.
     - The app stores the payment ID in `extension_data.payment_id` of the booking or the event. An edit keeps it.
     - When the save succeeds, the app calls `capture_payment` with a reference to the booking or the event. When the capture fails, the app tries again 2 times, because a repeated capture is safe. When all 3 attempts fail, the app shows the error. Staff can then take the payment from the booking list.
-    - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist. When `cancel_payment` also fails, the app shows the payment ID, so the user can ask support to release it.
+    - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist. When `cancel_payment` also fails, the app shows an error with the payment ID in place of the save error, so the user can ask support to release it.
     - When the calendar declines all of the rooms of a new event, the app calls `cancel_payment` and does not order the catering, as the payment holds both. When the cancel fails, the app shows the payment ID.
     - When the calendar declines some of the rooms, the app sends their IDs in `exclude_resource_ids` of `capture_payment`. The driver does not take the items of these rooms. The user pays for the other rooms and the catering.
     - A booking with asset requests is captured after the asset requests save. When they fail, the app removes the booking and calls `cancel_payment`.
@@ -111,12 +111,12 @@ Rules for all methods:
 
 ### Methods for privileged users
 
-| Method           | Arguments                | Returns          | Description                                                                                             |
-| ---------------- | ------------------------ | ---------------- | ------------------------------------------------------------------------------------------------------- |
-| `refund_payment` | `id`, `amount`, `reason` | `Payment`        | Refund a part of a payment, or all of it when `amount` is `null`.                                       |
-| `send_invoice`   | `id`, `email`            | `Invoice`        | Send a requested or draft invoice. `email` replaces the address of the user when it is not `null`.      |
-| `create_invoice` | `request`                | `Invoice`        | Make an invoice for products and services. With `send`, the driver sends it to the user.                |
-| `save_product`   | `product`                | `PaymentProduct` | Make a product when it has no `id`, else change it. To archive a product, save it with `active: false`. |
+| Method           | Arguments                              | Returns          | Description                                                                                                                                                                                                                                                                                                          |
+| ---------------- | -------------------------------------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `refund_payment` | `id`, `amount`, `reason`, `request_id` | `Payment`        | Refund a part of a payment, or all of it when `amount` is `null`. `request_id` is optional, at most 100 characters. A repeated call with a known `request_id` returns the payment and does not refund again. The app makes a new ID each time staff open the refund view, and sends the same ID when they try again. |
+| `send_invoice`   | `id`, `email`                          | `Invoice`        | Send a requested or draft invoice. `email` replaces the address of the user when it is not `null`.                                                                                                                                                                                                                   |
+| `create_invoice` | `request`                              | `Invoice`        | Make an invoice for products and services. With `send`, the driver sends it to the user.                                                                                                                                                                                                                             |
+| `save_product`   | `product`                              | `PaymentProduct` | Make a product when it has no `id`, else change it. To archive a product, save it with `active: false`.                                                                                                                                                                                                              |
 
 ### Capabilities
 
@@ -172,6 +172,7 @@ The first driver uses these Stripe features:
 | `get_payment_link`                          | The URL of the open Checkout Session, or the `next_action` URL of the PaymentIntent. When the session is expired, a new Checkout Session for the same payment |
 | `capture_payment`, `cancel_payment`         | PaymentIntent capture and cancel. A refund when the PaymentIntent is captured                                                                                 |
 | `exclude_resource_ids` of `capture_payment` | `amount_to_capture` without the excluded items. A partial refund when the PaymentIntent is captured                                                           |
+| `request_id` of `refund_payment`            | A Refund metadata value. Before a refund, look for a refund of the payment with that value that did not fail                                                  |
 | `create_setup_session`                      | A Checkout Session in `setup` mode                                                                                                                            |
 | Invoices                                    | Stripe Invoices. `url` is `hosted_invoice_url` and `pdf_url` is `invoice_pdf`                                                                                 |
 | Products                                    | Products with one Price. `resource_type`, `resource_ids`, `zone_ids` and `unit` go in the metadata                                                            |

@@ -1225,7 +1225,7 @@ describe('BookingFormService', () => {
             payments = {
                 checkout: vi.fn(async () => ({ status: 'paid', payment })),
                 capture: vi.fn(async () => payment),
-                release: vi.fn(async () => undefined),
+                release: vi.fn(async (_: unknown, e: unknown) => e),
             };
             Object.assign(spectator.inject(PaymentsService), payments, {
                 can_checkout: true,
@@ -1268,8 +1268,26 @@ describe('BookingFormService', () => {
 
             await expect(spectator.service.postForm(true)).rejects.toBeTruthy();
 
-            expect(payments.release).toHaveBeenCalledWith(payment);
+            expect(payments.release).toHaveBeenCalledWith(
+                payment,
+                expect.anything(),
+            );
             expect(payments.capture).not.toHaveBeenCalled();
+        });
+
+        it('should show the payment ID in place of the save error when the release fails', async () => {
+            vi.mocked(ts_client.post).mockImplementation((async (
+                url: string,
+            ) => {
+                if (url.includes('/clashing-assets')) return [];
+                throw { status: 500, error: 'Server error' };
+            }) as any);
+            payments.release.mockResolvedValue('PAYMENTS.RELEASE_FAILED');
+            newDeskForm();
+
+            await expect(spectator.service.postForm(true)).rejects.toBe(
+                'PAYMENTS.RELEASE_FAILED',
+            );
         });
 
         it('should not save the booking when the user cancels the payment', async () => {
@@ -4297,7 +4315,7 @@ describe('BookingFormService', () => {
                 can_checkout: true,
                 checkout: vi.fn(async () => ({ status: 'paid', payment })),
                 capture: vi.fn(),
-                release: vi.fn(async () => undefined),
+                release: vi.fn(async (_: unknown, e: unknown) => e),
             };
             Object.assign(spectator.inject(PaymentsService), payments);
             postBookings({ status: 422, error: 'Asset unavailable' });
@@ -4307,7 +4325,10 @@ describe('BookingFormService', () => {
                 'Asset unavailable',
             );
 
-            expect(payments.release).toHaveBeenCalledWith(payment);
+            expect(payments.release).toHaveBeenCalledWith(
+                payment,
+                expect.anything(),
+            );
             expect(payments.capture).not.toHaveBeenCalled();
         });
 

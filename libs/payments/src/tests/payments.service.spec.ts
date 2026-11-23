@@ -4,12 +4,7 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import type { MatSnackBar } from '@angular/material/snack-bar';
-import {
-    Building,
-    OrganisationService,
-    setNotifyOutlet,
-} from '@placeos/common';
+import { Building, OrganisationService } from '@placeos/common';
 
 import {
     CheckoutCancelledError,
@@ -523,19 +518,16 @@ describe('PaymentsService', () => {
         expect(driver.get_payment_link).not.toHaveBeenCalled();
     });
 
-    it('shows the payment ID when a release fails', async () => {
-        const open = vi.fn(() => ({ onAction: () => of(), dismiss: vi.fn() }));
-        setNotifyOutlet({ open } as unknown as MatSnackBar, true);
+    it('gives the error of the save after a release, or the payment ID when the release fails', async () => {
+        driver.cancel_payment = () => payment('cancelled');
+        await expect(
+            spectator.service.release(payment('authorized'), 'Save failed'),
+        ).resolves.toBe('Save failed');
+
         driver.cancel_payment = () => Promise.reject({ msg: 'Provider down' });
-
-        await spectator.service.release(payment('authorized'));
-
-        setNotifyOutlet(null, true);
-        expect(open).toHaveBeenCalledWith(
-            'PAYMENTS.RELEASE_FAILED',
-            expect.anything(),
-            expect.anything(),
-        );
+        await expect(
+            spectator.service.release(payment('authorized'), 'Save failed'),
+        ).resolves.toBe('PAYMENTS.RELEASE_FAILED');
     });
 
     it('does not complete a payment without a reference', async () => {

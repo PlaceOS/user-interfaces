@@ -417,7 +417,7 @@ type DetailsView = 'details' | 'invoice' | 'refund';
                                 matRipple
                                 name="refund"
                                 class="error flex-1"
-                                (click)="view.set('refund')"
+                                (click)="openRefund()"
                             >
                                 {{ 'PAYMENTS.REFUND' | translate }}
                             </button>
@@ -462,6 +462,11 @@ export class PaymentDetailsModalComponent implements OnInit {
 
     public readonly refund_amount = signal<number | null>(null);
     public readonly refund_reason = signal('');
+    /**
+     * ID of the refund of the open refund view. A retry from the view sends
+     * the same ID, so the driver does not refund twice when a response is lost
+     */
+    private _refund_id = '';
 
     /** Amount that is not refunded yet, in the minor unit */
     public readonly refundable = computed(
@@ -618,6 +623,12 @@ export class PaymentDetailsModalComponent implements OnInit {
         });
     }
 
+    /** Show the refund view, for a new refund */
+    public openRefund() {
+        this._refund_id = crypto.randomUUID();
+        this.view.set('refund');
+    }
+
     public async refund() {
         if (!this.valid_refund()) return;
         const amount = this.refund_amount();
@@ -630,6 +641,7 @@ export class PaymentDetailsModalComponent implements OnInit {
                         ? null
                         : toMinorUnits(amount, this.payment().currency),
                     this.refund_reason(),
+                    this._refund_id,
                 ),
             );
             notifySuccess(i18n('PAYMENTS.REFUND_SUCCESS'));

@@ -570,7 +570,12 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
         return page(list, query.limit, query.cursor);
     }
 
-    $refund_payment(id: string, amount: number | null, _reason: string) {
+    $refund_payment(
+        id: string,
+        amount: number | null,
+        _reason: string,
+        _request_id?: string | null,
+    ) {
         const payment = findPayment(this._payments, id);
         const refundable = payment.amount - payment.amount_refunded;
         const refund = amount === null ? refundable : amount;

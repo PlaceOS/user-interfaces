@@ -1493,17 +1493,16 @@ export class BookingFormService extends AsyncHandler {
             q,
         ).catch(async (e) => {
             // Release the payment, as nothing was booked
-            if (payment) await this._payments.release(payment);
+            if (payment) e = await this._payments.release(payment, e);
             return this._saveFailure(e);
         });
         if (value.assets?.length || booking.extension_data.assets?.length) {
             // A failed request removes the new booking, so release the payment
             await this._saveAssetRequests(result, value, booking, zones).catch(
                 async (e) => {
-                    if (payment) {
-                        await this._payments.release(payment);
-                    }
-                    throw e;
+                    throw payment
+                        ? await this._payments.release(payment, e)
+                        : e;
                 },
             );
         }
