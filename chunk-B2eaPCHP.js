@@ -1,0 +1,1079 @@
+import{i as o,n as m,t as l}from"./chunk-BwCtja5l.js";import{$ as Kh,An as fe,Ar as vm,B as Ib,Br as xT,Bt as UB,Ct as Pf,Dn as dm,Dt as Qm,E as Eb,En as cy,Er as tt,Et as Qg,F as Gr,Fr as wT,Gn as jw,Gr as yT,Gt as Vw,Hr as xm,I as Gt,J as Jy,Jn as ks,L as HB,Nr as vv,O as Ev,P as Gb,Pr as w,Pt as SC,R as Hb,Rt as Tb,S as D,Sn as cm,Sr as sm,Tr as tT,Tt as Qf,Un as jb,Ut as VB,Vn as hm,Vr as xi,Vt as Ub,Wn as jf,X as KI,Yn as kv,Yt as Ws,Z as Kf,_ as CT,at as MT,b as Cm,dn as ae,dr as p_,dt as Na,fn as am,gt as Ol,h as Bl,in as Zg,j as Fv,jn as fm,jr as vo,jt as Rs,kn as fT,kr as vT,mr as ph,nt as Lm,on as _T,or as ne,p as Bb,q as Jt,qr as ym,s as Ab,tt as Lb,v as Cb,vn as bb,vr as qs,vt as On$1,wn as ct,xt as P_,yn as bm,yt as Or,zn as h_}from"./chunk-BwT5hFky.js";import{$ as Me,C as wt,D as zn$1,J as q,M as J$1,P as V,Q as M,S as w$1,_t as wg,dt as ne$2,et as S,f as Vn$1,ft as o$1,g as lt$1,gt as w$2,ht as v,i as Ft,it as b,j as Bo,l as Rt,lt as kg,m as Xe$1,mt as rx,nt as _,ot as f,q as f$1,r as E,st as i,tt as X,v as ne$1,vt as wr,x as se}from"./main-AEUCE5GB.js";import{a as Pe,r as Ge,t as Be}from"./chunk-B2YbgvPG.js";import{A as zt,C as jt,E as pi,O as vt,S as j,T as mi,_ as Zn$1,a as Ie,b as bi,c as Mi$1,d as Rn$1,f as Sn$1,g as Z,h as Yn$1,i as E$1,l as Nn$1,m as Wi$1,n as An$1,o as Ji,r as Ci,s as Li,t as $t,v as _e,x as ir}from"./chunk-lOj4Ie4v.js";import{c as wn$1,i as it,n as ce,o as ot,r as de,s as se$1,t as En$1}from"./chunk-C9BpCeDJ.js";import"./chunk-CwsoXDxY.js";import{S as zt$1,a as Ht,d as Vt,g as di,h as ci,n as A,o as It}from"./chunk-pco1NUSM.js";var Di=[`determinateSpinner`];function Ai(n,a){if(n&1&&(Qf(),Rs(0,`svg`,11),cm(1,`circle`,12),Ol()),n&2){let e=Lb();sm(`viewBox`,e._viewBox()),KI(),Cm(`stroke-dasharray`,e._strokeCircumference(),`px`)(`stroke-dashoffset`,e._strokeCircumference()/2,`px`)(`stroke-width`,e._circleStrokeWidth(),`%`),sm(`r`,e._circleRadius())}}var Ri=new w(`mat-progress-spinner-default-options`,{providedIn:`root`,factory:()=>({diameter:ki})});var ki=100;var Fi=10;var vi=(()=>{class n{_elementRef=D(On$1);_noopAnimations;get color(){return this._color||this._defaultColor}set color(e){this._color=e}_color;_defaultColor=`primary`;_determinateCircle;constructor(){let e=D(Ri),t=Rt(),i=this._elementRef.nativeElement;this._noopAnimations=t===`di-disabled`&&!!e&&!e._forceAnimations,this.mode=i.nodeName.toLowerCase()===`mat-spinner`?`indeterminate`:`determinate`,!this._noopAnimations&&t===`reduced-motion`&&i.classList.add(`mat-progress-spinner-reduced-motion`),e&&(e.color&&(this.color=this._defaultColor=e.color),e.diameter&&(this.diameter=e.diameter),e.strokeWidth&&(this.strokeWidth=e.strokeWidth))}mode;get value(){return this.mode===`determinate`?this._value:0}set value(e){this._value=Math.max(0,Math.min(100,e||0))}_value=0;get diameter(){return this._diameter}set diameter(e){this._diameter=e||0}_diameter=ki;get strokeWidth(){return this._strokeWidth??this.diameter/10}set strokeWidth(e){this._strokeWidth=e||0}_strokeWidth;_circleRadius(){return(this.diameter-Fi)/2}_viewBox(){let e=this._circleRadius()*2+this.strokeWidth;return`0 0 ${e} ${e}`}_strokeCircumference(){return 2*Math.PI*this._circleRadius()}_strokeDashOffset(){return this.mode===`determinate`?this._strokeCircumference()*(100-this._value)/100:null}_circleStrokeWidth(){return this.strokeWidth/this.diameter*100}static ɵfac=function(t){return new(t||n)};static ɵcmp=SC({type:n,selectors:[[`mat-progress-spinner`],[`mat-spinner`]],viewQuery:function(t,i){if(t&1&&vm(Di,5),t&2){let o;Hb(o=Ub())&&(i._determinateCircle=o.first)}},hostAttrs:[`role`,`progressbar`,`tabindex`,`-1`,1,`mat-mdc-progress-spinner`,`mdc-circular-progress`],hostVars:18,hostBindings:function(t,i){t&2&&(sm(`aria-valuemin`,0)(`aria-valuemax`,100)(`aria-valuenow`,i.mode===`determinate`?i.value:null)(`mode`,i.mode),tT(`mat-`+i.color),Cm(`width`,i.diameter,`px`)(`height`,i.diameter,`px`)(`--%NS%mat-progress-spinner-size`,i.diameter+`px`)(`--%NS%mat-progress-spinner-active-indicator-width`,i.diameter+`px`),bm(`_mat-animation-noopable`,i._noopAnimations)(`mdc-circular-progress--indeterminate`,i.mode===`indeterminate`))},inputs:{color:`color`,mode:`mode`,value:[2,`value`,`value`,h_],diameter:[2,`diameter`,`diameter`,h_],strokeWidth:[2,`strokeWidth`,`strokeWidth`,h_]},exportAs:[`matProgressSpinner`],decls:14,vars:11,consts:[[`circle`,``],[`determinateSpinner`,``],[`aria-hidden`,`true`,1,`mdc-circular-progress__determinate-container`],[`xmlns`,`http://www.w3.org/2000/svg`,`focusable`,`false`,1,`mdc-circular-progress__determinate-circle-graphic`],[`cx`,`50%`,`cy`,`50%`,1,`mdc-circular-progress__determinate-circle`],[`aria-hidden`,`true`,1,`mdc-circular-progress__indeterminate-container`],[1,`mdc-circular-progress__spinner-layer`],[1,`mdc-circular-progress__circle-clipper`,`mdc-circular-progress__circle-left`],[3,`ngTemplateOutlet`],[1,`mdc-circular-progress__gap-patch`],[1,`mdc-circular-progress__circle-clipper`,`mdc-circular-progress__circle-right`],[`xmlns`,`http://www.w3.org/2000/svg`,`focusable`,`false`,1,`mdc-circular-progress__indeterminate-circle-graphic`],[`cx`,`50%`,`cy`,`50%`]],template:function(t,i){if(t&1&&(Qg(0,Ai,2,8,`ng-template`,null,0,xT),Rs(2,`div`,2,1),Qf(),Rs(4,`svg`,3),cm(5,`circle`,4),Ol()(),Kf(),Rs(6,`div`,5)(7,`div`,6)(8,`div`,7),dm(9,8),Ol(),Rs(10,`div`,9),dm(11,8),Ol(),Rs(12,`div`,10),dm(13,8),Ol()()()),t&2){let o=Gb(1);KI(4),sm(`viewBox`,i._viewBox()),KI(),Cm(`stroke-dasharray`,i._strokeCircumference(),`px`)(`stroke-dashoffset`,i._strokeDashOffset(),`px`)(`stroke-width`,i._circleStrokeWidth(),`%`),sm(`r`,i._circleRadius()),KI(4),am(`ngTemplateOutlet`,o),KI(2),am(`ngTemplateOutlet`,o),KI(2),am(`ngTemplateOutlet`,o)}},dependencies:[P_],styles:[`.mat-mdc-progress-spinner {
+  --%NS%mat-progress-spinner-animation-multiplier: 1;
+  display: block;
+  overflow: hidden;
+  line-height: 0;
+  position: relative;
+  direction: ltr;
+  transition: opacity 250ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+.mat-mdc-progress-spinner circle {
+  stroke-width: var(--%NS%mat-progress-spinner-active-indicator-width, 4px);
+}
+.mat-mdc-progress-spinner._mat-animation-noopable, .mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__determinate-circle {
+  transition: none !important;
+}
+.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-circle-graphic,
+.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__spinner-layer,
+.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container {
+  animation: none !important;
+}
+.mat-mdc-progress-spinner._mat-animation-noopable .mdc-circular-progress__indeterminate-container circle {
+  stroke-dasharray: 0 !important;
+}
+@media (forced-colors: active) {
+  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic,
+  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle {
+    stroke: currentColor;
+    stroke: CanvasText;
+  }
+}
+
+.mat-progress-spinner-reduced-motion {
+  --%NS%mat-progress-spinner-animation-multiplier: 1.25;
+}
+
+.mdc-circular-progress__determinate-container,
+.mdc-circular-progress__indeterminate-circle-graphic,
+.mdc-circular-progress__indeterminate-container,
+.mdc-circular-progress__spinner-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.mdc-circular-progress__determinate-container {
+  transform: rotate(-90deg);
+}
+.mdc-circular-progress--indeterminate .mdc-circular-progress__determinate-container {
+  opacity: 0;
+}
+
+.mdc-circular-progress__indeterminate-container {
+  font-size: 0;
+  letter-spacing: 0;
+  white-space: nowrap;
+  opacity: 0;
+}
+.mdc-circular-progress--indeterminate .mdc-circular-progress__indeterminate-container {
+  opacity: 1;
+  animation: mdc-circular-progress-container-rotate calc(1568.2352941176ms * var(--%NS%mat-progress-spinner-animation-multiplier)) linear infinite;
+}
+
+.mdc-circular-progress__determinate-circle-graphic,
+.mdc-circular-progress__indeterminate-circle-graphic {
+  fill: transparent;
+}
+
+.mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,
+.mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {
+  stroke: var(--%NS%mat-progress-spinner-active-indicator-color, var(--%NS%mat-sys-primary));
+}
+@media (forced-colors: active) {
+  .mat-mdc-progress-spinner .mdc-circular-progress__determinate-circle,
+  .mat-mdc-progress-spinner .mdc-circular-progress__indeterminate-circle-graphic {
+    stroke: CanvasText;
+  }
+}
+
+.mdc-circular-progress__determinate-circle {
+  transition: stroke-dashoffset 500ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.mdc-circular-progress__gap-patch {
+  position: absolute;
+  top: 0;
+  left: 47.5%;
+  box-sizing: border-box;
+  width: 5%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mdc-circular-progress__gap-patch .mdc-circular-progress__indeterminate-circle-graphic {
+  left: -900%;
+  width: 2000%;
+  transform: rotate(180deg);
+}
+.mdc-circular-progress__circle-clipper .mdc-circular-progress__indeterminate-circle-graphic {
+  width: 200%;
+}
+.mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {
+  left: -100%;
+}
+.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-left .mdc-circular-progress__indeterminate-circle-graphic {
+  animation: mdc-circular-progress-left-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+.mdc-circular-progress--indeterminate .mdc-circular-progress__circle-right .mdc-circular-progress__indeterminate-circle-graphic {
+  animation: mdc-circular-progress-right-spin calc(1333ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+
+.mdc-circular-progress__circle-clipper {
+  display: inline-flex;
+  position: relative;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+}
+
+.mdc-circular-progress--indeterminate .mdc-circular-progress__spinner-layer {
+  animation: mdc-circular-progress-spinner-layer-rotate calc(5332ms * var(--%NS%mat-progress-spinner-animation-multiplier)) cubic-bezier(0.4, 0, 0.2, 1) infinite both;
+}
+
+@keyframes mdc-circular-progress-container-rotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes mdc-circular-progress-spinner-layer-rotate {
+  12.5% {
+    transform: rotate(135deg);
+  }
+  25% {
+    transform: rotate(270deg);
+  }
+  37.5% {
+    transform: rotate(405deg);
+  }
+  50% {
+    transform: rotate(540deg);
+  }
+  62.5% {
+    transform: rotate(675deg);
+  }
+  75% {
+    transform: rotate(810deg);
+  }
+  87.5% {
+    transform: rotate(945deg);
+  }
+  100% {
+    transform: rotate(1080deg);
+  }
+}
+@keyframes mdc-circular-progress-left-spin {
+  from {
+    transform: rotate(265deg);
+  }
+  50% {
+    transform: rotate(130deg);
+  }
+  to {
+    transform: rotate(265deg);
+  }
+}
+@keyframes mdc-circular-progress-right-spin {
+  from {
+    transform: rotate(-265deg);
+  }
+  50% {
+    transform: rotate(-130deg);
+  }
+  to {
+    transform: rotate(-265deg);
+  }
+}
+`],encapsulation:2})}return n})();var yi=(()=>{class n{static ɵfac=function(t){return new(t||n)};static ɵmod=Ws({type:n});static ɵinj=Gr({imports:[Vn$1]})}return n})();var xe=class{_multiple;_emitChanges;compareWith;_selection=new Set;_deselectedToEmit=[];_selectedToEmit=[];_selected=null;get selected(){return this._selected||(this._selected=Array.from(this._selection.values())),this._selected}changed=new ne;bulk={select:a=>this._select(a),deselect:a=>this._deselect(a),setSelection:a=>this._setSelection(a)};constructor(a=!1,e,t=!0,i){this._multiple=a,this._emitChanges=t,this.compareWith=i,e&&e.length&&(a?e.forEach(o=>this._markSelected(o)):this._markSelected(e[0]),this._selectedToEmit.length=0)}select(...a){return this._select(a)}deselect(...a){return this._deselect(a)}setSelection(...a){return this._setSelection(a)}toggle(a){return this.isSelected(a)?this.deselect(a):this.select(a)}clear(a=!0){this._unmarkAll();let e=this._hasQueuedChanges();return a&&this._emitChangeEvent(),e}isSelected(a){return this._selection.has(this._getConcreteValue(a))}isEmpty(){return this._selection.size===0}hasValue(){return!this.isEmpty()}sort(a){this._multiple&&this.selected&&this._selected.sort(a)}isMultipleSelection(){return this._multiple}_select(a){this._verifyValueAssignment(a),a.forEach(t=>this._markSelected(t));let e=this._hasQueuedChanges();return this._emitChangeEvent(),e}_deselect(a){this._verifyValueAssignment(a),a.forEach(t=>this._unmarkSelected(t));let e=this._hasQueuedChanges();return this._emitChangeEvent(),e}_setSelection(a){this._verifyValueAssignment(a);let e=this.selected,t=new Set(a.map(o=>this._getConcreteValue(o)));a.forEach(o=>this._markSelected(o)),e.filter(o=>!t.has(this._getConcreteValue(o,t))).forEach(o=>this._unmarkSelected(o));let i=this._hasQueuedChanges();return this._emitChangeEvent(),i}_emitChangeEvent(){this._selected=null,(this._selectedToEmit.length||this._deselectedToEmit.length)&&(this.changed.next({source:this,added:this._selectedToEmit,removed:this._deselectedToEmit}),this._deselectedToEmit=[],this._selectedToEmit=[])}_markSelected(a){a=this._getConcreteValue(a),this.isSelected(a)||(this._multiple||this._unmarkAll(),this.isSelected(a)||this._selection.add(a),this._emitChanges&&this._selectedToEmit.push(a))}_unmarkSelected(a){a=this._getConcreteValue(a),this.isSelected(a)&&(this._selection.delete(a),this._emitChanges&&this._deselectedToEmit.push(a))}_unmarkAll(){this.isEmpty()||this._selection.forEach(a=>this._unmarkSelected(a))}_verifyValueAssignment(a){a.length>1&&this._multiple}_hasQueuedChanges(){return!!(this._deselectedToEmit.length||this._selectedToEmit.length)}_getConcreteValue(a,e){if(this.compareWith){e=e??this._selection;for(let t of e)if(this.compareWith(a,t))return t;return a}else return a}};var st=(()=>{class n{_listeners=[];notify(e,t){for(let i of this._listeners)i(e,t)}listen(e){return this._listeners.push(e),()=>{this._listeners=this._listeners.filter(t=>e!==t)}}ngOnDestroy(){this._listeners=[]}static ɵfac=function(t){return new(t||n)};static ɵprov=Gt({token:n,factory:n.ɵfac})}return n})();var Bi=[`trigger`];var Gi=[`panel`];var Wi=[[[`mat-select-trigger`]],`*`];var Ui=[`mat-select-trigger`,`*`];function ji(n,a){if(n&1&&(Rs(0,`span`,4),fT(1),Ol()),n&2){let e=Lb();KI(),xm(e.placeholder)}}function Qi(n,a){n&1&&Bb(0)}function Hi(n,a){if(n&1&&(Rs(0,`span`,11),fT(1),Ol()),n&2){let e=Lb(2);KI(),xm(e.triggerValue)}}function Ki(n,a){if(n&1&&(Rs(0,`span`,5),Eb(1,Qi,1,0)(2,Hi,2,1,`span`,11),Ol()),n&2){let e=Lb();KI(),Ib(e.customTrigger?1:2)}}function Yi(n,a){if(n&1){let e=Ab();Rs(0,`div`,12,1),hm(`keydown`,function(i){Pf(e);return jf(Lb()._handleKeydown(i))}),Bb(2,1),Ol()}if(n&2){let e=Lb();tT(e.panelClass),bm(`mat-select-panel-animations-enabled`,!e._animationsDisabled)(`mat-primary`,e._parentFormField?.color===`primary`)(`mat-accent`,e._parentFormField?.color===`accent`)(`mat-warn`,e._parentFormField?.color===`warn`)(`mat-undefined`,!e._parentFormField?.color),sm(`id`,e.id+`-panel`)(`aria-multiselectable`,e.multiple)(`aria-label`,e.ariaLabel||null)(`aria-labelledby`,e._getPanelAriaLabelledby())}}var Xi=new w(`mat-select-scroll-strategy`,{providedIn:`root`,factory:()=>{let n=D(fe);return()=>It(n)}});var $i=new w(`MAT_SELECT_CONFIG`);var Zi=new w(`MatSelectTrigger`);var dt=class{source;value;constructor(a,e){this.source=a,this.value=e}};var Ii=(()=>{class n{_viewportRuler=D(A);_changeDetectorRef=D(cy);_elementRef=D(On$1);_dir=D(Ft,{optional:!0});_idGenerator=D(ne$1);_renderer=D(vo);_parentFormField=D(se$1,{optional:!0});ngControl=D(E$1,{self:!0,optional:!0});_liveAnnouncer=D(wt);_defaultOptions=D($i,{optional:!0});_animationsDisabled=zn$1();_popoverLocation;_initialized=new ne;_cleanupDetach;options;optionGroups;customTrigger;_positions=[{originX:`start`,originY:`bottom`,overlayX:`start`,overlayY:`top`},{originX:`end`,originY:`bottom`,overlayX:`end`,overlayY:`top`},{originX:`start`,originY:`top`,overlayX:`start`,overlayY:`bottom`,panelClass:`mat-mdc-select-panel-above`},{originX:`end`,originY:`top`,overlayX:`end`,overlayY:`bottom`,panelClass:`mat-mdc-select-panel-above`}];_scrollOptionIntoView(e){let t=this.options.toArray()[e];if(t){let i=this.panel.nativeElement,o=Li(e,this.options,this.optionGroups),m=t._getHostElement();e===0&&o===1?i.scrollTop=0:i.scrollTop=Wi$1(m.offsetTop,m.offsetHeight,i.scrollTop,i.offsetHeight)}}_positioningSettled(){this._scrollOptionIntoView(this._keyManager.activeItemIndex||0)}_getChangeEvent(e){return new dt(this,e)}_scrollStrategyFactory=D(Xi);_panelOpen=!1;_compareWith=(e,t)=>e===t;_uid=this._idGenerator.getId(`mat-select-`);_triggerAriaLabelledBy=null;_previousControl;_destroy=new ne;_errorStateTracker;stateChanges=new ne;disableAutomaticLabeling=!0;userAriaDescribedBy;_selectionModel;_keyManager;_preferredOverlayOrigin;_overlayWidth;_onChange=()=>{};_onTouched=()=>{};_valueId=this._idGenerator.getId(`mat-select-value-`);_scrollStrategy;_overlayPanelClass=this._defaultOptions?.overlayPanelClass||``;get focused(){return this._focused||this._panelOpen}_focused=!1;controlType=`mat-select`;trigger;panel;_overlayDir;panelClass;disabled=!1;get disableRipple(){return this._disableRipple()}set disableRipple(e){this._disableRipple.set(e)}_disableRipple=tt(!1);tabIndex=0;get hideSingleSelectionIndicator(){return this._hideSingleSelectionIndicator}set hideSingleSelectionIndicator(e){this._hideSingleSelectionIndicator=e,this._syncParentProperties()}_hideSingleSelectionIndicator=this._defaultOptions?.hideSingleSelectionIndicator??!1;get placeholder(){return this._placeholder}set placeholder(e){this._placeholder=e,this.stateChanges.next()}_placeholder;get required(){return this._required??this.ngControl?.control?.hasValidator(Ie.required)??!1}set required(e){this._required=e,this.stateChanges.next()}_required;get multiple(){return this._multiple}set multiple(e){this._selectionModel,this._multiple=e}_multiple=!1;disableOptionCentering=this._defaultOptions?.disableOptionCentering??!1;get compareWith(){return this._compareWith}set compareWith(e){this._compareWith=e,this._selectionModel&&this._initializeSelection()}get value(){return this._value}set value(e){this._assignValue(e)&&this._onChange(e)}_value;ariaLabel=``;ariaLabelledby;get errorStateMatcher(){return this._errorStateTracker.matcher}set errorStateMatcher(e){this._errorStateTracker.matcher=e}typeaheadDebounceInterval;sortComparator;get id(){return this._id}set id(e){this._id=e||this._uid,this.stateChanges.next()}_id;get errorState(){return this._errorStateTracker.errorState}set errorState(e){this._errorStateTracker.errorState=e}panelWidth=this._defaultOptions&&typeof this._defaultOptions.panelWidth<`u`?this._defaultOptions.panelWidth:`auto`;canSelectNullableOptions=this._defaultOptions?.canSelectNullableOptions??!1;optionSelectionChanges=vv(()=>{let e=this.options;return e?e.changes.pipe(kv(e),Fv(()=>Ev(...e.map(t=>t.onSelectionChange)))):this._initialized.pipe(Fv(()=>this.optionSelectionChanges))});openedChange=new ct;_openedStream=this.openedChange.pipe(Or(e=>e),Jt(()=>{}));_closedStream=this.openedChange.pipe(Or(e=>!e),Jt(()=>{}));selectionChange=new ct;valueChange=new ct;constructor(){let e=D(Mi$1),t=D(An$1,{optional:!0}),i=D(Sn$1,{optional:!0}),o=D(new Qm(`tabindex`),{optional:!0}),m=D(Ht,{optional:!0}),z=D(ot,{optional:!0,self:!0});this.ngControl&&(this.ngControl.valueAccessor=this),this._defaultOptions?.typeaheadDebounceInterval!=null&&(this.typeaheadDebounceInterval=this._defaultOptions.typeaheadDebounceInterval),this._errorStateTracker=new zt(e,z||this.ngControl,i,t,this.stateChanges),this._scrollStrategy=this._scrollStrategyFactory(),this.tabIndex=o==null?0:parseInt(o)||0,this._popoverLocation=m?.usePopover===!1?null:`inline`,this.id=this.id}ngOnInit(){this._selectionModel=new xe(this.multiple),this.stateChanges.next(),this._viewportRuler.change().pipe(Jy(this._destroy)).subscribe(()=>{this.panelOpen&&(this._overlayWidth=this._getOverlayWidth(this._preferredOverlayOrigin),this._changeDetectorRef.detectChanges())})}ngAfterContentInit(){this._initialized.next(),this._initialized.complete(),this._initKeyManager(),this._selectionModel.changed.pipe(Jy(this._destroy)).subscribe(e=>{e.added.forEach(t=>t.select()),e.removed.forEach(t=>t.deselect())}),this.options.changes.pipe(kv(null),Jy(this._destroy)).subscribe(()=>{this._resetOptions(),this._initializeSelection()})}ngDoCheck(){let e=this._getTriggerAriaLabelledby(),t=this.ngControl;if(e!==this._triggerAriaLabelledBy){let i=this._elementRef.nativeElement;this._triggerAriaLabelledBy=e,e?i.setAttribute(`aria-labelledby`,e):i.removeAttribute(`aria-labelledby`)}t&&(this._previousControl!==t.control&&(this._previousControl!==void 0&&t.disabled!==null&&t.disabled!==this.disabled&&(this.disabled=t.disabled),this._previousControl=t.control),this.updateErrorState())}ngOnChanges(e){(e.disabled||e.userAriaDescribedBy)&&this.stateChanges.next(),e.typeaheadDebounceInterval&&this._keyManager&&this._keyManager.withTypeAhead(this.typeaheadDebounceInterval),e.panelClass&&this.panelClass instanceof Set&&(this.panelClass=Array.from(this.panelClass))}ngOnDestroy(){this._cleanupDetach?.(),this._keyManager?.destroy(),this._destroy.next(),this._destroy.complete(),this.stateChanges.complete()}toggle(){this.panelOpen?this.close():this.open()}open(){this._canOpen()&&(this._parentFormField&&(this._preferredOverlayOrigin=this._parentFormField.getConnectedOverlayOrigin()),this._cleanupDetach?.(),this._overlayWidth=this._getOverlayWidth(this._preferredOverlayOrigin),this._panelOpen=!0,this._overlayDir.positionChange.pipe(Na(1)).subscribe(()=>{this._changeDetectorRef.detectChanges(),this._positioningSettled()}),this._overlayDir.attachOverlay(),this._keyManager.withHorizontalOrientation(null),this._highlightCorrectOption(),this._changeDetectorRef.markForCheck(),this.stateChanges.next(),Promise.resolve().then(()=>this.openedChange.emit(!0)))}close(){this._panelOpen&&(this._panelOpen=!1,this._exitAndDetach(),this._keyManager.withHorizontalOrientation(this._isRtl()?`rtl`:`ltr`),this._changeDetectorRef.markForCheck(),this._onTouched(),this.stateChanges.next(),Promise.resolve().then(()=>this.openedChange.emit(!1)))}_exitAndDetach(){if(this._animationsDisabled||!this.panel){this._detachOverlay();return}this._cleanupDetach?.(),this._cleanupDetach=()=>{t(),clearTimeout(i),this._cleanupDetach=void 0};let e=this.panel.nativeElement,t=this._renderer.listen(e,`animationend`,o=>{o.animationName===`_mat-select-exit`&&(this._cleanupDetach?.(),this._detachOverlay())}),i=setTimeout(()=>{this._cleanupDetach?.(),this._detachOverlay()},200);e.classList.add(`mat-select-panel-exit`)}_detachOverlay(){this._overlayDir.detachOverlay(),this._changeDetectorRef.markForCheck()}writeValue(e){this._assignValue(e)}registerOnChange(e){this._onChange=e}registerOnTouched(e){this._onTouched=e}setDisabledState(e){this.disabled=e,this._changeDetectorRef.markForCheck(),this.stateChanges.next()}get panelOpen(){return this._panelOpen}get selected(){return this.multiple?this._selectionModel?.selected||[]:this._selectionModel?.selected[0]}get triggerValue(){if(this.empty)return``;if(this._multiple){let e=this._selectionModel.selected.map(t=>t.viewValue);return this._isRtl()&&e.reverse(),e.join(`, `)}return this._selectionModel.selected[0].viewValue}updateErrorState(){this._errorStateTracker.updateErrorState()}_isRtl(){return this._dir?this._dir.value===`rtl`:!1}_handleKeydown(e){this.disabled||(this.panelOpen?this._handleOpenKeydown(e):this._handleClosedKeydown(e))}_handleClosedKeydown(e){let t=e.keyCode,i=t===40||t===38||t===37||t===39,o=t===13||t===32,m=this._keyManager;if(!m.isTyping()&&o&&!Xe$1(e)||(this.multiple||e.altKey)&&i)e.preventDefault(),this.open();else if(!this.multiple){let z=this.selected;m.onKeydown(e);let F=this.selected;F&&z!==F&&this._liveAnnouncer.announce(F.viewValue,1e4)}}_handleOpenKeydown(e){let t=this._keyManager,i=e.keyCode,o=i===40||i===38,m=t.isTyping();if(o&&e.altKey)e.preventDefault(),this.close();else if(!m&&(i===13||i===32)&&t.activeItem&&!Xe$1(e))e.preventDefault(),t.activeItem._selectViaInteraction();else if(!m&&this._multiple&&i===65&&e.ctrlKey){e.preventDefault();let z=this.options.some(F=>!F.disabled&&!F.selected);this.options.forEach(F=>{F.disabled||(z?F.select():F.deselect())})}else{let z=t.activeItemIndex;t.onKeydown(e),this._multiple&&o&&e.shiftKey&&t.activeItem&&t.activeItemIndex!==z&&t.activeItem._selectViaInteraction()}}_handleOverlayKeydown(e){e.keyCode===27&&!Xe$1(e)&&(e.preventDefault(),this.close())}_onFocus(){this.disabled||(this._focused=!0,this.stateChanges.next())}_onBlur(){this._focused=!1,this._keyManager?.cancelTypeahead(),!this.disabled&&!this.panelOpen&&(this._onTouched(),this._changeDetectorRef.markForCheck(),this.stateChanges.next())}get empty(){return!this._selectionModel||this._selectionModel.isEmpty()}_initializeSelection(){Promise.resolve().then(()=>{this.ngControl&&(this._value=this.ngControl.value),this._setSelectionByValue(this._value),this.stateChanges.next()})}_setSelectionByValue(e){if(this.options.forEach(t=>t.setInactiveStyles()),this._selectionModel.clear(),this.multiple&&e)e.forEach(t=>this._selectOptionByValue(t)),this._sortValues();else{let t=this._selectOptionByValue(e);t?this._keyManager.updateActiveItem(t):this.panelOpen||this._keyManager.updateActiveItem(-1)}this._changeDetectorRef.markForCheck()}_selectOptionByValue(e){let t=this.options.find(i=>{if(this._selectionModel.isSelected(i))return!1;try{return(i.value!=null||this.canSelectNullableOptions)&&this._compareWith(i.value,e)}catch{return!1}});return t&&this._selectionModel.select(t),t}_assignValue(e){return e!==this._value||this._multiple&&Array.isArray(e)?(this.options&&this._setSelectionByValue(e),this._value=e,!0):!1}_skipPredicate=e=>this.panelOpen?!1:e.disabled;_getOverlayWidth(e){return this.panelWidth===`auto`?(e instanceof zt$1?e.elementRef:e||this._elementRef).nativeElement.getBoundingClientRect().width:this.panelWidth===null?``:this.panelWidth}_syncParentProperties(){if(this.options)for(let e of this.options)e._changeDetectorRef.markForCheck()}_initKeyManager(){this._keyManager=new se(this.options).withTypeAhead(this.typeaheadDebounceInterval).withVerticalOrientation().withHorizontalOrientation(this._isRtl()?`rtl`:`ltr`).withHomeAndEnd().withPageUpDown().withAllowedModifierKeys([`shiftKey`]).skipPredicate(this._skipPredicate),this._keyManager.tabOut.subscribe(()=>{this.panelOpen&&(!this.multiple&&this._keyManager.activeItem&&this._keyManager.activeItem._selectViaInteraction(),this.focus(),this.close())}),this._keyManager.change.subscribe(()=>{this._panelOpen&&this.panel?this._scrollOptionIntoView(this._keyManager.activeItemIndex||0):!this._panelOpen&&!this.multiple&&this._keyManager.activeItem&&this._keyManager.activeItem._selectViaInteraction()})}_resetOptions(){let e=Ev(this.options.changes,this._destroy);this.optionSelectionChanges.pipe(Jy(e)).subscribe(t=>{this._onSelect(t.source,t.isUserInput),t.isUserInput&&!this.multiple&&this._panelOpen&&(this.close(),this.focus())}),Ev(...this.options.map(t=>t._stateChanges)).pipe(Jy(e)).subscribe(()=>{this._changeDetectorRef.detectChanges(),this.stateChanges.next()})}_onSelect(e,t){let i=this._selectionModel.isSelected(e);!this.canSelectNullableOptions&&e.value==null&&!this._multiple?(e.deselect(),this._selectionModel.clear(),this.value!=null&&this._propagateChanges(e.value)):(i!==e.selected&&(e.selected?this._selectionModel.select(e):this._selectionModel.deselect(e)),t&&this._keyManager.setActiveItem(e),this.multiple&&(this._sortValues(),t&&this.focus())),i!==this._selectionModel.isSelected(e)&&this._propagateChanges(),this.stateChanges.next()}_sortValues(){if(this.multiple){let e=this.options.toArray();this._selectionModel.sort((t,i)=>this.sortComparator?this.sortComparator(t,i,e):e.indexOf(t)-e.indexOf(i)),this.stateChanges.next()}}_propagateChanges(e){let t;this.multiple?t=this.selected.map(i=>i.value):t=this.selected?this.selected.value:e,this._value=t,this.valueChange.emit(t),this._onChange(t),this.selectionChange.emit(this._getChangeEvent(t)),this._changeDetectorRef.markForCheck()}_highlightCorrectOption(){if(this._keyManager)if(this.empty){let e=-1;for(let t=0;t<this.options.length;t++)if(!this.options.get(t).disabled){e=t;break}this._keyManager.setActiveItem(e)}else this._keyManager.setActiveItem(this._selectionModel.selected[0])}_canOpen(){return!this._panelOpen&&!this.disabled&&this.options?.length>0&&!!this._overlayDir}focus(e){this._elementRef.nativeElement.focus(e)}_getPanelAriaLabelledby(){if(this.ariaLabel)return null;let e=this._parentFormField?.getLabelId()||null,t=e?e+` `:``;return this.ariaLabelledby?t+this.ariaLabelledby:e}_getAriaActiveDescendant(){return this.panelOpen&&this._keyManager&&this._keyManager.activeItem?this._keyManager.activeItem.id:null}_getTriggerAriaLabelledby(){if(this.ariaLabel)return null;let e=this._parentFormField?.getLabelId()||``;return this.ariaLabelledby&&(e+=` `+this.ariaLabelledby),e||(e=this._valueId),e}get describedByIds(){return this._elementRef.nativeElement.getAttribute(`aria-describedby`)?.split(` `)||[]}setDescribedByIds(e){let t=this._elementRef.nativeElement;e.length?t.setAttribute(`aria-describedby`,e.join(` `)):t.removeAttribute(`aria-describedby`)}onContainerClick(e){let t=E(e);t&&(t.tagName===`MAT-OPTION`||t.classList.contains(`cdk-overlay-backdrop`)||t.closest(`.mat-mdc-select-panel`))||(this.focus(),this.open())}get shouldLabelFloat(){return this.panelOpen||!this.empty||this.focused&&!!this.placeholder}static ɵfac=function(t){return new(t||n)};static ɵcmp=SC({type:n,selectors:[[`mat-select`]],contentQueries:function(t,i,o){if(t&1&&ym(o,Zi,5)(o,$t,5)(o,Zn$1,5),t&2){let m;Hb(m=Ub())&&(i.customTrigger=m.first),Hb(m=Ub())&&(i.options=m),Hb(m=Ub())&&(i.optionGroups=m)}},viewQuery:function(t,i){if(t&1&&vm(Bi,5)(Gi,5)(ci,5),t&2){let o;Hb(o=Ub())&&(i.trigger=o.first),Hb(o=Ub())&&(i.panel=o.first),Hb(o=Ub())&&(i._overlayDir=o.first)}},hostAttrs:[`role`,`combobox`,`aria-haspopup`,`listbox`,1,`mat-mdc-select`],hostVars:21,hostBindings:function(t,i){t&1&&hm(`keydown`,function(m){return i._handleKeydown(m)})(`focus`,function(){return i._onFocus()})(`blur`,function(){return i._onBlur()}),t&2&&(sm(`id`,i.id)(`tabindex`,i.disabled?-1:i.tabIndex)(`aria-controls`,i.panelOpen?i.id+`-panel`:null)(`aria-expanded`,i.panelOpen)(`aria-label`,i.ariaLabel||null)(`aria-required`,i.required.toString())(`aria-disabled`,i.disabled.toString())(`aria-invalid`,i.errorState)(`aria-activedescendant`,i._getAriaActiveDescendant()),bm(`mat-mdc-select-disabled`,i.disabled)(`mat-mdc-select-invalid`,i.errorState)(`mat-mdc-select-required`,i.required)(`mat-mdc-select-empty`,i.empty)(`mat-mdc-select-multiple`,i.multiple)(`mat-select-open`,i.panelOpen))},inputs:{userAriaDescribedBy:[0,`aria-describedby`,`userAriaDescribedBy`],panelClass:`panelClass`,disabled:[2,`disabled`,`disabled`,p_],disableRipple:[2,`disableRipple`,`disableRipple`,p_],tabIndex:[2,`tabIndex`,`tabIndex`,e=>e==null?0:h_(e)],hideSingleSelectionIndicator:[2,`hideSingleSelectionIndicator`,`hideSingleSelectionIndicator`,p_],placeholder:`placeholder`,required:[2,`required`,`required`,p_],multiple:[2,`multiple`,`multiple`,p_],disableOptionCentering:[2,`disableOptionCentering`,`disableOptionCentering`,p_],compareWith:`compareWith`,value:`value`,ariaLabel:[0,`aria-label`,`ariaLabel`],ariaLabelledby:[0,`aria-labelledby`,`ariaLabelledby`],errorStateMatcher:`errorStateMatcher`,typeaheadDebounceInterval:[2,`typeaheadDebounceInterval`,`typeaheadDebounceInterval`,h_],sortComparator:`sortComparator`,id:`id`,panelWidth:`panelWidth`,canSelectNullableOptions:[2,`canSelectNullableOptions`,`canSelectNullableOptions`,p_]},outputs:{openedChange:`openedChange`,_openedStream:`opened`,_closedStream:`closed`,selectionChange:`selectionChange`,valueChange:`valueChange`},exportAs:[`matSelect`],features:[wT([{provide:de,useExisting:n},{provide:Yn$1,useExisting:n}]),ks],ngContentSelectors:Ui,decls:11,vars:10,consts:[[`fallbackOverlayOrigin`,`cdkOverlayOrigin`,`trigger`,``],[`panel`,``],[`cdk-overlay-origin`,``,1,`mat-mdc-select-trigger`,3,`click`],[1,`mat-mdc-select-value`],[1,`mat-mdc-select-placeholder`,`mat-mdc-select-min-line`],[1,`mat-mdc-select-value-text`],[1,`mat-mdc-select-arrow-wrapper`],[1,`mat-mdc-select-arrow`],[`viewBox`,`0 0 24 24`,`width`,`24px`,`height`,`24px`,`focusable`,`false`,`aria-hidden`,`true`],[`d`,`M7 10l5 5 5-5z`],[`cdk-connected-overlay`,``,`cdkConnectedOverlayHasBackdrop`,``,`cdkConnectedOverlayBackdropClass`,`cdk-overlay-transparent-backdrop`,3,`detach`,`backdropClick`,`overlayKeydown`,`cdkConnectedOverlayDisableClose`,`cdkConnectedOverlayPanelClass`,`cdkConnectedOverlayScrollStrategy`,`cdkConnectedOverlayOrigin`,`cdkConnectedOverlayPositions`,`cdkConnectedOverlayWidth`,`cdkConnectedOverlayFlexibleDimensions`,`cdkConnectedOverlayUsePopover`],[1,`mat-mdc-select-min-line`],[`role`,`listbox`,`tabindex`,`-1`,1,`mat-mdc-select-panel`,`mdc-menu-surface`,`mdc-menu-surface--open`,3,`keydown`]],template:function(t,i){if(t&1&&(jb(Wi),Rs(0,`div`,2,0),hm(`click`,function(){return i.open()}),Rs(3,`div`,3),Eb(4,ji,2,1,`span`,4)(5,Ki,3,1,`span`,5),Ol(),Rs(6,`div`,6)(7,`div`,7),Qf(),Rs(8,`svg`,8),cm(9,`path`,9),Ol()()()(),Qg(10,Yi,3,16,`ng-template`,10),hm(`detach`,function(){return i.close()})(`backdropClick`,function(){return i.close()})(`overlayKeydown`,function(m){return i._handleOverlayKeydown(m)})),t&2){let o=Gb(1);KI(3),sm(`id`,i._valueId),KI(),Ib(i.empty?4:5),KI(6),am(`cdkConnectedOverlayDisableClose`,!0)(`cdkConnectedOverlayPanelClass`,i._overlayPanelClass)(`cdkConnectedOverlayScrollStrategy`,i._scrollStrategy)(`cdkConnectedOverlayOrigin`,i._preferredOverlayOrigin||o)(`cdkConnectedOverlayPositions`,i._positions)(`cdkConnectedOverlayWidth`,i._overlayWidth)(`cdkConnectedOverlayFlexibleDimensions`,!0)(`cdkConnectedOverlayUsePopover`,i._popoverLocation)}},dependencies:[zt$1,ci],styles:[`@keyframes _mat-select-enter {
+  from {
+    opacity: 0;
+    transform: scaleY(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes _mat-select-exit {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+.mat-mdc-select {
+  display: inline-block;
+  width: 100%;
+  outline: none;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  color: var(--%NS%mat-select-enabled-trigger-text-color, var(--%NS%mat-sys-on-surface));
+  font-family: var(--%NS%mat-select-trigger-text-font, var(--%NS%mat-sys-body-large-font));
+  line-height: var(--%NS%mat-select-trigger-text-line-height, var(--%NS%mat-sys-body-large-line-height));
+  font-size: var(--%NS%mat-select-trigger-text-size, var(--%NS%mat-sys-body-large-size));
+  font-weight: var(--%NS%mat-select-trigger-text-weight, var(--%NS%mat-sys-body-large-weight));
+  letter-spacing: var(--%NS%mat-select-trigger-text-tracking, var(--%NS%mat-sys-body-large-tracking));
+}
+
+div.mat-mdc-select-panel {
+  box-shadow: var(--%NS%mat-select-container-elevation-shadow, 0px 3px 1px -2px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14), 0px 1px 5px 0px rgba(0, 0, 0, 0.12));
+}
+
+.mat-mdc-select-disabled {
+  color: var(--%NS%mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+.mat-mdc-select-disabled .mat-mdc-select-placeholder {
+  color: var(--%NS%mat-select-disabled-trigger-text-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+
+.mat-mdc-select-trigger {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  position: relative;
+  box-sizing: border-box;
+  width: 100%;
+}
+.mat-mdc-select-disabled .mat-mdc-select-trigger {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: default;
+}
+
+.mat-mdc-select-value {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mat-mdc-select-value-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mat-mdc-select-arrow-wrapper {
+  height: 24px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+}
+.mat-form-field-appearance-fill .mdc-text-field--no-label .mat-mdc-select-arrow-wrapper {
+  transform: none;
+}
+
+.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-invalid .mat-mdc-select-arrow,
+.mat-form-field-invalid:not(.mat-form-field-disabled) .mat-mdc-form-field-infix::after {
+  color: var(--%NS%mat-select-invalid-arrow-color, var(--%NS%mat-sys-error));
+}
+
+.mat-mdc-select-arrow {
+  width: 10px;
+  height: 5px;
+  position: relative;
+  color: var(--%NS%mat-select-enabled-arrow-color, var(--%NS%mat-sys-on-surface-variant));
+}
+.mat-mdc-form-field.mat-focused .mat-mdc-select-arrow {
+  color: var(--%NS%mat-select-focused-arrow-color, var(--%NS%mat-sys-primary));
+}
+.mat-mdc-form-field .mat-mdc-select.mat-mdc-select-disabled .mat-mdc-select-arrow {
+  color: var(--%NS%mat-select-disabled-arrow-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+.mat-select-open .mat-mdc-select-arrow {
+  transform: rotate(180deg);
+}
+.mat-form-field-animations-enabled .mat-mdc-select-arrow {
+  transition: transform 80ms linear;
+}
+.mat-mdc-select-arrow svg {
+  fill: currentColor;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+@media (forced-colors: active) {
+  .mat-mdc-select-arrow svg {
+    fill: CanvasText;
+  }
+  .mat-mdc-select-disabled .mat-mdc-select-arrow svg {
+    fill: GrayText;
+  }
+}
+
+div.mat-mdc-select-panel {
+  width: 100%;
+  max-height: 275px;
+  outline: 0;
+  overflow: auto;
+  padding: 8px 0;
+  box-sizing: border-box;
+  transform-origin: top center;
+  border-radius: 0 0 4px 4px;
+  position: relative;
+  background-color: var(--%NS%mat-select-panel-background-color, var(--%NS%mat-sys-surface-container));
+}
+.mat-mdc-select-panel-above div.mat-mdc-select-panel {
+  border-radius: 4px 4px 0 0;
+  transform-origin: bottom center;
+}
+@media (forced-colors: active) {
+  div.mat-mdc-select-panel {
+    outline: solid 1px;
+  }
+}
+
+.mat-select-panel-animations-enabled {
+  animation: _mat-select-enter 120ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mat-select-panel-animations-enabled.mat-select-panel-exit {
+  animation: _mat-select-exit 100ms linear;
+}
+
+.mat-mdc-select-placeholder {
+  transition: color 400ms 133.3333333333ms cubic-bezier(0.25, 0.8, 0.25, 1);
+  color: var(--%NS%mat-select-placeholder-text-color, var(--%NS%mat-sys-on-surface-variant));
+}
+.mat-mdc-form-field:not(.mat-form-field-animations-enabled) .mat-mdc-select-placeholder, ._mat-animation-noopable .mat-mdc-select-placeholder {
+  transition: none;
+}
+.mat-form-field-hide-placeholder .mat-mdc-select-placeholder {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  transition: none;
+  display: block;
+}
+
+.mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {
+  cursor: pointer;
+}
+.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mat-mdc-floating-label {
+  max-width: calc(100% - 18px);
+}
+.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-fill .mdc-floating-label--float-above {
+  max-width: calc(100% / 0.75 - 24px);
+}
+.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-notched-outline__notch {
+  max-width: calc(100% - 60px);
+}
+.mat-mdc-form-field-type-mat-select.mat-form-field-appearance-outline .mdc-text-field--label-floating .mdc-notched-outline__notch {
+  max-width: calc(100% - 24px);
+}
+
+.mat-mdc-select-min-line:empty::before {
+  content: " ";
+  white-space: pre;
+  width: 1px;
+  display: inline-block;
+  visibility: hidden;
+}
+
+.mat-form-field-appearance-fill .mat-mdc-select-arrow-wrapper {
+  transform: var(--%NS%mat-select-arrow-transform, translateY(-8px));
+}
+`],encapsulation:2})}return n})();var Oi=(()=>{class n{static ɵfac=function(t){return new(t||n)};static ɵmod=Ws({type:n});static ɵinj=Gr({imports:[di,Ji,Vn$1,Vt,ce,Ji]})}return n})();var en=[`input`];var tn=[`*`];var lt={color:`accent`,clickAction:`check-indeterminate`,disabledInteractive:!1};var nn=new w(`mat-checkbox-default-options`,{providedIn:`root`,factory:()=>lt});var y=(function(n){return n[n.Init=0]=`Init`,n[n.Checked=1]=`Checked`,n[n.Unchecked=2]=`Unchecked`,n[n.Indeterminate=3]=`Indeterminate`,n})(y||{});var mt=class{source;checked};var pt=(()=>{class n{_elementRef=D(On$1);_changeDetectorRef=D(cy);_ngZone=D(ae);_animationsDisabled=zn$1();_options=D(nn,{optional:!0});focus(){this._inputElement.nativeElement.focus()}_createChangeEvent(e){let t=new mt;return t.source=this,t.checked=e,t}_getAnimationTargetElement(){return this._inputElement?.nativeElement}_animationClasses={uncheckedToChecked:`mdc-checkbox--anim-unchecked-checked`,uncheckedToIndeterminate:`mdc-checkbox--anim-unchecked-indeterminate`,checkedToUnchecked:`mdc-checkbox--anim-checked-unchecked`,checkedToIndeterminate:`mdc-checkbox--anim-checked-indeterminate`,indeterminateToChecked:`mdc-checkbox--anim-indeterminate-checked`,indeterminateToUnchecked:`mdc-checkbox--anim-indeterminate-unchecked`};ariaLabel=``;ariaLabelledby=null;ariaDescribedby;ariaExpanded;ariaControls;ariaOwns;_uniqueId;id;get inputId(){return`${this.id||this._uniqueId}-input`}required=!1;labelPosition=`after`;name=null;change=new ct;indeterminateChange=new ct;value;disableRipple=!1;_inputElement;tabIndex;color;disabledInteractive;_onTouched=()=>{};_currentAnimationClass=``;_currentCheckState=y.Init;_controlValueAccessorChangeFn=()=>{};_validatorChangeFn=()=>{};constructor(){D(w$1).load(Be);let e=D(new Qm(`tabindex`),{optional:!0});this._options=this._options||lt,this.color=this._options.color||lt.color,this.tabIndex=e==null?0:parseInt(e)||0,this.id=this._uniqueId=D(ne$1).getId(`mat-mdc-checkbox-`),this.disabledInteractive=this._options?.disabledInteractive??!1}ngOnChanges(e){e.required&&this._validatorChangeFn()}ngAfterViewInit(){this._syncIndeterminate(this.indeterminate)}get checked(){return this._checked}set checked(e){e!=this.checked&&(this._checked=e,this._changeDetectorRef.markForCheck())}_checked=!1;get disabled(){return this._disabled}set disabled(e){e!==this.disabled&&(this._disabled=e,this._changeDetectorRef.markForCheck())}_disabled=!1;get indeterminate(){return this._indeterminate()}set indeterminate(e){let t=e!=this._indeterminate();this._indeterminate.set(e),t&&(e?this._transitionCheckState(y.Indeterminate):this._transitionCheckState(this.checked?y.Checked:y.Unchecked),this.indeterminateChange.emit(e)),this._syncIndeterminate(e)}_indeterminate=tt(!1);_isRippleDisabled(){return this.disableRipple||this.disabled}_onLabelTextChange(){this._changeDetectorRef.detectChanges()}writeValue(e){this.checked=!!e}registerOnChange(e){this._controlValueAccessorChangeFn=e}registerOnTouched(e){this._onTouched=e}setDisabledState(e){this.disabled=e}validate(e){return this.required&&e.value!==!0?{required:!0}:null}registerOnValidatorChange(e){this._validatorChangeFn=e}_transitionCheckState(e){let t=this._currentCheckState,i=this._getAnimationTargetElement();if(!(t===e||!i)&&(this._currentAnimationClass&&i.classList.remove(this._currentAnimationClass),this._currentAnimationClass=this._getAnimationClassForCheckStateTransition(t,e),this._currentCheckState=e,this._currentAnimationClass.length>0)){i.classList.add(this._currentAnimationClass);let o=this._currentAnimationClass;this._ngZone.runOutsideAngular(()=>{setTimeout(()=>{i.classList.remove(o)},1e3)})}}_emitChangeEvent(){this._controlValueAccessorChangeFn(this.checked),this.change.emit(this._createChangeEvent(this.checked)),this._inputElement&&(this._inputElement.nativeElement.checked=this.checked)}toggle(){this.checked=!this.checked,this._controlValueAccessorChangeFn(this.checked)}_handleInputClick(){let e=this._options?.clickAction;!this.disabled&&e!==`noop`?(this.indeterminate&&e!==`check`&&Promise.resolve().then(()=>{this._indeterminate.set(!1),this.indeterminateChange.emit(!1)}),this._checked=!this._checked,this._transitionCheckState(this._checked?y.Checked:y.Unchecked),this._emitChangeEvent()):(this.disabled&&this.disabledInteractive||!this.disabled&&e===`noop`)&&(this._inputElement.nativeElement.checked=this.checked,this._inputElement.nativeElement.indeterminate=this.indeterminate)}_onInteractionEvent(e){e.stopPropagation()}_onBlur(){Promise.resolve().then(()=>{this._onTouched(),this._changeDetectorRef.markForCheck()})}_getAnimationClassForCheckStateTransition(e,t){if(this._animationsDisabled)return``;switch(e){case y.Init:if(t===y.Checked)return this._animationClasses.uncheckedToChecked;if(t==y.Indeterminate)return this._checked?this._animationClasses.checkedToIndeterminate:this._animationClasses.uncheckedToIndeterminate;break;case y.Unchecked:return t===y.Checked?this._animationClasses.uncheckedToChecked:this._animationClasses.uncheckedToIndeterminate;case y.Checked:return t===y.Unchecked?this._animationClasses.checkedToUnchecked:this._animationClasses.checkedToIndeterminate;case y.Indeterminate:return t===y.Checked?this._animationClasses.indeterminateToChecked:this._animationClasses.indeterminateToUnchecked}return``}_syncIndeterminate(e){let t=this._inputElement;t&&(t.nativeElement.indeterminate=e)}_onInputClick(){this._handleInputClick()}_preventBubblingFromLabel(e){e.target&&this._inputElement&&e.target!==this._inputElement.nativeElement&&e.stopPropagation()}static ɵfac=function(t){return new(t||n)};static ɵcmp=SC({type:n,selectors:[[`mat-checkbox`]],viewQuery:function(t,i){if(t&1&&vm(en,5),t&2){let o;Hb(o=Ub())&&(i._inputElement=o.first)}},hostAttrs:[1,`mat-mdc-checkbox`],hostVars:16,hostBindings:function(t,i){t&2&&(fm(`id`,i.id),sm(`tabindex`,null)(`aria-label`,null)(`aria-labelledby`,null),tT(i.color?`mat-`+i.color:`mat-accent`),bm(`_mat-animation-noopable`,i._animationsDisabled)(`mdc-checkbox--disabled`,i.disabled)(`mat-mdc-checkbox-disabled`,i.disabled)(`mat-mdc-checkbox-checked`,i.checked)(`mat-mdc-checkbox-disabled-interactive`,i.disabledInteractive))},inputs:{ariaLabel:[0,`aria-label`,`ariaLabel`],ariaLabelledby:[0,`aria-labelledby`,`ariaLabelledby`],ariaDescribedby:[0,`aria-describedby`,`ariaDescribedby`],ariaExpanded:[2,`aria-expanded`,`ariaExpanded`,p_],ariaControls:[0,`aria-controls`,`ariaControls`],ariaOwns:[0,`aria-owns`,`ariaOwns`],id:`id`,required:[2,`required`,`required`,p_],labelPosition:`labelPosition`,name:`name`,value:`value`,disableRipple:[2,`disableRipple`,`disableRipple`,p_],tabIndex:[2,`tabIndex`,`tabIndex`,e=>e==null?void 0:h_(e)],color:`color`,disabledInteractive:[2,`disabledInteractive`,`disabledInteractive`,p_],checked:[2,`checked`,`checked`,p_],disabled:[2,`disabled`,`disabled`,p_],indeterminate:[2,`indeterminate`,`indeterminate`,p_]},outputs:{change:`change`,indeterminateChange:`indeterminateChange`},exportAs:[`matCheckbox`],features:[wT([{provide:j,useExisting:xi(()=>n),multi:!0},{provide:Z,useExisting:n,multi:!0}]),ks],ngContentSelectors:tn,decls:15,vars:23,consts:[[`checkbox`,``],[`input`,``],[`label`,``],[`mat-internal-form-field`,``,3,`click`,`labelPosition`,`for`],[1,`mdc-checkbox`],[`aria-hidden`,`true`,1,`mat-mdc-checkbox-touch-target`],[`type`,`checkbox`,1,`mdc-checkbox__native-control`,3,`blur`,`click`,`change`,`checked`,`indeterminate`,`disabled`,`id`,`required`,`tabIndex`],[`aria-hidden`,`true`,1,`mdc-checkbox__ripple`],[`aria-hidden`,`true`,1,`mdc-checkbox__background`],[`focusable`,`false`,`viewBox`,`0 0 24 24`,1,`mdc-checkbox__checkmark`],[`fill`,`none`,`d`,`M1.73,12.91 8.1,19.28 22.79,4.59`,1,`mdc-checkbox__checkmark-path`],[1,`mdc-checkbox__mixedmark`],[`mat-ripple`,``,`aria-hidden`,`true`,1,`mat-mdc-checkbox-ripple`,`mat-focus-indicator`,3,`matRippleTrigger`,`matRippleDisabled`,`matRippleCentered`],[1,`mat-internal-form-field-label`,`mdc-label`]],template:function(t,i){if(t&1&&(jb(),Rs(0,`label`,3),hm(`click`,function(m){return i._preventBubblingFromLabel(m)}),Rs(1,`span`,4,0),cm(3,`span`,5),Rs(4,`input`,6,1),hm(`blur`,function(){return i._onBlur()})(`click`,function(){return i._onInputClick()})(`change`,function(m){return i._onInteractionEvent(m)}),Ol(),cm(6,`span`,7),Rs(7,`span`,8),Qf(),Rs(8,`svg`,9),cm(9,`path`,10),Ol(),Kf(),cm(10,`span`,11),Ol(),cm(11,`span`,12),Ol(),Rs(12,`span`,13,2),Bb(14),Ol()()),t&2){let o=Gb(2);am(`labelPosition`,i.labelPosition)(`for`,i.inputId),KI(4),bm(`mdc-checkbox--selected`,i.checked),am(`checked`,i.checked)(`indeterminate`,i.indeterminate)(`disabled`,i.disabled&&!i.disabledInteractive)(`id`,i.inputId)(`required`,i.required)(`tabIndex`,i.disabled&&!i.disabledInteractive?-1:i.tabIndex),sm(`aria-label`,i.ariaLabel||null)(`aria-labelledby`,i.ariaLabelledby)(`aria-describedby`,i.ariaDescribedby)(`aria-checked`,i.indeterminate?`mixed`:null)(`aria-controls`,i.ariaControls)(`aria-disabled`,i.disabled&&i.disabledInteractive?!0:null)(`aria-expanded`,i.ariaExpanded)(`aria-owns`,i.ariaOwns)(`name`,i.name)(`value`,i.value),KI(7),am(`matRippleTrigger`,o)(`matRippleDisabled`,i.disableRipple||i.disabled)(`matRippleCentered`,!0)}},dependencies:[Pe,ir],styles:[`.mdc-checkbox {
+  display: inline-block;
+  position: relative;
+  flex: 0 0 18px;
+  box-sizing: content-box;
+  width: 18px;
+  height: 18px;
+  line-height: 0;
+  white-space: nowrap;
+  cursor: pointer;
+  vertical-align: bottom;
+  padding: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - 18px) / 2);
+  margin: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);
+}
+.mdc-checkbox:hover > .mdc-checkbox__ripple {
+  opacity: var(--%NS%mat-checkbox-unselected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));
+  background-color: var(--%NS%mat-checkbox-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox:hover > .mat-mdc-checkbox-ripple > .mat-ripple-element {
+  background-color: var(--%NS%mat-checkbox-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox .mdc-checkbox__native-control:focus + .mdc-checkbox__ripple {
+  opacity: var(--%NS%mat-checkbox-unselected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));
+  background-color: var(--%NS%mat-checkbox-unselected-focus-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox .mdc-checkbox__native-control:focus ~ .mat-mdc-checkbox-ripple .mat-ripple-element {
+  background-color: var(--%NS%mat-checkbox-unselected-focus-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox:active > .mdc-checkbox__native-control + .mdc-checkbox__ripple {
+  opacity: var(--%NS%mat-checkbox-unselected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));
+  background-color: var(--%NS%mat-checkbox-unselected-pressed-state-layer-color, var(--%NS%mat-sys-primary));
+}
+.mdc-checkbox:active > .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element {
+  background-color: var(--%NS%mat-checkbox-unselected-pressed-state-layer-color, var(--%NS%mat-sys-primary));
+}
+.mdc-checkbox:hover > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {
+  opacity: var(--%NS%mat-checkbox-selected-hover-state-layer-opacity, var(--%NS%mat-sys-hover-state-layer-opacity));
+  background-color: var(--%NS%mat-checkbox-selected-hover-state-layer-color, var(--%NS%mat-sys-primary));
+}
+.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {
+  background-color: var(--%NS%mat-checkbox-selected-hover-state-layer-color, var(--%NS%mat-sys-primary));
+}
+.mdc-checkbox .mdc-checkbox__native-control:focus:checked + .mdc-checkbox__ripple {
+  opacity: var(--%NS%mat-checkbox-selected-focus-state-layer-opacity, var(--%NS%mat-sys-focus-state-layer-opacity));
+  background-color: var(--%NS%mat-checkbox-selected-focus-state-layer-color, var(--%NS%mat-sys-primary));
+}
+.mdc-checkbox .mdc-checkbox__native-control:focus:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {
+  background-color: var(--%NS%mat-checkbox-selected-focus-state-layer-color, var(--%NS%mat-sys-primary));
+}
+.mdc-checkbox:active > .mdc-checkbox__native-control:checked + .mdc-checkbox__ripple {
+  opacity: var(--%NS%mat-checkbox-selected-pressed-state-layer-opacity, var(--%NS%mat-sys-pressed-state-layer-opacity));
+  background-color: var(--%NS%mat-checkbox-selected-pressed-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox:active > .mdc-checkbox__native-control:checked ~ .mat-mdc-checkbox-ripple .mat-ripple-element {
+  background-color: var(--%NS%mat-checkbox-selected-pressed-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control ~ .mat-mdc-checkbox-ripple .mat-ripple-element,
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control + .mdc-checkbox__ripple {
+  background-color: var(--%NS%mat-checkbox-unselected-hover-state-layer-color, var(--%NS%mat-sys-on-surface));
+}
+.mdc-checkbox .mdc-checkbox__native-control {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  cursor: inherit;
+  z-index: 1;
+  width: var(--%NS%mat-checkbox-state-layer-size, 40px);
+  height: var(--%NS%mat-checkbox-state-layer-size, 40px);
+  top: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);
+  right: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);
+  left: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - var(--%NS%mat-checkbox-state-layer-size, 40px)) / 2);
+}
+
+.mdc-checkbox--disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.mdc-checkbox__background {
+  display: inline-flex;
+  position: absolute;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 18px;
+  height: 18px;
+  border: 2px solid currentColor;
+  border-radius: 2px;
+  background-color: transparent;
+  pointer-events: none;
+  will-change: background-color, border-color;
+  transition: background-color 90ms cubic-bezier(0.4, 0, 0.6, 1), border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);
+  -webkit-print-color-adjust: exact;
+  color-adjust: exact;
+  border-color: var(--%NS%mat-checkbox-unselected-icon-color, var(--%NS%mat-sys-on-surface-variant));
+  top: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - 18px) / 2);
+  left: calc((var(--%NS%mat-checkbox-state-layer-size, 40px) - 18px) / 2);
+}
+
+.mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
+.mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-selected-icon-color, var(--%NS%mat-sys-primary));
+  background-color: var(--%NS%mat-checkbox-selected-icon-color, var(--%NS%mat-sys-primary));
+}
+
+.mdc-checkbox--disabled .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+@media (forced-colors: active) {
+  .mdc-checkbox--disabled .mdc-checkbox__background {
+    border-color: GrayText;
+  }
+}
+
+.mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,
+.mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {
+  background-color: var(--%NS%mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+  border-color: transparent;
+}
+@media (forced-colors: active) {
+  .mdc-checkbox__native-control:disabled:checked ~ .mdc-checkbox__background,
+  .mdc-checkbox__native-control:disabled:indeterminate ~ .mdc-checkbox__background {
+    border-color: GrayText;
+  }
+}
+
+.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:checked) ~ .mdc-checkbox__background,
+.mdc-checkbox:hover > .mdc-checkbox__native-control:not(:indeterminate) ~ .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-unselected-hover-icon-color, var(--%NS%mat-sys-on-surface));
+  background-color: transparent;
+}
+
+.mdc-checkbox:hover > .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,
+.mdc-checkbox:hover > .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-selected-hover-icon-color, var(--%NS%mat-sys-primary));
+  background-color: var(--%NS%mat-checkbox-selected-hover-icon-color, var(--%NS%mat-sys-primary));
+}
+
+.mdc-checkbox__native-control:focus:focus:not(:checked) ~ .mdc-checkbox__background,
+.mdc-checkbox__native-control:focus:focus:not(:indeterminate) ~ .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-unselected-focus-icon-color, var(--%NS%mat-sys-on-surface));
+}
+
+.mdc-checkbox__native-control:focus:focus:checked ~ .mdc-checkbox__background,
+.mdc-checkbox__native-control:focus:focus:indeterminate ~ .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-selected-focus-icon-color, var(--%NS%mat-sys-primary));
+  background-color: var(--%NS%mat-checkbox-selected-focus-icon-color, var(--%NS%mat-sys-primary));
+}
+
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {
+  border-color: var(--%NS%mat-checkbox-disabled-unselected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+@media (forced-colors: active) {
+  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox:hover > .mdc-checkbox__native-control ~ .mdc-checkbox__background,
+  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox .mdc-checkbox__native-control:focus ~ .mdc-checkbox__background,
+  .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__background {
+    border-color: GrayText;
+  }
+}
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,
+.mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {
+  background-color: var(--%NS%mat-checkbox-disabled-selected-icon-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+  border-color: transparent;
+}
+
+.mdc-checkbox__checkmark {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  transition: opacity 180ms cubic-bezier(0.4, 0, 0.6, 1);
+  color: var(--%NS%mat-checkbox-selected-checkmark-color, var(--%NS%mat-sys-on-primary));
+}
+@media (forced-colors: active) {
+  .mdc-checkbox__checkmark {
+    color: CanvasText;
+  }
+}
+
+.mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {
+  color: var(--%NS%mat-checkbox-disabled-selected-checkmark-color, var(--%NS%mat-sys-surface));
+}
+@media (forced-colors: active) {
+  .mdc-checkbox--disabled .mdc-checkbox__checkmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__checkmark {
+    color: GrayText;
+  }
+}
+
+.mdc-checkbox__checkmark-path {
+  transition: stroke-dashoffset 180ms cubic-bezier(0.4, 0, 0.6, 1);
+  stroke: currentColor;
+  stroke-width: 3.12px;
+  stroke-dashoffset: 29.7833385;
+  stroke-dasharray: 29.7833385;
+}
+
+.mdc-checkbox__mixedmark {
+  width: 100%;
+  height: 0;
+  transform: scaleX(0) rotate(0deg);
+  border-width: 1px;
+  border-style: solid;
+  opacity: 0;
+  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);
+  border-color: var(--%NS%mat-checkbox-selected-checkmark-color, var(--%NS%mat-sys-on-primary));
+}
+@media (forced-colors: active) {
+  .mdc-checkbox__mixedmark {
+    margin: 0 1px;
+  }
+}
+
+.mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {
+  border-color: var(--%NS%mat-checkbox-disabled-selected-checkmark-color, var(--%NS%mat-sys-surface));
+}
+@media (forced-colors: active) {
+  .mdc-checkbox--disabled .mdc-checkbox__mixedmark, .mdc-checkbox--disabled.mat-mdc-checkbox-disabled-interactive .mdc-checkbox__mixedmark {
+    border-color: GrayText;
+  }
+}
+
+.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__background,
+.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__background,
+.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__background,
+.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__background {
+  animation-duration: 180ms;
+  animation-timing-function: linear;
+}
+
+.mdc-checkbox--anim-unchecked-checked .mdc-checkbox__checkmark-path {
+  animation: mdc-checkbox-unchecked-checked-checkmark-path 180ms linear;
+  transition: none;
+}
+
+.mdc-checkbox--anim-unchecked-indeterminate .mdc-checkbox__mixedmark {
+  animation: mdc-checkbox-unchecked-indeterminate-mixedmark 90ms linear;
+  transition: none;
+}
+
+.mdc-checkbox--anim-checked-unchecked .mdc-checkbox__checkmark-path {
+  animation: mdc-checkbox-checked-unchecked-checkmark-path 90ms linear;
+  transition: none;
+}
+
+.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__checkmark {
+  animation: mdc-checkbox-checked-indeterminate-checkmark 90ms linear;
+  transition: none;
+}
+.mdc-checkbox--anim-checked-indeterminate .mdc-checkbox__mixedmark {
+  animation: mdc-checkbox-checked-indeterminate-mixedmark 90ms linear;
+  transition: none;
+}
+
+.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__checkmark {
+  animation: mdc-checkbox-indeterminate-checked-checkmark 500ms linear;
+  transition: none;
+}
+.mdc-checkbox--anim-indeterminate-checked .mdc-checkbox__mixedmark {
+  animation: mdc-checkbox-indeterminate-checked-mixedmark 500ms linear;
+  transition: none;
+}
+
+.mdc-checkbox--anim-indeterminate-unchecked .mdc-checkbox__mixedmark {
+  animation: mdc-checkbox-indeterminate-unchecked-mixedmark 300ms linear;
+  transition: none;
+}
+
+.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background,
+.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background {
+  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,
+.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path {
+  stroke-dashoffset: 0;
+}
+
+.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {
+  transition: opacity 180ms cubic-bezier(0, 0, 0.2, 1), transform 180ms cubic-bezier(0, 0, 0.2, 1);
+  opacity: 1;
+}
+.mdc-checkbox__native-control:checked ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {
+  transform: scaleX(1) rotate(-45deg);
+}
+
+.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__checkmark {
+  transform: rotate(45deg);
+  opacity: 0;
+  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+.mdc-checkbox__native-control:indeterminate ~ .mdc-checkbox__background > .mdc-checkbox__mixedmark {
+  transform: scaleX(1) rotate(0deg);
+  opacity: 1;
+}
+
+@keyframes mdc-checkbox-unchecked-checked-checkmark-path {
+  0%, 50% {
+    stroke-dashoffset: 29.7833385;
+  }
+  50% {
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes mdc-checkbox-unchecked-indeterminate-mixedmark {
+  0%, 68.2% {
+    transform: scaleX(0);
+  }
+  68.2% {
+    animation-timing-function: cubic-bezier(0, 0, 0, 1);
+  }
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes mdc-checkbox-checked-unchecked-checkmark-path {
+  from {
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+    opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  to {
+    opacity: 0;
+    stroke-dashoffset: -29.7833385;
+  }
+}
+@keyframes mdc-checkbox-checked-indeterminate-checkmark {
+  from {
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(45deg);
+    opacity: 0;
+  }
+}
+@keyframes mdc-checkbox-indeterminate-checked-checkmark {
+  from {
+    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);
+    transform: rotate(45deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(360deg);
+    opacity: 1;
+  }
+}
+@keyframes mdc-checkbox-checked-indeterminate-mixedmark {
+  from {
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    transform: rotate(-45deg);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+}
+@keyframes mdc-checkbox-indeterminate-checked-mixedmark {
+  from {
+    animation-timing-function: cubic-bezier(0.14, 0, 0, 1);
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(315deg);
+    opacity: 0;
+  }
+}
+@keyframes mdc-checkbox-indeterminate-unchecked-mixedmark {
+  0% {
+    animation-timing-function: linear;
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  32.8%, 100% {
+    transform: scaleX(0);
+    opacity: 0;
+  }
+}
+.mat-mdc-checkbox {
+  display: inline-block;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+}
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-touch-target,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__native-control,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__ripple,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mat-mdc-checkbox-ripple::before,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__checkmark > .mdc-checkbox__checkmark-path,
+.mat-mdc-checkbox._mat-animation-noopable > .mat-internal-form-field > .mdc-checkbox > .mdc-checkbox__background > .mdc-checkbox__mixedmark {
+  transition: none !important;
+  animation: none !important;
+}
+.mat-mdc-checkbox label {
+  cursor: pointer;
+}
+.mat-mdc-checkbox .mat-internal-form-field {
+  color: var(--%NS%mat-checkbox-label-text-color, var(--%NS%mat-sys-on-surface));
+  font-family: var(--%NS%mat-checkbox-label-text-font, var(--%NS%mat-sys-body-medium-font));
+  line-height: var(--%NS%mat-checkbox-label-text-line-height, var(--%NS%mat-sys-body-medium-line-height));
+  font-size: var(--%NS%mat-checkbox-label-text-size, var(--%NS%mat-sys-body-medium-size));
+  letter-spacing: var(--%NS%mat-checkbox-label-text-tracking, var(--%NS%mat-sys-body-medium-tracking));
+  font-weight: var(--%NS%mat-checkbox-label-text-weight, var(--%NS%mat-sys-body-medium-weight));
+}
+.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive {
+  pointer-events: auto;
+}
+.mat-mdc-checkbox.mat-mdc-checkbox-disabled.mat-mdc-checkbox-disabled-interactive input {
+  cursor: default;
+}
+.mat-mdc-checkbox.mat-mdc-checkbox-disabled label {
+  cursor: default;
+}
+.mat-mdc-checkbox.mat-mdc-checkbox-disabled .mat-internal-form-field-label {
+  color: var(--%NS%mat-checkbox-disabled-label-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+@media (forced-colors: active) {
+  .mat-mdc-checkbox.mat-mdc-checkbox-disabled .mat-internal-form-field-label {
+    color: GrayText;
+  }
+}
+.mat-mdc-checkbox .mat-internal-form-field-label:empty {
+  display: none;
+}
+.mat-mdc-checkbox .mdc-checkbox__ripple {
+  opacity: 0;
+}
+
+.mat-mdc-checkbox .mat-mdc-checkbox-ripple,
+.mdc-checkbox__ripple {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.mat-mdc-checkbox .mat-mdc-checkbox-ripple:not(:empty),
+.mdc-checkbox__ripple:not(:empty) {
+  transform: translateZ(0);
+}
+
+.mat-mdc-checkbox-ripple .mat-ripple-element {
+  opacity: 0.1;
+}
+
+.mat-mdc-checkbox-touch-target {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: var(--%NS%mat-checkbox-touch-target-size, 48px);
+  width: var(--%NS%mat-checkbox-touch-target-size, 48px);
+  transform: translate(-50%, -50%);
+  display: var(--%NS%mat-checkbox-touch-target-display, block);
+}
+
+.mat-mdc-checkbox .mat-mdc-checkbox-ripple::before {
+  border-radius: 50%;
+}
+
+.mdc-checkbox__native-control:focus-visible ~ .mat-focus-indicator::before {
+  content: "";
+}
+`],encapsulation:2})}return n})();var Mi=(()=>{class n{static ɵfac=function(t){return new(t||n)};static ɵmod=Ws({type:n});static ɵinj=Gr({imports:[pt,Vn$1]})}return n})();var on=[`input`];var rn=[`formField`];var cn=[`*`];var Qe=class{source;value;constructor(a,e){this.source=a,this.value=e}};var sn={provide:j,useExisting:xi(()=>ht),multi:!0};var Ni=new w(`MatRadioGroup`);var dn=new w(`mat-radio-default-options`,{providedIn:`root`,factory:()=>({color:`accent`,disabledInteractive:!1})});var ht=(()=>{class n{_changeDetector=D(cy);_value=null;_name=D(ne$1).getId(`mat-radio-group-`);_selected=null;_isInitialized=!1;_labelPosition=`after`;_disabled=!1;_required=!1;_buttonChanges;_controlValueAccessorChangeFn=()=>{};onTouched=()=>{};change=new ct;_radios;color;get name(){return this._name}set name(e){this._name=e,this._updateRadioButtonNames()}get labelPosition(){return this._labelPosition}set labelPosition(e){this._labelPosition=e===`before`?`before`:`after`,this._markRadiosForCheck()}get value(){return this._value}set value(e){this._value!==e&&(this._value=e,this._updateSelectedRadioFromValue(),this._checkSelectedRadioButton())}_checkSelectedRadioButton(){this._selected&&!this._selected.checked&&(this._selected.checked=!0)}get selected(){return this._selected}set selected(e){this._selected=e,this.value=e?e.value:null,this._checkSelectedRadioButton()}get disabled(){return this._disabled}set disabled(e){this._disabled=e,this._markRadiosForCheck()}get required(){return this._required}set required(e){this._required=e,this._markRadiosForCheck()}get disabledInteractive(){return this._disabledInteractive}set disabledInteractive(e){this._disabledInteractive=e,this._markRadiosForCheck()}_disabledInteractive=!1;ngAfterContentInit(){this._isInitialized=!0,this._buttonChanges=this._radios.changes.subscribe(()=>{this.selected&&!this._radios.find(e=>e===this.selected)&&(this._selected=null)})}ngOnDestroy(){this._buttonChanges?.unsubscribe()}_touch(){this.onTouched&&this.onTouched()}_updateRadioButtonNames(){this._radios&&this._radios.forEach(e=>{e.name=this.name,e._markForCheck()})}_updateSelectedRadioFromValue(){let e=this._selected!==null&&this._selected.value===this._value;this._radios&&!e&&(this._selected=null,this._radios.forEach(t=>{t.checked=this.value===t.value,t.checked&&(this._selected=t)}))}_emitChangeEvent(){this._isInitialized&&this.change.emit(new Qe(this._selected,this._value))}_markRadiosForCheck(){this._radios&&this._radios.forEach(e=>e._markForCheck())}writeValue(e){this.value=e,this._changeDetector.markForCheck()}registerOnChange(e){this._controlValueAccessorChangeFn=e}registerOnTouched(e){this.onTouched=e}setDisabledState(e){this.disabled=e,this._changeDetector.markForCheck()}static ɵfac=function(t){return new(t||n)};static ɵdir=qs({type:n,selectors:[[`mat-radio-group`]],contentQueries:function(t,i,o){if(t&1&&ym(o,He,5),t&2){let m;Hb(m=Ub())&&(i._radios=m)}},hostAttrs:[`role`,`radiogroup`,1,`mat-mdc-radio-group`],inputs:{color:`color`,name:`name`,labelPosition:`labelPosition`,value:`value`,selected:`selected`,disabled:[2,`disabled`,`disabled`,p_],required:[2,`required`,`required`,p_],disabledInteractive:[2,`disabledInteractive`,`disabledInteractive`,p_]},outputs:{change:`change`},exportAs:[`matRadioGroup`],features:[wT([sn,{provide:Ni,useExisting:n}])]})}return n})();var He=(()=>{class n{_elementRef=D(On$1);_changeDetector=D(cy);_focusMonitor=D(lt$1);_radioDispatcher=D(st);_defaultOptions=D(dn,{optional:!0});_ngZone=D(ae);_renderer=D(vo);_uniqueId=D(ne$1).getId(`mat-radio-`);_cleanupClick;id=this._uniqueId;name;ariaLabel;ariaLabelledby;ariaDescribedby;disableRipple=!1;tabIndex=0;get checked(){return this._checked}set checked(e){this._checked!==e&&(this._checked=e,e&&this.radioGroup&&this.radioGroup.value!==this.value?this.radioGroup.selected=this:!e&&this.radioGroup&&this.radioGroup.value===this.value&&(this.radioGroup.selected=null),e&&this._radioDispatcher.notify(this.id,this.name),this._changeDetector.markForCheck())}get value(){return this._value}set value(e){this._value!==e&&(this._value=e,this.radioGroup!==null&&(this.checked||(this.checked=this.radioGroup.value===e),this.checked&&(this.radioGroup.selected=this)))}get labelPosition(){return this._labelPosition||this.radioGroup&&this.radioGroup.labelPosition||`after`}set labelPosition(e){this._labelPosition=e}_labelPosition;get disabled(){return this._disabled||this.radioGroup!==null&&this.radioGroup.disabled}set disabled(e){this._setDisabled(e)}get required(){return this._required||this.radioGroup&&this.radioGroup.required}set required(e){e!==this._required&&this._changeDetector.markForCheck(),this._required=e}get color(){return this._color||this.radioGroup&&this.radioGroup.color||this._defaultOptions&&this._defaultOptions.color||`accent`}set color(e){this._color=e}_color;get disabledInteractive(){return this._disabledInteractive||this.radioGroup!==null&&this.radioGroup.disabledInteractive}set disabledInteractive(e){this._disabledInteractive=e}_disabledInteractive;change=new ct;radioGroup;get inputId(){return`${this.id||this._uniqueId}-input`}_checked=!1;_disabled=!1;_required=!1;_value=null;_removeUniqueSelectionListener=()=>{};_previousTabIndex;_inputElement;_rippleTrigger;_noopAnimations=zn$1();_injector=D(fe);constructor(){D(w$1).load(Be);let e=D(Ni,{optional:!0}),t=D(new Qm(`tabindex`),{optional:!0});this.radioGroup=e,this._disabledInteractive=this._defaultOptions?.disabledInteractive??!1,t&&(this.tabIndex=h_(t,0))}focus(e,t){t?this._focusMonitor.focusVia(this._inputElement,t,e):this._inputElement.nativeElement.focus(e)}_markForCheck(){this._changeDetector.markForCheck()}ngOnInit(){this.radioGroup&&(this.checked=this.radioGroup.value===this._value,this.checked&&(this.radioGroup.selected=this),this.name=this.radioGroup.name),this._removeUniqueSelectionListener=this._radioDispatcher.listen((e,t)=>{e!==this.id&&t===this.name&&(this.checked=!1)})}ngDoCheck(){this._updateTabIndex()}ngAfterViewInit(){this._updateTabIndex(),this._focusMonitor.monitor(this._elementRef,!0).subscribe(e=>{!e&&this.radioGroup&&this.radioGroup._touch()}),this._ngZone.runOutsideAngular(()=>{this._cleanupClick=this._renderer.listen(this._inputElement.nativeElement,`click`,this._onInputClick)})}ngOnDestroy(){this._cleanupClick?.(),this._focusMonitor.stopMonitoring(this._elementRef),this._removeUniqueSelectionListener()}_emitChangeEvent(){this.change.emit(new Qe(this,this._value))}_isRippleDisabled(){return this.disableRipple||this.disabled}_onInputInteraction(e){if(e.stopPropagation(),!this.checked&&!this.disabled){let t=this.radioGroup&&this.value!==this.radioGroup.value;this.checked=!0,this._emitChangeEvent(),this.radioGroup&&(this.radioGroup._controlValueAccessorChangeFn(this.value),t&&this.radioGroup._emitChangeEvent())}}_setDisabled(e){this._disabled!==e&&(this._disabled=e,this._changeDetector.markForCheck())}_onInputClick=e=>{this.disabled&&this.disabledInteractive&&e.preventDefault()};_updateTabIndex(){let e=this.radioGroup,t;if(!e||!e.selected||this.disabled?t=this.tabIndex:t=e.selected===this?this.tabIndex:-1,t!==this._previousTabIndex){let i=this._inputElement?.nativeElement;i&&(i.setAttribute(`tabindex`,t+``),this._previousTabIndex=t,Kh(()=>{queueMicrotask(()=>{e&&e.selected&&e.selected!==this&&document.activeElement===i&&(e.selected?._inputElement.nativeElement.focus(),document.activeElement===i&&this._inputElement.nativeElement.blur())})},{injector:this._injector}))}}static ɵfac=function(t){return new(t||n)};static ɵcmp=SC({type:n,selectors:[[`mat-radio-button`]],viewQuery:function(t,i){if(t&1&&vm(on,5)(rn,7,On$1),t&2){let o;Hb(o=Ub())&&(i._inputElement=o.first),Hb(o=Ub())&&(i._rippleTrigger=o.first)}},hostAttrs:[1,`mat-mdc-radio-button`],hostVars:19,hostBindings:function(t,i){t&1&&hm(`focus`,function(){return i._inputElement.nativeElement.focus()}),t&2&&(sm(`id`,i.id)(`tabindex`,null)(`aria-label`,null)(`aria-labelledby`,null)(`aria-describedby`,null),bm(`mat-primary`,i.color===`primary`)(`mat-accent`,i.color===`accent`)(`mat-warn`,i.color===`warn`)(`mat-mdc-radio-checked`,i.checked)(`mat-mdc-radio-disabled`,i.disabled)(`mat-mdc-radio-disabled-interactive`,i.disabledInteractive)(`_mat-animation-noopable`,i._noopAnimations))},inputs:{id:`id`,name:`name`,ariaLabel:[0,`aria-label`,`ariaLabel`],ariaLabelledby:[0,`aria-labelledby`,`ariaLabelledby`],ariaDescribedby:[0,`aria-describedby`,`ariaDescribedby`],disableRipple:[2,`disableRipple`,`disableRipple`,p_],tabIndex:[2,`tabIndex`,`tabIndex`,e=>e==null?0:h_(e)],checked:[2,`checked`,`checked`,p_],value:`value`,labelPosition:`labelPosition`,disabled:[2,`disabled`,`disabled`,p_],required:[2,`required`,`required`,p_],color:`color`,disabledInteractive:[2,`disabledInteractive`,`disabledInteractive`,p_]},outputs:{change:`change`},exportAs:[`matRadioButton`],ngContentSelectors:cn,decls:13,vars:17,consts:[[`formField`,``],[`input`,``],[`mat-internal-form-field`,``,3,`labelPosition`,`for`],[1,`mdc-radio`],[1,`mat-mdc-radio-touch-target`],[`type`,`radio`,`aria-invalid`,`false`,1,`mdc-radio__native-control`,3,`change`,`id`,`checked`,`disabled`,`required`],[`aria-hidden`,`true`,1,`mdc-radio__background`],[1,`mdc-radio__outer-circle`],[1,`mdc-radio__inner-circle`],[`mat-ripple`,``,`aria-hidden`,`true`,1,`mat-radio-ripple`,`mat-focus-indicator`,3,`matRippleTrigger`,`matRippleDisabled`,`matRippleCentered`],[1,`mat-ripple-element`,`mat-radio-persistent-ripple`],[1,`mat-internal-form-field-label`,`mdc-label`]],template:function(t,i){t&1&&(jb(),Rs(0,`label`,2,0)(2,`span`,3),cm(3,`span`,4),Rs(4,`input`,5,1),hm(`change`,function(m){return i._onInputInteraction(m)}),Ol(),Rs(6,`span`,6),cm(7,`span`,7)(8,`span`,8),Ol(),Rs(9,`span`,9),cm(10,`span`,10),Ol()(),Rs(11,`span`,11),Bb(12),Ol()()),t&2&&(am(`labelPosition`,i.labelPosition)(`for`,i.inputId),KI(2),bm(`mdc-radio--disabled`,i.disabled),KI(2),am(`id`,i.inputId)(`checked`,i.checked)(`disabled`,i.disabled&&!i.disabledInteractive)(`required`,i.required),sm(`name`,i.name)(`value`,i.value)(`aria-label`,i.ariaLabel)(`aria-labelledby`,i.ariaLabelledby)(`aria-describedby`,i.ariaDescribedby)(`aria-disabled`,i.disabled&&i.disabledInteractive?`true`:null),KI(5),am(`matRippleTrigger`,i._rippleTrigger.nativeElement)(`matRippleDisabled`,i._isRippleDisabled())(`matRippleCentered`,!0))},dependencies:[Pe,ir],styles:[`.mat-mdc-radio-button {
+  -webkit-tap-highlight-color: transparent;
+}
+.mat-mdc-radio-button .mdc-radio {
+  display: inline-block;
+  position: relative;
+  flex: 0 0 auto;
+  box-sizing: content-box;
+  width: 20px;
+  height: 20px;
+  will-change: opacity, transform, border-color, color;
+  padding: calc((var(--%NS%mat-radio-state-layer-size, 40px) - 20px) / 2);
+  cursor: pointer;
+}
+.mat-mdc-radio-button .mdc-radio:hover > .mdc-radio__native-control:not([disabled]):not(:focus) ~ .mdc-radio__background::before {
+  opacity: 0.04;
+  transform: scale(1);
+}
+.mat-mdc-radio-button .mdc-radio:hover > .mdc-radio__native-control:not([disabled]) ~ .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-unselected-hover-icon-color, var(--%NS%mat-sys-on-surface));
+}
+.mat-mdc-radio-button .mdc-radio:hover > .mdc-radio__native-control:enabled:checked + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-selected-hover-icon-color, var(--%NS%mat-sys-primary));
+}
+.mat-mdc-radio-button .mdc-radio:hover > .mdc-radio__native-control:enabled:checked + .mdc-radio__background > .mdc-radio__inner-circle {
+  background-color: var(--%NS%mat-radio-selected-hover-icon-color, var(--%NS%mat-sys-primary, currentColor));
+}
+.mat-mdc-radio-button .mdc-radio:active > .mdc-radio__native-control:enabled:not(:checked) + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-unselected-pressed-icon-color, var(--%NS%mat-sys-on-surface));
+}
+.mat-mdc-radio-button .mdc-radio:active > .mdc-radio__native-control:enabled:checked + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-selected-pressed-icon-color, var(--%NS%mat-sys-primary));
+}
+.mat-mdc-radio-button .mdc-radio:active > .mdc-radio__native-control:enabled:checked + .mdc-radio__background > .mdc-radio__inner-circle {
+  background-color: var(--%NS%mat-radio-selected-pressed-icon-color, var(--%NS%mat-sys-primary, currentColor));
+}
+.mat-mdc-radio-button .mdc-radio__background {
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  width: 20px;
+  height: 20px;
+}
+.mat-mdc-radio-button .mdc-radio__background::before {
+  position: absolute;
+  transform: scale(0, 0);
+  border-radius: 50%;
+  opacity: 0;
+  pointer-events: none;
+  content: "";
+  transition: opacity 90ms cubic-bezier(0.4, 0, 0.6, 1), transform 90ms cubic-bezier(0.4, 0, 0.6, 1);
+  width: var(--%NS%mat-radio-state-layer-size, 40px);
+  height: var(--%NS%mat-radio-state-layer-size, 40px);
+  top: calc(-1 * (var(--%NS%mat-radio-state-layer-size, 40px) - 20px) / 2);
+  left: calc(-1 * (var(--%NS%mat-radio-state-layer-size, 40px) - 20px) / 2);
+}
+.mat-mdc-radio-button .mdc-radio__outer-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  border-width: 2px;
+  border-style: solid;
+  border-radius: 50%;
+  transition: border-color 90ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+.mat-mdc-radio-button .mdc-radio__inner-circle {
+  position: absolute;
+  top: 0;
+  left: 0;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  transform: scale(0);
+  border-radius: 50%;
+  transition: transform 90ms cubic-bezier(0.4, 0, 0.6, 1), background-color 90ms cubic-bezier(0.4, 0, 0.6, 1);
+}
+@media (forced-colors: active) {
+  .mat-mdc-radio-button .mdc-radio__inner-circle {
+    background-color: CanvasText !important;
+  }
+}
+.mat-mdc-radio-button .mdc-radio__native-control {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  top: 0;
+  right: 0;
+  left: 0;
+  cursor: inherit;
+  z-index: 1;
+  width: var(--%NS%mat-radio-state-layer-size, 40px);
+  height: var(--%NS%mat-radio-state-layer-size, 40px);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:checked + .mdc-radio__background, .mat-mdc-radio-button .mdc-radio__native-control:disabled + .mdc-radio__background {
+  transition: opacity 90ms cubic-bezier(0, 0, 0.2, 1), transform 90ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:checked + .mdc-radio__background > .mdc-radio__outer-circle, .mat-mdc-radio-button .mdc-radio__native-control:disabled + .mdc-radio__background > .mdc-radio__outer-circle {
+  transition: border-color 90ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:checked + .mdc-radio__background > .mdc-radio__inner-circle, .mat-mdc-radio-button .mdc-radio__native-control:disabled + .mdc-radio__background > .mdc-radio__inner-circle {
+  transition: transform 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:focus + .mdc-radio__background::before {
+  transform: scale(1);
+  opacity: 0.12;
+  transition: opacity 90ms cubic-bezier(0, 0, 0.2, 1), transform 90ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:disabled:not(:checked) + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-disabled-unselected-icon-color, var(--%NS%mat-sys-on-surface));
+  opacity: var(--%NS%mat-radio-disabled-unselected-icon-opacity, 0.38);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:disabled + .mdc-radio__background {
+  cursor: default;
+}
+.mat-mdc-radio-button .mdc-radio__native-control:disabled + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-disabled-selected-icon-color, var(--%NS%mat-sys-on-surface));
+  opacity: var(--%NS%mat-radio-disabled-selected-icon-opacity, 0.38);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:disabled + .mdc-radio__background > .mdc-radio__inner-circle {
+  background-color: var(--%NS%mat-radio-disabled-selected-icon-color, var(--%NS%mat-sys-on-surface, currentColor));
+  opacity: var(--%NS%mat-radio-disabled-selected-icon-opacity, 0.38);
+}
+.mat-mdc-radio-button .mdc-radio__native-control:enabled:not(:checked) + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-unselected-icon-color, var(--%NS%mat-sys-on-surface-variant));
+}
+.mat-mdc-radio-button .mdc-radio__native-control:enabled:checked + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-selected-icon-color, var(--%NS%mat-sys-primary));
+}
+.mat-mdc-radio-button .mdc-radio__native-control:enabled:checked + .mdc-radio__background > .mdc-radio__inner-circle {
+  background-color: var(--%NS%mat-radio-selected-icon-color, var(--%NS%mat-sys-primary, currentColor));
+}
+.mat-mdc-radio-button .mdc-radio__native-control:enabled:focus:checked + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-selected-focus-icon-color, var(--%NS%mat-sys-primary));
+}
+.mat-mdc-radio-button .mdc-radio__native-control:enabled:focus:checked + .mdc-radio__background > .mdc-radio__inner-circle {
+  background-color: var(--%NS%mat-radio-selected-focus-icon-color, var(--%NS%mat-sys-primary, currentColor));
+}
+.mat-mdc-radio-button .mdc-radio__native-control:checked + .mdc-radio__background > .mdc-radio__inner-circle {
+  transform: scale(0.5);
+  transition: transform 90ms cubic-bezier(0, 0, 0.2, 1), background-color 90ms cubic-bezier(0, 0, 0.2, 1);
+}
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled {
+  pointer-events: auto;
+}
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mdc-radio__native-control:not(:checked) + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-disabled-unselected-icon-color, var(--%NS%mat-sys-on-surface));
+  opacity: var(--%NS%mat-radio-disabled-unselected-icon-opacity, 0.38);
+}
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--%NS%disabled:hover .mdc-radio__native-control:checked + .mdc-radio__background > .mdc-radio__outer-circle,
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mdc-radio__native-control:checked:focus + .mdc-radio__background > .mdc-radio__outer-circle,
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mdc-radio__native-control + .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-disabled-selected-icon-color, var(--%NS%mat-sys-on-surface));
+  opacity: var(--%NS%mat-radio-disabled-selected-icon-opacity, 0.38);
+}
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--%NS%disabled:hover .mdc-radio__native-control:checked + .mdc-radio__background > .mdc-radio__inner-circle,
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mdc-radio__native-control:checked:focus + .mdc-radio__background > .mdc-radio__inner-circle,
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mdc-radio__native-control + .mdc-radio__background > .mdc-radio__inner-circle {
+  background-color: var(--%NS%mat-radio-disabled-selected-icon-color, var(--%NS%mat-sys-on-surface, currentColor));
+  opacity: var(--%NS%mat-radio-disabled-selected-icon-opacity, 0.38);
+}
+.mat-mdc-radio-button._mat-animation-noopable .mdc-radio__background::before,
+.mat-mdc-radio-button._mat-animation-noopable .mdc-radio__outer-circle,
+.mat-mdc-radio-button._mat-animation-noopable .mdc-radio__inner-circle {
+  transition: none !important;
+}
+.mat-mdc-radio-button .mat-internal-form-field-label:empty {
+  display: none;
+}
+.mat-mdc-radio-button .mdc-radio__background::before {
+  background-color: var(--%NS%mat-radio-ripple-color, var(--%NS%mat-sys-on-surface));
+}
+.mat-mdc-radio-button.mat-mdc-radio-checked .mat-ripple-element,
+.mat-mdc-radio-button.mat-mdc-radio-checked .mdc-radio__background::before {
+  background-color: var(--%NS%mat-radio-checked-ripple-color, var(--%NS%mat-sys-primary));
+}
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mat-ripple-element,
+.mat-mdc-radio-button.mat-mdc-radio-disabled-interactive .mdc-radio--disabled .mdc-radio__background::before {
+  background-color: var(--%NS%mat-radio-ripple-color, var(--%NS%mat-sys-on-surface));
+}
+.mat-mdc-radio-button .mat-internal-form-field {
+  color: var(--%NS%mat-radio-label-text-color, var(--%NS%mat-sys-on-surface));
+  font-family: var(--%NS%mat-radio-label-text-font, var(--%NS%mat-sys-body-medium-font));
+  line-height: var(--%NS%mat-radio-label-text-line-height, var(--%NS%mat-sys-body-medium-line-height));
+  font-size: var(--%NS%mat-radio-label-text-size, var(--%NS%mat-sys-body-medium-size));
+  letter-spacing: var(--%NS%mat-radio-label-text-tracking, var(--%NS%mat-sys-body-medium-tracking));
+  font-weight: var(--%NS%mat-radio-label-text-weight, var(--%NS%mat-sys-body-medium-weight));
+  cursor: pointer;
+}
+.mat-mdc-radio-button .mdc-radio--disabled + .mat-internal-form-field-label {
+  color: var(--%NS%mat-radio-disabled-label-color, color-mix(in srgb, var(--%NS%mat-sys-on-surface) 38%, transparent));
+}
+.mat-mdc-radio-button .mat-radio-ripple {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: absolute;
+  pointer-events: none;
+  border-radius: 50%;
+}
+.mat-mdc-radio-button .mat-radio-ripple > .mat-ripple-element {
+  opacity: 0.14;
+}
+.mat-mdc-radio-button .mat-radio-ripple::before {
+  border-radius: 50%;
+}
+.mat-mdc-radio-button .mdc-radio > .mdc-radio__native-control:focus:enabled:not(:checked) ~ .mdc-radio__background > .mdc-radio__outer-circle {
+  border-color: var(--%NS%mat-radio-unselected-focus-icon-color, var(--%NS%mat-sys-on-surface));
+}
+.mat-mdc-radio-button.cdk-focused .mat-focus-indicator::before {
+  content: "";
+}
+
+.mat-mdc-radio-disabled {
+  cursor: default;
+  pointer-events: none;
+}
+.mat-mdc-radio-disabled.mat-mdc-radio-disabled-interactive {
+  pointer-events: auto;
+}
+
+.mat-mdc-radio-touch-target {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: var(--%NS%mat-radio-touch-target-size, 48px);
+  width: var(--%NS%mat-radio-touch-target-size, 48px);
+  transform: translate(-50%, -50%);
+  display: var(--%NS%mat-radio-touch-target-display, block);
+}
+[dir=rtl] .mat-mdc-radio-touch-target {
+  left: auto;
+  right: 50%;
+  transform: translate(50%, -50%);
+}
+`],encapsulation:2})}return n})();var Ei=(()=>{class n{static ɵfac=function(t){return new(t||n)};static ɵmod=Ws({type:n});static ɵinj=Gr({imports:[Ge,He,Vn$1]})}return n})();var pn=M({title:i(),description:o$1(i()),question_order:_(f())},[`title`,`question_order`]);var J=M({title:o$1(i()),description:o$1(i()),trigger:o$1(ne$2([`none`,`reserved`,`checkedin`,`checkedout`,`noshow`,`rejected`,`cancelled`,`ended`,`visitor_checkedin`,`visitor_checkedout`])),zone_id:o$1(i()),building_id:o$1(i()),pages:o$1(_(pn)),authority_id:o$1(i()),id:o$1(f()),created_at:o$1(f()),updated_at:o$1(f())});var Ke=M({type:o$1(i()),answer_json:o$1(X()),question_id:o$1(f()),survey_id:o$1(f()),id:o$1(f()),created_at:o$1(f()),updated_at:o$1(f())});var ee=M({title:o$1(i()),description:o$1(i()),type:o$1(i()),options:o$1(X()),required:o$1(b()),choices:o$1(X()),max_rating:o$1(f(`Int32`)),tags:o$1(_(i())),deleted_at:o$1(f()),previous_question_id:o$1(f()),deleted:o$1(b()),authority_id:o$1(i()),id:o$1(f()),created_at:o$1(f()),updated_at:o$1(f())});var Ye={};o(Ye,{create:()=>bn,destroy:()=>gn,query:()=>vn,show:()=>xn,update:()=>Sn});function bn(n,a){return v(fn,n,a)}var fn=w$2({method:`POST`,path:`/api/staff/v1/surveys`,path_keys:[],params:S({}),body:J,response:J,name:`staff.surveys.create`});function gn(n,a){return v(kn,n,a)}var kn=w$2({method:`DELETE`,path:`/api/staff/v1/surveys/{id}`,path_keys:[`id`],params:S({id:f()},[`id`]),body:null,response:`text`,name:`staff.surveys.destroy`});function vn(n={},a){return v(yn,n,a)}var yn=w$2({method:`GET`,path:`/api/staff/v1/surveys`,path_keys:[],params:S({zone_id:o$1(i()),building_id:o$1(i())}),body:null,response:_(J),name:`staff.surveys.query`});function xn(n,a){return v(Cn,n,a)}var Cn=w$2({method:`GET`,path:`/api/staff/v1/surveys/{id}`,path_keys:[`id`],params:S({id:f()},[`id`]),body:null,response:J,name:`staff.surveys.show`});function Sn(n,a){return v(wn,n,a)}var wn=w$2({method:`PATCH`,path:`/api/staff/v1/surveys/{id}`,path_keys:[`id`],params:S({id:f()},[`id`]),body:J,response:J,name:`staff.surveys.update`});var Xe={};o(Xe,{create:()=>In,query:()=>Mn});function In(n,a){return v(On,n,a)}var On=w$2({method:`POST`,path:`/api/staff/v1/surveys/answers`,path_keys:[],params:S({}),body:_(Ke),response:_(Ke),name:`staff.surveys_answers.create`});function Mn(n={},a){return v(Nn,n,a)}var Nn=w$2({method:`GET`,path:`/api/staff/v1/surveys/answers`,path_keys:[],params:S({survey_id:o$1(f()),created_after:o$1(f()),created_before:o$1(f())}),body:null,response:_(Ke),name:`staff.surveys_answers.query`});var $e={};o($e,{create:()=>En,destroy:()=>Dn,query:()=>Rn,show:()=>Pn,update:()=>qn});function En(n,a){return v(Tn,n,a)}var Tn=w$2({method:`POST`,path:`/api/staff/v1/surveys/questions`,path_keys:[],params:S({}),body:ee,response:ee,name:`staff.surveys_questions.create`});function Dn(n,a){return v(An,n,a)}var An=w$2({method:`DELETE`,path:`/api/staff/v1/surveys/questions/{id}`,path_keys:[`id`],params:S({id:f()},[`id`]),body:null,response:`text`,name:`staff.surveys_questions.destroy`});function Rn(n={},a){return v(Fn,n,a)}var Fn=w$2({method:`GET`,path:`/api/staff/v1/surveys/questions`,path_keys:[],params:S({survey_id:o$1(f()),deleted:o$1(b())}),body:null,response:_(ee),name:`staff.surveys_questions.query`});function Pn(n,a){return v(zn,n,a)}var zn=w$2({method:`GET`,path:`/api/staff/v1/surveys/questions/{id}`,path_keys:[`id`],params:S({id:f()},[`id`]),body:null,response:ee,name:`staff.surveys_questions.show`});function qn(n,a){return v(Ln,n,a)}var Ln=w$2({method:`PATCH`,path:`/api/staff/v1/surveys/questions/{id}`,path_keys:[`id`],params:S({id:f(),migrate_answers:b()},[`id`]),body:ee,response:ee,name:`staff.surveys_questions.update`});var Vn=()=>({standalone:!0});function Bn(n,a){n&1&&(Rs(0,`main`,4)(1,`p`),fT(2),_T(3,`translate`),Ol()()),n&2&&(KI(2),Bl(` `,MT(3,1,`APP.CONCIERGE.SURVEY_COMPLETE`),` `))}function Gn(n,a){n&1&&(Rs(0,`span`,14),fT(1),_T(2,`translate`),Ol()),n&2&&(KI(),xm(MT(2,1,`COMMON.REQUIRED`)))}function Wn(n,a){if(n&1){let e=Ab();Rs(0,`button`,20),hm(`click`,function(){let i=Pf(e).$implicit;Lb(3);let o=vT(0);return jf(Lb(5).setRating(``+o.id,i))}),fT(1),Ol()}if(n&2){let e=a.$implicit;Lb(3);let t=vT(0),i=Lb(5);bm(`bg-secondary`,i.form().value[t.id]===e)(`text-secondary-content`,i.form().value[t.id]===e),KI(),Bl(` `,e,` `)}}function Un(n,a){if(n&1&&(Rs(0,`div`,15),bb(1,Wn,2,5,`button`,19,Cb),Ol()),n&2){Lb(2);let e=vT(0);KI(),Tb(e.options)}}function jn(n,a){if(n&1&&(Rs(0,`mat-form-field`,16),cm(1,`input`,21),jw(),Ol()),n&2){Lb(2);let e=vT(0);KI(),am(`formControlName`,e.id)(`placeholder`,e.description||e.title),Vw()}}function Qn(n,a){if(n&1&&(Rs(0,`mat-form-field`,16),cm(1,`textarea`,21),jw(),Ol()),n&2){Lb(2);let e=vT(0);KI(),am(`formControlName`,e.id)(`placeholder`,e.description||e.title),Vw()}}function Hn(n,a){if(n&1&&(Rs(0,`mat-option`,23),fT(1),Ol()),n&2){let e=a.$implicit;am(`value`,e),KI(),xm(e.text)}}function Kn(n,a){if(n&1&&(Rs(0,`mat-form-field`,16)(1,`mat-select`,22),bb(2,Hn,2,2,`mat-option`,23,Cb),Ol(),jw(),Ol()),n&2){Lb(2);let e=vT(0);KI(),am(`formControlName`,e.id)(`placeholder`,e.description||e.title),Vw(),KI(),Tb(e.choices)}}function Yn(n,a){if(n&1&&(Rs(0,`mat-radio-button`,23),fT(1),Ol()),n&2){let e=a.$implicit;am(`value`,e),KI(),xm(e.text)}}function Xn(n,a){if(n&1&&(Rs(0,`mat-radio-group`,17)(1,`div`,18),bb(2,Yn,2,2,`mat-radio-button`,23,Cb),Ol()(),jw()),n&2){Lb(2);let e=vT(0);am(`formControlName`,e.id),Vw(),KI(2),Tb(e.choices)}}function $n(n,a){if(n&1){let e=Ab();Rs(0,`mat-checkbox`,25),hm(`ngModelChange`,function(i){let o=Pf(e).$implicit;Lb(3);let m=vT(0);return jf(Lb(5).toggleOption(``+m.id,o.text,i))}),fT(1),Ol(),jw()}if(n&2){let e=a.$implicit;Lb(3);let t=vT(0);am(`ngModel`,Lb(5).form().value[t.id].includes(e.text))(`ngModelOptions`,CT(3,Vn)),Vw(),KI(),xm(e.text)}}function Zn(n,a){if(n&1&&(Rs(0,`div`,18),bb(1,$n,2,4,`mat-checkbox`,24,Cb),Ol()),n&2){Lb(2);let e=vT(0);KI(),Tb(e.choices)}}function Jn(n,a){}function ea(n,a){if(n&1&&(Rs(0,`div`,11)(1,`h4`,12)(2,`div`,13),fT(3),Ol(),Eb(4,Gn,3,3,`span`,14),Ol(),Eb(5,Un,3,0,`div`,15)(6,jn,2,2,`mat-form-field`,16)(7,Qn,2,2,`mat-form-field`,16)(8,Kn,4,2,`mat-form-field`,16)(9,Xn,4,1,`mat-radio-group`,17)(10,Zn,3,0,`div`,18)(11,Jn,0,0),Ol()),n&2){let e;Lb();let t=vT(0);KI(3),Bl(` `,t.title,` `),KI(),Ib(t.required?4:-1),KI(),Ib((e=t.type)===`rating`?5:e===`text`?6:e===`comment`?7:e===`dropdown`?8:e===`radiogroup`?9:e===`checkbox`?10:11)}}function ta(n,a){if(n&1&&(Lm(0),Eb(1,ea,12,3,`div`,11)),n&2){let e=a.$implicit,t=yT(Lb(5).questions[e]);KI(),Ib(t?1:-1)}}function ia(n,a){if(n&1){let e=Ab();Rs(0,`button`,26),hm(`click`,function(){Pf(e);return jf(Lb(5).previousPage())}),fT(1),_T(2,`translate`),Ol()}n&2&&(KI(),Bl(` `,MT(2,1,`COMMON.PREVIOUS`),` `))}function na(n,a){if(n&1){let e=Ab();Rs(0,`button`,27),hm(`click`,function(){Pf(e);return jf(Lb(5).submitSurvey())}),fT(1),_T(2,`translate`),Ol()}if(n&2)am(`disabled`,Lb(5).preview()),KI(),Bl(` `,MT(2,2,`COMMON.SUBMIT`),` `)}function aa(n,a){if(n&1){let e=Ab();Rs(0,`button`,28),hm(`click`,function(){Pf(e);return jf(Lb(5).nextPage())}),fT(1),_T(2,`translate`),Ol()}n&2&&(KI(),Bl(` `,MT(2,1,`COMMON.NEXT`),` `))}function oa(n,a){if(n&1&&(Rs(0,`main`,5)(1,`h3`,6),fT(2),Ol(),bb(3,ta,2,2,null,null,Cb),Ol(),Rs(5,`footer`,7),Eb(6,ia,3,3,`button`,8),Eb(7,na,3,4,`button`,9)(8,aa,3,3,`button`,10),Ol()),n&2){let e=Lb(4);am(`formGroup`,e.form());let t=e.survey().pages[e.active_page()];KI(2),Bl(` `,t.title,` `),KI(),Tb(t.question_order),KI(3),Ib(e.active_page()>0?6:-1),KI(),Ib(e.active_page()>=e.survey().pages.length-1?7:8)}}function ra(n,a){if(n&1&&Eb(0,oa,9,4),n&2)Ib(Lb(3).form()?0:-1)}function ca(n,a){if(n&1&&Eb(0,Bn,4,3,`main`,4)(1,ra,1,1),n&2)Ib(Lb(2).success()?0:1)}function sa(n,a){if(n&1&&(Rs(0,`main`,4),cm(1,`mat-spinner`,29),Rs(2,`p`),fT(3),Ol()()),n&2){let e=Lb(2);KI(3),xm(e.loading())}}function da(n,a){if(n&1&&(Rs(0,`div`,0)(1,`header`,1)(2,`h2`,2),fT(3),Ol(),cm(4,`img`,3),Ol(),Eb(5,ca,2,1)(6,sa,4,1,`main`,4),Ol()),n&2){let e=Lb();KI(3),Bl(` `,e.survey().title,` `),KI(),am(`source`,e.logo()),KI(),Ib(e.loading()?6:5)}}function la(n){return Array.isArray(n)?n.filter(a=>typeof a==`object`&&a!==null&&!Array.isArray(a)&&typeof a.text==`string`):[]}var Ti=(()=>{class n extends wr{constructor(){super(...arguments),this._route=D(V),this.preview=HB(!1),this.not_found=VB(),this.survey_id=UB(``),this.active_page=tt(0),this.loading=tt(``),this.success=tt(!1),this.survey=UB(null),this.questions={},this.form=tt(null),this.logo=rx()}ngOnInit(){this.subscription(`route.params`,this._route.paramMap.subscribe(e=>{e.has(`id`)&&(this.survey_id.set(e.get(`id`)),this._updateSurvey())}))}async ngOnChanges(e){e.survey_id&&this._updateSurvey(),e.survey&&this._loadQuestions()}nextPage(){this.active_page.update(e=>e+1)}previousPage(){this.active_page.update(e=>e-1)}setRating(e,t){this.form().patchValue({[e]:t})}toggleOption(e,t,i){let o=this.form().value[e];o=o.filter(m=>m!==t),i&&o.push(t),this.form().patchValue({[e]:o})}async submitSurvey(){if(this.form().markAllAsTouched(),!this.form().valid)return this._showFirstInvalidPage();this.loading.set(`Saving survey answers...`);let e=[];for(let t in this.questions){let i=this.form().value[t];i!=null&&e.push({survey_id:+`${this.survey().id}`,question_id:+`${t}`,type:this.questions[t].type,answer_json:i})}try{await Xe.create({body:e}).then(Me)}catch{wg(`Failed to submit survey answers.`),this.loading.set(``);return}kg(`Successfully submitted survey answers.`),this.success.set(!0),this.loading.set(``)}_showFirstInvalidPage(){let e=this.survey().pages.findIndex(t=>t.question_order.some(i=>this.form().get(`${i}`)?.invalid));e>=0&&this.active_page.set(e)}async _updateSurvey(){if(!this.survey_id())return;let e=Number(this.survey_id());if(!Number.isSafeInteger(e))return this.not_found.emit(!0);this.loading.set(`Loading survey details...`);let t=null;try{t=await Ye.show({id:e}).then(Me)}catch(i){if(i?.status!==404)return this.loading.set(``),wg(`Failed to load survey.`)}if(!t)return this.not_found.emit(!0);this.survey.set(t),await this._loadQuestions()}async _loadQuestions(){for(let i in this.questions)delete this.questions[i];if(this.form.set(null),this.active_page.set(0),this.success.set(!1),!this.survey()?.pages?.length)return this.loading.set(``);this.loading.set(`Loading survey questions...`);let e=[];for(let i of this.survey().pages)for(let o of i.question_order)e.push($e.show({id:o}).then(Me));let t;try{t=await Promise.all(e)}catch{return wg(`Failed to load survey questions.`),this.loading.set(``)}for(let i of t)this.questions[i.id]=m(l({},i),{choices:la(i.choices),options:i.type===`rating`?new Array(i.max_rating??0).fill(0).map((o,m)=>m+1):[]});console.log(`Questions:`,t),this._generateForm()}_generateForm(){let e={};for(let t in this.questions){let i=this.questions[t].required?[Ie.required]:[];switch(this.questions[t].type){case`rating`:e[t]=new jt(null,i);break;case`text`:case`comment`:e[t]=new jt(``,i);break;case`dropdown`:e[t]=new jt(``,i);break;case`radiogroup`:e[t]=new jt(``,i);break;case`checkbox`:e[t]=new jt([],i);break}}this.form.set(new _e(e)),this.loading.set(``)}static{this.ɵfac=(()=>{let e;return function(i){return(e||(e=ph(n)))(i||n)}})()}static{this.ɵcmp=SC({type:n,selectors:[[`survey-outlet`]],inputs:{preview:[1,`preview`],survey_id:[1,`survey_id`],survey:[1,`survey`]},outputs:{not_found:`not_found`,survey_id:`survey_idChange`,survey:`surveyChange`},features:[Zg,ks],decls:1,vars:1,consts:[[1,`bg-base-100`,`h-full`,`w-full`,`overflow-auto`,`px-2`],[1,`bg-base-200`,`sticky`,`top-0`,`z-10`,`mx-auto`,`my-2`,`flex`,`min-h-18`,`w-[calc(100%-1rem)]`,`w-full`,`max-w-160`,`items-center`,`justify-between`,`rounded-sm`,`border-none`,`px-4`,`py-2`],[1,`text-xl`,`font-medium`,`capitalize`],[`auth`,``,`alt`,`Logo`,1,`h-12`,`sm:block`,3,`source`],[`loading`,``,1,`border-base-300`,`mx-auto`,`flex`,`min-h-64`,`w-[calc(100%-1rem)]`,`w-full`,`max-w-160`,`flex-col`,`items-center`,`justify-center`,`space-y-2`,`space-y-4`,`rounded-sm`,`border`,`p-4`],[`page`,``,1,`border-base-300`,`mx-auto`,`w-[calc(100%-1rem)]`,`w-full`,`max-w-160`,`space-y-2`,`rounded-sm`,`border`,`p-4`,3,`formGroup`],[1,`text-lg`,`font-medium`],[1,`bg-base-200`,`sticky`,`bottom-0`,`z-10`,`mx-auto`,`my-2`,`flex`,`h-16`,`w-[calc(100%-1rem)]`,`w-full`,`max-w-160`,`items-center`,`justify-end`,`space-x-2`,`rounded-sm`,`border-none`,`p-2`],[`btn`,``,`matRipple`,``,1,`inverse`,`bg-base-100`,`w-32`],[`btn`,``,`matRipple`,``,1,`w-32`,3,`disabled`],[`btn`,``,`matRipple`,``,1,`w-32`],[1,`py-2`],[1,`mb-2`,`flex`,`items-center`,`justify-between`],[1,`font-medium`],[1,`bg-warning`,`text-warning-content`,`rounded-sm`,`px-2`,`py-1`,`font-mono`,`text-[0.625rem]`],[`btn-grp`,``,1,`divide-secondary`,`divide-x`,`py-2`],[`appearance`,`outline`,1,`no-subscript`,`w-full`],[3,`formControlName`],[1,`grid`,`grid-cols-1`,`sm:grid-cols-2`],[`matRipple`,``,1,`border-secondary`,`h-12`,`w-12`,`border-y`,`first:rounded-l`,`first:border-l`,`last:rounded-r`,`last:border-r!`,3,`bg-secondary`,`text-secondary-content`],[`matRipple`,``,1,`border-secondary`,`h-12`,`w-12`,`border-y`,`first:rounded-l`,`first:border-l`,`last:rounded-r`,`last:border-r!`,3,`click`],[`matInput`,``,3,`formControlName`,`placeholder`],[3,`formControlName`,`placeholder`],[3,`value`],[3,`ngModel`,`ngModelOptions`],[3,`ngModelChange`,`ngModel`,`ngModelOptions`],[`btn`,``,`matRipple`,``,1,`inverse`,`bg-base-100`,`w-32`,3,`click`],[`btn`,``,`matRipple`,``,1,`w-32`,3,`click`,`disabled`],[`btn`,``,`matRipple`,``,1,`w-32`,3,`click`],[`diameter`,`32`]],template:function(t,i){t&1&&Eb(0,da,7,3,`div`,0),t&2&&Ib(i.survey()?0:-1)},dependencies:[Bo,q,Ge,Pe,ce,it,En$1,wn$1,Oi,Ii,$t,Ei,ht,He,Mi,pt,Ci,vt,mi,pi,Sn$1,Rn$1,bi,Nn$1,yi,vi,f$1],styles:[`[_nghost-%COMP%]{height:100%;width:100%}`]})}}return n})();var Br=(()=>{class n{constructor(){this._router=D(J$1)}notFound(){this._router.navigate([`/not-found`])}static{this.ɵfac=function(t){return new(t||n)}}static{this.ɵcmp=SC({type:n,selectors:[[`app-survey`]],decls:2,vars:0,consts:[[1,`bg-base-200`,`absolute`,`inset-0`],[3,`not_found`]],template:function(t,i){t&1&&(Rs(0,`div`,0)(1,`survey-outlet`,1),hm(`not_found`,function(){return i.notFound()}),Ol()())},dependencies:[Ti],encapsulation:2})}}return n})();export{Br as SurveyComponent};
