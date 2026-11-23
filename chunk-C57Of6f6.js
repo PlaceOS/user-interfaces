@@ -1,1 +1,0 @@
-import{t as Fo}from"./main-PTRJXY7L.js";function n(){Fo(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
