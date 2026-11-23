@@ -716,7 +716,7 @@ export class RemoteDebugService extends AsyncHandler {
                 .variable<unknown>(remoteDebugDeviceBinding(this.device_id))
                 .bindThenSubscribe((value) => this._applyState(value)),
         );
-        if (isFixedDevice()) this._startRegister();
+        this._startRegister();
     }
 
     /**
@@ -724,7 +724,9 @@ export class RemoteDebugService extends AsyncHandler {
      * before it gets a request. The first call is after a random wait of
      * `REGISTER_SPREAD_MS` maximum, then one call each
      * `REMOTE_DEBUG_HEARTBEAT_MS`. Devices that are not fixed, such as
-     * staff browsers, do not register.
+     * staff browsers, do not register. They check again after each random
+     * wait, because the bootstrap screen can make a device fixed without a
+     * reload.
      */
     private _startRegister() {
         this.timeout(
@@ -739,12 +741,12 @@ export class RemoteDebugService extends AsyncHandler {
      * are made while the websocket is down and sends them all when it
      * reconnects, so a device that is not connected does not call. It tries
      * again after a new random wait, so devices that reconnect together
-     * spread their calls.
+     * spread their calls. A device that is not fixed also tries again.
      */
     private _register() {
         const mod = this._module;
         if (!mod) return;
-        if (!is_connected()) {
+        if (!is_connected() || !isFixedDevice()) {
             this._startRegister();
             return;
         }

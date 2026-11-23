@@ -67,7 +67,7 @@ Remote debugging uses 32 MB of memory on a device maximum:
 
 The device estimates the memory of an entry as 2 bytes for each character of the message, and 64 bytes for the entry. A typical entry has 100 to 200 characters, so 8,000 entries use approximately 3 MB. If all entries have 2,000 characters, the device keeps approximately 2,000 entries.
 
-A screen capture counts the inlined files (4 MB maximum), the canvas and video images (2 MB for each frame maximum), the SVG markup and its encoded copy, the canvas pixels and 4 MB for the file. If a frame needs more than 22 MB, the command fails. Use a smaller `width`. The memory that the browser uses to draw the SVG is not known to the page, so it is not counted. For example, a 1,280 pixel snapshot of the Control setup screen is estimated at approximately 10 MB: 4 MB of canvas, 4 MB kept for the file, and less than 2 MB for the fonts and markup.
+A screen capture counts the inlined files (4 MB maximum), the canvas and video images (2 MB for each frame maximum, drawn at the size that they show in the capture), the SVG markup and its encoded copy, the canvas pixels and 4 MB for the file. If a frame needs more than 22 MB, the command fails. Use a smaller `width`. The memory that the browser uses to draw the SVG is not known to the page, so it is not counted. For example, a 1,280 pixel snapshot of the Control setup screen is estimated at approximately 10 MB: 4 MB of canvas, 4 MB kept for the file, and less than 2 MB for the fonts and markup.
 
 ## Log levels
 
@@ -349,7 +349,7 @@ app.remote_debug.call('register', [{ id: 'DEV-3F9A0C12B7E4', app: 'Signage', ver
 
 A device that is not fixed, such as a staff browser, calls the driver only while it has an active request or a new command.
 
-A fixed device also calls `register` so that the admin views list it. A fixed device is signed in with an API key, or was set up as a fixed device, for example from its bootstrap screen (ts-client `isFixedDevice()`). The first call is after a random wait of 60 seconds maximum, so that devices that start together, for example after a power cut, spread their calls. Then the device calls `register` one time each 15 minutes. For 1,000 fixed devices, this is approximately one call each second.
+A fixed device also calls `register` so that the admin views list it. A fixed device is signed in with an API key, or was set up as a fixed device, for example from its bootstrap screen (ts-client `isFixedDevice()`). The first call is after a random wait of 60 seconds maximum, so that devices that start together, for example after a power cut, spread their calls. Then the device calls `register` one time each 15 minutes. For 1,000 fixed devices, this is approximately one call each second. A device that is not fixed makes no calls. It checks again after each random wait, so a device that becomes fixed without a reload registers in 60 seconds maximum.
 
 The admin views show a device as online when it called the driver in the last 35 minutes: two heartbeats and 5 minutes.
 

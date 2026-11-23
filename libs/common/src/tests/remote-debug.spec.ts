@@ -233,12 +233,20 @@ describe('RemoteDebugService', () => {
         ).toHaveLength(1);
     });
 
-    it('should not register a device that is not fixed', async () => {
+    it('should register a device only after it becomes fixed', async () => {
         vi.mocked(ts_client.isFixedDevice).mockReturnValue(false);
+        vi.mocked(ts_client.is_connected).mockReturnValue(true);
         await connect();
         await vi.advanceTimersByTimeAsync(16 * 60_000);
-
         expect(driver.execute).not.toHaveBeenCalled();
+
+        // The bootstrap screen sets up a panel without a reload
+        vi.mocked(ts_client.isFixedDevice).mockReturnValue(true);
+        await vi.advanceTimersByTimeAsync(60_000);
+
+        expect(
+            driver.execute.mock.calls.filter(([m]) => m === 'register'),
+        ).toHaveLength(1);
     });
 
     it('should stop capture when the organisation has no binding', async () => {

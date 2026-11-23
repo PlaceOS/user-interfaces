@@ -495,20 +495,15 @@ async function copyLiveElement(
         const url = source ? new URL(source, document.baseURI).href : '';
         copy.removeAttribute('xlink:href');
         copy.setAttribute('href', (await inline(url)) || EMPTY_IMAGE);
-    } else if (original instanceof HTMLCanvasElement) {
+    } else if (
+        original instanceof HTMLCanvasElement ||
+        original instanceof HTMLVideoElement
+    ) {
         copy.replaceWith(
             imageLike(
                 original,
                 copy,
-                charge(dataUrlOf(() => original.toDataURL())),
-            ),
-        );
-    } else if (original instanceof HTMLVideoElement) {
-        copy.replaceWith(
-            imageLike(
-                original,
-                copy,
-                charge(videoFrame(original, budget.scale)),
+                charge(scaledFrame(original, budget.scale)),
             ),
         );
     } else if (original instanceof HTMLIFrameElement) {
@@ -554,27 +549,36 @@ function imageLike(element: HTMLElement, copy: Element, source: string | null) {
 }
 
 /**
- * Current frame of a video, at the size that the element shows in a capture
- * at `scale`, so a 4K video does not need a 4K canvas. The frame fits in the
- * element, so its pixels are not more than the element's pixels. `null`
- * when the page cannot read it.
+ * Current image of a video or canvas, at the size that the element shows in
+ * a capture at `scale`, so a 4K video or a large map canvas is not encoded
+ * at full size. The image fits in the element, so its pixels are not more
+ * than the element's pixels. `null` when the page cannot read it.
  */
-function videoFrame(video: HTMLVideoElement, scale: number) {
-    const { videoWidth, videoHeight } = video;
-    if (!videoWidth || !videoHeight) return null;
+function scaledFrame(
+    element: HTMLVideoElement | HTMLCanvasElement,
+    scale: number,
+) {
+    const video = element instanceof HTMLVideoElement;
+    const width = video ? element.videoWidth : element.width;
+    const height = video ? element.videoHeight : element.height;
+    if (!width || !height) return null;
     const ratio = Math.min(
         1,
-        (video.offsetWidth * scale) / videoWidth,
-        (video.offsetHeight * scale) / videoHeight,
+        (element.offsetWidth * scale) / width,
+        (element.offsetHeight * scale) / height,
     );
     const canvas = document.createElement('canvas');
-    canvas.width = Math.max(1, Math.round(videoWidth * ratio));
-    canvas.height = Math.max(1, Math.round(videoHeight * ratio));
+    canvas.width = Math.max(1, Math.round(width * ratio));
+    canvas.height = Math.max(1, Math.round(height * ratio));
     return dataUrlOf(() => {
         canvas
             .getContext('2d')
-            ?.drawImage(video, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL('image/jpeg', 0.8);
+            ?.drawImage(element, 0, 0, canvas.width, canvas.height);
+        // A video frame has no transparency, so JPEG is smaller. A canvas
+        // can have transparent areas, so it stays PNG
+        return video
+            ? canvas.toDataURL('image/jpeg', 0.8)
+            : canvas.toDataURL('image/png');
     });
 }
 
