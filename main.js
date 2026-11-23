@@ -3,25 +3,25 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-ZSHQKVJX.js";
+} from "./chunk-ADHRVFI4.js";
 import {
   generateMockSpace
-} from "./chunk-MDRDAM44.js";
+} from "./chunk-J6FYGU5M.js";
 import {
   MatDialog,
   setHours
-} from "./chunk-EDOBX6RB.js";
+} from "./chunk-V2TZUHRL.js";
 import {
   AnnounceDirective,
   subDays
-} from "./chunk-JMTF3PG5.js";
+} from "./chunk-MDSNIOYU.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-UATDPIZS.js";
+} from "./chunk-LOOFVRZN.js";
 import {
   TranslatePipe
-} from "./chunk-UM7EQRLG.js";
-import "./chunk-VPVDQHPL.js";
+} from "./chunk-LDN26ZUJ.js";
+import "./chunk-EMLX2KKN.js";
 import {
   IconComponent
 } from "./chunk-3RSZXOUT.js";
@@ -53,7 +53,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-NKEJGAM7.js";
+} from "./chunk-OSN6JHKH.js";
 import {
   AsyncHandler,
   Bp,
@@ -89,7 +89,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-NATR3WZA.js";
+} from "./chunk-TPQ6QJDJ.js";
 import "./chunk-WWD2MK5Z.js";
 import {
   BidiModule,
@@ -786,7 +786,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-53CRAKXP.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-GX2ZRKUT.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -914,7 +914,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-53CRAKXP.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-GX2ZRKUT.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9790,6 +9790,7 @@ var PaymentsModule = class {
     this._payments = seedHistory();
     this._invoices = [];
     this._checkouts = /* @__PURE__ */ new Map();
+    this._refunds = /* @__PURE__ */ new Set();
   }
   $get_config() {
     return {
@@ -9946,13 +9947,18 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason, _request_id) {
+  $refund_payment(id, amount, _reason, request_id) {
     const payment = findPayment(this._payments, id);
+    const key = request_id ? `${id}:${request_id}` : "";
+    if (key && this._refunds.has(key))
+      return payment;
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
     if (refund <= 0 || refund > refundable)
       throw "Invalid refund amount";
     const amount_refunded = payment.amount_refunded + refund;
+    if (key)
+      this._refunds.add(key);
     return updatePayment(this._payments, id, {
       amount_refunded,
       status: amount_refunded >= payment.amount ? "refunded" : "partially_refunded"
@@ -11018,11 +11024,11 @@ function returnToWelcomeWhenIdle() {
 // apps/visitor-kiosk/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-VSQXFBOM.js").then((m) => m.ChatComponent)
+  import("./chat.component-2ACNK2NI.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-SBP2S4VS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-R5PTOINJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 var _c02 = (a0) => ({ seconds: a0 });
 function AppComponent_Conditional_3_Template(rf, ctx) {
@@ -11134,9 +11140,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-VSQXFBOM.js").then((m) => m.ChatComponent),
+    import("./chat.component-2ACNK2NI.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-SBP2S4VS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-R5PTOINJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11206,33 +11212,33 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-VBDQCII3.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-DON36B5B.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "welcome",
-    loadComponent: () => import("./welcome.component-ZE26YP2G.js").then((m) => m.WelcomeComponent),
+    loadComponent: () => import("./welcome.component-N4QE2YHF.js").then((m) => m.WelcomeComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "register",
-    loadComponent: () => import("./visitor-registration.component-2BXW7VIS.js").then((m) => m.VisitorRegistrationComponent),
+    loadComponent: () => import("./visitor-registration.component-R2FSZGLN.js").then((m) => m.VisitorRegistrationComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-TLZEZHNL.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-UY2PBKR6.js").then((m) => m.ROUTES)
   },
   {
     path: "checkin",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkin.routes-YTALRKHO.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkin.routes-HPPULEUP.js").then((m) => m.ROUTES)
   },
   {
     path: "checkout",
     canActivate: [AuthorisedUserGuard],
-    loadChildren: () => import("./checkout.routes-KHBI3RZQ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./checkout.routes-RDEPZGNU.js").then((m) => m.ROUTES)
   },
   { path: "**", redirectTo: "bootstrap" }
 ];
@@ -11267,5 +11273,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=1979d7d7-8207-5759-bbd1-6c64f709a989
+//# debugId=5a203ef8-6990-5ca9-90c8-d2f63fde1601
 //# sourceMappingURL=main.js.map

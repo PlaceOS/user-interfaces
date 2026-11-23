@@ -2,8 +2,8 @@ import {
   CheckinComponent,
   CheckinErrorComponent,
   CheckinQRScanComponent
-} from "./chunk-L54VWJ6V.js";
-import "./chunk-5UJ4LPC7.js";
+} from "./chunk-6X7C655T.js";
+import "./chunk-PJI6LGZJ.js";
 import {
   PageHeadingDirective
 } from "./chunk-D7UGMEVZ.js";
@@ -19,7 +19,7 @@ import {
   MatRadioModule,
   UserAvatarComponent,
   ensureHiddenCategory
-} from "./chunk-Q2MQX2T5.js";
+} from "./chunk-4KSSIHVE.js";
 import {
   MatProgressSpinner,
   MatProgressSpinnerModule
@@ -27,14 +27,14 @@ import {
 import {
   MatSelect,
   MatSelectModule
-} from "./chunk-RFHWKGVT.js";
+} from "./chunk-ZCMHJKQQ.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-JWJ2Y7XE.js";
+} from "./chunk-6AGWOKEH.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-CUMHSZRX.js";
+} from "./chunk-DBSANFBK.js";
 import {
   MatError,
   MatFormField,
@@ -48,24 +48,24 @@ import {
 } from "./chunk-FZ3XJSQC.js";
 import {
   CheckinStateService
-} from "./chunk-ZSHQKVJX.js";
+} from "./chunk-ADHRVFI4.js";
 import {
   AnnounceDirective,
   getGuestCateringItem,
   setGuestCateringItem
-} from "./chunk-JMTF3PG5.js";
+} from "./chunk-MDSNIOYU.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-UATDPIZS.js";
+} from "./chunk-LOOFVRZN.js";
 import {
   TranslatePipe
-} from "./chunk-UM7EQRLG.js";
+} from "./chunk-LDN26ZUJ.js";
 import {
   FormField,
   email,
   form,
   required
-} from "./chunk-VPVDQHPL.js";
+} from "./chunk-EMLX2KKN.js";
 import {
   IconComponent
 } from "./chunk-3RSZXOUT.js";
@@ -74,7 +74,7 @@ import {
   NgControlStatus,
   NgModel,
   OrganisationService
-} from "./chunk-NKEJGAM7.js";
+} from "./chunk-OSN6JHKH.js";
 import {
   AsyncHandler,
   CateringItem,
@@ -94,7 +94,7 @@ import {
   themedLogo,
   up,
   withTimeout
-} from "./chunk-NATR3WZA.js";
+} from "./chunk-TPQ6QJDJ.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -2831,4 +2831,4 @@ export {
   ROUTES
 };
 //# debugId=52d69178-e203-50b7-ad27-b57c2d47ef31
-//# sourceMappingURL=checkin.routes-YTALRKHO.js.map
+//# sourceMappingURL=checkin.routes-HPPULEUP.js.map
