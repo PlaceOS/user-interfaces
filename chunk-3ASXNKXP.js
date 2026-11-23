@@ -1,7 +1,4 @@
 import {
-  Router
-} from "./chunk-O5QLVSJE.js";
-import {
   BehaviorSubject,
   Component,
   DomSanitizer,
@@ -5497,7 +5494,7 @@ function setNotifyOutlet(outlet, disable_logging = false) {
 }
 function lazySnackbar() {
   const injector = inject(EnvironmentInjector);
-  return () => import("./snack-bar-LZRUZWX6.js").then(({ MatSnackBar }) => injector.get(MatSnackBar));
+  return () => import("./snack-bar-UDVQBOQM.js").then(({ MatSnackBar }) => injector.get(MatSnackBar));
 }
 function notify(type, message2, action = "OK", on_action, config = {}) {
   if (!_service2 && !_loader) {
@@ -5630,13 +5627,20 @@ function sameDayInTimezone(date, from_tz, to_tz) {
 // libs/common/src/lib/general.ts
 var _user_date_change = false;
 var _app_name = "APP";
+var _debug_logging = false;
 function setAppName(name) {
   _app_name = name;
+}
+function appName() {
+  return _app_name;
+}
+function setDebugLogging(enabled) {
+  _debug_logging = enabled;
 }
 function log(type, msg, args, stream = "debug", force = false, app_name = _app_name) {
   if (window.jest)
     return;
-  if (window.debug || force) {
+  if (window.debug || force || _debug_logging) {
     const colors = [
       "color: #E91E63",
       "color: #3F51B5",
@@ -6901,15 +6905,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "ad532fd",
-  "hash": "ad532fd",
+  "raw": "5360f09",
+  "hash": "5360f09",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ad532fd",
+  "suffix": "5360f09",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795261221961
+  "time": 1795407955203
 };
 
 // libs/common/src/lib/placeos.ts
@@ -8772,300 +8776,98 @@ var SettingsService = class _SettingsService extends AsyncHandler {
   }], () => [], null);
 })();
 
-// libs/common/src/lib/device-id.ts
-var DEVICE_ID_KEY = "PLACEOS.DEVICE_ID";
-var _device_id = "";
-function newDeviceId() {
-  const bytes = crypto.getRandomValues(new Uint8Array(6));
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0"));
-  return `DEV-${hex.join("").toUpperCase()}`;
+// libs/common/src/lib/console-capture.ts
+var CAPTURED_CONSOLE_METHODS = [
+  "log",
+  "debug",
+  "info",
+  "warn",
+  "error"
+];
+var _listeners = /* @__PURE__ */ new Set();
+var _wrappers = /* @__PURE__ */ new Map();
+var _dispatching = false;
+function listenToConsole(listener) {
+  patchConsole();
+  _listeners.add(listener);
+  return () => _listeners.delete(listener);
 }
-function deviceId() {
-  if (_device_id)
-    return _device_id;
-  try {
-    _device_id = localStorage.getItem(DEVICE_ID_KEY) || "";
-  } catch {
+function patchConsole() {
+  for (const method of CAPTURED_CONSOLE_METHODS) {
+    if (console[method] === _wrappers.get(method))
+      continue;
+    const original = console[method];
+    const wrapper = (...args) => {
+      if (_dispatching)
+        return original.apply(console, args);
+      _dispatching = true;
+      try {
+        notify2(method, args);
+        original.apply(console, args);
+      } finally {
+        _dispatching = false;
+      }
+    };
+    _wrappers.set(method, wrapper);
+    console[method] = wrapper;
   }
-  if (!_device_id) {
-    _device_id = newDeviceId();
+}
+function notify2(method, args) {
+  for (const listener of _listeners) {
     try {
-      localStorage.setItem(DEVICE_ID_KEY, _device_id);
+      listener(method, args);
     } catch {
     }
   }
-  return _device_id;
 }
 
-// libs/common/src/lib/sentry-rates.ts
-var DEFAULT_SENTRY_RATES = {
-  traces: 1,
-  replays_session: 0,
-  replays_on_error: 1
-};
-
-// libs/common/src/lib/sentry.ts
-var DEFAULT_SENTRY_DSN = "https://0498d2da2a46bfbe89599f3bfbec7c4b@o437082.ingest.us.sentry.io/4506817038909440";
-var PII_KEYS = ["forwarded", "-ip", "remote-", "via", "-user"];
-var _started = false;
-var _sentry_handler = null;
-var _early_errors = [];
-var _trace_service = null;
-var SECRET_PARAM = /([?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|jwt|token|code)=)[^&#\s"'\\]+/gi;
-var MAX_SCRUB_DEPTH = 20;
-var SDK_METADATA_KEY = "sdkProcessingMetadata";
-function scrubSecrets(value, depth = 0) {
-  if (typeof value === "string") {
-    return value.replace(SECRET_PARAM, "$1[Filtered]");
-  }
-  if (!value || typeof value !== "object" || depth > MAX_SCRUB_DEPTH) {
-    return value;
-  }
-  const record = value;
-  for (const key of Object.keys(record)) {
-    if (depth === 0 && key === SDK_METADATA_KEY)
-      continue;
-    const scrubbed = scrubSecrets(record[key], depth + 1);
-    if (scrubbed !== record[key])
-      record[key] = scrubbed;
-  }
-  return value;
-}
-function scrubEvent(event) {
-  try {
-    return scrubSecrets(event);
-  } catch {
-    return null;
-  }
-}
-function scrubEnvelope(envelope) {
-  for (const item of envelope[1]) {
-    const payload = item[1];
-    if (payload instanceof Uint8Array)
-      continue;
-    if (typeof payload !== "string") {
-      scrubSecrets(payload);
-      continue;
-    }
-    const scrubbed = scrubSecrets(payload);
-    if (scrubbed === payload)
-      continue;
-    item[1] = scrubbed;
-    if (item[0].length !== void 0) {
-      item[0].length = new TextEncoder().encode(scrubbed).length;
-    }
-  }
-  return envelope;
-}
-var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
-var IGNORED_ERRORS = [
-  /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
-  /^Non-Error promise rejection captured with value: cannot communicate with background$/
-];
-function sampleRate(value, fallback) {
-  return typeof value === "number" ? value : fallback;
-}
-async function initSentry(dsn, router, rates = {}) {
-  if (!dsn || _started)
-    return;
-  _started = true;
-  const replays_session = sampleRate(rates.replays_session, DEFAULT_SENTRY_RATES.replays_session);
-  const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_SENTRY_RATES.replays_on_error);
-  const use_replay = replays_session > 0 || replays_on_error > 0;
-  try {
-    const Sentry = await import("./sentry-sdk-VBMPN2I2.js");
-    Sentry.init(__spreadProps(__spreadValues({
-      dsn,
-      release: VERSION.hash,
-      // Separates UAT and production domains that share a DSN
-      environment: location.hostname,
-      integrations: [
-        Sentry.browserTracingIntegration(),
-        // Replay masks all text and inputs, and blocks media, by
-        // default. Without compression, `scrubEnvelope` can read the
-        // recordings.
-        ...use_replay ? [Sentry.replayIntegration({ useCompression: false })] : []
-      ],
-      tracesSampleRate: sampleRate(rates.traces, DEFAULT_SENTRY_RATES.traces),
-      replaysSessionSampleRate: replays_session,
-      replaysOnErrorSampleRate: replays_on_error
-    }, use_replay && {
-      transport: (options) => {
-        const transport = Sentry.makeFetchTransport(options);
-        return __spreadProps(__spreadValues({}, transport), {
-          send: (envelope) => transport.send(scrubEnvelope(envelope))
-        });
-      }
-    }), {
-      // Sentry checks the path of same-origin requests against these.
-      tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
-      ignoreErrors: IGNORED_ERRORS,
-      // Sentry 11 collects more by default. These are the Sentry 10
-      // defaults, which send no bodies, cookies or user details.
-      dataCollection: {
-        userInfo: false,
-        cookies: false,
-        httpHeaders: { deny: PII_KEYS },
-        httpBodies: [],
-        urlQueryParams: { deny: PII_KEYS }
-      },
-      beforeSend: scrubEvent,
-      // Sentry streams spans, so spans do not go through `beforeSend`
-      beforeSendSpan: (span) => scrubSecrets(span)
-    }));
-    _trace_service = new Sentry.TraceService(router);
-    _sentry_handler = Sentry.createErrorHandler({
-      showDialog: false,
-      logErrors: false
-    });
-    for (const error of _early_errors.splice(0)) {
-      _sentry_handler.handleError(error);
-    }
-  } catch (error) {
-    log("APP", "Failed to load Sentry.", error, "warn");
-  }
-}
-function initSentryFromSettings() {
-  const router = inject(Router);
-  const dsn = settingSignal("sentry_dsn", DEFAULT_SENTRY_DSN);
-  const traces = settingSignal("sentry_traces_sample_rate");
-  const replays_session = settingSignal("sentry_replays_session_sample_rate");
-  const replays_on_error = settingSignal("sentry_replays_on_error_sample_rate");
-  const watcher = effect(
-    () => {
-      const value = dsn();
-      if (!value)
-        return;
-      watcher.destroy();
-      void initSentry(value, router, untracked(() => ({
-        traces: traces(),
-        replays_session: replays_session(),
-        replays_on_error: replays_on_error()
-      })));
-    },
-    ...ngDevMode ? [{ debugName: "watcher" }] : (
-      /* istanbul ignore next */
-      []
-    )
-  );
-}
-
-// libs/common/src/lib/remote-logging.service.ts
-function hookMethod(rootObject, functionToHook, hookingFunction) {
-  var previousFunction = rootObject[functionToHook];
-  rootObject[functionToHook] = (...args) => {
-    hookingFunction(args);
-    previousFunction.call(rootObject, ...args);
-  };
-  return previousFunction;
-}
-function scrubbedCopy(event) {
-  try {
-    return scrubSecrets(JSON.parse(JSON.stringify(event)));
-  } catch {
-    return null;
-  }
-}
-var RemoteLoggingService = class _RemoteLoggingService extends AsyncHandler {
-  setMetadata(_metadata) {
-  }
+// libs/common/src/lib/console-history.service.ts
+var MAX_HISTORY = 2e4;
+var ConsoleHistoryService = class _ConsoleHistoryService {
   constructor() {
-    super();
-    this._disable_handling = false;
-    this._system_id = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_system_id" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._logging_system = signal(
-      "",
-      ...ngDevMode ? [{ debugName: "_logging_system" }] : (
-        /* istanbul ignore next */
-        []
-      )
-    );
-    this._event_history = signal(
+    this._history = signal(
       [],
-      ...ngDevMode ? [{ debugName: "_event_history" }] : (
+      ...ngDevMode ? [{ debugName: "_history" }] : (
         /* istanbul ignore next */
         []
       )
     );
-    this._metadata = null;
-    this.history = this._event_history.asReadonly();
-    this._patchConsoleMethods();
-    log("Logger", "Remote logging initialised...");
+    this._unlisten = listenToConsole((method, args) => untracked(() => this._record(method, args)));
+    this.history = this._history.asReadonly();
   }
-  setSystem(id) {
-    this._system_id.set(id);
-    if (id)
-      this._bindTo(id, "enabled");
+  ngOnDestroy() {
+    this._unlisten();
   }
-  _patchConsoleMethods() {
-    const types = [
-      "log",
-      "debug",
-      "info",
-      "warn",
-      "error"
-    ];
-    for (const key of types) {
-      hookMethod(console, key, (...args) => untracked(() => this._handleEvent(key, args)));
+  _record(method, args) {
+    const data = [...args];
+    if (typeof data[0] === "string") {
+      data[0] = data[0].replace(/%c/g, "");
     }
-  }
-  _handleEvent(type, data, event_type = "console") {
-    if (this._disable_handling)
-      return;
-    const blob = [...data[0]];
-    if (typeof blob[0] === "string" && blob[0].includes("[Logger]"))
-      return;
-    blob[0] = typeof blob[0] === "string" ? blob[0].replace(/\%c/g, "") : blob[0];
     const event = {
-      id: `${event_type}-${randomInt(9999999999)}`,
-      device_id: deviceId(),
-      type: event_type,
-      subtype: type,
+      id: `console-${randomInt(9999999999)}`,
+      type: "console",
+      subtype: method,
       timestamp: Date.now(),
-      raw: data,
-      data: blob.filter((_) => typeof _ !== "string" || !_.startsWith("color:")),
-      metadata: this._metadata || null
+      data: data.filter((_) => typeof _ !== "string" || !_.startsWith("color:"))
     };
-    this._event_history.update((history2) => [...history2, event].slice(-2e4));
-    const system_id = this._logging_system();
-    if (!system_id)
-      return;
-    const sent = scrubbedCopy(event);
-    if (!sent)
-      return;
-    this._disable_handling = true;
-    Jp(system_id, "Logger").execute("post_event", [sent]).catch().finally(() => this._disable_handling = false);
-  }
-  /** List to binding */
-  _bindTo(id, name, mod = "Logger") {
-    const module = Jp(id, mod).variable(name);
-    this.subscription(`bind:${name}`, module.bind());
-    this.subscription(`listen:${name}`, module.listen().subscribe((enabled) => {
-      this._logging_system.set(enabled ? id : "");
-    }));
+    this._history.update((history2) => [...history2, event].slice(-MAX_HISTORY));
   }
   static {
-    this.\u0275fac = function RemoteLoggingService_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _RemoteLoggingService)();
+    this.\u0275fac = function ConsoleHistoryService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _ConsoleHistoryService)();
     };
   }
   static {
-    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _RemoteLoggingService, factory: _RemoteLoggingService.\u0275fac, providedIn: "root" });
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _ConsoleHistoryService, factory: _ConsoleHistoryService.\u0275fac, providedIn: "root" });
   }
 };
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RemoteLoggingService, [{
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(ConsoleHistoryService, [{
     type: Injectable,
     args: [{
       providedIn: "root"
     }]
-  }], () => [], null);
+  }], null, null);
 })();
 
 // libs/components/src/lib/safe.pipe.ts
@@ -9277,6 +9079,7 @@ export {
   oo,
   ys,
   Cn,
+  jt,
   wi,
   fo,
   Wi,
@@ -9305,6 +9108,7 @@ export {
   _p,
   Bp,
   Or,
+  Vs,
   Jr,
   Jp,
   setTranslationService,
@@ -9323,6 +9127,8 @@ export {
   getTimeInTimezone,
   sameDayInTimezone,
   setAppName,
+  appName,
+  setDebugLogging,
   log,
   scoped_log,
   padLength,
@@ -9383,6 +9189,7 @@ export {
   createNativeAuthUrl,
   mockModeRequested,
   setupPlace,
+  listenToConsole,
   DEFAULT_SETTINGS,
   isPublicMode,
   AssetRequest,
@@ -9419,11 +9226,9 @@ export {
   appDetails,
   settingSignal,
   SettingsService,
-  initSentryFromSettings,
-  deviceId,
-  RemoteLoggingService,
+  ConsoleHistoryService,
   SafePipe,
   IconComponent
 };
-//# debugId=9c1afc2d-6db4-52bd-81af-f3d9e9b0baa1
-//# sourceMappingURL=chunk-5NU2ZCFP.js.map
+//# debugId=93840e27-eef0-52a2-a9c4-57d818db9777
+//# sourceMappingURL=chunk-3ASXNKXP.js.map

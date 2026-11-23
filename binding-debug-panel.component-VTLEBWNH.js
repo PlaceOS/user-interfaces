@@ -1,4 +1,10 @@
 import {
+  binding_records,
+  execute_messages,
+  installBindingDebugHooks,
+  records_by_key
+} from "./chunk-KU5PAOJO.js";
+import {
   DebugPanelResize
 } from "./chunk-7JRU4ZQM.js";
 import {
@@ -7,26 +13,20 @@ import {
 } from "./chunk-Q4NIVP2K.js";
 import "./chunk-SZ4QL66K.js";
 import {
-  binding_records,
-  execute_messages,
-  installBindingDebugHooks,
-  records_by_key
-} from "./chunk-UB2DUTXN.js";
-import {
   Clipboard,
   DefaultValueAccessor,
   FormsModule,
   NgControlStatus,
   NgModel
-} from "./chunk-GXMKS6B4.js";
+} from "./chunk-O4YL2YTQ.js";
 import {
   AsyncHandler,
   HotkeysService,
   IconComponent,
   Ua
-} from "./chunk-5NU2ZCFP.js";
-import "./chunk-ARRIYDBO.js";
+} from "./chunk-3ASXNKXP.js";
 import "./chunk-PRWEK7F2.js";
+import "./chunk-ARRIYDBO.js";
 import {
   MatRipple,
   MatRippleModule
@@ -1909,4 +1909,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=50b51cc2-b86b-5209-8056-15f637f0061f
-//# sourceMappingURL=binding-debug-panel.component-MSGWGRYW.js.map
+//# sourceMappingURL=binding-debug-panel.component-VTLEBWNH.js.map

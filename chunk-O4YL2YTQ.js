@@ -23,6 +23,8 @@ import {
   Si,
   Space,
   Un,
+  VERSION,
+  Vs,
   _c,
   add,
   addDays,
@@ -31,6 +33,7 @@ import {
   addMonths,
   addWeeks,
   addYears,
+  appName,
   bindNativeAuthRedirects,
   capitalizeFirstLetter,
   clearNativeApiKey,
@@ -41,12 +44,12 @@ import {
   consumeNativeAuthRedirect,
   createNativeAuthUrl,
   currentUser,
-  deviceId,
   differenceInMinutes,
   en,
   endOfDay,
   endOfDayInTimezone,
   eo,
+  et,
   firstTruthyValueFrom,
   format,
   getIntuneAccount,
@@ -56,15 +59,16 @@ import {
   getNativeSystemId,
   getUnixTime,
   hideNativeStatusBar,
-  initSentryFromSettings,
   isAfter,
   isBefore,
   isNativeApp,
   isPublicMode,
   isSameDay,
+  jt,
   ki,
   lazySnackbar,
   li,
+  listenToConsole,
   log,
   lookupNativeDomainByEmail,
   markNativeAuthRedirectConsumed,
@@ -73,6 +77,7 @@ import {
   notifySuccess,
   oo,
   openNativeBrowser,
+  randomString,
   removeEmptyFields,
   restoreNativePkceVerifier,
   ro,
@@ -80,6 +85,7 @@ import {
   scheduleNativeRestart,
   scoped_log,
   setAppName,
+  setDebugLogging,
   setInternalUserDomain,
   setNativeAuthError,
   setNativeDomain,
@@ -98,7 +104,7 @@ import {
   withTimeout,
   xi,
   ys
-} from "./chunk-5NU2ZCFP.js";
+} from "./chunk-3ASXNKXP.js";
 import {
   ActivatedRoute,
   NavigationEnd,
@@ -1136,6 +1142,1167 @@ var MapsPeopleService = class _MapsPeopleService extends AsyncHandler {
   }], () => [], null);
 })();
 
+// libs/common/src/lib/device-id.ts
+var DEVICE_ID_KEY = "PLACEOS.DEVICE_ID";
+var _device_id = "";
+function newDeviceId() {
+  const bytes = crypto.getRandomValues(new Uint8Array(6));
+  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0"));
+  return `DEV-${hex.join("").toUpperCase()}`;
+}
+function deviceId() {
+  if (_device_id)
+    return _device_id;
+  try {
+    _device_id = localStorage.getItem(DEVICE_ID_KEY) || "";
+  } catch {
+  }
+  if (!_device_id) {
+    _device_id = newDeviceId();
+    try {
+      localStorage.setItem(DEVICE_ID_KEY, _device_id);
+    } catch {
+    }
+  }
+  return _device_id;
+}
+
+// libs/common/src/lib/sentry-rates.ts
+var DEFAULT_SENTRY_RATES = {
+  traces: 1,
+  replays_session: 0,
+  replays_on_error: 1
+};
+
+// libs/common/src/lib/sentry.ts
+var DEFAULT_SENTRY_DSN = "https://0498d2da2a46bfbe89599f3bfbec7c4b@o437082.ingest.us.sentry.io/4506817038909440";
+var PII_KEYS = ["forwarded", "-ip", "remote-", "via", "-user"];
+var _started = false;
+var _sentry_handler = null;
+var _early_errors = [];
+var _trace_service = null;
+var SECRET_PARAM = /((?:[?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|jwt|token|code)|(?:^|[\s"',[])(?:api-key|bearer_token))=)[^&#;\s"'\\]+/gi;
+var MAX_SCRUB_DEPTH = 20;
+var SDK_METADATA_KEY = "sdkProcessingMetadata";
+function scrubSecrets(value, depth = 0) {
+  if (typeof value === "string") {
+    return value.replace(SECRET_PARAM, "$1[Filtered]");
+  }
+  if (!value || typeof value !== "object" || depth > MAX_SCRUB_DEPTH) {
+    return value;
+  }
+  const record = value;
+  for (const key of Object.keys(record)) {
+    if (depth === 0 && key === SDK_METADATA_KEY)
+      continue;
+    const scrubbed = scrubSecrets(record[key], depth + 1);
+    if (scrubbed !== record[key])
+      record[key] = scrubbed;
+  }
+  return value;
+}
+function scrubEvent(event) {
+  try {
+    return scrubSecrets(event);
+  } catch {
+    return null;
+  }
+}
+function scrubEnvelope(envelope) {
+  for (const item of envelope[1]) {
+    const payload = item[1];
+    if (payload instanceof Uint8Array)
+      continue;
+    if (typeof payload !== "string") {
+      scrubSecrets(payload);
+      continue;
+    }
+    const scrubbed = scrubSecrets(payload);
+    if (scrubbed === payload)
+      continue;
+    item[1] = scrubbed;
+    if (item[0].length !== void 0) {
+      item[0].length = new TextEncoder().encode(scrubbed).length;
+    }
+  }
+  return envelope;
+}
+var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
+var IGNORED_ERRORS = [
+  /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
+  /^Non-Error promise rejection captured with value: cannot communicate with background$/
+];
+function sampleRate(value, fallback) {
+  return typeof value === "number" ? value : fallback;
+}
+async function initSentry(dsn, router, rates = {}) {
+  if (!dsn || _started)
+    return;
+  _started = true;
+  const replays_session = sampleRate(rates.replays_session, DEFAULT_SENTRY_RATES.replays_session);
+  const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_SENTRY_RATES.replays_on_error);
+  const use_replay = replays_session > 0 || replays_on_error > 0;
+  try {
+    const Sentry = await import("./sentry-sdk-VBMPN2I2.js");
+    Sentry.init(__spreadProps(__spreadValues({
+      dsn,
+      release: VERSION.hash,
+      // Separates UAT and production domains that share a DSN
+      environment: location.hostname,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        // Replay masks all text and inputs, and blocks media, by
+        // default. Without compression, `scrubEnvelope` can read the
+        // recordings.
+        ...use_replay ? [Sentry.replayIntegration({ useCompression: false })] : []
+      ],
+      tracesSampleRate: sampleRate(rates.traces, DEFAULT_SENTRY_RATES.traces),
+      replaysSessionSampleRate: replays_session,
+      replaysOnErrorSampleRate: replays_on_error
+    }, use_replay && {
+      transport: (options) => {
+        const transport = Sentry.makeFetchTransport(options);
+        return __spreadProps(__spreadValues({}, transport), {
+          send: (envelope) => transport.send(scrubEnvelope(envelope))
+        });
+      }
+    }), {
+      // Sentry checks the path of same-origin requests against these.
+      tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
+      ignoreErrors: IGNORED_ERRORS,
+      // Sentry 11 collects more by default. These are the Sentry 10
+      // defaults, which send no bodies, cookies or user details.
+      dataCollection: {
+        userInfo: false,
+        cookies: false,
+        httpHeaders: { deny: PII_KEYS },
+        httpBodies: [],
+        urlQueryParams: { deny: PII_KEYS }
+      },
+      beforeSend: scrubEvent,
+      // Sentry streams spans, so spans do not go through `beforeSend`
+      beforeSendSpan: (span) => scrubSecrets(span)
+    }));
+    _trace_service = new Sentry.TraceService(router);
+    _sentry_handler = Sentry.createErrorHandler({
+      showDialog: false,
+      logErrors: false
+    });
+    for (const error of _early_errors.splice(0)) {
+      _sentry_handler.handleError(error);
+    }
+  } catch (error) {
+    log("APP", "Failed to load Sentry.", error, "warn");
+  }
+}
+function initSentryFromSettings() {
+  const router = inject(Router);
+  const dsn = settingSignal("sentry_dsn", DEFAULT_SENTRY_DSN);
+  const traces = settingSignal("sentry_traces_sample_rate");
+  const replays_session = settingSignal("sentry_replays_session_sample_rate");
+  const replays_on_error = settingSignal("sentry_replays_on_error_sample_rate");
+  const watcher = effect(
+    () => {
+      const value = dsn();
+      if (!value)
+        return;
+      watcher.destroy();
+      void initSentry(value, router, untracked(() => ({
+        traces: traces(),
+        replays_session: replays_session(),
+        replays_on_error: replays_on_error()
+      })));
+    },
+    ...ngDevMode ? [{ debugName: "watcher" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
+}
+
+// libs/common/src/lib/log-format.ts
+var MAX_LOG_MESSAGE = 2e3;
+var MAX_ARGS = 20;
+var MAX_DEPTH = 4;
+var FORMAT_DIRECTIVE = /%[sdifoOc%]/g;
+var ANSI_CODE = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
+function formatLogArgs(all_args) {
+  try {
+    const args = all_args.slice(0, MAX_ARGS);
+    const parts = [];
+    let next = 0;
+    if (typeof args[0] === "string") {
+      next = 1;
+      parts.push(args[0].slice(0, MAX_LOG_MESSAGE).replace(FORMAT_DIRECTIVE, (directive) => {
+        if (directive === "%%")
+          return "%";
+        if (next >= args.length)
+          return directive;
+        const arg = args[next++];
+        if (directive === "%c")
+          return "";
+        if (directive === "%d" || directive === "%i") {
+          return numberText(arg, (_) => parseInt(_, 10));
+        }
+        if (directive === "%f") {
+          return numberText(arg, parseFloat);
+        }
+        return argText(arg);
+      }));
+    }
+    for (let i = next; i < args.length; i++)
+      parts.push(argText(args[i]));
+    return ownCopy(limitText(scrubSecrets(parts.join(" ").replace(ANSI_CODE, ""))));
+  } catch {
+    return "[Log entry that cannot be read]";
+  }
+}
+function numberText(value, parse) {
+  return typeof value === "symbol" ? "NaN" : `${parse(String(value))}`;
+}
+function ownCopy(text) {
+  return (" " + text).slice(1);
+}
+function limitText(text) {
+  return text.length > MAX_LOG_MESSAGE ? `${text.slice(0, MAX_LOG_MESSAGE - 1)}\u2026` : text;
+}
+function argText(value) {
+  if (typeof value === "string")
+    return value.slice(0, MAX_LOG_MESSAGE);
+  if (value instanceof Error)
+    return errorText(value);
+  if (value && typeof value === "object")
+    return boundedJson(value);
+  if (typeof value === "function")
+    return `[Function ${value.name || "anonymous"}]`;
+  return String(value);
+}
+function errorText(error) {
+  const head = `${error.name}: ${error.message}`;
+  const stack = typeof error.stack === "string" ? error.stack : "";
+  if (!stack)
+    return head;
+  return stack.startsWith(head) ? stack : `${head}
+${stack}`;
+}
+function boundedJson(root) {
+  let out = "";
+  const parents = /* @__PURE__ */ new Set();
+  const write = (text) => {
+    out += text;
+    return out.length < MAX_LOG_MESSAGE;
+  };
+  const visit = (value, depth) => {
+    if (typeof value === "string") {
+      return write(JSON.stringify(value.slice(0, MAX_LOG_MESSAGE).replace(ANSI_CODE, "")));
+    }
+    if (!value || typeof value !== "object") {
+      return write(typeof value === "function" ? "[Function]" : String(value));
+    }
+    if (value instanceof Error)
+      return write(JSON.stringify(errorText(value)));
+    if (value instanceof Date) {
+      return write(isNaN(value.getTime()) ? "Invalid Date" : value.toISOString());
+    }
+    if (parents.has(value))
+      return write("[Circular]");
+    const list = Array.isArray(value) ? value : null;
+    if (depth >= MAX_DEPTH)
+      return write(list ? "[Array]" : "[Object]");
+    parents.add(value);
+    const keys = list ? [] : Object.keys(value);
+    const count = list ? list.length : keys.length;
+    let open = write(list ? "[" : "{");
+    for (let i = 0; open && i < count; i++) {
+      if (i > 0 && !write(","))
+        open = false;
+      else if (!list && !write(`${JSON.stringify(keys[i])}:`))
+        open = false;
+      else {
+        let item;
+        try {
+          item = list ? list[i] : value[keys[i]];
+        } catch {
+          item = "[Unreadable]";
+        }
+        open = visit(item, depth + 1);
+      }
+    }
+    parents.delete(value);
+    return open && write(list ? "]" : "}");
+  };
+  visit(root, 0);
+  return out.slice(0, MAX_LOG_MESSAGE);
+}
+
+// libs/common/src/lib/uploads.service.ts
+var UploadFailedError = class extends Error {
+  constructor(message, details) {
+    super(message);
+    this.details = details;
+    this.name = "UploadFailedError";
+  }
+};
+var loadCloudUploads = () => import("./index.es-LX6NVZBS.js");
+var UPLOAD_RETRY_ATTEMPTS = 3;
+function uploadStateError(state) {
+  return state?.error || "Upload failed";
+}
+function uploadFailure(details) {
+  if (details instanceof Error)
+    return details;
+  return new UploadFailedError(details?.error || "Upload failed", details);
+}
+var UploadsService = class _UploadsService extends AsyncHandler {
+  constructor() {
+    super();
+    this._upload_list = signal(
+      [],
+      ...ngDevMode ? [{ debugName: "_upload_list" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.upload_list = this._upload_list.asReadonly();
+    this._uploads_setup = null;
+    this._uploads_use_api_key = false;
+    this._token_refresh = null;
+    if (localStorage) {
+      this._upload_list.set(JSON.parse(localStorage.getItem("BACKOFFICE.uploads") || "[]"));
+    }
+  }
+  init(tries = 1) {
+    this.timeout("init_uploads", () => {
+      this._initUploads().catch(() => this.timeout("init_uploads", () => this.init(tries += 1), 1e3 * tries));
+    });
+  }
+  clearList() {
+    const in_progress_list = this._upload_list().filter((file) => file.progress < 100 && !file.error);
+    this._upload_list.set(in_progress_list);
+  }
+  uploadFile(file, pub = false, permissions = "none") {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      const update_fn = (details) => {
+        if (!resolved) {
+          resolve(details.upload_id || details.upload?.id || details.id);
+          resolved = true;
+        }
+        this._upload_list.set([
+          ...this._upload_list().filter((_) => _.id !== details.id),
+          details
+        ]);
+      };
+      this._uploadFile(file, pub, permissions, {
+        next: update_fn,
+        error: (details) => {
+          if (details?.id)
+            update_fn(details);
+          if (!resolved)
+            reject(uploadFailure(details));
+        },
+        complete: () => this._updateUploadHistory()
+      });
+    });
+  }
+  async uploadFileToCompletion(file, pub = false, permissions = "none", on_progress) {
+    const details = await this._uploadFileToDetails(file, pub, permissions, on_progress);
+    const upload_id = details.upload_id || details.upload?.id || details.id;
+    if (!upload_id)
+      throw new Error("Failed to get uploaded file ID");
+    return upload_id;
+  }
+  uploadFileWithProgress(file, pub = false, permissions = "none") {
+    const progress = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "progress" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._uploadFile(file, pub, permissions, {
+      next: (details) => progress.set(__spreadValues({}, details)),
+      error: (details) => progress.set(details),
+      complete: () => this._updateUploadHistory()
+    });
+    return progress;
+  }
+  _updateUploadHistory() {
+    const done_list = this._upload_list().filter((file) => file.progress >= 100);
+    done_list.forEach((i) => delete i.upload);
+    if (localStorage) {
+      localStorage.setItem("PLACEOS.uploads", JSON.stringify(done_list));
+    }
+  }
+  /**
+   * Set up the upload manager, once for each auth mode. Setting it up
+   * again ends the hash workers, which leaves any upload being hashed
+   * waiting forever. The credential is read on each request, so a
+   * refreshed token needs no new setup. A change between API key and
+   * token auth does, as the manager picks the header at setup.
+   */
+  _initUploads() {
+    const use_api_key = !!et();
+    if (use_api_key !== this._uploads_use_api_key) {
+      this._uploads_setup = null;
+      this._uploads_use_api_key = use_api_key;
+    }
+    this._uploads_setup ||= this._setupUploads(use_api_key).catch((error) => {
+      this._uploads_setup = null;
+      throw error;
+    });
+    return this._uploads_setup;
+  }
+  async _setupUploads(use_api_key) {
+    const { initUploads } = await loadCloudUploads();
+    initUploads(__spreadProps(__spreadValues({
+      auto_start: true
+    }, use_api_key ? { api_key: () => et() } : { token: () => J() }), {
+      endpoint: "/api/engine/v2/uploads",
+      worker_url: "assets/md5_worker.js",
+      // Drop each upload from the manager once it completes. It keeps
+      // the File otherwise, so every file uploaded stays in memory for
+      // the rest of the session. The upload list here keeps no File.
+      auto_remove: true
+    }));
+  }
+  _updateUploadToken() {
+    this._token_refresh ||= (async () => {
+      if (!et() && !J(false))
+        await jt();
+      await this._initUploads();
+    })().finally(() => this._token_refresh = null);
+    return this._token_refresh;
+  }
+  /**
+   * Upload the given file to the cloud
+   * @param file File to upload
+   */
+  _uploadFile(file, pub = false, permissions = "none", observer) {
+    this._updateUploadToken().then(() => loadCloudUploads()).then(async ({ humanReadableByteCount, uploadFile }) => {
+      const upload = await uploadFile(file, {
+        permissions,
+        public: pub
+      });
+      const upload_details = {
+        id: upload?.id || `upi-${randomString(8)}`,
+        name: file.name,
+        progress: 0,
+        link: "",
+        formatted_size: humanReadableByteCount(file.size),
+        size: file.size,
+        upload
+      };
+      let attempts = 0;
+      let settled = false;
+      let subscription;
+      const stop = () => {
+        settled = true;
+        Promise.resolve().then(() => subscription?.unsubscribe());
+      };
+      subscription = upload.state.subscribe(async (state) => {
+        if (settled)
+          return;
+        upload_details.upload_id = upload.id;
+        if (upload.access_url || state.progress >= 100) {
+          const local_url = `${location.origin}/api/engine/v2/uploads/${encodeURIComponent(upload_details.upload_id || upload.id)}/url`;
+          upload_details.link = local_url;
+        }
+        upload_details.progress = state.progress;
+        observer.next(upload_details);
+        if (state.status === "FAILED") {
+          if (attempts < UPLOAD_RETRY_ATTEMPTS) {
+            attempts += 1;
+            await this._updateUploadToken();
+            if (settled)
+              return;
+            upload.resume();
+            return;
+          }
+          stop();
+          upload.remove();
+          observer.error(__spreadProps(__spreadValues({}, upload_details), {
+            error: uploadStateError(state)
+          }));
+          return;
+        }
+        if (state.status === "COMPLETED") {
+          stop();
+          observer.complete();
+        }
+      });
+      observer.next(upload_details);
+    }).catch((upload_error) => observer.error(upload_error));
+  }
+  _uploadFileToDetails(file, pub = false, permissions = "none", on_progress) {
+    return new Promise((resolve, reject) => {
+      let last_details;
+      this._uploadFile(file, pub, permissions, {
+        next: (details) => {
+          last_details = details;
+          on_progress?.(details.progress);
+        },
+        error: (details) => reject(uploadFailure(details)),
+        complete: () => {
+          this._updateUploadHistory();
+          resolve(last_details);
+        }
+      });
+    });
+  }
+  static {
+    this.\u0275fac = function UploadsService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _UploadsService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _UploadsService, factory: _UploadsService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(UploadsService, [{
+    type: Injectable,
+    args: [{
+      providedIn: "root"
+    }]
+  }], () => [], null);
+})();
+
+// libs/common/src/lib/remote-debug.ts
+var REMOTE_LOG_LEVELS = ["debug", "info", "warn", "error"];
+var REMOTE_DEBUG_COMMANDS = [
+  "status",
+  "settings",
+  "storage",
+  "navigate",
+  "reload",
+  "clear_cache",
+  "snapshot",
+  "animation"
+];
+var SCREEN_CAPTURE = new InjectionToken("SCREEN_CAPTURE", { providedIn: "root", factory: () => () => import("./screen-capture-MD5626PQ.js") });
+var REMOTE_DEBUG_UPLOAD = new InjectionToken("REMOTE_DEBUG_UPLOAD", {
+  providedIn: "root",
+  factory: () => {
+    const injector = inject(Injector);
+    return async (file) => Un() ? URL.createObjectURL(file) : injector.get(UploadsService).uploadFileToCompletion(file, false, "support");
+  }
+});
+var REMOTE_DEBUG_BINDING = "remote_debug";
+var REMOTE_DEBUG_MODULE = "RemoteDebug";
+var REMOTE_DEBUG_MEMORY_BYTES = 32 * 1024 * 1024;
+var MAX_REMOTE_LOG_ENTRIES = 8e3;
+var MAX_REMOTE_LOG_BUFFER_BYTES = 8 * 1024 * 1024;
+var MAX_REMOTE_LOG_HISTORY = 1e3;
+var MAX_REMOTE_LOG_QUEUE_BYTES = 2 * 1024 * 1024;
+var LOG_ENTRY_BYTES = 64;
+var MAX_REMOTE_LOG_BATCH = 100;
+var MAX_REMOTE_DEBUG_COMMANDS = 20;
+var MAX_SETTINGS_KEYS = 50;
+var MAX_RESULT_LENGTH = 1e5;
+var SECRET_FIELD = /token|secret|password|api[_-]?key|credential|(^|[._])keys([._]|$)/i;
+var MAX_HANDLED_COMMANDS = 50;
+var HANDLED_COMMANDS_KEY = "PLACEOS.remote_debug.handled_commands";
+var UPLOAD_TIMEOUT_MS = 2 * 60 * 1e3;
+var SNAPSHOT_WIDTH = { default: 1280, max: 1920 };
+var ANIMATION_WIDTH = { default: 640, max: 960 };
+var ANIMATION_DURATION = { default: 5e3, max: 1e4 };
+var ANIMATION_FPS = { default: 2, max: 5 };
+var SEND_INTERVAL_MS = 1e3;
+var CALL_TIMEOUT_MS = 30 * 1e3;
+var BINDING_RETRY_MS = 60 * 1e3;
+var REGISTER_SPREAD_MS = 60 * 1e3;
+var DEFAULT_DURATION_MS = 15 * 60 * 1e3;
+var MAX_DURATION_MS = 60 * 60 * 1e3;
+var LOG_TAG = "RemoteDebug";
+var OWN_CALL_LINE = /^\[PlaceOS\]\[WS\] \[EXEC\]\([^)]*\) [^,]*, [^,]*, (post_logs|command_result|register)\b/;
+var CONSOLE_LEVEL = {
+  debug: "debug",
+  log: "info",
+  info: "info",
+  warn: "warn",
+  error: "error"
+};
+function remoteDebugDeviceBinding(device_id) {
+  return `device:${device_id}`;
+}
+var REMOTE_DEBUG_HEARTBEAT_MS = 15 * 60 * 1e3;
+var REMOTE_DEBUG_ONLINE_MS = 2 * REMOTE_DEBUG_HEARTBEAT_MS + 5 * 60 * 1e3;
+function remoteDebugLogsBinding(device_id) {
+  return `logs:${device_id}`;
+}
+function remoteDebugResultsBinding(device_id) {
+  return `results:${device_id}`;
+}
+async function readRemoteDebugModule(org_id) {
+  if (!org_id)
+    return void 0;
+  const bindings = await _c(org_id, "bindings").then((_) => _?.details ?? {}).catch(() => null);
+  if (!bindings)
+    return void 0;
+  const binding = bindings[REMOTE_DEBUG_BINDING];
+  const { id, module } = typeof binding === "string" ? { id: binding } : binding ?? {};
+  if (typeof id !== "string" || !id)
+    return null;
+  return Jp(id, typeof module === "string" && module ? module : REMOTE_DEBUG_MODULE);
+}
+function remoteDebugOrgId(org) {
+  return org.organisation?.id || `${Mt()?.config?.["org_zone"] ?? ""}`;
+}
+function isRemoteLogRequest(value) {
+  if (!value || typeof value !== "object")
+    return false;
+  const request = value;
+  return typeof request.id === "string" && !!request.id && REMOTE_LOG_LEVELS.includes(request.level);
+}
+function isRemoteDebugCommand(value) {
+  if (!value || typeof value !== "object")
+    return false;
+  const command = value;
+  if (typeof command["id"] !== "string" || !command["id"])
+    return false;
+  switch (command["type"]) {
+    case "settings":
+      return Array.isArray(command["keys"]) && command["keys"].every((_) => typeof _ === "string");
+    case "navigate":
+      return typeof command["path"] === "string" && command["path"].startsWith("/");
+    case "snapshot":
+      return optionalNumber(command["width"]);
+    case "animation":
+      return optionalNumber(command["width"]) && optionalNumber(command["duration"]) && optionalNumber(command["fps"]) && (command["format"] === void 0 || command["format"] === "webp" || command["format"] === "gif");
+    default:
+      return REMOTE_DEBUG_COMMANDS.includes(command["type"]);
+  }
+}
+function isAtLogLevel(level, minimum) {
+  return REMOTE_LOG_LEVELS.indexOf(level) >= REMOTE_LOG_LEVELS.indexOf(minimum);
+}
+var RemoteDebugService = class _RemoteDebugService extends AsyncHandler {
+  constructor() {
+    super();
+    this._org = inject(OrganisationService);
+    this._settings = inject(SettingsService);
+    this._router = inject(Router);
+    this._loadCapture = inject(SCREEN_CAPTURE);
+    this._upload = inject(REMOTE_DEBUG_UPLOAD);
+    this._started_at = Date.now();
+    this._buffer = new BoundedEntries(MAX_REMOTE_LOG_ENTRIES, MAX_REMOTE_LOG_BUFFER_BYTES);
+    this._queue = new BoundedEntries(MAX_REMOTE_LOG_HISTORY, MAX_REMOTE_LOG_QUEUE_BYTES);
+    this._seq = 0;
+    this._log_counts = {
+      debug: 0,
+      info: 0,
+      warn: 0,
+      error: 0
+    };
+    this._last_error = null;
+    this._capturing = false;
+    this._module = null;
+    this._module_key = null;
+    this._request = null;
+    this._ended_id = "";
+    this._sending = false;
+    this._calls = 0;
+    this._commands = [];
+    this._running_commands = false;
+    this._run_again = false;
+    this._handled = [];
+    this.device_id = deviceId();
+    this._startCapture();
+    effect(() => {
+      if (!this._org.initialised())
+        return;
+      untracked(() => this._loadBinding());
+    });
+  }
+  /** Entries that the device keeps now, oldest first */
+  get entries() {
+    return this._buffer.list;
+  }
+  /** Log request that is active now. `null` when there is none */
+  get request() {
+    return this._request;
+  }
+  destroy() {
+    this._endRequest();
+    super.destroy();
+  }
+  /**
+   * Read the `remote_debug` binding of the organisation zone. The service
+   * reads it itself, as some apps do not load zone bindings
+   * (`dont_load_metadata`). Capture continues until a read shows that
+   * there is no binding. When there is no organisation zone yet, or the
+   * read fails, for example after an offline start, the device tries again
+   * each minute until a read succeeds.
+   */
+  async _loadBinding() {
+    this.clearTimeout("binding");
+    const org_id = remoteDebugOrgId(this._org);
+    const mod = await readRemoteDebugModule(org_id);
+    if (mod === void 0) {
+      log(LOG_TAG, `Failed to read the bindings of "${org_id}"`);
+      this.timeout("binding", () => this._loadBinding(), BINDING_RETRY_MS);
+      return;
+    }
+    this._connect(mod);
+  }
+  /** Listen to the driver of the binding. `null` stops remote debugging */
+  _connect(mod) {
+    const key = mod ? `${mod.system.id}/${mod.id}` : "";
+    if (key === this._module_key)
+      return;
+    this._endRequest();
+    this.unsub("state");
+    this.clearTimeout("register");
+    this._module = mod;
+    this._module_key = key;
+    this._commands = [];
+    if (!mod) {
+      this._stopCapture();
+      return;
+    }
+    this._startCapture();
+    log(LOG_TAG, `Listening for debug requests for ${this.device_id}`);
+    this.subscription("state", mod.variable(remoteDebugDeviceBinding(this.device_id)).bindThenSubscribe((value) => this._applyState(value)));
+    this._startRegister();
+  }
+  /**
+   * Register a fixed device with the driver, so the admin views list it
+   * before it gets a request. The first call is after a random wait of
+   * `REGISTER_SPREAD_MS` maximum, then one call each
+   * `REMOTE_DEBUG_HEARTBEAT_MS`. Devices that are not fixed, such as
+   * staff browsers, do not register. They check again after each random
+   * wait, because the bootstrap screen can make a device fixed without a
+   * reload.
+   */
+  _startRegister() {
+    this.timeout("register", () => this._register(), Math.random() * REGISTER_SPREAD_MS);
+  }
+  /**
+   * Register, then wait for the next heartbeat. ts-client keeps calls that
+   * are made while the websocket is down and sends them all when it
+   * reconnects, so a device that is not connected does not call. It tries
+   * again after a new random wait, so devices that reconnect together
+   * spread their calls. A device that is not fixed also tries again.
+   */
+  _register() {
+    const mod = this._module;
+    if (!mod)
+      return;
+    if (!Vs() || !ys()) {
+      this._startRegister();
+      return;
+    }
+    this._call(mod, "register", [this._deviceDetails()]).catch((error) => log(LOG_TAG, "Failed to register", error, "warn"));
+    this.timeout("register", () => this._register(), REMOTE_DEBUG_HEARTBEAT_MS);
+  }
+  _applyState(value) {
+    const state = value && typeof value === "object" ? value : {};
+    this._applyRequest(state.logs);
+    this._commands = Array.isArray(state.commands) ? state.commands.slice(0, MAX_REMOTE_DEBUG_COMMANDS).filter(isRemoteDebugCommand) : [];
+    this._runCommands();
+  }
+  _startCapture() {
+    if (this._capturing)
+      return;
+    this._capturing = true;
+    this.subscription("console", listenToConsole((method, args) => this._add(CONSOLE_LEVEL[method], "console", formatLogArgs(args))));
+    const onError = (event) => {
+      const where = event.filename ? ` (${event.filename}:${event.lineno}:${event.colno})` : "";
+      this._add("error", "error", formatLogArgs([event.error ?? `${event.message}${where}`]));
+    };
+    const onRejection = (event) => this._add("error", "rejection", formatLogArgs(["Unhandled rejection:", event.reason]));
+    window.addEventListener("error", onError);
+    window.addEventListener("unhandledrejection", onRejection);
+    this.subscription("errors", () => {
+      window.removeEventListener("error", onError);
+      window.removeEventListener("unhandledrejection", onRejection);
+    });
+  }
+  _stopCapture() {
+    this._capturing = false;
+    this.unsub("console");
+    this.unsub("errors");
+    this._buffer.set([]);
+    this._last_error = null;
+  }
+  _add(level, source, message) {
+    if (message.includes(`[${LOG_TAG}]`) || this._isOwnCallLine(message)) {
+      return;
+    }
+    const entry = {
+      seq: ++this._seq,
+      timestamp: Date.now(),
+      level,
+      source,
+      message
+    };
+    this._log_counts[level]++;
+    if (level === "error")
+      this._last_error = entry;
+    this._buffer.push(entry);
+    if (this._request && isAtLogLevel(level, this._request.level)) {
+      this._queue.push(entry);
+    }
+  }
+  /**
+   * Whether a line is a ts-client debug line about a call of this service,
+   * or about a change of a driver binding. These lines show only with
+   * `window.debug`. If the device sent them, each `post_logs` call would
+   * cause the next one.
+   */
+  _isOwnCallLine(message) {
+    if (!message.startsWith("[PlaceOS][WS] ["))
+      return false;
+    const mod = this._module;
+    if (mod && message.startsWith(`[PlaceOS][WS] [NOTIFY] ${mod.system.id}, ${mod.name}_${mod.index}, `)) {
+      return true;
+    }
+    if (mod && OWN_CALL_LINE.test(message)) {
+      return message.includes(`) ${mod.system.id}, ${mod.name}_${mod.index}, `);
+    }
+    return this._calls > 0 && message.startsWith("[PlaceOS][WS] [SUCCESS]");
+  }
+  /** Call a method of the driver */
+  async _call(mod, method, args) {
+    this._calls++;
+    try {
+      return await mod.execute(method, args, CALL_TIMEOUT_MS);
+    } finally {
+      this._calls--;
+    }
+  }
+  /**
+   * Apply the log request of the binding. A new request ID queues the
+   * buffered entries. The same ID with a new level or duration changes the
+   * level and starts the duration again. Other values end the request.
+   */
+  _applyRequest(value) {
+    if (!isRemoteLogRequest(value))
+      return this._endRequest();
+    if (value.id === this._ended_id)
+      return;
+    const active = this._request;
+    if (active?.id === value.id && active.level === value.level && active.duration === value.duration) {
+      return;
+    }
+    const level = value.level;
+    if (value.id !== this._request?.id) {
+      const history = clamp(value.history, MAX_REMOTE_LOG_HISTORY);
+      const before = typeof value.before === "number" ? value.before : Infinity;
+      const matching = this._buffer.list.filter((_) => _.seq < before && isAtLogLevel(_.level, level));
+      this._queue.set(history ? matching.slice(-history) : []);
+      log(LOG_TAG, `Sending logs for request ${value.id}`);
+    } else {
+      this._queue.set(this._queue.list.filter((_) => isAtLogLevel(_.level, level)));
+    }
+    this._request = value;
+    setDebugLogging(level === "debug");
+    this.timeout("request_end", () => this._endRequest(), clamp(value.duration ?? DEFAULT_DURATION_MS, MAX_DURATION_MS));
+    if (!this._intervals["send"]) {
+      this.interval("send", () => this._send(), SEND_INTERVAL_MS);
+    }
+    this._send();
+  }
+  _endRequest() {
+    if (!this._request)
+      return;
+    log(LOG_TAG, `Log request ${this._request.id} ended`);
+    this._ended_id = this._request.id;
+    this._request = null;
+    this._queue.set([]);
+    setDebugLogging(false);
+    this.clearTimeout("request_end");
+    this.clearInterval("send");
+  }
+  /**
+   * Send the next batch of queued entries. One call runs at a time. Entries
+   * leave the queue only when the call succeeds, so a failed batch is sent
+   * again. The queue keeps `MAX_REMOTE_LOG_HISTORY` entries and
+   * `MAX_REMOTE_LOG_QUEUE_BYTES` maximum.
+   */
+  async _send() {
+    const request = this._request;
+    const mod = this._module;
+    const queue = this._queue.list;
+    if (this._sending || !request || !mod || !queue.length)
+      return;
+    const batch = queue.slice(0, MAX_REMOTE_LOG_BATCH);
+    const last_seq = batch[batch.length - 1].seq;
+    this._sending = true;
+    try {
+      await this._call(mod, "post_logs", [
+        this.device_id,
+        request.id,
+        batch,
+        this._deviceDetails()
+      ]);
+      if (this._request?.id === request.id) {
+        this._queue.set(this._queue.list.filter((_) => _.seq > last_seq));
+      }
+    } catch (error) {
+      log(LOG_TAG, "Failed to send logs", error, "warn");
+    } finally {
+      this._sending = false;
+    }
+  }
+  /**
+   * Run the commands that the device did not handle yet, one at a time and
+   * oldest first. The command ID is saved before the command runs, so a
+   * reload does not run it again. A failed `command_result` call is not
+   * sent again.
+   */
+  async _runCommands() {
+    if (this._running_commands) {
+      this._run_again = true;
+      return;
+    }
+    this._running_commands = true;
+    this._run_again = false;
+    let reloading = false;
+    try {
+      for (let i = 0; i < MAX_REMOTE_DEBUG_COMMANDS; i++) {
+        const stored = readHandledCommands();
+        const command = this._commands.find((_) => !stored.includes(_.id) && !this._handled.includes(_.id));
+        const mod = this._module;
+        if (!command || !mod)
+          break;
+        this._handled = [...this._handled, command.id].slice(-MAX_HANDLED_COMMANDS);
+        const saved = saveHandledCommands([...stored, command.id]);
+        log(LOG_TAG, `Running command ${command.type}`, command.id);
+        const result = await this._runCommand(command, saved);
+        await this._call(mod, "command_result", [
+          this.device_id,
+          command.id,
+          result,
+          this._deviceDetails()
+        ]).catch((error) => log(LOG_TAG, "Failed to send result", error, "warn"));
+        if (result.ok && isReloadCommand(command)) {
+          reloading = true;
+          location.reload();
+          return;
+        }
+      }
+    } finally {
+      this._running_commands = false;
+      if (this._run_again && !reloading)
+        this._runCommands();
+    }
+  }
+  /**
+   * Result of a command. `reload` and `clear_cache` run only when the
+   * device saved the command ID, so a device without storage does not
+   * reload again and again.
+   */
+  async _runCommand(command, saved) {
+    if (isReloadCommand(command) && !saved) {
+      return { ok: false, error: "Local storage is not available" };
+    }
+    try {
+      const data = await this._commandData(command);
+      const json = scrubSecrets(JSON.stringify(data ?? null, (key, value) => key && SECRET_FIELD.test(key) && value !== null && typeof value !== "boolean" ? "[Filtered]" : value));
+      if (json.length > MAX_RESULT_LENGTH) {
+        return { ok: false, error: "Result is too large" };
+      }
+      return { ok: true, data: JSON.parse(json) };
+    } catch (error) {
+      return { ok: false, error: formatLogArgs([error]) };
+    }
+  }
+  async _commandData(command) {
+    switch (command.type) {
+      case "status":
+        return this._status();
+      case "settings":
+        return Object.fromEntries(command.keys.slice(0, MAX_SETTINGS_KEYS).map((key) => [key, this._settings.get(key) ?? null]));
+      case "storage":
+        return storageItems();
+      case "navigate": {
+        const done = await this._router.navigateByUrl(command.path);
+        if (!done)
+          throw new Error(`Cannot open ${command.path}`);
+        return { url: this._router.url };
+      }
+      case "reload":
+        return null;
+      case "clear_cache":
+        return clearCaches();
+      case "snapshot":
+      case "animation":
+        return this._captureMedia(command);
+    }
+  }
+  /** Capture the screen, then upload the file. See `REMOTE_DEBUG_UPLOAD` */
+  async _captureMedia(command) {
+    const capture = await this._loadCapture();
+    const media = command.type === "snapshot" ? await capture.captureSnapshot(limit(command.width, SNAPSHOT_WIDTH)) : await capture.captureAnimation({
+      width: limit(command.width, ANIMATION_WIDTH),
+      duration: limit(command.duration, ANIMATION_DURATION),
+      fps: limit(command.fps, ANIMATION_FPS),
+      format: command.format ?? "webp"
+    });
+    if (media.bytes.length > capture.MAX_MEDIA_BYTES) {
+      throw new Error("The file is too large. Use a smaller width");
+    }
+    const extension = media.mime.split("/")[1];
+    const file = new File([media.bytes], `remote-debug-${this.device_id}-${command.id}.${extension}`, { type: media.mime });
+    const upload_id = await withTimeout(this._upload(file), UPLOAD_TIMEOUT_MS, "The upload did not finish in time");
+    return {
+      mime: media.mime,
+      width: media.width,
+      height: media.height,
+      frames: media.frames,
+      duration: media.duration,
+      bytes: media.bytes.length,
+      upload_id
+    };
+  }
+  async _status() {
+    const memory = performance.memory;
+    const storage = await navigator.storage?.estimate().catch(() => null);
+    const user = currentUser();
+    return {
+      device: this._deviceDetails(),
+      device_time: Date.now(),
+      timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      language: navigator.language,
+      online: navigator.onLine,
+      websocket: Vs(),
+      visible: document.visibilityState === "visible",
+      native: isNativeApp(),
+      screen: {
+        width: window.screen.width,
+        height: window.screen.height,
+        pixel_ratio: window.devicePixelRatio
+      },
+      memory: memory ? {
+        used: memory.usedJSHeapSize,
+        limit: memory.jsHeapSizeLimit
+      } : null,
+      storage: storage ? { usage: storage.usage ?? 0, quota: storage.quota ?? 0 } : null,
+      service_worker: {
+        active: !!navigator.serviceWorker?.controller,
+        new_version: hasNewVersion()
+      },
+      user: user?.id ? { id: user.id, email: user.email } : null,
+      building_id: this._org.building?.id ?? "",
+      setting_overrides: Object.keys(this._settings.debug_overrides()),
+      log_counts: __spreadValues({}, this._log_counts),
+      last_error: this._last_error,
+      buffered: this._buffer.list.length,
+      log_request: this._request?.id ?? null
+    };
+  }
+  _deviceDetails() {
+    return {
+      id: this.device_id,
+      // The short name of most fixed device apps is PlaceOS
+      app: `${this._settings.get("app.name") || appName()}`,
+      version: `${VERSION.version ?? ""}`,
+      build: `${VERSION.hash ?? ""}`,
+      url: scrubSecrets(location.href),
+      user_agent: navigator.userAgent,
+      started_at: this._started_at
+    };
+  }
+  static {
+    this.\u0275fac = function RemoteDebugService_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _RemoteDebugService)();
+    };
+  }
+  static {
+    this.\u0275prov = /* @__PURE__ */ \u0275\u0275defineInjectable({ token: _RemoteDebugService, factory: _RemoteDebugService.\u0275fac, providedIn: "root" });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(RemoteDebugService, [{
+    type: Injectable,
+    args: [{ providedIn: "root" }]
+  }], () => [], null);
+})();
+var BoundedEntries = class {
+  constructor(_max_count, _max_bytes) {
+    this._max_count = _max_count;
+    this._max_bytes = _max_bytes;
+    this._entries = [];
+    this._bytes = 0;
+  }
+  get list() {
+    return this._entries;
+  }
+  push(entry) {
+    this._entries.push(entry);
+    this._bytes += entryBytes(entry);
+    this._trim();
+  }
+  set(entries) {
+    this._entries = [...entries];
+    this._bytes = this._entries.reduce((sum, _) => sum + entryBytes(_), 0);
+    this._trim();
+  }
+  /** Each step removes one entry, so the loop ends when the list is empty */
+  _trim() {
+    while (this._entries.length > this._max_count || this._bytes > this._max_bytes) {
+      const removed = this._entries.shift();
+      if (!removed)
+        break;
+      this._bytes -= entryBytes(removed);
+    }
+  }
+};
+function entryBytes(entry) {
+  return entry.message.length * 2 + LOG_ENTRY_BYTES;
+}
+function isReloadCommand(command) {
+  return command.type === "reload" || command.type === "clear_cache";
+}
+function storageItems() {
+  const items = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key === null)
+      continue;
+    items.push({ key, length: localStorage.getItem(key)?.length ?? 0 });
+  }
+  return items.sort((a, b) => a.key.localeCompare(b.key));
+}
+async function clearCaches() {
+  const names = await globalThis.caches?.keys() ?? [];
+  await Promise.all(names.map((name) => caches.delete(name)));
+  const workers = await navigator.serviceWorker?.getRegistrations() ?? [];
+  await Promise.all(workers.map((worker) => worker.unregister()));
+  return { caches: names.length, workers: workers.length };
+}
+function readHandledCommands() {
+  try {
+    const list = JSON.parse(localStorage.getItem(HANDLED_COMMANDS_KEY) || "[]");
+    return Array.isArray(list) ? list.filter((_) => typeof _ === "string") : [];
+  } catch {
+    return [];
+  }
+}
+function saveHandledCommands(ids) {
+  try {
+    localStorage.setItem(HANDLED_COMMANDS_KEY, JSON.stringify(ids.slice(-MAX_HANDLED_COMMANDS)));
+    return true;
+  } catch {
+    return false;
+  }
+}
+function optionalNumber(value) {
+  return value === void 0 || typeof value === "number" && isFinite(value);
+}
+function limit(value, range) {
+  if (typeof value !== "number" || !isFinite(value))
+    return range.default;
+  return Math.min(Math.max(value, 1), range.max);
+}
+function clamp(value, max) {
+  if (typeof value !== "number" || isNaN(value))
+    return max;
+  return Math.min(Math.max(Math.floor(value), 0), max);
+}
+
 // libs/common/src/lib/teams-host.ts
 var TEAMS_HOST_PARAM = "host";
 var AUTH_STORE_KEY = "PLACEOS.teams_auth";
@@ -1299,6 +2466,7 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     this._location = inject(Location);
     this._maps = inject(MapsPeopleService);
     this._error_handler = inject(ErrorHandler);
+    this._remote_debug = inject(RemoteDebugService);
     this._zone = "";
     this._region = "";
     this._initial_token = "";
@@ -8201,7 +9369,7 @@ var REMOTE_SETUP_MODULE = "RemoteSetup";
 var REMOTE_SETUP_CLEAR_LIST = "clear_list";
 var REMOTE_SETUP_CLEAR_SYSTEMS = "clear_systems";
 var HEARTBEAT_MS = 15 * 60 * 1e3;
-var REGISTER_SPREAD_MS = 10 * 1e3;
+var REGISTER_SPREAD_MS2 = 10 * 1e3;
 var LAST_COMMAND_KEY = "PLACEOS.remote_setup.last_command";
 var CLEAR_STATE_KEY = "PLACEOS.remote_setup.clear_systems";
 var MAX_HANDLED_CLEARS = 20;
@@ -8337,7 +9505,7 @@ var RemoteSetupService = class _RemoteSetupService extends AsyncHandler {
     this.timeout("register", () => {
       this._register();
       this.interval("heartbeat", () => this._register(), HEARTBEAT_MS);
-    }, Math.random() * REGISTER_SPREAD_MS);
+    }, Math.random() * REGISTER_SPREAD_MS2);
   }
   _stopRegister() {
     this.clearTimeout("register");
@@ -8774,6 +9942,13 @@ export {
   retryInitialisation,
   setupCache,
   Clipboard,
+  REMOTE_DEBUG_MODULE,
+  MAX_REMOTE_DEBUG_COMMANDS,
+  remoteDebugDeviceBinding,
+  remoteDebugLogsBinding,
+  remoteDebugResultsBinding,
+  isRemoteLogRequest,
+  isRemoteDebugCommand,
   getLoadingMessage,
   needsNativeDomain,
   nativeDomainError,
@@ -8821,5 +9996,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=f1d600cd-01be-5e1f-ab17-e31280b82cfb
-//# sourceMappingURL=chunk-GXMKS6B4.js.map
+//# debugId=4d5aa38d-965f-5026-922c-1a0acf1bf9fd
+//# sourceMappingURL=chunk-O4YL2YTQ.js.map

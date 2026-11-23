@@ -1,4 +1,11 @@
 import {
+  MatMenu,
+  MatMenuContent,
+  MatMenuItem,
+  MatMenuModule,
+  MatMenuTrigger
+} from "./chunk-RH6LOYXJ.js";
+import {
   MAT_FORM_FIELD,
   MatError,
   MatFormField,
@@ -8,14 +15,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-V3OU3AJD.js";
+} from "./chunk-JGVBJYZE.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-VX7VY3TF.js";
+} from "./chunk-CV5CMPFB.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -29,17 +36,10 @@ import {
   _getOptionScrollPosition
 } from "./chunk-SZ4QL66K.js";
 import {
-  MatMenu,
-  MatMenuContent,
-  MatMenuItem,
-  MatMenuModule,
-  MatMenuTrigger
-} from "./chunk-RH6LOYXJ.js";
-import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-3BJOPWDT.js";
+} from "./chunk-VNS2OXUJ.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-S5PTFL72.js";
+} from "./chunk-EFDVNBW4.js";
 import {
   TranslatePipe
-} from "./chunk-QHKC25FH.js";
+} from "./chunk-DTY4DYGE.js";
 import {
   AbstractControl,
   Booking,
@@ -81,7 +81,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-GXMKS6B4.js";
+} from "./chunk-O4YL2YTQ.js";
 import {
   $,
   AssetRequest,
@@ -180,8 +180,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-5NU2ZCFP.js";
-import "./chunk-ARRIYDBO.js";
+} from "./chunk-3ASXNKXP.js";
 import {
   BasePortalOutlet,
   CdkConnectedOverlay,
@@ -205,6 +204,7 @@ import {
   createOverlayRef,
   createRepositionScrollStrategy
 } from "./chunk-PRWEK7F2.js";
+import "./chunk-ARRIYDBO.js";
 import {
   A,
   A11yModule,
@@ -16386,7 +16386,7 @@ var PaymentsService = class _PaymentsService {
       window: window_ref,
       cancel: false
     }).catch((e) => {
-      if (e instanceof PaymentWindowClosedError || e instanceof PaymentEndedError) {
+      if (e instanceof PaymentWindowClosedError || e instanceof PaymentEndedError || e instanceof CheckoutCancelledError) {
         return this.call("get_payment", payment.id);
       }
       throw e;
@@ -27834,5 +27834,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=d7b1718a-9b24-5014-aca2-da3c290dd016
-//# sourceMappingURL=calendar-pane.component-2SFH6FXQ.js.map
+//# debugId=de9bbb8c-aaec-5864-9346-16b029ba5548
+//# sourceMappingURL=calendar-pane.component-ZP4LOF3V.js.map

@@ -7,7 +7,7 @@ import {
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-VX7VY3TF.js";
+} from "./chunk-CV5CMPFB.js";
 import "./chunk-SZ4QL66K.js";
 import {
   Clipboard,
@@ -20,14 +20,14 @@ import {
   OrganisationService,
   SelectControlValueAccessor,
   ɵNgSelectMultipleOption
-} from "./chunk-GXMKS6B4.js";
+} from "./chunk-O4YL2YTQ.js";
 import {
   DEFAULT_SETTINGS,
   IconComponent,
   SettingsService
-} from "./chunk-5NU2ZCFP.js";
-import "./chunk-ARRIYDBO.js";
+} from "./chunk-3ASXNKXP.js";
 import "./chunk-PRWEK7F2.js";
+import "./chunk-ARRIYDBO.js";
 import {
   MatRipple,
   MatRippleModule
@@ -1245,4 +1245,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=5899cb84-6c63-5943-befb-b0dd433a7754
-//# sourceMappingURL=settings-debug-panel.component-2QHGXZVS.js.map
+//# sourceMappingURL=settings-debug-panel.component-ZTFK2Z7N.js.map

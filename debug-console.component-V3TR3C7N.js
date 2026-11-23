@@ -1,32 +1,31 @@
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-VX7VY3TF.js";
+} from "./chunk-CV5CMPFB.js";
 import "./chunk-SZ4QL66K.js";
 import {
   TranslatePipe
-} from "./chunk-QHKC25FH.js";
+} from "./chunk-DTY4DYGE.js";
 import {
   DefaultValueAccessor,
   FormsModule,
   NgControlStatus,
-  NgModel,
-  OrganisationService
-} from "./chunk-GXMKS6B4.js";
+  NgModel
+} from "./chunk-O4YL2YTQ.js";
 import {
   AsyncHandler,
+  ConsoleHistoryService,
   HotkeysService,
   IconComponent,
-  RemoteLoggingService,
   SettingsService
-} from "./chunk-5NU2ZCFP.js";
-import "./chunk-ARRIYDBO.js";
+} from "./chunk-3ASXNKXP.js";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
   CdkVirtualScrollViewport,
   ScrollingModule
 } from "./chunk-PRWEK7F2.js";
+import "./chunk-ARRIYDBO.js";
 import {
   MatRipple,
   MatRippleModule
@@ -393,8 +392,7 @@ var DebugConsoleComponent = class _DebugConsoleComponent extends AsyncHandler {
   }
   constructor() {
     super();
-    this._org = inject(OrganisationService);
-    this._logs = inject(RemoteLoggingService);
+    this._logs = inject(ConsoleHistoryService);
     this._hotkey = inject(HotkeysService);
     this._settings = inject(SettingsService);
     this.show = model(
@@ -459,14 +457,6 @@ var DebugConsoleComponent = class _DebugConsoleComponent extends AsyncHandler {
     this.onEnd = () => this.clearTimeout("show");
     this._can_activate = this._settings.signal("debug_console", false);
     this._log_limits = this._settings.signal("log_limits", 2e4);
-    effect(() => {
-      if (!this._org.initialised())
-        return;
-      this._org.active_building();
-      const binding = this._org.binding("remote_logger");
-      const system_id = binding instanceof Object ? binding.id : binding;
-      this._logs.setSystem(system_id);
-    });
     effect(() => {
       const log_list = this._logs.history();
       const limit = this._log_limits();
@@ -683,5 +673,5 @@ var DebugConsoleComponent = class _DebugConsoleComponent extends AsyncHandler {
 export {
   DebugConsoleComponent
 };
-//# debugId=a9091344-0b5f-5839-b2bf-ad96b2de8727
-//# sourceMappingURL=debug-console.component-RCLM3CFE.js.map
+//# debugId=321f2535-90c0-5388-81f6-64efb51c5095
+//# sourceMappingURL=debug-console.component-V3TR3C7N.js.map

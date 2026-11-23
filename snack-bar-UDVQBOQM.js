@@ -1,7 +1,4 @@
 import {
-  MatRippleLoader
-} from "./chunk-ARRIYDBO.js";
-import {
   BasePortalOutlet,
   CdkPortalOutlet,
   ComponentPortal,
@@ -12,6 +9,9 @@ import {
   createGlobalPositionStrategy,
   createOverlayRef
 } from "./chunk-PRWEK7F2.js";
+import {
+  MatRippleLoader
+} from "./chunk-ARRIYDBO.js";
 import {
   FocusMonitor,
   LiveAnnouncer,
@@ -1476,4 +1476,4 @@ export {
   SimpleSnackBar
 };
 //# debugId=6166c6c4-2485-51f2-ab53-5846da559c77
-//# sourceMappingURL=snack-bar-LZRUZWX6.js.map
+//# sourceMappingURL=snack-bar-UDVQBOQM.js.map
