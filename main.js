@@ -3,11 +3,11 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-3MPO4ZGP.js";
+} from "./chunk-FFODCIPL.js";
 import {
   TranslatePipe
-} from "./chunk-TPVGCV7C.js";
-import "./chunk-K3PBPGLR.js";
+} from "./chunk-HH4P7RNF.js";
+import "./chunk-MPCJDZB7.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -35,7 +35,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-MD42BWGZ.js";
+} from "./chunk-4DTRBNBA.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-6SDBMY4Q.js";
+} from "./chunk-BROUVRHV.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -757,7 +757,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-MU6RALRI.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-ZQ3LCTSQ.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -885,7 +885,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-MU6RALRI.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-ZQ3LCTSQ.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -9969,7 +9969,7 @@ var PaymentsModule = class {
       Object.assign(existing, input, { updated_at: now2() });
       return existing;
     }
-    const item = product(__spreadProps(__spreadValues({}, input), { id: void 0 }));
+    const item = product(__spreadProps(__spreadValues({}, input), { id: `prod-${randomString(8)}` }));
     this._products.push(item);
     return item;
   }
@@ -10875,11 +10875,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-LRG62PCO.js").then((m) => m.ChatComponent)
+  import("./chat.component-EUZ7DSSF.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-VE3Q5WPX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-RCWLI2NS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10942,9 +10942,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-LRG62PCO.js").then((m) => m.ChatComponent),
+    import("./chat.component-EUZ7DSSF.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-VE3Q5WPX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-RCWLI2NS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -10997,22 +10997,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-66EJOO64.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-OMQWMECE.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-2ONGIYGS.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-YG2GQWTB.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-PFPB3UHA.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-462WEGZX.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-BH6EDAB2.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-GCIDO5W6.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11038,5 +11038,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=5fc8bd9c-04cd-5adf-a3e6-8d09b0ae2be8
+//# debugId=3a9ffcad-9d4a-51e1-91f8-b04531fd4c3a
 //# sourceMappingURL=main.js.map

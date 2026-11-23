@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-OXQWO56H.js";
+} from "./chunk-DXSQAPUG.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-MZ5NK7ZP.js";
+} from "./chunk-R64OZGMK.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -28,7 +28,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-DHAJOGZ7.js";
+} from "./chunk-TJPLCFDH.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -48,10 +48,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-3MPO4ZGP.js";
+} from "./chunk-FFODCIPL.js";
 import {
   TranslatePipe
-} from "./chunk-TPVGCV7C.js";
+} from "./chunk-HH4P7RNF.js";
 import {
   FormField,
   disabled,
@@ -59,7 +59,7 @@ import {
   form,
   required,
   validate
-} from "./chunk-K3PBPGLR.js";
+} from "./chunk-MPCJDZB7.js";
 import {
   AbstractControl,
   Booking,
@@ -84,7 +84,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-MD42BWGZ.js";
+} from "./chunk-4DTRBNBA.js";
 import {
   $,
   AssetRequest,
@@ -182,7 +182,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-6SDBMY4Q.js";
+} from "./chunk-BROUVRHV.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -9725,6 +9725,16 @@ var PaymentsService = class _PaymentsService {
     return this.call("cancel_payment", payment.id);
   }
   /**
+   * Release the payment of a booking that did not save. When the release
+   * fails, shows the payment ID, so the user can ask support to release it
+   */
+  async release(payment) {
+    await this.cancel(payment).catch((e) => notifyError(i18n("PAYMENTS.RELEASE_FAILED", {
+      id: payment.id,
+      error: errorMessage(e) || e
+    })));
+  }
+  /**
    * Open the hosted page to add a payment method. Resolves when the user
    * closes the page. Throws when the browser blocks the window.
    */
@@ -10952,13 +10962,13 @@ var BookingFormService = class _BookingFormService extends AsyncHandler {
       zones
     })).toJSON(), q).catch(async (e) => {
       if (payment)
-        await this._payments.cancel(payment).catch(() => null);
+        await this._payments.release(payment);
       return this._saveFailure(e);
     });
     if (value.assets?.length || booking.extension_data.assets?.length) {
       await this._saveAssetRequests(result, value, booking, zones).catch(async (e) => {
         if (payment) {
-          await this._payments.cancel(payment).catch(() => null);
+          await this._payments.release(payment);
         }
         throw e;
       });
@@ -13862,7 +13872,7 @@ var EventFormService = class _EventFormService extends AsyncHandler {
       return created_event;
     } catch (e) {
       if (payment)
-        await this._payments.cancel(payment).catch(() => null);
+        await this._payments.release(payment);
       this.removeLoadingTag(Tags.PostBooking);
       if (isPermissionError(e))
         this._clearSavedHostChange();
@@ -19745,5 +19755,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=e5297262-8aa7-57d0-816a-70031a8c8675
-//# sourceMappingURL=chunk-YLFILR6L.js.map
+//# debugId=5596a8ae-c99c-523a-b67b-f68f06d96578
+//# sourceMappingURL=chunk-SUHLMUPX.js.map
