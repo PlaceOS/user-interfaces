@@ -1,21 +1,22 @@
 import {
   legacyFlowsGuard
-} from "./chunk-JW2BP2CG.js";
+} from "./chunk-NEVXHYTG.js";
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-Y77UPETN.js";
+} from "./chunk-VXIMASAL.js";
 import {
   AnnounceDirective,
   PAYMENT_CHECKOUT
-} from "./chunk-UZVKJZH7.js";
+} from "./chunk-SE3JY3LK.js";
 import {
   TranslatePipe
-} from "./chunk-DWBIKYJO.js";
+} from "./chunk-O2NQA37I.js";
 import {
   IconComponent
-} from "./chunk-UVVPYG43.js";
+} from "./chunk-E57Z7P2L.js";
 import {
+  LazySentryErrorHandler,
   OrganisationService,
   PlaceOS_Service,
   SettingsTitleStrategy,
@@ -36,11 +37,10 @@ import {
   setMocks,
   teamsSignInRequired,
   watchUserGroupSync
-} from "./chunk-FDIVFHUY.js";
+} from "./chunk-YOUJNGLH.js";
 import {
   AsyncHandler,
   GroupPermission,
-  LazySentryErrorHandler,
   SettingsService,
   currentUser,
   current_user,
@@ -49,8 +49,8 @@ import {
   settingSignal,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-FVAZ42XT.js";
-import "./chunk-SEBGBNAY.js";
+} from "./chunk-FCVSRJDC.js";
+import "./chunk-5LXAM6QD.js";
 import {
   J,
   LocaleService,
@@ -59,10 +59,10 @@ import {
   firstTruthyValueFrom,
   log,
   oo
-} from "./chunk-HJE2QSCA.js";
-import "./chunk-OJ5RESTA.js";
-import "./chunk-3KHJRBXM.js";
-import "./chunk-AINIX4LN.js";
+} from "./chunk-UQIT3QFI.js";
+import "./chunk-5VBKUMJ6.js";
+import "./chunk-I4UMI225.js";
+import "./chunk-YIMOFMD2.js";
 import {
   Router,
   RouterLink,
@@ -72,7 +72,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withRouterConfig
-} from "./chunk-GHY5Z5DH.js";
+} from "./chunk-UQJ4NR33.js";
 import {
   Component,
   ErrorHandler,
@@ -122,8 +122,8 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-D5QHX5EO.js";
-import "./chunk-653SOEEV.js";
+} from "./chunk-JFVDZBHZ.js";
+import "./chunk-RQBZITXC.js";
 
 // libs/components/src/lib/global-banner.component.ts
 function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
@@ -462,7 +462,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-4K6Y6XHH.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-DXUQUPFE.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -590,7 +590,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-4K6Y6XHH.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-DXUQUPFE.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -1112,20 +1112,22 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 })();
 
 // apps/workplace/src/app/app.component.ts
-var AppComponent_Defer_4_DepsFn = () => [
+var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-LKBO7YXU.js").then((m) => m.ChatComponent)
+  import("./chat.component-MC4HR3G7.js").then((m) => m.ChatComponent)
 ];
-var AppComponent_Defer_10_DepsFn = () => [
+var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-KJ3UP3A4.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-IFWYZWUJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "global-chat");
   }
 }
-function AppComponent_Conditional_7_Template(rf, ctx) {
+function AppComponent_DeferError_4_Template(rf, ctx) {
+}
+function AppComponent_Conditional_8_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "div", 1)(1, "div", 2)(2, "p");
@@ -1133,7 +1135,7 @@ function AppComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275pipe(4, "translate");
     \u0275\u0275elementEnd();
     \u0275\u0275elementStart(5, "button", 3);
-    \u0275\u0275listener("click", function AppComponent_Conditional_7_Template_button_click_5_listener() {
+    \u0275\u0275listener("click", function AppComponent_Conditional_8_Template_button_click_5_listener() {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.signInWithTeams());
@@ -1149,7 +1151,7 @@ function AppComponent_Conditional_7_Template(rf, ctx) {
     \u0275\u0275textInterpolate1(" ", \u0275\u0275pipeBind1(7, 4, "COMMON.SIGN_IN"), " ");
   }
 }
-function AppComponent_Defer_8_Template(rf, ctx) {
+function AppComponent_Defer_9_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "settings-debug-panel-launcher", 4);
   }
@@ -1158,7 +1160,7 @@ function AppComponent_Defer_8_Template(rf, ctx) {
     \u0275\u0275property("loadSchema", ctx_r1.load_settings_schema);
   }
 }
-function AppComponent_DeferError_9_Template(rf, ctx) {
+function AppComponent_DeferError_10_Template(rf, ctx) {
 }
 var AppComponent = class _AppComponent {
   constructor() {
@@ -1166,11 +1168,11 @@ var AppComponent = class _AppComponent {
     this._uploads = inject(UploadsService);
     this.has_chat = settingSignal("chat.enabled", false);
     this.teams_sign_in_required = teamsSignInRequired();
-    this.load_settings_schema = () => import("./settings.schema-EY76B7LP.js");
+    this.load_settings_schema = () => import("./settings.schema-GKNLUMCH.js");
     watchUserGroupSync();
   }
   async ngOnInit() {
-    setMocks(() => import("./src-35M7XJN5.js").then(({ mocksInit }) => mocksInit()));
+    setMocks(() => import("./src-27UAWHRI.js").then(({ mocksInit }) => mocksInit()));
     await this._placeos.init();
     if (this._placeos.has_uploads)
       this._uploads.init();
@@ -1185,25 +1187,25 @@ var AppComponent = class _AppComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 12, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [1, "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-full", "rounded-lg", "border", "p-4", "text-center", "text-sm", "shadow-sm"], ["btn", "", "type", "button", 1, "mt-3", "w-full", 3, "click"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _AppComponent, selectors: [["app-root"]], decls: 13, vars: 2, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [1, "fixed", "inset-0", "z-9999", "flex", "items-center", "justify-center", "p-4"], [1, "border-base-300", "bg-base-100", "w-[24rem]", "max-w-full", "rounded-lg", "border", "p-4", "text-center", "text-sm", "shadow-sm"], ["btn", "", "type", "button", 1, "mt-3", "w-full", 3, "click"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275domTemplate(3, AppComponent_Defer_3_Template, 1, 0);
-        \u0275\u0275defer(4, 3, AppComponent_Defer_4_DepsFn);
-        \u0275\u0275element(6, "global-loading");
-        \u0275\u0275conditionalCreate(7, AppComponent_Conditional_7_Template, 8, 6, "div", 1);
-        \u0275\u0275domTemplate(8, AppComponent_Defer_8_Template, 1, 1)(9, AppComponent_DeferError_9_Template, 0, 0);
-        \u0275\u0275defer(10, 8, AppComponent_Defer_10_DepsFn, null, null, 9);
+        \u0275\u0275domTemplate(3, AppComponent_Defer_3_Template, 1, 0)(4, AppComponent_DeferError_4_Template, 0, 0);
+        \u0275\u0275defer(5, 3, AppComponent_Defer_5_DepsFn, null, null, 4);
+        \u0275\u0275element(7, "global-loading");
+        \u0275\u0275conditionalCreate(8, AppComponent_Conditional_8_Template, 8, 6, "div", 1);
+        \u0275\u0275domTemplate(9, AppComponent_Defer_9_Template, 1, 1)(10, AppComponent_DeferError_10_Template, 0, 0);
+        \u0275\u0275defer(11, 9, AppComponent_Defer_11_DepsFn, null, null, 10);
         \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
-        \u0275\u0275advance(4);
+        \u0275\u0275advance(5);
         \u0275\u0275deferWhen(ctx.has_chat());
         \u0275\u0275advance(3);
-        \u0275\u0275conditional(ctx.teams_sign_in_required() ? 7 : -1);
+        \u0275\u0275conditional(ctx.teams_sign_in_required() ? 8 : -1);
       }
     }, dependencies: [
       RouterOutlet,
@@ -1216,9 +1218,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-LKBO7YXU.js").then((m) => m.ChatComponent),
+    import("./chat.component-MC4HR3G7.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-KJ3UP3A4.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-IFWYZWUJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1236,6 +1238,10 @@ var AppComponent = class _AppComponent {
         </div>
         @defer (when has_chat()) {
             <global-chat />
+        } @error {
+            <!-- Chat is optional. If its chunk fails to download (for
+                 example while offline), show nothing and do not report
+                 an uncaught NG0750 error. -->
         }
         <global-loading />
         @if (teams_sign_in_required()) {
@@ -1271,7 +1277,7 @@ var AppComponent = class _AppComponent {
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/workplace/src/app/app.component.ts", lineNumber: 81 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/workplace/src/app/app.component.ts", lineNumber: 85 });
 })();
 
 // apps/workplace/src/environments/environment.ts
@@ -1298,56 +1304,56 @@ var routes = [
     title: "Book",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./book.routes-E722FE2N.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./book.routes-ITVHIQBJ.js").then((m) => m.ROUTES)
   },
   {
     path: "explore",
     title: "Explore",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./explore.routes-SCIYVQTB.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./explore.routes-YZY76P4S.js").then((m) => m.ROUTES)
   },
   {
     path: "control",
     title: "Control",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./control.routes-KMZMYPYK.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./control.routes-FH5O7I2P.js").then((m) => m.ROUTES)
   },
   {
     path: "directory",
     title: "Directory",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./directory.routes-XDXV2NFQ.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./directory.routes-ETDGHPOX.js").then((m) => m.ROUTES)
   },
   {
     path: "your-bookings",
     title: "Your Bookings",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./schedule.routes-AFAPQAPD.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./schedule.routes-ZXO4UQTP.js").then((m) => m.ROUTES)
   },
   {
     path: "group-events",
     title: "Group Events",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./group-events.routes-6HW5IOU3.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./group-events.routes-R2SHZJRN.js").then((m) => m.ROUTES)
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./deals.routes-SQGDEQIA.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./deals.routes-DCM3VY7V.js").then((m) => m.ROUTES)
   },
   {
     path: "payments",
     title: "Payments",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./payments.routes-GYIOEBSB.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./payments.routes-C435P6NU.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
@@ -1355,26 +1361,26 @@ var routes = [
     canMatch: [legacyFlowsGuard],
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadChildren: () => import("./landing.routes-ZLTH4VHY.js").then((m) => m.ROUTES)
+    loadChildren: () => import("./landing.routes-HOED6P2C.js").then((m) => m.ROUTES)
   },
   {
     path: "landing",
     title: "Home",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./landing-new.component-ICW3Z4ZH.js").then((m) => m.LandingNewComponent)
+    loadComponent: () => import("./landing-new.component-744CLJVV.js").then((m) => m.LandingNewComponent)
   },
   {
     path: "team-schedule",
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard],
-    loadComponent: () => import("./team-schedule.component-W4CSPFJJ.js").then((m) => m.TeamScheduleComponent)
+    loadComponent: () => import("./team-schedule.component-5PU63E6M.js").then((m) => m.TeamScheduleComponent)
   },
   {
     path: "embedded/:id",
     title: "Embedded Page",
     canActivate: [AuthorisedUserGuard],
-    loadComponent: () => import("./embedded-url.component-4OHBSEG6.js").then((m) => m.EmbeddedUrlComponent)
+    loadComponent: () => import("./embedded-url.component-7PWRPLKA.js").then((m) => m.EmbeddedUrlComponent)
   },
   { path: "**", redirectTo: "-", pathMatch: "full" }
 ];
@@ -1409,5 +1415,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=05c81c7d-52e9-5454-b47f-512f2caa2452
+//# debugId=4bf3661e-38e4-57e8-a8e6-fa576c0f7288
 //# sourceMappingURL=main.js.map
