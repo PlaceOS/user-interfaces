@@ -1,19 +1,19 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-5TMRCFXQ.js";
+} from "./chunk-EFZA4UXH.js";
 import "./chunk-FJP5RVRJ.js";
 import {
   TranslatePipe
-} from "./chunk-VBNU25TR.js";
-import "./chunk-BMEVTTOV.js";
+} from "./chunk-U3JYS4VK.js";
+import "./chunk-HDDFML7G.js";
 import {
   AsyncHandler,
   SettingsService,
   User,
   current_user,
   settingSignal
-} from "./chunk-QCIOGT4L.js";
+} from "./chunk-4YEDYFJB.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -694,4 +694,4 @@ export {
   ChatComponent
 };
 //# debugId=84d53d4d-faa7-5650-8429-ed49904c7df3
-//# sourceMappingURL=chat.component-WB36WS5O.js.map
+//# sourceMappingURL=chat.component-XMHCKJMY.js.map
