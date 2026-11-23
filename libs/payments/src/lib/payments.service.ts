@@ -7,7 +7,12 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { errorMessage, i18n, OrganisationService } from '@placeos/common';
+import {
+    errorMessage,
+    i18n,
+    notifyError,
+    OrganisationService,
+} from '@placeos/common';
 import {
     CheckoutCancelledError,
     openPaymentWindow,
@@ -245,6 +250,21 @@ export class PaymentsService {
     /** Release or refund a payment, e.g. when the booking fails to save */
     public cancel(payment: Payment) {
         return this.call('cancel_payment', payment.id);
+    }
+
+    /**
+     * Release the payment of a booking that did not save. When the release
+     * fails, shows the payment ID, so the user can ask support to release it
+     */
+    public async release(payment: Payment) {
+        await this.cancel(payment).catch((e) =>
+            notifyError(
+                i18n('PAYMENTS.RELEASE_FAILED', {
+                    id: payment.id,
+                    error: errorMessage(e) || e,
+                }),
+            ),
+        );
     }
 
     /**

@@ -4,7 +4,12 @@ import { createServiceFactory, SpectatorService } from '@ngneat/spectator';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import { Building, OrganisationService } from '@placeos/common';
+import type { MatSnackBar } from '@angular/material/snack-bar';
+import {
+    Building,
+    OrganisationService,
+    setNotifyOutlet,
+} from '@placeos/common';
 
 import {
     CheckoutCancelledError,
@@ -516,6 +521,21 @@ describe('PaymentsService', () => {
             ),
         ).rejects.toBe('PAYMENTS.POPUP_BLOCKED');
         expect(driver.get_payment_link).not.toHaveBeenCalled();
+    });
+
+    it('shows the payment ID when a release fails', async () => {
+        const open = vi.fn(() => ({ onAction: () => of(), dismiss: vi.fn() }));
+        setNotifyOutlet({ open } as unknown as MatSnackBar, true);
+        driver.cancel_payment = () => Promise.reject({ msg: 'Provider down' });
+
+        await spectator.service.release(payment('authorized'));
+
+        setNotifyOutlet(null, true);
+        expect(open).toHaveBeenCalledWith(
+            'PAYMENTS.RELEASE_FAILED',
+            expect.anything(),
+            expect.anything(),
+        );
     });
 
     it('does not complete a payment without a reference', async () => {

@@ -200,4 +200,23 @@ describe('Mock payments module', () => {
         });
         expect(() => mod.call('get_payment', ['pay-unknown'])).toThrow();
     });
+
+    it('gives each new product its own ID', () => {
+        const mod = createModule();
+        const input = {
+            name: 'Projector',
+            description: '',
+            active: true,
+            resource_type: 'service' as const,
+            resource_ids: [],
+            zone_ids: [],
+            unit: 'booking' as const,
+            unit_amount: 1000,
+            currency: 'AUD',
+        };
+        const first = mod.call('save_product', [input]);
+        const second = mod.call('save_product', [input]);
+        expect(first.id).toMatch(/^prod-/);
+        expect(second.id).not.toBe(first.id);
+    });
 });

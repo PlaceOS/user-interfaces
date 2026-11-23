@@ -1324,7 +1324,7 @@ export class EventFormService extends AsyncHandler {
             return created_event;
         } catch (e) {
             // Release the payment, as the new event is not saved
-            if (payment) await this._payments.cancel(payment).catch(() => null);
+            if (payment) await this._payments.release(payment);
             this.removeLoadingTag(Tags.PostBooking);
             if (isPermissionError(e)) this._clearSavedHostChange();
             throw e;

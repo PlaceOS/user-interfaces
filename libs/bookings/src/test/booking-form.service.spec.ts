@@ -1225,7 +1225,7 @@ describe('BookingFormService', () => {
             payments = {
                 checkout: vi.fn(async () => ({ status: 'paid', payment })),
                 capture: vi.fn(async () => payment),
-                cancel: vi.fn(async () => payment),
+                release: vi.fn(async () => undefined),
             };
             Object.assign(spectator.inject(PaymentsService), payments, {
                 can_checkout: true,
@@ -1254,7 +1254,7 @@ describe('BookingFormService', () => {
                 type: 'booking',
                 id: 'booking-new',
             });
-            expect(payments.cancel).not.toHaveBeenCalled();
+            expect(payments.release).not.toHaveBeenCalled();
         });
 
         it('should release the payment when the booking fails to save', async () => {
@@ -1268,7 +1268,7 @@ describe('BookingFormService', () => {
 
             await expect(spectator.service.postForm(true)).rejects.toBeTruthy();
 
-            expect(payments.cancel).toHaveBeenCalledWith(payment);
+            expect(payments.release).toHaveBeenCalledWith(payment);
             expect(payments.capture).not.toHaveBeenCalled();
         });
 
@@ -4297,7 +4297,7 @@ describe('BookingFormService', () => {
                 can_checkout: true,
                 checkout: vi.fn(async () => ({ status: 'paid', payment })),
                 capture: vi.fn(),
-                cancel: vi.fn(async () => payment),
+                release: vi.fn(async () => undefined),
             };
             Object.assign(spectator.inject(PaymentsService), payments);
             postBookings({ status: 422, error: 'Asset unavailable' });
@@ -4307,7 +4307,7 @@ describe('BookingFormService', () => {
                 'Asset unavailable',
             );
 
-            expect(payments.cancel).toHaveBeenCalledWith(payment);
+            expect(payments.release).toHaveBeenCalledWith(payment);
             expect(payments.capture).not.toHaveBeenCalled();
         });
 

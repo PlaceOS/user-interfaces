@@ -636,7 +636,7 @@ class PaymentsModule implements MockDriver<PaymentDriver> {
             Object.assign(existing, input, { updated_at: now() });
             return existing;
         }
-        const item = product({ ...input, id: undefined });
+        const item = product({ ...input, id: `prod-${randomString(8)}` });
         this._products.push(item);
         return item;
     }

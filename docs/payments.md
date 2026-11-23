@@ -65,7 +65,7 @@ Only Workplace asks for payment. An app turns the checkout on when it provides t
 6. The app saves the booking or the event.
     - The app stores the payment ID in `extension_data.payment_id` of the booking or the event. An edit keeps it.
     - When the save succeeds, the app calls `capture_payment` with a reference to the booking or the event. When the capture fails, the app tries again 2 times, because a repeated capture is safe. When all 3 attempts fail, the app shows the error. Staff can then take the payment from the booking list.
-    - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist.
+    - When the save fails, the app calls `cancel_payment`. The driver releases the authorization, so the user does not pay for a booking that does not exist. When `cancel_payment` also fails, the app shows the payment ID, so the user can ask support to release it.
     - When the calendar declines all of the rooms of a new event, the app calls `cancel_payment` and does not order the catering, as the payment holds both. When the cancel fails, the app shows the payment ID.
     - When the calendar declines some of the rooms, the app sends their IDs in `exclude_resource_ids` of `capture_payment`. The driver does not take the items of these rooms. The user pays for the other rooms and the catering.
     - A booking with asset requests is captured after the asset requests save. When they fail, the app removes the booking and calls `cancel_payment`.

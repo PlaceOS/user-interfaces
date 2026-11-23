@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
+    Building,
     OrganisationService,
     setCurrentUser,
     StaffUser,
@@ -41,6 +42,7 @@ function payment(id: string): Payment {
 describe('PaymentsComponent', () => {
     let spectator: Spectator<PaymentsComponent>;
     const capabilities = signal<PaymentCapability[]>([]);
+    const building = signal(new Building({ id: 'bld-1' }));
     const call =
         vi.fn<
             (
@@ -74,6 +76,7 @@ describe('PaymentsComponent', () => {
             }),
             MockProvider(OrganisationService, {
                 waitUntilInitialised: async () => undefined,
+                active_building: building,
             }),
             MockProvider(Router),
             MockProvider(MatDialog),
@@ -94,6 +97,7 @@ describe('PaymentsComponent', () => {
     beforeEach(() => {
         setCurrentUser(new StaffUser({ id: 'user-1', email: EMAIL }));
         capabilities.set([]);
+        building.set(new Building({ id: 'bld-1' }));
         call.mockReset();
         call.mockImplementation(async (method) =>
             method === 'list_payment_methods'
@@ -149,5 +153,23 @@ describe('PaymentsComponent', () => {
         expect(spectator.query('main ul')?.textContent).toContain(
             'Desk booking pay-1',
         );
+    });
+
+    it('loads the payments of the new building and ignores the reply for the old one', async () => {
+        let resolve_old!: (value: unknown) => void;
+        call.mockReturnValueOnce(new Promise((done) => (resolve_old = done)));
+        spectator.detectChanges();
+        await settle();
+
+        call.mockResolvedValueOnce({ items: [payment('pay-2')] });
+        building.set(new Building({ id: 'bld-2' }));
+        spectator.detectChanges();
+        await settle();
+        resolve_old({ items: [payment('pay-1')] });
+        await settle();
+
+        const list = spectator.query('main ul')?.textContent;
+        expect(list).toContain('Desk booking pay-2');
+        expect(list).not.toContain('Desk booking pay-1');
     });
 });

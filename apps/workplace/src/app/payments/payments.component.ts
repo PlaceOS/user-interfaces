@@ -1,5 +1,13 @@
 import { DatePipe } from '@angular/common';
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+    Component,
+    computed,
+    effect,
+    inject,
+    OnInit,
+    signal,
+    untracked,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -321,6 +329,10 @@ export class PaymentsComponent implements OnInit {
     public readonly cursor = signal<string | undefined>(undefined);
     public readonly loading = signal(false);
     public readonly error = signal('');
+    /** Whether the first load started, so a building change loads again */
+    private _ready = false;
+    /** ID of the latest load. The reply of an older load is ignored */
+    private _load_id = 0;
 
     /** Tabs for the features of the driver */
     public readonly tabs = computed(() => [
@@ -333,6 +345,16 @@ export class PaymentsComponent implements OnInit {
             : []),
     ]);
 
+    constructor() {
+        // Each building can have its own driver, so start again when it changes
+        let building: string | undefined;
+        effect(() => {
+            const id = this._org.active_building()?.id;
+            if (this._ready && id !== building) untracked(() => this._reset());
+            building = id;
+        });
+    }
+
     public async ngOnInit() {
         await this._org.waitUntilInitialised();
         if (!this._payments.enabled) {
@@ -340,6 +362,7 @@ export class PaymentsComponent implements OnInit {
             return;
         }
         await currentUserLoaded();
+        this._ready = true;
         await this.load();
     }
 
@@ -351,6 +374,8 @@ export class PaymentsComponent implements OnInit {
     /** Load the first page of the active tab, or the next page with `more` */
     public async load(more = false) {
         const tab = this.tab();
+        const load_id = ++this._load_id;
+        const stale = () => load_id !== this._load_id;
         const cursor = more ? this.cursor() : undefined;
         // Filter by email, as privileged users get the payments of all users
         const user_email = currentUser().email;
@@ -362,29 +387,29 @@ export class PaymentsComponent implements OnInit {
         try {
             if (tab === 'payments') {
                 const page = await this._payments.call('list_payments', query);
-                if (this.tab() !== tab) return;
+                if (stale()) return;
                 this.payments.update((list) => append(list, page.items));
                 this.cursor.set(page.next_cursor);
             } else if (tab === 'invoices') {
                 const page = await this._payments.call('list_invoices', query);
-                if (this.tab() !== tab) return;
+                if (stale()) return;
                 this.invoices.update((list) => append(list, page.items));
                 this.cursor.set(page.next_cursor);
             } else {
                 const methods = await this._payments.call(
                     'list_payment_methods',
                 );
-                if (this.tab() !== tab) return;
+                if (stale()) return;
                 this.methods.set(methods);
                 this.cursor.set(undefined);
             }
         } catch (e) {
-            if (this.tab() !== tab) return;
+            if (stale()) return;
             this.error.set(
                 i18n('PAYMENTS.LOAD_ERROR', { error: errorMessage(e) || e }),
             );
         } finally {
-            if (this.tab() === tab) this.loading.set(false);
+            if (!stale()) this.loading.set(false);
         }
     }
 
@@ -423,5 +448,15 @@ export class PaymentsComponent implements OnInit {
             .catch((e) => notifyError(errorMessage(e) || e));
         result.close();
         await this.load();
+    }
+
+    /** Clear the lists of the old building and load the first page again */
+    private _reset() {
+        this.payments.set([]);
+        this.invoices.set([]);
+        this.methods.set([]);
+        this.cursor.set(undefined);
+        this.tab.set('payments');
+        this.load();
     }
 }
