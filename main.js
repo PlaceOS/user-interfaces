@@ -3,10 +3,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-2YIPVUCC.js";
+} from "./chunk-UOOXVRT3.js";
 import {
   TranslatePipe
-} from "./chunk-U3JYS4VK.js";
+} from "./chunk-42KHGALW.js";
 import "./chunk-73745V4N.js";
 import {
   LazySentryErrorHandler,
@@ -31,7 +31,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-HDDFML7G.js";
+} from "./chunk-TOVPTXEO.js";
 import {
   AsyncHandler,
   Bp,
@@ -65,7 +65,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-4YEDYFJB.js";
+} from "./chunk-UTTQZ5FZ.js";
 import "./chunk-FUB2AYYJ.js";
 import {
   IconComponent
@@ -10991,11 +10991,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-XMHCKJMY.js").then((m) => m.ChatComponent)
+  import("./chat.component-KDHQSYPV.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-O6543ZTJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-JNGLNCAO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11059,9 +11059,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-XMHCKJMY.js").then((m) => m.ChatComponent),
+    import("./chat.component-KDHQSYPV.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-O6543ZTJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-JNGLNCAO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11111,12 +11111,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-J5XZLRQK.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-MPZF2N2A.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-5YORNBPF.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-NNFYZ35H.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
