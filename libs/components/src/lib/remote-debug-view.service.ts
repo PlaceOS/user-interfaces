@@ -75,21 +75,23 @@ export class RemoteDebugViewService extends AsyncHandler {
     /**
      * Call a method of the driver for the people who debug, such as
      * `request_logs` or `send_command`. Resolves the result of the driver.
-     * Shows an error and resolves `undefined` when the call fails, or when
-     * the websocket is not connected.
+     * Rejects when the call fails, when the websocket is not connected, or
+     * when the driver is not set up. It shows the error first, except for a
+     * driver that is not set up, because the view shows that state.
      */
     public async call<T = unknown>(
         method: string,
         args: unknown[],
-    ): Promise<T | undefined> {
+    ): Promise<T> {
         const mod = this._module();
-        if (!mod) return undefined;
+        if (!mod) throw new Error('The RemoteDebug driver is not set up');
         // ts-client keeps a call that it cannot send and sends it after it
         // connects again, maybe after the user left the page. A reload must
         // not run then
         if (!is_connected()) {
-            notifyError('Remote debugging needs a connection to PlaceOS');
-            return undefined;
+            const message = 'Remote debugging needs a connection to PlaceOS';
+            notifyError(message);
+            throw new Error(message);
         }
         try {
             return await mod.execute<T>(method, args);
@@ -97,7 +99,7 @@ export class RemoteDebugViewService extends AsyncHandler {
             notifyError(
                 `Remote debugging failed: ${(error as Error)?.message || error}`,
             );
-            return undefined;
+            throw error;
         }
     }
 }

@@ -33,10 +33,11 @@ describe('RemoteDebugViewService', () => {
         // ts-client would keep the call and send it after it connects again
         vi.mocked(ts_client.is_connected).mockReturnValue(false);
 
-        const result = await service.call('send_command', ['DEV-1', 'reload']);
+        await expect(
+            service.call('send_command', ['DEV-1', 'reload']),
+        ).rejects.toThrow('needs a connection');
 
         expect(service.state()).toBe('ready');
-        expect(result).toBeUndefined();
         expect(execute).not.toHaveBeenCalled();
         TestBed.resetTestingModule();
     });

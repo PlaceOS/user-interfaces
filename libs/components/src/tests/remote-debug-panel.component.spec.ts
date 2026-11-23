@@ -296,6 +296,27 @@ describe('RemoteDebugPanelComponent', () => {
         expect(spectator.component.level()).toBe('debug');
     });
 
+    it('should keep the selected level until the binding shows it', async () => {
+        emit('device:DEV-1', { logs: { id: 'req-1', level: 'info' } });
+        call.mockResolvedValue(null);
+
+        // The call returns before the binding shows the new level
+        await spectator.component.setLevel('debug');
+        expect(spectator.component.level()).toBe('debug');
+
+        emit('device:DEV-1', { logs: { id: 'req-1', level: 'debug' } });
+        expect(spectator.component.level()).toBe('debug');
+    });
+
+    it('should show the level of the binding after a failed call', async () => {
+        emit('device:DEV-1', { logs: { id: 'req-1', level: 'info' } });
+        call.mockRejectedValue(new Error('timeout'));
+
+        await spectator.component.setLevel('debug');
+
+        expect(spectator.component.level()).toBe('info');
+    });
+
     it('should not send waiting calls after the panel closes', async () => {
         let release = () => {};
         call.mockImplementation(
@@ -332,12 +353,19 @@ describe('RemoteDebugPanelComponent', () => {
     });
 
     it('should leave out bad values from the driver', () => {
+        // `DatePipe` throws for a time that is not a date
         emit('logs:DEV-1', {
-            device: null,
+            device: { id: 'DEV-1', started_at: 'yesterday' },
             entries: [{ seq: 4 }, ...logs.entries],
         });
         emit('results:DEV-1', [
             { id: 'cmd-1', type: 'status', received_at: 1 },
+            {
+                id: 'cmd-3',
+                type: 'status',
+                received_at: 'soon',
+                result: { ok: true },
+            },
             {
                 id: 'cmd-2',
                 type: 'status',
@@ -347,6 +375,10 @@ describe('RemoteDebugPanelComponent', () => {
         ]);
 
         expect(spectator.queryAll('[logs] ol li')).toHaveLength(3);
+        expect(spectator.component.device()).toBeNull();
+        expect(spectator.component.shown_results().map((_) => _.id)).toEqual([
+            'cmd-2',
+        ]);
         expect(spectator.query('[results]')?.textContent).toContain(
             'Timed out',
         );

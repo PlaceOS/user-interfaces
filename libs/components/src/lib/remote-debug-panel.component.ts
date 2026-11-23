@@ -23,6 +23,7 @@ import {
     isRemoteLogRequest,
     notifyError,
     notifySuccess,
+    readRemoteDebugMedia,
     readRemoteDebugResults,
     readRemoteLogsView,
     REMOTE_LOG_LEVELS,
@@ -498,6 +499,8 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
     private _pending = 0;
     /** Whether the panel closed. Calls that did not start do not run */
     private _closed = false;
+    /** Whether a call failed since the queue was last empty */
+    private _failed = false;
     /** `seq` that a request for older entries asked for. The page moves when older entries arrive */
     private _older_wanted: number | null = null;
     /** ID of the log request in the binding, to find a new request */
@@ -641,20 +644,40 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
     }
 
     /**
-     * Run a driver call after the calls before it. A call that did not start
-     * when the panel closes does not run, so a reload is not sent later.
-     * When the last call finishes, the level shows the level in the binding.
+     * Run a driver call after the calls before it. Resolves `undefined` when
+     * the call fails, which the view service shows. A call that did not
+     * start when the panel closes does not run, so a reload is not sent
+     * later.
+     *
+     * When the last call finishes, the level shows the level in the binding
+     * if a call failed, or if the binding changed during the last call. Else
+     * the binding can still show the old level, and its next value sets the
+     * level.
      */
     private _queue<T>(call: () => Promise<T>): Promise<T | undefined> {
         this._pending++;
+        let seen: RemoteDebugDeviceState | null = null;
         const next = this._requests
-            .then(() => (this._closed ? undefined : call()))
+            .then(() => {
+                if (this._closed) return undefined;
+                seen = this._state();
+                return call();
+            })
+            .catch(() => {
+                this._failed = true;
+                return undefined;
+            })
             .finally(() => {
                 if (--this._pending) return;
-                const logs = this._state().logs;
-                if (isRemoteLogRequest(logs)) this.level.set(logs.level);
+                const state = this._state();
+                if (this._failed || state !== seen) {
+                    if (isRemoteLogRequest(state.logs)) {
+                        this.level.set(state.logs.level);
+                    }
+                }
+                this._failed = false;
             });
-        this._requests = next.catch(() => undefined);
+        this._requests = next;
         return next;
     }
 
@@ -743,8 +766,7 @@ export class RemoteDebugPanelComponent extends AsyncHandler {
     /** File details of a snapshot or animation result. `null` for other results */
     public media(item: RemoteDebugCommandResult): RemoteDebugMedia | null {
         if (item.type !== 'snapshot' && item.type !== 'animation') return null;
-        const data = item.result.data as RemoteDebugMedia | undefined;
-        return typeof data?.upload_id === 'string' ? data : null;
+        return readRemoteDebugMedia(item.result.data);
     }
 
     public mediaUrl(file: RemoteDebugMedia) {
