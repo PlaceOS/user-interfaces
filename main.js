@@ -4,21 +4,21 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-JYD4YD4B.js";
+} from "./chunk-DOBETA3P.js";
 import {
   subMinutes
-} from "./chunk-23TTAQRB.js";
+} from "./chunk-NRFNZUIS.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-IQVD3K54.js";
+} from "./chunk-UOI7PUMM.js";
 import {
   AnnounceDirective
-} from "./chunk-IEAI3THW.js";
+} from "./chunk-YURYNXGC.js";
 import {
   TranslatePipe
-} from "./chunk-LFU7IZ4U.js";
+} from "./chunk-RALLFUQW.js";
 import "./chunk-PGER6XBG.js";
 import {
   LazySentryErrorHandler,
@@ -43,7 +43,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-JHSYZZGU.js";
+} from "./chunk-JEQDCZX2.js";
 import {
   AsyncHandler,
   Bp,
@@ -78,7 +78,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-UMQQCXUS.js";
+} from "./chunk-D2BSAKWQ.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
@@ -10079,7 +10079,7 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason) {
+  $refund_payment(id, amount, _reason, _request_id) {
     const payment = findPayment(this._payments, id);
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
@@ -11045,11 +11045,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-CFW723UM.js").then((m) => m.ChatComponent)
+  import("./chat.component-FZINFY4K.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-ZJVCCCJP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-HGLRI6QX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11114,9 +11114,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-CFW723UM.js").then((m) => m.ChatComponent),
+    import("./chat.component-FZINFY4K.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-ZJVCCCJP.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-HGLRI6QX.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11167,22 +11167,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-N7FWJKRN.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-YQBKCYMY.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-4Z2XWCEI.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-ALCI22XJ.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-RG6KAHX5.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-XVIYG3J7.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-VMBEEDVU.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-VQJ2KG6I.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11214,5 +11214,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=54401c23-948a-53fe-8209-667dd30db17c
+//# debugId=e32106f8-4102-556b-a42d-3a3955f24695
 //# sourceMappingURL=main.js.map

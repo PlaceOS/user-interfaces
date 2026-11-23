@@ -36,13 +36,13 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-IQVD3K54.js";
+} from "./chunk-UOI7PUMM.js";
 import {
   AnnounceDirective
-} from "./chunk-IEAI3THW.js";
+} from "./chunk-YURYNXGC.js";
 import {
   TranslatePipe
-} from "./chunk-LFU7IZ4U.js";
+} from "./chunk-RALLFUQW.js";
 import {
   FormField,
   disabled,
@@ -55,7 +55,7 @@ import {
   OrganisationService,
   firstValueWhere,
   toQueryString
-} from "./chunk-JHSYZZGU.js";
+} from "./chunk-JEQDCZX2.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -155,7 +155,7 @@ import {
   unique,
   up,
   user_group_names
-} from "./chunk-UMQQCXUS.js";
+} from "./chunk-D2BSAKWQ.js";
 import {
   IconComponent,
   SafePipe
@@ -7461,14 +7461,15 @@ var _PaymentsService = class _PaymentsService {
     return this.call("cancel_payment", payment.id);
   }
   /**
-   * Release the payment of a booking that did not save. When the release
-   * fails, shows the payment ID, so the user can ask support to release it
+   * Release the payment of a booking that did not save. Resolves with the
+   * error to show: `error`, or when the release also fails, a message with
+   * the payment ID, so the user can ask support to release the payment
    */
-  async release(payment) {
-    await this.cancel(payment).catch((e) => notifyError(i18n("PAYMENTS.RELEASE_FAILED", {
+  release(payment, error) {
+    return this.cancel(payment).then(() => error, (e) => i18n("PAYMENTS.RELEASE_FAILED", {
       id: payment.id,
       error: errorMessage(e) || e
-    })));
+    }));
   }
   /**
    * Open the hosted page to add a payment method. Resolves when the user
@@ -9542,12 +9543,11 @@ var _EventFormService = class _EventFormService extends AsyncHandler {
       this.last_success.set(created_event);
       return created_event;
     } catch (e) {
-      if (payment)
-        await this._payments.release(payment);
+      const error = payment ? await this._payments.release(payment, e) : e;
       this.removeLoadingTag(Tags.PostBooking);
       if (isPermissionError(e))
         this._clearSavedHostChange();
-      throw e;
+      throw error;
     }
   }
   /**
@@ -13429,5 +13429,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=7cd45496-9fad-5d32-9ad9-2c6ab2effba6
-//# sourceMappingURL=chunk-JUXEBPIL.js.map
+//# debugId=d37eeacb-691c-5c34-89fa-66cec265acea
+//# sourceMappingURL=chunk-SNFJTB2D.js.map
