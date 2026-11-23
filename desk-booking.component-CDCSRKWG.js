@@ -1,10 +1,10 @@
 import "./chunk-2BIJ6DLE.js";
-import "./chunk-JLBD7SRT.js";
+import "./chunk-JNPO7LAB.js";
 import {
   AsyncHandler,
   IconComponent,
   SettingsService
-} from "./chunk-EYIO4RWU.js";
+} from "./chunk-Q3BU3DCE.js";
 import "./chunk-AJBEQOPT.js";
 import {
   MatRipple,
@@ -163,4 +163,4 @@ export {
   DeskBookingComponent
 };
 //# debugId=131450f8-f1a3-5ee4-8b41-22870989a567
-//# sourceMappingURL=desk-booking.component-JANWQWX2.js.map
+//# sourceMappingURL=desk-booking.component-CDCSRKWG.js.map
