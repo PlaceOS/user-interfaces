@@ -68,9 +68,13 @@ describe('PaymentDetailsModalComponent', () => {
         driver = { list_invoices: vi.fn(() => ({ items: [] })) };
     });
 
-    it('lets staff take an authorized payment for the booking of the row', async () => {
-        const reference = { type: 'booking' as const, id: 'booking-1' };
-        data = { payment: payment({ status: 'authorized' }), reference };
+    it('lets staff take an authorized payment for the event of the row', async () => {
+        const reference = { type: 'event' as const, id: 'event-1' };
+        data = {
+            payment: payment({ status: 'authorized' }),
+            reference,
+            exclude_resource_ids: ['room-2'],
+        };
         capture.mockResolvedValue(payment({ reference }));
         spectator = createComponent();
         spectator.detectChanges();
@@ -78,7 +82,9 @@ describe('PaymentDetailsModalComponent', () => {
         spectator.click('button[name="capture-payment"]');
         await spectator.fixture.whenStable();
 
-        expect(capture).toHaveBeenCalledWith(data.payment, reference);
+        expect(capture).toHaveBeenCalledWith(data.payment, reference, [
+            'room-2',
+        ]);
         expect(spectator.component.payment().status).toBe('succeeded');
     });
 

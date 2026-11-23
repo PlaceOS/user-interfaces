@@ -44,6 +44,8 @@ export interface PaymentDetailsData {
      * payment that the app did not capture after the save.
      */
     reference?: PaymentReference;
+    /** Items that Take payment does not take, e.g. rooms that declined */
+    exclude_resource_ids?: string[];
 }
 
 type DetailsView = 'details' | 'invoice' | 'refund';
@@ -606,7 +608,11 @@ export class PaymentDetailsModalComponent implements OnInit {
         if (!reference) return;
         await this._run('PAYMENTS.CAPTURING', async () => {
             this.payment.set(
-                await this._payments.capture(this.payment(), reference),
+                await this._payments.capture(
+                    this.payment(),
+                    reference,
+                    this._data.exclude_resource_ids,
+                ),
             );
             notifySuccess(i18n('PAYMENTS.CAPTURE_SUCCESS'));
         });

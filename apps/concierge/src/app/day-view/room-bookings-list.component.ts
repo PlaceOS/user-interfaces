@@ -125,6 +125,7 @@ import { EventsStateService } from './events-state.service';
                     class="block px-4"
                     [payment_id]="row.extension_data?.payment_id"
                     [reference]="{ type: 'event', id: row.id }"
+                    [resources]="row.resources"
                 ></booking-payment>
             </ng-template>
             <ng-template #date_template let-date="data">

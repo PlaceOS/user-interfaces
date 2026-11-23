@@ -487,6 +487,25 @@ describe('PaymentsService', () => {
         expect(window_ref.close).toHaveBeenCalled();
     });
 
+    it('shows a payment that is still open when the wait times out, and does not cancel it', async () => {
+        vi.useFakeTimers();
+        const reference = { type: 'booking' as const, id: 'booking-1' };
+        driver.get_payment_link = () => ({
+            id: 'cs-1',
+            url: 'https://pay.example.com/cs-1',
+            expires_at: 0,
+        });
+        driver.get_payment = () => payment('pending');
+        driver.cancel_payment = vi.fn();
+        const done = spectator.service.completePayment(
+            { ...payment('pending'), reference },
+            { closed: false, location: { href: '' } } as unknown as Window,
+        );
+        await vi.advanceTimersByTimeAsync(15 * 60_000);
+        await expect(done).resolves.toEqual(payment('pending'));
+        expect(driver.cancel_payment).not.toHaveBeenCalled();
+    });
+
     it('does not complete a payment when the browser blocks the window', async () => {
         const reference = { type: 'booking' as const, id: 'booking-1' };
         driver.get_payment_link = vi.fn();

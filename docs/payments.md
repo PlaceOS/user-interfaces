@@ -72,7 +72,7 @@ Only Workplace asks for payment. An app turns the checkout on when it provides t
 
 The hosted page goes back to `assets/payment-complete.html` of the app. This page only closes the popup window. The app gets the result from the driver, not from the page.
 
-The payment details show **Complete payment** only for an open payment of the user that has a `reference`. A payment without a reference has no saved booking. If the user completed it, they would pay for nothing. After the payment completes, the app captures it for its reference. This flow does not cancel the payment when the checks fail or time out, as its booking is saved. When the browser blocks the popup window, the app shows an error and does not call the driver. The driver must release open payments without a reference when the provider session expires.
+The payment details show **Complete payment** only for an open payment of the user that has a `reference`. A payment without a reference has no saved booking. If the user completed it, they would pay for nothing. After the payment completes, the app captures it for its reference. This flow does not cancel the payment when the checks fail or time out, as its booking is saved. The details then show the latest state of the payment. When the browser blocks the popup window, the app shows an error and does not call the driver. The driver must release open payments without a reference when the provider session expires.
 
 Changes to saved bookings and events are not charged. Group bookings are not charged, because the app saves one booking for each member and has no combined checkout. A recurring booking is charged as one booking. External catering is not charged, because the driver cannot get its prices. With `app.events.use_bookings`, the payment ID is not stored on the booking yet.
 
@@ -192,6 +192,6 @@ In mock mode, the current user is privileged. A hosted page counts as paid after
 
 The Concierge room, desk, parking and locker booking lists show a **Payment** column when the building has a payment driver. A booking with `extension_data.payment_id` shows a payment icon. Select the icon to load the payment with `get_payment` and open its details. Privileged users can refund it there.
 
-When the payment is `authorized` and has no `reference`, the capture after the save did not complete. Privileged users can select **Take payment** to call `capture_payment` with the booking or the event of the row. The driver can check that the booking stores the ID of the payment before it takes the payment.
+When the payment is `authorized` and has no `reference`, the capture after the save did not complete. Privileged users can select **Take payment** to call `capture_payment` with the booking or the event of the row. For an event, the rooms of the payment that the event does not have as accepted go in `exclude_resource_ids`, so the user does not pay for the rooms that declined. The driver can check that the booking stores the ID of the payment before it takes the payment.
 
 The lists do not load the payments of the rows. One request for each row would make a long list slow and could go over the rate limit of the provider. Thus the icon shows that a payment exists, not its status.

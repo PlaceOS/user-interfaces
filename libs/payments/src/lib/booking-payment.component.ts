@@ -11,7 +11,7 @@ import {
     PaymentDetailsData,
     PaymentDetailsModalComponent,
 } from './payment-details-modal.component';
-import { PaymentReference } from './payment.types';
+import { Payment, PaymentReference } from './payment.types';
 import { PaymentsService } from './payments.service';
 
 /**
@@ -60,6 +60,11 @@ export class BookingPaymentComponent {
     public readonly payment_id = input<string | undefined>('');
     /** The booking or the event of the row, so staff can take its payment */
     public readonly reference = input<PaymentReference>();
+    /**
+     * Rooms of the event of the row. Take payment does not take the rooms
+     * of the payment that are not accepted here
+     */
+    public readonly resources = input<readonly EventResource[]>();
     public readonly enabled = this._payments.is_enabled;
     public readonly loading = signal(false);
 
@@ -71,7 +76,16 @@ export class BookingPaymentComponent {
             const payment = await this._payments.call('get_payment', id);
             this._dialog.open<PaymentDetailsModalComponent, PaymentDetailsData>(
                 PaymentDetailsModalComponent,
-                { data: { payment, reference: this.reference() } },
+                {
+                    data: {
+                        payment,
+                        reference: this.reference(),
+                        exclude_resource_ids: declinedRooms(
+                            payment,
+                            this.resources(),
+                        ),
+                    },
+                },
             );
         } catch (e) {
             notifyError(
@@ -81,4 +95,28 @@ export class BookingPaymentComponent {
             this.loading.set(false);
         }
     }
+}
+
+/** Room of an event, with the response of the room */
+interface EventResource {
+    id: string;
+    response_status?: string;
+}
+
+/** IDs of the rooms of the payment that the event does not have as accepted */
+function declinedRooms(
+    payment: Payment,
+    resources: readonly EventResource[] | undefined,
+): string[] {
+    if (!resources) return [];
+    const accepted = new Set(
+        resources
+            .filter((_) => _.response_status !== 'declined')
+            .map((_) => _.id),
+    );
+    return payment.items
+        .filter(
+            (_) => _.resource_type === 'room' && !accepted.has(_.resource_id),
+        )
+        .map((_) => _.resource_id);
 }

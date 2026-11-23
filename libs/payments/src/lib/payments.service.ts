@@ -290,10 +290,12 @@ export class PaymentsService {
             window: window_ref,
             cancel: false,
         }).catch((e) => {
-            // Show the latest state of the payment
+            // Show the latest state of the payment. The wait can also time
+            // out, which leaves the payment open
             if (
                 e instanceof PaymentWindowClosedError ||
-                e instanceof PaymentEndedError
+                e instanceof PaymentEndedError ||
+                e instanceof CheckoutCancelledError
             ) {
                 return this.call('get_payment', payment.id);
             }

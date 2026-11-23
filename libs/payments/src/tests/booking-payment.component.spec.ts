@@ -57,7 +57,35 @@ describe('BookingPaymentComponent', () => {
 
         expect(call).toHaveBeenCalledWith('get_payment', 'pay-1');
         expect(open).toHaveBeenCalledWith(PaymentDetailsModalComponent, {
-            data: { payment, reference },
+            data: { payment, reference, exclude_resource_ids: [] },
         });
+    });
+
+    it('leaves out the rooms of the payment that the event does not have as accepted', async () => {
+        const item = (resource_type: string, resource_id: string) => ({
+            resource_type,
+            resource_id,
+        });
+        call.mockResolvedValueOnce({
+            ...payment,
+            items: [
+                item('room', 'room-1'),
+                item('room', 'room-2'),
+                item('room', 'room-3'),
+                item('catering', 'coffee'),
+            ],
+        } as Payment);
+        spectator.setInput('payment_id', 'pay-1');
+        spectator.setInput('resources', [
+            { id: 'room-1', response_status: 'accepted' },
+            { id: 'room-2', response_status: 'declined' },
+        ]);
+        spectator.detectChanges();
+
+        spectator.click('button[name="view-payment"]');
+        await spectator.fixture.whenStable();
+
+        const [, { data }] = open.mock.calls[0];
+        expect(data.exclude_resource_ids).toEqual(['room-2', 'room-3']);
     });
 });
