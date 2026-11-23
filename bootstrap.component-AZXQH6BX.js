@@ -36,14 +36,14 @@ import {
 } from "./chunk-OQDJRCPY.js";
 import {
   RemoteSetupService
-} from "./chunk-MZZWAS5A.js";
+} from "./chunk-LYN6F7W6.js";
 import {
   TranslatePipe
-} from "./chunk-2VI7EVLY.js";
+} from "./chunk-KBCXWXPH.js";
 import "./chunk-3EONKEEQ.js";
 import {
   OrganisationService
-} from "./chunk-DPBGXWN2.js";
+} from "./chunk-2HX3CTCX.js";
 import {
   AsyncHandler,
   SettingsService,
@@ -53,7 +53,7 @@ import {
   orThrowPage,
   signage_templates_exports,
   systems_exports
-} from "./chunk-6RDRATXU.js";
+} from "./chunk-UHABINJN.js";
 import {
   IconComponent
 } from "./chunk-QQTV5HMC.js";
@@ -3654,4 +3654,4 @@ export {
   BootstrapComponent
 };
 //# debugId=63d30f62-612c-5eb5-9750-e07e4b53087b
-//# sourceMappingURL=bootstrap.component-3BKD5OLG.js.map
+//# sourceMappingURL=bootstrap.component-AZXQH6BX.js.map
