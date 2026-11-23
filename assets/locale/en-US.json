@@ -100,5 +100,10 @@
             }
         },
         "RECOLOUR_LABEL": "Recolor"
+    },
+    "PAYMENTS": {
+        "PAYMENT_CANCELLED": "Payment canceled. The booking was not made.",
+        "STATUS_AUTHORIZED": "Authorized",
+        "STATUS_CANCELLED": "Canceled"
     }
 }
