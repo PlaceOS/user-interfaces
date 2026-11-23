@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-UW73IECC.js";
+} from "./chunk-LAVSBNUQ.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,7 +14,7 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-WFVNSM5P.js";
+} from "./chunk-222ZD6LL.js";
 import {
   Bp,
   Or,
@@ -35,7 +35,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-3GM3XCZ7.js";
+} from "./chunk-CRGOLDOU.js";
 import "./chunk-6AWLGSP6.js";
 import "./chunk-VX7FOOGQ.js";
 import "./chunk-P2RLUWKE.js";
@@ -8558,6 +8558,7 @@ var PaymentsModule = class {
     this._payments = seedHistory();
     this._invoices = [];
     this._checkouts = /* @__PURE__ */ new Map();
+    this._refunds = /* @__PURE__ */ new Set();
   }
   $get_config() {
     return {
@@ -8714,13 +8715,18 @@ var PaymentsModule = class {
     const list = this._invoices.filter((i) => (!query.user_email || i.user_email === query.user_email) && (!query.status || i.status === query.status) && (!query.payment_id || i.payment_id === query.payment_id));
     return page(list, query.limit, query.cursor);
   }
-  $refund_payment(id, amount, _reason, _request_id) {
+  $refund_payment(id, amount, _reason, request_id) {
     const payment = findPayment(this._payments, id);
+    const key = request_id ? `${id}:${request_id}` : "";
+    if (key && this._refunds.has(key))
+      return payment;
     const refundable = payment.amount - payment.amount_refunded;
     const refund = amount === null ? refundable : amount;
     if (refund <= 0 || refund > refundable)
       throw "Invalid refund amount";
     const amount_refunded = payment.amount_refunded + refund;
+    if (key)
+      this._refunds.add(key);
     return updatePayment(this._payments, id, {
       amount_refunded,
       status: amount_refunded >= payment.amount ? "refunded" : "partially_refunded"
@@ -9671,5 +9677,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=fef57854-9003-5e55-9f24-1d82af9dad14
-//# sourceMappingURL=src-DPGWCY5T.js.map
+//# debugId=599e0763-1851-5dc3-82d0-3d431c4f7dda
+//# sourceMappingURL=src-PPPNKPBH.js.map
