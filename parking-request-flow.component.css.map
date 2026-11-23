@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["parking-request-flow.component.ts"],
+  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n            }\n        "],
+  "mappings": ";AACY;AACI,UAAA;AACA,SAAA;AACJ;",
+  "names": []
+}

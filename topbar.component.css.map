@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["topbar.component.ts"],
+  "sourcesContent": ["\n            .flex-3 {\n                flex: 3 3 0%;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,QAAA,EAAA,EAAA;AACJ;",
+  "names": []
+}
