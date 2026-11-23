@@ -1,1 +1,0 @@
-{"version":3,"file":"chunk-BVenkLbU.js","names":["mocksInit","log"],"sources":["../libs/mocks/src/empty.ts"],"sourcesContent":["import { log } from '@placeos/common';\n\nexport function mocksInit() {\n    log('MOCKS', 'No mocks available in production');\n}\n"],"mappings":"qEAEM,SAAUA,GAAS,CACrBC,GAAI,QAAS,kCAAkC,CACnD","debugId":"c09198db-2823-5c4b-aada-06d0ab0dd2bf"}
