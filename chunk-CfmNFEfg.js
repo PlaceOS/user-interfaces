@@ -1,0 +1,4 @@
+import{n as bn}from"./chunk-Ce1MVu3A.js";function h(o,e=`#fff0`,n=`#000`){let t=bn(o,`svg`,{ecc:`low`,border:1});return e&&e!==`#fff0`&&e!==`#0000`&&(t=t.replace(`>`,`><rect width="100%" height="100%" style="fill:${e};"/>`)),t=t.replace(`<path`,`<path style="fill:${n};"`),`data:image/svg+xml,${encodeURIComponent(t)}`}export{h as t};
+;!function(){try{var e="undefined"!=typeof window?window:"undefined"!=typeof globalThis?globalThis:"undefined"!=typeof self?self:{},n=(new e.Error).stack;n&&(e._sentryDebugIds=e._sentryDebugIds||{},e._sentryDebugIds[n]="e5d961d1-66f6-5188-8511-cbf869efacbe")}catch(e){}}();
+//# debugId=e5d961d1-66f6-5188-8511-cbf869efacbe
+//# sourceMappingURL=chunk-CfmNFEfg.js.map
