@@ -1,24 +1,25 @@
 import {
   MatProgressBar,
   MatProgressBarModule
-} from "./chunk-QYPBD5TI.js";
+} from "./chunk-BHKTOFB6.js";
 import {
   AnnounceDirective
-} from "./chunk-SIBLYMIF.js";
+} from "./chunk-PILRAJM6.js";
 import {
   onPageTransitionCreated
-} from "./chunk-KN5QSIES.js";
+} from "./chunk-HZPDZPAY.js";
 import {
   KeyboardShortcutsService
-} from "./chunk-2RKC74IR.js";
+} from "./chunk-VWXXB56Q.js";
 import {
   TranslatePipe
-} from "./chunk-7FOGR4KR.js";
+} from "./chunk-6RPGS7WV.js";
 import {
   IconComponent
-} from "./chunk-XHLNZTFA.js";
-import "./chunk-JWZ62QCO.js";
+} from "./chunk-OCRUIWUS.js";
+import "./chunk-XCUQAAEL.js";
 import {
+  LazySentryErrorHandler,
   OrganisationService,
   PlaceOS_Service,
   SettingsTitleStrategy,
@@ -37,12 +38,11 @@ import {
   serviceWorkerUpdate,
   setMocks,
   watchUserGroupSync
-} from "./chunk-23FKJ3RM.js";
+} from "./chunk-FEK2RRRJ.js";
 import {
   AsyncHandler,
   GroupPermission,
   J,
-  LazySentryErrorHandler,
   LocaleService,
   Mt,
   SettingsService,
@@ -55,8 +55,8 @@ import {
   settingSignal,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-BJRVZNVW.js";
-import "./chunk-O6LGXEN6.js";
+} from "./chunk-BYSXZXQH.js";
+import "./chunk-C474S4JC.js";
 import {
   Router,
   RouterLink,
@@ -66,7 +66,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withViewTransitions
-} from "./chunk-647F7C2X.js";
+} from "./chunk-EWNKJBAV.js";
 import {
   Component,
   ErrorHandler,
@@ -118,8 +118,8 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-WP37UGIF.js";
-import "./chunk-653SOEEV.js";
+} from "./chunk-J4V3B3VF.js";
+import "./chunk-RQBZITXC.js";
 
 // libs/components/src/lib/global-banner.component.ts
 function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
@@ -458,7 +458,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-ADIGFEHO.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-S4SI5JGK.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -586,7 +586,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-ADIGFEHO.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-S4SI5JGK.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -1051,20 +1051,22 @@ var AuthorisedUserGuard = class _AuthorisedUserGuard {
 })();
 
 // apps/concierge/src/app/app.component.ts
-var AppComponent_Defer_4_DepsFn = () => [
+var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-EQ7NTMIQ.js").then((m) => m.ChatComponent)
+  import("./chat.component-OD262MVN.js").then((m) => m.ChatComponent)
 ];
-var AppComponent_Defer_8_DepsFn = () => [
+var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-S3FW5VYO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-EQTDB3VA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "global-chat");
   }
 }
-function AppComponent_Defer_7_Template(rf, ctx) {
+function AppComponent_DeferError_4_Template(rf, ctx) {
+}
+function AppComponent_Defer_8_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275element(0, "settings-debug-panel-launcher", 1);
   }
@@ -1073,9 +1075,11 @@ function AppComponent_Defer_7_Template(rf, ctx) {
     \u0275\u0275property("loadSchema", ctx_r0.load_settings_schema);
   }
 }
+function AppComponent_DeferError_9_Template(rf, ctx) {
+}
 var AppComponent = class _AppComponent {
   constructor() {
-    this.load_settings_schema = () => import("./settings.schema-ZOKMWKNM.js");
+    this.load_settings_schema = () => import("./settings.schema-SAXHEH52.js");
     this._placeos = inject(PlaceOS_Service);
     this._uploads = inject(UploadsService);
     this.shortcuts = inject(KeyboardShortcutsService);
@@ -1089,7 +1093,7 @@ var AppComponent = class _AppComponent {
     watchUserGroupSync();
   }
   async ngOnInit() {
-    setMocks(() => import("./src-BXPVCYRX.js").then(({ mocksInit }) => mocksInit()));
+    setMocks(() => import("./src-TH6TZ2ZE.js").then(({ mocksInit }) => mocksInit()));
     await this._placeos.init();
     this.has_chat.set(this._placeos.has_chat);
     if (this._placeos.has_uploads)
@@ -1107,21 +1111,21 @@ var AppComponent = class _AppComponent {
           return ctx.shortcuts.handleKeydown($event);
         }, \u0275\u0275resolveWindow);
       }
-    }, decls: 10, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
+    }, decls: 12, vars: 1, consts: [[1, "relative", "h-1/2", "w-full", "flex-1"], [3, "loadSchema"]], template: function AppComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275element(0, "global-banner");
         \u0275\u0275elementStart(1, "div", 0);
         \u0275\u0275element(2, "router-outlet");
         \u0275\u0275elementEnd();
-        \u0275\u0275domTemplate(3, AppComponent_Defer_3_Template, 1, 0);
-        \u0275\u0275defer(4, 3, AppComponent_Defer_4_DepsFn);
-        \u0275\u0275element(6, "global-loading");
-        \u0275\u0275domTemplate(7, AppComponent_Defer_7_Template, 1, 1);
-        \u0275\u0275defer(8, 7, AppComponent_Defer_8_DepsFn);
+        \u0275\u0275domTemplate(3, AppComponent_Defer_3_Template, 1, 0)(4, AppComponent_DeferError_4_Template, 0, 0);
+        \u0275\u0275defer(5, 3, AppComponent_Defer_5_DepsFn, null, null, 4);
+        \u0275\u0275element(7, "global-loading");
+        \u0275\u0275domTemplate(8, AppComponent_Defer_8_Template, 1, 1)(9, AppComponent_DeferError_9_Template, 0, 0);
+        \u0275\u0275defer(10, 8, AppComponent_Defer_10_DepsFn, null, null, 9);
         \u0275\u0275deferOnIdle();
       }
       if (rf & 2) {
-        \u0275\u0275advance(4);
+        \u0275\u0275advance(5);
         \u0275\u0275deferWhen(ctx.has_chat());
       }
     }, dependencies: [
@@ -1134,9 +1138,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-EQ7NTMIQ.js").then((m) => m.ChatComponent),
+    import("./chat.component-OD262MVN.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-S3FW5VYO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-EQTDB3VA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1153,12 +1157,20 @@ var AppComponent = class _AppComponent {
         </div>
         @defer (when has_chat()) {
             <global-chat />
+        } @error {
+            <!-- Chat is optional. If its chunk fails to download (for
+                 example while offline), show nothing and do not report
+                 an uncaught NG0750 error. -->
         }
         <global-loading />
         @defer (on idle) {
             <settings-debug-panel-launcher
                 [loadSchema]="load_settings_schema"
             />
+        } @error {
+            <!-- The launcher is optional. If its chunk fails to download
+                 (for example while offline), show nothing and do not
+                 report an uncaught NG0750 error. -->
         }
     `, host: {
         "(window:keydown)": "shortcuts.handleKeydown($event)"
@@ -1167,7 +1179,7 @@ var AppComponent = class _AppComponent {
   });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/concierge/src/app/app.component.ts", lineNumber: 56 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(AppComponent, { className: "AppComponent", filePath: "apps/concierge/src/app/app.component.ts", lineNumber: 64 });
 })();
 
 // apps/concierge/src/environments/environment.ts
@@ -1186,112 +1198,112 @@ var routes = [
   {
     path: "book/rooms",
     title: "Room Bookings",
-    loadChildren: () => import("./day-view.routes-LIOTF3SD.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./day-view.routes-MTCAWIBA.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "facilities",
     title: "Facilities",
-    loadChildren: () => import("./facilities.routes-YQ3E3MTV.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./facilities.routes-A2HHVYLP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/visitors",
     title: "Visitors",
-    loadChildren: () => import("./visitors.routes-PVS3EZXW.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./visitors.routes-TPPXGWT6.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/assets",
     title: "Assets",
-    loadChildren: () => import("./asset-manager.routes-OCVZ3DYF.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./asset-manager.routes-G77UGU26.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/desks",
     title: "Desk Bookings",
-    loadChildren: () => import("./desks.routes-MV2KREUU.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./desks.routes-6EJWIDAP.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/lockers",
     title: "Locker Bookings",
-    loadChildren: () => import("./lockers.routes-IE4D47VF.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./lockers.routes-NOMVID5O.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "reports",
     title: "Reports",
-    loadChildren: () => import("./reports.routes-G4Q7FDXM.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./reports.routes-Z4KSH4OH.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "entertainment/events",
     title: "Events",
-    loadChildren: () => import("./events.routes-6UX7WGRG.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./events.routes-L4J4OL4H.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "users/staff",
     title: "Staff",
-    loadChildren: () => import("./staff.routes-ROB7OEX4.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./staff.routes-CCHL2INI.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/catering",
     title: "Catering",
-    loadChildren: () => import("./catering.routes-PBQ2UCXQ.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./catering.routes-B7P3OHF6.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-management",
     title: "Points Management",
-    loadChildren: () => import("./points.routes-NR7FCXB3.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./points.routes-6NA6ESJ6.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "book/parking",
     title: "Parking Bookings",
-    loadChildren: () => import("./parking.routes-4N5GCUC3.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./parking.routes-OK2QK5R3.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "surveys",
     title: "Surveys",
-    loadChildren: () => import("./surveys.routes-KTHLYI32.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./surveys.routes-REZFPMZQ.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "room-management",
     title: "Room Management",
-    loadChildren: () => import("./room-manager.routes-VEX4NR3O.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./room-manager.routes-BPVTFME7.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "map-management",
     title: "Map Management",
-    loadChildren: () => import("./map-manager.routes-RQAOOOHC.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./map-manager.routes-RWIC56MH.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "zone-management",
     title: "Zone Management",
-    loadChildren: () => import("./zone-manager.routes-2BHW7QIV.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./zone-manager.routes-HYGBVPQV.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
@@ -1310,42 +1322,48 @@ var routes = [
   {
     path: "email-templates",
     title: "Email Templates",
-    loadChildren: () => import("./email-templates.routes-TI7FRMOU.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./email-templates.routes-XOXXY7KF.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "deals-n-offers",
     title: "Deals & Offers",
-    loadChildren: () => import("./deals.routes-PC5EJXEN.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./deals.routes-RFYXGGSK.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "points-of-interest",
     title: "Points of Interest",
-    loadChildren: () => import("./poi-manager.routes-FSIRYH6U.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./poi-manager.routes-XSTFDRV2.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "url-management",
     title: "URL Management",
-    loadChildren: () => import("./url-manager.routes-ARC2SWH6.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./url-manager.routes-UIILSNE2.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "payments",
     title: "Payments",
-    loadChildren: () => import("./payments.routes-MB4T426K.js").then((m) => m.ROUTES),
+    loadChildren: () => import("./payments.routes-S4X3O5XF.js").then((m) => m.ROUTES),
     canActivate: [AuthorisedUserGuard],
     canLoad: [AuthorisedUserGuard]
   },
   {
     path: "remote-setup",
     title: "Remote Setup",
-    loadComponent: () => import("./remote-setup.component-74RCRX4A.js").then((m) => m.RemoteSetupComponent),
+    loadComponent: () => import("./remote-setup.component-G4LQZNVG.js").then((m) => m.RemoteSetupComponent),
+    canActivate: [AuthorisedUserGuard]
+  },
+  {
+    path: "remote-debug",
+    title: "Remote Debugging",
+    loadComponent: () => import("./remote-debug.component-YMSYMJ3F.js").then((m) => m.RemoteDebugComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "-" }
@@ -1389,5 +1407,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=6c0088f5-37f2-57cb-ae4d-9a1bb8c1ed74
+//# debugId=7c240850-6ffe-5576-8305-6bdd0e3c97df
 //# sourceMappingURL=main.js.map
