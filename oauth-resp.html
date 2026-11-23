@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <title>Authentication</title>
+    </head>
+    <body>
+        <script>
+            // The OAuth redirect page of @placeos/ts-client 7.x. Put it next to the application and
+            // use its URL as the `redirect_uri` of `createAuthSession`.
+            //
+            // In a frame of the same origin, it sends the parameters to the parent page. Else it
+            // goes back to the application with the parameters in the hash. The browser does not
+            // send the hash to the server, so the access token is not in its logs.
+            (function () {
+                var params = {};
+                var parts = [window.location.search.slice(1), window.location.hash.slice(1)];
+                for (var index = 0; index < parts.length; index += 1) {
+                    new URLSearchParams(parts[index]).forEach(function (value, key) {
+                        if (value) params[key] = value;
+                    });
+                }
+
+                var framed = window.parent !== window;
+                var sameOrigin = false;
+                try {
+                    sameOrigin = framed && window.parent.location.origin === window.location.origin;
+                } catch (error) {
+                    // A parent on a different origin throws. Then this page does not send to it.
+                }
+                if (sameOrigin) {
+                    window.parent.postMessage(
+                        { type: 'place-os', params: params },
+                        window.location.origin,
+                    );
+                    return;
+                }
+
+                var path = window.location.pathname.replace(/oauth-resp\.html$/, '');
+                var query = new URLSearchParams(params).toString();
+                window.location.replace(window.location.origin + path + (query ? '#' + query : ''));
+            })();
+        </script>
+    </body>
+</html>
