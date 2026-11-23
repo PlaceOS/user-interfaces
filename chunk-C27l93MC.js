@@ -1,0 +1,1 @@
+import{t as Dm}from"./main-G3TH54N6.js";function n(){Dm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
