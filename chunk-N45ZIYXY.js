@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-R6PN7FBE.js";
+} from "./chunk-WLB7O47B.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-QZ4Y6VC5.js";
+} from "./chunk-2Z6EJHPQ.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -28,7 +28,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-HU5IRAG2.js";
+} from "./chunk-PMEOFSC3.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -48,10 +48,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-Z7W5B4ET.js";
+} from "./chunk-VFXVANMW.js";
 import {
   TranslatePipe
-} from "./chunk-6YZZXTKE.js";
+} from "./chunk-25ZNXGFC.js";
 import {
   FormField,
   disabled,
@@ -59,7 +59,7 @@ import {
   form,
   required,
   validate
-} from "./chunk-HL5TUV7Q.js";
+} from "./chunk-VVB35ZNO.js";
 import {
   AbstractControl,
   AssetRequest,
@@ -190,7 +190,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-HLJFAKJP.js";
+} from "./chunk-KPYU5RSQ.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -6021,8 +6021,22 @@ function filter_hidden_items(response) {
     data: response.data.filter((item) => !item?.hidden)
   });
 }
+var PAGE_LIMIT = 500;
+var MAX_PAGES2 = 100;
+async function loadAllPages(first2) {
+  let response = first2;
+  const data = [...response.data];
+  for (let page = 1; page < MAX_PAGES2; page++) {
+    const next = response.next?.();
+    if (!next)
+      break;
+    response = await next;
+    data.push(...response.data);
+  }
+  return { total: response.total, next: () => null, data };
+}
 async function visible_category_ids() {
-  const response = await asset_categories_exports.query({}).then(orThrowPage);
+  const response = await loadAllPages(await asset_categories_exports.query({ limit: PAGE_LIMIT }).then(orThrowPage));
   return new Set(response.data.filter((item) => !item?.hidden).map((item) => item.id));
 }
 async function queryAssetCategories(query5 = {}) {
@@ -6048,22 +6062,8 @@ function saveAssetCategory(category) {
   return category.id ? asset_categories_exports.update({ id: category.id, body }).then(orThrow) : asset_categories_exports.create({ body }).then(orThrow);
 }
 var _GROUPS_CACHE = /* @__PURE__ */ new Map();
-var MAX_ASSET_PAGES = 100;
 async function queryAllAssetPages(query5 = {}) {
-  let response = await assets_exports.query(__spreadProps(__spreadValues({}, query5), { limit: query5.limit || 500 })).then(orThrowPage);
-  let total = response.total;
-  const data = [...response.data];
-  for (let page = 1; page < MAX_ASSET_PAGES; page++) {
-    if (typeof response.next !== "function")
-      break;
-    const next = response.next();
-    if (!next)
-      break;
-    response = await next;
-    total = response.total;
-    data.push(...response.data);
-  }
-  return { total, next: () => null, data };
+  return loadAllPages(await assets_exports.query(__spreadProps(__spreadValues({}, query5), { limit: query5.limit || PAGE_LIMIT })).then(orThrowPage));
 }
 async function queryAssetGroupsExtended(query5 = {}) {
   const cache_key = JSON.stringify({
@@ -22316,5 +22316,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=76fd2e31-8188-5064-8319-9f67eb2f361f
-//# sourceMappingURL=chunk-7JI3A7S3.js.map
+//# debugId=49f2dbc1-4b1e-5f9f-bef1-6a9a79ed494b
+//# sourceMappingURL=chunk-N45ZIYXY.js.map
