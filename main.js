@@ -5,10 +5,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-2WUJJP7R.js";
+} from "./chunk-VE3P32PW.js";
 import {
   TranslatePipe
-} from "./chunk-DCUSACQA.js";
+} from "./chunk-5WH7JYFU.js";
 import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
@@ -34,7 +34,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-P3IBH6WA.js";
+} from "./chunk-IOIRPI4O.js";
 import {
   AsyncHandler,
   Bp,
@@ -72,7 +72,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   xi
-} from "./chunk-THXQ7ZOH.js";
+} from "./chunk-6HBRSVAS.js";
 import "./chunk-C6AMB2L4.js";
 import {
   IconComponent,
@@ -10047,7 +10047,7 @@ var PaymentsModule = class {
       Object.assign(existing, input, { updated_at: now2() });
       return existing;
     }
-    const item = product(__spreadProps(__spreadValues({}, input), { id: void 0 }));
+    const item = product(__spreadProps(__spreadValues({}, input), { id: `prod-${randomString(8)}` }));
     this._products.push(item);
     return item;
   }
@@ -10953,11 +10953,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-EJPCJ7VG.js").then((m) => m.ChatComponent)
+  import("./chat.component-TCDMUKRK.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-DS2CIBS5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MCVN3AGJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11022,9 +11022,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-EJPCJ7VG.js").then((m) => m.ChatComponent),
+    import("./chat.component-TCDMUKRK.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-DS2CIBS5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MCVN3AGJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11072,7 +11072,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-FPV5NYD5.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-ATBCDFMC.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -11111,5 +11111,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=9a674900-a116-5890-9559-3e0f9a506697
+//# debugId=5af595f1-9caf-521f-839b-2e547498dc67
 //# sourceMappingURL=main.js.map
