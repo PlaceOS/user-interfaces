@@ -152,11 +152,16 @@ export interface GroupSelectModalData {
                     </div>
                 </button>
             }
-            @for (item of filtered_groups(); track item.group.id) {
+            @let searching = !!search().trim();
+            @for (row of filtered_groups(); track row.item.group.id) {
+                @let item = row.item;
                 <button
                     type="button"
                     matRipple
-                    class="border-base-300 hover:bg-base-200 z-0 flex h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
+                    class="border-base-300 hover:bg-base-200 z-0 flex min-h-16 w-full items-center space-x-2 rounded-sm border p-2 text-left"
+                    [style.padding-inline-start.rem]="
+                        searching ? 0.5 : 0.5 + indent(row) * 1.5
+                    "
                     [class.bg-secondary]="
                         data.selected_group_id === item.group.id
                     "
@@ -172,10 +177,21 @@ export interface GroupSelectModalData {
                         {{
                             data.selected_group_id === item.group.id
                                 ? 'check_circle'
-                                : 'group'
+                                : row.path.length && !searching
+                                  ? 'subdirectory_arrow_right'
+                                  : 'group'
                         }}
                     </icon>
                     <div class="min-w-0 flex-1">
+                        <!-- Screen readers get the path, as the indent is visual only -->
+                        @if (row.path.length) {
+                            <div
+                                class="text-base-content/70 truncate text-xs"
+                                [class.sr-only]="!searching"
+                            >
+                                {{ row.path.join(' › ') }}
+                            </div>
+                        }
                         <div class="truncate">{{ item.group.name }}</div>
                         @if (item.group.description) {
                             <div class="text-base-content/70 truncate text-xs">
@@ -211,10 +227,13 @@ export interface GroupSelectModalData {
 export class GroupSelectModalComponent {
     public readonly data = inject<GroupSelectModalData>(MAT_DIALOG_DATA);
     public readonly search = signal('');
+    private readonly _rows = computed(() => groupTreeRows(this.data.groups));
+    /** Rows in tree order. A search keeps the tree order and only drops the
+     * groups that do not match. */
     public readonly filtered_groups = computed(() => {
         const term = this.search().toLowerCase().trim();
-        if (!term) return this.data.groups;
-        return this.data.groups.filter((item) =>
+        if (!term) return this._rows();
+        return this._rows().filter(({ item }) =>
             `${item.group.name} ${item.group.description || ''}`
                 .toLowerCase()
                 .includes(term),
@@ -227,4 +246,55 @@ export class GroupSelectModalComponent {
             : undefined;
         return groupHierarchy(selected, groups);
     });
+
+    /** Indent steps of a row. Deep trees stop at a maximum, so rows keep
+     * room for the name. */
+    public indent(row: GroupTreeRow) {
+        return Math.min(row.path.length, MAX_INDENT);
+    }
+}
+
+/** Group in the modal list, with the names of its ancestors, root first */
+export interface GroupTreeRow {
+    item: PlaceCurrentGroup;
+    path: string[];
+}
+
+// Most indent steps a row gets
+const MAX_INDENT = 6;
+
+/**
+ * Groups in depth-first tree order. Groups whose parent is not in the list
+ * are roots. Siblings keep the order of the list. Each group shows once, so a
+ * parent cycle cannot loop forever. The first group of a cycle shows as a
+ * root.
+ */
+export function groupTreeRows(items: PlaceCurrentGroup[]) {
+    const ids = new Set(items.map(({ group }) => group.id));
+    const children = new Map<string, PlaceCurrentGroup[]>();
+    for (const item of items) {
+        const parent_id = item.group.parent_id;
+        if (!parent_id || !ids.has(parent_id)) continue;
+        const siblings = children.get(parent_id) || [];
+        siblings.push(item);
+        children.set(parent_id, siblings);
+    }
+    const rows: GroupTreeRow[] = [];
+    const seen = new Set<string>();
+    const visit = (item: PlaceCurrentGroup, path: string[]) => {
+        if (seen.has(item.group.id)) return;
+        seen.add(item.group.id);
+        rows.push({ item, path });
+        const child_path = [...path, item.group.name];
+        for (const child of children.get(item.group.id) || []) {
+            visit(child, child_path);
+        }
+    };
+    for (const item of items) {
+        const parent_id = item.group.parent_id;
+        if (!parent_id || !ids.has(parent_id)) visit(item, []);
+    }
+    // Groups in a parent cycle have no root to reach them from
+    for (const item of items) visit(item, []);
+    return rows;
 }

@@ -3,6 +3,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog';
 import {
     GroupSelectModalComponent,
     GroupSelectModalData,
+    groupTreeRows,
 } from '../../app/shared/group-select-modal.component';
 
 function group(id: string, name: string, parent_id?: string) {
@@ -76,9 +77,9 @@ describe('GroupSelectModalComponent', () => {
 
         component.search.set('  bet ');
 
-        expect(component.filtered_groups().map((_) => _.group.id)).toEqual([
-            'b',
-        ]);
+        expect(component.filtered_groups().map((_) => _.item.group.id)).toEqual(
+            ['b'],
+        );
     });
 
     it('matches the search term against group descriptions', async () => {
@@ -91,9 +92,9 @@ describe('GroupSelectModalComponent', () => {
 
         component.search.set('lobby');
 
-        expect(component.filtered_groups().map((_) => _.group.id)).toEqual([
-            'b',
-        ]);
+        expect(component.filtered_groups().map((_) => _.item.group.id)).toEqual(
+            ['b'],
+        );
     });
 
     it('only includes the selected group when its parent is missing', async () => {
@@ -104,5 +105,66 @@ describe('GroupSelectModalComponent', () => {
         });
 
         expect(component.selected_hierarchy().map((_) => _.id)).toEqual(['c']);
+    });
+
+    it('keeps the tree order and the path of matches', async () => {
+        const component = await createComponent({
+            title: 'Select',
+            groups: [
+                group('a', 'Lobby'),
+                group('z', 'Other'),
+                group('b', 'Lobby east', 'a'),
+            ],
+        });
+
+        component.search.set('lobby');
+
+        expect(
+            component
+                .filtered_groups()
+                .map(({ item, path }) => [item.group.id, path]),
+        ).toEqual([
+            ['a', []],
+            ['b', ['Lobby']],
+        ]);
+    });
+});
+
+describe('groupTreeRows', () => {
+    const order = (rows: ReturnType<typeof groupTreeRows>) =>
+        rows.map(({ item, path }) => [item.group.id, path.join('/')]);
+
+    it('puts children under their parent with the ancestor names', () => {
+        const rows = groupTreeRows([
+            group('a', 'Alpha'),
+            group('c', 'Gamma', 'b'),
+            group('b', 'Beta', 'a'),
+            group('d', 'Delta'),
+        ]);
+
+        expect(order(rows)).toEqual([
+            ['a', ''],
+            ['b', 'Alpha'],
+            ['c', 'Alpha/Beta'],
+            ['d', ''],
+        ]);
+    });
+
+    it('shows groups with a missing parent as roots', () => {
+        const rows = groupTreeRows([group('b', 'Beta', 'missing')]);
+
+        expect(order(rows)).toEqual([['b', '']]);
+    });
+
+    it('shows each group in a parent cycle once', () => {
+        const rows = groupTreeRows([
+            group('a', 'Alpha', 'b'),
+            group('b', 'Beta', 'a'),
+        ]);
+
+        expect(order(rows)).toEqual([
+            ['a', ''],
+            ['b', 'Alpha'],
+        ]);
     });
 });
