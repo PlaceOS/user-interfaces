@@ -1,13 +1,15 @@
 import {
-  AnnounceDirective,
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-KPAJJMND.js";
+} from "./chunk-W7NIL2XA.js";
+import {
+  AnnounceDirective
+} from "./chunk-6CNGAZZN.js";
 import {
   TranslatePipe
-} from "./chunk-SVLIJQSE.js";
-import "./chunk-73745V4N.js";
+} from "./chunk-6GCYZR34.js";
+import "./chunk-WL6FKRFH.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -31,50 +33,52 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-Q43LLJKR.js";
+} from "./chunk-WHMTOYHM.js";
 import {
   AsyncHandler,
   GroupPermission,
   SettingsService,
-  addDays,
-  addMinutes,
   addMonths,
   authority,
-  capitalizeFirstLetter,
   current_user,
-  differenceInMinutes,
-  firstTruthyValueFrom,
   getUnixTime,
   hasPermission,
   isBefore,
+  onlineState,
+  settingSignal,
+  token,
+  user_groups_failed,
+  user_groups_loaded,
+  waitForOnline
+} from "./chunk-RZX7VZWK.js";
+import {
+  addDays,
+  addMinutes,
+  capitalizeFirstLetter,
+  differenceInMinutes,
+  firstTruthyValueFrom,
   log,
   mockSystem,
-  onlineState,
   padLength,
   predictableRandomInt,
   randomInt,
   randomString,
   registerMockEndpoint,
   registerSystem,
-  settingSignal,
   startOfDay,
   timePeriodsIntersect,
   toDate,
-  token,
-  unique,
-  user_groups_failed,
-  user_groups_loaded,
-  waitForOnline
-} from "./chunk-GNRLOHQ5.js";
-import "./chunk-FUB2AYYJ.js";
+  unique
+} from "./chunk-G6M3YDHV.js";
+import "./chunk-SGCMNCCJ.js";
 import {
   IconComponent
-} from "./chunk-UQYXXIWO.js";
+} from "./chunk-CDNQX7A6.js";
 import "./chunk-COFQG2BS.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-UOH3XC6Y.js";
+} from "./chunk-XDQN7SR4.js";
 import {
   Router,
   RouterLink,
@@ -82,7 +86,7 @@ import {
   provideRouter,
   withHashLocation,
   withNavigationErrorHandler
-} from "./chunk-ETLJB2UR.js";
+} from "./chunk-VIGPUO64.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -150,7 +154,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-T4IGA262.js";
+} from "./chunk-2KX7OMRV.js";
 import {
   __objRest,
   __restKey,
@@ -868,7 +872,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-OHP4QBFE.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-HXAWXZJT.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -996,7 +1000,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-OHP4QBFE.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-HXAWXZJT.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -11032,11 +11036,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-D65Z2H5P.js").then((m) => m.ChatComponent)
+  import("./chat.component-FJF2OWEP.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-JIWYGRAY.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-QPWMOHLA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11100,9 +11104,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-D65Z2H5P.js").then((m) => m.ChatComponent),
+    import("./chat.component-FJF2OWEP.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-JIWYGRAY.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-QPWMOHLA.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11152,12 +11156,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-IS3FH4O6.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-4ZNG7Q3Y.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-TIFY7QX4.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-SOM3KBII.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11185,5 +11189,5 @@ if (environment.production) {
 }
 console.log("Production:", !!environment.production);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=b5badabb-6816-5254-a984-a2ef8bd4dd0c
+//# debugId=523214b2-a827-51a4-b3d9-894856e52a6a
 //# sourceMappingURL=main.js.map
