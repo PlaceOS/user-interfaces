@@ -90,11 +90,19 @@ export function compareAsTopic(
         level_id: zones.level,
         area_id: zones.area,
     };
-    if (!(item.left instanceof Object))
-        return topicToString(
+    if (!(item.left instanceof Object)) {
+        const topic = topicToString(
             { ...location, state_key: `${item.left}` },
             org_id,
         );
+        // Source retains boolean statuses under their value. Listening only
+        // for false avoids loading every connected device into the hot list.
+        return item.left === 'connected' &&
+            item.operator === TriggerConditionOperator.EQ &&
+            item.right === false
+            ? `${topic}/false`
+            : topic;
+    }
     const parts = (item.left?.mod || '').split('_');
     parts.pop();
     const module_name = parts.join('_');

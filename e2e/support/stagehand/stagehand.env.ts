@@ -3,8 +3,8 @@
  *
  * Stagehand is an AV support console. Its hot list is built from MQTT: `source`
  * publishes every module status to the broker, retained, and stagehand
- * subscribes to `.../connected` (and to whatever a dashboard's custom alerts
- * name). A module whose `connected` is false is a row in the hot list.
+ * subscribes to `.../connected/false` (and to whatever a dashboard's custom
+ * alerts name). A module whose `connected` is false is a row in the hot list.
  *
  * So these specs own the whole path, and assert on both ends of it:
  *

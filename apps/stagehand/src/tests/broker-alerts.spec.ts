@@ -16,7 +16,7 @@ const value = (
     time = 100,
 ): BrokerValue =>
     parseBrokerMessage(
-        `placeos/org-1/state/_/bld/lvl/_/${system}/driver-1/${device}/1/${status}`,
+        `placeos/org-1/state/_/bld/lvl/_/${system}/driver-1/${device}/1/${status}${status === 'connected' && v === false ? '/false' : ''}`,
         JSON.stringify({ time, value: v }),
     );
 
@@ -85,6 +85,13 @@ describe('broker alerts', () => {
                 left: 'connected',
                 operator: TriggerConditionOperator.EQ,
                 right: false,
+            } as any),
+        ).toBe('placeos/+/+/+/+/+/+/+/+/+/+/connected/false');
+        expect(
+            compareAsTopic({
+                left: 'connected',
+                operator: TriggerConditionOperator.EQ,
+                right: true,
             } as any),
         ).toBe('placeos/+/+/+/+/+/+/+/+/+/+/connected');
     });

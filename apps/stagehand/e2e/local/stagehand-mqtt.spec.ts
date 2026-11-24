@@ -106,13 +106,21 @@ test('connected follows the module: false, then true again', async ({
 
         await setConnected(adminApi, mod.id, false);
         await waitForConnected(adminApi, mod.id, false);
-        await broker.waitForValue(
+        const disconnected = await broker.waitForValue(
             'Display',
             1,
             'connected',
             false,
             MQTT_PROPAGATION_MS,
         );
+        await expect
+            .poll(
+                () => broker.topics.get(`${disconnected.topic}/false`)?.value,
+                {
+                    timeout: MQTT_PROPAGATION_MS,
+                },
+            )
+            .toBe(false);
 
         await setConnected(adminApi, mod.id, true);
         await waitForConnected(adminApi, mod.id, true);
@@ -123,6 +131,11 @@ test('connected follows the module: false, then true again', async ({
             true,
             MQTT_PROPAGATION_MS,
         );
+        await expect
+            .poll(() => broker.topics.has(`${disconnected.topic}/false`), {
+                timeout: MQTT_PROPAGATION_MS,
+            })
+            .toBe(false);
     } finally {
         await broker.close();
         await deleteSystem(adminApi, system.id);
@@ -190,7 +203,7 @@ test('a client connecting later is handed the current value of every status', as
         await waitForConnected(adminApi, mod.id, true);
         await exec(adminApi, mod.id, 'set_status', ['power', true]);
         await setConnected(adminApi, mod.id, false);
-        await live.waitForValue(
+        const disconnected = await live.waitForValue(
             'Display',
             1,
             'connected',
@@ -210,10 +223,13 @@ test('a client connecting later is handed the current value of every status', as
             stagehandAdminToken,
             systemFilter(zones.org, system.id),
         );
+        expect(snapshot.get(`${disconnected.topic}/false`)?.value).toBe(false);
         const retained = Object.fromEntries(
-            [...snapshot].map(([topic, v]) => {
-                const t = parseStateTopic(topic)!;
-                return [`${t.module_name}_${t.index}.${t.status}`, v.value];
+            [...snapshot].flatMap(([topic, v]) => {
+                const t = parseStateTopic(topic);
+                return t
+                    ? [[`${t.module_name}_${t.index}.${t.status}`, v.value]]
+                    : [];
             }),
         );
         expect(retained['Display_1.connected']).toBe(false);

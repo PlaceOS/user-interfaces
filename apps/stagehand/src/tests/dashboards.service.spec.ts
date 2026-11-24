@@ -673,7 +673,7 @@ describe('DashboardsService', () => {
     // clears an alert, and nothing is checked again over REST
     describe('broker messages', () => {
         const topic = (system: string, device: string, index = 1) =>
-            `placeos/org-1/state/_/bld/lvl/_/${system}/driver-1/${device}/${index}/connected`;
+            `placeos/org-1/state/_/bld/lvl/_/${system}/driver-1/${device}/${index}/connected/false`;
         const send = (t: string, payload: unknown) =>
             (spectator.service as any)._handleBrokerMessage(
                 t,
@@ -702,8 +702,8 @@ describe('DashboardsService', () => {
                 spectator.service.dashboard_alerts().map((a) => a.location),
             ).toEqual(['sys-1', 'sys-2']);
 
-            // the module reconnects: its earlier value no longer counts
-            send(topic('sys-1', 'Display'), true);
+            // Source removes the false topic when the module reconnects
+            send(topic('sys-1', 'Display'), '');
             vi.advanceTimersByTime(100);
             expect(
                 spectator.service.dashboard_alerts().map((a) => a.location),
@@ -788,7 +788,7 @@ describe('DashboardsService', () => {
                 }),
             );
 
-            send(topic('sys-1', 'Display'), true);
+            send(topic('sys-1', 'Display'), '');
             vi.advanceTimersByTime(100);
             send(topic('sys-1', 'Display'), false);
             vi.advanceTimersByTime(100);
@@ -811,21 +811,21 @@ describe('DashboardsService', () => {
 
         it('listens org wide with nothing picked', () => {
             expect(subscribed()).toEqual([
-                'placeos/org-1/+/+/+/+/+/+/+/+/+/connected',
+                'placeos/org-1/+/+/+/+/+/+/+/+/+/connected/false',
             ]);
         });
 
         it('listens on the picked region', () => {
             spectator.service.setRegionFromParams('rgn-1', '');
             expect(subscribed()).toEqual([
-                'placeos/org-1/+/rgn-1/+/+/+/+/+/+/+/connected',
+                'placeos/org-1/+/rgn-1/+/+/+/+/+/+/+/connected/false',
             ]);
         });
 
         it('listens on the picked building, not its whole region', () => {
             spectator.service.setRegionFromParams('rgn-1', 'bld-1');
             expect(subscribed()).toEqual([
-                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected',
+                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected/false',
             ]);
         });
     });
@@ -867,8 +867,8 @@ describe('DashboardsService', () => {
         it('listens on the zones the group was granted, not org wide', () => {
             listen();
             expect(subscribed()).toEqual([
-                'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected',
-                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected',
+                'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected/false',
+                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected/false',
             ]);
         });
 
@@ -876,7 +876,7 @@ describe('DashboardsService', () => {
             spectator.service.building_id.set('bld-2');
             listen();
             expect(subscribed()).toEqual([
-                'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected',
+                'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected/false',
             ]);
         });
 
@@ -884,7 +884,7 @@ describe('DashboardsService', () => {
             spectator.service.building_id.set('bld-1');
             listen();
             expect(subscribed()).toEqual([
-                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected',
+                'placeos/org-1/+/+/bld-1/+/+/+/+/+/+/connected/false',
             ]);
         });
 
@@ -898,7 +898,7 @@ describe('DashboardsService', () => {
             vi.useFakeTimers();
             const send = (zones: string, system: string) =>
                 (spectator.service as any)._handleBrokerMessage(
-                    `placeos/org-1/state/rgn-1/${zones}/_/${system}/drv/Display/1/connected`,
+                    `placeos/org-1/state/rgn-1/${zones}/_/${system}/drv/Display/1/connected/false`,
                     Buffer.from(JSON.stringify({ time: 1, value: false })),
                 );
             spectator.service.alerts_list.set([disconnected]);
@@ -953,7 +953,7 @@ describe('DashboardsService', () => {
             TestBed.tick();
             await vi.waitFor(() =>
                 expect(subscribed()).toEqual([
-                    'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected',
+                    'placeos/org-1/+/+/+/lvl-9/+/+/+/+/+/connected/false',
                 ]),
             );
         });

@@ -390,9 +390,9 @@ export async function expectedTopics(
         const index = (counts[name] = (counts[name] ?? 0) + 1);
         const state = await moduleState(api, module_id);
         for (const [status, value] of Object.entries(state)) {
-            out[
-                `${region}/${building}/${level}/_/${system_id}/${mod.driver_id}/${name}/${index}/${status}`
-            ] = value;
+            const topic = `${region}/${building}/${level}/_/${system_id}/${mod.driver_id}/${name}/${index}/${status}`;
+            out[topic] = value;
+            if (typeof value === 'boolean') out[`${topic}/${value}`] = value;
         }
     }
     return out;
