@@ -12,11 +12,11 @@ import "./chunk-XPXIQO3T.js";
 import {
   Clipboard,
   OrganisationService
-} from "./chunk-SJTYBAH6.js";
+} from "./chunk-I7BPTISA.js";
 import {
   DEFAULT_SETTINGS,
   SettingsService
-} from "./chunk-GIKZE27L.js";
+} from "./chunk-ZWD7UCMY.js";
 import "./chunk-U2NNLUDF.js";
 import {
   IconComponent
@@ -1254,4 +1254,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=36dfdee7-8845-5efe-aaf2-e9d928c75883
-//# sourceMappingURL=settings-debug-panel.component-OEVVGSPI.js.map
+//# sourceMappingURL=settings-debug-panel.component-PTROX55I.js.map

@@ -52,7 +52,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-JYGDH73T.js";
+} from "./chunk-S3PDQXXC.js";
 import {
   AnnounceDirective
 } from "./chunk-QSH6XORE.js";
@@ -72,7 +72,7 @@ import {
   firstValueWhere,
   getModule,
   toQueryString
-} from "./chunk-SJTYBAH6.js";
+} from "./chunk-I7BPTISA.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -114,7 +114,7 @@ import {
   settingSignal,
   token,
   user_group_names
-} from "./chunk-GIKZE27L.js";
+} from "./chunk-ZWD7UCMY.js";
 import {
   AsyncHandler,
   LOCAL_TIMEZONE,
@@ -4083,7 +4083,7 @@ async function queryResourceAvailability(id_list, start, duration, ignore, type 
     period_start: getUnixTime(start),
     period_end: getUnixTime(addMinutes(start, duration))
   });
-  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || ignore !== `${b.id}`)));
+  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || `${ignore}` !== `${b.id}`)));
 }
 async function linkedBookingsForEvent(event, type) {
   if (event.from_bookings) {
@@ -5342,15 +5342,16 @@ async function queryAssetGroupsExtended(query5 = {}) {
   return list;
 }
 async function queryGroupAvailability(query5, ignore = []) {
+  const ignored = new Set(ignore.map((id) => `${id}`));
   const [products, bookings] = await Promise.all([
     queryAssetGroupsExtended(query5),
     queryBookings(__spreadProps(__spreadValues({}, query5), { type: "asset-request" }))
   ]);
   const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled");
   return products.map((product) => __spreadProps(__spreadValues({}, product), {
-    assets: product.assets.filter((asset) => (ignore == null ? void 0 : ignore.includes(asset.id)) || !active_bookings.find((booking) => {
+    assets: product.assets.filter((asset) => ignored.has(asset.id) || !active_bookings.find((booking) => {
       var _a;
-      return !ignore.includes(booking.id) && (booking.asset_id === asset.id || ((_a = booking.asset_ids) == null ? void 0 : _a.includes(asset.id)));
+      return !ignored.has(`${booking.id}`) && (booking.asset_id === asset.id || ((_a = booking.asset_ids) == null ? void 0 : _a.includes(asset.id)));
     }))
   }));
 }
@@ -12013,5 +12014,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=68cb4018-ae69-58b1-983a-0fa951a53299
-//# sourceMappingURL=chunk-K26QFAYM.js.map
+//# debugId=4b72fdf5-9d95-54b3-b337-12d9afc06a2e
+//# sourceMappingURL=chunk-DYH7CO7B.js.map
