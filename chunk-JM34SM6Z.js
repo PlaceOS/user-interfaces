@@ -362,15 +362,15 @@ var HotkeysService = class _HotkeysService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "11338a2",
-  "hash": "11338a2",
+  "raw": "47d00b2",
+  "hash": "47d00b2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "11338a2",
+  "suffix": "47d00b2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795484679625
+  "time": 1795486045435
 };
 
 // libs/common/src/lib/settings.ts
@@ -1927,5 +1927,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=2931d503-a052-5523-b4a7-853007fc1955
-//# sourceMappingURL=chunk-PXSJO5G5.js.map
+//# debugId=cdca4771-4ac4-5e19-b3b1-056db9ee8012
+//# sourceMappingURL=chunk-JM34SM6Z.js.map
