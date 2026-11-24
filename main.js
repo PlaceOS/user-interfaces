@@ -1,21 +1,24 @@
 import {
+  AnnounceDirective
+} from "./chunk-IZDZZDOA.js";
+import {
   isDebugMode,
   recordFatalError,
   requestRecovery,
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-B7VG4K2P.js";
+} from "./chunk-QXCEBIVO.js";
 import {
   STORE_DISPLAY_KEY,
   hasBootstrappedDisplay
 } from "./chunk-OQDJRCPY.js";
 import {
   RemoteSetupService
-} from "./chunk-OCAFPASZ.js";
+} from "./chunk-NYOBNFZC.js";
 import {
   TranslatePipe
-} from "./chunk-V5SGMFK2.js";
+} from "./chunk-MG7TVIX4.js";
 import "./chunk-3EONKEEQ.js";
 import {
   LazySentryErrorHandler,
@@ -33,35 +36,36 @@ import {
   serviceWorkerUpdate,
   setInitReloadHandler,
   setMocks
-} from "./chunk-RNLAGMCM.js";
+} from "./chunk-RJGVFTXW.js";
 import {
   AsyncHandler,
   GroupPermission,
-  LocaleService,
   SettingsService,
   authority,
   current_user,
-  errorMessage,
-  firstTruthyValueFrom,
   hasPermission,
-  log,
   onlineState,
-  setNotifyFilter,
   settingSignal,
   token,
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-H6VTLUZG.js";
+} from "./chunk-PXSJO5G5.js";
+import {
+  LocaleService,
+  errorMessage,
+  firstTruthyValueFrom,
+  log,
+  setNotifyFilter
+} from "./chunk-KE5GNXFT.js";
 import {
   IconComponent
-} from "./chunk-QQTV5HMC.js";
+} from "./chunk-LJ7O4DHR.js";
 import "./chunk-COFQG2BS.js";
 import {
   BidiModule,
-  LiveAnnouncer,
   _getAnimationsState
-} from "./chunk-Q7YJ5ANP.js";
+} from "./chunk-OC5NWJVU.js";
 import {
   Router,
   RouterLink,
@@ -69,13 +73,11 @@ import {
   provideRouter,
   withHashLocation,
   withNavigationErrorHandler
-} from "./chunk-VX7FOOGQ.js";
+} from "./chunk-PDYEOVNK.js";
 import {
   ChangeDetectorRef,
   Component,
   DOCUMENT,
-  DestroyRef,
-  Directive,
   ElementRef,
   ErrorHandler,
   EventEmitter,
@@ -89,7 +91,6 @@ import {
   Output,
   Renderer2,
   ViewEncapsulation,
-  afterNextRender,
   bootstrapApplication,
   computed,
   effect,
@@ -114,7 +115,6 @@ import {
   ɵɵdeferOnIdle,
   ɵɵdeferOnImmediate,
   ɵɵdefineComponent,
-  ɵɵdefineDirective,
   ɵɵdefineInjectable,
   ɵɵdefineInjector,
   ɵɵdefineNgModule,
@@ -139,7 +139,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-P2RLUWKE.js";
+} from "./chunk-ABTB3K4F.js";
 import "./chunk-RQBZITXC.js";
 
 // libs/common/src/lib/lazy-route-reload.ts
@@ -217,52 +217,6 @@ async function registerActiveLocale(locale) {
   const { default: data } = await loader();
   registerLocaleData(data);
 }
-
-// libs/components/src/lib/announce.directive.ts
-var AnnounceDirective = class _AnnounceDirective {
-  constructor() {
-    const el = inject(ElementRef).nativeElement;
-    const announcer = inject(LiveAnnouncer);
-    const locale = inject(LocaleService);
-    const injector = inject(Injector);
-    const destroy_ref = inject(DestroyRef);
-    let last_text = "";
-    const announceText = () => {
-      const text = el.textContent?.trim() ?? "";
-      if (!text || text === last_text)
-        return;
-      last_text = text;
-      announcer.announce(text, "polite");
-    };
-    afterNextRender(async () => {
-      await locale.loaded();
-      if (destroy_ref.destroyed)
-        return;
-      afterNextRender(announceText, { injector });
-      const observer = new MutationObserver(announceText);
-      observer.observe(el, {
-        characterData: true,
-        childList: true,
-        subtree: true
-      });
-      destroy_ref.onDestroy(() => observer.disconnect());
-    });
-  }
-  static {
-    this.\u0275fac = function AnnounceDirective_Factory(__ngFactoryType__) {
-      return new (__ngFactoryType__ || _AnnounceDirective)();
-    };
-  }
-  static {
-    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({ type: _AnnounceDirective, selectors: [["", "announce", ""]] });
-  }
-};
-(() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AnnounceDirective, [{
-    type: Directive,
-    args: [{ selector: "[announce]" }]
-  }], () => [], null);
-})();
 
 // libs/components/src/lib/global-banner.component.ts
 function GlobalBannerComponent_Conditional_0_Template(rf, ctx) {
@@ -850,7 +804,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-BW5DDN4P.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-4MGHAMOF.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -978,7 +932,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-BW5DDN4P.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-4MGHAMOF.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -1454,7 +1408,7 @@ function signageRemoteSetup(router) {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-HJP4WB6P.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-RBYUMNXC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1484,7 +1438,7 @@ var AppComponent = class _AppComponent {
     startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
     setNotifyFilter(() => isDebugMode());
     setInitReloadHandler(() => requestRecovery("init-error"));
-    setMocks(() => import("./src-LRVRYD3M.js").then(({ mocksInit }) => mocksInit()));
+    setMocks(() => import("./src-G3C5MX5Q.js").then(({ mocksInit }) => mocksInit()));
     this._placeos.init();
     this._remote_setup.start(signageRemoteSetup(this._router));
   }
@@ -1519,7 +1473,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-HJP4WB6P.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-RBYUMNXC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1559,7 +1513,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-ZLU3R7JP.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-KKOWA2EH.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -1567,7 +1521,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-JX7FCVD6.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-6QRPCANQ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
@@ -1629,5 +1583,5 @@ bootstrapApplication(AppComponent, appConfig).then(() => resetBootRetries()).cat
   console.error(err);
   scheduleBootRetry();
 });
-//# debugId=3cd3ef3f-320d-572e-aec8-9c2d693dc26a
+//# debugId=9a3d09cf-812e-5b90-8bac-6d761b187fd4
 //# sourceMappingURL=main.js.map
