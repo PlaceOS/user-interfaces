@@ -3,11 +3,11 @@ import {
 } from "./chunk-EUF5CCAQ.js";
 import {
   OrganisationService
-} from "./chunk-B4HRXKWQ.js";
+} from "./chunk-OFZH44WV.js";
 import {
   SettingsService,
   Space
-} from "./chunk-OLQ4HPE5.js";
+} from "./chunk-7OF3TVHA.js";
 import {
   addDays,
   orThrow,
@@ -781,4 +781,4 @@ export {
   CateringOrderDocketsComponent
 };
 //# debugId=960e9582-9796-5e16-b3cd-96139aaaf729
-//# sourceMappingURL=chunk-HX7NJNZN.js.map
+//# sourceMappingURL=chunk-HYOK24JK.js.map
