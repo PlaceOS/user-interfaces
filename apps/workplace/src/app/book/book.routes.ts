@@ -113,6 +113,15 @@ export const ROUTES: Routes = [
                 title: 'Visitor Booking',
                 canDeactivate: [canDeactivateVisitorFlow],
             },
+            { path: 'vip-visitor', redirectTo: 'vip-visitor/form' },
+            {
+                path: 'vip-visitor/:step',
+                loadComponent: () =>
+                    import('./vip-visitor-flow/vip-visitor-flow.component').then(
+                        (m) => m.VipVisitorFlowComponent,
+                    ),
+                title: 'VIP Visitor Booking',
+            },
             { path: 'locker', redirectTo: 'locker/form' },
             {
                 path: 'locker/:step',

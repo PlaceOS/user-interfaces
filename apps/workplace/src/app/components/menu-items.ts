@@ -43,6 +43,12 @@ export const FEATURE_MENU_ITEMS = [
         name: 'APP.WORKPLACE.MENU_VISITORS',
     },
     {
+        id: 'vip-visitor-invite',
+        route: '/book/vip-visitor',
+        icon: 'star',
+        name: 'APP.WORKPLACE.MENU_VIP_VISITORS',
+    },
+    {
         id: 'explore',
         route: '/explore',
         icon: 'place',

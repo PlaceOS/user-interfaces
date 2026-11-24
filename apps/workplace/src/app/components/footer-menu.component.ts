@@ -19,6 +19,7 @@ const FOOTER_MENU_ORDER = [
     'parking',
     'parking-requests',
     'visitor-invite',
+    'vip-visitor-invite',
     'schedule',
     'group-events',
     'lockers',
