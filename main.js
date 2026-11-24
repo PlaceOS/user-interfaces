@@ -3,16 +3,18 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-SOS4T3ZA.js";
-import "./chunk-XFQKOOH6.js";
+} from "./chunk-35VICJ7V.js";
+import "./chunk-5VAMPUTQ.js";
 import {
-  AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-F2OEZHG3.js";
-import "./chunk-K7S2HSD4.js";
+} from "./chunk-VGS37IMQ.js";
+import {
+  AnnounceDirective
+} from "./chunk-W7533OUE.js";
+import "./chunk-FI3A5UES.js";
 import {
   TranslatePipe
-} from "./chunk-453OFR44.js";
+} from "./chunk-2QM7UGV6.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -36,49 +38,52 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-Q7IR6JPY.js";
+} from "./chunk-TAL6FNYF.js";
 import {
-  AsyncHandler,
   GroupPermission,
   SettingsService,
-  addDays,
-  addMinutes,
   addMonths,
   authority,
-  capitalizeFirstLetter,
   current_user,
-  differenceInMinutes,
-  firstTruthyValueFrom,
   getUnixTime,
   hasPermission,
   isBefore,
+  onlineState,
+  settingSignal,
+  token,
+  user_groups_failed,
+  user_groups_loaded,
+  waitForOnline
+} from "./chunk-NFBIOFEM.js";
+import {
+  AsyncHandler,
+  addDays,
+  addMinutes,
+  capitalizeFirstLetter,
+  differenceInMinutes,
+  firstTruthyValueFrom,
   log,
   mockSystem,
-  onlineState,
   padLength,
   predictableRandomInt,
   randomInt,
   randomString,
   registerMockEndpoint,
   registerSystem,
-  settingSignal,
   startOfDay,
   timePeriodsIntersect,
   toDate,
-  token,
-  unique,
-  user_groups_failed,
-  user_groups_loaded,
-  waitForOnline
-} from "./chunk-NU6M7T2L.js";
+  unique
+} from "./chunk-3HV36PD4.js";
 import {
   IconComponent
-} from "./chunk-UUKIMSRK.js";
-import "./chunk-EB7P6UNK.js";
+} from "./chunk-TB5VYNU6.js";
+import "./chunk-QYNSWC4X.js";
+import "./chunk-RO6KR3RK.js";
 import {
   BidiModule,
   _getAnimationsState
-} from "./chunk-2WJ4TY57.js";
+} from "./chunk-R6J2AN6E.js";
 import {
   Router,
   RouterLink,
@@ -87,7 +92,7 @@ import {
   withHashLocation,
   withNavigationErrorHandler,
   withViewTransitions
-} from "./chunk-CHWK6WDV.js";
+} from "./chunk-OYA7QDOM.js";
 import {
   ChangeDetectorRef,
   Component,
@@ -152,7 +157,7 @@ import {
   ɵɵtext,
   ɵɵtextInterpolate,
   ɵɵtextInterpolate1
-} from "./chunk-QPTDOO3V.js";
+} from "./chunk-CTDZRGBU.js";
 import {
   __objRest,
   __restKey,
@@ -871,7 +876,7 @@ var ServiceWorkerUpdateCardComponent = _ServiceWorkerUpdateCardComponent;
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-WHGHVH6A.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-S6WSVW55.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -996,7 +1001,7 @@ var NativeDomainOverlayLoaderComponent = _NativeDomainOverlayLoaderComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-WHGHVH6A.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-S6WSVW55.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -11131,7 +11136,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-GQLQAXUM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-MREMABCC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11175,7 +11180,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-GQLQAXUM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-MREMABCC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11248,22 +11253,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-LWOJJLRX.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-RFSBOXQ2.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-AL5RGRG4.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-EC6JBBWO.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-52WAWG7S.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-JSMI3VRY.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-ANJRJI46.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-PJNXH5G3.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11291,5 +11296,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=fab18c04-a734-56a1-9630-30855c46b013
+//# debugId=01564980-0f40-5d6f-b33a-a607825896bb
 //# sourceMappingURL=main.js.map

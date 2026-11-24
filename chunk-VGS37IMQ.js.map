@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/control/src/app/control-store-key.ts"
+  ],
+  "sourcesContent": [
+    "/**\n * Local storage key for the system ID that this panel controls.\n * Kept in its own file so the eager bootstrap code does not pull in\n * the control state service and its modal dependencies.\n */\nexport const CONTROL_STORE_KEY = 'PLACEOS.CONTROL.system';\n"
+  ],
+  "mappings": ";AAKO,IAAM,oBAAoB;",
+  "names": [],
+  "debugId": "049fb6c5-63c0-503c-95db-12f8b1ea2986"
+}
