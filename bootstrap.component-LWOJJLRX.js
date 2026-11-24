@@ -23,24 +23,24 @@ import {
 } from "./chunk-RKFRLO4N.js";
 import {
   RemoteSetupService
-} from "./chunk-CVUNB5WO.js";
+} from "./chunk-SOS4T3ZA.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-FLJLNX6J.js";
+} from "./chunk-F2OEZHG3.js";
 import "./chunk-K7S2HSD4.js";
 import {
   TranslatePipe
-} from "./chunk-BC223PNL.js";
+} from "./chunk-453OFR44.js";
 import {
   OrganisationService
-} from "./chunk-HUGJ6BRS.js";
+} from "./chunk-Q7IR6JPY.js";
 import {
   Space,
   VERSION,
   orThrowPage,
   systems_exports
-} from "./chunk-3DGRCLLE.js";
+} from "./chunk-NU6M7T2L.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -2871,4 +2871,4 @@ export {
   BootstrapComponent
 };
 //# debugId=41a03849-e825-507a-a4de-213aac002366
-//# sourceMappingURL=bootstrap.component-KJEMMBBB.js.map
+//# sourceMappingURL=bootstrap.component-LWOJJLRX.js.map
