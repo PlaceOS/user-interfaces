@@ -805,13 +805,15 @@ export async function setBookingCheckedIn(
 /**
  * Filter list of resources based of the bookings found in the given query
  * @param asset_id_list List of resource IDs
- * @param query Booking query
+ * @param ignore ID of a booking that does not make a resource unavailable,
+ * such as the booking that is edited. The ID of a `Booking` from the API is a
+ * number, so the IDs are compared as strings
  */
 export async function queryResourceAvailability(
     id_list: string[],
     start: number,
     duration: number,
-    ignore?: string,
+    ignore?: string | number,
     type: BookingType = 'room',
 ): Promise<boolean[]> {
     const bookings = await queryBookings({
@@ -824,7 +826,7 @@ export async function queryResourceAvailability(
             !bookings.find(
                 (b) =>
                     (b.asset_id === id || b.asset_ids.includes(id)) &&
-                    (!ignore || ignore !== `${b.id}`),
+                    (!ignore || `${ignore}` !== `${b.id}`),
             ),
     );
 }

@@ -550,10 +550,17 @@ export async function showGroupFull(id: string, query: AssetQuery = {}) {
     return product;
 }
 
+/**
+ * Asset groups with the assets that are free in the period of `query`.
+ * @param ignore IDs of assets, and of bookings that do not make an asset
+ * unavailable, such as the requests of the edited booking. The ID of a
+ * `Booking` from the API is a number, so the IDs are compared as strings
+ */
 export async function queryGroupAvailability(
     query: BookingsQueryParams,
-    ignore: string[] = [],
+    ignore: readonly (string | number)[] = [],
 ) {
+    const ignored = new Set(ignore.map((id) => `${id}`));
     const [products, bookings] = await Promise.all([
         queryAssetGroupsExtended(query),
         queryBookings({ ...query, type: 'asset-request' }),
@@ -565,10 +572,10 @@ export async function queryGroupAvailability(
         ...product,
         assets: product.assets.filter(
             (asset) =>
-                ignore?.includes(asset.id) ||
+                ignored.has(asset.id) ||
                 !active_bookings.find(
                     (booking) =>
-                        !ignore.includes(booking.id) &&
+                        !ignored.has(`${booking.id}`) &&
                         (booking.asset_id === asset.id ||
                             booking.asset_ids?.includes(asset.id)),
                 ),

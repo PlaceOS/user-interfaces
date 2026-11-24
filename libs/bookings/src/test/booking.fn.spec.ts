@@ -129,6 +129,10 @@ describe('[Booking API]', () => {
             expect(
                 await queryResourceAvailability(['room-2'], 0, 30, '7'),
             ).toEqual([true]);
+            // A booking event keeps the numeric ID from the API
+            expect(
+                await queryResourceAvailability(['room-2'], 0, 30, 7),
+            ).toEqual([true]);
         });
     });
 

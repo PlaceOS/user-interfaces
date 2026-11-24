@@ -689,6 +689,15 @@ describe('[Assets]', () => {
                 'a1',
                 'a3',
             ]);
+            // A booking ID as a string, such as an event ID, matches too
+            const by_text = await assets_fn.queryGroupAvailability(
+                { period_start: 1, period_end: 3 },
+                ['2'],
+            );
+            expect(by_text[0].assets.map((a: any) => a.id)).toEqual([
+                'a2',
+                'a3',
+            ]);
         });
     });
 
