@@ -1,22 +1,24 @@
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-7HVGUYHA.js";
+} from "./chunk-PNM7IE3S.js";
 import "./chunk-SZ4QL66K.js";
 import {
   TranslatePipe
-} from "./chunk-ND765ENP.js";
+} from "./chunk-RNBX7PLR.js";
+import {
+  DefaultValueAccessor,
+  FormsModule,
+  NgControlStatus,
+  NgModel
+} from "./chunk-QT3AHDMX.js";
 import {
   AsyncHandler,
   ConsoleHistoryService,
-  DefaultValueAccessor,
-  FormsModule,
   HotkeysService,
   IconComponent,
-  NgControlStatus,
-  NgModel,
   SettingsService
-} from "./chunk-VUF4OQGM.js";
+} from "./chunk-SOMHRZRQ.js";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -671,5 +673,5 @@ var DebugConsoleComponent = class _DebugConsoleComponent extends AsyncHandler {
 export {
   DebugConsoleComponent
 };
-//# debugId=623baab2-1c25-542d-ba91-0cd93525a856
-//# sourceMappingURL=debug-console.component-AHGYJJPY.js.map
+//# debugId=321f2535-90c0-5388-81f6-64efb51c5095
+//# sourceMappingURL=debug-console.component-7L2XPXNT.js.map

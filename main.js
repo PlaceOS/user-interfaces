@@ -3,11 +3,12 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-UFNT734H.js";
-import "./chunk-MVF37QJG.js";
+} from "./chunk-BVFSJF5P.js";
+import "./chunk-QGE6PYVT.js";
 import {
   TranslatePipe
-} from "./chunk-ND765ENP.js";
+} from "./chunk-RNBX7PLR.js";
+import "./chunk-QT3AHDMX.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -83,7 +84,7 @@ import {
   waitForCurrentUser,
   waitForOnline,
   withTimeout
-} from "./chunk-VUF4OQGM.js";
+} from "./chunk-SOMHRZRQ.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -559,7 +560,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-PEINE5JW.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-7KLWZ3T2.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -687,7 +688,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-PEINE5JW.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-7KLWZ3T2.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -10762,7 +10763,7 @@ async function authority2() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-GSFJOH53.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-KHR53ZBL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10980,7 +10981,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-GSFJOH53.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-KHR53ZBL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11022,7 +11023,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-JIWRJFAM.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-EJBXYH6P.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -11047,5 +11048,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=db0a3c9b-e154-5f52-ae8f-08d7ba8c95b4
+//# debugId=f25c9bae-4575-5762-a2ef-da34a62b8fee
 //# sourceMappingURL=main.js.map

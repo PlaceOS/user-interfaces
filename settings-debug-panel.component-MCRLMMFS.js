@@ -7,23 +7,25 @@ import {
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-7HVGUYHA.js";
+} from "./chunk-PNM7IE3S.js";
 import "./chunk-SZ4QL66K.js";
 import {
-  Clipboard,
-  DEFAULT_SETTINGS,
   DefaultValueAccessor,
   FormsModule,
-  IconComponent,
   NgControlStatus,
   NgModel,
   NgSelectOption,
   NumberValueAccessor,
-  OrganisationService,
   SelectControlValueAccessor,
-  SettingsService,
   ɵNgSelectMultipleOption
-} from "./chunk-VUF4OQGM.js";
+} from "./chunk-QT3AHDMX.js";
+import {
+  Clipboard,
+  DEFAULT_SETTINGS,
+  IconComponent,
+  OrganisationService,
+  SettingsService
+} from "./chunk-SOMHRZRQ.js";
 import "./chunk-PRWEK7F2.js";
 import "./chunk-ARRIYDBO.js";
 import {
@@ -1242,5 +1244,5 @@ var SettingsDebugPanelComponent = class _SettingsDebugPanelComponent {
 export {
   SettingsDebugPanelComponent
 };
-//# debugId=ad62d21c-88fb-5c30-a786-a769dfe894bb
-//# sourceMappingURL=settings-debug-panel.component-HXY6G4LX.js.map
+//# debugId=5899cb84-6c63-5943-befb-b0dd433a7754
+//# sourceMappingURL=settings-debug-panel.component-MCRLMMFS.js.map
