@@ -13,11 +13,11 @@ import {
   SettingsToggleComponent,
   UniqueSelectionDispatcher,
   VirtualKeyboardComponent
-} from "./chunk-WLB7O47B.js";
+} from "./chunk-UUUEMQKR.js";
 import {
   MatInput,
   MatInputModule
-} from "./chunk-2Z6EJHPQ.js";
+} from "./chunk-S2B2LWJ6.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -28,7 +28,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-PMEOFSC3.js";
+} from "./chunk-NHCTVULU.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -48,10 +48,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-VFXVANMW.js";
+} from "./chunk-YRC2CWX5.js";
 import {
   TranslatePipe
-} from "./chunk-25ZNXGFC.js";
+} from "./chunk-JFQ4JO3X.js";
 import {
   FormField,
   disabled,
@@ -59,7 +59,7 @@ import {
   form,
   required,
   validate
-} from "./chunk-VVB35ZNO.js";
+} from "./chunk-H6AAUBZC.js";
 import {
   AbstractControl,
   AssetRequest,
@@ -190,7 +190,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-KPYU5RSQ.js";
+} from "./chunk-3H2IM74H.js";
 import {
   BasePortalOutlet,
   CdkPortalOutlet,
@@ -5593,7 +5593,8 @@ function bookingQuery(q) {
     event_id: q.event_id,
     ical_uid: q.ical_uid,
     limit: q.limit,
-    rejected: q.rejected
+    rejected: q.rejected,
+    include_parent_bookings: q.include_parent_bookings
   };
 }
 function bookedQuery(q, limit) {
@@ -22316,5 +22317,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=49f2dbc1-4b1e-5f9f-bef1-6a9a79ed494b
-//# sourceMappingURL=chunk-N45ZIYXY.js.map
+//# debugId=80343382-0406-5f92-af2a-589cc9e044b5
+//# sourceMappingURL=chunk-SWUNLZRI.js.map
