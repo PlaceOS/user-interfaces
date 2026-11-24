@@ -11,7 +11,7 @@ import {
     PaymentCheckoutData,
     PaymentEndedError,
     PaymentWindowClosedError,
-} from '../lib/payment-checkout-modal.component';
+} from '../lib/payment-checkout';
 import type { Payment, PaymentQuote } from '../lib/payment.types';
 import { isPaymentContext, PaymentsService } from '../lib/payments.service';
 

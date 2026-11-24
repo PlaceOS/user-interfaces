@@ -10,6 +10,7 @@ Source:
 
 - [Driver contract types](../libs/payments/src/lib/payment.types.ts)
 - [Payments service and checkout flow](../libs/payments/src/lib/payments.service.ts)
+- [Checkout token, errors and options](../libs/payments/src/lib/payment-checkout.ts)
 - [Mock driver](../libs/mocks/src/lib/realtime/payments.ts)
 
 ## Set up payments
@@ -48,6 +49,8 @@ The apps take the payment in the browser. The booking and event APIs do not chec
 The app never sees card numbers. The user pays on a page that the provider hosts.
 
 Only Workplace asks for payment. An app turns the checkout on when it provides the `PAYMENT_CHECKOUT` token with the value `true`. Booking panels, Concierge and the other apps do not provide it. Thus a shared device does not open a payment page, and staff who book for other users do not pay.
+
+The token is in `payment-checkout.ts`, not in the service file. Thus an app can provide it, and the service and the checkout modal stay out of the initial bundle. The service loads the checkout modal when it opens it. Do not import the service or the modal in code that runs at start-up.
 
 1. The app makes line items from the booking. For a room, desk, parking space or locker, there is one item for each resource. For catering, there is one item for each menu item, with the selected options.
 2. The app calls `quote`. The driver finds the product of each item and calculates the price. When the total is `0`, the booking does not need payment.

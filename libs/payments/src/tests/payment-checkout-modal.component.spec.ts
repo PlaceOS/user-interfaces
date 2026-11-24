@@ -3,9 +3,9 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import {
     PaymentCheckoutData,
-    PaymentCheckoutModalComponent,
     PaymentWindowClosedError,
-} from '../lib/payment-checkout-modal.component';
+} from '../lib/payment-checkout';
+import { PaymentCheckoutModalComponent } from '../lib/payment-checkout-modal.component';
 import type { Payment } from '../lib/payment.types';
 
 describe('PaymentCheckoutModalComponent', () => {
