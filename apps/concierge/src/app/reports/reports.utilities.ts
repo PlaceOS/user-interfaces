@@ -65,27 +65,14 @@ export function reportBookingStatusStats(bookings: Booking[]) {
 }
 
 export function reportBookingStatus(booking: Booking): string {
-    if (
-        booking.deleted ||
-        booking.status === 'cancelled' ||
-        (booking as any).state === 'cancelled' ||
-        booking.extension_data?.state === 'cancelled'
-    )
-        return 'Cancelled';
+    if (booking.deleted) return 'Cancelled';
     if (isDeclinedReportBooking(booking)) return 'Rejected';
     if (booking.status === 'approved') return 'Approved';
     return booking.status || 'tentative';
 }
 
 export function reportEventStatus(event: CalendarEvent): string {
-    if (
-        event.deleted ||
-        event.type === 'cancelled' ||
-        (event as any).status === 'cancelled' ||
-        (event as any).state === 'cancelled' ||
-        (event.extension_data as any)?.state === 'cancelled'
-    )
-        return 'Cancelled';
+    if (event.deleted) return 'Cancelled';
     if (isDeclinedReportEvent(event)) return 'Rejected';
     if (event.status === 'approved') return 'Approved';
     return event.status || 'tentative';

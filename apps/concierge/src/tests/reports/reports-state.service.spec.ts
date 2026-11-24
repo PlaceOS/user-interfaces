@@ -429,12 +429,13 @@ describe('ReportsStateService', () => {
         expect(text.split('\r\n')[0].split(',').length).toBeGreaterThan(1);
     });
 
+    // Declined rows are "Rejected" on screen, not "Cancelled", so they stay
     it.each([
-        ['desks', { deleted: true }],
-        ['events', { type: 'cancelled' }],
+        ['desks', { status: 'declined' }],
+        ['events', { type: 'cancelled', status: 'declined' }],
     ] as const)(
         'should exclude cancelled %s rows only from the filtered export',
-        async (type, cancellation) => {
+        async (type, declined) => {
             const date = new Date('2026-04-06T09:00:00').valueOf();
             spectator.service.setOptions({
                 type,
@@ -447,7 +448,8 @@ describe('ReportsStateService', () => {
             });
             (spectator.service as any)._active_bookings.set([
                 row('kept-row'),
-                { ...row('cancelled-row'), ...cancellation },
+                { ...row('declined-row'), ...declined },
+                { ...row('cancelled-row'), deleted: true },
             ]);
 
             spectator.service.downloadReport();
@@ -457,6 +459,7 @@ describe('ReportsStateService', () => {
             spectator.service.downloadReport(true);
             expect(downloads.filename).toMatch(/without-cancelled\.csv$/);
             expect(await downloads.text()).toContain('kept-row');
+            expect(await downloads.text()).toContain('declined-row');
             expect(await downloads.text()).not.toContain('cancelled-row');
         },
     );
