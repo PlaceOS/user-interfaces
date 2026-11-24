@@ -33,7 +33,7 @@ import {
   toQueryString,
   union,
   unique
-} from "./chunk-TEWKAHHL.js";
+} from "./chunk-MMDW5O43.js";
 import {
   LiveAnnouncer
 } from "./chunk-ZMX7GYSU.js";
@@ -2447,7 +2447,8 @@ function bookingQuery(q) {
     event_id: q.event_id,
     ical_uid: q.ical_uid,
     limit: q.limit,
-    rejected: q.rejected
+    rejected: q.rejected,
+    include_parent_bookings: q.include_parent_bookings
   };
 }
 function bookedQuery(q, limit) {
@@ -2808,5 +2809,5 @@ export {
   queryResourceAvailability,
   createBookingsForEvent
 };
-//# debugId=122ce68e-af24-5313-8e3c-6c4f924b0154
-//# sourceMappingURL=chunk-X4YWO65A.js.map
+//# debugId=10e7407a-4d17-5eaf-80e3-daddfa6c2749
+//# sourceMappingURL=chunk-SZ3GCKZK.js.map

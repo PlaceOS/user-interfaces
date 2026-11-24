@@ -720,13 +720,34 @@ function walk(node, value, direction, failure2, depth) {
       return output;
     }
     case "union": {
-      if (direction !== "response_zero") {
+      if (direction === "request") {
         for (const variant of node.variants) {
           const parsed = walk(variant, value, direction, failure2, depth + 1);
           if (parsed !== FAIL)
             return parsed;
           failure2.segments.length = 0;
         }
+        return fail(failure2, "a match for one variant of the union");
+      }
+      if (direction === "response") {
+        const total = keyCount(value);
+        let best2 = FAIL;
+        let best_score2 = -1;
+        for (const variant of node.variants) {
+          const parsed = walk(variant, value, direction, failure2, depth + 1);
+          failure2.segments.length = 0;
+          if (parsed === FAIL)
+            continue;
+          const score = knownKeys(variant, value, depth + 1);
+          if (score > best_score2) {
+            best2 = parsed;
+            best_score2 = score;
+          }
+          if (score === total)
+            break;
+        }
+        if (best2 !== FAIL)
+          return best2;
         return fail(failure2, "a match for one variant of the union");
       }
       let best = FAIL;
@@ -738,7 +759,7 @@ function walk(node, value, direction, failure2, depth) {
           continue;
         const strict = walk(variant, value, "response", failure2, depth + 1) !== FAIL;
         failure2.segments.length = 0;
-        const score = knownKeys(variant, value) * 2 + (strict ? 1 : 0);
+        const score = knownKeys(variant, value, depth + 1) * 2 + (strict ? 1 : 0);
         if (score > best_score) {
           best = parsed;
           best_score = score;
@@ -752,10 +773,37 @@ function walk(node, value, direction, failure2, depth) {
       return unreachable(node);
   }
 }
-function knownKeys(node, value) {
-  if (node.kind !== "object" || !isRecord(value))
+function knownKeys(node, value, depth) {
+  assert(depth < SCHEMA_DEPTH_MAX, "the schema depth is less than SCHEMA_DEPTH_MAX");
+  switch (node.kind) {
+    case "nullable":
+      return knownKeys(node.inner, value, depth + 1);
+    case "array": {
+      if (!Array.isArray(value))
+        return 0;
+      let count = 0;
+      for (const item of value)
+        count += knownKeys(node.items, item, depth + 1);
+      return count;
+    }
+    case "object":
+      if (!isRecord(value))
+        return 0;
+      return Object.keys(value).filter((key) => node.keys.has(key)).length;
+    default:
+      return 0;
+  }
+}
+function keyCount(value) {
+  if (isRecord(value))
+    return Object.keys(value).length;
+  if (!Array.isArray(value))
     return 0;
-  return Object.keys(value).filter((key) => node.keys.has(key)).length;
+  let count = 0;
+  for (const item of value)
+    if (isRecord(item))
+      count += Object.keys(item).length;
+  return count;
 }
 function zeroValue(node, depth) {
   assert(depth < SCHEMA_DEPTH_MAX, "the schema depth is less than SCHEMA_DEPTH_MAX");
@@ -9791,15 +9839,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "3bd5868",
-  "hash": "3bd5868",
+  "raw": "8b8c1da",
+  "hash": "8b8c1da",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "3bd5868",
+  "suffix": "8b8c1da",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795451535273
+  "time": 1795482757097
 };
 
 // libs/common/src/lib/settings.ts
@@ -22196,5 +22244,5 @@ export {
   Calendar,
   Desk
 };
-//# debugId=a7ba5344-973d-551b-b614-c2a352168da7
-//# sourceMappingURL=chunk-TEWKAHHL.js.map
+//# debugId=a0fb4af8-0ea9-539e-9ea9-28a5a4fd4c08
+//# sourceMappingURL=chunk-MMDW5O43.js.map

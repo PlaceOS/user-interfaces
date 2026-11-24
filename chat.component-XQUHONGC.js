@@ -1,7 +1,7 @@
 import "./chunk-FUZAUKV6.js";
 import {
   TranslatePipe
-} from "./chunk-UOKYCVYJ.js";
+} from "./chunk-6DYFRVLX.js";
 import {
   IconComponent
 } from "./chunk-3RSZXOUT.js";
@@ -26,7 +26,7 @@ import {
   randomString,
   settingSignal,
   token
-} from "./chunk-TEWKAHHL.js";
+} from "./chunk-MMDW5O43.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -3252,4 +3252,4 @@ export {
   ChatComponent
 };
 //# debugId=9ebf2bfb-9bb3-5b6f-b031-304b31722906
-//# sourceMappingURL=chat.component-H3W45SHE.js.map
+//# sourceMappingURL=chat.component-XQUHONGC.js.map
