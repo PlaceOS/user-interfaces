@@ -4,6 +4,7 @@ import {
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import {
+    Booking,
     OrganisationService,
     setNotifyOutlet,
     SettingsService,
@@ -62,23 +63,27 @@ describe('VisitorsReportService', () => {
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
         downloads = captureDownloads();
-        // queryBookings -> get (ts-client)
-        (ts_client.get as any).mockResolvedValue([
-            {
-                asset_id: 'v1',
-                user_email: 'host@x.com',
-                date: day_1,
-                duration: 60,
-                extension_data: {},
-            },
-            {
-                asset_id: 'v2',
-                user_email: 'host@x.com',
-                date: day_1,
-                duration: 120,
-                extension_data: {},
-            },
-        ]);
+        // queryAllBookings -> query (ts-client)
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [
+                {
+                    id: 'v1',
+                    asset_id: 'v1',
+                    user_email: 'host@x.com',
+                    date: day_1,
+                    duration: 60,
+                    extension_data: {},
+                },
+                {
+                    id: 'v2',
+                    asset_id: 'v2',
+                    user_email: 'host@x.com',
+                    date: day_1,
+                    duration: 120,
+                    extension_data: {},
+                },
+            ].map((details) => new Booking(details)),
+        } as any);
         spectator = createService();
     });
 
@@ -89,7 +94,7 @@ describe('VisitorsReportService', () => {
 
     it('should not load bookings until a report is requested', async () => {
         await settle();
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(ts_client.query).not.toHaveBeenCalled();
         expect(spectator.service.bookings()).toEqual([]);
     });
 
@@ -97,9 +102,15 @@ describe('VisitorsReportService', () => {
         spectator.service.setOptions({ start: day_1, end: day_1 });
         spectator.service.generateReport();
         await settle();
-        const url = (ts_client.get as any).mock.calls[0][0];
-        expect(url).toContain('type=visitor');
-        expect(url).toContain('zones=building-1');
+        expect(ts_client.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                query_params: expect.objectContaining({
+                    type: 'visitor',
+                    zones: 'building-1',
+                    include_deleted: true,
+                }),
+            }),
+        );
         expect(spectator.service.bookings()).toHaveLength(2);
     });
 
@@ -112,7 +123,7 @@ describe('VisitorsReportService', () => {
     });
 
     it('should notify an error when no visitor bookings are returned', async () => {
-        (ts_client.get as any).mockResolvedValue([]);
+        vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
         spectator.service.generateReport();
         await settle();
         expect(notify_open).toHaveBeenCalledWith(
@@ -130,6 +141,32 @@ describe('VisitorsReportService', () => {
         expect(downloads.filename).toMatch(
             /^report\+visitors\+2026-04-06-2026-04-07\.tsv$/,
         );
+    });
+
+    it('should retain cancelled visitors in the full export and omit them from the filtered export', async () => {
+        vi.mocked(ts_client.query).mockResolvedValue({
+            data: [
+                { id: 'current', asset_id: 'current-visitor', date: day_1 },
+                {
+                    id: 'cancelled',
+                    asset_id: 'cancelled-visitor',
+                    date: day_1,
+                    deleted: true,
+                },
+            ].map((details) => new Booking(details)),
+        } as any);
+        spectator.service.generateReport();
+        await settle();
+
+        expect(spectator.service.bookings()).toHaveLength(1);
+        await spectator.service.downloadReport();
+        expect(await downloads.text()).toContain('booking_status');
+        expect(await downloads.text()).toContain('cancelled-visitor');
+
+        await spectator.service.downloadReport(true);
+        expect(downloads.filename).toMatch(/without-cancelled\.tsv$/);
+        expect(await downloads.text()).toContain('current-visitor');
+        expect(await downloads.text()).not.toContain('cancelled-visitor');
     });
 
     it('should include the international column when only the events setting is enabled', async () => {

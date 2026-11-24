@@ -1,18 +1,20 @@
 import { formatDate } from '@angular/common';
 import { computed, inject, Injectable, resource, signal } from '@angular/core';
-import { queryBookings } from '@placeos/bookings';
+import { queryAllBookings } from '@placeos/bookings';
 import {
     Booking,
     downloadFile,
     i18n,
     jsonToCsv,
     notifyError,
+    notifyInfo,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
 import { endOfDay, format, getUnixTime, isSameDay, startOfDay } from 'date-fns';
 import { showVisitorFlag } from '../../visitors/visitor-flags';
 import { REMOVE_KEYS } from '../reports-state.service';
+import { reportBookingStatus } from '../reports.utilities';
 
 export interface ReportOptions {
     /** Zones to check available space for */
@@ -30,45 +32,46 @@ export class VisitorsReportService {
     private _settings = inject(SettingsService);
     private _org = inject(OrganisationService);
 
-    private _loading = signal<boolean>(false);
     private _options = signal<ReportOptions>({});
-    private _generate = signal<number>(0);
+    private _generated_options = signal<ReportOptions | undefined>(undefined);
 
-    public readonly loading = this._loading.asReadonly();
     public readonly options = this._options.asReadonly();
 
     private readonly _bookings = resource({
-        params: () => this._generate(),
+        params: () => this._generated_options(),
         defaultValue: [] as Booking[],
-        loader: async ({ params: gen }) => {
-            if (gen <= 0) return [];
-            const options = this._options();
-            this._loading.set(true);
-            const { start, end, zones } = options;
-            try {
-                const list = await queryBookings({
+        loader: async ({ params: { start, end, zones }, abortSignal }) => {
+            const list = await queryAllBookings(
+                {
                     period_start: getUnixTime(startOfDay(start || Date.now())),
                     period_end: getUnixTime(
                         endOfDay(end || start || Date.now()),
                     ),
                     type: 'visitor',
+                    include_deleted: true,
+                    limit: 200,
                     zones:
                         (zones || [])?.join(',') ||
                         (this._settings.get('app.use_region')
                             ? this._org.region?.id
                             : '') ||
                         this._org.building?.id,
-                });
-                if (!list.length) {
-                    notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
-                }
-                return list;
-            } finally {
-                this._loading.set(false);
+                },
+                { signal: abortSignal },
+            );
+            if (!abortSignal.aborted && !list.length) {
+                notifyError(i18n('APP.CONCIERGE.REPORTS_LOAD_ERROR'));
             }
+            return list;
         },
     });
-    public readonly bookings = this._bookings.value;
+    public readonly loading = this._bookings.isLoading;
+    public readonly bookings = computed(() =>
+        this._bookings.value().filter((booking) => !booking.deleted),
+    );
+    public readonly can_download = computed(
+        () => !this.loading() && !!this._bookings.value().length,
+    );
 
     public readonly daily_stats = computed(() => {
         const bookings = this.bookings();
@@ -91,12 +94,27 @@ export class VisitorsReportService {
     }
 
     public generateReport() {
-        this._generate.set(Date.now());
+        this._generated_options.set({ ...this._options() });
     }
 
-    public async downloadReport() {
-        const options = this._options();
-        const bookings = this.bookings();
+    public async downloadReport(exclude_cancelled = false) {
+        const options = this._generated_options();
+        if (!options || this.loading()) return;
+        const all_bookings = this._bookings.value();
+        const bookings = exclude_cancelled
+            ? all_bookings.filter(
+                  (booking) => reportBookingStatus(booking) !== 'Cancelled',
+              )
+            : all_bookings;
+        if (!bookings.length) {
+            if (exclude_cancelled) {
+                notifyInfo(
+                    i18n('APP.CONCIERGE.REPORTS_NO_NON_CANCELLED_BOOKINGS'),
+                );
+            }
+            return;
+        }
+        const suffix = exclude_cancelled ? '+without-cancelled' : '';
         const show_international = showVisitorFlag(
             this._settings,
             bookings,
@@ -107,7 +125,6 @@ export class VisitorsReportService {
             bookings,
             'visitor_internal_or_external',
         );
-        if (!bookings?.length) return;
         const is_same = isSameDay(options.start, options.end);
         const date = is_same
             ? format(options.start || startOfDay(Date.now()), 'yyyy-MM-dd')
@@ -116,7 +133,7 @@ export class VisitorsReportService {
                   'yyyy-MM-dd',
               )}`;
         downloadFile(
-            `report+visitors+${date}.tsv`,
+            `report+visitors+${date}${suffix}.tsv`,
             jsonToCsv(
                 bookings.map((booking) => {
                     const b: any = booking.toJSON();
@@ -139,6 +156,7 @@ export class VisitorsReportService {
                         );
                     }
                     for (const key of REMOVE_KEYS) delete b[key];
+                    b.booking_status = reportBookingStatus(booking);
                     return b;
                 }),
                 '\t',

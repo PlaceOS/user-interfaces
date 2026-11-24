@@ -429,6 +429,38 @@ describe('ReportsStateService', () => {
         expect(text.split('\r\n')[0].split(',').length).toBeGreaterThan(1);
     });
 
+    it.each([
+        ['desks', { deleted: true }],
+        ['events', { type: 'cancelled' }],
+    ] as const)(
+        'should exclude cancelled %s rows only from the filtered export',
+        async (type, cancellation) => {
+            const date = new Date('2026-04-06T09:00:00').valueOf();
+            spectator.service.setOptions({
+                type,
+                zones: ['z1'],
+                start: date,
+                end: date,
+            });
+            const row = (id: string) => ({
+                toJSON: () => ({ id, booking_start: 1000, booking_end: 2000 }),
+            });
+            (spectator.service as any)._active_bookings.set([
+                row('kept-row'),
+                { ...row('cancelled-row'), ...cancellation },
+            ]);
+
+            spectator.service.downloadReport();
+            expect(await downloads.text()).toContain('booking_status');
+            expect(await downloads.text()).toContain('cancelled-row');
+
+            spectator.service.downloadReport(true);
+            expect(downloads.filename).toMatch(/without-cancelled\.csv$/);
+            expect(await downloads.text()).toContain('kept-row');
+            expect(await downloads.text()).not.toContain('cancelled-row');
+        },
+    );
+
     it('should include a checked_in_time column for every booking', async () => {
         spectator.service.setOptions({
             type: 'desks',

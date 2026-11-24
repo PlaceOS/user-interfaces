@@ -109,11 +109,24 @@ const resource_level_cache = new Map<string, Promise<Set<string>>>();
                 }
             </button>
             <div class="flex-1"></div>
+            @if (allow_filtered_download()) {
+                <button
+                    btn
+                    matRipple
+                    [disabled]="loading() || !(can_download() ?? has_data())"
+                    (click)="downloadWithoutCancelled.emit()"
+                >
+                    {{
+                        'APP.CONCIERGE.REPORTS_DOWNLOAD_WITHOUT_CANCELLED'
+                            | translate
+                    }}
+                </button>
+            }
             <button
                 icon
                 matRipple
                 class="bg-secondary text-secondary-content h-12 w-12 rounded-sm"
-                [disabled]="!has_data()"
+                [disabled]="!(can_download() ?? has_data())"
                 [matTooltip]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
                 (click)="download.emit()"
                 [attr.aria-label]="'APP.CONCIERGE.REPORTS_DOWNLOAD' | translate"
@@ -173,12 +186,15 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
 
     public readonly loading = input<boolean>(false);
     public readonly has_data = input<boolean>(false);
+    public readonly can_download = input<boolean>();
+    public readonly allow_filtered_download = input(false);
     public readonly resource_type = input<ReportResourceType>();
     public readonly hide_level_selector = input<boolean>(false);
 
     public readonly printing = output<boolean>();
     public readonly generate = output<void>();
     public readonly download = output<void>();
+    public readonly downloadWithoutCancelled = output<void>();
     /** List of selected levels */
     public readonly zones = signal<string[]>([]);
     public readonly start = signal(startOfDay(Date.now()).getTime());

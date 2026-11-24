@@ -47,7 +47,10 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             (printing)="printing.set($event)"
             [loading]="loading()"
             [has_data]="has_data()"
+            [can_download]="can_download()"
+            [allow_filtered_download]="true"
             (download)="downloadReport()"
+            (downloadWithoutCancelled)="downloadReport(true)"
             (generate)="generateReport()"
         />
         <report-page
@@ -96,9 +99,11 @@ export class VisitorsReportComponent extends AsyncHandler implements OnInit {
         () => this._state.bookings()?.length || 0,
     );
     public readonly loading = this._state.loading;
+    public readonly can_download = this._state.can_download;
     public readonly has_data = computed(() => !!this.total_count());
 
-    public readonly downloadReport = () => this._state.downloadReport();
+    public readonly downloadReport = (exclude_cancelled = false) =>
+        this._state.downloadReport(exclude_cancelled);
     public readonly generateReport = () => this._state.generateReport();
 
     public ngOnInit() {

@@ -34,6 +34,7 @@ describe('VisitorsReportComponent', () => {
             MockProvider(VisitorsReportService, {
                 bookings: signal<any[]>([]),
                 loading: signal(false),
+                can_download: signal(false),
                 setOptions: vi.fn(),
                 generateReport: vi.fn(),
                 downloadReport: vi.fn(),
@@ -64,6 +65,7 @@ describe('VisitorsReportComponent', () => {
                     useValue: {
                         bookings,
                         loading,
+                        can_download: signal(false),
                         setOptions: set_options,
                         generateReport: generate,
                         downloadReport: download,

@@ -49,7 +49,9 @@ const METRIC_GUIDE: ReportMetricGuideItem[] = [
             (printing)="printing.set($event)"
             [loading]="!!loading()"
             [has_data]="!!total_count()"
+            [allow_filtered_download]="true"
             (download)="downloadReport()"
+            (downloadWithoutCancelled)="downloadReport(true)"
             (generate)="generateReport()"
         />
         <report-page
@@ -148,7 +150,8 @@ export class ReportDesksComponent extends AsyncHandler {
     );
     public readonly loading = this._state.loading;
 
-    public readonly downloadReport = () => this._state.downloadReport();
+    public readonly downloadReport = (exclude_cancelled = false) =>
+        this._state.downloadReport(exclude_cancelled);
     public readonly generateReport = () => this._state.generateReport();
 
     constructor() {

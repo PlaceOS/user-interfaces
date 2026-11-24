@@ -3058,6 +3058,8 @@
             "REPORTS_GENERATE": "Generate Report",
             "REPORTS_LOADING": "Loading report data...",
             "REPORTS_DOWNLOAD": "Download Report data",
+            "REPORTS_DOWNLOAD_WITHOUT_CANCELLED": "Download without cancellations",
+            "REPORTS_NO_NON_CANCELLED_BOOKINGS": "There are no bookings to download after excluding cancellations.",
             "REPORTS_DOWNLOAD_TABLE": "Download Table data",
             "REPORTS_PRINT": "Print Report",
             "REPORTS_EMPTY": "Select level(s) and date range to generate the report",
