@@ -29,6 +29,7 @@ import {
     jsonToCsv,
     nextValueFrom,
     notifyError,
+    notifyInfo,
     OrganisationService,
     SettingsService,
     timePeriodsIntersect,
@@ -54,7 +55,9 @@ import {
     isDeclinedReportEvent,
     reportBookableMinutes,
     reportBookedTimeUtilisationPercent,
+    reportBookingStatus,
     reportBookingStatusStats,
+    reportEventStatus,
     reportEventStatusStats,
 } from './reports.utilities';
 
@@ -596,17 +599,35 @@ export class ReportsStateService extends AsyncHandler {
         this._options.set({ ...current, ...options });
     }
 
-    public downloadReport() {
+    public downloadReport(exclude_cancelled = false) {
         const options = this._options();
-        const bookings: HashMap[] = this._active_bookings();
+        const include_status =
+            options.type === 'desks' || options.type === 'events';
+        const source: HashMap[] = this._active_bookings();
+        const bookings = source
+            .map((booking) => ({
+                booking,
+                status:
+                    options.type === 'events'
+                        ? reportEventStatus(booking as CalendarEvent)
+                        : reportBookingStatus(booking as Booking),
+            }))
+            .filter(
+                ({ status }) => !exclude_cancelled || status !== 'Cancelled',
+            );
+        if (exclude_cancelled && !bookings.length) {
+            notifyInfo(i18n('APP.CONCIERGE.REPORTS_NO_NON_CANCELLED_BOOKINGS'));
+            return;
+        }
+        const suffix = exclude_cancelled ? '+without-cancelled' : '';
         downloadFile(
             `report+${options.type}+${format(
                 options.start,
                 'yyyy-MM-dd',
-            )}+${format(options.end, 'yyyy-MM-dd')}.csv`,
+            )}+${format(options.end, 'yyyy-MM-dd')}${suffix}.csv`,
             jsonToCsv(
-                bookings.map((bkn) => {
-                    const details = bkn.toJSON();
+                bookings.map(({ booking, status }) => {
+                    const details = booking.toJSON();
                     details.start = formatDate(
                         (details.event_start || details.booking_start) * 1000,
                         'MMM d, y, h:mm a',
@@ -617,6 +638,7 @@ export class ReportsStateService extends AsyncHandler {
                         'MMM d, y, h:mm a',
                         'en',
                     );
+                    if (include_status) details.booking_status = status;
                     // Always set so the column exists even when the first
                     // booking was never checked in
                     details.checked_in_time = details.checked_in_at
