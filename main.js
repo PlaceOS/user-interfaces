@@ -1,15 +1,17 @@
 import {
-  AnnounceDirective,
   CateringOrderDocketsComponent,
   MatProgressBar,
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-IGQFHJKJ.js";
+} from "./chunk-HX7NJNZN.js";
+import {
+  AnnounceDirective
+} from "./chunk-U2N2467Y.js";
 import {
   TranslatePipe
-} from "./chunk-X3JHSO7M.js";
-import "./chunk-4GX44OJ2.js";
+} from "./chunk-EUF5CCAQ.js";
+import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -35,47 +37,50 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-Q4URZBBD.js";
+} from "./chunk-B4HRXKWQ.js";
 import {
-  AsyncHandler,
   GroupPermission,
   SettingsService,
-  addDays,
-  addMinutes,
   addMonths,
   apiOrigin,
   authority,
-  capitalizeFirstLetter,
   current_user,
-  differenceInMinutes,
-  firstTruthyValueFrom,
   getUnixTime,
   hasPermission,
   isBefore,
   isMock,
+  onlineState,
+  settingSignal,
+  token,
+  user_groups_failed,
+  user_groups_loaded,
+  waitForOnline
+} from "./chunk-OLQ4HPE5.js";
+import {
+  AsyncHandler,
+  addDays,
+  addMinutes,
+  capitalizeFirstLetter,
+  differenceInMinutes,
+  firstTruthyValueFrom,
   log,
   mockSystem,
-  onlineState,
   padLength,
   predictableRandomInt,
   randomInt,
   randomString,
   registerMockEndpoint,
   registerSystem,
-  settingSignal,
   startOfDay,
   timePeriodsIntersect,
   toDate,
-  token,
-  unique,
-  user_groups_failed,
-  user_groups_loaded,
-  waitForOnline
-} from "./chunk-CXK2XAMU.js";
+  unique
+} from "./chunk-DEUDK4TF.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
-} from "./chunk-JPE6B25J.js";
+} from "./chunk-COFQG2BS.js";
+import "./chunk-C6AMB2L4.js";
 import {
   IconComponent
 } from "./chunk-S6NHHHRE.js";
@@ -836,7 +841,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-DFE6LMPC.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-E7VN7JGS.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -964,7 +969,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-DFE6LMPC.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-E7VN7JGS.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -11000,11 +11005,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-2UI6WZ6D.js").then((m) => m.ChatComponent)
+  import("./chat.component-PGPDZJK3.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-O2Q5P2WZ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-4XWJBYVH.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11069,9 +11074,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-2UI6WZ6D.js").then((m) => m.ChatComponent),
+    import("./chat.component-PGPDZJK3.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-O2Q5P2WZ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-4XWJBYVH.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11119,7 +11124,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-GGSM6HMY.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-5CTBMZJD.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -11158,5 +11163,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=a02190c3-de0e-58a5-919d-ae1b0e1da075
+//# debugId=ed3d67e9-8f0f-5ef3-8713-39810c6c4954
 //# sourceMappingURL=main.js.map
