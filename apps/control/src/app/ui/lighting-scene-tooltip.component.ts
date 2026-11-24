@@ -4,10 +4,10 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
 
 import { MatRippleModule } from '@angular/material/core';
 import { ControlStateService } from '../control-state.service';
+import { execLighting } from './lighting-commands';
 
 @Component({
     selector: 'lighting-scene-tooltip',
@@ -64,8 +64,6 @@ export class LightingSceneTooltipComponent {
     }
 
     public setScene(name: string) {
-        const mod = getModule(this.id, 'System');
-        if (!mod) return;
-        mod.execute('select_lighting_scene', [name]);
+        execLighting(this.id, 'System', 'select_lighting_scene', [name]);
     }
 }

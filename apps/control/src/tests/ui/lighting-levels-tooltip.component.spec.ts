@@ -6,6 +6,7 @@ import { MockDirective, MockModule } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+import { setNotifyOutlet } from '@placeos/common';
 import { BindingDirective, CustomTooltipData } from '@placeos/components';
 import * as client from '@placeos/ts-client';
 import { ControlStateService } from '../../app/control-state.service';
@@ -109,5 +110,30 @@ describe('LightingLevelsTooltipComponent', () => {
         spectator.component.setLevel({ area: 'a1' }, 40);
         await new Promise((r) => setTimeout(r, 70));
         expect(execute_fn).not.toHaveBeenCalled();
+    });
+
+    it('should show a notice and not reject when the request times out', async () => {
+        // ts-client rejects with a plain string when the driver does not reply (PLACEOS-DEV-N6)
+        execute_fn.mockImplementationOnce(async () =>
+            Promise.reject('Request timed out.'),
+        );
+        const open = vi.fn(() => ({ onAction: () => ({ subscribe() {} }) }));
+        setNotifyOutlet({ open } as unknown as Parameters<
+            typeof setNotifyOutlet
+        >[0]);
+        const on_unhandled = vi.fn();
+        process.on('unhandledRejection', on_unhandled);
+
+        spectator.component.setLevel({ area: 'a1' }, 40);
+        await new Promise((r) => setTimeout(r, 70));
+
+        process.off('unhandledRejection', on_unhandled);
+        setNotifyOutlet(null, true);
+        expect(on_unhandled).not.toHaveBeenCalled();
+        expect(open).toHaveBeenCalledWith(
+            'APP.CONTROL.LIGHTING_COMMAND_ERROR',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
     });
 });
