@@ -1,0 +1,1 @@
+import{t as Dm}from"./main-VCYTPD4O.js";function n(){Dm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
