@@ -6,7 +6,7 @@ import { MockDirective, MockModule } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-import { setNotifyOutlet } from '@placeos/common';
+import { setNotifyOutlet, setTranslationService } from '@placeos/common';
 import { BindingDirective, CustomTooltipData } from '@placeos/components';
 import * as client from '@placeos/ts-client';
 import { ControlStateService } from '../../app/control-state.service';
@@ -121,6 +121,11 @@ describe('LightingLevelsTooltipComponent', () => {
         setNotifyOutlet({ open } as unknown as Parameters<
             typeof setNotifyOutlet
         >[0]);
+        // Echo the error argument so the notice text shows it reached i18n
+        setTranslationService({
+            get: (key: string, args: Record<string, string>) =>
+                `${key}: ${args.error}`,
+        } as unknown as Parameters<typeof setTranslationService>[0]);
         const on_unhandled = vi.fn();
         process.on('unhandledRejection', on_unhandled);
 
@@ -129,9 +134,12 @@ describe('LightingLevelsTooltipComponent', () => {
 
         process.off('unhandledRejection', on_unhandled);
         setNotifyOutlet(null, true);
+        setTranslationService(
+            undefined as unknown as Parameters<typeof setTranslationService>[0],
+        );
         expect(on_unhandled).not.toHaveBeenCalled();
         expect(open).toHaveBeenCalledWith(
-            'APP.CONTROL.LIGHTING_COMMAND_ERROR',
+            'APP.CONTROL.LIGHTING_COMMAND_ERROR: Request timed out.',
             'OK',
             expect.objectContaining({ panelClass: ['error'] }),
         );
