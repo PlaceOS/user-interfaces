@@ -39,6 +39,11 @@
                         "glob": "*worker.js"
                     },
                     {
+                        "input": "node_modules/libheif-js/libheif-wasm/",
+                        "output": "/assets/heif",
+                        "glob": "{libheif-bundle.mjs,LICENSE}"
+                    },
+                    {
                         "input": "node_modules/pdfjs-dist/build/",
                         "output": "/assets/pdfjs",
                         "glob": "pdf.worker.min.mjs"

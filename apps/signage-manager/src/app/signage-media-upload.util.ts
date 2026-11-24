@@ -24,6 +24,8 @@ const IMAGE_MIME_TYPES = new Set([
     'image/svg+xml',
 ]);
 const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'webp', 'svg']);
+const HEIF_MIME_TYPES = new Set(['image/heic', 'image/heif']);
+const HEIF_EXTENSIONS = new Set(['heic', 'heif']);
 const PDF_MIME_TYPES = new Set(['application/pdf']);
 const PDF_EXTENSIONS = new Set(['pdf']);
 const PPTX_MIME_TYPES = new Set([
@@ -35,8 +37,7 @@ const IMAGE_SOURCE_EXTENSIONS = new Set([
     'avif',
     'bmp',
     'gif',
-    'heic',
-    'heif',
+    ...HEIF_EXTENSIONS,
     'tif',
     'tiff',
 ]);
@@ -148,6 +149,11 @@ export async function validateSignageMediaFile(
 
 export function isSupportedImageFile(file: File) {
     return matchesAllowedType(file, IMAGE_MIME_TYPES, IMAGE_EXTENSIONS);
+}
+
+/** Whether an image needs the HEIF decoder before it can be uploaded */
+export function isHeifFile(file: File) {
+    return matchesAllowedType(file, HEIF_MIME_TYPES, HEIF_EXTENSIONS);
 }
 
 /** Whether a file is a PDF, which is imported as one image per page */

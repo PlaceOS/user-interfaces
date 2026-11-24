@@ -11,6 +11,8 @@ const VIDEO_THUMBNAIL_OFFSET = 0.1;
 const VIDEO_THUMBNAIL_TIMEOUT = 15 * 1000;
 /** How long to wait for the size and duration of a file, in milliseconds */
 const MEDIA_METADATA_TIMEOUT = 15 * 1000;
+/** Time allowed to load the HEIF worker and convert a photo, in milliseconds */
+const HEIF_CONVERSION_TIMEOUT = 60 * 1000;
 
 /** File from a data URL, such as a generated thumbnail */
 export function dataURLtoFile(data_url: string, filename: string) {
@@ -166,6 +168,45 @@ export async function convertImageToWebp(file: File) {
         type: 'image/webp',
         lastModified: file.lastModified,
     });
+}
+
+/** Convert a HEIF image to WebP or JPEG in a module worker loaded on demand. */
+export async function convertHeifImage(file: File) {
+    const worker = new Worker(
+        new URL('assets/heif/heif-conversion.worker.mjs', document.baseURI),
+        { type: 'module' },
+    );
+    let timer: ReturnType<typeof setTimeout>;
+    try {
+        const blob = await new Promise<Blob>((resolve, reject) => {
+            const fail = () =>
+                reject(
+                    new Error(i18n('SIGNAGE_MANAGER.SVC_ERR_CONVERT_IMAGE')),
+                );
+            timer = setTimeout(fail, HEIF_CONVERSION_TIMEOUT);
+            worker.onmessage = ({ data }: MessageEvent<Blob | null>) => {
+                if (
+                    data?.type === 'image/webp' ||
+                    data?.type === 'image/jpeg'
+                ) {
+                    resolve(data);
+                } else {
+                    fail();
+                }
+            };
+            worker.onerror = fail;
+            worker.onmessageerror = fail;
+            worker.postMessage(file);
+        });
+        const extension = blob.type === 'image/webp' ? 'webp' : 'jpg';
+        return new File([blob], replaceFileExtension(file.name, extension), {
+            type: blob.type,
+            lastModified: file.lastModified,
+        });
+    } finally {
+        clearTimeout(timer);
+        worker.terminate();
+    }
 }
 
 function loadImage(file: File) {

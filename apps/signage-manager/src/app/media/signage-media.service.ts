@@ -63,6 +63,7 @@ import {
 } from '../signage-media-tags.util';
 import {
     getVideoContainer,
+    isHeifFile,
     isImageSourceFile,
     isPagedFile,
     isPptxFile,
@@ -77,6 +78,7 @@ import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
 import { uploadUrl } from '../signage-url.util';
 import type { DocumentHandle } from './document-import.util';
 import {
+    convertHeifImage,
     convertImageToWebp,
     dataURLtoFile,
     generateThumbnail,
@@ -1079,42 +1081,46 @@ export class SignageMediaService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_SELECT_MEDIA_FILE'));
             return null;
         }
-        const normalized_file = await this._normalizeImageUpload(file);
-        const validation = await validateSignageMediaFile(
-            normalized_file,
-            this._mediaValidationOptions(),
-        );
-        if (!validation.valid) {
-            notifyError(validation.error);
-            return null;
-        }
-        let metadata: SignageMediaMetadata;
         try {
-            metadata = await this._getMediaMetadata(normalized_file);
+            const normalized_file = await this._normalizeImageUpload(file);
+            const validation = await validateSignageMediaFile(
+                normalized_file,
+                this._mediaValidationOptions(),
+            );
+            if (!validation.valid) {
+                notifyError(validation.error);
+                return null;
+            }
+            const metadata = await this._getMediaMetadata(normalized_file);
+            return {
+                file: normalized_file,
+                media_type: validation.media_type,
+                metadata,
+            };
         } catch {
             notifyError(
                 i18n('SIGNAGE_MANAGER.SVC_ERR_READ_MEDIA', {
-                    name: normalized_file.name,
+                    name: file.name,
                 }),
             );
             return null;
         }
-        return {
-            file: normalized_file,
-            media_type: validation.media_type,
-            metadata,
-        };
     }
 
     private async _normalizeImageUpload(file: File) {
-        if (isSupportedImageFile(file) || getVideoContainer(file)) {
-            return file;
-        }
-        if (!isImageSourceFile(file)) {
+        const is_heif = isHeifFile(file);
+        if (
+            !is_heif &&
+            (isSupportedImageFile(file) ||
+                getVideoContainer(file) ||
+                !isImageSourceFile(file))
+        ) {
             return file;
         }
         try {
-            const converted_file = await convertImageToWebp(file);
+            const converted_file = is_heif
+                ? await convertHeifImage(file)
+                : await convertImageToWebp(file);
             notifyInfo(
                 i18n('SIGNAGE_MANAGER.SVC_CONVERTED_MEDIA', {
                     from: file.name,
@@ -1122,7 +1128,8 @@ export class SignageMediaService {
                 }),
             );
             return converted_file;
-        } catch {
+        } catch (error) {
+            if (is_heif) throw error;
             return file;
         }
     }
@@ -1490,10 +1497,9 @@ export class SignageMediaService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_NOT_IMAGE'));
             return '';
         }
-        const image = await this._normalizeImageUpload(file);
-        const thumbnail = await this._generateThumbnail(image, 1280, 720).catch(
-            () => '',
-        );
+        const thumbnail = await this._normalizeImageUpload(file)
+            .then((image) => this._generateThumbnail(image, 1280, 720))
+            .catch(() => '');
         if (!thumbnail) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_THUMBNAIL_FAILED'));
         }
