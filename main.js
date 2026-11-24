@@ -2,13 +2,13 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-HNFLGSXD.js";
+} from "./chunk-GQA2XQZS.js";
 import {
   AnnounceDirective
-} from "./chunk-CEUOBMGT.js";
+} from "./chunk-SN7BSHU3.js";
 import {
   TranslatePipe
-} from "./chunk-RBNNQ62B.js";
+} from "./chunk-LANAQYXG.js";
 import "./chunk-OSRII6NJ.js";
 import "./chunk-XDYJDWHO.js";
 import {
@@ -71,7 +71,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-HVZSGYJW.js";
+} from "./chunk-SISTMAY7.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -759,7 +759,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-JVGFYTRV.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-JCFQ53B2.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -887,7 +887,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-JVGFYTRV.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-JCFQ53B2.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -10923,11 +10923,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-DWDOR57V.js").then((m) => m.ChatComponent)
+  import("./chat.component-EPUGP72Y.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-AFZBDF3D.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-CXGUOKIO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10990,9 +10990,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-DWDOR57V.js").then((m) => m.ChatComponent),
+    import("./chat.component-EPUGP72Y.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-AFZBDF3D.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-CXGUOKIO.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11045,22 +11045,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-BCEKVVZI.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-DTWLXAVQ.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-I2ZQNKTO.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-5IZBJI2V.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-YR5MDYP5.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-YPO2UGWX.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-XEQOFULK.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-JPVWKFI7.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }

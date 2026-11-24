@@ -23,14 +23,14 @@ import {
   PaymentWindowClosedError,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-GZIKOC25.js";
+} from "./chunk-6PYAOQSJ.js";
 import {
   MatSelect,
   MatSelectModule,
   SettingsToggleComponent,
   VirtualKeyboardComponent,
   provideValueAccessor
-} from "./chunk-W2XZP2NM.js";
+} from "./chunk-4ABZNCTO.js";
 import {
   MatCheckbox,
   MatCheckboxModule
@@ -49,7 +49,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-3BWUYSCN.js";
+} from "./chunk-AYD62IFS.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -67,10 +67,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-HNFLGSXD.js";
+} from "./chunk-GQA2XQZS.js";
 import {
   TranslatePipe
-} from "./chunk-RBNNQ62B.js";
+} from "./chunk-LANAQYXG.js";
 import {
   FormField,
   disabled,
@@ -210,7 +210,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-HVZSGYJW.js";
+} from "./chunk-SISTMAY7.js";
 import {
   CdkScrollableModule,
   OverlayConfig,
@@ -4394,7 +4394,7 @@ async function queryResourceAvailability(id_list, start, duration, ignore, type 
     period_start: getUnixTime(start),
     period_end: getUnixTime(addMinutes(start, duration))
   });
-  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || ignore !== `${b.id}`)));
+  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || `${ignore}` !== `${b.id}`)));
 }
 async function linkedBookingsForEvent(event, type) {
   if (event.from_bookings) {
@@ -4729,13 +4729,14 @@ function saveAssetType(product) {
   return product.id ? asset_types_exports.update({ id: product.id, body }).then(orThrow) : asset_types_exports.create({ body }).then(orThrow);
 }
 async function queryGroupAvailability(query5, ignore = []) {
+  const ignored = new Set(ignore.map((id) => `${id}`));
   const [products, bookings] = await Promise.all([
     queryAssetGroupsExtended(query5),
     queryBookings(__spreadProps(__spreadValues({}, query5), { type: "asset-request" }))
   ]);
   const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled");
   return products.map((product) => __spreadProps(__spreadValues({}, product), {
-    assets: product.assets.filter((asset) => ignore?.includes(asset.id) || !active_bookings.find((booking) => !ignore.includes(booking.id) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
+    assets: product.assets.filter((asset) => ignored.has(asset.id) || !active_bookings.find((booking) => !ignored.has(`${booking.id}`) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
   }));
 }
 function differenceBetweenAssetRequests(new_assets, old_assets) {
@@ -8689,7 +8690,7 @@ var PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-OFSYI2BT.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-Q6FI4NFS.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -18818,5 +18819,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=01c84290-dd6b-512e-9bbb-99915e416469
-//# sourceMappingURL=chunk-FEKBOFQD.js.map
+//# debugId=ade173ac-82e1-5bcd-9e4c-157eaa543d12
+//# sourceMappingURL=chunk-VJGOMVFY.js.map
