@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "libs/common/src/lib/value-accessor.ts"
+  ],
+  "sourcesContent": [
+    "import { forwardRef, type Provider, type Type } from '@angular/core';\nimport { NG_VALUE_ACCESSOR } from '@angular/forms';\n\n/*\n * Import this file as `@placeos/common/value-accessor`, not from the\n * `@placeos/common` index. The index is in the initial bundle of each app,\n * and this file loads `@angular/forms`.\n */\n\n/**\n * Provider that registers a component as its own form control value\n * accessor. Pass the class in an arrow function, as the class is not\n * defined yet when its decorator runs:\n * `providers: [provideValueAccessor(() => MyFieldComponent)]`\n */\nexport function provideValueAccessor(component: () => Type<unknown>): Provider {\n    return {\n        provide: NG_VALUE_ACCESSOR,\n        useExisting: forwardRef(component),\n        multi: true,\n    };\n}\n"
+  ],
+  "mappings": ";;;;;;;;AAeM,SAAU,qBAAqB,WAA8B;AAC/D,SAAO;IACH,SAAS;IACT,aAAa,WAAW,SAAS;IACjC,OAAO;;AAEf;",
+  "names": [],
+  "debugId": "1e14838c-5abf-559d-bd4d-73d081fd5fe1"
+}
