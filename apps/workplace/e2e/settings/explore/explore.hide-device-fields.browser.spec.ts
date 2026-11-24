@@ -44,9 +44,17 @@ const LIVE: Record<string, unknown> = {
     [LEVEL]: {
         value: [
             {
-                location: 'wireless', x: 200, y: 200, map_width: 400, map_height: 400,
-                mac: MAC, manufacturer: MANUFACTURER, os: OS, ssid: 'e2e-synthetic-ssid',
-                variance: 1.5, last_seen: Math.floor(Date.now() / 1000),
+                location: 'wireless',
+                x: 200,
+                y: 200,
+                map_width: 400,
+                map_height: 400,
+                mac: MAC,
+                manufacturer: MANUFACTURER,
+                os: OS,
+                ssid: 'e2e-synthetic-ssid',
+                variance: 1.5,
+                last_seen: Math.floor(Date.now() / 1000),
             },
         ],
     },
@@ -67,15 +75,22 @@ const test = browserOnlyTest<ControlAudit>({
         // The device hover's ownership lookup; null means no owner (no username row).
         execs: {
             check_ownership_of: (r) =>
-                r.sys === SYSTEM && r.mod === 'LocationServices' && r.index === 1 &&
-                r.args.length === 1 && r.args[0] === MAC
+                r.sys === SYSTEM &&
+                r.mod === 'LocationServices' &&
+                r.index === 1 &&
+                r.args.length === 1 &&
+                r.args[0] === MAC
                     ? { value: null }
                     : undefined,
         },
     }),
 });
 
-async function openExplore(page: Page, audit: ControlAudit, override: Settings) {
+async function openExplore(
+    page: Page,
+    audit: ControlAudit,
+    override: Settings,
+) {
     await openSyntheticExplore(page, audit, EXPLORE, {
         settings: { ...BASE, ...override },
         bearer: BEARER,
@@ -93,32 +108,47 @@ async function openExplore(page: Page, audit: ControlAudit, override: Settings) 
 }
 
 for (const hidden of [false, true]) {
-    test('explore.hide_device_fields=' + (hidden ? "['mac','manufacturer']" : '[]') +
-        ' controls the device tooltip rows',
-    async ({ isolated: { page, audit } }) => {
-        await openExplore(page, audit, {
-            'app.explore.hide_device_fields': hidden ? ['mac', 'manufacturer'] : [],
-        });
-        const device = page.locator('explore-map-view [explore-device-info]');
-        await expect(device).toHaveCount(1);
-        // Move the pointer to the centre of the dot a user sees. Whichever
-        // element receives the pointer there must open the tooltip.
-        const dot = await device.locator('[name="dot"]').boundingBox();
-        expect(dot, 'the device dot has a box').not.toBeNull();
-        await page.mouse.move(dot!.x + dot!.width / 2, dot!.y + dot!.height / 2);
-        const tooltip = page.locator('[name="device-info"]');
-        await expect(tooltip).toBeVisible();
-        // The OS row is never hidden here, so the tooltip content is proven
-        // rendered before the absence of hidden rows is checked.
-        await expect(tooltip.locator('p[os]')).toContainText(OS);
-        await expect(tooltip.getByText(MAC)).toHaveCount(hidden ? 0 : 1);
-        await expect(tooltip.locator('p[type]')).toHaveCount(hidden ? 0 : 1);
-        if (!hidden) await expect(tooltip.locator('p[type]')).toContainText(MANUFACTURER);
-        await expect
-            .poll(() => audit.connections.flatMap((c) => c.execs ?? []))
-            .toEqual(['check_ownership_of']);
-        // loadUser() shows "Loading..." until the exec answers; the null answer
-        // must clear it, so no username row remains.
-        await expect(tooltip.locator('p[username]')).toHaveCount(0);
-    });
+    test(
+        'explore.hide_device_fields=' +
+            (hidden ? "['mac','manufacturer']" : '[]') +
+            ' controls the device tooltip rows',
+        async ({ isolated: { page, audit } }) => {
+            await openExplore(page, audit, {
+                'app.explore.hide_device_fields': hidden
+                    ? ['mac', 'manufacturer']
+                    : [],
+            });
+            const device = page.locator(
+                'explore-map-view [explore-device-info]',
+            );
+            await expect(device).toHaveCount(1);
+            // Move the pointer to the centre of the dot a user sees. Whichever
+            // element receives the pointer there must open the tooltip.
+            const dot = await device.locator('[name="dot"]').boundingBox();
+            expect(dot, 'the device dot has a box').not.toBeNull();
+            await page.mouse.move(
+                dot!.x + dot!.width / 2,
+                dot!.y + dot!.height / 2,
+            );
+            const tooltip = page.locator('[name="device-info"]');
+            await expect(tooltip).toBeVisible();
+            // The OS row is never hidden here, so the tooltip content is proven
+            // rendered before the absence of hidden rows is checked.
+            await expect(tooltip.locator('p[os]')).toContainText(OS);
+            await expect(tooltip.getByText(MAC)).toHaveCount(hidden ? 0 : 1);
+            await expect(tooltip.locator('p[type]')).toHaveCount(
+                hidden ? 0 : 1,
+            );
+            if (!hidden)
+                await expect(tooltip.locator('p[type]')).toContainText(
+                    MANUFACTURER,
+                );
+            await expect
+                .poll(() => audit.connections.flatMap((c) => c.execs ?? []))
+                .toEqual(['check_ownership_of']);
+            // loadUser() shows "Loading..." until the exec answers; the null answer
+            // must clear it, so no username row remains.
+            await expect(tooltip.locator('p[username]')).toHaveCount(0);
+        },
+    );
 }

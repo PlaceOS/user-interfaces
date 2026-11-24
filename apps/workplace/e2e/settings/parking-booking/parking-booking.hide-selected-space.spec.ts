@@ -24,21 +24,39 @@ const resourceRow = (details: Locator) =>
 
 test.describe('parking.hide_selected_space', () => {
     for (const hidden of [true, false]) {
-        test('parking.hide_selected_space ' + hidden + ' controls the space name on the card',
+        test(
+            'parking.hide_selected_space ' +
+                hidden +
+                ' controls the space name on the card',
             async ({ staffPage, audit }) => {
-                const card = await scheduleCard(staffPage, audit,
-                    { 'app.parking.hide_selected_space': hidden }, { approved: true });
+                const card = await scheduleCard(
+                    staffPage,
+                    audit,
+                    { 'app.parking.hide_selected_space': hidden },
+                    { approved: true },
+                );
                 // resource_label is "Parking" when hidden, otherwise the space name.
-                await expect(card.getByText(PARKING, { exact: true })).toHaveCount(hidden ? 1 : 0);
-                if (hidden) await expect(card).not.toContainText(SCHEDULE_CARD.space);
+                await expect(
+                    card.getByText(PARKING, { exact: true }),
+                ).toHaveCount(hidden ? 1 : 0);
+                if (hidden)
+                    await expect(card).not.toContainText(SCHEDULE_CARD.space);
                 else await expect(card).toContainText(SCHEDULE_CARD.space);
-            });
+            },
+        );
     }
     for (const hidden of [true, false]) {
-        test('parking.hide_selected_space ' + hidden + ' controls the space name in the booking details',
+        test(
+            'parking.hide_selected_space ' +
+                hidden +
+                ' controls the space name in the booking details',
             async ({ staffPage, audit }) => {
-                const card = await scheduleCard(staffPage, audit,
-                    { 'app.parking.hide_selected_space': hidden }, { approved: true });
+                const card = await scheduleCard(
+                    staffPage,
+                    audit,
+                    { 'app.parking.hide_selected_space': hidden },
+                    { approved: true },
+                );
                 await card.click();
                 const details = staffPage.locator('booking-details-modal');
                 const title = details.locator('h3[title]');
@@ -46,11 +64,17 @@ test.describe('parking.hide_selected_space', () => {
                 await expect(title).toHaveText(SCHEDULE_CARD.title);
                 // resource_details_label: "Parking" when hidden (no level on the
                 // row), otherwise the space name.
-                await expect(resourceRow(details)).toHaveText(hidden ? PARKING : SCHEDULE_CARD.space);
-                if (hidden) await expect(details).not.toContainText(SCHEDULE_CARD.space);
+                await expect(resourceRow(details)).toHaveText(
+                    hidden ? PARKING : SCHEDULE_CARD.space,
+                );
+                if (hidden)
+                    await expect(details).not.toContainText(
+                        SCHEDULE_CARD.space,
+                    );
                 else await expect(details).toContainText(SCHEDULE_CARD.space);
                 await staffPage.keyboard.press('Escape');
                 await expect(details).toHaveCount(0);
-            });
+            },
+        );
     }
 });
