@@ -1,0 +1,101 @@
+import {
+  LocaleService,
+  i18n
+} from "./chunk-ZSVMOUWV.js";
+import {
+  LiveAnnouncer
+} from "./chunk-YS6B7LAQ.js";
+import {
+  DestroyRef,
+  Directive,
+  ElementRef,
+  InjectionToken,
+  Injector,
+  afterNextRender,
+  inject,
+  setClassMetadata,
+  ɵɵdefineDirective
+} from "./chunk-JFVDZBHZ.js";
+
+// libs/components/src/lib/announce.directive.ts
+var AnnounceDirective = class _AnnounceDirective {
+  constructor() {
+    const el = inject(ElementRef).nativeElement;
+    const announcer = inject(LiveAnnouncer);
+    const locale = inject(LocaleService);
+    const injector = inject(Injector);
+    const destroy_ref = inject(DestroyRef);
+    let last_text = "";
+    const announceText = () => {
+      const text = el.textContent?.trim() ?? "";
+      if (!text || text === last_text)
+        return;
+      last_text = text;
+      announcer.announce(text, "polite");
+    };
+    afterNextRender(async () => {
+      await locale.loaded();
+      if (destroy_ref.destroyed)
+        return;
+      afterNextRender(announceText, { injector });
+      const observer = new MutationObserver(announceText);
+      observer.observe(el, {
+        characterData: true,
+        childList: true,
+        subtree: true
+      });
+      destroy_ref.onDestroy(() => observer.disconnect());
+    });
+  }
+  static {
+    this.\u0275fac = function AnnounceDirective_Factory(__ngFactoryType__) {
+      return new (__ngFactoryType__ || _AnnounceDirective)();
+    };
+  }
+  static {
+    this.\u0275dir = /* @__PURE__ */ \u0275\u0275defineDirective({ type: _AnnounceDirective, selectors: [["", "announce", ""]] });
+  }
+};
+(() => {
+  (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(AnnounceDirective, [{
+    type: Directive,
+    args: [{ selector: "[announce]" }]
+  }], () => [], null);
+})();
+
+// libs/payments/src/lib/payment-checkout.ts
+var PAYMENT_CHECKOUT = new InjectionToken("PAYMENT_CHECKOUT", { factory: () => false });
+var CheckoutCancelledError = class extends Error {
+  constructor() {
+    super("Payment cancelled");
+  }
+};
+var PaymentWindowClosedError = class extends Error {
+  constructor(payment_id, reason = "") {
+    super("Payment window closed");
+    this.payment_id = payment_id;
+    this.reason = reason;
+  }
+};
+var PaymentEndedError = class extends Error {
+  constructor(message = "") {
+    super(message || i18n("PAYMENTS.PAYMENT_FAILED"));
+  }
+};
+function openPaymentWindow() {
+  const window_ref = window.open("", "placeos-payment", "popup,width=520,height=760");
+  if (window_ref)
+    window_ref.opener = null;
+  return window_ref;
+}
+
+export {
+  AnnounceDirective,
+  PAYMENT_CHECKOUT,
+  CheckoutCancelledError,
+  PaymentWindowClosedError,
+  PaymentEndedError,
+  openPaymentWindow
+};
+//# debugId=6347d079-35b1-54fe-aff6-1e9cec21b6ee
+//# sourceMappingURL=chunk-U2KJ5CP6.js.map
