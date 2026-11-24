@@ -26,7 +26,7 @@ import {
   SelectionModel,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-5YHRGPZY.js";
+} from "./chunk-GSRC67OL.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -44,7 +44,7 @@ import {
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-PNM7IE3S.js";
+} from "./chunk-D5NDZXS4.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -60,7 +60,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-BVFSJF5P.js";
+} from "./chunk-NCMUWERW.js";
 import {
   FORM_FIELD,
   FormField,
@@ -72,7 +72,7 @@ import {
 } from "./chunk-QGE6PYVT.js";
 import {
   TranslatePipe
-} from "./chunk-RNBX7PLR.js";
+} from "./chunk-HT22SAFV.js";
 import {
   AbstractControl,
   DefaultValueAccessor,
@@ -210,7 +210,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-SOMHRZRQ.js";
+} from "./chunk-MCQOKT2Z.js";
 import {
   CdkConnectedOverlay,
   CdkOverlayOrigin,
@@ -11701,7 +11701,7 @@ async function queryResourceAvailability(id_list, start, duration, ignore, type 
     period_start: getUnixTime(start),
     period_end: getUnixTime(addMinutes(start, duration))
   });
-  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || ignore !== `${b.id}`)));
+  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || `${ignore}` !== `${b.id}`)));
 }
 async function linkedBookingsForEvent(event, type) {
   if (event.from_bookings) {
@@ -12175,13 +12175,14 @@ function saveAssetType(product) {
   return product.id ? asset_types_exports.update({ id: product.id, body }).then(orThrow) : asset_types_exports.create({ body }).then(orThrow);
 }
 async function queryGroupAvailability(query5, ignore = []) {
+  const ignored = new Set(ignore.map((id) => `${id}`));
   const [products, bookings] = await Promise.all([
     queryAssetGroupsExtended(query5),
     queryBookings(__spreadProps(__spreadValues({}, query5), { type: "asset-request" }))
   ]);
   const active_bookings = bookings.filter((_) => _.status !== "declined" && _.status !== "cancelled");
   return products.map((product) => __spreadProps(__spreadValues({}, product), {
-    assets: product.assets.filter((asset) => ignore?.includes(asset.id) || !active_bookings.find((booking) => !ignore.includes(booking.id) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
+    assets: product.assets.filter((asset) => ignored.has(asset.id) || !active_bookings.find((booking) => !ignored.has(`${booking.id}`) && (booking.asset_id === asset.id || booking.asset_ids?.includes(asset.id))))
   }));
 }
 function differenceBetweenAssetRequests(new_assets, old_assets) {
@@ -14513,7 +14514,7 @@ var PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-TZMOVL4J.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-L55ZDCVR.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -26101,5 +26102,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=a03c83b4-f829-5c7d-8c64-7d78e17b2b51
-//# sourceMappingURL=calendar-pane.component-EJBXYH6P.js.map
+//# debugId=6872ea2f-ace2-5cca-8b21-8dbe3a69e698
+//# sourceMappingURL=calendar-pane.component-3HVQGG37.js.map
