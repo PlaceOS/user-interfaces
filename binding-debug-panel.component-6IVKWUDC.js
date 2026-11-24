@@ -3,7 +3,7 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-REKIW4Q6.js";
+} from "./chunk-GXDESEGL.js";
 import {
   DebugPanelResize
 } from "./chunk-7JRU4ZQM.js";
@@ -23,7 +23,7 @@ import {
   NgModel,
   orThrow,
   systems_exports
-} from "./chunk-RUUNVH6S.js";
+} from "./chunk-VUF4OQGM.js";
 import "./chunk-PRWEK7F2.js";
 import "./chunk-ARRIYDBO.js";
 import {
@@ -1911,4 +1911,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=8b460262-7cad-5677-8b3b-1db271df9667
-//# sourceMappingURL=binding-debug-panel.component-SDB67HPC.js.map
+//# sourceMappingURL=binding-debug-panel.component-6IVKWUDC.js.map

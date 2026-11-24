@@ -15,14 +15,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-V2VRO437.js";
+} from "./chunk-3U27VOJT.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-AYBWSM5P.js";
+} from "./chunk-7HVGUYHA.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -39,7 +39,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-IEWPFGG6.js";
+} from "./chunk-UFNT734H.js";
 import {
   FORM_FIELD,
   FormField,
@@ -48,10 +48,10 @@ import {
   form,
   required,
   validate
-} from "./chunk-RPPJM35P.js";
+} from "./chunk-MVF37QJG.js";
 import {
   TranslatePipe
-} from "./chunk-BYKIKKCT.js";
+} from "./chunk-ND765ENP.js";
 import {
   AbstractControl,
   AssetRequest,
@@ -189,7 +189,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-RUUNVH6S.js";
+} from "./chunk-VUF4OQGM.js";
 import {
   BasePortalOutlet,
   CdkConnectedOverlay,
@@ -14993,7 +14993,8 @@ function bookingQuery(q) {
     event_id: q.event_id,
     ical_uid: q.ical_uid,
     limit: q.limit,
-    rejected: q.rejected
+    rejected: q.rejected,
+    include_parent_bookings: q.include_parent_bookings
   };
 }
 function bookedQuery(q, limit) {
@@ -30397,5 +30398,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=ebef61ec-4203-5112-96b4-6d9a226d4d77
-//# sourceMappingURL=calendar-pane.component-Z5SABJXM.js.map
+//# debugId=21cbe1c4-11cf-5e39-915b-b0447ea90339
+//# sourceMappingURL=calendar-pane.component-JIWRJFAM.js.map
