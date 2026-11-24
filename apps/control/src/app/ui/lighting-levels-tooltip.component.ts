@@ -7,8 +7,8 @@ import {
 
 import { FormsModule } from '@angular/forms';
 import { MatSliderModule } from '@angular/material/slider';
-import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
+import { execLighting } from './lighting-commands';
 
 @Component({
     selector: 'lighting-levels-tooltip',
@@ -76,12 +76,13 @@ export class LightingLevelsTooltipComponent {
 
     public setLevel(level: any, value: number) {
         clearTimeout(this._level_timeout);
-        this._level_timeout = setTimeout(async () => {
+        this._level_timeout = setTimeout(() => {
             const sys_id = this.system();
             if (!sys_id) return;
-            const mod = getModule(sys_id, 'Lighting');
-            if (!mod) return;
-            await mod.execute('set_lighting_level', [value, level?.area]);
+            execLighting(sys_id, 'Lighting', 'set_lighting_level', [
+                value,
+                level?.area,
+            ]);
         }, 50);
     }
 }
