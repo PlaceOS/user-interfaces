@@ -23,10 +23,10 @@ import {
     AsyncHandler,
     authority,
     EMPTY_USER,
-    provideValueAccessor,
     settingSignal,
     User,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { users } from '@placeos/ts-client';
 import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 

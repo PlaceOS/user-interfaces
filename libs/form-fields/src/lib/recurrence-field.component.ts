@@ -17,7 +17,6 @@ import {
     fromBookingRecurrence,
     fromEventRecurrence,
     NO_RECURR,
-    provideValueAccessor,
     Recurrence,
     RecurrenceDetails,
     recurrenceEndDate,
@@ -25,6 +24,7 @@ import {
     toBookingRecurrence,
     toEventRecurrence,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { addDays, addYears, endOfDay, startOfDay } from 'date-fns';
 
 import { CommonModule } from '@angular/common';

@@ -3,11 +3,8 @@ import { ControlValueAccessor } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 
 import { MatRippleModule } from '@angular/material/core';
-import {
-    provideValueAccessor,
-    SETTING_KEYS,
-    toggleListItem,
-} from '@placeos/common';
+import { SETTING_KEYS, toggleListItem } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

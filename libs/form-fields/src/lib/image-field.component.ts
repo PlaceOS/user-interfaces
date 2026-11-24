@@ -12,13 +12,8 @@ import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import {
-    i18n,
-    notifyError,
-    notifyInfo,
-    provideValueAccessor,
-    UploadsService,
-} from '@placeos/common';
+import { i18n, notifyError, notifyInfo, UploadsService } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

@@ -23,10 +23,10 @@ import {
     downloadFile,
     i18n,
     notifyError,
-    provideValueAccessor,
     SettingsService,
     unique,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { first } from 'rxjs/operators';
 
 import { CommonModule } from '@angular/common';

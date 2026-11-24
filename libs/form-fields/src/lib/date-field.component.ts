@@ -17,9 +17,9 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     markUserDateChange,
-    provideValueAccessor,
     setTimeInTimezone,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { addYears, endOfDay, set, startOfDay, startOfMinute } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { AsyncHandler } from 'libs/common/src/lib/async-handler.class';

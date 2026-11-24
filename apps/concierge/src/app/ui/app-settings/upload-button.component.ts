@@ -8,11 +8,8 @@ import {
 } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import {
-    notifyError,
-    provideValueAccessor,
-    UploadsService,
-} from '@placeos/common';
+import { notifyError, UploadsService } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 
 @Component({

@@ -22,10 +22,10 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     markUserDateChange,
-    provideValueAccessor,
     setTimeInTimezone,
     startOfDayInTimezone,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import {
     endOfDay,
     format,

@@ -11,11 +11,8 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
-import {
-    AsyncHandler,
-    provideValueAccessor,
-    SettingsService,
-} from '@placeos/common';
+import { AsyncHandler, SettingsService } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import {
     addDays,
     addMonths,

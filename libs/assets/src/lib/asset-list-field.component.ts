@@ -18,13 +18,13 @@ import {
     AssetRequest,
     i18n,
     notifyError,
-    provideValueAccessor,
     randomInt,
     randomString,
     SettingsService,
     Space,
     toggleListItem,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { endOfDay, startOfDay } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';

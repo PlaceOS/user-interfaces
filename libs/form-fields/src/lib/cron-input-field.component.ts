@@ -7,7 +7,7 @@ import {
     ReactiveFormsModule,
     Validators,
 } from '@angular/forms';
-import { provideValueAccessor } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 
 const DEFAULT_CRON = '* * * * *';
 const ALLOWED_KEYS = new Set([

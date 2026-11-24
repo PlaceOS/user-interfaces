@@ -27,8 +27,8 @@ import {
     getTimeInTimezone,
     getTimezoneOffsetString,
     i18n,
-    provideValueAccessor,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { addMinutes, differenceInMinutes, format, set } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
