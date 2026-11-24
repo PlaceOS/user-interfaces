@@ -118,6 +118,8 @@ export interface BookingsQueryParams {
     limit?: number;
     /** Whether to also query rejected bookings */
     rejected?: boolean;
+    /** Include the parent booking of each booking, as `linked_parent_booking` */
+    include_parent_bookings?: boolean;
 }
 
 type StaffBookingQuery = NonNullable<Parameters<typeof bookings.query>[0]>;
@@ -140,6 +142,7 @@ function bookingQuery(q: BookingsQueryParams): StaffBookingQuery {
         ical_uid: q.ical_uid,
         limit: q.limit,
         rejected: q.rejected,
+        include_parent_bookings: q.include_parent_bookings,
     };
 }
 

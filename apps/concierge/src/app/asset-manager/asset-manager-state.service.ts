@@ -208,7 +208,7 @@ export class AssetManagerStateService extends AsyncHandler {
                 period_end: getUnixTime(end),
                 include_parent_bookings: true,
                 type: 'asset-request',
-            } as any).catch(() => [] as Booking[]);
+            }).catch(() => [] as Booking[]);
             return list
                 .map(
                     (b) =>

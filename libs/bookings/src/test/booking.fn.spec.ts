@@ -89,6 +89,7 @@ describe('[Booking API]', () => {
                 period_start: 1,
                 period_end: 2,
                 type: 'desk',
+                include_parent_bookings: true,
             });
             expect(list).toHaveLength(1);
             expect(list[0]).toBeInstanceOf(Booking);
@@ -96,6 +97,7 @@ describe('[Booking API]', () => {
                 period_start: 1,
                 period_end: 2,
                 type: 'desk',
+                include_parent_bookings: true,
             });
         });
 

@@ -255,8 +255,8 @@ export class SignageDisplayService {
     );
 
     /**
-     * Zones of the selected display. Queried by display, as `all_zones` holds
-     * only the first 500 zones of the group.
+     * Zones of the selected display, from all pages of the group zones, as
+     * `all_zones` holds only the first 500 zones of the group.
      */
     private readonly _selected_display_zones = resource({
         params: () => {
@@ -271,20 +271,21 @@ export class SignageDisplayService {
             };
         },
         loader: async ({ params }) => {
-            // Users without admin rights may only query zones in a group.
-            // The zone index of 7.x of ts-client has no `control_system_id`,
-            // so the zones of the display are found in the group zones.
-            const { data } = await zones
-                .query(
-                    this._context.groupQueryParams(
-                        { limit: 500 },
-                        params.group_id,
-                    ),
-                )
-                .then(orThrowPage);
-            return (data || [])
-                .filter(({ id }) => params.zone_ids.includes(id))
-                .map(decodeEntityNames);
+            // Users without admin rights may only query zones in a group, and
+            // may not get the zones of a system. The zone index has no
+            // display filter, so the zones of the display are found in the
+            // group zones.
+            const list = await queryAll(
+                zones
+                    .query(
+                        this._context.groupQueryParams(
+                            { limit: 500 },
+                            params.group_id,
+                        ),
+                    )
+                    .then(orThrowPage),
+            );
+            return list.filter(({ id }) => params.zone_ids.includes(id));
         },
     });
     public readonly selected_display_zones = computed(() =>

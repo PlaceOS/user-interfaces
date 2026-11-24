@@ -278,6 +278,29 @@ describe('SignageDisplayService and SignageZoneService', () => {
         expect(playlist.show).toHaveBeenCalledExactlyOnceWith({ id: 'p9' });
     });
 
+    it('finds the zones of a display on later pages of the group zones', async () => {
+        const { context, displays } = createServices();
+        vi.spyOn(context, 'canQueryLists').mockReturnValue(true);
+        selectGroup(context, 'g1');
+        vi.mocked(zones_v7.query).mockResolvedValue(
+            mockPage({
+                data: [signageZone({ id: 'z1' })],
+                next: () =>
+                    Promise.resolve({ data: [signageZone({ id: 'z2' })] }),
+            }),
+        );
+
+        displays.selected_display.set(
+            signageSystem({ id: 'd1', zones: ['z2'] }),
+        );
+
+        await vi.waitFor(() =>
+            expect(
+                displays.selected_display_zones().map(({ id }) => id),
+            ).toEqual(['z2']),
+        );
+    });
+
     it('counts added and removed displays in the total', async () => {
         const { displays: service } = createServices();
         service['_display_list'].adjustTotal(5);
