@@ -41,4 +41,36 @@ describe('camera commands', () => {
         );
         setNotifyOutlet(null, true);
     });
+
+    it('should not pan after a release that arrives during a slow move', async () => {
+        const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+        // Each command takes 20ms to reach the driver and return
+        const execute = vi.fn(() => wait(20));
+        vi.mocked(client.getModule).mockImplementation(
+            () =>
+                ({ execute }) as unknown as ReturnType<typeof client.getModule>,
+        );
+        const camera = { id: 'cam1', mod: 'Camera_1' } as RoomInput;
+
+        const press = moveCamera(
+            'sys-1',
+            camera,
+            JoystickPan.Left,
+            JoystickTilt.Stop,
+        );
+        // Release while the stop of the press is still in flight
+        await wait(5);
+        const release = moveCamera(
+            'sys-1',
+            camera,
+            JoystickPan.Stop,
+            JoystickTilt.Stop,
+        );
+        await Promise.all([press, release]);
+
+        expect(execute.mock.calls).toEqual([
+            ['stop', []],
+            ['stop', []],
+        ]);
+    });
 });

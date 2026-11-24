@@ -43,18 +43,35 @@ export function selectCamera(system_id: string, camera_id: string) {
     return execCamera(system_id, 'System', 'selected_camera', [camera_id]);
 }
 
-/** Move a camera. Stops first so an axis that returned to Stop does not keep moving. */
-export async function moveCamera(
+/** Number of the most recent move request */
+let latest_move = 0;
+/** Moves run one at a time, in request order */
+let move_queue: Promise<void> = Promise.resolve();
+
+/**
+ * Move a camera. Stops first so an axis that returned to Stop does not keep moving.
+ *
+ * A move starts after the previous move ends, so commands reach the driver in order.
+ * A move that a newer request replaced sends no more commands. Without this, a quick
+ * tap could send its `pan` after the release sent its `stop`, and the camera would
+ * not stop.
+ */
+export function moveCamera(
     system_id: string,
     camera: RoomInput,
     pan: JoystickPan,
     tilt: JoystickTilt,
 ) {
-    const run = (method: string, args: unknown[]) =>
+    const id = ++latest_move;
+    const run = async (method: string, args: unknown[]) =>
+        id === latest_move &&
         execCamera(system_id, camera.mod, method, withIndex(camera, args));
-    if (!(await run('stop', []))) return;
-    if (tilt !== JoystickTilt.Stop && !(await run('tilt', [tilt]))) return;
-    if (pan !== JoystickPan.Stop) await run('pan', [pan]);
+    move_queue = move_queue.then(async () => {
+        if (!(await run('stop', []))) return;
+        if (tilt !== JoystickTilt.Stop && !(await run('tilt', [tilt]))) return;
+        if (pan !== JoystickPan.Stop) await run('pan', [pan]);
+    });
+    return move_queue;
 }
 
 /** Start or stop zooming a camera */
