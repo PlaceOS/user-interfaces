@@ -1,1 +1,0 @@
-import{t as Gm}from"./main-7ZV2WWMT.js";function n(){Gm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
