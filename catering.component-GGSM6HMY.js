@@ -16,7 +16,7 @@ import {
 } from "./chunk-JSF3MBUB.js";
 import {
   CustomTooltipComponent
-} from "./chunk-H6FE2OHL.js";
+} from "./chunk-5OSDFCKQ.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -45,10 +45,10 @@ import {
   orderLocation,
   requestSpacesForZone,
   subDays
-} from "./chunk-JHL7NK56.js";
+} from "./chunk-IGQFHJKJ.js";
 import {
   TranslatePipe
-} from "./chunk-B4TPNUOL.js";
+} from "./chunk-X3JHSO7M.js";
 import {
   FORM_FIELD,
   FormField,
@@ -60,7 +60,7 @@ import {
   OrganisationService,
   PushNotificationService,
   UploadsService
-} from "./chunk-ZHIG5TQD.js";
+} from "./chunk-Q4URZBBD.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -156,7 +156,7 @@ import {
   unique,
   user_group_names,
   warnOrThrowProtectedError
-} from "./chunk-SUFH5UNL.js";
+} from "./chunk-CXK2XAMU.js";
 import {
   DefaultValueAccessor,
   FormGroupDirective,
@@ -4671,7 +4671,8 @@ function bookingQuery(q) {
     event_id: q.event_id,
     ical_uid: q.ical_uid,
     limit: q.limit,
-    rejected: q.rejected
+    rejected: q.rejected,
+    include_parent_bookings: q.include_parent_bookings
   };
 }
 function bookingId(id) {
@@ -24686,5 +24687,5 @@ var CateringComponent = class _CateringComponent {
 export {
   CateringComponent
 };
-//# debugId=c2c8f33a-3fa8-5982-8783-ba036e7bccfc
-//# sourceMappingURL=catering.component-EZFJBKUQ.js.map
+//# debugId=d25cee09-1edf-53ad-ad0c-5935e02e5a9a
+//# sourceMappingURL=catering.component-GGSM6HMY.js.map
