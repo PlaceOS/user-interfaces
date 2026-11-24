@@ -4,22 +4,22 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-4473UG3J.js";
+} from "./chunk-3APCZEBV.js";
 import {
   subMinutes
-} from "./chunk-AEZ34N5D.js";
+} from "./chunk-PSDZINS3.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-3V2KXSW5.js";
+} from "./chunk-JYGDH73T.js";
 import {
   AnnounceDirective
-} from "./chunk-GFVNGV72.js";
+} from "./chunk-QSH6XORE.js";
 import {
   TranslatePipe
-} from "./chunk-IHXRCGAJ.js";
-import "./chunk-E73KFHH5.js";
+} from "./chunk-HKVWWKGH.js";
+import "./chunk-PGER6XBG.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -43,46 +43,49 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-JOJQKUSX.js";
+} from "./chunk-SJTYBAH6.js";
 import {
-  AsyncHandler,
   GroupPermission,
-  LocaleService,
   SettingsService,
-  addDays,
-  addMinutes,
   addMonths,
   authority,
-  capitalizeFirstLetter,
   current_user,
-  differenceInMinutes,
-  firstTruthyValueFrom,
   getUnixTime,
   hasPermission,
   isBefore,
+  onlineState,
+  settingSignal,
+  token,
+  user_groups_failed,
+  user_groups_loaded,
+  waitForOnline
+} from "./chunk-GIKZE27L.js";
+import {
+  AsyncHandler,
+  LocaleService,
+  addDays,
+  addMinutes,
+  capitalizeFirstLetter,
+  differenceInMinutes,
+  firstTruthyValueFrom,
   log,
   mockSystem,
-  onlineState,
   padLength,
   predictableRandomInt,
   randomInt,
   randomString,
   registerMockEndpoint,
   registerSystem,
-  settingSignal,
   startOfDay,
   timePeriodsIntersect,
   toDate,
-  token,
-  unique,
-  user_groups_failed,
-  user_groups_loaded,
-  waitForOnline
-} from "./chunk-LAIWNFNA.js";
+  unique
+} from "./chunk-U2NNLUDF.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
-import "./chunk-ZBBB4O6G.js";
+import "./chunk-QYNSWC4X.js";
+import "./chunk-JNAOAAEL.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -845,7 +848,7 @@ var ServiceWorkerUpdateCardComponent = _ServiceWorkerUpdateCardComponent;
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-ACZZGPYG.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-D5OBHAMM.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -970,7 +973,7 @@ var NativeDomainOverlayLoaderComponent = _NativeDomainOverlayLoaderComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-ACZZGPYG.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-D5OBHAMM.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -11093,11 +11096,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-UK7OPTZB.js").then((m) => m.ChatComponent)
+  import("./chat.component-QWXLNANR.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-AVQEIL7C.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-QPMSCDOS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11162,9 +11165,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-UK7OPTZB.js").then((m) => m.ChatComponent),
+    import("./chat.component-QWXLNANR.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-AVQEIL7C.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-QPMSCDOS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11215,22 +11218,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-V7DT46DQ.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-PHOQKXGU.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-VWW2EFAX.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-5UC7LXKC.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-DM37LKK3.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-JOQFVFGH.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-X3P2CEDM.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-JX6U7L3Q.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11262,5 +11265,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=5a86f6cd-4a1f-5580-8edd-bb17c3f9ff70
+//# debugId=540caf79-94b0-5c64-b71e-ff87f65ec02f
 //# sourceMappingURL=main.js.map
