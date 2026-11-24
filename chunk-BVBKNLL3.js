@@ -36,13 +36,13 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-5TUX3OZ5.js";
+} from "./chunk-3V2KXSW5.js";
 import {
   AnnounceDirective
-} from "./chunk-VZB2DALN.js";
+} from "./chunk-GFVNGV72.js";
 import {
   TranslatePipe
-} from "./chunk-FLOJP6VU.js";
+} from "./chunk-IHXRCGAJ.js";
 import {
   FormField,
   disabled,
@@ -56,7 +56,7 @@ import {
   firstValueWhere,
   getModule,
   toQueryString
-} from "./chunk-WLUK5CRY.js";
+} from "./chunk-JOJQKUSX.js";
 import {
   AssetRequest,
   AsyncHandler,
@@ -166,7 +166,7 @@ import {
   unique,
   user_group_names,
   users_exports
-} from "./chunk-K7O6O2H5.js";
+} from "./chunk-LAIWNFNA.js";
 import {
   IconComponent,
   SafePipe
@@ -5725,7 +5725,8 @@ function bookingQuery(q) {
     event_id: q.event_id,
     ical_uid: q.ical_uid,
     limit: q.limit,
-    rejected: q.rejected
+    rejected: q.rejected,
+    include_parent_bookings: q.include_parent_bookings
   };
 }
 function bookingId(id) {
@@ -15889,5 +15890,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=9a2fa19e-897d-53b1-853a-897f594b0f69
-//# sourceMappingURL=chunk-QQ235KYQ.js.map
+//# debugId=6760384b-f582-5aa6-ab4b-1ca3bec7e8c7
+//# sourceMappingURL=chunk-BVBKNLL3.js.map
