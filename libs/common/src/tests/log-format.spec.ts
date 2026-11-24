@@ -1,4 +1,8 @@
-import { formatLogArgs, MAX_LOG_MESSAGE } from '../lib/log-format';
+import {
+    formatLogArgs,
+    MAX_LOG_MESSAGE,
+    stripConsoleStyles,
+} from '../lib/log-format';
 
 describe('formatLogArgs', () => {
     it('should remove console styles and apply format directives', () => {
@@ -71,5 +75,21 @@ describe('formatLogArgs', () => {
             text.startsWith('{"name":"loop","self":[Circular]} [0,1,2'),
         ).toBe(true);
         expect(text.length).toBeLessThanOrEqual(MAX_LOG_MESSAGE);
+    });
+});
+
+describe('stripConsoleStyles', () => {
+    it('should remove styles and keep other arguments', () => {
+        const details = { id: 1 };
+
+        expect(
+            stripConsoleStyles([
+                '%c[APP] %cLoaded %s 100%% \u001b[31m%o\u001b[0m %c',
+                'color: #E91E63',
+                'color: default',
+                'settings',
+                details,
+            ]),
+        ).toEqual(['[APP] Loaded %s 100%% %o %c', 'settings', details]);
     });
 });

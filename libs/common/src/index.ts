@@ -19,6 +19,7 @@ export * from './lib/public-mode';
 export * from './lib/recurrence';
 export * from './lib/remote-debug';
 export * from './lib/remote-setup';
+export * from './lib/scrub-secrets';
 export * from './lib/sentry';
 export * from './lib/settings-title-strategy.service';
 export * from './lib/settings.service';

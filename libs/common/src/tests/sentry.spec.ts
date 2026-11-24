@@ -9,8 +9,8 @@ import {
     initSentry,
     initSentryFromSettings,
     LazySentryErrorHandler,
+    plainConsoleBreadcrumb,
     scrubEnvelope,
-    scrubSecrets,
     TRACE_PROPAGATION_TARGET,
 } from '../lib/sentry';
 import { DEFAULT_SENTRY_RATES } from '../lib/sentry-rates';
@@ -25,46 +25,38 @@ vi.mock('@sentry/angular', () => ({
     replayIntegration: vi.fn(),
 }));
 
-describe('scrubSecrets', () => {
-    it('should remove credentials from nested URLs', () => {
-        const event = {
-            request: { url: 'https://a.b.com/kiosk/#/?x-api-key=abc&lang=en' },
-            breadcrumbs: [
-                { data: { to: '/#/home?zone=1&bearer_token=xyz' } },
-                {
-                    data: {
-                        to: '/kiosk/?public=true&jwt=j1#/checkin?token=t1',
-                    },
-                },
-            ],
-        };
+describe('plainConsoleBreadcrumb', () => {
+    it('should remove colour styles from console breadcrumbs', () => {
+        const args = [
+            '%c[Workplace]%c[APP] %c\u001b[31mOffline\u001b[0m',
+            'color: #E91E63',
+            'color: #3F51B5',
+            'color: default',
+            { retry: 2 },
+        ];
 
-        scrubSecrets(event);
+        const breadcrumb = plainConsoleBreadcrumb({
+            category: 'console',
+            level: 'warning',
+            message: args.join(' '),
+            data: { arguments: args, logger: 'console' },
+        });
 
-        expect(event.request.url).toBe(
-            'https://a.b.com/kiosk/#/?x-api-key=[Filtered]&lang=en',
-        );
-        expect(event.breadcrumbs[0].data.to).toBe(
-            '/#/home?zone=1&bearer_token=[Filtered]',
-        );
-        expect(event.breadcrumbs[1].data.to).toBe(
-            '/kiosk/?public=true&jwt=[Filtered]#/checkin?token=[Filtered]',
-        );
+        expect(breadcrumb).toEqual({
+            category: 'console',
+            level: 'warning',
+            message: '[Workplace][APP] Offline {"retry":2}',
+            data: {
+                arguments: ['[Workplace][APP] Offline', { retry: 2 }],
+                logger: 'console',
+            },
+        });
     });
 
-    it('should leave SDK state alone', () => {
-        const event = {
-            request: { url: '/#/?x-api-key=abc' },
-            // Sentry keeps live objects here, some with getters only
-            sdkProcessingMetadata: {
-                get url() {
-                    return '/#/?x-api-key=abc';
-                },
-            },
-        };
+    it('should not change other breadcrumbs', () => {
+        const breadcrumb = { category: 'navigation', data: { to: '/%c' } };
 
-        expect(() => scrubSecrets(event)).not.toThrow();
-        expect(event.request.url).toBe('/#/?x-api-key=[Filtered]');
+        expect(plainConsoleBreadcrumb(breadcrumb)).toBe(breadcrumb);
     });
 });
 
@@ -222,6 +214,7 @@ describe('initSentryFromSettings', () => {
                 replaysOnErrorSampleRate: 0.5,
                 tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
                 ignoreErrors: IGNORED_ERRORS,
+                beforeBreadcrumb: plainConsoleBreadcrumb,
             }),
         );
         expect(Sentry.replayIntegration).toHaveBeenCalledWith({

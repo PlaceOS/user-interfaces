@@ -1,4 +1,4 @@
-import { scrubSecrets } from './sentry';
+import { scrubSecrets } from './scrub-secrets';
 
 /** Most characters in the text of a log entry */
 export const MAX_LOG_MESSAGE = 2000;
@@ -50,6 +50,31 @@ export function formatLogArgs(all_args: readonly unknown[]): string {
     } catch {
         return '[Log entry that cannot be read]';
     }
+}
+
+/**
+ * Console arguments without `%c` styles and ANSI colour codes. Removes each
+ * `%c` from the format string, with the CSS argument that it uses. Other
+ * directives and arguments, such as objects, stay as they are.
+ */
+export function stripConsoleStyles(args: readonly unknown[]): unknown[] {
+    const plain = (value: unknown) =>
+        typeof value === 'string' ? value.replace(ANSI_CODE, '') : value;
+    if (typeof args[0] !== 'string') return args.map(plain);
+    const styles = new Set<number>();
+    let next = 1;
+    const format = args[0].replace(FORMAT_DIRECTIVE, (directive) => {
+        // The console prints a directive without an argument as text
+        if (directive === '%%' || next >= args.length) return directive;
+        if (directive === '%c') {
+            styles.add(next++);
+            return '';
+        }
+        next++;
+        return directive;
+    });
+    const rest = args.slice(1).filter((_, i) => !styles.has(i + 1));
+    return [format, ...rest].map(plain);
 }
 
 /** Number text of `%d`, `%i` and `%f`. Symbols give `NaN`, as in the console */

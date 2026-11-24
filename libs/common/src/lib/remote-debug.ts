@@ -26,7 +26,7 @@ import { appName, log, setDebugLogging, withTimeout } from './general';
 import { formatLogArgs } from './log-format';
 import { isNativeApp } from './native-app';
 import { OrganisationService } from './org/organisation.service';
-import { scrubSecrets } from './sentry';
+import { scrubSecrets } from './scrub-secrets';
 import { SettingsService } from './settings.service';
 import { UploadsService } from './uploads.service';
 import { currentUser } from './user-state';

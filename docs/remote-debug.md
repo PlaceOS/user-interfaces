@@ -52,7 +52,7 @@ Each entry is plain text. Before the device keeps an entry, it:
 - Removes `%c` styles and their CSS arguments.
 - Removes ANSI colour codes.
 - Changes objects to JSON text. The JSON stops at 4 levels of nested objects. A circular reference shows as `[Circular]`.
-- Removes credential values from addresses, such as `?token=`. See `scrubSecrets` in `libs/common/src/lib/sentry.ts`.
+- Removes credential values from addresses, such as `?token=`. See `scrubSecrets` in `libs/common/src/lib/scrub-secrets.ts`.
 - Limits the text to 2,000 characters.
 
 ## Memory
