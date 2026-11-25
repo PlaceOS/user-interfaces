@@ -26,7 +26,7 @@ import {
   SelectionModel,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-J5GTM2QI.js";
+} from "./chunk-AXMOP3J7.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -44,7 +44,7 @@ import {
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-PPG7QRN2.js";
+} from "./chunk-TMB6EBCV.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -60,7 +60,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-ZRLFUVXE.js";
+} from "./chunk-A3UWAFAR.js";
 import {
   FORM_FIELD,
   FormField,
@@ -72,7 +72,7 @@ import {
 } from "./chunk-QGE6PYVT.js";
 import {
   TranslatePipe
-} from "./chunk-HGKSV3UI.js";
+} from "./chunk-WEQFTDKI.js";
 import {
   AbstractControl,
   DefaultValueAccessor,
@@ -211,7 +211,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-I4ORTUQ4.js";
+} from "./chunk-GI3LZD6H.js";
 import {
   CdkConnectedOverlay,
   CdkOverlayOrigin,
@@ -14527,7 +14527,7 @@ var PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-EQS32AB5.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-GENJ7KMV.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -26116,4 +26116,4 @@ export {
   CalendarPaneComponent
 };
 //# debugId=f1a957f7-3ab4-51fb-8efe-afcd9e734378
-//# sourceMappingURL=calendar-pane.component-7OT2GB5B.js.map
+//# sourceMappingURL=calendar-pane.component-REMLG5VQ.js.map

@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-ZRLFUVXE.js";
+} from "./chunk-A3UWAFAR.js";
 import "./chunk-QGE6PYVT.js";
 import {
   TranslatePipe
-} from "./chunk-HGKSV3UI.js";
+} from "./chunk-WEQFTDKI.js";
 import "./chunk-QT3AHDMX.js";
 import {
   AsyncHandler,
@@ -84,7 +84,7 @@ import {
   waitForCurrentUser,
   waitForOnline,
   withTimeout
-} from "./chunk-I4ORTUQ4.js";
+} from "./chunk-GI3LZD6H.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -560,7 +560,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-7QG7ES52.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-6JPP3AOI.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -688,7 +688,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-7QG7ES52.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-6JPP3AOI.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -10763,7 +10763,7 @@ async function authority2() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-KZXLCANW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-DWZ27L3L.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10794,6 +10794,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
       )
     );
     this._mocks_registered = false;
+    this._sso_stopped = false;
     this._naa_client_id = naaClientId();
   }
   async ngOnInit() {
@@ -10886,8 +10887,10 @@ var AppComponent = class _AppComponent extends AsyncHandler {
    * uses the PlaceOS sign-in dialog.
    */
   async _naaToken() {
+    if (this._sso_stopped)
+      return null;
     log("Outlook", `Signing in through Outlook...`);
-    return withTimeout(acquireNaaToken(this._naa_client_id), SIGN_IN_TIMEOUT_MS, "Microsoft single sign-on timed out.").then((entra_token) => entra_token || null).catch((error) => {
+    return withTimeout(acquireNaaToken(this._naa_client_id), SIGN_IN_TIMEOUT_MS, "Microsoft single sign-on timed out.").then((entra_token) => entra_token && !this._sso_stopped ? entra_token : null).catch((error) => {
       log("Outlook", "Single sign-on failed.", error, "warn");
       return null;
     });
@@ -10898,6 +10901,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
    */
   _signInWithDialog() {
     log("Outlook", `Opening sign-in dialog...`);
+    this._sso_stopped = true;
     const url = `${location.origin}${location.pathname}#ms-auth=true`;
     return new Promise((resolve) => {
       let dialog;
@@ -10980,7 +10984,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-KZXLCANW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-DWZ27L3L.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11022,7 +11026,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-7OT2GB5B.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-REMLG5VQ.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -11047,5 +11051,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=074d0c69-fe97-5231-87f2-25aee07afbad
+//# debugId=d5cf454a-ebf1-5594-bdc8-b824bfe1188c
 //# sourceMappingURL=main.js.map
