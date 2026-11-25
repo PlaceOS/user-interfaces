@@ -764,20 +764,6 @@ describe('[Booking API]', () => {
                 body: { extension_data: { app_name, app_version } },
             });
         });
-
-        it('should use the staff update operation also for the PUT method, as the API has one update action', async () => {
-            const update = mock('staff.bookings.update', () => ({}));
-            const booking = await updateBooking(
-                '1',
-                { created_at: 123 },
-                'put',
-            );
-            expect(booking).toBeInstanceOf(Booking);
-            expect(update).toHaveBeenCalledWith({
-                id: 1,
-                body: { extension_data: { app_name, app_version } },
-            });
-        });
     });
 
     describe('saveBooking', () => {

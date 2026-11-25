@@ -294,7 +294,7 @@ function isJsonRecord(
 }
 
 /** A clash from the JSON list of the clashing assets endpoint, or `null` */
-export function toBookingClash(item: JsonValue): BookingClash | null {
+function toBookingClash(item: JsonValue): BookingClash | null {
     if (!isJsonRecord(item)) return null;
     const { asset_id, booking_start, booking_end } = item;
     if (typeof asset_id !== 'string') return null;
@@ -457,13 +457,10 @@ export async function createBooking(
  * Update an existing booking
  * @param id ID of the booking to update
  * @param data New values for booking fields
- * @param _method Not used. The API has one update action, so PUT and PATCH
- *   both send PATCH
  */
 export async function updateBooking(
     id: string,
     data: Partial<Booking>,
-    _method: 'put' | 'patch' = 'patch',
 ): Promise<Booking> {
     const booking = await bookings
         .update({ id: bookingId(id), body: bookingBody(data) })
@@ -491,14 +488,11 @@ export async function updateBookingInductionStatus(
  * @param id ID of the booking to update
  * @param start_time Unix seconds of the start time of the booking
  * @param data New values for booking fields
- * @param _method Not used. The API has one update action, so PUT and PATCH
- *   both send PATCH
  */
 export async function updateBookingInstance(
     id: string,
     start_time: number,
     data: Partial<Booking>,
-    _method: 'put' | 'patch' = 'patch',
 ): Promise<Booking> {
     const booking = await bookings
         .updateInstance({
