@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["desk-flow.component.ts"],
-  "sourcesContent": ["\n            :host {\n                height: 100%;\n                width: 100%;\n            }\n        "],
-  "mappings": ";AACY;AACI,UAAA;AACA,SAAA;AACJ;",
+  "sourcesContent": ["\n            :host {\n                width: 100%;\n                height: 100%;\n            }\n\n            .gradient {\n                background: linear-gradient(\n                    105deg,\n                    var(--base-200) 0%,\n                    var(--base-200) 50%,\n                    var(--base-100) 100%\n                );\n            }\n        "],
+  "mappings": ";AACY;AACI,SAAA;AACA,UAAA;AACJ;AAEA,CAAA;AACI;IAAA;;;;;AAMJ;",
   "names": []
 }
