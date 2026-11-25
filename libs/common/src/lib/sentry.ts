@@ -123,10 +123,15 @@ export const TRACE_PROPAGATION_TARGET =
  *   rejects with this string when it cannot reach its background script. It
  *   has no stack, and no PlaceOS code or dependency has this string. The
  *   session that sent it also ran WalkMe.
+ * - `Invalid call to runtime.sendMessage(). Tab not found.`: Safari rejects
+ *   with this error when an extension calls `runtime.sendMessage` and Safari
+ *   cannot find the tab. It has no stack, and no PlaceOS code or dependency
+ *   calls `runtime.sendMessage`.
  */
 export const IGNORED_ERRORS = [
     /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
     /^Non-Error promise rejection captured with value: cannot communicate with background$/,
+    /^Invalid call to runtime\.sendMessage\(\)\. Tab not found\.$/,
 ];
 
 /** Sample rates from the app settings, from 0 to 1 */
