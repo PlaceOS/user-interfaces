@@ -1,6 +1,7 @@
 import { playlist_media } from '@placeos/ts-client';
 import { mockReply } from '@placeos/ts-client/compat';
 
+import { httpFailure } from '@placeos/common/tests';
 import { listSignageMediaTagCounts } from '../app/signage-media-tags.util';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -10,7 +11,7 @@ describe('signage media tags util', () => {
 
     it('lists tags with the media count the backend reports', async () => {
         (playlist_media.tagCounts as any).mockResolvedValue(
-            mockReply({ news: 12, lobby: '3' }),
+            mockReply({ news: 12, lobby: 3 }),
         );
 
         const result = await listSignageMediaTagCounts({ group_id: 'grp-1' });
@@ -32,7 +33,7 @@ describe('signage media tags util', () => {
     });
 
     it('falls back to the tags endpoint when counts are unavailable', async () => {
-        (playlist_media.tagCounts as any).mockRejectedValue({ status: 404 });
+        vi.mocked(playlist_media.tagCounts).mockResolvedValue(httpFailure(404));
         (playlist_media.tags as any).mockResolvedValue(
             mockReply(['news', 'lobby']),
         );

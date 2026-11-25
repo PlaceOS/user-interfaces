@@ -270,11 +270,12 @@ export class SignageDisplayService {
                 change: this._context.data_change(),
             };
         },
-        loader: async ({ params }) => {
+        loader: async ({ params, abortSignal }) => {
             // Users without admin rights may only query zones in a group, and
             // may not get the zones of a system. The zone index has no
             // display filter, so the zones of the display are found in the
-            // group zones.
+            // group zones. The signal also stops the requests of the next
+            // pages when the display or the group changes.
             const list = await queryAll(
                 zones
                     .query(
@@ -282,6 +283,7 @@ export class SignageDisplayService {
                             { limit: 500 },
                             params.group_id,
                         ),
+                        { signal: abortSignal },
                     )
                     .then(orThrowPage),
             );

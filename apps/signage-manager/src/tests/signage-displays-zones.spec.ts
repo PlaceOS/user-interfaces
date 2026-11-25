@@ -42,6 +42,14 @@ describe('SignageDisplayService and SignageZoneService', () => {
     const dialog = { open: vi.fn() };
     const confirm_close = vi.fn();
 
+    // The service loads the display edit modal with a lazy `import()`. The
+    // first load of that chunk can take more than one second when many test
+    // runs share the CPU. Load it here, with a long time limit, so that the
+    // tests do not wait for it.
+    beforeAll(async () => {
+        await import('../app/displays/display-edit-modal.component');
+    }, 30_000);
+
     beforeEach(() => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
@@ -104,6 +112,21 @@ describe('SignageDisplayService and SignageZoneService', () => {
         });
     }
 
+    /**
+     * The next modal closes with `result` after a microtask. A real modal
+     * also closes after its subscriber is set.
+     */
+    function closeNextDialogWith(result?: System) {
+        dialog.open.mockReturnValue({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: System) => void) => {
+                    void Promise.resolve().then(() => handler(result));
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+    }
+
     /** Resolve system updates with raw API data */
     function updateSystemsWith(raw: SystemInput) {
         vi.mocked(systems.update).mockResolvedValue(
@@ -134,9 +157,10 @@ describe('SignageDisplayService and SignageZoneService', () => {
         expect(service.selected_display()?.name).toBe('A & B');
         expect(service.selected_display()?.version).toBe(3);
 
-        dialog.open.mockReturnValue({ afterClosed: () => NEVER });
-        void service.editDisplay(service.selected_display() as System);
-        await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
+        // The modal closes without a result, so the edit ends before the
+        // test reads the modal data. The data callbacks stay usable.
+        closeNextDialogWith();
+        await service.editDisplay(service.selected_display() as System);
         const data = dialog.open.mock.calls[0][1].data;
         expect(data.display.name).toBe('A & B');
 
@@ -268,14 +292,37 @@ describe('SignageDisplayService and SignageZoneService', () => {
             ),
         );
 
-        expect(zones_v7.query).toHaveBeenCalledWith({
-            limit: 500,
-            group_id: 'g1',
-        });
+        expect(zones_v7.query).toHaveBeenCalledWith(
+            { limit: 500, group_id: 'g1' },
+            { signal: expect.any(AbortSignal) },
+        );
         expect(displays.selected_display_zones().map(({ id }) => id)).toEqual([
             'z1',
         ]);
         expect(playlist.show).toHaveBeenCalledExactlyOnceWith({ id: 'p9' });
+    });
+
+    it('stops the zone lookup of a display when another display is selected', async () => {
+        const { context, displays } = createServices();
+        vi.spyOn(context, 'canQueryLists').mockReturnValue(true);
+        selectGroup(context, 'g1');
+        // The first lookup stays open until the selection changes
+        vi.mocked(zones_v7.query).mockReturnValueOnce(new Promise(() => {}));
+
+        displays.selected_display.set(
+            signageSystem({ id: 'd1', zones: ['z1'] }),
+        );
+        await vi.waitFor(() => expect(zones_v7.query).toHaveBeenCalledTimes(1));
+        const signal = vi.mocked(zones_v7.query).mock.calls[0][1]?.signal;
+        expect(signal).toBeInstanceOf(AbortSignal);
+        expect(signal?.aborted).toBe(false);
+
+        displays.selected_display.set(
+            signageSystem({ id: 'd2', zones: ['z2'] }),
+        );
+        await vi.waitFor(() => expect(zones_v7.query).toHaveBeenCalledTimes(2));
+
+        expect(signal?.aborted).toBe(true);
     });
 
     it('finds the zones of a display on later pages of the group zones', async () => {
@@ -304,16 +351,7 @@ describe('SignageDisplayService and SignageZoneService', () => {
     it('counts added and removed displays in the total', async () => {
         const { displays: service } = createServices();
         service['_display_list'].adjustTotal(5);
-        dialog.open.mockReturnValue({
-            afterClosed: () => ({
-                subscribe: (handler: (result: System) => void) => {
-                    void Promise.resolve().then(() =>
-                        handler(signageSystem({ id: 'd-new' })),
-                    );
-                    return { unsubscribe: vi.fn() };
-                },
-            }),
-        });
+        closeNextDialogWith(signageSystem({ id: 'd-new' }));
 
         await service.addDisplay();
         expect(service.displays_total()).toBe(6);

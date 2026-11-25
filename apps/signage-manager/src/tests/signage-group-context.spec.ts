@@ -22,6 +22,7 @@ import {
 import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
 import { from } from 'rxjs';
 
+import { httpFailure } from '@placeos/common/tests';
 import { SignageMediaService } from '../app/media/signage-media.service';
 import { SignagePlaylistService } from '../app/playlists/signage-playlist.service';
 import { SignageContextService } from '../app/signage-context.service';
@@ -321,7 +322,7 @@ describe('SignageContextService group context', () => {
 
         it('keeps the global features when the backend has no flags route', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            vi.mocked(groups_v7.features).mockRejectedValue({ status: 404 });
+            vi.mocked(groups_v7.features).mockResolvedValue(httpFailure(404));
             const service = TestBed.inject(SignageContextService);
             await settle();
 
@@ -331,7 +332,7 @@ describe('SignageContextService group context', () => {
 
         it('allows nothing when the flags read is refused', async () => {
             localStorage.setItem(STORAGE_KEY, 'g1');
-            vi.mocked(groups_v7.features).mockRejectedValue({ status: 403 });
+            vi.mocked(groups_v7.features).mockResolvedValue(httpFailure(403));
             const service = TestBed.inject(SignageContextService);
             await settle();
 
