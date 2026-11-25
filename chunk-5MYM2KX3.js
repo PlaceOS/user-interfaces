@@ -1,6 +1,6 @@
 import {
   LocaleService
-} from "./chunk-YRXHVVH6.js";
+} from "./chunk-ZNX6TI7Y.js";
 import {
   LiveAnnouncer
 } from "./chunk-FKG35J4T.js";
@@ -65,4 +65,4 @@ export {
   AnnounceDirective
 };
 //# debugId=c6683c90-3e1a-5191-800a-04b0e4ddccf1
-//# sourceMappingURL=chunk-S4KKS7YJ.js.map
+//# sourceMappingURL=chunk-5MYM2KX3.js.map

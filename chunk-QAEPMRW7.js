@@ -23,14 +23,14 @@ import {
   PaymentWindowClosedError,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-ONZ33TUH.js";
+} from "./chunk-6JWJZWHP.js";
 import {
   MatSelect,
   MatSelectModule,
   SettingsToggleComponent,
   VirtualKeyboardComponent,
   provideValueAccessor
-} from "./chunk-3YLXFKK5.js";
+} from "./chunk-DMQMSJBT.js";
 import {
   MatCheckbox,
   MatCheckboxModule
@@ -49,7 +49,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-IVMZALS6.js";
+} from "./chunk-PJDWCX3D.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -67,10 +67,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-B5TGT7YG.js";
+} from "./chunk-36XJ2TN2.js";
 import {
   TranslatePipe
-} from "./chunk-DNTPEQDW.js";
+} from "./chunk-V2RH7S2U.js";
 import {
   FormField,
   disabled,
@@ -158,6 +158,7 @@ import {
   isBefore,
   isEmptyUser,
   isJsonArray,
+  isJsonRecord,
   isMobileSafari,
   isMock,
   isSameDay,
@@ -170,6 +171,7 @@ import {
   literal,
   localToTimezone,
   log,
+  loggableError,
   metadata_exports,
   notifyError,
   notifySuccess,
@@ -210,7 +212,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-YRXHVVH6.js";
+} from "./chunk-ZNX6TI7Y.js";
 import {
   CdkScrollableModule,
   OverlayConfig,
@@ -1863,7 +1865,7 @@ var SpacesService = class _SpacesService {
       zone_id: this._org.organisation?.id ? [this._org.organisation.id] : void 0,
       limit: 5e3
     }).then(orThrowPage).catch((error) => {
-      console.warn("Failed to load spaces.", error);
+      console.warn("Failed to load spaces.", loggableError(error));
       return null;
     });
     if (!response)
@@ -4287,11 +4289,11 @@ async function bookedResourceList(q, resource_count) {
     return [];
   }
 }
-function isJsonRecord(value) {
+function isJsonRecord2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 function toBookingClash(item) {
-  if (!isJsonRecord(item))
+  if (!isJsonRecord2(item))
     return null;
   const { asset_id, booking_start, booking_end } = item;
   if (typeof asset_id !== "string")
@@ -4355,11 +4357,11 @@ async function createBooking(data, q) {
   })).then(orThrow);
   return toBooking(booking);
 }
-async function updateBooking(id, data, _method = "patch") {
+async function updateBooking(id, data) {
   const booking = await bookings_exports.update({ id: bookingId(id), body: bookingBody(data) }).then(orThrow);
   return toBooking(booking);
 }
-async function updateBookingInstance(id, start_time, data, _method = "patch") {
+async function updateBookingInstance(id, start_time, data) {
   const booking = await bookings_exports.updateInstance({
     id: bookingId(id),
     instance: start_time,
@@ -5239,7 +5241,7 @@ async function createEvent(data) {
   const item = await events_exports.create({ body: eventBody(data) }).then(orThrow);
   return toCalendarEvent(item);
 }
-async function updateEvent(id, data, q = {}, _method = "patch") {
+async function updateEvent(id, data, q = {}) {
   const item = await events_exports.update({
     id,
     calendar: q.calendar,
@@ -5304,10 +5306,22 @@ async function findEventClashes(event, q = {}) {
       include_clash_time: q.include_clash_time,
       body: requestBody(PlaceCalendarEvent, event.toJSON())
     }).then(orThrow);
-    return q.include_clash_time ? list.map(toBookingClash).filter((_) => !!_) : list.filter((_) => typeof _ === "string");
+    return q.include_clash_time ? list.map(toEventClash).filter((_) => !!_) : list.filter((_) => typeof _ === "string");
   } catch (_) {
     return [];
   }
+}
+function toEventClash(item) {
+  if (!isJsonRecord(item))
+    return null;
+  const { system_id, event_start, event_end } = item;
+  if (typeof system_id !== "string")
+    return null;
+  return {
+    asset_id: system_id,
+    booking_start: typeof event_start === "number" ? event_start : 0,
+    booking_end: typeof event_end === "number" ? event_end : 0
+  };
 }
 
 // libs/bookings/src/lib/booking-form.model.ts
@@ -8690,7 +8704,7 @@ var PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-JDUDYKDT.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-I7LWVPUY.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -18819,5 +18833,5 @@ export {
   BookingFormService,
   ExploreParkingService
 };
-//# debugId=ade173ac-82e1-5bcd-9e4c-157eaa543d12
-//# sourceMappingURL=chunk-E4PJJUJ5.js.map
+//# debugId=4334562f-347f-555d-9afb-0d435139581d
+//# sourceMappingURL=chunk-QAEPMRW7.js.map

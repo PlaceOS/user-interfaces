@@ -2,13 +2,13 @@ import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-B5TGT7YG.js";
+} from "./chunk-36XJ2TN2.js";
 import {
   AnnounceDirective
-} from "./chunk-S4KKS7YJ.js";
+} from "./chunk-5MYM2KX3.js";
 import {
   TranslatePipe
-} from "./chunk-DNTPEQDW.js";
+} from "./chunk-V2RH7S2U.js";
 import "./chunk-OSRII6NJ.js";
 import "./chunk-XDYJDWHO.js";
 import {
@@ -71,7 +71,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-YRXHVVH6.js";
+} from "./chunk-ZNX6TI7Y.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -759,7 +759,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-76EXIT4J.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-7YLPELFG.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -887,7 +887,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-76EXIT4J.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-7YLPELFG.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -5525,12 +5525,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -10923,11 +10923,11 @@ function mocksInit() {
 // apps/map-kiosk/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-QBIQJKH5.js").then((m) => m.ChatComponent)
+  import("./chat.component-CKFMIMPD.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-R3KN5GBJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-AF5ZDTJT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -10990,9 +10990,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-QBIQJKH5.js").then((m) => m.ChatComponent),
+    import("./chat.component-CKFMIMPD.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-R3KN5GBJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-AF5ZDTJT.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11045,22 +11045,22 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-LTLGNY3V.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-7QCE2DKK.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "explore",
-    loadComponent: () => import("./explore.route-YETPEHNM.js").then((m) => m.ExploreComponent),
+    loadComponent: () => import("./explore.route-B5KTPDIC.js").then((m) => m.ExploreComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "desks",
-    loadComponent: () => import("./desk-booking.component-3GHOOMYA.js").then((m) => m.DeskBookingComponent),
+    loadComponent: () => import("./desk-booking.component-TCKGEMCN.js").then((m) => m.DeskBookingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "parking",
-    loadComponent: () => import("./parking.component-7YUM7IA5.js").then((m) => m.ParkingComponent),
+    loadComponent: () => import("./parking.component-ME7FM7IJ.js").then((m) => m.ParkingComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11086,5 +11086,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=dde1d67c-d4b4-5dea-ad9e-597cfe937785
+//# debugId=7b2e76ca-2fed-5f73-904f-f951d09cd455
 //# sourceMappingURL=main.js.map
