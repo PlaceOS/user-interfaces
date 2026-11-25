@@ -5,7 +5,7 @@ import {
 import {
   OrganisationService,
   getModule
-} from "./chunk-AQ5WMQ2G.js";
+} from "./chunk-BUSML3OX.js";
 import {
   SettingsService,
   User,
@@ -14,7 +14,7 @@ import {
   current_user,
   settingSignal,
   token
-} from "./chunk-H6VMW64M.js";
+} from "./chunk-E3XO2FFS.js";
 import {
   AsyncHandler,
   differenceInMinutes,
@@ -3259,4 +3259,4 @@ export {
   ChatComponent
 };
 //# debugId=530153e3-27e7-5821-a2d6-179711e9e30b
-//# sourceMappingURL=chat.component-SGBQHQNU.js.map
+//# sourceMappingURL=chat.component-KTGFHD6E.js.map
