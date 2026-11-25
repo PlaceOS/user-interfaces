@@ -1,11 +1,11 @@
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-TSYSEJ3R.js";
+} from "./chunk-PPG7QRN2.js";
 import "./chunk-SZ4QL66K.js";
 import {
   TranslatePipe
-} from "./chunk-XVGX4MPS.js";
+} from "./chunk-HGKSV3UI.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -18,7 +18,7 @@ import {
   HotkeysService,
   IconComponent,
   SettingsService
-} from "./chunk-P6UKGZSL.js";
+} from "./chunk-I4ORTUQ4.js";
 import {
   CdkFixedSizeVirtualScroll,
   CdkVirtualForOf,
@@ -674,4 +674,4 @@ export {
   DebugConsoleComponent
 };
 //# debugId=321f2535-90c0-5388-81f6-64efb51c5095
-//# sourceMappingURL=debug-console.component-DS7GVAM7.js.map
+//# sourceMappingURL=debug-console.component-4J7UMFQA.js.map

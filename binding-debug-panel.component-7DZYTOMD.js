@@ -3,7 +3,7 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-65I6ZZBG.js";
+} from "./chunk-2BDCF2VU.js";
 import {
   DebugPanelResize
 } from "./chunk-7JRU4ZQM.js";
@@ -25,7 +25,7 @@ import {
   IconComponent,
   orThrow,
   systems_exports
-} from "./chunk-P6UKGZSL.js";
+} from "./chunk-I4ORTUQ4.js";
 import "./chunk-PRWEK7F2.js";
 import "./chunk-ARRIYDBO.js";
 import {
@@ -1913,4 +1913,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=98b226be-7e51-5d3a-a9ab-e8cb036d8091
-//# sourceMappingURL=binding-debug-panel.component-7B7ED746.js.map
+//# sourceMappingURL=binding-debug-panel.component-7DZYTOMD.js.map

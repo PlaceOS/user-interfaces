@@ -3,11 +3,11 @@ import {
   setHours,
   setInternalUserDomain,
   subDays
-} from "./chunk-O5BI2UUD.js";
+} from "./chunk-ZRLFUVXE.js";
 import "./chunk-QGE6PYVT.js";
 import {
   TranslatePipe
-} from "./chunk-XVGX4MPS.js";
+} from "./chunk-HGKSV3UI.js";
 import "./chunk-QT3AHDMX.js";
 import {
   AsyncHandler,
@@ -84,7 +84,7 @@ import {
   waitForCurrentUser,
   waitForOnline,
   withTimeout
-} from "./chunk-P6UKGZSL.js";
+} from "./chunk-I4ORTUQ4.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -560,7 +560,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-T7XRTL6O.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-7QG7ES52.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -688,7 +688,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-T7XRTL6O.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-7QG7ES52.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -5326,12 +5326,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -10763,7 +10763,7 @@ async function authority2() {
 // apps/outlook-addin/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-D7F7TCNZ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-KZXLCANW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -10836,29 +10836,28 @@ var AppComponent = class _AppComponent extends AsyncHandler {
     await this._finishInitialise();
   }
   /**
-   * Set up the PlaceOS login. With `sso`, the login exchanges a Microsoft
-   * Entra token from Outlook for PlaceOS tokens when it has no token.
+   * Set up the PlaceOS login. With `in_outlook`, for the task pane in
+   * Outlook, the login exchanges a Microsoft Entra token from Outlook for
+   * PlaceOS tokens when it has no token, and the session keeps its tokens
+   * over a reload. The task pane keeps them in its session storage, so a
+   * browser outside Outlook and the sign-in dialog, which share the local
+   * storage, do not get its trust or its tokens. They do not keep tokens,
+   * as in 6.x.
    */
-  async _initialiseAuth(local = true, sso = false) {
+  async _initialiseAuth(local = true, in_outlook = false) {
     setAppName(this._settings.get("app.short_name"));
     const settings = this._settings.get("composer") || {};
     settings.local_login = local;
-    settings.storage = "local";
+    settings.storage = in_outlook ? "session" : "local";
     settings.mock = !!this._settings.get("mock") || location.origin.includes("demo.place.tech");
     const mock_enabled = settings.mock || !location.href.includes("mock=false") && (location.href.includes("mock=true") || localStorage.getItem("mock") === "true");
     if (mock_enabled && !this._mocks_registered) {
       this._mocks_registered = true;
       mocksInit();
     }
-    const entra_token = sso && this._naa_client_id ? () => this._naaToken() : void 0;
+    const entra_token = in_outlook && this._naa_client_id ? () => this._naaToken() : void 0;
     try {
-      await setupPlace(
-        settings,
-        entra_token ? PLACE_SETUP_TIMEOUT + SIGN_IN_TIMEOUT_MS : PLACE_SETUP_TIMEOUT,
-        // The task pane is in Outlook, so it keeps its tokens over
-        // a reload
-        { entra_token, trusted: true }
-      );
+      await setupPlace(settings, entra_token ? PLACE_SETUP_TIMEOUT + SIGN_IN_TIMEOUT_MS : PLACE_SETUP_TIMEOUT, { entra_token, trusted: in_outlook });
       return true;
     } catch (error) {
       console.error(error);
@@ -10981,7 +10980,7 @@ var AppComponent = class _AppComponent extends AsyncHandler {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-D7F7TCNZ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-KZXLCANW.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11023,7 +11022,7 @@ var routes = [
     children: [
       {
         path: "calendar",
-        loadComponent: () => import("./calendar-pane.component-KUFUP6TA.js").then((m) => m.CalendarPaneComponent)
+        loadComponent: () => import("./calendar-pane.component-7OT2GB5B.js").then((m) => m.CalendarPaneComponent)
       },
       { path: "**", redirectTo: "calendar" }
     ]
@@ -11048,5 +11047,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=f25c9bae-4575-5762-a2ef-da34a62b8fee
+//# debugId=074d0c69-fe97-5231-87f2-25aee07afbad
 //# sourceMappingURL=main.js.map

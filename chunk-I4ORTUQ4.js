@@ -527,8 +527,8 @@ function number() {
 function boolean() {
   return { node: { kind: "boolean" } };
 }
-function json() {
-  return { node: { kind: "json" } };
+function json(options = {}) {
+  return { node: { kind: "json", decode_text: options.decode_text === true } };
 }
 function nullable(inner) {
   return { node: { kind: "nullable", inner: inner.node } };
@@ -619,6 +619,9 @@ function walk(node, value, direction, failure2, depth) {
     case "json":
       if (!isJsonValue(value))
         return fail(failure2, "JSON value");
+      if (node.decode_text && direction === "response" && typeof value === "string") {
+        return decodeJsonText(value);
+      }
       return value;
     case "nullable":
       if (value === null)
@@ -875,6 +878,15 @@ function isJsonValue(value) {
       stack.push({ value: current3[key], depth: top.depth + 1 });
   }
   return false;
+}
+function decodeJsonText(text) {
+  let decoded;
+  try {
+    decoded = JSON.parse(text);
+  } catch {
+    return text;
+  }
+  return isJsonValue(decoded) ? decoded : text;
 }
 function fail(failure2, expected) {
   failure2.expected = expected;
@@ -1715,7 +1727,7 @@ function createRealtime(config) {
   function drain() {
     drain_scheduled = false;
     const messages = inbox.splice(0, inbox.length);
-    const changed = /* @__PURE__ */ new Map();
+    const notifications = [];
     const logs = [];
     const received_at_ms = environment.now();
     for (const data of messages) {
@@ -1746,7 +1758,7 @@ function createRealtime(config) {
               name,
               value: message2.value
             });
-            changed.set(variableKey(message2.meta), message2.value);
+            notifications.push([variableKey(message2.meta), message2.value]);
           }
           break;
         case "debug": {
@@ -1765,10 +1777,10 @@ function createRealtime(config) {
           unreachable(message2.type);
       }
     }
-    for (const [key, changed_value] of changed) {
+    for (const [key, notified_value] of notifications) {
       const binding = bindings.get(key);
       if (binding !== void 0) {
-        setBindingState(binding, { kind: "value", value: changed_value });
+        setBindingState(binding, { kind: "value", value: notified_value });
       }
     }
     for (const [entry, log6] of logs) {
@@ -2762,7 +2774,8 @@ var GroupsCurrentGroup = GroupsCurrentGroupSchema;
 var MetadataInterfaceSchema = /* @__PURE__ */ object({
   name: /* @__PURE__ */ string(),
   description: /* @__PURE__ */ string(),
-  details: /* @__PURE__ */ json(),
+  /** In a response, a string of JSON text becomes its value. */
+  details: /* @__PURE__ */ json({ decode_text: true }),
   parent_id: /* @__PURE__ */ nullable(/* @__PURE__ */ string()),
   schema_id: /* @__PURE__ */ nullable(/* @__PURE__ */ string()),
   editors: /* @__PURE__ */ array(/* @__PURE__ */ string()),
@@ -7930,9 +7943,12 @@ function notifySuccess(msg, action, on_action, config = {}) {
   notify("success", msg, action, on_action, config);
 }
 function notifyError(msg, action, on_action, config = {}) {
+  if (typeof msg !== "string") {
+    const value = msg;
+    const text = [value?.error, value?.message].find((_) => typeof _ === "string" && _.length > 0);
+    msg = text || "An error occurred";
+  }
   !_disable_logging && console.debug(msg);
-  if (typeof msg !== "string")
-    msg = msg?.error || msg?.message || "An error occurred";
   notify("error", msg, action, on_action, config);
 }
 function notifyWarn(msg, action, on_action, config = {}) {
@@ -8758,6 +8774,11 @@ function errorMessage2(error) {
   if (typeof value?.error?.message === "string")
     return value.error.message;
   return "";
+}
+function loggableError(error) {
+  if (!(error instanceof CallFailed))
+    return error;
+  return { kind: error.error.kind, status: error.status };
 }
 async function responseErrorMessage(error) {
   if (error instanceof CallFailed && error.error.kind === "http") {
@@ -11045,7 +11066,7 @@ async function loadUserGroups() {
     user_groups.set(groups2);
     console.log("Permissions:", user_permissions());
   } catch (error) {
-    console.warn("Failed to load user groups.", loadError(error));
+    console.warn("Failed to load user groups.", loggableError(error));
     user_groups.set([]);
     user_groups_failed.set(true);
   } finally {
@@ -11063,7 +11084,7 @@ function initialiseUser() {
   ]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error) => {
-      console.warn("User loading failed in public mode, using local public user data.", loadError(error));
+      console.warn("User loading failed in public mode, using local public user data.", loggableError(error));
       return of(setPublicUser());
     })).subscribe((user) => _current_user.next(user));
     return;
@@ -11072,18 +11093,13 @@ function initialiseUser() {
     count: 10,
     delay: (error, count) => {
       const delay_ms = Math.min(1e3 * Math.pow(2, count), 3e4);
-      console.warn(`User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`, loadError(error));
+      console.warn(`User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`, loggableError(error));
       return timer(delay_ms);
     }
   })).subscribe({
     next: (user) => applyUser(user),
-    error: (error) => console.error("User loading failed after 10 retries.", loadError(error))
+    error: (error) => console.error("User loading failed after 10 retries.", loggableError(error))
   });
-}
-function loadError(error) {
-  if (!(error instanceof CallFailed))
-    return error;
-  return { kind: error.error.kind, status: error.status };
 }
 function applyUser(user) {
   _current_user.next(user);
@@ -11098,7 +11114,7 @@ function reloadUserData() {
       applyUser(new StaffUser(p_user));
     } catch (error) {
       if (isPublicMode()) {
-        console.warn("User reload failed in public mode, using local public user data.", loadError(error));
+        console.warn("User reload failed in public mode, using local public user data.", loggableError(error));
         setPublicUser();
         return;
       }
@@ -11451,15 +11467,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "ec35d0f",
-  "hash": "ec35d0f",
+  "raw": "acf45e9",
+  "hash": "acf45e9",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ec35d0f",
+  "suffix": "acf45e9",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795573315548
+  "time": 1795585144263
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -11647,6 +11663,9 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
+    this._save_count = 0;
+    this._endSettingsRead = () => void 0;
+    this._user_settings_loaded = new Promise((resolve) => this._endSettingsRead = resolve);
     this.theme_signal = active_theme;
     this.time_format_signal = computed(
       () => this.signal("use_24_hour_time", false)() ? "HH:mm" : "h:mm a",
@@ -11683,12 +11702,17 @@ var SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
+    let loaded = true;
     const data = await metadata_exports.show({ id: user.id, name: "settings" }).then(orThrow).then((data2) => data2["settings"]).catch((error) => {
-      log2("Settings", "Unable to load user settings", error, "warn");
+      log2("Settings", "Unable to load user settings", loggableError(error), "warn");
+      loaded = false;
       return null;
     });
     const details = data?.details;
+    if (typeof details === "string")
+      loaded = false;
     this._user_settings.set(withLegacyUserSettings(details && typeof details === "object" && !Array.isArray(details) ? details : {}));
+    this._endSettingsRead(loaded);
     this._updateSignals();
     this.timeout("init", () => {
       this._initDarkMode();
@@ -11773,6 +11797,11 @@ var SettingsService = class _SettingsService extends AsyncHandler {
     element.innerText = css_string;
   }
   async _savePendingChanges() {
+    const save = ++this._save_count;
+    if (!await this._user_settings_loaded)
+      return;
+    if (save !== this._save_count)
+      return;
     const user = currentUser();
     if (!user?.id || !Object.keys(this._pending_settings).length)
       return;
@@ -12707,6 +12736,25 @@ var PASTED_TOKEN_KEY = "PLACEOS.pasted_token";
 function pastedTokenKey(client_id) {
   return `${PASTED_TOKEN_KEY}.${client_id}`;
 }
+var URL_LENGTH_MAX2 = 16 * 1024;
+var URL_DEVICE_PARAMS = ["x-api-key", "trust", "trusted", "fixed_device"];
+function urlParam(name) {
+  if (location.href.length > URL_LENGTH_MAX2)
+    return null;
+  const hash = location.hash.slice(1);
+  const query_start = hash.indexOf("?");
+  const hash_main = query_start >= 0 ? hash.slice(0, query_start) : hash;
+  const hash_query = query_start >= 0 ? hash.slice(query_start + 1) : "";
+  let found = null;
+  for (const part of [hash_main, hash_query, location.search.slice(1)]) {
+    if (!part.includes("="))
+      continue;
+    const value = new URLSearchParams(part).getAll(name).filter(Boolean);
+    if (value.length)
+      found = value[value.length - 1];
+  }
+  return found;
+}
 function usePastedToken(session) {
   const key = pastedTokenKey(session.client_id);
   const raw = sessionStorage.getItem(key);
@@ -12815,6 +12863,14 @@ async function setupPlace(settings2, timeout_ms = PLACE_SETUP_TIMEOUT, options =
     }
     usePastedToken(session);
     useDeviceApiKey(session, storage, options.api_key);
+    for (const name of URL_DEVICE_PARAMS) {
+      const value = urlParam(name);
+      if (value !== null) {
+        storage.setItem(`${session.client_id}_${name}`, value);
+      }
+    }
+    if (options.access_token)
+      session.useToken(options.access_token);
   }
   const setup_promise = session ? session.start().then((result) => {
     if (result.ok !== false)
@@ -13095,8 +13151,13 @@ function getModule(sys, mod, index) {
     },
     variable(name) {
       const subscribe = (listener) => placeRealtime().bind(target(name), (state2) => {
-        if (state2.kind === "value")
+        if (state2.kind !== "value")
+          return;
+        try {
           listener(state2.value);
+        } catch (error) {
+          console.error(`${label}.${name}`, error);
+        }
       });
       return {
         value() {
@@ -14450,7 +14511,8 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       settings2.use_domain = true;
       setLoadingMessage("Authenticating...");
       const auth_error = await setupPlace(settings2, void 0, {
-        api_key: getNativeApiKey() || ""
+        api_key: getNativeApiKey() || "",
+        access_token: this._initial_token || void 0
       }).then(() => null).catch((_) => _);
       if (!auth_error) {
         if (intune_token)
@@ -14486,15 +14548,19 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     }
     if (!isNativeApp()) {
       const teams_mode = await startTeamsHost();
-      if (teams_mode)
+      if (teams_mode) {
         settings2.local_login = teams_mode === "tab";
+        settings2.storage = "session";
+      }
       setLoadingMessage("Authenticating...");
       await setupPlace(settings2, AUTHORITY_WAIT_MS, {
         // A Teams tab signs in with the SSO token of the host
         entra_token: teams_mode === "tab" ? teamsEntraToken : void 0,
         // Keep the tokens of the tab and the sign-in window over a
         // reload
-        trusted: !!teams_mode
+        trusted: !!teams_mode,
+        // A visitor kiosk token from the URL, for the first request
+        access_token: this._initial_token || void 0
       }).catch((_) => console.error(_));
       if (teams_mode) {
         setLoadingMessage("Waiting for Microsoft sign in...");
@@ -14502,8 +14568,6 @@ var PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
           return;
       }
     }
-    if (this._initial_token)
-      setToken(this._initial_token);
     try {
       await withTimeout(this._org.waitUntilInitialised(), 5e4, "Organisation loading timed out.");
     } catch (error) {
@@ -17088,6 +17152,7 @@ export {
   VERSION,
   PLACE_SETUP_TIMEOUT,
   setupPlace,
+  isJsonRecord,
   isJsonArray,
   jsonRecord,
   jsonRecords,
@@ -17155,5 +17220,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=9a7c26c8-6e86-5419-b1e0-fbd87e4003d1
-//# sourceMappingURL=chunk-P6UKGZSL.js.map
+//# debugId=792ef8b3-9eed-52fc-a040-8697f4629fe1
+//# sourceMappingURL=chunk-I4ORTUQ4.js.map

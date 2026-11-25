@@ -26,7 +26,7 @@ import {
   SelectionModel,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-EBOC75QM.js";
+} from "./chunk-J5GTM2QI.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -44,7 +44,7 @@ import {
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-TSYSEJ3R.js";
+} from "./chunk-PPG7QRN2.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -60,7 +60,7 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-O5BI2UUD.js";
+} from "./chunk-ZRLFUVXE.js";
 import {
   FORM_FIELD,
   FormField,
@@ -72,7 +72,7 @@ import {
 } from "./chunk-QGE6PYVT.js";
 import {
   TranslatePipe
-} from "./chunk-XVGX4MPS.js";
+} from "./chunk-HGKSV3UI.js";
 import {
   AbstractControl,
   DefaultValueAccessor,
@@ -157,6 +157,7 @@ import {
   isBefore,
   isEmptyUser,
   isJsonArray,
+  isJsonRecord,
   isMobileSafari,
   isMock,
   isSameDay,
@@ -210,7 +211,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-P6UKGZSL.js";
+} from "./chunk-I4ORTUQ4.js";
 import {
   CdkConnectedOverlay,
   CdkOverlayOrigin,
@@ -11535,6 +11536,157 @@ function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+// libs/events/src/lib/calendar.fn.ts
+function availabilityQuery(q) {
+  return {
+    period_start: q.period_start,
+    period_end: q.period_end,
+    calendars: q.calendars,
+    zone_ids: q.zone_ids,
+    system_ids: q.system_ids,
+    features: q.features,
+    capacity: q.capacity
+  };
+}
+function toSpace(system) {
+  return new Space(__spreadProps(__spreadValues({}, system), {
+    zones: [...system.zones || []],
+    features: [...system.features || []],
+    images: [...system.images || []],
+    camera_snapshot_urls: [...system.camera_snapshot_urls || []]
+  }));
+}
+function toCalendar(item) {
+  return new Calendar({
+    id: item.id,
+    resource: item.system ? toSpace(item.system) : void 0,
+    availability: (item.availability || []).map((block) => ({
+      date: block.starts_at * 1e3,
+      duration: differenceInMinutes(block.ends_at * 1e3, block.starts_at * 1e3),
+      status: block.status
+    }))
+  });
+}
+async function queryCalendars() {
+  const list = await calendars_exports.query().then(orThrow);
+  return list.map((c) => new Calendar(c));
+}
+async function queryCalendarAvailability(q) {
+  const list = await calendars_exports.availability(availabilityQuery(q)).then(orThrow);
+  return (list || []).map(toCalendar);
+}
+var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
+  level: org?.levelWithID(cal.resource.zones),
+  availability: cal.availability
+}))).filter((space) => space.bookable);
+async function querySpaceFreeBusy(q, org) {
+  const list = await calendars_exports.freeBusy(availabilityQuery(q)).then(orThrow);
+  return calendarsToSpaces(list.map(toCalendar), org);
+}
+
+// libs/events/src/lib/events.fn.ts
+function toCalendarEvent(data) {
+  return new CalendarEvent(data);
+}
+function eventBody(data) {
+  return requestBody(PlaceCalendarEvent, new CalendarEvent(withAppVersion(data)).toJSON());
+}
+function withAppVersion(data) {
+  return __spreadProps(__spreadValues({}, data), {
+    extension_data: __spreadValues(__spreadValues({}, data.extension_data || {}), appDetails())
+  });
+}
+async function showEvent(id, q = {}) {
+  const item = await events_exports.show({ id, calendar: q.calendar, system_id: q.system_id }).then(orThrow);
+  return toCalendarEvent(item);
+}
+async function createEvent(data) {
+  const item = await events_exports.create({ body: eventBody(data) }).then(orThrow);
+  return toCalendarEvent(item);
+}
+async function updateEvent(id, data, q = {}) {
+  const item = await events_exports.update({
+    id,
+    calendar: q.calendar,
+    system_id: q.system_id,
+    notify_existing_attendees: q.notify_existing_attendees,
+    body: eventBody(data)
+  }).then(orThrow);
+  return toCalendarEvent(item);
+}
+var saveEvent = async (data, q) => {
+  const id = data.update_master ? data.recurring_event_id || data.id : data.id;
+  delete data?.status;
+  return id ? updateEvent(id, __spreadProps(__spreadValues({}, data), { id }), q) : createEvent(data);
+};
+function removeEvent(id, q = {}) {
+  return events_exports.destroy({ id, calendar: q.calendar, system_id: q.system_id }).then(orThrow).then(() => void 0);
+}
+async function removeEventGuest(id, guest, q = {}) {
+  await events_exports.deleteAttendee({
+    id,
+    email: guest.email,
+    calendar: q.calendar,
+    system_id: q.system_id
+  }).then(orThrow);
+  return new GuestUser();
+}
+async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
+  const end = addMinutes(start, duration).valueOf();
+  const ignore_ids = [ignore ?? []].flat().filter((id) => id_list.includes(id));
+  const [spaces, ignore_check] = await Promise.all([
+    queryCalendarAvailability({
+      system_ids: id_list.join(),
+      period_start: getUnixTime(start),
+      period_end: getUnixTime(end)
+    }).catch(() => []),
+    ignore_ids.length ? querySpaceFreeBusy({
+      period_start: getUnixTime(start),
+      period_end: getUnixTime(end),
+      system_ids: ignore_ids.join()
+    }) : Promise.resolve([])
+  ]);
+  const short_list = id_list.map((id) => !!spaces.find((s) => s.id === id || s.resource?.id === id));
+  for (const space of ignore_check) {
+    if (!id_list.includes(space.id))
+      continue;
+    const availability2 = space.availability.filter((i) => !(i.date === ignore_period[0] && i.duration === ignore_period[1]));
+    short_list[id_list.indexOf(space.id)] = !availability2.find((i) => i.status !== "free");
+  }
+  return short_list;
+}
+function eventSpaceIds(event) {
+  const ids = (event?.resources || []).map((_) => _.id).filter(Boolean);
+  if (ids.length)
+    return ids;
+  const fallback = event?.system?.id || event?.id;
+  return fallback ? [fallback] : [];
+}
+async function findEventClashes(event, q = {}) {
+  try {
+    const list = await events_exports.clashingAssets({
+      return_available: q.return_available,
+      include_clash_time: q.include_clash_time,
+      body: requestBody(PlaceCalendarEvent, event.toJSON())
+    }).then(orThrow);
+    return q.include_clash_time ? list.map(toEventClash).filter((_) => !!_) : list.filter((_) => typeof _ === "string");
+  } catch (_) {
+    return [];
+  }
+}
+function toEventClash(item) {
+  if (!isJsonRecord(item))
+    return null;
+  const { system_id, event_start, event_end } = item;
+  if (typeof system_id !== "string")
+    return null;
+  return {
+    asset_id: system_id,
+    booking_start: typeof event_start === "number" ? event_start : 0,
+    booking_end: typeof event_end === "number" ? event_end : 0
+  };
+}
+
 // libs/bookings/src/lib/bookings.fn.ts
 function bookingQuery(q) {
   return {
@@ -11582,7 +11734,7 @@ function toBooking(data) {
 function bookingUtmSource() {
   return `${appDetails().app_name}_${VERSION.hash}_${currentUser().email || ""}`;
 }
-function withAppVersion(data) {
+function withAppVersion2(data) {
   const booking_data = __spreadValues({}, data instanceof Booking ? data.toJSON() : data);
   delete booking_data.created_at;
   return __spreadProps(__spreadValues({}, booking_data), {
@@ -11590,7 +11742,7 @@ function withAppVersion(data) {
   });
 }
 function bookingBody(data) {
-  return requestBody(Booking2, withAppVersion(data));
+  return requestBody(Booking2, withAppVersion2(data));
 }
 async function queryBookings(q) {
   return queryBookingsOrThrow(q).catch(() => []);
@@ -11617,11 +11769,11 @@ async function bookedResourceList(q, resource_count) {
     return [];
   }
 }
-function isJsonRecord(value) {
+function isJsonRecord2(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 function toBookingClash(item) {
-  if (!isJsonRecord(item))
+  if (!isJsonRecord2(item))
     return null;
   const { asset_id, booking_start, booking_end } = item;
   if (typeof asset_id !== "string")
@@ -11662,11 +11814,11 @@ async function createBooking(data, q) {
   })).then(orThrow);
   return toBooking(booking);
 }
-async function updateBooking(id, data, _method = "patch") {
+async function updateBooking(id, data) {
   const booking = await bookings_exports.update({ id: bookingId(id), body: bookingBody(data) }).then(orThrow);
   return toBooking(booking);
 }
-async function updateBookingInstance(id, start_time, data, _method = "patch") {
+async function updateBookingInstance(id, start_time, data) {
   const booking = await bookings_exports.updateInstance({
     id: bookingId(id),
     instance: start_time,
@@ -11828,145 +11980,6 @@ async function createBookingsForEvent(event, type, resources) {
   } catch (error) {
     await Promise.all(created_bookings.filter((booking) => !!booking.id).map((booking) => removeBooking(booking.id).catch(() => void 0)));
     throw error;
-  }
-}
-
-// libs/events/src/lib/calendar.fn.ts
-function availabilityQuery(q) {
-  return {
-    period_start: q.period_start,
-    period_end: q.period_end,
-    calendars: q.calendars,
-    zone_ids: q.zone_ids,
-    system_ids: q.system_ids,
-    features: q.features,
-    capacity: q.capacity
-  };
-}
-function toSpace(system) {
-  return new Space(__spreadProps(__spreadValues({}, system), {
-    zones: [...system.zones || []],
-    features: [...system.features || []],
-    images: [...system.images || []],
-    camera_snapshot_urls: [...system.camera_snapshot_urls || []]
-  }));
-}
-function toCalendar(item) {
-  return new Calendar({
-    id: item.id,
-    resource: item.system ? toSpace(item.system) : void 0,
-    availability: (item.availability || []).map((block) => ({
-      date: block.starts_at * 1e3,
-      duration: differenceInMinutes(block.ends_at * 1e3, block.starts_at * 1e3),
-      status: block.status
-    }))
-  });
-}
-async function queryCalendars() {
-  const list = await calendars_exports.query().then(orThrow);
-  return list.map((c) => new Calendar(c));
-}
-async function queryCalendarAvailability(q) {
-  const list = await calendars_exports.availability(availabilityQuery(q)).then(orThrow);
-  return (list || []).map(toCalendar);
-}
-var calendarsToSpaces = (list, org) => list.filter((cal) => !!cal.resource).map((cal) => new Space(__spreadProps(__spreadValues({}, cal.resource), {
-  level: org?.levelWithID(cal.resource.zones),
-  availability: cal.availability
-}))).filter((space) => space.bookable);
-async function querySpaceFreeBusy(q, org) {
-  const list = await calendars_exports.freeBusy(availabilityQuery(q)).then(orThrow);
-  return calendarsToSpaces(list.map(toCalendar), org);
-}
-
-// libs/events/src/lib/events.fn.ts
-function toCalendarEvent(data) {
-  return new CalendarEvent(data);
-}
-function eventBody(data) {
-  return requestBody(PlaceCalendarEvent, new CalendarEvent(withAppVersion2(data)).toJSON());
-}
-function withAppVersion2(data) {
-  return __spreadProps(__spreadValues({}, data), {
-    extension_data: __spreadValues(__spreadValues({}, data.extension_data || {}), appDetails())
-  });
-}
-async function showEvent(id, q = {}) {
-  const item = await events_exports.show({ id, calendar: q.calendar, system_id: q.system_id }).then(orThrow);
-  return toCalendarEvent(item);
-}
-async function createEvent(data) {
-  const item = await events_exports.create({ body: eventBody(data) }).then(orThrow);
-  return toCalendarEvent(item);
-}
-async function updateEvent(id, data, q = {}, _method = "patch") {
-  const item = await events_exports.update({
-    id,
-    calendar: q.calendar,
-    system_id: q.system_id,
-    notify_existing_attendees: q.notify_existing_attendees,
-    body: eventBody(data)
-  }).then(orThrow);
-  return toCalendarEvent(item);
-}
-var saveEvent = async (data, q) => {
-  const id = data.update_master ? data.recurring_event_id || data.id : data.id;
-  delete data?.status;
-  return id ? updateEvent(id, __spreadProps(__spreadValues({}, data), { id }), q) : createEvent(data);
-};
-function removeEvent(id, q = {}) {
-  return events_exports.destroy({ id, calendar: q.calendar, system_id: q.system_id }).then(orThrow).then(() => void 0);
-}
-async function removeEventGuest(id, guest, q = {}) {
-  await events_exports.deleteAttendee({
-    id,
-    email: guest.email,
-    calendar: q.calendar,
-    system_id: q.system_id
-  }).then(orThrow);
-  return new GuestUser();
-}
-async function querySpaceAvailability(id_list, start, duration, ignore, type, ignore_period = [0, 0]) {
-  const end = addMinutes(start, duration).valueOf();
-  const ignore_ids = [ignore ?? []].flat().filter((id) => id_list.includes(id));
-  const [spaces, ignore_check] = await Promise.all([
-    queryCalendarAvailability({
-      system_ids: id_list.join(),
-      period_start: getUnixTime(start),
-      period_end: getUnixTime(end)
-    }).catch(() => []),
-    ignore_ids.length ? querySpaceFreeBusy({
-      period_start: getUnixTime(start),
-      period_end: getUnixTime(end),
-      system_ids: ignore_ids.join()
-    }) : Promise.resolve([])
-  ]);
-  const short_list = id_list.map((id) => !!spaces.find((s) => s.id === id || s.resource?.id === id));
-  for (const space of ignore_check) {
-    if (!id_list.includes(space.id))
-      continue;
-    const availability2 = space.availability.filter((i) => !(i.date === ignore_period[0] && i.duration === ignore_period[1]));
-    short_list[id_list.indexOf(space.id)] = !availability2.find((i) => i.status !== "free");
-  }
-  return short_list;
-}
-function eventSpaceIds(event) {
-  const ids = (event?.resources || []).map((_) => _.id).filter(Boolean);
-  if (ids.length)
-    return ids;
-  const fallback = event?.system?.id || event?.id;
-  return fallback ? [fallback] : [];
-}
-async function findEventClashes(event, q = {}) {
-  try {
-    const list = await events_exports.clashingAssets({
-      return_available: q.return_available,
-      include_clash_time: q.include_clash_time,
-      body: requestBody(PlaceCalendarEvent, event.toJSON())
-    }).then(orThrow);
-    return q.include_clash_time ? list.map(toBookingClash).filter((_) => !!_) : list.filter((_) => typeof _ === "string");
-  } catch (_) {
-    return [];
   }
 }
 
@@ -14514,7 +14527,7 @@ var PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-TRHOQ47I.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-EQS32AB5.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -26102,5 +26115,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=6872ea2f-ace2-5cca-8b21-8dbe3a69e698
-//# sourceMappingURL=calendar-pane.component-KUFUP6TA.js.map
+//# debugId=f1a957f7-3ab4-51fb-8efe-afcd9e734378
+//# sourceMappingURL=calendar-pane.component-7OT2GB5B.js.map
