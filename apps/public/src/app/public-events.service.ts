@@ -178,6 +178,19 @@ export class PublicEventsService {
             base_url: '',
             auth: { kind: 'bearer', token: () => this._guestToken() || null },
         });
+        // All tabs share a remembered guest in the local storage. When
+        // another tab forgets it, this tab forgets it too, so it does not
+        // keep using the token of that guest.
+        const onStorage = (event: StorageEvent) => {
+            if (event.storageArea !== localStorage) return;
+            if (!this._guest_remembered) return;
+            const removed =
+                event.key === null ||
+                (event.key === GUEST_STORAGE_KEY && event.newValue === null);
+            if (removed) this._dropGuest();
+        };
+        // The service is a root service, so it lives as long as the page
+        window.addEventListener('storage', onStorage);
     }
 
     /** Loads the PlaceOS authority once. A failure shows in `error`. */
@@ -297,6 +310,11 @@ export class PublicEventsService {
             localStorage.removeItem(key);
             sessionStorage.removeItem(key);
         }
+        this._dropGuest();
+    }
+
+    /** Forgets the guest of this tab. The storage does not change. */
+    private _dropGuest() {
         this._guest_token = null;
         this._guest_remembered = false;
         this._guest_version += 1;

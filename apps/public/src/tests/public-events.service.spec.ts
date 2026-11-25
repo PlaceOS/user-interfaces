@@ -241,6 +241,44 @@ describe('PublicEventsService', () => {
             }
         });
 
+        it('should forget a remembered guest that another tab forgets', async () => {
+            localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            storeToken(localStorage);
+            const service = TestBed.inject(PublicEventsService);
+            expect(await lastBearer()()).toBe('guest-token');
+
+            // Another tab removes the guest. Only that tab changes storage.
+            localStorage.removeItem(GUEST_KEY);
+            localStorage.removeItem(TOKEN_KEY);
+            window.dispatchEvent(
+                new StorageEvent('storage', {
+                    key: GUEST_KEY,
+                    newValue: null,
+                    storageArea: localStorage,
+                }),
+            );
+
+            expect(await lastBearer()()).toBeNull();
+            expect(service.guest()).toBeNull();
+        });
+
+        it('should keep a guest of this tab only when another tab forgets its guest', async () => {
+            sessionStorage.setItem(GUEST_KEY, JSON.stringify(guest));
+            storeToken(sessionStorage);
+            const service = TestBed.inject(PublicEventsService);
+
+            window.dispatchEvent(
+                new StorageEvent('storage', {
+                    key: GUEST_KEY,
+                    newValue: null,
+                    storageArea: localStorage,
+                }),
+            );
+
+            expect(await lastBearer()()).toBe('guest-token');
+            expect(service.guest()).toEqual(guest);
+        });
+
         it('should not store the guest again when a pending request resolves', async () => {
             localStorage.setItem(GUEST_KEY, JSON.stringify(guest));
             let resolve_token: (value: string) => void = () => undefined;
