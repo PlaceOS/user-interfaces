@@ -1,6 +1,6 @@
 import {
   listenToConsole
-} from "./chunk-MUARYPOO.js";
+} from "./chunk-OBUPUK7P.js";
 import {
   randomInt
 } from "./chunk-UAOKM3V4.js";
@@ -65,4 +65,4 @@ export {
   ConsoleHistoryService
 };
 //# debugId=d2b7093a-6498-5388-a516-5789475f723d
-//# sourceMappingURL=chunk-67R7MHLF.js.map
+//# sourceMappingURL=chunk-BTPA3JXI.js.map

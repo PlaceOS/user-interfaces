@@ -39,19 +39,19 @@ import {
 } from "./chunk-OQDJRCPY.js";
 import {
   RemoteSetupService
-} from "./chunk-RT3E7EUJ.js";
+} from "./chunk-45HYPIBP.js";
 import {
   TranslatePipe
 } from "./chunk-KLSOG6PN.js";
 import "./chunk-3EONKEEQ.js";
 import {
   OrganisationService
-} from "./chunk-Z2B77TNY.js";
+} from "./chunk-5T5VXB77.js";
 import {
   AsyncHandler,
   SettingsService,
   VERSION
-} from "./chunk-MUARYPOO.js";
+} from "./chunk-OBUPUK7P.js";
 import {
   i18n,
   log,
@@ -3498,4 +3498,4 @@ export {
   BootstrapComponent
 };
 //# debugId=c0e445aa-40c0-5ede-a9a2-3a90c2f00ee5
-//# sourceMappingURL=bootstrap.component-EBHJO3TV.js.map
+//# sourceMappingURL=bootstrap.component-HVPAGEJW.js.map

@@ -1,6 +1,6 @@
 import {
   placeRealtime
-} from "./chunk-MUARYPOO.js";
+} from "./chunk-OBUPUK7P.js";
 import {
   signal
 } from "./chunk-ABTB3K4F.js";
@@ -156,4 +156,4 @@ export {
   installBindingDebugHooks
 };
 //# debugId=54b768f7-ea67-5523-af3f-97989545a1e3
-//# sourceMappingURL=chunk-MMSZAER6.js.map
+//# sourceMappingURL=chunk-ETODPEX4.js.map
