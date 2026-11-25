@@ -3,8 +3,10 @@ import {
     DestroyRef,
     OnInit,
     computed,
+    effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -100,6 +102,23 @@ export class PublicEventsComponent implements OnInit {
             (event) => eventId(event) === this.selected_event_id(),
         ),
     );
+
+    constructor() {
+        // Another tab can forget the guest of this tab. Then ask for guest
+        // details again, for the same system and event.
+        let was_authenticated = this.service.authenticated();
+        effect(() => {
+            const authenticated = this.service.authenticated();
+            const signed_out = was_authenticated && !authenticated;
+            was_authenticated = authenticated;
+            if (!signed_out) return;
+            untracked(() =>
+                this._router.navigate(['/guest-details'], {
+                    queryParams: this._guestDetailsQueryParams(),
+                }),
+            );
+        });
+    }
 
     public async ngOnInit() {
         await this.service.init();

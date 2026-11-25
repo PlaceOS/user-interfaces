@@ -176,6 +176,24 @@ describe('PublicEventsComponent', () => {
         });
     });
 
+    it('asks for guest details again when another tab forgets the guest', async () => {
+        service.authenticated.set(true);
+        param_map$.next(
+            convertToParamMap({ system_id: 'sys-1', event_id: 'evt-1' }),
+        );
+        const fixture = await init();
+        expect(router.navigate).not.toHaveBeenCalled();
+
+        // The service forgets the guest when another tab removes it
+        service.authenticated.set(false);
+        fixture.detectChanges();
+        await flush();
+
+        expect(router.navigate).toHaveBeenCalledWith(['/guest-details'], {
+            queryParams: { system_id: 'sys-1', event_id: 'evt-1' },
+        });
+    });
+
     it('shows the event details when an event id is present in the route', async () => {
         service.authenticated.set(true);
         service.guest.set({ name: 'A', email: 'a@b.com' });
