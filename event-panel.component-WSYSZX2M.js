@@ -5,31 +5,31 @@ import {
   AuthenticatedImageDirective,
   PanelStateService,
   dayTimeFormat
-} from "./chunk-E6F5AD2P.js";
+} from "./chunk-TCRZ6ALO.js";
 import "./chunk-6SVTW7BM.js";
-import "./chunk-KQJQZGCO.js";
+import "./chunk-JF73YPBQ.js";
 import "./chunk-FBLQBSB7.js";
 import "./chunk-H2AOTDCT.js";
 import "./chunk-LD3NN2QZ.js";
 import "./chunk-YRS34B4W.js";
 import "./chunk-XPXIQO3T.js";
-import "./chunk-5V53VMYN.js";
-import "./chunk-QSH6XORE.js";
+import "./chunk-QMJFW326.js";
+import "./chunk-RCJMLNWY.js";
 import {
   TranslatePipe
-} from "./chunk-HKVWWKGH.js";
+} from "./chunk-D6EWFVMJ.js";
 import "./chunk-PGER6XBG.js";
 import {
   OrganisationService
-} from "./chunk-S56BDEXR.js";
+} from "./chunk-6IY7OQCP.js";
 import {
   SettingsService,
   themedLogo
-} from "./chunk-NUFIPUSX.js";
+} from "./chunk-4RW44TB6.js";
 import {
   AsyncHandler,
   startOfMinute
-} from "./chunk-U2NNLUDF.js";
+} from "./chunk-7KIZO25G.js";
 import "./chunk-NRYDNNQ3.js";
 import "./chunk-QYNSWC4X.js";
 import "./chunk-JNAOAAEL.js";
@@ -557,4 +557,4 @@ export {
   EventPanelComponent
 };
 //# debugId=39e0e103-fad9-576a-84fa-c810efe695f2
-//# sourceMappingURL=event-panel.component-6XLJM7LG.js.map
+//# sourceMappingURL=event-panel.component-WSYSZX2M.js.map

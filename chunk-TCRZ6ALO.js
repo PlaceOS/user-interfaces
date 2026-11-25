@@ -20,7 +20,7 @@ import {
   PaymentWindowClosedError,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-KQJQZGCO.js";
+} from "./chunk-JF73YPBQ.js";
 import {
   MatAutocomplete,
   MatAutocompleteModule,
@@ -52,13 +52,13 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-5V53VMYN.js";
+} from "./chunk-QMJFW326.js";
 import {
   AnnounceDirective
-} from "./chunk-QSH6XORE.js";
+} from "./chunk-RCJMLNWY.js";
 import {
   TranslatePipe
-} from "./chunk-HKVWWKGH.js";
+} from "./chunk-D6EWFVMJ.js";
 import {
   FormField,
   disabled,
@@ -72,7 +72,7 @@ import {
   firstValueWhere,
   getModule,
   toQueryString
-} from "./chunk-S56BDEXR.js";
+} from "./chunk-6IY7OQCP.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -103,6 +103,7 @@ import {
   isBefore,
   isEmptyUser,
   isJsonArray,
+  isJsonRecord,
   jsonRecord,
   placeClientStarted,
   placeFetch,
@@ -114,7 +115,7 @@ import {
   settingSignal,
   token,
   user_group_names
-} from "./chunk-NUFIPUSX.js";
+} from "./chunk-4RW44TB6.js";
 import {
   AsyncHandler,
   LOCAL_TIMEZONE,
@@ -184,7 +185,7 @@ import {
   union,
   unique,
   users_exports
-} from "./chunk-U2NNLUDF.js";
+} from "./chunk-7KIZO25G.js";
 import {
   IconComponent,
   SafePipe
@@ -3965,270 +3966,6 @@ function isRecord(value) {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-// libs/bookings/src/lib/bookings.fn.ts
-function bookingQuery(q) {
-  return {
-    period_start: q.period_start,
-    period_end: q.period_end,
-    type: q.type,
-    zones: q.zones,
-    user: q.user,
-    email: q.email,
-    include_checked_out: q.include_checked_out,
-    include_booked_by: q.include_booked_by,
-    include_deleted: q.include_deleted,
-    deleted: q.deleted,
-    event_id: q.event_id,
-    ical_uid: q.ical_uid,
-    limit: q.limit,
-    rejected: q.rejected,
-    include_parent_bookings: q.include_parent_bookings
-  };
-}
-function bookingId(id) {
-  const value = Number(id);
-  if (`${id}`.trim() === "" || !Number.isSafeInteger(value)) {
-    throw new Error(`Booking id is not an integer: ${id}`);
-  }
-  return value;
-}
-function toBooking(data) {
-  return new Booking(data);
-}
-function bookingUtmSource() {
-  return `${appDetails().app_name}_${VERSION.hash}_${currentUser().email || ""}`;
-}
-function withAppVersion(data) {
-  const booking_data = __spreadValues({}, data instanceof Booking ? data.toJSON() : data);
-  delete booking_data.created_at;
-  return __spreadProps(__spreadValues({}, booking_data), {
-    extension_data: __spreadValues(__spreadValues({}, booking_data.extension_data || {}), appDetails())
-  });
-}
-function bookingBody(data) {
-  return requestBody(Booking2, withAppVersion(data));
-}
-async function queryBookings(q) {
-  return queryBookingsOrThrow(q).catch(() => []);
-}
-async function queryBookingsOrThrow(q) {
-  const list = await bookings_exports.query(bookingQuery(q)).then(orThrow);
-  return list.map(toBooking);
-}
-function isJsonRecord(value) {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-function toBookingClash(item) {
-  if (!isJsonRecord(item))
-    return null;
-  const { asset_id, booking_start, booking_end } = item;
-  if (typeof asset_id !== "string")
-    return null;
-  return {
-    asset_id,
-    booking_start: typeof booking_start === "number" ? booking_start : 0,
-    booking_end: typeof booking_end === "number" ? booking_end : 0
-  };
-}
-function parentBookingId(id) {
-  if (!id)
-    throw new Error("Missing parent booking id");
-  const parent_id = Number(id);
-  return Number.isSafeInteger(parent_id) ? parent_id : id;
-}
-async function createBooking(data, q) {
-  const booking = await bookings_exports.create(__spreadProps(__spreadValues(__spreadValues({
-    utm_source: bookingUtmSource()
-  }, (q == null ? void 0 : q.event_id) ? { event_id: q.event_id } : {}), (q == null ? void 0 : q.ical_uid) ? { ical_uid: q.ical_uid } : {}), {
-    body: bookingBody(data)
-  })).then(orThrow);
-  return toBooking(booking);
-}
-async function updateBooking(id, data, _method = "patch") {
-  const booking = await bookings_exports.update({ id: bookingId(id), body: bookingBody(data) }).then(orThrow);
-  return toBooking(booking);
-}
-async function updateBookingInstance(id, start_time, data, _method = "patch") {
-  const booking = await bookings_exports.updateInstance({
-    id: bookingId(id),
-    instance: start_time,
-    body: bookingBody(data)
-  }).then(orThrow);
-  return toBooking(booking);
-}
-var saveBooking = async (data, q) => {
-  const id = data.id;
-  delete data.id;
-  const instance = q == null ? void 0 : q.instance;
-  if (q)
-    delete q.instance;
-  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(cleanObject(data, ["", null, void 0]) || {}, q);
-};
-async function removeBooking(id, q = {}) {
-  if (q.instance) {
-    return removeBookingInstance(id, q.start_time);
-  }
-  return bookings_exports.destroy({ id: bookingId(id), utm_source: bookingUtmSource() }).then(orThrow).then(() => void 0);
-}
-async function removeBookingInstance(id, start_time) {
-  return bookings_exports.destroyInstance({
-    id: bookingId(id),
-    instance: start_time,
-    utm_source: bookingUtmSource()
-  }).then(orThrow).then(() => void 0);
-}
-async function queryResourceAvailability(id_list, start, duration, ignore, type = "room") {
-  const bookings = await queryBookings({
-    type,
-    period_start: getUnixTime(start),
-    period_end: getUnixTime(addMinutes(start, duration))
-  });
-  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || `${ignore}` !== `${b.id}`)));
-}
-async function linkedBookingsForEvent(event, type) {
-  if (event.from_bookings) {
-    return event.linked_bookings.filter((_) => _.booking_type === type).map((_) => new Booking(_));
-  }
-  const bookings = await queryBookingsOrThrow({
-    type,
-    event_id: event.id,
-    period_start: getUnixTime(event.date),
-    period_end: getUnixTime(addMinutes(event.date, event.duration)),
-    limit: 500
-  });
-  return bookings.filter((_) => {
-    var _a;
-    return ((_a = _.extension_data) == null ? void 0 : _a.parent_id) === event.id;
-  });
-}
-function replacedEventBookingIds(event, type) {
-  if (event.from_bookings)
-    return [];
-  return (event.linked_bookings || []).filter((_) => {
-    var _a;
-    const parent_id = (_a = _.extension_data) == null ? void 0 : _a.parent_id;
-    return _.booking_type === type && !!parent_id && parent_id !== event.id;
-  }).map((_) => _.id);
-}
-function bookingMatchesResource(booking, item) {
-  var _a, _b, _c, _d;
-  if (item.id && ((_b = (_a = booking.extension_data) == null ? void 0 : _a.details) == null ? void 0 : _b.id) === item.id) {
-    return true;
-  }
-  if (item.email && ((_c = booking.attendees) == null ? void 0 : _c.find((_) => _.email === item.email))) {
-    return true;
-  }
-  return !!((_d = booking.asset_ids) == null ? void 0 : _d.find((id) => {
-    var _a2;
-    return (_a2 = item.items) == null ? void 0 : _a2.find((i) => {
-      var _a3;
-      return (_a3 = i.item_ids) == null ? void 0 : _a3.includes(id);
-    });
-  }));
-}
-function detailsKey(details) {
-  const data = JSON.parse(JSON.stringify(details ?? null));
-  if (data && typeof data === "object")
-    delete data.deliver_at_time;
-  return JSON.stringify(data, (_, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : 1)) : value);
-}
-function attendeeEmails(list = []) {
-  return list.map((_) => {
-    var _a;
-    return (_a = _.email) == null ? void 0 : _a.toLowerCase();
-  }).sort().join(",");
-}
-function linkedBookingChanges(booking, desired) {
-  var _a, _b;
-  const changes = {};
-  if (booking.booking_start !== desired.booking_start || booking.booking_end !== desired.booking_end) {
-    changes.booking_start = desired.booking_start;
-    changes.booking_end = desired.booking_end;
-    changes.all_day = desired.all_day;
-  }
-  for (const key of ["title", "description", "asset_name"]) {
-    if (booking[key] !== desired[key])
-      changes[key] = desired[key];
-  }
-  if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
-    changes.user_email = desired.user_email;
-  }
-  if (booking.asset_id !== desired.asset_id) {
-    changes.asset_id = desired.asset_id;
-    changes.asset_ids = desired.asset_ids;
-  }
-  if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
-    changes.zones = desired.zones;
-  }
-  if (attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)) {
-    changes.attendees = desired.attendees;
-  }
-  const details_changed = detailsKey((_a = booking.extension_data) == null ? void 0 : _a.details) !== detailsKey((_b = desired.extension_data) == null ? void 0 : _b.details);
-  if (!details_changed && !Object.keys(changes).length)
-    return null;
-  return __spreadProps(__spreadValues({}, changes), { extension_data: desired.extension_data });
-}
-function visitorFlagExtension(item) {
-  return __spreadValues(__spreadValues({}, readAttendeeFlags(item)), readAttendeeFlags(item.extension_data || {}));
-}
-async function createBookingsForEvent(event, type, resources) {
-  var _a;
-  const existing = await linkedBookingsForEvent(event, type);
-  const zones = ((_a = event.system) == null ? void 0 : _a.zones) || unique(flatten(event.resources.map((_) => _.zones))) || [];
-  const kept = /* @__PURE__ */ new Set();
-  const created_bookings = [];
-  try {
-    for (const id of replacedEventBookingIds(event, type)) {
-      await removeBooking(id);
-    }
-    for (const item of resources) {
-      const booking = existing.find((_) => !kept.has(_.id) && bookingMatchesResource(_, item));
-      const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_) => _.id === item.system_id || _.email === item.system_id) : void 0;
-      const resource_id = (assigned_space == null ? void 0 : assigned_space.id) || item.system_id || item.email || item.id;
-      const resource_name = (assigned_space == null ? void 0 : assigned_space.display_name) || (assigned_space == null ? void 0 : assigned_space.name) || item.name;
-      const desired = new Booking({
-        type,
-        booking_type: type,
-        date: event.date,
-        duration: event.duration,
-        description: event.title || item.name,
-        user_email: event.host,
-        asset_id: resource_id,
-        asset_name: resource_name,
-        title: event.title,
-        attendees: item.email ? [new User(item)] : [],
-        extension_data: __spreadValues({
-          parent_id: event.id,
-          name: resource_name,
-          location_id: (assigned_space == null ? void 0 : assigned_space.id) || event.location,
-          details: item
-        }, type === "visitor" ? visitorFlagExtension(item) : {}),
-        zones: (assigned_space == null ? void 0 : assigned_space.zones) || zones
-      });
-      if (booking) {
-        kept.add(booking.id);
-        const changes = linkedBookingChanges(booking, desired);
-        if (changes)
-          await updateBooking(booking.id, changes);
-        continue;
-      }
-      created_bookings.push(event.from_bookings ? await createBooking(__spreadProps(__spreadValues({}, desired.toJSON()), {
-        parent_id: parentBookingId(event.id)
-      })) : await createBooking(desired.toJSON(), {
-        ical_uid: event.ical_uid,
-        event_id: event.id
-      }));
-    }
-    for (const booking of existing) {
-      if (!kept.has(booking.id))
-        await removeBooking(booking.id);
-    }
-  } catch (error) {
-    await Promise.all(created_bookings.filter((booking) => !!booking.id).map((booking) => removeBooking(booking.id).catch(() => void 0)));
-    throw error;
-  }
-}
-
 // libs/events/src/lib/calendar.fn.ts
 function availabilityQuery(q) {
   return {
@@ -4282,9 +4019,9 @@ function toCalendarEvent(data) {
   return new CalendarEvent(data);
 }
 function eventBody(data) {
-  return requestBody(PlaceCalendarEvent, new CalendarEvent(withAppVersion2(data)).toJSON());
+  return requestBody(PlaceCalendarEvent, new CalendarEvent(withAppVersion(data)).toJSON());
 }
-function withAppVersion2(data) {
+function withAppVersion(data) {
   return __spreadProps(__spreadValues({}, data), {
     extension_data: __spreadValues(__spreadValues({}, data.extension_data || {}), appDetails())
   });
@@ -4293,7 +4030,7 @@ async function createEvent(data) {
   const item = await events_exports.create({ body: eventBody(data) }).then(orThrow);
   return toCalendarEvent(item);
 }
-async function updateEvent(id, data, q = {}, _method = "patch") {
+async function updateEvent(id, data, q = {}) {
   const item = await events_exports.update({
     id,
     calendar: q.calendar,
@@ -4353,10 +4090,22 @@ async function findEventClashes(event, q = {}) {
       include_clash_time: q.include_clash_time,
       body: requestBody(PlaceCalendarEvent, event.toJSON())
     }).then(orThrow);
-    return q.include_clash_time ? list.map(toBookingClash).filter((_) => !!_) : list.filter((_) => typeof _ === "string");
+    return q.include_clash_time ? list.map(toEventClash).filter((_) => !!_) : list.filter((_) => typeof _ === "string");
   } catch (_) {
     return [];
   }
+}
+function toEventClash(item) {
+  if (!isJsonRecord(item))
+    return null;
+  const { system_id, event_start, event_end } = item;
+  if (typeof system_id !== "string")
+    return null;
+  return {
+    asset_id: system_id,
+    booking_start: typeof event_start === "number" ? event_start : 0,
+    booking_end: typeof event_end === "number" ? event_end : 0
+  };
 }
 
 // libs/common/src/lib/value-accessor.ts
@@ -5255,6 +5004,255 @@ function assetAvailable(item, rules, event) {
   return true;
 }
 
+// libs/bookings/src/lib/bookings.fn.ts
+function bookingQuery(q) {
+  return {
+    period_start: q.period_start,
+    period_end: q.period_end,
+    type: q.type,
+    zones: q.zones,
+    user: q.user,
+    email: q.email,
+    include_checked_out: q.include_checked_out,
+    include_booked_by: q.include_booked_by,
+    include_deleted: q.include_deleted,
+    deleted: q.deleted,
+    event_id: q.event_id,
+    ical_uid: q.ical_uid,
+    limit: q.limit,
+    rejected: q.rejected,
+    include_parent_bookings: q.include_parent_bookings
+  };
+}
+function bookingId(id) {
+  const value = Number(id);
+  if (`${id}`.trim() === "" || !Number.isSafeInteger(value)) {
+    throw new Error(`Booking id is not an integer: ${id}`);
+  }
+  return value;
+}
+function toBooking(data) {
+  return new Booking(data);
+}
+function bookingUtmSource() {
+  return `${appDetails().app_name}_${VERSION.hash}_${currentUser().email || ""}`;
+}
+function withAppVersion2(data) {
+  const booking_data = __spreadValues({}, data instanceof Booking ? data.toJSON() : data);
+  delete booking_data.created_at;
+  return __spreadProps(__spreadValues({}, booking_data), {
+    extension_data: __spreadValues(__spreadValues({}, booking_data.extension_data || {}), appDetails())
+  });
+}
+function bookingBody(data) {
+  return requestBody(Booking2, withAppVersion2(data));
+}
+async function queryBookings(q) {
+  return queryBookingsOrThrow(q).catch(() => []);
+}
+async function queryBookingsOrThrow(q) {
+  const list = await bookings_exports.query(bookingQuery(q)).then(orThrow);
+  return list.map(toBooking);
+}
+function parentBookingId(id) {
+  if (!id)
+    throw new Error("Missing parent booking id");
+  const parent_id = Number(id);
+  return Number.isSafeInteger(parent_id) ? parent_id : id;
+}
+async function createBooking(data, q) {
+  const booking = await bookings_exports.create(__spreadProps(__spreadValues(__spreadValues({
+    utm_source: bookingUtmSource()
+  }, (q == null ? void 0 : q.event_id) ? { event_id: q.event_id } : {}), (q == null ? void 0 : q.ical_uid) ? { ical_uid: q.ical_uid } : {}), {
+    body: bookingBody(data)
+  })).then(orThrow);
+  return toBooking(booking);
+}
+async function updateBooking(id, data) {
+  const booking = await bookings_exports.update({ id: bookingId(id), body: bookingBody(data) }).then(orThrow);
+  return toBooking(booking);
+}
+async function updateBookingInstance(id, start_time, data) {
+  const booking = await bookings_exports.updateInstance({
+    id: bookingId(id),
+    instance: start_time,
+    body: bookingBody(data)
+  }).then(orThrow);
+  return toBooking(booking);
+}
+var saveBooking = async (data, q) => {
+  const id = data.id;
+  delete data.id;
+  const instance = q == null ? void 0 : q.instance;
+  if (q)
+    delete q.instance;
+  return id ? instance ? updateBookingInstance(id, data.instance || data.booking_start, data) : updateBooking(id, data) : createBooking(cleanObject(data, ["", null, void 0]) || {}, q);
+};
+async function removeBooking(id, q = {}) {
+  if (q.instance) {
+    return removeBookingInstance(id, q.start_time);
+  }
+  return bookings_exports.destroy({ id: bookingId(id), utm_source: bookingUtmSource() }).then(orThrow).then(() => void 0);
+}
+async function removeBookingInstance(id, start_time) {
+  return bookings_exports.destroyInstance({
+    id: bookingId(id),
+    instance: start_time,
+    utm_source: bookingUtmSource()
+  }).then(orThrow).then(() => void 0);
+}
+async function queryResourceAvailability(id_list, start, duration, ignore, type = "room") {
+  const bookings = await queryBookings({
+    type,
+    period_start: getUnixTime(start),
+    period_end: getUnixTime(addMinutes(start, duration))
+  });
+  return id_list.map((id) => !bookings.find((b) => (b.asset_id === id || b.asset_ids.includes(id)) && (!ignore || `${ignore}` !== `${b.id}`)));
+}
+async function linkedBookingsForEvent(event, type) {
+  if (event.from_bookings) {
+    return event.linked_bookings.filter((_) => _.booking_type === type).map((_) => new Booking(_));
+  }
+  const bookings = await queryBookingsOrThrow({
+    type,
+    event_id: event.id,
+    period_start: getUnixTime(event.date),
+    period_end: getUnixTime(addMinutes(event.date, event.duration)),
+    limit: 500
+  });
+  return bookings.filter((_) => {
+    var _a;
+    return ((_a = _.extension_data) == null ? void 0 : _a.parent_id) === event.id;
+  });
+}
+function replacedEventBookingIds(event, type) {
+  if (event.from_bookings)
+    return [];
+  return (event.linked_bookings || []).filter((_) => {
+    var _a;
+    const parent_id = (_a = _.extension_data) == null ? void 0 : _a.parent_id;
+    return _.booking_type === type && !!parent_id && parent_id !== event.id;
+  }).map((_) => _.id);
+}
+function bookingMatchesResource(booking, item) {
+  var _a, _b, _c, _d;
+  if (item.id && ((_b = (_a = booking.extension_data) == null ? void 0 : _a.details) == null ? void 0 : _b.id) === item.id) {
+    return true;
+  }
+  if (item.email && ((_c = booking.attendees) == null ? void 0 : _c.find((_) => _.email === item.email))) {
+    return true;
+  }
+  return !!((_d = booking.asset_ids) == null ? void 0 : _d.find((id) => {
+    var _a2;
+    return (_a2 = item.items) == null ? void 0 : _a2.find((i) => {
+      var _a3;
+      return (_a3 = i.item_ids) == null ? void 0 : _a3.includes(id);
+    });
+  }));
+}
+function detailsKey(details) {
+  const data = JSON.parse(JSON.stringify(details ?? null));
+  if (data && typeof data === "object")
+    delete data.deliver_at_time;
+  return JSON.stringify(data, (_, value) => value && typeof value === "object" && !Array.isArray(value) ? Object.fromEntries(Object.entries(value).sort(([a], [b]) => a < b ? -1 : 1)) : value);
+}
+function attendeeEmails(list = []) {
+  return list.map((_) => {
+    var _a;
+    return (_a = _.email) == null ? void 0 : _a.toLowerCase();
+  }).sort().join(",");
+}
+function linkedBookingChanges(booking, desired) {
+  var _a, _b;
+  const changes = {};
+  if (booking.booking_start !== desired.booking_start || booking.booking_end !== desired.booking_end) {
+    changes.booking_start = desired.booking_start;
+    changes.booking_end = desired.booking_end;
+    changes.all_day = desired.all_day;
+  }
+  for (const key of ["title", "description", "asset_name"]) {
+    if (booking[key] !== desired[key])
+      changes[key] = desired[key];
+  }
+  if (booking.user_email.toLowerCase() !== desired.user_email.toLowerCase()) {
+    changes.user_email = desired.user_email;
+  }
+  if (booking.asset_id !== desired.asset_id) {
+    changes.asset_id = desired.asset_id;
+    changes.asset_ids = desired.asset_ids;
+  }
+  if ([...booking.zones].sort().join() !== [...desired.zones].sort().join()) {
+    changes.zones = desired.zones;
+  }
+  if (attendeeEmails(booking.attendees) !== attendeeEmails(desired.attendees)) {
+    changes.attendees = desired.attendees;
+  }
+  const details_changed = detailsKey((_a = booking.extension_data) == null ? void 0 : _a.details) !== detailsKey((_b = desired.extension_data) == null ? void 0 : _b.details);
+  if (!details_changed && !Object.keys(changes).length)
+    return null;
+  return __spreadProps(__spreadValues({}, changes), { extension_data: desired.extension_data });
+}
+function visitorFlagExtension(item) {
+  return __spreadValues(__spreadValues({}, readAttendeeFlags(item)), readAttendeeFlags(item.extension_data || {}));
+}
+async function createBookingsForEvent(event, type, resources) {
+  var _a;
+  const existing = await linkedBookingsForEvent(event, type);
+  const zones = ((_a = event.system) == null ? void 0 : _a.zones) || unique(flatten(event.resources.map((_) => _.zones))) || [];
+  const kept = /* @__PURE__ */ new Set();
+  const created_bookings = [];
+  try {
+    for (const id of replacedEventBookingIds(event, type)) {
+      await removeBooking(id);
+    }
+    for (const item of resources) {
+      const booking = existing.find((_) => !kept.has(_.id) && bookingMatchesResource(_, item));
+      const assigned_space = type === "catering-order" && item.system_id ? event.resources.find((_) => _.id === item.system_id || _.email === item.system_id) : void 0;
+      const resource_id = (assigned_space == null ? void 0 : assigned_space.id) || item.system_id || item.email || item.id;
+      const resource_name = (assigned_space == null ? void 0 : assigned_space.display_name) || (assigned_space == null ? void 0 : assigned_space.name) || item.name;
+      const desired = new Booking({
+        type,
+        booking_type: type,
+        date: event.date,
+        duration: event.duration,
+        description: event.title || item.name,
+        user_email: event.host,
+        asset_id: resource_id,
+        asset_name: resource_name,
+        title: event.title,
+        attendees: item.email ? [new User(item)] : [],
+        extension_data: __spreadValues({
+          parent_id: event.id,
+          name: resource_name,
+          location_id: (assigned_space == null ? void 0 : assigned_space.id) || event.location,
+          details: item
+        }, type === "visitor" ? visitorFlagExtension(item) : {}),
+        zones: (assigned_space == null ? void 0 : assigned_space.zones) || zones
+      });
+      if (booking) {
+        kept.add(booking.id);
+        const changes = linkedBookingChanges(booking, desired);
+        if (changes)
+          await updateBooking(booking.id, changes);
+        continue;
+      }
+      created_bookings.push(event.from_bookings ? await createBooking(__spreadProps(__spreadValues({}, desired.toJSON()), {
+        parent_id: parentBookingId(event.id)
+      })) : await createBooking(desired.toJSON(), {
+        ical_uid: event.ical_uid,
+        event_id: event.id
+      }));
+    }
+    for (const booking of existing) {
+      if (!kept.has(booking.id))
+        await removeBooking(booking.id);
+    }
+  } catch (error) {
+    await Promise.all(created_bookings.filter((booking) => !!booking.id).map((booking) => removeBooking(booking.id).catch(() => void 0)));
+    throw error;
+  }
+}
+
 // libs/assets/src/lib/assets.fn.ts
 function filter_hidden_items(response) {
   return __spreadProps(__spreadValues({}, response), {
@@ -5985,7 +5983,7 @@ var _PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-AJH2WZ6C.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-FGGKY3W6.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -12014,5 +12012,5 @@ export {
   burnInOffset,
   PanelStateService
 };
-//# debugId=4b72fdf5-9d95-54b3-b337-12d9afc06a2e
-//# sourceMappingURL=chunk-E6F5AD2P.js.map
+//# debugId=564ecf81-a4e1-558d-977d-859647dd13ce
+//# sourceMappingURL=chunk-TCRZ6ALO.js.map

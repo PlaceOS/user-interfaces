@@ -19,6 +19,7 @@ import {
   i18n,
   isSameDay,
   log,
+  loggableError,
   metadata_exports,
   mockFetch,
   mockRealtimeEnvironment,
@@ -35,7 +36,7 @@ import {
   toDate,
   unique,
   users_exports
-} from "./chunk-U2NNLUDF.js";
+} from "./chunk-7KIZO25G.js";
 import {
   BehaviorSubject,
   Injectable,
@@ -281,15 +282,15 @@ var HotkeysService = _HotkeysService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "ec35d0f",
-  "hash": "ec35d0f",
+  "raw": "acf45e9",
+  "hash": "acf45e9",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ec35d0f",
+  "suffix": "acf45e9",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795573311753
+  "time": 1795585147413
 };
 
 // libs/common/src/lib/settings.ts
@@ -1685,7 +1686,7 @@ async function loadUserGroups() {
     user_groups.set(groups);
     console.log("Permissions:", user_permissions());
   } catch (error) {
-    console.warn("Failed to load user groups.", loadError(error));
+    console.warn("Failed to load user groups.", loggableError(error));
     user_groups.set([]);
     user_groups_failed.set(true);
   } finally {
@@ -1703,7 +1704,7 @@ function initialiseUser() {
   ]).pipe(map(([i]) => new StaffUser(i)));
   if (is_public_mode) {
     user_request.pipe(catchError((error) => {
-      console.warn("User loading failed in public mode, using local public user data.", loadError(error));
+      console.warn("User loading failed in public mode, using local public user data.", loggableError(error));
       return of(setPublicUser());
     })).subscribe((user) => _current_user.next(user));
     return;
@@ -1712,18 +1713,13 @@ function initialiseUser() {
     count: 10,
     delay: (error, count) => {
       const delay_ms = Math.min(1e3 * Math.pow(2, count), 3e4);
-      console.warn(`User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`, loadError(error));
+      console.warn(`User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`, loggableError(error));
       return timer(delay_ms);
     }
   })).subscribe({
     next: (user) => applyUser(user),
-    error: (error) => console.error("User loading failed after 10 retries.", loadError(error))
+    error: (error) => console.error("User loading failed after 10 retries.", loggableError(error))
   });
-}
-function loadError(error) {
-  if (!(error instanceof CallFailed))
-    return error;
-  return { kind: error.error.kind, status: error.status };
 }
 function applyUser(user) {
   _current_user.next(user);
@@ -1738,7 +1734,7 @@ function reloadUserData() {
       applyUser(new StaffUser(p_user));
     } catch (error) {
       if (isPublicMode()) {
-        console.warn("User reload failed in public mode, using local public user data.", loadError(error));
+        console.warn("User reload failed in public mode, using local public user data.", loggableError(error));
         setPublicUser();
         return;
       }
@@ -2265,6 +2261,9 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     this.debug_overrides = this._debug_overrides.asReadonly();
     this._subjects = {};
     this._pending_settings = {};
+    this._save_count = 0;
+    this._endSettingsRead = () => void 0;
+    this._user_settings_loaded = new Promise((resolve) => this._endSettingsRead = resolve);
     this.theme_signal = active_theme;
     this.time_format_signal = computed(
       () => this.signal("use_24_hour_time", false)() ? "HH:mm" : "h:mm a",
@@ -2302,12 +2301,17 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
       window.setting = (key) => this.get(key);
     }
     const user = await this._currentUser();
+    let loaded = true;
     const data = await metadata_exports.show({ id: user.id, name: "settings" }).then(orThrow).then((data2) => data2["settings"]).catch((error) => {
-      log("Settings", "Unable to load user settings", error, "warn");
+      log("Settings", "Unable to load user settings", loggableError(error), "warn");
+      loaded = false;
       return null;
     });
     const details = data == null ? void 0 : data.details;
+    if (typeof details === "string")
+      loaded = false;
     this._user_settings.set(withLegacyUserSettings(details && typeof details === "object" && !Array.isArray(details) ? details : {}));
+    this._endSettingsRead(loaded);
     this._updateSignals();
     this.timeout("init", () => {
       this._initDarkMode();
@@ -2392,6 +2396,11 @@ var _SettingsService = class _SettingsService extends AsyncHandler {
     element.innerText = css_string;
   }
   async _savePendingChanges() {
+    const save = ++this._save_count;
+    if (!await this._user_settings_loaded)
+      return;
+    if (save !== this._save_count)
+      return;
     const user = currentUser();
     if (!(user == null ? void 0 : user.id) || !Object.keys(this._pending_settings).length)
       return;
@@ -2556,6 +2565,7 @@ export {
   GoogleAnalyticsService,
   VERSION,
   listenToConsole,
+  isJsonRecord,
   isJsonArray,
   jsonRecord,
   DEFAULT_SETTINGS,
@@ -2594,5 +2604,5 @@ export {
   themedLogo,
   SettingsService
 };
-//# debugId=33de9b72-8145-5a87-ab4e-6b68c2c9954a
-//# sourceMappingURL=chunk-NUFIPUSX.js.map
+//# debugId=8ae71201-dc36-58ab-a547-659b9aff2f68
+//# sourceMappingURL=chunk-4RW44TB6.js.map

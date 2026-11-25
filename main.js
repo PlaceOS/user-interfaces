@@ -4,21 +4,21 @@ import {
   RemoteSetupService,
   bookingRemoteSetup,
   remoteSetupCommandBinding
-} from "./chunk-6DUTA3U2.js";
+} from "./chunk-ZDPDVNU3.js";
 import {
   subMinutes
-} from "./chunk-PSDZINS3.js";
+} from "./chunk-BRQU4UWT.js";
 import {
   generateMockSpace,
   setHours,
   subDays
-} from "./chunk-5V53VMYN.js";
+} from "./chunk-QMJFW326.js";
 import {
   AnnounceDirective
-} from "./chunk-QSH6XORE.js";
+} from "./chunk-RCJMLNWY.js";
 import {
   TranslatePipe
-} from "./chunk-HKVWWKGH.js";
+} from "./chunk-D6EWFVMJ.js";
 import "./chunk-PGER6XBG.js";
 import {
   LazySentryErrorHandler,
@@ -43,7 +43,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-S56BDEXR.js";
+} from "./chunk-6IY7OQCP.js";
 import {
   GroupPermission,
   SettingsService,
@@ -59,7 +59,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-NUFIPUSX.js";
+} from "./chunk-4RW44TB6.js";
 import {
   AsyncHandler,
   LocaleService,
@@ -80,7 +80,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-U2NNLUDF.js";
+} from "./chunk-7KIZO25G.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
@@ -5635,12 +5635,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -11096,11 +11096,11 @@ function mocksInit() {
 // apps/booking-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-OYZEPLBK.js").then((m) => m.ChatComponent)
+  import("./chat.component-MHRPCXOW.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-44QZ632B.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-7KHSGU22.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11165,9 +11165,9 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-OYZEPLBK.js").then((m) => m.ChatComponent),
+    import("./chat.component-MHRPCXOW.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-44QZ632B.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-7KHSGU22.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11218,22 +11218,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-6UUDVOC4.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-LFMW2K72.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-LH2EW5TS.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-S5GHH2FF.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "checkin/:system_id",
-    loadComponent: () => import("./checkin-view.component-3SPK3JNW.js").then((m) => m.CheckinViewComponent),
+    loadComponent: () => import("./checkin-view.component-RUFORE3X.js").then((m) => m.CheckinViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "events/:system_id",
-    loadComponent: () => import("./event-panel.component-6XLJM7LG.js").then((m) => m.EventPanelComponent),
+    loadComponent: () => import("./event-panel.component-WSYSZX2M.js").then((m) => m.EventPanelComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11265,5 +11265,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=540caf79-94b0-5c64-b71e-ff87f65ec02f
+//# debugId=9fe36736-65f6-5cb0-85bf-bc55213db138
 //# sourceMappingURL=main.js.map
