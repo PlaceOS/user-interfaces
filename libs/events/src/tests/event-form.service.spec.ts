@@ -24,7 +24,7 @@ import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
 import type { Payment } from 'libs/payments/src/lib/payment.types';
 import { PaymentsService } from 'libs/payments/src/lib/payments.service';
 
-import { mockData } from '@placeos/common/tests';
+import { httpFailure, mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
 import { System, type SystemInput } from '@placeos/ts-client';
 import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
@@ -39,7 +39,6 @@ import {
 } from '@placeos/ts-client/staff';
 import { CalendarService } from '../lib/calendar.service';
 import { EventFormService } from '../lib/event-form.service';
-import { httpFailure } from './staff-test-data';
 
 // Only the ts-client API layers are stubbed; the real events.fn and
 // bookings.fn wrappers run (findEventClashes is steered by stubbing the staff
@@ -2828,11 +2827,11 @@ describe('EventFormService', () => {
         vi.mocked(events.clashingAssets).mockClear();
         vi.mocked(events.clashingAssets).mockResolvedValue(
             mockReply([
+                // Staff API gives the room and times of an event clash
                 {
-                    asset_id: 'space-1',
-                    booking_start: Math.floor(date / 1000) + 24 * 60 * 60,
-                    booking_end:
-                        Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
+                    system_id: 'space-1',
+                    event_start: Math.floor(date / 1000) + 24 * 60 * 60,
+                    event_end: Math.floor(date / 1000) + 24 * 60 * 60 + 60 * 60,
                 },
             ]),
         );

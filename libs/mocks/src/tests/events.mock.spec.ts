@@ -201,9 +201,9 @@ describe('registerMockEvents', () => {
         expect(clashes(booking)).toEqual(['sys-clash']);
         expect(clashes(booking, 'true')).toEqual([
             {
-                asset_id: 'sys-clash',
-                booking_start: START,
-                booking_end: START + 1800,
+                system_id: 'sys-clash',
+                event_start: START,
+                event_end: START + 1800,
             },
         ]);
         // An event does not clash with itself when it is edited

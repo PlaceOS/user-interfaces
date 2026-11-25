@@ -4,7 +4,13 @@ import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 
 import { OrganisationService } from '@placeos/common';
 
-import { flatten, SettingsService, Space, unique } from '@placeos/common';
+import {
+    flatten,
+    loggableError,
+    SettingsService,
+    Space,
+    unique,
+} from '@placeos/common';
 import { SpacePipe } from './space.pipe';
 
 let SPACE_PIPE: SpacePipe;
@@ -115,7 +121,7 @@ export class SpacesService {
             })
             .then(orThrowPage)
             .catch((error: unknown) => {
-                console.warn('Failed to load spaces.', error);
+                console.warn('Failed to load spaces.', loggableError(error));
                 return null;
             });
         if (!response) return;

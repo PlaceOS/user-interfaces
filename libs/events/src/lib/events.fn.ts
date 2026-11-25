@@ -4,6 +4,7 @@ import {
     CalendarEvent,
     EventExtensionData,
     GuestUser,
+    isJsonRecord,
     jsonRecord,
     toJsonValue,
 } from '@placeos/common';
@@ -17,7 +18,6 @@ import {
     PlaceCalendarEventAttendee,
 } from '@placeos/ts-client/staff';
 import { addMinutes, getUnixTime } from 'date-fns';
-import { toBookingClash } from 'libs/bookings/src/lib/bookings.fn';
 import { requestBody } from 'libs/bookings/src/lib/request-body';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
@@ -289,14 +289,11 @@ export async function createEvent(
  * @param id ID of the event to update
  * @param data New values for event fields
  * @param q Parameters to pass to the API request
- * @param _method Not used. The API has one update action, so PUT and PATCH
- *   both send PATCH
  */
 export async function updateEvent(
     id: string,
     data: Partial<CalendarEvent>,
     q: CalendarEventShowParams = {},
-    _method: 'put' | 'patch' = 'patch',
 ): Promise<CalendarEvent> {
     const item = await events
         .update({
@@ -581,9 +578,25 @@ export async function findEventClashes(
             })
             .then(orThrow);
         return q.include_clash_time
-            ? list.map(toBookingClash).filter((_) => !!_)
+            ? list.map(toEventClash).filter((_) => !!_)
             : list.filter((_): _ is string => typeof _ === 'string');
     } catch (_) {
         return [];
     }
+}
+
+/**
+ * A clash from the JSON list of the clashing assets endpoint of events, or
+ * `null`. With `include_clash_time`, Staff API gives the room as
+ * `system_id` and the times as `event_start` and `event_end`.
+ */
+function toEventClash(item: JsonValue): BookingClash | null {
+    if (!isJsonRecord(item)) return null;
+    const { system_id, event_start, event_end } = item;
+    if (typeof system_id !== 'string') return null;
+    return {
+        asset_id: system_id,
+        booking_start: typeof event_start === 'number' ? event_start : 0,
+        booking_end: typeof event_end === 'number' ? event_end : 0,
+    };
 }

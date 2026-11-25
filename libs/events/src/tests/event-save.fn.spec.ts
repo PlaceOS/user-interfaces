@@ -151,18 +151,23 @@ describe('checkRecurringClashes', () => {
         }));
         return { open } as unknown as MatDialog & { open: typeof open };
     };
-    /** Clash of a room at the given start, as the API sends it. */
+    /** Clash of a room at the given start, as the app reads it */
     const clash = (booking_start: number): BookingClash => ({
         asset_id: 'room-1',
         booking_start,
         booking_end: booking_start + 3600,
     });
+    /** Clashes at the given starts, as Staff API sends them */
     const mockClashes = (starts: number[]) =>
-        vi
-            .mocked(events.clashingAssets)
-            .mockResolvedValue(
-                mockReply(starts.map((start) => ({ ...clash(start) }))),
-            );
+        vi.mocked(events.clashingAssets).mockResolvedValue(
+            mockReply(
+                starts.map((start) => ({
+                    system_id: 'room-1',
+                    event_start: start,
+                    event_end: start + 3600,
+                })),
+            ),
+        );
 
     beforeEach(() => vi.clearAllMocks());
 
