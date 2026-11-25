@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["site-attendance-report-chart.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n            }\n\n            canvas {\n                width: 100% !important;\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;AACJ;AAEA;AACI,SAAA;AACJ;",
+  "sourcesContent": ["\n            :host {\n                display: block;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACJ;",
   "names": []
 }
