@@ -456,8 +456,8 @@ function number() {
 function boolean() {
   return { node: { kind: "boolean" } };
 }
-function json() {
-  return { node: { kind: "json" } };
+function json(options = {}) {
+  return { node: { kind: "json", decode_text: options.decode_text === true } };
 }
 function nullable(inner) {
   return { node: { kind: "nullable", inner: inner.node } };
@@ -548,6 +548,9 @@ function walk(node, value, direction, failure2, depth) {
     case "json":
       if (!isJsonValue(value))
         return fail(failure2, "JSON value");
+      if (node.decode_text && direction === "response" && typeof value === "string") {
+        return decodeJsonText(value);
+      }
       return value;
     case "nullable":
       if (value === null)
@@ -804,6 +807,15 @@ function isJsonValue(value) {
       stack.push({ value: current3[key], depth: top.depth + 1 });
   }
   return false;
+}
+function decodeJsonText(text) {
+  let decoded;
+  try {
+    decoded = JSON.parse(text);
+  } catch {
+    return text;
+  }
+  return isJsonValue(decoded) ? decoded : text;
 }
 function fail(failure2, expected) {
   failure2.expected = expected;
@@ -1644,7 +1656,7 @@ function createRealtime(config) {
   function drain() {
     drain_scheduled = false;
     const messages = inbox.splice(0, inbox.length);
-    const changed = /* @__PURE__ */ new Map();
+    const notifications = [];
     const logs = [];
     const received_at_ms = environment.now();
     for (const data of messages) {
@@ -1675,7 +1687,7 @@ function createRealtime(config) {
               name,
               value: message2.value
             });
-            changed.set(variableKey(message2.meta), message2.value);
+            notifications.push([variableKey(message2.meta), message2.value]);
           }
           break;
         case "debug": {
@@ -1694,10 +1706,10 @@ function createRealtime(config) {
           unreachable(message2.type);
       }
     }
-    for (const [key, changed_value] of changed) {
+    for (const [key, notified_value] of notifications) {
       const binding = bindings.get(key);
       if (binding !== void 0) {
-        setBindingState(binding, { kind: "value", value: changed_value });
+        setBindingState(binding, { kind: "value", value: notified_value });
       }
     }
     for (const [entry, log4] of logs) {
@@ -2691,7 +2703,8 @@ var GroupsCurrentGroup = GroupsCurrentGroupSchema;
 var MetadataInterfaceSchema = /* @__PURE__ */ object({
   name: /* @__PURE__ */ string(),
   description: /* @__PURE__ */ string(),
-  details: /* @__PURE__ */ json(),
+  /** In a response, a string of JSON text becomes its value. */
+  details: /* @__PURE__ */ json({ decode_text: true }),
   parent_id: /* @__PURE__ */ nullable(/* @__PURE__ */ string()),
   schema_id: /* @__PURE__ */ nullable(/* @__PURE__ */ string()),
   editors: /* @__PURE__ */ array(/* @__PURE__ */ string()),
@@ -7762,9 +7775,12 @@ function notifySuccess(msg, action, on_action, config = {}) {
   notify("success", msg, action, on_action, config);
 }
 function notifyError(msg, action, on_action, config = {}) {
+  if (typeof msg !== "string") {
+    const value = msg;
+    const text = [value?.error, value?.message].find((_) => typeof _ === "string" && _.length > 0);
+    msg = text || "An error occurred";
+  }
   !_disable_logging && console.debug(msg);
-  if (typeof msg !== "string")
-    msg = msg?.error || msg?.message || "An error occurred";
   notify("error", msg, action, on_action, config);
 }
 function notifyInfo(msg, action, on_action, config = {}) {
@@ -8022,6 +8038,11 @@ function errorMessage2(error) {
   if (typeof value?.error?.message === "string")
     return value.error.message;
   return "";
+}
+function loggableError(error) {
+  if (!(error instanceof CallFailed))
+    return error;
+  return { kind: error.error.kind, status: error.status };
 }
 async function responseErrorMessage(error) {
   if (error instanceof CallFailed && error.error.kind === "http") {
@@ -8342,7 +8363,8 @@ export {
   firstTruthyValueFrom,
   withTimeout,
   errorMessage2 as errorMessage,
+  loggableError,
   responseErrorMessage
 };
-//# debugId=c00dfaa6-36cb-57bb-8202-068adad44a5c
-//# sourceMappingURL=chunk-DEUDK4TF.js.map
+//# debugId=84fe8122-e688-5ece-8056-2d720aee8280
+//# sourceMappingURL=chunk-MPKWKRGC.js.map

@@ -4,13 +4,13 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-4TT3WPDK.js";
+} from "./chunk-JDQZCIGF.js";
 import {
   AnnounceDirective
-} from "./chunk-U2N2467Y.js";
+} from "./chunk-O2GWJOFJ.js";
 import {
   TranslatePipe
-} from "./chunk-EUF5CCAQ.js";
+} from "./chunk-FHLLKAVB.js";
 import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
@@ -37,7 +37,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-3BFTB4WO.js";
+} from "./chunk-AQ5WMQ2G.js";
 import {
   GroupPermission,
   SettingsService,
@@ -55,7 +55,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-SUEJXZMK.js";
+} from "./chunk-H6VMW64M.js";
 import {
   AsyncHandler,
   addDays,
@@ -75,7 +75,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-DEUDK4TF.js";
+} from "./chunk-MPKWKRGC.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
@@ -5607,12 +5607,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -11005,11 +11005,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-XRAPWVLA.js").then((m) => m.ChatComponent)
+  import("./chat.component-SGBQHQNU.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-MJKPU4HQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-3KAOCTXJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11074,9 +11074,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-XRAPWVLA.js").then((m) => m.ChatComponent),
+    import("./chat.component-SGBQHQNU.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-MJKPU4HQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-3KAOCTXJ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11124,7 +11124,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-CPBKZADL.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-K5WRLMKC.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -11163,5 +11163,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=ed3d67e9-8f0f-5ef3-8713-39810c6c4954
+//# debugId=b57ec809-1883-5ff2-8872-bae78d1d06a4
 //# sourceMappingURL=main.js.map

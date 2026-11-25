@@ -17,7 +17,7 @@ import {
   MatProgressSpinnerModule,
   SelectionModel,
   openConfirmModal
-} from "./chunk-HPTYSHW2.js";
+} from "./chunk-HVHPFNNB.js";
 import {
   MAT_FORM_FIELD,
   MatError,
@@ -30,7 +30,7 @@ import {
 } from "./chunk-5BOIFWXM.js";
 import {
   CustomTooltipComponent
-} from "./chunk-OPEJTVOY.js";
+} from "./chunk-5OL7TFX7.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -57,13 +57,13 @@ import {
   orderLocation,
   requestSpacesForZone,
   subDays
-} from "./chunk-4TT3WPDK.js";
+} from "./chunk-JDQZCIGF.js";
 import {
   AnnounceDirective
-} from "./chunk-U2N2467Y.js";
+} from "./chunk-O2GWJOFJ.js";
 import {
   TranslatePipe
-} from "./chunk-EUF5CCAQ.js";
+} from "./chunk-FHLLKAVB.js";
 import {
   FORM_FIELD,
   FormField,
@@ -75,7 +75,7 @@ import {
   OrganisationService,
   PushNotificationService,
   UploadsService
-} from "./chunk-3BFTB4WO.js";
+} from "./chunk-AQ5WMQ2G.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -101,7 +101,7 @@ import {
   toJsonValue,
   token,
   user_group_names
-} from "./chunk-SUEJXZMK.js";
+} from "./chunk-H6VMW64M.js";
 import {
   AsyncHandler,
   CallFailed,
@@ -123,6 +123,7 @@ import {
   enUS,
   endOfDay,
   endOfDayInTimezone,
+  errorMessage,
   flatten,
   format,
   getDefaultOptions,
@@ -173,7 +174,7 @@ import {
   union,
   unique,
   warnOrThrowProtectedError
-} from "./chunk-DEUDK4TF.js";
+} from "./chunk-MPKWKRGC.js";
 import "./chunk-COFQG2BS.js";
 import {
   DefaultValueAccessor,
@@ -4685,7 +4686,7 @@ async function queryBookingsOrThrow(q) {
   const list = await bookings_exports.query(bookingQuery(q)).then(orThrow);
   return list.map(toBooking);
 }
-async function updateBooking(id, data, _method = "patch") {
+async function updateBooking(id, data) {
   const booking = await bookings_exports.update({ id: bookingId(id), body: bookingBody(data) }).then(orThrow);
   return toBooking(booking);
 }
@@ -8966,24 +8967,25 @@ function deleteCateringItem(id) {
 function cateringSettingsFromJson(details) {
   if (!isJsonRecord(details))
     return {};
-  const settings = {};
-  if (typeof details["require_notes"] === "boolean") {
-    settings.require_notes = details["require_notes"];
+  const _a = details, { require_notes, charge_codes, disabled_rooms } = _a, other = __objRest(_a, ["require_notes", "charge_codes", "disabled_rooms"]);
+  const settings = __spreadValues({}, other);
+  if (typeof require_notes === "boolean") {
+    settings.require_notes = require_notes;
   }
-  if (isJsonArray(details["charge_codes"])) {
-    settings.charge_codes = jsonStrings(details["charge_codes"]);
+  if (isJsonArray(charge_codes)) {
+    settings.charge_codes = jsonStrings(charge_codes);
   }
-  if (isJsonArray(details["disabled_rooms"])) {
-    settings.disabled_rooms = jsonStrings(details["disabled_rooms"]);
+  if (isJsonArray(disabled_rooms)) {
+    settings.disabled_rooms = jsonStrings(disabled_rooms);
   }
   return settings;
 }
 function rulesetsFromJson(details) {
   return jsonRecords(details).flatMap((item) => {
-    const { id, name, rules } = item;
+    const _a = item, { id, name, rules } = _a, other = __objRest(_a, ["id", "name", "rules"]);
     if (typeof name !== "string" || !isJsonArray(rules))
       return [];
-    const ruleset = __spreadProps(__spreadValues({}, typeof id === "string" ? { id } : {}), {
+    const ruleset = __spreadProps(__spreadValues(__spreadValues({}, other), typeof id === "string" ? { id } : {}), {
       name,
       rules: rules.filter((rule) => isJsonArray(rule) && rule.length === 2 && typeof rule[0] === "string")
     });
@@ -17685,7 +17687,12 @@ var CateringStateService = class _CateringStateService extends AsyncHandler {
     });
   }
   async editConfig() {
-    const config = await this.getCateringConfig(this._org.building.id);
+    const config = await this.getCateringConfig(this._org.building.id).catch((error) => {
+      notifyError(`Failed to load the catering rules. ${errorMessage(error)}`);
+      return null;
+    });
+    if (!config)
+      return;
     const { require_notes } = this.settings();
     const menu = this._menu();
     const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
@@ -17770,7 +17777,11 @@ var CateringStateService = class _CateringStateService extends AsyncHandler {
   }
   async getCateringConfig(zone_id = this._org.building.id) {
     const data = await metadata_exports.show({ id: zone_id, name: "catering_config" }).then(orThrow);
-    return rulesetsFromJson(data["catering_config"]?.details);
+    const details = data["catering_config"]?.details;
+    if (typeof details === "string") {
+      throw new Error("The catering rules are not valid JSON.");
+    }
+    return rulesetsFromJson(details);
   }
   updateConfig(zone_id, config) {
     return metadata_exports.update({
@@ -22010,5 +22021,5 @@ var CateringComponent = class _CateringComponent {
 export {
   CateringComponent
 };
-//# debugId=05af439c-b140-50c0-b303-1c4f5f5b846f
-//# sourceMappingURL=catering.component-CPBKZADL.js.map
+//# debugId=461f6075-b50d-5489-a15a-b9289f601c7c
+//# sourceMappingURL=catering.component-K5WRLMKC.js.map

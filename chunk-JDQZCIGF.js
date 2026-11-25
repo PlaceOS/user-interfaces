@@ -1,20 +1,20 @@
 import {
   TranslatePipe
-} from "./chunk-EUF5CCAQ.js";
+} from "./chunk-FHLLKAVB.js";
 import {
   OrganisationService
-} from "./chunk-3BFTB4WO.js";
+} from "./chunk-AQ5WMQ2G.js";
 import {
   SettingsService,
   Space
-} from "./chunk-SUEJXZMK.js";
+} from "./chunk-H6VMW64M.js";
 import {
   addDays,
   orThrow,
   orThrowPage,
   predictableRandomInt,
   systems_exports
-} from "./chunk-DEUDK4TF.js";
+} from "./chunk-MPKWKRGC.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -781,4 +781,4 @@ export {
   CateringOrderDocketsComponent
 };
 //# debugId=960e9582-9796-5e16-b3cd-96139aaaf729
-//# sourceMappingURL=chunk-4TT3WPDK.js.map
+//# sourceMappingURL=chunk-JDQZCIGF.js.map
