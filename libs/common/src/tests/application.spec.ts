@@ -316,6 +316,31 @@ describe('application cache handling', () => {
         ).toBe(true);
     });
 
+    // The worker sends no VERSION_READY to a page it has not assigned a
+    // version, such as one that loaded before the worker controlled it.
+    it('should reload when its own check installs a new version', async () => {
+        cache.checkForUpdate.mockResolvedValue(true);
+        app.setupCache(cache, { auto_reload: true });
+        await vi.advanceTimersByTimeAsync(3000);
+
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reload when another check changes the latest version', () => {
+        app.setupCache(cache, { auto_reload: true });
+        const up_to_date = (hash: string) =>
+            version_updates.next({
+                type: 'NO_NEW_VERSION_DETECTED',
+                version: { hash },
+            });
+        up_to_date('current-version');
+        up_to_date('current-version');
+        expect(reload).not.toHaveBeenCalled();
+
+        up_to_date('next-version');
+        expect(reload).toHaveBeenCalledTimes(1);
+    });
+
     it('should stop polling once a new version is found', () => {
         app.setupCache(cache);
         version_updates.next(version_ready);

@@ -19,6 +19,8 @@ let _init_reload: (() => void) | null = null;
 let _init_reload_timer: ReturnType<typeof setTimeout> | undefined;
 let _last_update_check = 0;
 let _update_interval = 0;
+/** Latest version hash the worker reported first after this page loaded */
+let _known_version = '';
 
 const INIT_RELOAD_KEY = 'PlaceOS.initialisation_reloads';
 const INIT_RELOAD_WINDOW_MS = 5 * MINUTES;
@@ -333,8 +335,16 @@ export function setupCache(
         if (!_version_subscription) {
             _version_subscription = cache.versionUpdates.subscribe((event) => {
                 logVersionUpdate(event);
-                if (event.type !== 'VERSION_READY' || _new_version) return;
-                handleNewVersion();
+                if (event.type === 'VERSION_READY') return handleNewVersion();
+                if (event.type !== 'NO_NEW_VERSION_DETECTED') return;
+                // The worker sends VERSION_READY only to pages it has assigned
+                // a version. A page that loaded before the worker controlled
+                // it gets none, so a change in the latest hash is the only
+                // sign that another check installed a new version.
+                if (!_known_version) _known_version = event.version.hash;
+                else if (event.version.hash !== _known_version) {
+                    handleNewVersion();
+                }
             });
         }
         if (!_unrecoverable_subscription) {
@@ -386,6 +396,7 @@ export function clearCacheCheck() {
     _reload_gate = null;
     _last_update_check = 0;
     _update_interval = 0;
+    _known_version = '';
     _init_reload = null;
     cancelInitReload();
     _version_subscription?.unsubscribe();
@@ -400,14 +411,17 @@ export function clearCacheCheck() {
 }
 
 /**
- * Check whether a new app version is available.
- *
+ * Check whether a new app version is available. The check resolves `true`
+ * only after the worker has installed the new version, so it is handled as
+ * ready here too. The worker does not send VERSION_READY to a page it has not
+ * assigned a version, such as one that loaded before the worker controlled it.
  */
 async function checkForUpdate(cache: SwUpdate) {
     _last_update_check = Date.now();
     try {
         if (cache.isEnabled && (await cache.checkForUpdate())) {
             log('CACHE', `Application update detected.`);
+            handleNewVersion();
         }
     } catch (error) {
         log('CACHE', `Failed to check for application updates.`, error, 'warn');
