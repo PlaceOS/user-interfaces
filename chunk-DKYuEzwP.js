@@ -1,1 +1,0 @@
-import{t as Gm}from"./main-KBCPQU2I.js";function n(){Gm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};

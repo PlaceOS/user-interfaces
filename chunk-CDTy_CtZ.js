@@ -1,0 +1,1 @@
+import{t as Bm}from"./main-XDJF76JS.js";function n(){Bm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
