@@ -815,13 +815,20 @@ export class SignageService extends AsyncHandler {
             if (this.hasSubscription(name)) continue;
             const binding = mod.variable(id);
             // Fire only when the value turns truthy. A trigger resetting to
-            // false must not fire.
+            // false must not fire. A new binding does not know the value
+            // yet, so its first value is the start state: a held trigger
+            // does not fire.
+            let known = binding.value() !== undefined;
             let active = !!binding.value();
             this.subscription(
                 name,
                 binding.subscribe((value) => {
                     const was_active = active;
                     active = !!value;
+                    if (!known) {
+                        known = true;
+                        return;
+                    }
                     if (active && !was_active) this._handleTrigger(id);
                 }),
             );
