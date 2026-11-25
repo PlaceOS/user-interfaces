@@ -133,14 +133,11 @@ describe('IGNORED_ERRORS', () => {
         const client = {
             getOptions: () => ({ ignoreErrors: IGNORED_ERRORS }),
         } as unknown as Sentry.BrowserClient;
-        return (value: string) =>
+        // The default type is how Sentry reports a promise that rejects with
+        // a string
+        return (value: string, type = 'UnhandledRejection') =>
             eventFiltersIntegration().processEvent?.(
-                // How Sentry reports a promise that rejects with a string
-                {
-                    exception: {
-                        values: [{ type: 'UnhandledRejection', value }],
-                    },
-                },
+                { exception: { values: [{ type, value }] } },
                 {},
                 client,
             ) ?? null;
@@ -161,6 +158,16 @@ describe('IGNORED_ERRORS', () => {
         ).toBeNull();
     });
 
+    it('should drop the Safari extension message rejection', async () => {
+        const process = await filter();
+        expect(
+            process(
+                'Invalid call to runtime.sendMessage(). Tab not found.',
+                'Error',
+            ),
+        ).toBeNull();
+    });
+
     it('should keep other rejections', async () => {
         const process = await filter();
         for (const value of [
@@ -169,6 +176,12 @@ describe('IGNORED_ERRORS', () => {
             `${PREFIX}cannot communicate with background service`,
         ]) {
             expect(process(value)).not.toBeNull();
+        }
+        for (const value of [
+            'Invalid call to runtime.sendMessage(). Frame not found.',
+            'Invalid call to runtime.sendMessage(). Tab not found. Retry',
+        ]) {
+            expect(process(value, 'Error')).not.toBeNull();
         }
     });
 });
