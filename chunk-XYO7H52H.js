@@ -34,7 +34,7 @@ import {
   token,
   waitForCurrentUser,
   waitForOnline
-} from "./chunk-WENC4LKO.js";
+} from "./chunk-INN7DSMB.js";
 import {
   AsyncHandler,
   LocaleService,
@@ -698,6 +698,162 @@ var ClipboardModule = class _ClipboardModule {
   }], null, null);
 })();
 
+// libs/common/src/lib/scrub-secrets.ts
+var SECRET_PARAM = /((?:[?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|jwt|token|code)|(?:^|[\s"',[])(?:api-key|bearer_token))=)[^&#;\s"'\\]+/gi;
+var MAX_SCRUB_DEPTH = 20;
+var SDK_METADATA_KEY = "sdkProcessingMetadata";
+function scrubSecrets(value, depth = 0) {
+  if (typeof value === "string") {
+    return value.replace(SECRET_PARAM, "$1[Filtered]");
+  }
+  if (!value || typeof value !== "object" || depth > MAX_SCRUB_DEPTH) {
+    return value;
+  }
+  const record = value;
+  for (const key of Object.keys(record)) {
+    if (depth === 0 && key === SDK_METADATA_KEY)
+      continue;
+    const scrubbed = scrubSecrets(record[key], depth + 1);
+    if (scrubbed !== record[key])
+      record[key] = scrubbed;
+  }
+  return value;
+}
+
+// libs/common/src/lib/log-format.ts
+var MAX_LOG_MESSAGE = 2e3;
+var MAX_ARGS = 20;
+var MAX_DEPTH = 4;
+var FORMAT_DIRECTIVE = /%[sdifoOc%]/g;
+var ANSI_CODE = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
+function formatLogArgs(all_args) {
+  try {
+    const args = all_args.slice(0, MAX_ARGS);
+    const parts = [];
+    let next = 0;
+    if (typeof args[0] === "string") {
+      next = 1;
+      parts.push(args[0].slice(0, MAX_LOG_MESSAGE).replace(FORMAT_DIRECTIVE, (directive) => {
+        if (directive === "%%")
+          return "%";
+        if (next >= args.length)
+          return directive;
+        const arg = args[next++];
+        if (directive === "%c")
+          return "";
+        if (directive === "%d" || directive === "%i") {
+          return numberText(arg, (_) => parseInt(_, 10));
+        }
+        if (directive === "%f") {
+          return numberText(arg, parseFloat);
+        }
+        return argText(arg);
+      }));
+    }
+    for (let i = next; i < args.length; i++)
+      parts.push(argText(args[i]));
+    return ownCopy(limitText(scrubSecrets(parts.join(" ").replace(ANSI_CODE, ""))));
+  } catch {
+    return "[Log entry that cannot be read]";
+  }
+}
+function stripConsoleStyles(args) {
+  const plain = (value) => typeof value === "string" ? value.replace(ANSI_CODE, "") : value;
+  if (typeof args[0] !== "string")
+    return args.map(plain);
+  const styles = /* @__PURE__ */ new Set();
+  let next = 1;
+  const format = args[0].replace(FORMAT_DIRECTIVE, (directive) => {
+    if (directive === "%%" || next >= args.length)
+      return directive;
+    if (directive === "%c") {
+      styles.add(next++);
+      return "";
+    }
+    next++;
+    return directive;
+  });
+  const rest = args.slice(1).filter((_, i) => !styles.has(i + 1));
+  return [format, ...rest].map(plain);
+}
+function numberText(value, parse) {
+  return typeof value === "symbol" ? "NaN" : `${parse(String(value))}`;
+}
+function ownCopy(text) {
+  return (" " + text).slice(1);
+}
+function limitText(text) {
+  return text.length > MAX_LOG_MESSAGE ? `${text.slice(0, MAX_LOG_MESSAGE - 1)}\u2026` : text;
+}
+function argText(value) {
+  if (typeof value === "string")
+    return value.slice(0, MAX_LOG_MESSAGE);
+  if (value instanceof Error)
+    return errorText(value);
+  if (value && typeof value === "object")
+    return boundedJson(value);
+  if (typeof value === "function")
+    return `[Function ${value.name || "anonymous"}]`;
+  return String(value);
+}
+function errorText(error) {
+  const head = `${error.name}: ${error.message}`;
+  const stack = typeof error.stack === "string" ? error.stack : "";
+  if (!stack)
+    return head;
+  return stack.startsWith(head) ? stack : `${head}
+${stack}`;
+}
+function boundedJson(root) {
+  let out = "";
+  const parents = /* @__PURE__ */ new Set();
+  const write = (text) => {
+    out += text;
+    return out.length < MAX_LOG_MESSAGE;
+  };
+  const visit = (value, depth) => {
+    if (typeof value === "string") {
+      return write(JSON.stringify(value.slice(0, MAX_LOG_MESSAGE).replace(ANSI_CODE, "")));
+    }
+    if (!value || typeof value !== "object") {
+      return write(typeof value === "function" ? "[Function]" : String(value));
+    }
+    if (value instanceof Error)
+      return write(JSON.stringify(errorText(value)));
+    if (value instanceof Date) {
+      return write(isNaN(value.getTime()) ? "Invalid Date" : value.toISOString());
+    }
+    if (parents.has(value))
+      return write("[Circular]");
+    const list = Array.isArray(value) ? value : null;
+    if (depth >= MAX_DEPTH)
+      return write(list ? "[Array]" : "[Object]");
+    parents.add(value);
+    const keys = list ? [] : Object.keys(value);
+    const count = list ? list.length : keys.length;
+    let open = write(list ? "[" : "{");
+    for (let i = 0; open && i < count; i++) {
+      if (i > 0 && !write(","))
+        open = false;
+      else if (!list && !write(`${JSON.stringify(keys[i])}:`))
+        open = false;
+      else {
+        let item;
+        try {
+          item = list ? list[i] : value[keys[i]];
+        } catch {
+          item = "[Unreadable]";
+        }
+        open = visit(item, depth + 1);
+      }
+    }
+    parents.delete(value);
+    return open && write(list ? "]" : "}");
+  };
+  visit(root, 0);
+  return out.slice(0, MAX_LOG_MESSAGE);
+}
+
 // libs/common/src/lib/sentry-rates.ts
 var DEFAULT_SENTRY_RATES = {
   traces: 1,
@@ -723,32 +879,23 @@ var LazySentryErrorHandler = class extends ErrorHandler {
     }
   }
 };
-var SECRET_PARAM = /((?:[?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|jwt|token|code)|(?:^|[\s"',[])(?:api-key|bearer_token))=)[^&#;\s"'\\]+/gi;
-var MAX_SCRUB_DEPTH = 20;
-var SDK_METADATA_KEY = "sdkProcessingMetadata";
-function scrubSecrets(value, depth = 0) {
-  if (typeof value === "string") {
-    return value.replace(SECRET_PARAM, "$1[Filtered]");
-  }
-  if (!value || typeof value !== "object" || depth > MAX_SCRUB_DEPTH) {
-    return value;
-  }
-  const record = value;
-  for (const key of Object.keys(record)) {
-    if (depth === 0 && key === SDK_METADATA_KEY)
-      continue;
-    const scrubbed = scrubSecrets(record[key], depth + 1);
-    if (scrubbed !== record[key])
-      record[key] = scrubbed;
-  }
-  return value;
-}
 function scrubEvent(event) {
   try {
     return scrubSecrets(event);
   } catch {
     return null;
   }
+}
+function plainConsoleBreadcrumb(breadcrumb) {
+  var _a;
+  const args = (_a = breadcrumb.data) == null ? void 0 : _a["arguments"];
+  if (breadcrumb.category !== "console" || !Array.isArray(args)) {
+    return breadcrumb;
+  }
+  return __spreadProps(__spreadValues({}, breadcrumb), {
+    message: formatLogArgs(args),
+    data: __spreadProps(__spreadValues({}, breadcrumb.data), { arguments: stripConsoleStyles(args) })
+  });
 }
 function scrubEnvelope(envelope) {
   for (const item of envelope[1]) {
@@ -821,6 +968,7 @@ async function initSentry(dsn, router, rates = {}) {
         httpBodies: [],
         urlQueryParams: { deny: PII_KEYS }
       },
+      beforeBreadcrumb: plainConsoleBreadcrumb,
       beforeSend: scrubEvent,
       // Sentry streams spans, so spans do not go through `beforeSend`
       beforeSendSpan: (span) => scrubSecrets(span)
@@ -876,6 +1024,7 @@ var _init_reload = null;
 var _init_reload_timer;
 var _last_update_check = 0;
 var _update_interval = 0;
+var _known_version = "";
 var INIT_RELOAD_KEY = "PlaceOS.initialisation_reloads";
 var INIT_RELOAD_WINDOW_MS = 5 * MINUTES;
 var INIT_RELOAD_LIMIT = 3;
@@ -1060,9 +1209,15 @@ function setupCache(cache, options = {}) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
         logVersionUpdate(event);
-        if (event.type !== "VERSION_READY" || _new_version)
+        if (event.type === "VERSION_READY")
+          return handleNewVersion();
+        if (event.type !== "NO_NEW_VERSION_DETECTED")
           return;
-        handleNewVersion();
+        if (!_known_version)
+          _known_version = event.version.hash;
+        else if (event.version.hash !== _known_version) {
+          handleNewVersion();
+        }
       });
     }
     if (!_unrecoverable_subscription) {
@@ -1100,6 +1255,7 @@ async function checkForUpdate(cache) {
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log("CACHE", `Application update detected.`);
+      handleNewVersion();
     }
   } catch (error) {
     log("CACHE", `Failed to check for application updates.`, error, "warn");
@@ -1478,121 +1634,6 @@ function deviceId() {
     }
   }
   return _device_id;
-}
-
-// libs/common/src/lib/log-format.ts
-var MAX_LOG_MESSAGE = 2e3;
-var MAX_ARGS = 20;
-var MAX_DEPTH = 4;
-var FORMAT_DIRECTIVE = /%[sdifoOc%]/g;
-var ANSI_CODE = /\u001b\[[0-9;?]*[ -/]*[@-~]/g;
-function formatLogArgs(all_args) {
-  try {
-    const args = all_args.slice(0, MAX_ARGS);
-    const parts = [];
-    let next = 0;
-    if (typeof args[0] === "string") {
-      next = 1;
-      parts.push(args[0].slice(0, MAX_LOG_MESSAGE).replace(FORMAT_DIRECTIVE, (directive) => {
-        if (directive === "%%")
-          return "%";
-        if (next >= args.length)
-          return directive;
-        const arg = args[next++];
-        if (directive === "%c")
-          return "";
-        if (directive === "%d" || directive === "%i") {
-          return numberText(arg, (_) => parseInt(_, 10));
-        }
-        if (directive === "%f") {
-          return numberText(arg, parseFloat);
-        }
-        return argText(arg);
-      }));
-    }
-    for (let i = next; i < args.length; i++)
-      parts.push(argText(args[i]));
-    return ownCopy(limitText(scrubSecrets(parts.join(" ").replace(ANSI_CODE, ""))));
-  } catch {
-    return "[Log entry that cannot be read]";
-  }
-}
-function numberText(value, parse) {
-  return typeof value === "symbol" ? "NaN" : `${parse(String(value))}`;
-}
-function ownCopy(text) {
-  return (" " + text).slice(1);
-}
-function limitText(text) {
-  return text.length > MAX_LOG_MESSAGE ? `${text.slice(0, MAX_LOG_MESSAGE - 1)}\u2026` : text;
-}
-function argText(value) {
-  if (typeof value === "string")
-    return value.slice(0, MAX_LOG_MESSAGE);
-  if (value instanceof Error)
-    return errorText(value);
-  if (value && typeof value === "object")
-    return boundedJson(value);
-  if (typeof value === "function")
-    return `[Function ${value.name || "anonymous"}]`;
-  return String(value);
-}
-function errorText(error) {
-  const head = `${error.name}: ${error.message}`;
-  const stack = typeof error.stack === "string" ? error.stack : "";
-  if (!stack)
-    return head;
-  return stack.startsWith(head) ? stack : `${head}
-${stack}`;
-}
-function boundedJson(root) {
-  let out = "";
-  const parents = /* @__PURE__ */ new Set();
-  const write = (text) => {
-    out += text;
-    return out.length < MAX_LOG_MESSAGE;
-  };
-  const visit = (value, depth) => {
-    if (typeof value === "string") {
-      return write(JSON.stringify(value.slice(0, MAX_LOG_MESSAGE).replace(ANSI_CODE, "")));
-    }
-    if (!value || typeof value !== "object") {
-      return write(typeof value === "function" ? "[Function]" : String(value));
-    }
-    if (value instanceof Error)
-      return write(JSON.stringify(errorText(value)));
-    if (value instanceof Date) {
-      return write(isNaN(value.getTime()) ? "Invalid Date" : value.toISOString());
-    }
-    if (parents.has(value))
-      return write("[Circular]");
-    const list = Array.isArray(value) ? value : null;
-    if (depth >= MAX_DEPTH)
-      return write(list ? "[Array]" : "[Object]");
-    parents.add(value);
-    const keys = list ? [] : Object.keys(value);
-    const count = list ? list.length : keys.length;
-    let open = write(list ? "[" : "{");
-    for (let i = 0; open && i < count; i++) {
-      if (i > 0 && !write(","))
-        open = false;
-      else if (!list && !write(`${JSON.stringify(keys[i])}:`))
-        open = false;
-      else {
-        let item;
-        try {
-          item = list ? list[i] : value[keys[i]];
-        } catch {
-          item = "[Unreadable]";
-        }
-        open = visit(item, depth + 1);
-      }
-    }
-    parents.delete(value);
-    return open && write(list ? "]" : "}");
-  };
-  visit(root, 0);
-  return out.slice(0, MAX_LOG_MESSAGE);
 }
 
 // libs/common/src/lib/realtime.ts
@@ -4099,7 +4140,6 @@ export {
   retryInitialisation,
   Clipboard,
   deviceId,
-  LazySentryErrorHandler,
   ModuleCallFailed,
   getModule,
   REMOTE_DEBUG_MODULE,
@@ -4109,6 +4149,7 @@ export {
   remoteDebugResultsBinding,
   isRemoteLogRequest,
   isRemoteDebugCommand,
+  LazySentryErrorHandler,
   getLoadingMessage,
   needsNativeDomain,
   nativeDomainError,
@@ -4119,5 +4160,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=c8d5adcf-1b56-5259-b410-4aade9c005ba
-//# sourceMappingURL=chunk-B734BVNF.js.map
+//# debugId=5184489d-d3a0-598a-bc40-c515b609d159
+//# sourceMappingURL=chunk-XYO7H52H.js.map

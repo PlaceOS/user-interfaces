@@ -44,7 +44,7 @@ import {
 } from "./chunk-WLTGB6ES.js";
 import {
   SpacePipe
-} from "./chunk-HAT6O3LT.js";
+} from "./chunk-GMERDDDD.js";
 import {
   CONTROL_STORE_KEY
 } from "./chunk-VGS37IMQ.js";
@@ -56,7 +56,7 @@ import {
   OrganisationService,
   firstValueWhere,
   getModule
-} from "./chunk-B734BVNF.js";
+} from "./chunk-XYO7H52H.js";
 import {
   CalendarEvent,
   SettingsService,
@@ -70,7 +70,7 @@ import {
   themedLogo,
   token,
   waitForOnline
-} from "./chunk-WENC4LKO.js";
+} from "./chunk-INN7DSMB.js";
 import {
   AsyncHandler,
   CallFailed,
@@ -9436,14 +9436,20 @@ async function execCamera(system_id, mod, method, args = []) {
 function selectCamera(system_id, camera_id) {
   return execCamera(system_id, "System", "selected_camera", [camera_id]);
 }
-async function moveCamera(system_id, camera, pan, tilt) {
-  const run = (method, args) => execCamera(system_id, camera.mod, method, withIndex(camera, args));
-  if (!await run("stop", []))
-    return;
-  if (tilt !== JoystickTilt.Stop && !await run("tilt", [tilt]))
-    return;
-  if (pan !== JoystickPan.Stop)
-    await run("pan", [pan]);
+var latest_move = 0;
+var move_queue = Promise.resolve();
+function moveCamera(system_id, camera, pan, tilt) {
+  const id = ++latest_move;
+  const run = async (method, args) => id === latest_move && execCamera(system_id, camera.mod, method, withIndex(camera, args));
+  move_queue = move_queue.then(async () => {
+    if (!await run("stop", []))
+      return;
+    if (tilt !== JoystickTilt.Stop && !await run("tilt", [tilt]))
+      return;
+    if (pan !== JoystickPan.Stop)
+      await run("pan", [pan]);
+  });
+  return move_queue;
 }
 function zoomCamera(system_id, camera, zoom) {
   return execCamera(system_id, camera.mod, "zoom", withIndex(camera, [zoom]));
@@ -10212,6 +10218,20 @@ var JoinRoomTooltipComponent = _JoinRoomTooltipComponent;
   (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(JoinRoomTooltipComponent, { className: "JoinRoomTooltipComponent", filePath: "apps/control/src/app/ui/join-room-tooltip.component.ts", lineNumber: 33 });
 })();
 
+// apps/control/src/app/ui/lighting-commands.ts
+async function execLighting(system_id, mod, method, args) {
+  const module = getModule(system_id, mod);
+  if (!module)
+    return;
+  try {
+    await module.execute(method, args);
+  } catch (error) {
+    notifyError(i18n("APP.CONTROL.LIGHTING_COMMAND_ERROR", {
+      error: errorText(error)
+    }));
+  }
+}
+
 // apps/control/src/app/ui/lighting-levels-tooltip.component.ts
 var _forTrack03 = ($index, $item) => $item.binding;
 function LightingLevelsTooltipComponent_Conditional_4_For_1_Template(rf, ctx) {
@@ -10285,14 +10305,14 @@ var _LightingLevelsTooltipComponent = class _LightingLevelsTooltipComponent {
   }
   setLevel(level, value) {
     clearTimeout(this._level_timeout);
-    this._level_timeout = setTimeout(async () => {
+    this._level_timeout = setTimeout(() => {
       const sys_id = this.system();
       if (!sys_id)
         return;
-      const mod = getModule(sys_id, "Lighting");
-      if (!mod)
-        return;
-      await mod.execute("set_lighting_level", [value, level == null ? void 0 : level.area]);
+      execLighting(sys_id, "Lighting", "set_lighting_level", [
+        value,
+        level == null ? void 0 : level.area
+      ]);
     }, 50);
   }
 };
@@ -10431,10 +10451,7 @@ var _LightingSceneTooltipComponent = class _LightingSceneTooltipComponent {
     return this._state.id;
   }
   setScene(name) {
-    const mod = getModule(this.id, "System");
-    if (!mod)
-      return;
-    mod.execute("select_lighting_scene", [name]);
+    execLighting(this.id, "System", "select_lighting_scene", [name]);
   }
 };
 _LightingSceneTooltipComponent.\u0275fac = function LightingSceneTooltipComponent_Factory(__ngFactoryType__) {
@@ -12607,5 +12624,5 @@ export {
   ControlConnectingComponent,
   SplashComponent
 };
-//# debugId=8accc5db-4a5c-55c6-bfab-b93489eaaf73
-//# sourceMappingURL=chunk-2NKQ4VIU.js.map
+//# debugId=7a7659a8-b0cb-53db-a8d9-2bb0058efd39
+//# sourceMappingURL=chunk-SYQCR4WY.js.map
