@@ -11451,15 +11451,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "47d00b2",
-  "hash": "47d00b2",
+  "raw": "ec35d0f",
+  "hash": "ec35d0f",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "47d00b2",
+  "suffix": "ec35d0f",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795485912928
+  "time": 1795573315548
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -11871,6 +11871,7 @@ var _init_reload = null;
 var _init_reload_timer;
 var _last_update_check = 0;
 var _update_interval = 0;
+var _known_version = "";
 var INIT_RELOAD_KEY = "PlaceOS.initialisation_reloads";
 var INIT_RELOAD_WINDOW_MS = 5 * MINUTES;
 var INIT_RELOAD_LIMIT = 3;
@@ -12055,9 +12056,15 @@ function setupCache(cache, options = {}) {
     if (!_version_subscription) {
       _version_subscription = cache.versionUpdates.subscribe((event) => {
         logVersionUpdate(event);
-        if (event.type !== "VERSION_READY" || _new_version)
+        if (event.type === "VERSION_READY")
+          return handleNewVersion();
+        if (event.type !== "NO_NEW_VERSION_DETECTED")
           return;
-        handleNewVersion();
+        if (!_known_version)
+          _known_version = event.version.hash;
+        else if (event.version.hash !== _known_version) {
+          handleNewVersion();
+        }
       });
     }
     if (!_unrecoverable_subscription) {
@@ -12095,6 +12102,7 @@ async function checkForUpdate(cache) {
   try {
     if (cache.isEnabled && await cache.checkForUpdate()) {
       log2("CACHE", `Application update detected.`);
+      handleNewVersion();
     }
   } catch (error) {
     log2("CACHE", `Failed to check for application updates.`, error, "warn");
@@ -12901,20 +12909,7 @@ function deviceId() {
   return _device_id;
 }
 
-// libs/common/src/lib/sentry-rates.ts
-var DEFAULT_SENTRY_RATES = {
-  traces: 1,
-  replays_session: 0,
-  replays_on_error: 1
-};
-
-// libs/common/src/lib/sentry.ts
-var DEFAULT_SENTRY_DSN = "https://0498d2da2a46bfbe89599f3bfbec7c4b@o437082.ingest.us.sentry.io/4506817038909440";
-var PII_KEYS = ["forwarded", "-ip", "remote-", "via", "-user"];
-var _started2 = false;
-var _sentry_handler = null;
-var _early_errors = [];
-var _trace_service = null;
+// libs/common/src/lib/scrub-secrets.ts
 var SECRET_PARAM = /((?:[?&#;](?:x-api-key|api-key|api_key|bearer_token|access_token|refresh_token|jwt|token|code)|(?:^|[\s"',[])(?:api-key|bearer_token))=)[^&#;\s"'\\]+/gi;
 var MAX_SCRUB_DEPTH = 20;
 var SDK_METADATA_KEY = "sdkProcessingMetadata";
@@ -12934,124 +12929,6 @@ function scrubSecrets(value, depth = 0) {
       record2[key] = scrubbed;
   }
   return value;
-}
-function scrubEvent(event) {
-  try {
-    return scrubSecrets(event);
-  } catch {
-    return null;
-  }
-}
-function scrubEnvelope(envelope) {
-  for (const item of envelope[1]) {
-    const payload = item[1];
-    if (payload instanceof Uint8Array)
-      continue;
-    if (typeof payload !== "string") {
-      scrubSecrets(payload);
-      continue;
-    }
-    const scrubbed = scrubSecrets(payload);
-    if (scrubbed === payload)
-      continue;
-    item[1] = scrubbed;
-    if (item[0].length !== void 0) {
-      item[0].length = new TextEncoder().encode(scrubbed).length;
-    }
-  }
-  return envelope;
-}
-var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
-var IGNORED_ERRORS = [
-  /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
-  /^Non-Error promise rejection captured with value: cannot communicate with background$/
-];
-function sampleRate(value, fallback) {
-  return typeof value === "number" ? value : fallback;
-}
-async function initSentry(dsn, router, rates = {}) {
-  if (!dsn || _started2)
-    return;
-  _started2 = true;
-  const replays_session = sampleRate(rates.replays_session, DEFAULT_SENTRY_RATES.replays_session);
-  const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_SENTRY_RATES.replays_on_error);
-  const use_replay = replays_session > 0 || replays_on_error > 0;
-  try {
-    const Sentry = await import("./sentry-sdk-VBMPN2I2.js");
-    Sentry.init(__spreadProps(__spreadValues({
-      dsn,
-      release: VERSION.hash,
-      // Separates UAT and production domains that share a DSN
-      environment: location.hostname,
-      integrations: [
-        Sentry.browserTracingIntegration(),
-        // Replay masks all text and inputs, and blocks media, by
-        // default. Without compression, `scrubEnvelope` can read the
-        // recordings.
-        ...use_replay ? [Sentry.replayIntegration({ useCompression: false })] : []
-      ],
-      tracesSampleRate: sampleRate(rates.traces, DEFAULT_SENTRY_RATES.traces),
-      replaysSessionSampleRate: replays_session,
-      replaysOnErrorSampleRate: replays_on_error
-    }, use_replay && {
-      transport: (options) => {
-        const transport = Sentry.makeFetchTransport(options);
-        return __spreadProps(__spreadValues({}, transport), {
-          send: (envelope) => transport.send(scrubEnvelope(envelope))
-        });
-      }
-    }), {
-      // Sentry checks the path of same-origin requests against these.
-      tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
-      ignoreErrors: IGNORED_ERRORS,
-      // Sentry 11 collects more by default. These are the Sentry 10
-      // defaults, which send no bodies, cookies or user details.
-      dataCollection: {
-        userInfo: false,
-        cookies: false,
-        httpHeaders: { deny: PII_KEYS },
-        httpBodies: [],
-        urlQueryParams: { deny: PII_KEYS }
-      },
-      beforeSend: scrubEvent,
-      // Sentry streams spans, so spans do not go through `beforeSend`
-      beforeSendSpan: (span) => scrubSecrets(span)
-    }));
-    _trace_service = new Sentry.TraceService(router);
-    _sentry_handler = Sentry.createErrorHandler({
-      showDialog: false,
-      logErrors: false
-    });
-    for (const error of _early_errors.splice(0)) {
-      _sentry_handler.handleError(error);
-    }
-  } catch (error) {
-    log2("APP", "Failed to load Sentry.", error, "warn");
-  }
-}
-function initSentryFromSettings() {
-  const router = inject(Router);
-  const dsn = settingSignal("sentry_dsn", DEFAULT_SENTRY_DSN);
-  const traces = settingSignal("sentry_traces_sample_rate");
-  const replays_session = settingSignal("sentry_replays_session_sample_rate");
-  const replays_on_error = settingSignal("sentry_replays_on_error_sample_rate");
-  const watcher = effect(
-    () => {
-      const value = dsn();
-      if (!value)
-        return;
-      watcher.destroy();
-      void initSentry(value, router, untracked(() => ({
-        traces: traces(),
-        replays_session: replays_session(),
-        replays_on_error: replays_on_error()
-      })));
-    },
-    ...ngDevMode ? [{ debugName: "watcher" }] : (
-      /* istanbul ignore next */
-      []
-    )
-  );
 }
 
 // libs/common/src/lib/log-format.ts
@@ -13090,6 +12967,25 @@ function formatLogArgs(all_args) {
   } catch {
     return "[Log entry that cannot be read]";
   }
+}
+function stripConsoleStyles(args) {
+  const plain = (value) => typeof value === "string" ? value.replace(ANSI_CODE, "") : value;
+  if (typeof args[0] !== "string")
+    return args.map(plain);
+  const styles = /* @__PURE__ */ new Set();
+  let next = 1;
+  const format3 = args[0].replace(FORMAT_DIRECTIVE, (directive) => {
+    if (directive === "%%" || next >= args.length)
+      return directive;
+    if (directive === "%c") {
+      styles.add(next++);
+      return "";
+    }
+    next++;
+    return directive;
+  });
+  const rest = args.slice(1).filter((_, i) => !styles.has(i + 1));
+  return [format3, ...rest].map(plain);
 }
 function numberText(value, parse) {
   return typeof value === "symbol" ? "NaN" : `${parse(String(value))}`;
@@ -14069,6 +13965,150 @@ function clamp(value, max) {
   if (typeof value !== "number" || isNaN(value))
     return max;
   return Math.min(Math.max(Math.floor(value), 0), max);
+}
+
+// libs/common/src/lib/sentry-rates.ts
+var DEFAULT_SENTRY_RATES = {
+  traces: 1,
+  replays_session: 0,
+  replays_on_error: 1
+};
+
+// libs/common/src/lib/sentry.ts
+var DEFAULT_SENTRY_DSN = "https://0498d2da2a46bfbe89599f3bfbec7c4b@o437082.ingest.us.sentry.io/4506817038909440";
+var PII_KEYS = ["forwarded", "-ip", "remote-", "via", "-user"];
+var _started2 = false;
+var _sentry_handler = null;
+var _early_errors = [];
+var _trace_service = null;
+function scrubEvent(event) {
+  try {
+    return scrubSecrets(event);
+  } catch {
+    return null;
+  }
+}
+function plainConsoleBreadcrumb(breadcrumb) {
+  const args = breadcrumb.data?.["arguments"];
+  if (breadcrumb.category !== "console" || !Array.isArray(args)) {
+    return breadcrumb;
+  }
+  return __spreadProps(__spreadValues({}, breadcrumb), {
+    message: formatLogArgs(args),
+    data: __spreadProps(__spreadValues({}, breadcrumb.data), { arguments: stripConsoleStyles(args) })
+  });
+}
+function scrubEnvelope(envelope) {
+  for (const item of envelope[1]) {
+    const payload = item[1];
+    if (payload instanceof Uint8Array)
+      continue;
+    if (typeof payload !== "string") {
+      scrubSecrets(payload);
+      continue;
+    }
+    const scrubbed = scrubSecrets(payload);
+    if (scrubbed === payload)
+      continue;
+    item[1] = scrubbed;
+    if (item[0].length !== void 0) {
+      item[0].length = new TextEncoder().encode(scrubbed).length;
+    }
+  }
+  return envelope;
+}
+var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
+var IGNORED_ERRORS = [
+  /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
+  /^Non-Error promise rejection captured with value: cannot communicate with background$/
+];
+function sampleRate(value, fallback) {
+  return typeof value === "number" ? value : fallback;
+}
+async function initSentry(dsn, router, rates = {}) {
+  if (!dsn || _started2)
+    return;
+  _started2 = true;
+  const replays_session = sampleRate(rates.replays_session, DEFAULT_SENTRY_RATES.replays_session);
+  const replays_on_error = sampleRate(rates.replays_on_error, DEFAULT_SENTRY_RATES.replays_on_error);
+  const use_replay = replays_session > 0 || replays_on_error > 0;
+  try {
+    const Sentry = await import("./sentry-sdk-VBMPN2I2.js");
+    Sentry.init(__spreadProps(__spreadValues({
+      dsn,
+      release: VERSION.hash,
+      // Separates UAT and production domains that share a DSN
+      environment: location.hostname,
+      integrations: [
+        Sentry.browserTracingIntegration(),
+        // Replay masks all text and inputs, and blocks media, by
+        // default. Without compression, `scrubEnvelope` can read the
+        // recordings.
+        ...use_replay ? [Sentry.replayIntegration({ useCompression: false })] : []
+      ],
+      tracesSampleRate: sampleRate(rates.traces, DEFAULT_SENTRY_RATES.traces),
+      replaysSessionSampleRate: replays_session,
+      replaysOnErrorSampleRate: replays_on_error
+    }, use_replay && {
+      transport: (options) => {
+        const transport = Sentry.makeFetchTransport(options);
+        return __spreadProps(__spreadValues({}, transport), {
+          send: (envelope) => transport.send(scrubEnvelope(envelope))
+        });
+      }
+    }), {
+      // Sentry checks the path of same-origin requests against these.
+      tracePropagationTargets: [TRACE_PROPAGATION_TARGET],
+      ignoreErrors: IGNORED_ERRORS,
+      // Sentry 11 collects more by default. These are the Sentry 10
+      // defaults, which send no bodies, cookies or user details.
+      dataCollection: {
+        userInfo: false,
+        cookies: false,
+        httpHeaders: { deny: PII_KEYS },
+        httpBodies: [],
+        urlQueryParams: { deny: PII_KEYS }
+      },
+      beforeBreadcrumb: plainConsoleBreadcrumb,
+      beforeSend: scrubEvent,
+      // Sentry streams spans, so spans do not go through `beforeSend`
+      beforeSendSpan: (span) => scrubSecrets(span)
+    }));
+    _trace_service = new Sentry.TraceService(router);
+    _sentry_handler = Sentry.createErrorHandler({
+      showDialog: false,
+      logErrors: false
+    });
+    for (const error of _early_errors.splice(0)) {
+      _sentry_handler.handleError(error);
+    }
+  } catch (error) {
+    log2("APP", "Failed to load Sentry.", error, "warn");
+  }
+}
+function initSentryFromSettings() {
+  const router = inject(Router);
+  const dsn = settingSignal("sentry_dsn", DEFAULT_SENTRY_DSN);
+  const traces = settingSignal("sentry_traces_sample_rate");
+  const replays_session = settingSignal("sentry_replays_session_sample_rate");
+  const replays_on_error = settingSignal("sentry_replays_on_error_sample_rate");
+  const watcher = effect(
+    () => {
+      const value = dsn();
+      if (!value)
+        return;
+      watcher.destroy();
+      void initSentry(value, router, untracked(() => ({
+        traces: traces(),
+        replays_session: replays_session(),
+        replays_on_error: replays_on_error()
+      })));
+    },
+    ...ngDevMode ? [{ debugName: "watcher" }] : (
+      /* istanbul ignore next */
+      []
+    )
+  );
 }
 
 // libs/common/src/lib/teams-host.ts
@@ -17053,6 +17093,7 @@ export {
   jsonRecords,
   jsonText,
   jsonStrings,
+  getModule,
   DEFAULT_SETTINGS,
   AssetRequest,
   CateringOrder,
@@ -17082,7 +17123,6 @@ export {
   appDetails,
   settingSignal,
   SettingsService,
-  getModule,
   REMOTE_DEBUG_MODULE,
   MAX_REMOTE_DEBUG_COMMANDS,
   remoteDebugDeviceBinding,
@@ -17115,5 +17155,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=58e0a132-1816-5d49-94fd-de72323d0854
-//# sourceMappingURL=chunk-MCQOKT2Z.js.map
+//# debugId=9a7c26c8-6e86-5419-b1e0-fbd87e4003d1
+//# sourceMappingURL=chunk-P6UKGZSL.js.map
