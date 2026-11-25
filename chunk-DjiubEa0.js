@@ -1,0 +1,1 @@
+import{t as Pm}from"./main-PEEP2QMC.js";function n(){Pm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};

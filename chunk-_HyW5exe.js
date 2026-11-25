@@ -1,1 +1,0 @@
-import{t as Dm}from"./main-IIYRGGUY.js";function n(){Dm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
