@@ -21,7 +21,7 @@ import {
   queryDeskAssetsInZone,
   searchStaff,
   showStaff
-} from "./chunk-QAEPMRW7.js";
+} from "./chunk-3DMNYJD3.js";
 import {
   MatMenu,
   MatMenuContent,
@@ -36,12 +36,12 @@ import {
   MatDialogModule,
   MatProgressSpinner,
   MatProgressSpinnerModule
-} from "./chunk-6JWJZWHP.js";
+} from "./chunk-BXUZXOMN.js";
 import {
   VirtualKeyboardComponent,
   provideValueAccessor,
   toSignal
-} from "./chunk-DMQMSJBT.js";
+} from "./chunk-7QGBIDSP.js";
 import {
   MatCheckbox,
   MatCheckboxModule
@@ -53,7 +53,7 @@ import {
 } from "./chunk-SRLM37YD.js";
 import {
   CustomTooltipComponent
-} from "./chunk-PJDWCX3D.js";
+} from "./chunk-P4LA2OHK.js";
 import "./chunk-24ANXC53.js";
 import {
   MatOption,
@@ -61,11 +61,11 @@ import {
 } from "./chunk-2BIJ6DLE.js";
 import {
   SpacePipe
-} from "./chunk-36XJ2TN2.js";
-import "./chunk-5MYM2KX3.js";
+} from "./chunk-F5NPLP6V.js";
+import "./chunk-UPA5V4EQ.js";
 import {
   TranslatePipe
-} from "./chunk-V2RH7S2U.js";
+} from "./chunk-3BR4PDKG.js";
 import "./chunk-OSRII6NJ.js";
 import {
   DefaultValueAccessor,
@@ -149,7 +149,7 @@ import {
   toZonedTime,
   user_group_names,
   users_exports
-} from "./chunk-ZNX6TI7Y.js";
+} from "./chunk-DW4HTMGE.js";
 import "./chunk-X3O2ONMK.js";
 import "./chunk-AJBEQOPT.js";
 import {
@@ -4577,7 +4577,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await metadata_exports.show({ id: bld.id, name: "emergency_contacts" }).then(orThrow).then((data2) => data2["emergency_contacts"]).catch(() => ({
+        const { details } = await metadata_exports.show({ id: bld.id, name: "emergency_contacts" }).then(orThrow).then((data2) => data2["emergency_contacts"] ?? { details: {} }).catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -6636,5 +6636,5 @@ var ExploreComponent = class _ExploreComponent extends AsyncHandler {
 export {
   ExploreComponent
 };
-//# debugId=d3beeea2-d1b4-58ed-bc56-5ec40e48825e
-//# sourceMappingURL=explore.route-B5KTPDIC.js.map
+//# debugId=82273a09-5bf0-553e-86d3-f6d6f3c974f0
+//# sourceMappingURL=explore.route-TZ644JWN.js.map
