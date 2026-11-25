@@ -120,6 +120,26 @@ describe('AppComponent sign in', () => {
         vi.unstubAllGlobals();
     });
 
+    it('stops single sign-on once the sign-in dialog opens', async () => {
+        stubDialog();
+        let endSso: (entra_token: string) => void = () => undefined;
+        const get_token = vi.fn(
+            () => new Promise<string>((resolve) => (endSso = resolve)),
+        );
+        stubMsal(get_token);
+        const pending = naaToken();
+        await vi.waitFor(() => expect(get_token).toHaveBeenCalledOnce());
+
+        void signIn();
+        // The attempt from before the dialog ends after it opened
+        endSso('late-entra-token');
+
+        await expect(pending).resolves.toBeNull();
+        // A later attempt, such as a retry of the user load, asks nothing
+        await expect(naaToken()).resolves.toBeNull();
+        expect(get_token).toHaveBeenCalledOnce();
+    });
+
     it('gets the Entra token of the Outlook account for single sign-on', async () => {
         const office = stubDialog();
         stubMsal(async () => 'entra-token');

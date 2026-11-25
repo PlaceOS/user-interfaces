@@ -74,6 +74,12 @@ export class AppComponent extends AsyncHandler implements OnInit {
     });
 
     private _mocks_registered = false;
+    /**
+     * Set when the sign-in dialog opens. Single sign-on then stops for this
+     * load, so it cannot open a second Microsoft prompt or replace the token
+     * of the dialog.
+     */
+    private _sso_stopped = false;
     /** Read before startup, so later URL changes cannot drop it */
     private _naa_client_id = naaClientId();
 
@@ -202,13 +208,17 @@ export class AppComponent extends AsyncHandler implements OnInit {
      * uses the PlaceOS sign-in dialog.
      */
     private async _naaToken(): Promise<string | null> {
+        if (this._sso_stopped) return null;
         log('Outlook', `Signing in through Outlook...`);
+        // A token that comes after the dialog opened is not used
         return withTimeout(
             acquireNaaToken(this._naa_client_id),
             SIGN_IN_TIMEOUT_MS,
             'Microsoft single sign-on timed out.',
         )
-            .then((entra_token) => entra_token || null)
+            .then((entra_token) =>
+                entra_token && !this._sso_stopped ? entra_token : null,
+            )
             .catch((error) => {
                 log('Outlook', 'Single sign-on failed.', error, 'warn');
                 return null;
@@ -221,6 +231,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
      */
     private _signInWithDialog(): Promise<boolean> {
         log('Outlook', `Opening sign-in dialog...`);
+        this._sso_stopped = true;
         const url = `${location.origin}${location.pathname}#ms-auth=true`;
         return new Promise<boolean>((resolve) => {
             let dialog: Office.Dialog | undefined;
