@@ -2,13 +2,13 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-3TGGZSGI.js";
+} from "./chunk-YQNCGLTE.js";
 import {
   AnnounceDirective
-} from "./chunk-6CNGAZZN.js";
+} from "./chunk-H6EH6T67.js";
 import {
   TranslatePipe
-} from "./chunk-6GCYZR34.js";
+} from "./chunk-MEGG2SM3.js";
 import "./chunk-WL6FKRFH.js";
 import {
   LazySentryErrorHandler,
@@ -33,7 +33,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-ZSKWCOK6.js";
+} from "./chunk-JFVOATNZ.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -50,7 +50,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-TD4S7LS7.js";
+} from "./chunk-YD56JJGT.js";
 import {
   addDays,
   addMinutes,
@@ -69,7 +69,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-G6M3YDHV.js";
+} from "./chunk-CGHBOMPQ.js";
 import "./chunk-SGCMNCCJ.js";
 import {
   IconComponent
@@ -5638,12 +5638,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -11036,11 +11036,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-OZGJAPPH.js").then((m) => m.ChatComponent)
+  import("./chat.component-7CILWYGN.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-24IDHQWL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-DWHTLGG5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11104,9 +11104,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-OZGJAPPH.js").then((m) => m.ChatComponent),
+    import("./chat.component-7CILWYGN.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-24IDHQWL.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-DWHTLGG5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11156,12 +11156,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-RJ3UBY2U.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-PD36BUND.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-FRQIWKCC.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-EG3W2Y47.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11189,5 +11189,5 @@ if (environment.production) {
 }
 console.log("Production:", !!environment.production);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=523214b2-a827-51a4-b3d9-894856e52a6a
+//# debugId=dda652e6-30a0-5f0a-be08-a10813f6df53
 //# sourceMappingURL=main.js.map
