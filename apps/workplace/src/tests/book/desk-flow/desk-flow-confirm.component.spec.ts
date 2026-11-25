@@ -263,6 +263,16 @@ describe('NewDeskFlowConfirmComponent', () => {
         expect(spectator.component.booking_asset()?.name).toBe('Desk One');
     });
 
+    it('should load the booking asset from asset_id when booking_asset is missing', async () => {
+        model.update((m) => ({
+            ...m,
+            booking_asset: undefined,
+            asset_id: 'desk-1',
+        }));
+        await spectator.component.ngOnInit();
+        expect(spectator.component.booking_asset()?.id).toBe('desk-1');
+    });
+
     it('should show the all-day label for a one-day all-day booking', () => {
         model.update((m) => ({ ...m, all_day: true }));
         expect(spectator.component.formattedTime()).toBe(
