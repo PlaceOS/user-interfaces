@@ -44,7 +44,7 @@ import {
 } from "./chunk-WLTGB6ES.js";
 import {
   SpacePipe
-} from "./chunk-UJ5HG65O.js";
+} from "./chunk-SP3ENZAW.js";
 import {
   CONTROL_STORE_KEY
 } from "./chunk-VGS37IMQ.js";
@@ -56,7 +56,7 @@ import {
   OrganisationService,
   firstValueWhere,
   getModule
-} from "./chunk-FXSRAB6G.js";
+} from "./chunk-QCU7GTA4.js";
 import {
   CalendarEvent,
   SettingsService,
@@ -70,7 +70,7 @@ import {
   themedLogo,
   token,
   waitForOnline
-} from "./chunk-IR7TEHCP.js";
+} from "./chunk-ND2QCIPI.js";
 import {
   AsyncHandler,
   CallFailed,
@@ -12626,4 +12626,4 @@ export {
   SplashComponent
 };
 //# debugId=0519f223-61d4-59d7-8e99-9547af2f1c77
-//# sourceMappingURL=chunk-A6UXFNAK.js.map
+//# sourceMappingURL=chunk-B4BD5VNY.js.map

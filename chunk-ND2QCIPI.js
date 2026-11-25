@@ -1968,15 +1968,15 @@ var GoogleAnalyticsService = _GoogleAnalyticsService;
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "acf45e9",
-  "hash": "acf45e9",
+  "raw": "49abe29",
+  "hash": "49abe29",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "acf45e9",
+  "suffix": "49abe29",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795585155967
+  "time": 1795588215627
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -2480,5 +2480,5 @@ export {
   themedLogo,
   SettingsService
 };
-//# debugId=55b63ae6-e6f6-5373-ab31-8c386f2953a5
-//# sourceMappingURL=chunk-IR7TEHCP.js.map
+//# debugId=5e52aad9-7a1b-5c64-8e71-9885e14ddaa0
+//# sourceMappingURL=chunk-ND2QCIPI.js.map
