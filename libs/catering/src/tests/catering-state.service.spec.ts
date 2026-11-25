@@ -401,7 +401,8 @@ describe('CateringStateService', () => {
     });
 
     it('should get the catering rules of a zone, or none when not a list', async () => {
-        const details = [{ name: '*', rules: [] }];
+        // Fields that the app does not use stay, so a save keeps them
+        const details = [{ name: '*', rules: [], description: 'All' }];
         vi.mocked(ts_client.metadata.show).mockImplementation(
             fromV1Mock(
                 () =>
@@ -439,6 +440,32 @@ describe('CateringStateService', () => {
             id: 'bld-1',
             name: 'catering_config',
         });
+    });
+
+    it('should not open the rules editor over rules that are text and not JSON', async () => {
+        const notify_open = vi.fn(() => ({
+            onAction: () => of(),
+            dismiss: vi.fn(),
+        }));
+        setNotifyOutlet({ open: notify_open } as any, true);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () => ({ details: '[{"name":' }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+
+        await spectator.service.editConfig();
+
+        expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
+        expect(notify_open).toHaveBeenCalledWith(
+            'Failed to load the catering rules. The catering rules are not valid JSON.',
+            'OK',
+            expect.objectContaining({ panelClass: ['error'] }),
+        );
+        setNotifyOutlet(null, true);
     });
 
     describe('importMenu', () => {
@@ -587,6 +614,35 @@ describe('CateringStateService', () => {
                 'require_catering_notes',
                 true,
             );
+        });
+
+        it('should keep the other fields of the settings when it saves', async () => {
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        ({
+                            details: { require_notes: true, other: 'kept' },
+                        }) as never,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
+            TestBed.tick();
+            await flush();
+
+            await spectator.service.saveSettings({ charge_codes: ['CC-2'] });
+
+            expect(ts_client.metadata.update).toHaveBeenLastCalledWith({
+                id: 'bld-1',
+                body: expect.objectContaining({
+                    details: {
+                        require_notes: true,
+                        other: 'kept',
+                        charge_codes: ['CC-2'],
+                    },
+                }),
+            });
         });
 
         it('should use the currency from the app settings first', async () => {

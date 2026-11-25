@@ -10,22 +10,24 @@ import type { CateringSettings } from './catering-state.service';
 
 /**
  * Catering settings of a building from the details of its
- * `catering-settings` metadata. Fields with the wrong type are left out.
+ * `catering-settings` metadata. Known fields with the wrong type are left
+ * out. Other fields stay, so a save keeps them.
  * @param details Details of the metadata, or `undefined` without metadata
  */
 export function cateringSettingsFromJson(
     details: JsonValue | undefined,
 ): CateringSettings {
     if (!isJsonRecord(details)) return {};
-    const settings: CateringSettings = {};
-    if (typeof details['require_notes'] === 'boolean') {
-        settings.require_notes = details['require_notes'];
+    const { require_notes, charge_codes, disabled_rooms, ...other } = details;
+    const settings: CateringSettings = { ...other };
+    if (typeof require_notes === 'boolean') {
+        settings.require_notes = require_notes;
     }
-    if (isJsonArray(details['charge_codes'])) {
-        settings.charge_codes = jsonStrings(details['charge_codes']);
+    if (isJsonArray(charge_codes)) {
+        settings.charge_codes = jsonStrings(charge_codes);
     }
-    if (isJsonArray(details['disabled_rooms'])) {
-        settings.disabled_rooms = jsonStrings(details['disabled_rooms']);
+    if (isJsonArray(disabled_rooms)) {
+        settings.disabled_rooms = jsonStrings(disabled_rooms);
     }
     return settings;
 }
@@ -33,6 +35,7 @@ export function cateringSettingsFromJson(
 /**
  * Rulesets from the details of a `catering_config` metadata. Each ruleset
  * must have a string `name` and a `rules` list of `[type, value]` pairs.
+ * Rules of another shape are left out.
  *
  * The rule values are not checked: the stored data can have a string, such
  * as `"10:30"`, where `AttachedResourceRule` has a number, and the catering
@@ -44,9 +47,11 @@ export function rulesetsFromJson(
     details: JsonValue | undefined,
 ): AttachedResourceRuleset[] {
     return jsonRecords(details).flatMap((item) => {
-        const { id, name, rules } = item;
+        // Other fields of the ruleset stay, so a save keeps them
+        const { id, name, rules, ...other } = item;
         if (typeof name !== 'string' || !isJsonArray(rules)) return [];
         const ruleset = {
+            ...other,
             ...(typeof id === 'string' ? { id } : {}),
             name,
             rules: rules.filter(

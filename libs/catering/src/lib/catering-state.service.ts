@@ -17,6 +17,7 @@ import {
     CateringItem,
     OrganisationService,
     SettingsService,
+    errorMessage,
     flatten,
     i18n,
     notifyError,
@@ -362,7 +363,15 @@ export class CateringStateService extends AsyncHandler {
     }
 
     public async editConfig() {
-        const config = await this.getCateringConfig(this._org.building.id);
+        const config = await this.getCateringConfig(
+            this._org.building.id,
+        ).catch((error: unknown) => {
+            notifyError(
+                `Failed to load the catering rules. ${errorMessage(error)}`,
+            );
+            return null;
+        });
+        if (!config) return;
         const { require_notes } = this.settings();
         const menu = this._menu();
         const types = unique(flatten(menu.map((i) => [i.category, ...i.tags])));
@@ -474,7 +483,12 @@ export class CateringStateService extends AsyncHandler {
         const data = await metadata_v7
             .show({ id: zone_id, name: 'catering_config' })
             .then(orThrow);
-        return rulesetsFromJson(data['catering_config']?.details);
+        const details = data['catering_config']?.details;
+        // Text that is not JSON. A save of the editor would replace it.
+        if (typeof details === 'string') {
+            throw new Error('The catering rules are not valid JSON.');
+        }
+        return rulesetsFromJson(details);
     }
 
     private updateConfig(zone_id: string, config: AttachedResourceRuleset[]) {
