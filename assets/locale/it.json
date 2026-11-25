@@ -2343,6 +2343,7 @@
             "VC_DIAL_ERROR": "Impossibile effettuare la chiamata. Errore: {{ error }}",
             "VC_COMMAND_ERROR": "Comando della videoconferenza non riuscito. Errore: {{ error }}",
             "CAMERA_COMMAND_ERROR": "Comando della telecamera non riuscito. Errore: {{ error }}",
+            "LIGHTING_COMMAND_ERROR": "Comando dell’illuminazione non riuscito. Errore: {{ error }}",
             "VC_LEAVE_LOADING": "Chiusura chiamata in corso...",
             "VC_LOADING": "Caricamento dettagli chiamata...",
             "ROUTE_ERROR": "Impossibile cambiare la sorgente. Errore: {{ error }}",
