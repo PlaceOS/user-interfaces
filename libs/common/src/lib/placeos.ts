@@ -152,6 +152,32 @@ export function pastedTokenKey(client_id: string) {
     return `${PASTED_TOKEN_KEY}.${client_id}`;
 }
 
+/** The session of ts-client reads no parameters from a longer URL */
+const URL_LENGTH_MAX = 16 * 1024;
+
+/** The device settings that the session of ts-client keeps from the URL */
+const URL_DEVICE_PARAMS = ['x-api-key', 'trust', 'trusted', 'fixed_device'];
+
+/**
+ * A parameter of the page URL, or `null`. It reads the URL as the session
+ * of ts-client does (`urlParams`): the hash, then the query of the hash
+ * route, then the query of the page. A later non-empty value wins.
+ */
+function urlParam(name: string): string | null {
+    if (location.href.length > URL_LENGTH_MAX) return null;
+    const hash = location.hash.slice(1);
+    const query_start = hash.indexOf('?');
+    const hash_main = query_start >= 0 ? hash.slice(0, query_start) : hash;
+    const hash_query = query_start >= 0 ? hash.slice(query_start + 1) : '';
+    let found: string | null = null;
+    for (const part of [hash_main, hash_query, location.search.slice(1)]) {
+        if (!part.includes('=')) continue;
+        const value = new URLSearchParams(part).getAll(name).filter(Boolean);
+        if (value.length) found = value[value.length - 1];
+    }
+    return found;
+}
+
 /**
  * Uses a token that the paste shortcut of `PlaceOS_Service` kept for this
  * load, before the login starts, and removes it, so it is used one time.
@@ -245,6 +271,12 @@ export interface PlaceSetupOptions {
      */
     api_key?: string;
     /**
+     * An access token from the URL, such as the token of a visitor kiosk.
+     * The session uses it before the login starts, so the first request,
+     * such as the current user, sends it.
+     */
+    access_token?: string;
+    /**
      * Gives a Microsoft Entra token to exchange for PlaceOS tokens, such as
      * the SSO token of a Teams tab. The login then uses the `entra` grant.
      */
@@ -260,6 +292,10 @@ export interface PlaceSetupOptions {
 /**
  * Initialise the PlaceOS API library. Resolves when the first login attempt
  * ends. Rejects when the authority does not load, or after `timeout_ms`.
+ *
+ * Resolving does not mean that the user is signed in: the login can still
+ * need the user, for example on the login page. After a timeout the login
+ * attempt continues, and a later request uses its credential.
  */
 export async function setupPlace(
     settings: PlaceSettings,
@@ -335,6 +371,18 @@ export async function setupPlace(
         }
         usePastedToken(session);
         useDeviceApiKey(session, storage, options.api_key);
+        // The session keeps the device settings of the URL when it starts.
+        // Keep them now, as it does: the first request can go before that,
+        // and reads the API key and the trust flag from the storage.
+        for (const name of URL_DEVICE_PARAMS) {
+            const value = urlParam(name);
+            if (value !== null) {
+                storage.setItem(`${session.client_id}_${name}`, value);
+            }
+        }
+        // After the trust flag: a trusted session reads its token from the
+        // storage
+        if (options.access_token) session.useToken(options.access_token);
     }
     const setup_promise: Promise<void> = session
         ? session.start().then((result) => {

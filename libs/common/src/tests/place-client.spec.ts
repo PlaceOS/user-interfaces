@@ -404,6 +404,9 @@ describe('client logs', () => {
 });
 
 describe('getModule', () => {
+    // Stops the mock socket, its bindings and its keep-alive
+    afterEach(() => stopPlaceClient());
+
     it('rejects with the message of the driver', async () => {
         startMockPlaceClient();
         registerSystem('sys-1', {
@@ -422,5 +425,32 @@ describe('getModule', () => {
             name: 'ModuleCallFailed',
             message: 'Room is taken',
         });
+    });
+
+    it('gives a batch of values to each listener when one listener throws', async () => {
+        startMockPlaceClient();
+        const system = registerSystem('sys-1', {
+            Lights: [{ level: 1, scene: 'a' }],
+        });
+        const console_error = vi
+            .spyOn(console, 'error')
+            .mockImplementation(() => undefined);
+        const lights = getModule('sys-1', 'Lights');
+        lights.variable('level').subscribe(() => {
+            throw new Error('Broken listener');
+        });
+        const scene = vi.fn();
+        lights.variable('scene').subscribe(scene);
+        await vi.waitFor(() => expect(scene).toHaveBeenCalledWith('a'));
+
+        // Both changes arrive in one batch
+        system['Lights'][0]['level'] = 2;
+        system['Lights'][0]['scene'] = 'b';
+
+        await vi.waitFor(() => expect(scene).toHaveBeenLastCalledWith('b'));
+        expect(console_error).toHaveBeenCalledWith(
+            'sys-1 Lights_1.level',
+            expect.any(Error),
+        );
     });
 });

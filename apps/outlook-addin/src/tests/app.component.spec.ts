@@ -6,6 +6,7 @@ import {
     Spectator,
 } from '@ngneat/spectator/vitest';
 import {
+    clientId,
     initialisationComplete,
     initialisationFailure,
     LocaleService,
@@ -160,6 +161,20 @@ describe('AppComponent sign in', () => {
         ]);
     });
 
+    it('keeps the tokens over a reload only in the task pane, in its own storage', async () => {
+        const trusted = `${clientId()}_trusted`;
+
+        await spectator.component['_initialiseAuth'](true, true);
+        expect(sessionStorage.getItem(trusted)).toBe('true');
+        expect(localStorage.getItem(trusted)).toBeNull();
+
+        // A browser outside Outlook does not get the trust of the task pane
+        sessionStorage.removeItem(trusted);
+        await spectator.component['_initialiseAuth'](false);
+        expect(sessionStorage.getItem(trusted)).toBeNull();
+        expect(localStorage.getItem(trusted)).toBeNull();
+    });
+
     it('does not ask for single sign-on without an Entra client ID', async () => {
         spectator.component['_naa_client_id'] = '';
 
@@ -298,7 +313,9 @@ describe('AppComponent startup in Outlook', () => {
         // The real ngOnInit and login session, not the stubs of other tests
         vi.restoreAllMocks();
         vi.mocked(createAuthSession).mockReset();
+        // The task pane keeps its tokens in the session storage
         localStorage.clear();
+        sessionStorage.clear();
         window.history.replaceState(null, '', `/?ms_client_id=${CLIENT_ID}`);
         setCurrentUser(new StaffUser({ id: 'user-1', email: 'a@b.c' }));
         stubMsal(async () => 'entra-token');

@@ -13,7 +13,7 @@ import { format, isSameDay } from 'date-fns';
 
 import { AsyncHandler } from './async-handler.class';
 import { SETTING_KEYS } from './constants';
-import { getItemWithKeys, log, setAppName } from './general';
+import { getItemWithKeys, log, loggableError, setAppName } from './general';
 import { toJsonValue } from './json';
 import { DEFAULT_SETTINGS } from './settings';
 import { ApplicationIcon, HashMap } from './types';
@@ -170,6 +170,17 @@ export class SettingsService extends AsyncHandler {
     private _subjects: HashMap<WritableSignal<any>> = {};
     /** Mapping of pending settings */
     private _pending_settings: HashMap = {};
+    /** Number of the latest save, so only the latest save that waits sends */
+    private _save_count = 0;
+    /** Ends `_user_settings_loaded` */
+    private _endSettingsRead: (loaded: boolean) => void = () => undefined;
+    /**
+     * Resolves after the read of the stored user settings: `true` when they
+     * loaded, so a save can merge with them
+     */
+    private readonly _user_settings_loaded = new Promise<boolean>(
+        (resolve) => (this._endSettingsRead = resolve),
+    );
 
     /**
      * @hidden
@@ -300,15 +311,26 @@ export class SettingsService extends AsyncHandler {
         }
         const user = await this._currentUser();
         // Without saved settings the app uses the defaults
+        let loaded = true;
         const data = await metadata
             .show({ id: user.id, name: 'settings' })
             .then(orThrow)
             .then((data) => data['settings'])
             .catch((error) => {
-                log('Settings', 'Unable to load user settings', error, 'warn');
+                log(
+                    'Settings',
+                    'Unable to load user settings',
+                    loggableError(error),
+                    'warn',
+                );
+                loaded = false;
                 return null;
             });
+
         const details = data?.details;
+        // Text that is not JSON. 6.x failed to read it, so a save must not
+        // replace it.
+        if (typeof details === 'string') loaded = false;
         this._user_settings.set(
             withLegacyUserSettings(
                 details &&
@@ -318,6 +340,7 @@ export class SettingsService extends AsyncHandler {
                     : {},
             ),
         );
+        this._endSettingsRead(loaded);
         this._updateSignals();
         this.timeout(
             'init',
@@ -423,6 +446,13 @@ export class SettingsService extends AsyncHandler {
     }
 
     private async _savePendingChanges() {
+        // A save replaces the stored settings, so it waits for them. When
+        // they did not load, the changes stay local, so the save does not
+        // remove the other settings.
+        const save = ++this._save_count;
+        if (!(await this._user_settings_loaded)) return;
+        // A later save that waited for the read sends the same changes
+        if (save !== this._save_count) return;
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
         this._updateSignals();

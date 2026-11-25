@@ -6,8 +6,9 @@ import {
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
-import { fromV1Mock } from '@placeos/ts-client/compat';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
+import { setDebugLogging } from '../lib/general';
 import { GoogleAnalyticsService } from '../lib/google-analytics.service';
 import { SettingsService } from '../lib/settings.service';
 import { setCurrentUser } from '../lib/user-state';
@@ -161,6 +162,120 @@ describe('SettingsService user settings', () => {
     const createService = createServiceFactory(SettingsService);
 
     afterEach(() => vi.useRealTimers());
+
+    it('should save a change made during the read after the stored settings load', async () => {
+        let endRead: (reply: unknown) => void = () => undefined;
+        vi.mocked(ts_client.metadata.show).mockReturnValue(
+            new Promise((resolve) => (endRead = resolve)) as never,
+        );
+        vi.mocked(ts_client.metadata.update)
+            .mockReset()
+            .mockResolvedValue(mockReply({}) as never);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+        await vi.waitFor(() =>
+            expect(ts_client.metadata.show).toHaveBeenCalled(),
+        );
+        vi.useFakeTimers();
+
+        service.saveUserSetting('font_size', 18);
+        await vi.advanceTimersByTimeAsync(2400);
+        // A second save that also waits
+        service.saveUserSetting('use_24_hour_time', true);
+        await vi.advanceTimersByTimeAsync(2400);
+        // The saves wait for the stored settings
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
+        endRead(
+            mockReply({
+                settings: {
+                    name: 'settings',
+                    details: { favourite_rooms: ['room-1'] },
+                },
+            }),
+        );
+        await vi.advanceTimersByTimeAsync(0);
+
+        // One request has the stored settings and both changes
+        expect(ts_client.metadata.update).toHaveBeenCalledExactlyOnceWith({
+            id: 'test-user',
+            body: expect.objectContaining({
+                details: expect.objectContaining({
+                    favourite_rooms: ['room-1'],
+                    font_size: 18,
+                    use_24_hour_time: true,
+                }),
+            }),
+        });
+    });
+
+    it('should not save over stored settings that are text and not JSON', async () => {
+        vi.mocked(ts_client.metadata.show).mockResolvedValue(
+            mockReply({
+                settings: { name: 'settings', details: '{"favourite_rooms":' },
+            }) as never,
+        );
+        vi.mocked(ts_client.metadata.update).mockReset();
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+        // The read ends as a failed read
+        await expect(
+            (service as unknown as { _user_settings_loaded: Promise<boolean> })
+                ._user_settings_loaded,
+        ).resolves.toBe(false);
+        vi.useFakeTimers();
+
+        service.saveUserSetting('font_size', 18);
+        await vi.advanceTimersByTimeAsync(2400);
+
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
+    });
+
+    it('should log only the kind and the status, and not save, when the settings fail to load', async () => {
+        // The body of the failed call has personal data
+        vi.mocked(ts_client.metadata.show).mockResolvedValue({
+            ok: false,
+            error: {
+                kind: 'http',
+                status: 500,
+                message: 'No settings for user@example.com',
+                body: { email: 'user@example.com' },
+                text: null,
+            },
+        });
+        const warn = vi
+            .spyOn(console, 'warn')
+            .mockImplementation(() => undefined);
+        setDebugLogging(true);
+        setCurrentUser({ id: 'test-user' } as any);
+        const service = createService({
+            providers: [MockProvider(Title, { setTitle: vi.fn() })],
+        }).service;
+
+        await vi.waitFor(() =>
+            expect(warn).toHaveBeenCalledWith(
+                expect.stringContaining('Unable to load user settings'),
+                expect.anything(),
+                expect.anything(),
+                expect.anything(),
+                { kind: 'http', status: 500 },
+            ),
+        );
+        setDebugLogging(false);
+        warn.mockRestore();
+
+        // A save would replace the stored settings that did not load
+        vi.mocked(ts_client.metadata.update).mockClear();
+        vi.useFakeTimers();
+        service.saveUserSetting('font_size', 18);
+        await vi.advanceTimersByTimeAsync(2400);
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
+        // The change stays in the app
+        expect(service.get('font_size')).toBe(18);
+    });
 
     it('should save changes in one request, merged with the stored settings', async () => {
         // The real operations send to the stub API

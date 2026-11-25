@@ -406,6 +406,7 @@ export class PlaceOS_Service extends AsyncHandler {
             // session, so a request still in flight cannot write tokens.
             const auth_error = await setupPlace(settings, undefined, {
                 api_key: getNativeApiKey() || '',
+                access_token: this._initial_token || undefined,
             })
                 .then(() => null)
                 .catch((_) => _);
@@ -465,7 +466,13 @@ export class PlaceOS_Service extends AsyncHandler {
             // A Teams or Microsoft 365 tab cannot show the Microsoft login
             // page in its frame, so it signs in through the host instead.
             const teams_mode = await startTeamsHost();
-            if (teams_mode) settings.local_login = teams_mode === 'tab';
+            if (teams_mode) {
+                settings.local_login = teams_mode === 'tab';
+                // The tab and the sign-in window keep their trust and tokens
+                // in their session storage. The local storage is shared with
+                // the app outside Teams, which must not get them.
+                settings.storage = 'session';
+            }
             setLoadingMessage('Authenticating...');
             // Startup stops waiting for the login after AUTHORITY_WAIT_MS, so
             // a device with no network does not stay on the loading screen.
@@ -478,13 +485,14 @@ export class PlaceOS_Service extends AsyncHandler {
                 // Keep the tokens of the tab and the sign-in window over a
                 // reload
                 trusted: !!teams_mode,
+                // A visitor kiosk token from the URL, for the first request
+                access_token: this._initial_token || undefined,
             }).catch((_) => console.error(_));
             if (teams_mode) {
                 setLoadingMessage('Waiting for Microsoft sign in...');
                 if (!(await finishTeamsSignIn(teams_mode))) return;
             }
         }
-        if (this._initial_token) setToken(this._initial_token);
         try {
             await withTimeout(
                 this._org.waitUntilInitialised(),

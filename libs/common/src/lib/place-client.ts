@@ -447,9 +447,10 @@ export async function logout(): Promise<void> {
 /**
  * A `fetch` with the credential and the headers of the client, for an
  * endpoint that has no generated operation. In mock mode it goes to the mock
- * endpoints. After a 401 or a 511 it asks the session for a new credential
- * and sends one time again. As the generated operations do, a request with an
- * API key does not follow a redirect.
+ * endpoints. After a 401 or a 511 it tells the session. When the session
+ * has a new credential, it sends one time again. Else it gives the 401 or
+ * the 511. As the generated operations do, a request with an API key does
+ * not follow a redirect.
  * @param path Path on the API server, such as `/api/engine/v2/zones`. A full
  * URL must be on the API server.
  */

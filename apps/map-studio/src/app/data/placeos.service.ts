@@ -677,9 +677,10 @@ export class PlaceOSService {
         if (!on_domain && !isSecureDomain(domain || location.origin))
             throw new Error('Enter the PlaceOS domain as an https:// address.');
         const query = new URLSearchParams(params).toString();
-        // On the domain, `placeFetch` sends the session credential, renews
-        // it when it expired, and sends one time again after a 401 or 511.
-        // A status that stays is an error to the caller, as in 6.x.
+        // On the domain, `placeFetch` sends the session credential. After a
+        // 401 or 511 it sends one time again if the session has a new
+        // credential. A status that stays is an error to the caller, as in
+        // 6.x.
         return fetchWithDeadline(
             `${on_domain ? '' : domain}/api/engine/v2${path}${query ? `?${query}` : ''}`,
             {

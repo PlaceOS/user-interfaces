@@ -1,6 +1,12 @@
 import * as ts_client from '@placeos/ts-client';
 
-import { clientId, isOnline, placeSession, token } from '../lib/place-client';
+import {
+    clientId,
+    isOnline,
+    placeClientStarted,
+    placeSession,
+    token,
+} from '../lib/place-client';
 import {
     pastedTokenKey,
     PLACE_SETUP_TIMEOUT,
@@ -155,6 +161,68 @@ describe('setupPlace', () => {
         const [url, init] = fetch.mock.lastCall;
         expect(String(url)).toContain('/api/engine/v2/users/current');
         expect(new Headers(init?.headers).get('X-API-Key')).toBe('key-1');
+    });
+
+    it.each([
+        ['', 'a URL without trust'],
+        ['?trust=true', 'a URL that makes the device trusted'],
+        ['#trust=true', 'a hash that makes the device trusted'],
+    ])(
+        'sends the access token of the options on the first request, with %s (%s)',
+        async (query) => {
+            window.history.replaceState(null, '', `/${query}`);
+            const fetch = serveAuthority();
+            window.fetch = fetch as typeof window.fetch;
+            // Records the credential of the session when the login starts
+            const actual =
+                await vi.importActual<typeof ts_client>('@placeos/ts-client');
+            let credential_at_start: string | undefined;
+            vi.mocked(ts_client.createAuthSession).mockImplementationOnce(
+                (config) => {
+                    const session = actual.createAuthSession(config);
+                    const start = session.start;
+                    vi.spyOn(session, 'start').mockImplementation(() => {
+                        credential_at_start = session.credential()?.kind;
+                        return start();
+                    });
+                    return session;
+                },
+            );
+
+            await setupPlace(base_settings, undefined, {
+                access_token: 'kiosk-token',
+            });
+            await ts_client.users.current();
+
+            expect(credential_at_start).toBe('bearer');
+            const [url, init] = fetch.mock.lastCall;
+            expect(String(url)).toContain('/api/engine/v2/users/current');
+            expect(new Headers(init?.headers).get('Authorization')).toBe(
+                'Bearer kiosk-token',
+            );
+        },
+    );
+
+    it('sends the API key of the URL, not a stored key, on the first request', async () => {
+        await setupPlace(base_settings);
+        localStorage.setItem(`${clientId()}_x-api-key`, 'stored-key');
+        window.history.replaceState(null, '', '/?x-api-key=url-key');
+        const fetch = serveAuthority();
+        window.fetch = fetch as typeof window.fetch;
+
+        // As the current user load does: it waits for the client before
+        // setup, and sends its request before the login attempt starts
+        const reply = placeClientStarted().then(() =>
+            ts_client.users.current(),
+        );
+        const setup = setupPlace(base_settings);
+        await setup;
+        await reply;
+
+        const [, init] = fetch.mock.calls.find(([url]) =>
+            String(url).includes('/api/engine/v2/users/current'),
+        );
+        expect(new Headers(init?.headers).get('X-API-Key')).toBe('url-key');
     });
 
     it('removes a stored API key when the options give an empty key', async () => {

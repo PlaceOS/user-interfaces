@@ -1789,6 +1789,16 @@ export function errorMessage(error: unknown): string {
 }
 
 /**
+ * An error for a log. A failed ts-client call (`CallFailed`) gives only its
+ * kind and HTTP status, because its message and body can hold personal
+ * data. Other values stay the same.
+ */
+export function loggableError(error: unknown): unknown {
+    if (!(error instanceof CallFailed)) return error;
+    return { kind: error.error.kind, status: error.status };
+}
+
+/**
  * Async form of {@link errorMessage} that also reads failed API requests: a
  * `CallFailed` of a ts-client call (`.then(orThrow)`), or a fetch `Response`.
  * It reads the message from a JSON or plain text body, and falls back to the

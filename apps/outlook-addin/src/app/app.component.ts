@@ -124,14 +124,22 @@ export class AppComponent extends AsyncHandler implements OnInit {
     }
 
     /**
-     * Set up the PlaceOS login. With `sso`, the login exchanges a Microsoft
-     * Entra token from Outlook for PlaceOS tokens when it has no token.
+     * Set up the PlaceOS login. With `in_outlook`, for the task pane in
+     * Outlook, the login exchanges a Microsoft Entra token from Outlook for
+     * PlaceOS tokens when it has no token, and the session keeps its tokens
+     * over a reload. The task pane keeps them in its session storage, so a
+     * browser outside Outlook and the sign-in dialog, which share the local
+     * storage, do not get its trust or its tokens. They do not keep tokens,
+     * as in 6.x.
      */
-    private async _initialiseAuth(local = true, sso = false): Promise<boolean> {
+    private async _initialiseAuth(
+        local = true,
+        in_outlook = false,
+    ): Promise<boolean> {
         setAppName(this._settings.get('app.short_name'));
         const settings = this._settings.get('composer') || {};
         settings.local_login = local;
-        settings.storage = 'local';
+        settings.storage = in_outlook ? 'session' : 'local';
         settings.mock =
             !!this._settings.get('mock') ||
             location.origin.includes('demo.place.tech');
@@ -147,7 +155,9 @@ export class AppComponent extends AsyncHandler implements OnInit {
             mocksInit();
         }
         const entra_token =
-            sso && this._naa_client_id ? () => this._naaToken() : undefined;
+            in_outlook && this._naa_client_id
+                ? () => this._naaToken()
+                : undefined;
         try {
             // A Microsoft prompt can take longer than the normal setup
             await setupPlace(
@@ -155,9 +165,7 @@ export class AppComponent extends AsyncHandler implements OnInit {
                 entra_token
                     ? PLACE_SETUP_TIMEOUT + SIGN_IN_TIMEOUT_MS
                     : PLACE_SETUP_TIMEOUT,
-                // The task pane is in Outlook, so it keeps its tokens over
-                // a reload
-                { entra_token, trusted: true },
+                { entra_token, trusted: in_outlook },
             );
             return true;
         } catch (error) {

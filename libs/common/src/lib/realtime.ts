@@ -32,7 +32,8 @@ export interface ModuleVariable<T = JsonValue> {
     value(): T | undefined;
     /**
      * Binds to the variable. `listener` gets each new value, and the value
-     * now if it is known. Returns the function that releases the binding.
+     * now if it is known. An exception of `listener` goes to the console.
+     * Returns the function that releases the binding.
      */
     subscribe(listener: (value: T) => void): () => void;
     /** `subscribe` as an observable. Unsubscribe releases the binding. */
@@ -105,7 +106,14 @@ export function getModule(
         variable<T>(name: string): ModuleVariable<T> {
             const subscribe = (listener: (value: T) => void) =>
                 placeRealtime().bind(target(name), (state) => {
-                    if (state.kind === 'value') listener(state.value as T);
+                    if (state.kind !== 'value') return;
+                    // An exception in the client stops the other listeners
+                    // of the batch, so keep it here
+                    try {
+                        listener(state.value as T);
+                    } catch (error) {
+                        console.error(`${label}.${name}`, error);
+                    }
                 });
             return {
                 value() {

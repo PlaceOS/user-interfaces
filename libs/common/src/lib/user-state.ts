@@ -14,6 +14,7 @@ import {
     timer,
 } from 'rxjs';
 import { catchError, first, map, retry } from 'rxjs/operators';
+import { loggableError } from './general';
 import { placeClientStarted, token } from './place-client';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
@@ -235,7 +236,7 @@ async function loadUserGroups() {
         user_groups.set(groups);
         console.log('Permissions:', user_permissions());
     } catch (error) {
-        console.warn('Failed to load user groups.', loadError(error));
+        console.warn('Failed to load user groups.', loggableError(error));
         user_groups.set([]);
         user_groups_failed.set(true);
     } finally {
@@ -269,7 +270,7 @@ export function initialiseUser() {
                 catchError((error) => {
                     console.warn(
                         'User loading failed in public mode, using local public user data.',
-                        loadError(error),
+                        loggableError(error),
                     );
                     return of(setPublicUser());
                 }),
@@ -285,7 +286,7 @@ export function initialiseUser() {
                     const delay_ms = Math.min(1000 * Math.pow(2, count), 30000);
                     console.warn(
                         `User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`,
-                        loadError(error),
+                        loggableError(error),
                     );
                     return timer(delay_ms);
                 },
@@ -296,18 +297,9 @@ export function initialiseUser() {
             error: (error) =>
                 console.error(
                     'User loading failed after 10 retries.',
-                    loadError(error),
+                    loggableError(error),
                 ),
         });
-}
-
-/**
- * A failed user load for the logs: only the kind and the status of a failed
- * call, because its response body can hold personal data.
- */
-function loadError(error: unknown): unknown {
-    if (!(error instanceof CallFailed)) return error;
-    return { kind: error.error.kind, status: error.status };
 }
 
 /** Set the loaded user as the current user and load their group permissions */
@@ -327,7 +319,7 @@ export function reloadUserData() {
             if (isPublicMode()) {
                 console.warn(
                     'User reload failed in public mode, using local public user data.',
-                    loadError(error),
+                    loggableError(error),
                 );
                 setPublicUser();
                 return;
@@ -361,7 +353,7 @@ export async function checkUserGroupChanges(): Promise<boolean> {
     } catch (error) {
         console.warn(
             'Failed to check for user group changes.',
-            loadError(error),
+            loggableError(error),
         );
         return false;
     }
