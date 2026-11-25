@@ -36,11 +36,11 @@ import {
   searchStaff,
   searchStaffByEmailPrefix,
   showStaff
-} from "./chunk-HFBU7DAG.js";
+} from "./chunk-GDX5KMPQ.js";
 import {
   validateAssetRequestsForResource
-} from "./chunk-V4ZG3OK3.js";
-import "./chunk-HJ3ZUEEI.js";
+} from "./chunk-TSSDUJGL.js";
+import "./chunk-M6SPE655.js";
 import {
   MatCheckbox,
   MatCheckboxModule
@@ -53,7 +53,7 @@ import "./chunk-QA6KALWQ.js";
 import "./chunk-LXLZIQ7A.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-XG2C5VY7.js";
+} from "./chunk-OSPF34KC.js";
 import {
   MatMenu,
   MatMenuContent,
@@ -72,7 +72,7 @@ import {
 } from "./chunk-ZPIRMHAP.js";
 import {
   CustomTooltipComponent
-} from "./chunk-RQSUC4RR.js";
+} from "./chunk-AROCSKN2.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -84,10 +84,10 @@ import {
 import {
   SpacePipe,
   requestSpacesForZone
-} from "./chunk-GIEXX25H.js";
+} from "./chunk-JEZ72DTY.js";
 import {
   setHours
-} from "./chunk-T3KOK324.js";
+} from "./chunk-ERAMWOTR.js";
 import {
   createBookingsForEvent,
   queryAllBookings,
@@ -96,7 +96,7 @@ import {
   removeBooking,
   saveBooking,
   showGuest
-} from "./chunk-626YLWTS.js";
+} from "./chunk-2PIVKG3G.js";
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -104,13 +104,13 @@ import {
   MatDialogModule,
   MatDialogRef
 } from "./chunk-ZZ5QXUHG.js";
-import "./chunk-DM7JJN3P.js";
+import "./chunk-C2UI5LH2.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-PKI74RBW.js";
+} from "./chunk-3W6ZYJ4K.js";
 import {
   TranslatePipe
-} from "./chunk-YQOCA5PD.js";
+} from "./chunk-XT4ZI3E5.js";
 import {
   FormField,
   disabled,
@@ -233,7 +233,7 @@ import {
   userSignal,
   user_group_names,
   users_exports
-} from "./chunk-GGAOSPVK.js";
+} from "./chunk-IQDWAYMZ.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -10467,7 +10467,7 @@ var ExploreSearchService = class _ExploreSearchService {
     )), {
       params: () => this._building() || void 0,
       loader: async ({ params: bld }) => {
-        const { details } = await metadata_exports.show({ id: bld.id, name: "emergency_contacts" }).then(orThrow).then((data2) => data2["emergency_contacts"]).catch(() => ({
+        const { details } = await metadata_exports.show({ id: bld.id, name: "emergency_contacts" }).then(orThrow).then((data2) => data2["emergency_contacts"] ?? { details: {} }).catch(() => ({
           details: { contacts: [], migrated: false }
         }));
         const data = details;
@@ -12563,5 +12563,5 @@ export {
   ROUTES,
   VisitorKioskExploreComponent
 };
-//# debugId=2658eaca-c847-5adb-9b69-b3665f6ed91a
-//# sourceMappingURL=explore.routes-SYUCBNP2.js.map
+//# debugId=bba16c95-816a-5ad8-8812-99d617f5311b
+//# sourceMappingURL=explore.routes-LJRHUWHW.js.map

@@ -1,7 +1,7 @@
 import "./chunk-FUZAUKV6.js";
 import {
   TranslatePipe
-} from "./chunk-YQOCA5PD.js";
+} from "./chunk-XT4ZI3E5.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -28,7 +28,7 @@ import {
   randomString,
   settingSignal,
   token
-} from "./chunk-GGAOSPVK.js";
+} from "./chunk-IQDWAYMZ.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -3254,4 +3254,4 @@ export {
   ChatComponent
 };
 //# debugId=b86a426c-235e-5d1e-8594-4f587e4eca27
-//# sourceMappingURL=chat.component-MTN7IWVL.js.map
+//# sourceMappingURL=chat.component-AGKYMFVJ.js.map

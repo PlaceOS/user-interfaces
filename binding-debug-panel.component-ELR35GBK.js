@@ -3,7 +3,7 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-EL47BSZ6.js";
+} from "./chunk-QWNMBXIG.js";
 import {
   DebugPanelResize
 } from "./chunk-RG3NQT6X.js";
@@ -27,7 +27,7 @@ import {
   HotkeysService,
   orThrow,
   systems_exports
-} from "./chunk-GGAOSPVK.js";
+} from "./chunk-IQDWAYMZ.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -1915,4 +1915,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=ae75d023-80c4-5234-9f45-b43320c523c6
-//# sourceMappingURL=binding-debug-panel.component-CCQ2I2AS.js.map
+//# sourceMappingURL=binding-debug-panel.component-ELR35GBK.js.map
