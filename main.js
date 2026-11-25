@@ -2,7 +2,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-YQNCGLTE.js";
+} from "./chunk-SN6AK5TW.js";
 import {
   AnnounceDirective
 } from "./chunk-H6EH6T67.js";
@@ -33,7 +33,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-JFVOATNZ.js";
+} from "./chunk-LT6VOXAD.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -50,7 +50,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-YD56JJGT.js";
+} from "./chunk-V34EUQF4.js";
 import {
   addDays,
   addMinutes,
@@ -11036,11 +11036,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-7CILWYGN.js").then((m) => m.ChatComponent)
+  import("./chat.component-SHPZ6JDO.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-DWHTLGG5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-4G5ROE5D.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11104,9 +11104,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-7CILWYGN.js").then((m) => m.ChatComponent),
+    import("./chat.component-SHPZ6JDO.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-DWHTLGG5.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-4G5ROE5D.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11156,12 +11156,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-PD36BUND.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-NDABNDKC.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-EG3W2Y47.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-W7R4CUQ7.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
