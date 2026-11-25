@@ -35,7 +35,8 @@ export class DealsService {
             const { details } = await metadata
                 .show({ id: bld.id, name: 'deals-n-offers' })
                 .then(orThrow)
-                .then((data) => data['deals-n-offers'])
+                // A building without deals has no entry
+                .then((data) => data['deals-n-offers'] ?? { details: [] })
                 .catch(() => {
                     failed = true;
                     return { details: [] };

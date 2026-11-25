@@ -37,7 +37,8 @@ export class ExplorePointOfInterestService extends AsyncHandler {
                     name: 'points-of-interest',
                 })
                 .then(orThrow)
-                .then((data) => data['points-of-interest'])
+                // A building without points of interest has no entry
+                .then((data) => data['points-of-interest'] ?? { details: {} })
                 .catch((_) => ({ details: {} }));
             const mapping = metadata.details || {};
             const levels = this._org.levelsForBuilding(this._org.building);

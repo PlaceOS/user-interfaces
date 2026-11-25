@@ -11,7 +11,7 @@ import { MockProvider } from 'ng-mocks';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
-import { fromV1Mock } from '@placeos/ts-client/compat';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { DealDetailsModalComponent } from '../../app/deals/deal-details-modal.component';
 import { DealsService } from '../../app/deals/deals.service';
 
@@ -98,6 +98,21 @@ describe('DealsService', () => {
         await wait(10);
 
         expect(spectator.service.deals()).toEqual([]);
+    });
+
+    it('should end the load with no deals when the building has no deals metadata', async () => {
+        // The reply has no entry for the name
+        vi.mocked(ts_client.metadata.show).mockResolvedValue(
+            mockReply({}) as never,
+        );
+        active_building.set({ id: 'bld-1' });
+
+        TestBed.flushEffects();
+        await wait(10);
+
+        expect(spectator.service.deals()).toEqual([]);
+        expect(spectator.service.failed()).toBe(false);
+        expect(spectator.service.loading()).toBe(false);
     });
 
     it('should flag a failed load and clear the flag when a reload succeeds', async () => {

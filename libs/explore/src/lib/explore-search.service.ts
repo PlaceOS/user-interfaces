@@ -259,7 +259,8 @@ export class ExploreSearchService {
             const { details } = await metadata_v7
                 .show({ id: bld.id, name: 'emergency_contacts' })
                 .then(orThrow)
-                .then((data) => data['emergency_contacts'])
+                // A building without emergency contacts has no entry
+                .then((data) => data['emergency_contacts'] ?? { details: {} })
                 .catch(() => ({
                     details: { contacts: [], migrated: false },
                 }));
