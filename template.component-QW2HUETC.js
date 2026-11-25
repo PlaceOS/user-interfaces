@@ -17,7 +17,7 @@ import {
 } from "./chunk-GIUGUTEK.js";
 import {
   CustomTooltipComponent
-} from "./chunk-AGESTJ76.js";
+} from "./chunk-UCE7WYPS.js";
 import "./chunk-CTXCYRHH.js";
 import {
   DefaultValueAccessor,
@@ -32,16 +32,16 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-7SKRB7L3.js";
+} from "./chunk-TLRK5BE7.js";
 import {
   TranslatePipe
-} from "./chunk-MG7TVIX4.js";
+} from "./chunk-KLSOG6PN.js";
 import "./chunk-3EONKEEQ.js";
 import {
   getModule,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-2C2AOMYP.js";
+} from "./chunk-Z2B77TNY.js";
 import {
   API_PATH,
   AsyncHandler,
@@ -56,7 +56,7 @@ import {
   isOnline,
   placeFetch,
   token
-} from "./chunk-A74AMQ2Q.js";
+} from "./chunk-MUARYPOO.js";
 import {
   MediaAnimation,
   addDays,
@@ -90,7 +90,7 @@ import {
   toDate,
   toZonedTime,
   withTimeout
-} from "./chunk-KE5GNXFT.js";
+} from "./chunk-UAOKM3V4.js";
 import {
   IconComponent,
   SafePipe
@@ -7727,10 +7727,15 @@ var SignageService = class _SignageService extends AsyncHandler {
       if (this.hasSubscription(name))
         continue;
       const binding = mod.variable(id);
+      let known = binding.value() !== void 0;
       let active = !!binding.value();
       this.subscription(name, binding.subscribe((value) => {
         const was_active = active;
         active = !!value;
+        if (!known) {
+          known = true;
+          return;
+        }
         if (active && !was_active)
           this._handleTrigger(id);
       }));
@@ -9303,5 +9308,5 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
 export {
   SignageTemplateComponent
 };
-//# debugId=07ff6604-50bc-5fbb-ab10-5f9611e42604
-//# sourceMappingURL=template.component-FQWEXVQ7.js.map
+//# debugId=3f37facc-46b3-5552-9647-db60f3be2e0f
+//# sourceMappingURL=template.component-QW2HUETC.js.map

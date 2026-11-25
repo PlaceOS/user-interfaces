@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-LARQF4H6.js";
+} from "./chunk-RT3E7EUJ.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,12 +14,12 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-2C2AOMYP.js";
+} from "./chunk-Z2B77TNY.js";
 import {
   addMonths,
   getUnixTime,
   isBefore
-} from "./chunk-A74AMQ2Q.js";
+} from "./chunk-MUARYPOO.js";
 import {
   addDays,
   addMinutes,
@@ -37,7 +37,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-KE5GNXFT.js";
+} from "./chunk-UAOKM3V4.js";
 import "./chunk-COFQG2BS.js";
 import "./chunk-PDYEOVNK.js";
 import "./chunk-ABTB3K4F.js";
@@ -4310,12 +4310,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -9707,5 +9707,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=4d885a38-8e88-529c-aa5a-54068845ea1b
-//# sourceMappingURL=src-5IAECGE5.js.map
+//# debugId=449fab33-68a2-58a8-a9ce-85bd4a4bac1d
+//# sourceMappingURL=src-CDNJEJWS.js.map
