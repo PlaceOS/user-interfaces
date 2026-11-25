@@ -1,6 +1,10 @@
 import { provideZonelessChangeDetection } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
+import {
+    type FakeSession,
+    httpFailure,
+    startFakePlaceClient,
+} from '@placeos/common/tests';
 import {
     createAuthSession,
     type DomainAuthorityInput,
@@ -38,20 +42,6 @@ function floorplanMetadata(details: JsonValue, updated_at = 0): Metadata {
         modified_by_id: null,
         updated_at,
         created_at: 0,
-    };
-}
-
-/** A failed 7.x result with this HTTP status */
-function httpFailure(status: number) {
-    return {
-        ok: false as const,
-        error: {
-            kind: 'http' as const,
-            status,
-            message: null,
-            body: null,
-            text: null,
-        },
     };
 }
 

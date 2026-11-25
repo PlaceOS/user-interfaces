@@ -52,20 +52,36 @@ describe('WorkLocationTooltipComponent', () => {
     });
 
     // Freeze the clock for all of the file, not for each test. After a save,
-    // `reloadUserData()` loads the user 300 ms later, also after the test
-    // ended. The new user starts a change check. With the real clock, that
-    // check reads a different minute and fails with NG0100. Only Date is
-    // faked, so the real timers in the tests still run.
+    // `reloadUserData()` loads the user 300 ms later. The new user starts a
+    // change check. With the real clock, that check can read a different
+    // minute and fail with NG0100. Only Date is faked, so the real timers in
+    // the tests still run.
     beforeAll(() => {
         vi.useFakeTimers({ toFake: ['Date'] });
         vi.setSystemTime(frozen_time);
     });
 
-    afterAll(async () => {
-        // Let the last user reload end before the real clock is back
-        await new Promise((resolve) => setTimeout(resolve, 350));
+    afterAll(() => {
         vi.useRealTimers();
     });
+
+    /**
+     * Wait for the user reload that a successful save starts, and for the
+     * change check of the new user. `reloadUserData()` uses a module timer,
+     * which fixture teardown does not stop. Each test that saves calls this
+     * before it ends, so that no reload goes into the next test.
+     */
+    async function settleUserReload() {
+        // The reload timer is 300 ms. The longer limit is for a busy CPU.
+        await vi.waitFor(
+            () => expect(ts_client.users.current).toHaveBeenCalledTimes(1),
+            { timeout: 3_000 },
+        );
+        await vi.mocked(ts_client.users.current).mock.results[0].value;
+        // Let the reload apply the user, then let the view update
+        await new Promise((resolve) => setTimeout(resolve));
+        await spectator.fixture.whenStable();
+    }
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -133,8 +149,7 @@ describe('WorkLocationTooltipComponent', () => {
             }),
         });
         // `reloadUserData()` reloads via `users.current()` after a delay.
-        await new Promise((resolve) => setTimeout(resolve, 350));
-        expect(ts_client.users.current).toHaveBeenCalled();
+        await settleUserReload();
     });
 
     it('should update the location label when the user reloads', async () => {
@@ -199,5 +214,6 @@ describe('WorkLocationTooltipComponent', () => {
         const date = format(Date.now(), 'yyyy-MM-dd');
         expect(spectator.component.overrides()['2020-01-01']).toBeUndefined();
         expect(spectator.component.overrides()[date]).toBeTruthy();
+        await settleUserReload();
     });
 });

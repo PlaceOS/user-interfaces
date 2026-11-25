@@ -3,14 +3,13 @@ vi.mock('@placeos/ts-client/staff', { spy: true });
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { User } from '@placeos/common';
-import { mockData } from '@placeos/common/tests';
+import { httpFailure, mockData } from '@placeos/common/tests';
 import { mockReply } from '@placeos/ts-client/compat';
 import { PlaceCalendarUser, staff } from '@placeos/ts-client/staff';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserAvatarComponent } from 'libs/components/src/lib/user-avatar.component';
 import { MockComponent, MockModule } from 'ng-mocks';
 import { AttendeeListComponent } from '../lib/attendee-list.component';
-import { httpFailure } from './staff-test-data';
 
 describe('AttendeeListComponent', () => {
     let spectator: Spectator<AttendeeListComponent>;

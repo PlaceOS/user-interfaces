@@ -10,13 +10,13 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
+import { httpFailure } from '@placeos/common/tests';
 import { mockReply } from '@placeos/ts-client/compat';
 import {
     calendars,
     type PlaceCalendarCalendar,
 } from '@placeos/ts-client/staff';
 import { CalendarService } from '../lib/calendar.service';
-import { httpFailure } from './staff-test-data';
 
 // The real calendar.fn wrappers run; only the staff calendars operation beneath them is stubbed.
 vi.mock('@placeos/ts-client/staff', { spy: true });

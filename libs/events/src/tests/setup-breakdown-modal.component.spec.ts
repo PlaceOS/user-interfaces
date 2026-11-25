@@ -1,7 +1,7 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { CalendarEvent } from '@placeos/common';
-import { mockData } from '@placeos/common/tests';
+import { httpFailure, mockData } from '@placeos/common/tests';
 import { mockReply } from '@placeos/ts-client/compat';
 import { events, PlaceCalendarEvent } from '@placeos/ts-client/staff';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
@@ -9,7 +9,6 @@ import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { MockProvider } from 'ng-mocks';
 import { SetupBreakdownModalComponent } from '../lib/setup-breakdown-modal.component';
-import { httpFailure } from './staff-test-data';
 
 // The real saveEvent/updateEventMetadata wrappers run; only the staff
 // operations beneath them are stubbed.
