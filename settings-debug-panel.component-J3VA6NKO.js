@@ -1,6 +1,6 @@
 import {
   CustomTooltipComponent
-} from "./chunk-A4D7T7YA.js";
+} from "./chunk-DCL6REO3.js";
 import {
   DebugPanelResize
 } from "./chunk-RG3NQT6X.js";
@@ -27,7 +27,7 @@ import {
   DEFAULT_SETTINGS,
   OrganisationService,
   SettingsService
-} from "./chunk-PEH7MKWO.js";
+} from "./chunk-6T7BMZQD.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -1247,4 +1247,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=0e4a279d-a6c2-53b2-a61b-afa24b5f2e4d
-//# sourceMappingURL=settings-debug-panel.component-FECHR2SW.js.map
+//# sourceMappingURL=settings-debug-panel.component-J3VA6NKO.js.map

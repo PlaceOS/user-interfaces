@@ -16,10 +16,10 @@ import {
 } from "./chunk-FUZAUKV6.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-FWL6JHIN.js";
+} from "./chunk-VO65YFRC.js";
 import {
   TranslatePipe
-} from "./chunk-UC2S335F.js";
+} from "./chunk-P2GYBOJ5.js";
 import "./chunk-RO7SH5PP.js";
 import {
   FormsModule,
@@ -32,7 +32,7 @@ import {
   SettingsService,
   VERSION,
   isPublicMode
-} from "./chunk-PEH7MKWO.js";
+} from "./chunk-6T7BMZQD.js";
 import "./chunk-2USBKBNW.js";
 import {
   MatRipple,
@@ -1047,4 +1047,4 @@ export {
   BootstrapComponent
 };
 //# debugId=7d6759a8-776f-56f6-90c1-e6419e8e504e
-//# sourceMappingURL=bootstrap.component-UUMNVXQ3.js.map
+//# sourceMappingURL=bootstrap.component-NR4WO2SN.js.map

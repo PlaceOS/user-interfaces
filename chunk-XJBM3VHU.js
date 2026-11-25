@@ -6,7 +6,7 @@ import {
   queryTypeAssetsInZone,
   resolveHiddenAssetTypeId,
   validateAssetRequestsForResource
-} from "./chunk-N47KGLVH.js";
+} from "./chunk-NDCLAOR3.js";
 import {
   CheckoutCancelledError,
   PAYMENT_CHECKOUT,
@@ -14,7 +14,7 @@ import {
   PaymentWindowClosedError,
   openConfirmModal,
   openPaymentWindow
-} from "./chunk-XTST4HLJ.js";
+} from "./chunk-74Y2VOT7.js";
 import {
   MatCheckbox,
   MatCheckboxModule,
@@ -32,7 +32,7 @@ import {
 } from "./chunk-QA6KALWQ.js";
 import {
   setAuthCookie
-} from "./chunk-7GV3DUIW.js";
+} from "./chunk-Y6PV3Y2L.js";
 import {
   MatMenu,
   MatMenuContent,
@@ -67,7 +67,7 @@ import {
 } from "./chunk-FUZAUKV6.js";
 import {
   setHours
-} from "./chunk-FPNEPJCO.js";
+} from "./chunk-7YS3FAW3.js";
 import {
   PlaceCalendarEvent,
   bookedResourceList,
@@ -82,7 +82,7 @@ import {
   staff_exports,
   toBookingClash,
   updateBooking
-} from "./chunk-SBS6JX6J.js";
+} from "./chunk-TN4W24V6.js";
 import {
   MAT_DIALOG_DATA,
   MatDialog,
@@ -93,10 +93,10 @@ import {
 } from "./chunk-ZZ5QXUHG.js";
 import {
   VirtualKeyboardComponent
-} from "./chunk-FWL6JHIN.js";
+} from "./chunk-VO65YFRC.js";
 import {
   TranslatePipe
-} from "./chunk-UC2S335F.js";
+} from "./chunk-P2GYBOJ5.js";
 import {
   FormField,
   disabled,
@@ -197,7 +197,7 @@ import {
   unique,
   user_group_names,
   users_exports
-} from "./chunk-PEH7MKWO.js";
+} from "./chunk-6T7BMZQD.js";
 import {
   MatRipple,
   MatRippleModule
@@ -6693,7 +6693,7 @@ var PaymentsService = class _PaymentsService {
       resume: (id, options) => this._resume(id, options),
       cancel: (id) => this.call("cancel_payment", id)
     };
-    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-WFHJAY4A.js");
+    const { PaymentCheckoutModalComponent } = await import("./payment-checkout-modal.component-JVMUSR55.js");
     const ref = this._dialog.open(PaymentCheckoutModalComponent, { data, disableClose: true });
     const payment = await new Promise((resolve) => ref.afterClosed().subscribe((result) => resolve(result)));
     return payment ? { status: "paid", payment } : { status: "cancelled" };
@@ -8940,4 +8940,4 @@ export {
   BookingFormService
 };
 //# debugId=368a2d1f-abbc-5014-835c-658cbf4e3c9a
-//# sourceMappingURL=chunk-65KAVS3C.js.map
+//# sourceMappingURL=chunk-XJBM3VHU.js.map
