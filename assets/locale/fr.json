@@ -2343,6 +2343,7 @@
             "VC_DIAL_ERROR": "Impossible de passer l'appel. Erreur : {{ error }}",
             "VC_COMMAND_ERROR": "La commande de visioconférence a échoué. Erreur : {{ error }}",
             "CAMERA_COMMAND_ERROR": "La commande de la caméra a échoué. Erreur : {{ error }}",
+            "LIGHTING_COMMAND_ERROR": "La commande d’éclairage a échoué. Erreur : {{ error }}",
             "VC_LEAVE_LOADING": "Hanging up call...",
             "VC_LOADING": "Chargement des détails de l'appel...",
             "ROUTE_ERROR": "Impossible de changer la source. Erreur : {{ error }}",
