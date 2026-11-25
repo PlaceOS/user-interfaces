@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["map-locate-modal.component.ts"],
-  "sourcesContent": ["\n    h2[mat-dialog-title] {\n        color: inherit;\n        font-family: inherit;\n        letter-spacing: inherit;\n        margin: 0;\n        padding: 0;\n    }\n\n    h2[mat-dialog-title]::before {\n        display: none;\n    }\n"],
-  "mappings": "AACI,EAAA,CAAA,kBACI,MAAA,QACA,YAAA,QACA,eAAA,eACA,UACA,CACJ,CAEA,EAAA,CAAA,iBAAA,QACI,QAAA,IACJ",
+  "sourcesContent": ["\n            [body] {\n                min-width: 80vw !important;\n            }\n            :host {\n                display: block;\n                width: 100%;\n                height: 100%;\n            }\n        "],
+  "mappings": "AACY,CAAA,MACI,UAAA,cACJ,CACA,MACI,QAAA,MACA,MAAA,KACA,OAAA,IACJ",
   "names": []
 }
