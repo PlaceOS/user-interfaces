@@ -14,7 +14,7 @@ import {
   MatDialogRef,
   MatDialogTitle,
   openConfirmModal
-} from "./chunk-2T6RNEU3.js";
+} from "./chunk-UWELCONB.js";
 import {
   MatSelect,
   MatSelectModule
@@ -38,25 +38,25 @@ import {
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-Q54M553T.js";
+} from "./chunk-27DXE7KO.js";
 import {
   MatOption
 } from "./chunk-WLTGB6ES.js";
 import {
   SpacePipe
-} from "./chunk-GMERDDDD.js";
+} from "./chunk-UJ5HG65O.js";
 import {
   CONTROL_STORE_KEY
 } from "./chunk-VGS37IMQ.js";
 import {
   TranslatePipe
-} from "./chunk-2QM7UGV6.js";
+} from "./chunk-KUR4YJNN.js";
 import {
   ModuleCallFailed,
   OrganisationService,
   firstValueWhere,
   getModule
-} from "./chunk-XYO7H52H.js";
+} from "./chunk-FXSRAB6G.js";
 import {
   CalendarEvent,
   SettingsService,
@@ -70,7 +70,7 @@ import {
   themedLogo,
   token,
   waitForOnline
-} from "./chunk-INN7DSMB.js";
+} from "./chunk-IR7TEHCP.js";
 import {
   AsyncHandler,
   CallFailed,
@@ -87,6 +87,7 @@ import {
   json,
   literal,
   log,
+  loggableError,
   notifyError,
   notifySuccess,
   nullable,
@@ -101,7 +102,7 @@ import {
   systems_exports,
   union,
   unique
-} from "./chunk-3HV36PD4.js";
+} from "./chunk-2W55FUQU.js";
 import {
   IconComponent
 } from "./chunk-TB5VYNU6.js";
@@ -6748,7 +6749,7 @@ var _SpacesService = class _SpacesService {
       zone_id: ((_a = this._org.organisation) == null ? void 0 : _a.id) ? [this._org.organisation.id] : void 0,
       limit: 5e3
     }).then(orThrowPage).catch((error) => {
-      console.warn("Failed to load spaces.", error);
+      console.warn("Failed to load spaces.", loggableError(error));
       return null;
     });
     if (!response)
@@ -12624,5 +12625,5 @@ export {
   ControlConnectingComponent,
   SplashComponent
 };
-//# debugId=7a7659a8-b0cb-53db-a8d9-2bb0058efd39
-//# sourceMappingURL=chunk-SYQCR4WY.js.map
+//# debugId=0519f223-61d4-59d7-8e99-9547af2f1c77
+//# sourceMappingURL=chunk-A6UXFNAK.js.map

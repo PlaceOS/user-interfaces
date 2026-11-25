@@ -34,7 +34,7 @@ import {
   token,
   waitForCurrentUser,
   waitForOnline
-} from "./chunk-INN7DSMB.js";
+} from "./chunk-IR7TEHCP.js";
 import {
   AsyncHandler,
   LocaleService,
@@ -60,7 +60,7 @@ import {
   unique,
   withTimeout,
   zones_exports
-} from "./chunk-3HV36PD4.js";
+} from "./chunk-2W55FUQU.js";
 import {
   bindNativeAuthRedirects,
   clearNativeApiKey,
@@ -1479,6 +1479,25 @@ var PASTED_TOKEN_KEY = "PLACEOS.pasted_token";
 function pastedTokenKey(client_id) {
   return `${PASTED_TOKEN_KEY}.${client_id}`;
 }
+var URL_LENGTH_MAX = 16 * 1024;
+var URL_DEVICE_PARAMS = ["x-api-key", "trust", "trusted", "fixed_device"];
+function urlParam(name) {
+  if (location.href.length > URL_LENGTH_MAX)
+    return null;
+  const hash = location.hash.slice(1);
+  const query_start = hash.indexOf("?");
+  const hash_main = query_start >= 0 ? hash.slice(0, query_start) : hash;
+  const hash_query = query_start >= 0 ? hash.slice(query_start + 1) : "";
+  let found = null;
+  for (const part of [hash_main, hash_query, location.search.slice(1)]) {
+    if (!part.includes("="))
+      continue;
+    const value = new URLSearchParams(part).getAll(name).filter(Boolean);
+    if (value.length)
+      found = value[value.length - 1];
+  }
+  return found;
+}
 function usePastedToken(session) {
   const key = pastedTokenKey(session.client_id);
   const raw = sessionStorage.getItem(key);
@@ -1587,6 +1606,14 @@ async function setupPlace(settings, timeout_ms = PLACE_SETUP_TIMEOUT, options = 
     }
     usePastedToken(session);
     useDeviceApiKey(session, storage, options.api_key);
+    for (const name of URL_DEVICE_PARAMS) {
+      const value = urlParam(name);
+      if (value !== null) {
+        storage.setItem(`${session.client_id}_${name}`, value);
+      }
+    }
+    if (options.access_token)
+      session.useToken(options.access_token);
   }
   const setup_promise = session ? session.start().then((result) => {
     if (result.ok !== false)
@@ -1666,8 +1693,13 @@ function getModule(sys, mod, index) {
     },
     variable(name) {
       const subscribe = (listener) => placeRealtime().bind(target(name), (state) => {
-        if (state.kind === "value")
+        if (state.kind !== "value")
+          return;
+        try {
           listener(state.value);
+        } catch (error) {
+          console.error(`${label}.${name}`, error);
+        }
       });
       return {
         value() {
@@ -2890,7 +2922,8 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
       settings.use_domain = true;
       setLoadingMessage("Authenticating...");
       const auth_error = await setupPlace(settings, void 0, {
-        api_key: getNativeApiKey() || ""
+        api_key: getNativeApiKey() || "",
+        access_token: this._initial_token || void 0
       }).then(() => null).catch((_) => _);
       if (!auth_error) {
         if (intune_token)
@@ -2926,15 +2959,19 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
     }
     if (!isNativeApp()) {
       const teams_mode = await startTeamsHost();
-      if (teams_mode)
+      if (teams_mode) {
         settings.local_login = teams_mode === "tab";
+        settings.storage = "session";
+      }
       setLoadingMessage("Authenticating...");
       await setupPlace(settings, AUTHORITY_WAIT_MS, {
         // A Teams tab signs in with the SSO token of the host
         entra_token: teams_mode === "tab" ? teamsEntraToken : void 0,
         // Keep the tokens of the tab and the sign-in window over a
         // reload
-        trusted: !!teams_mode
+        trusted: !!teams_mode,
+        // A visitor kiosk token from the URL, for the first request
+        access_token: this._initial_token || void 0
       }).catch((_) => console.error(_));
       if (teams_mode) {
         setLoadingMessage("Waiting for Microsoft sign in...");
@@ -2942,8 +2979,6 @@ var _PlaceOS_Service = class _PlaceOS_Service extends AsyncHandler {
           return;
       }
     }
-    if (this._initial_token)
-      setToken(this._initial_token);
     try {
       await withTimeout(this._org.waitUntilInitialised(), 5e4, "Organisation loading timed out.");
     } catch (error) {
@@ -4160,5 +4195,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=5184489d-d3a0-598a-bc40-c515b609d159
-//# sourceMappingURL=chunk-XYO7H52H.js.map
+//# debugId=964ee53c-0768-577a-ba70-b9b06fe8b51c
+//# sourceMappingURL=chunk-FXSRAB6G.js.map

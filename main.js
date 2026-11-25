@@ -3,18 +3,18 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-WI5D2QZ6.js";
-import "./chunk-GMERDDDD.js";
+} from "./chunk-BTD75DQH.js";
+import "./chunk-UJ5HG65O.js";
 import {
   CONTROL_STORE_KEY
 } from "./chunk-VGS37IMQ.js";
 import {
   AnnounceDirective
-} from "./chunk-W7533OUE.js";
+} from "./chunk-GXSAJRU2.js";
 import "./chunk-FI3A5UES.js";
 import {
   TranslatePipe
-} from "./chunk-2QM7UGV6.js";
+} from "./chunk-KUR4YJNN.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -38,7 +38,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-XYO7H52H.js";
+} from "./chunk-FXSRAB6G.js";
 import {
   GroupPermission,
   SettingsService,
@@ -54,7 +54,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-INN7DSMB.js";
+} from "./chunk-IR7TEHCP.js";
 import {
   AsyncHandler,
   addDays,
@@ -74,7 +74,7 @@ import {
   timePeriodsIntersect,
   toDate,
   unique
-} from "./chunk-3HV36PD4.js";
+} from "./chunk-2W55FUQU.js";
 import {
   IconComponent
 } from "./chunk-TB5VYNU6.js";
@@ -5663,12 +5663,12 @@ function pollSpaces(ids) {
 }
 function clashingSpaces(event, include_time) {
   const space_ids = eventSpaces(event);
-  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((asset_id) => ({
-    asset_id,
-    booking_start: other.event_start,
-    booking_end: other.event_end
+  const clashes = MOCK_EVENTS.filter((other) => other.id !== event.id && timePeriodsIntersect(event.event_start, event.event_end, other.event_start, other.event_end)).flatMap((other) => eventSpaces(other).filter((id) => space_ids.includes(id)).map((system_id) => ({
+    system_id,
+    event_start: other.event_start,
+    event_end: other.event_end
   })));
-  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.asset_id))];
+  return include_time ? clashes : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 function registerMockEvents() {
   persistById("events", MOCK_EVENTS, {
@@ -11136,7 +11136,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-QNRR7ZQM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-SHPITRWE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11180,7 +11180,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-QNRR7ZQM.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-SHPITRWE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11253,22 +11253,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-CZHGT4NS.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-FXPPO2FH.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-FJQEIKGH.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-6XSVKTRI.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-3A6KA2DB.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-AXQEBPW7.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-6DC7CHVB.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-Y3VQ5HWN.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11296,5 +11296,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=01564980-0f40-5d6f-b33a-a607825896bb
+//# debugId=f6ad25b5-6f0d-57fa-a479-5a620a15cb30
 //# sourceMappingURL=main.js.map
