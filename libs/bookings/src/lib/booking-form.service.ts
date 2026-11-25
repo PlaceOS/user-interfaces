@@ -1409,7 +1409,9 @@ export class BookingFormService extends AsyncHandler {
         if (!this.form) throw 'No form for booking';
         this._prepareFormForPost();
         localStorage.removeItem(STORAGE_KEYS.last_group_booking_ids);
-        const value = this.model();
+        // Copy, as the steps below change the value. A failed save must leave
+        // the form as the user left it, so that they can try again.
+        const value = { ...this.model() };
         const effective_timezone = this.timezone || value.timezone;
         const booking = this._booking() || new Booking();
         const all_day_period = value.all_day

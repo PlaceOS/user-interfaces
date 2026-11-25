@@ -2261,6 +2261,30 @@ describe('BookingFormService', () => {
         expect(spectator.service.model().user_email).toBe(current_user.email);
     });
 
+    it('should keep the selected desk in the form when the save fails', async () => {
+        // The confirm sheet reads `booking_asset` when the user tries again
+        vi.mocked(ts_client.post).mockImplementation((async (url: string) => {
+            if (url.includes('/clashing-assets')) return [];
+            throw { status: 504, error: 'Gateway Timeout' };
+        }) as any);
+        spectator.service.newForm('desk');
+        const desk = { id: 'desk-1', name: 'Desk 1', zones: ['lvl-1'] };
+        spectator.service.model.update((m) => ({
+            ...m,
+            date: Date.now() + 60 * 60 * 1000,
+            duration: 60,
+            asset_id: desk.id,
+            asset_name: desk.name,
+            booking_asset: desk,
+        }));
+
+        await expect(spectator.service.postForm(true)).rejects.toMatchObject({
+            status: 504,
+        });
+
+        expect(spectator.service.model().booking_asset).toEqual(desk);
+    });
+
     it('should post current-day all-day bookings from the all-day period start', async () => {
         vi.useFakeTimers();
         vi.setSystemTime(new Date(2026, 2, 20, 10, 2, 0, 0));

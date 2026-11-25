@@ -387,7 +387,9 @@ export class NewDeskFlowConfirmComponent
 
     public async ngOnInit() {
         const resources = await this._state.listResources();
-        const asset = this.booking.booking_asset;
-        this.booking_asset.set(resources.find((_) => _.id == asset.id) as Desk);
+        const asset_id =
+            this.booking.booking_asset?.id || this.booking.asset_id;
+        if (!asset_id) return;
+        this.booking_asset.set(resources.find((_) => _.id == asset_id) as Desk);
     }
 }
