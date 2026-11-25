@@ -1942,15 +1942,15 @@ var GoogleAnalyticsService = class _GoogleAnalyticsService {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "47d00b2",
-  "hash": "47d00b2",
+  "raw": "ec35d0f",
+  "hash": "ec35d0f",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "47d00b2",
+  "suffix": "ec35d0f",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795485911828
+  "time": 1795573310507
 };
 
 // libs/common/src/lib/settings.service.ts
@@ -2455,5 +2455,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=6840392d-aa0d-5b3e-be15-9d6301d53925
-//# sourceMappingURL=chunk-7OF3TVHA.js.map
+//# debugId=788983bb-3c13-5b0c-bc34-68e539bb213f
+//# sourceMappingURL=chunk-SUEJXZMK.js.map

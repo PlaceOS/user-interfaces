@@ -57,7 +57,7 @@ import {
   orderLocation,
   requestSpacesForZone,
   subDays
-} from "./chunk-HYOK24JK.js";
+} from "./chunk-4TT3WPDK.js";
 import {
   AnnounceDirective
 } from "./chunk-U2N2467Y.js";
@@ -75,7 +75,7 @@ import {
   OrganisationService,
   PushNotificationService,
   UploadsService
-} from "./chunk-OFZH44WV.js";
+} from "./chunk-3BFTB4WO.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -101,7 +101,7 @@ import {
   toJsonValue,
   token,
   user_group_names
-} from "./chunk-7OF3TVHA.js";
+} from "./chunk-SUEJXZMK.js";
 import {
   AsyncHandler,
   CallFailed,
@@ -22011,4 +22011,4 @@ export {
   CateringComponent
 };
 //# debugId=05af439c-b140-50c0-b303-1c4f5f5b846f
-//# sourceMappingURL=catering.component-P37HFRWA.js.map
+//# sourceMappingURL=catering.component-CPBKZADL.js.map
