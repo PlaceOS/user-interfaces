@@ -54,6 +54,10 @@ export class NewSurveyService {
         loader: async () => queryAllSurveyQuestions({ limit: 200 }),
     });
     public readonly questions: Signal<SurveyQuestion[]> = this._questions.value;
+    /** Whether the question list has loaded and is not loading again */
+    public readonly questions_ready = computed(
+        () => this._questions.hasValue() && !this._questions.isLoading(),
+    );
 
     /** Questions belonging to the active survey, in page order */
     public readonly survey_questions = computed(() => {

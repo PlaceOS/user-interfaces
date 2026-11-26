@@ -1786,6 +1786,7 @@
             "SURVEY_ANSWERS_PAGE": "ページ {{ id }}",
             "SURVEY_ANSWERS_PAGE_WITH_TITLE": "ページ {{ id }} - {{ title }}",
             "SURVEY_ANSWERS_EMPTY": "このアンケートには回答がありません",
+            "SURVEY_ANSWERS_DOWNLOAD": "回答を CSV でダウンロード",
             "SURVEY_ANSWERS_LOADING": "アンケートの質問と回答を読み込み中...",
             "SURVEY_QUESTION_NEW": "新しい質問",
             "SURVEY_QUESTION_EDIT": "質問を編集",

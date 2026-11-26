@@ -10,7 +10,12 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { AsyncHandler, SettingsService } from '@placeos/common';
+import {
+    AsyncHandler,
+    downloadFile,
+    jsonToCsv,
+    SettingsService,
+} from '@placeos/common';
 import {
     IconComponent,
     LoadErrorComponent,
@@ -21,6 +26,20 @@ import { queryAnswers, SurveyAnswer } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { NewSurveyWidgetComponent } from './new-survey-widget.component';
 import { NewSurveyService } from './new-survey.service';
+
+/**
+ * Text of a CSV cell that spreadsheet apps do not run as a formula. Text that
+ * starts with a formula character gets a leading apostrophe.
+ */
+function safeCell(value: unknown) {
+    const text =
+        typeof value === 'string'
+            ? value
+            : value == null
+              ? ''
+              : JSON.stringify(value);
+    return /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+}
 
 @Component({
     selector: 'survey-responses',
@@ -82,6 +101,20 @@ import { NewSurveyService } from './new-survey.service';
                         <icon>close</icon>
                     </button>
                 }
+                <button
+                    icon
+                    type="button"
+                    [disabled]="!answers().length || !questions_ready()"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.SURVEY_ANSWERS_DOWNLOAD' | translate
+                    "
+                    [title]="
+                        'APP.CONCIERGE.SURVEY_ANSWERS_DOWNLOAD' | translate
+                    "
+                    (click)="downloadResponses()"
+                >
+                    <icon>download</icon>
+                </button>
             </div>
         </header>
         <div class="mb-4 flex justify-end space-x-4 px-8">
@@ -192,6 +225,7 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public readonly survey = this._service.survey;
     public readonly questions = this._service.survey_questions;
+    public readonly questions_ready = this._service.questions_ready;
 
     /** Whether the latest load of answers failed */
     public readonly load_error = signal(false);
@@ -265,6 +299,27 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
 
     public setEndDate(date: number) {
         this.options.update((options) => ({ ...options, end: date }));
+    }
+
+    /**
+     * Download the loaded answers as a CSV file, one row for each answer,
+     * with the question it answers.
+     */
+    public downloadResponses() {
+        const survey = this.survey();
+        const answers = this.answers();
+        if (!survey || !answers.length || !this.questions_ready()) return;
+        // Every question, as an answer can be for one no longer on a page
+        const questions = new Map(
+            this._service.questions().map((q) => [q.id, q]),
+        );
+        const rows = answers.map((answer) => ({
+            question: safeCell(questions.get(answer.question_id)?.title || ''),
+            question_id: answer.question_id,
+            type: safeCell(answer.type),
+            answer: safeCell(answer.answer_json),
+        }));
+        downloadFile(`survey-${survey.id}-responses.csv`, jsonToCsv(rows));
     }
 
     /** Remove the date range, so the page shows all answers again. */

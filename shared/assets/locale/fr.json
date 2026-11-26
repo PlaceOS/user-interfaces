@@ -1786,6 +1786,7 @@
             "SURVEY_ANSWERS_PAGE": "Page {{ id }}",
             "SURVEY_ANSWERS_PAGE_WITH_TITLE": "Page {{ id }} - {{ title }}",
             "SURVEY_ANSWERS_EMPTY": "Aucune réponse pour ce sondage",
+            "SURVEY_ANSWERS_DOWNLOAD": "Télécharger les réponses en CSV",
             "SURVEY_ANSWERS_LOADING": "Chargement des questions et réponses du sondage...",
             "SURVEY_QUESTION_NEW": "Nouvelle question",
             "SURVEY_QUESTION_EDIT": "Modifier la question",

@@ -1786,6 +1786,7 @@
             "SURVEY_ANSWERS_PAGE": "صفحة {{ id }}",
             "SURVEY_ANSWERS_PAGE_WITH_TITLE": "صفحة {{ id }} - {{ title }}",
             "SURVEY_ANSWERS_EMPTY": "لا توجد ردود لهذا الاستطلاع",
+            "SURVEY_ANSWERS_DOWNLOAD": "تنزيل الردود بصيغة CSV",
             "SURVEY_ANSWERS_LOADING": "جاري تحميل أسئلة وردود الاستطلاع...",
             "SURVEY_QUESTION_NEW": "سؤال جديد",
             "SURVEY_QUESTION_EDIT": "تعديل السؤال",

@@ -2713,6 +2713,7 @@
             "SURVEY_ANSWERS_PAGE": "Page {{ id }}",
             "SURVEY_ANSWERS_PAGE_WITH_TITLE": "Page {{ id }} - {{ title }}",
             "SURVEY_ANSWERS_EMPTY": "No responses for this survey",
+            "SURVEY_ANSWERS_DOWNLOAD": "Download responses as CSV",
             "SURVEY_ANSWERS_LOADING": "Loading survey questions and responses...",
             "SURVEY_QUESTION_NEW": "New Question",
             "SURVEY_QUESTION_EDIT": "Edit Question",

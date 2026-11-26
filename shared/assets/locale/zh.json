@@ -1786,6 +1786,7 @@
             "SURVEY_ANSWERS_PAGE": "第 {{ id }} 页",
             "SURVEY_ANSWERS_PAGE_WITH_TITLE": "第 {{ id }} 页 - {{ title }}",
             "SURVEY_ANSWERS_EMPTY": "此调查没有回复",
+            "SURVEY_ANSWERS_DOWNLOAD": "以 CSV 格式下载回复",
             "SURVEY_ANSWERS_LOADING": "正在加载调查问题和回复...",
             "SURVEY_QUESTION_NEW": "新问题",
             "SURVEY_QUESTION_EDIT": "编辑问题",

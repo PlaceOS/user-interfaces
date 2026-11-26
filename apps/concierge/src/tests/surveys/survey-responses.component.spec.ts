@@ -10,7 +10,10 @@ import { SurveyResponsesComponent } from '../../app/surveys/survey-responses.com
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-import { Survey } from '@placeos/ts-client';
+import { TestBed } from '@angular/core/testing';
+import * as ts_client from '@placeos/ts-client';
+import { Survey, SurveyAnswer } from '@placeos/ts-client';
+import { captureDownloads } from '../reports/download-capture.helper';
 
 describe('SurveyResponsesComponent', () => {
     let spectator: Spectator<SurveyResponsesComponent>;
@@ -27,6 +30,8 @@ describe('SurveyResponsesComponent', () => {
             MockProvider(NewSurveyService, {
                 survey,
                 survey_questions,
+                questions: survey_questions,
+                questions_ready: signal(true),
                 setSurvey,
             } as any),
             MockProvider(SettingsService, {
@@ -71,6 +76,47 @@ describe('SurveyResponsesComponent', () => {
         expect(pages[0].responses.map((r: any) => r.question.id)).toEqual([
             1, 2,
         ]);
+    });
+
+    it('should download the answers with their questions as a CSV file', async () => {
+        const downloads = captureDownloads();
+        try {
+            vi.mocked(ts_client.queryAnswers).mockResolvedValueOnce([
+                new SurveyAnswer({
+                    id: 7,
+                    question_id: 1,
+                    type: 'text',
+                    answer_json: 'Great, thanks' as any,
+                }),
+                new SurveyAnswer({
+                    id: 8,
+                    question_id: 1,
+                    type: '+cmd',
+                    answer_json: '=HYPERLINK("x")' as any,
+                }),
+            ]);
+            survey.set(new Survey({ id: 3, pages: [] }));
+            survey_questions.set([{ id: 1, title: 'How was it?' }]);
+            await vi.waitFor(() => {
+                TestBed.tick();
+                expect(spectator.component.answers()).toHaveLength(2);
+            });
+
+            spectator.component.downloadResponses();
+
+            expect(downloads.filename).toBe('survey-3-responses.csv');
+            const [header, ...rows] = (await downloads.text())
+                .replace('\uFEFF', '')
+                .split('\r\n');
+            expect(header).toBe('question,question_id,type,answer');
+            // A formula is kept as text
+            expect(rows).toEqual([
+                'How was it?,1,text,"Great, thanks"',
+                `How was it?,1,'+cmd,"'=HYPERLINK(""x"")"`,
+            ]);
+        } finally {
+            downloads.restore();
+        }
     });
 
     it('should return no pages when there is no active survey', () => {
