@@ -321,9 +321,10 @@ export function createScheduleMaskFilter(
 ): (date: Date) => boolean {
     const mask = schedule.mask || '';
     const size = mask.length;
-    if (!size) return () => true;
+    const anchor = (schedule.valid_from || 0) * 1000;
+    // As in the player: without a mask, nothing plays before valid_from
+    if (!size) return (date) => !anchor || date.getTime() >= anchor;
     if (!hasPlayableScheduleMask(schedule)) return () => false;
-    const anchor = schedule.valid_from * 1000;
     if (isPlayOnceSchedule(schedule))
         return (date) => date.getTime() >= anchor && mask[0] === '1';
     const parts = cronParts(schedule.play_cron || '0 0 * * *');

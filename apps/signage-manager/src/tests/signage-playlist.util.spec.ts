@@ -333,6 +333,20 @@ describe('schedule masks', () => {
     });
 });
 
+describe('schedule mask filter', () => {
+    it('allows no time before valid_from without a mask, as the player', () => {
+        const valid_from = Date.UTC(2026, 0, 10) / 1000;
+        const allows = createScheduleMaskFilter({
+            play_cron: '0 9 * * *',
+            valid_from,
+        });
+
+        expect(allows(new Date(Date.UTC(2026, 0, 9, 9)))).toBe(false);
+        expect(allows(new Date(Date.UTC(2026, 0, 10, 9)))).toBe(true);
+        expect(createScheduleMaskFilter({})(new Date(0))).toBe(true);
+    });
+});
+
 describe('playlist item reorder', () => {
     it('keeps the count of repeated items that another user added', () => {
         expect(
