@@ -9,6 +9,7 @@ import {
 import {
     PlaceSystem,
     PlaceZone,
+    query,
     removeSystem,
     show,
     showZone,
@@ -16,6 +17,7 @@ import {
     update,
 } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
+import { signageDisplay } from '../../app/displays/signage-display';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignageContextService } from '../../app/signage-context.service';
 import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
@@ -139,6 +141,60 @@ describe('SignageDisplayService', () => {
             );
         },
     );
+
+    it('updates the loaded displays in the background and keeps them on failure', async () => {
+        const service = createService();
+        const test_service = service as unknown as {
+            _display_cache_group: string | null;
+            _display_list: {
+                update: (fn: (items: PlaceSystem[]) => PlaceSystem[]) => void;
+            };
+        };
+        vi.spyOn(
+            TestBed.inject(SignageContextService),
+            'canQueryLists',
+        ).mockReturnValue(true);
+        test_service._display_cache_group = 'g-1';
+        test_service._display_list.update(() => [
+            signageDisplay({ id: 'd-1', signage_last_seen: 1 }),
+        ]);
+        const lastSeen = () =>
+            service
+                .filtered_displays()
+                .map((item) => [item.id, item.signage_last_seen]);
+
+        vi.mocked(query).mockRejectedValueOnce(new Error('500'));
+        await service.refreshDisplays();
+        expect(lastSeen()).toEqual([['d-1', 1]]);
+
+        vi.mocked(query).mockResolvedValueOnce({
+            data: [
+                signageDisplay({ id: 'd-1', signage_last_seen: 100 }),
+                signageDisplay({ id: 'd-9', signage_last_seen: 100 }),
+            ],
+            total: 2,
+            next: null,
+        } as never);
+        await service.refreshDisplays();
+        // Rows are updated, not added
+        expect(lastSeen()).toEqual([['d-1', 100]]);
+
+        // A result that ends after the list loads again is dropped
+        let resolve_old: (value: unknown) => void = () => undefined;
+        vi.mocked(query).mockReturnValueOnce(
+            new Promise((resolve) => (resolve_old = resolve)) as never,
+        );
+        const old_refresh = service.refreshDisplays();
+        (service as unknown as { _display_revision: number })
+            ._display_revision++;
+        resolve_old({
+            data: [signageDisplay({ id: 'd-1', signage_last_seen: 5 })],
+            total: 1,
+            next: null,
+        });
+        await old_refresh;
+        expect(lastSeen()).toEqual([['d-1', 100]]);
+    });
 
     it('shows an error when the selected display cannot be loaded', async () => {
         const service = createService();

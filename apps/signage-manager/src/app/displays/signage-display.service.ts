@@ -15,6 +15,7 @@ import {
     notifyError,
     notifySuccess,
     OrganisationService,
+    withTimeout,
 } from '@placeos/common';
 import {
     PlaceSystem,
@@ -52,6 +53,9 @@ import {
  * Signage displays, the selected display, and the playlists and zones
  * assigned to displays
  */
+/** Most time in milliseconds that a background display refresh can take */
+const DISPLAY_REFRESH_TIMEOUT_MS = 30 * 1000;
+
 @Injectable({
     providedIn: 'root',
 })
@@ -105,6 +109,9 @@ export class SignageDisplayService {
     /** Number of displays the server has for the current query */
     public readonly displays_total = this._display_list.total;
     private readonly _displays_reload = signal(0);
+    private _refreshing_displays = false;
+    /** Changes on each list reset, so older background results are dropped */
+    private _display_revision = 0;
 
     private readonly _reload_displays = effect(() => {
         const initialised = this._org.initialised();
@@ -114,6 +121,7 @@ export class SignageDisplayService {
         this._context.data_change();
         this._displays_reload();
         untracked(() => {
+            this._display_revision += 1;
             // A data change on the same query keeps the loaded rows on screen
             // and reloads as many rows as were loaded, so the list does not
             // empty or drop the pages the user scrolled to.
@@ -167,6 +175,54 @@ export class SignageDisplayService {
     public retryDisplays() {
         if (!this._display_list.retry()) {
             this._displays_reload.update((count) => count + 1);
+        }
+    }
+
+    /**
+     * Load the loaded displays again, to update their online status. Does not
+     * add rows or change the list pages, so a failed or late request does not
+     * affect the list.
+     */
+    public async refreshDisplays() {
+        const group_id = this._display_cache_group;
+        if (
+            this._refreshing_displays ||
+            group_id === null ||
+            !this._context.canQueryLists()
+        ) {
+            return;
+        }
+        this._refreshing_displays = true;
+        const revision = this._display_revision;
+        try {
+            const { data } = await withTimeout(
+                querySignageDisplays({
+                    ...this._context.orgZoneQueryParams({}, group_id),
+                    // One more page covers rows that new displays push down
+                    limit: this._display_list.loaded_rows + PAGE_SIZE,
+                    signage: true,
+                    ...searchParam(this._display_search || ''),
+                }),
+                DISPLAY_REFRESH_TIMEOUT_MS,
+            );
+            // The list loaded again since, so it has newer rows
+            if (revision !== this._display_revision) return;
+            const fresh = new Map(data.map((item) => [item.id, item]));
+            // Update loaded rows only, so the list keeps its pages
+            this._display_list.update((items) =>
+                items.map((item) => fresh.get(item.id) || item),
+            );
+            this._display_cache.update((cache) => {
+                const next = { ...cache };
+                for (const item of data) {
+                    if (next[item.id]) next[item.id] = item;
+                }
+                return next;
+            });
+        } catch {
+            // The next refresh tries again
+        } finally {
+            this._refreshing_displays = false;
         }
     }
 

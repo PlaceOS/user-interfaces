@@ -27,6 +27,9 @@ import {
 } from './display-status.util';
 import { SignageDisplayService } from './signage-display.service';
 
+/** Time in milliseconds between loads of the display check-in times */
+const DISPLAY_REFRESH_MS = 2 * 60 * 1000;
+
 @Component({
     selector: 'display-list',
     template: `
@@ -196,7 +199,14 @@ export class DisplayListComponent {
 
     constructor() {
         const timer = setInterval(() => this._now.set(Date.now()), 60 * 1000);
-        inject(DestroyRef).onDestroy(() => clearInterval(timer));
+        // Check-in times change on the server, so load them again
+        const refresh = setInterval(() => {
+            if (!document.hidden) this._display_service.refreshDisplays();
+        }, DISPLAY_REFRESH_MS);
+        inject(DestroyRef).onDestroy(() => {
+            clearInterval(timer);
+            clearInterval(refresh);
+        });
 
         scrollSelectionIntoView(
             this.displays,
