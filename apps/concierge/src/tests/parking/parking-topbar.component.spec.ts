@@ -56,6 +56,7 @@ describe('ParkingTopbarComponent', () => {
                 active_region: signal(null),
                 active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
                 initialised: signal(true),
+                active_settings_ready: signal(true),
                 levelWithID: vi.fn(),
                 buildings: [],
                 building: { id: 'bld-1', timezone: 'UTC' },
@@ -112,6 +113,50 @@ describe('ParkingTopbarComponent', () => {
             configurable: true,
         });
     }
+
+    it('should wait for the building settings before it syncs the levels', async () => {
+        spectator = createComponent();
+        Object.defineProperty(spectator.inject(Router), 'url', {
+            value: '/book/parking/events',
+            configurable: true,
+        });
+        const org = spectator.inject(OrganisationService) as any;
+        org.active_settings_ready.set(false);
+        (spectator.component as any)._ready.set(false);
+        vi.useFakeTimers();
+        try {
+            void spectator.component.ngOnInit();
+            // Longer than the old fixed wait, so only the settings gate holds
+            await vi.advanceTimersByTimeAsync(1500);
+            spectator.detectChanges();
+            expect((spectator.component as any)._ready()).toBe(false);
+
+            org.active_settings_ready.set(true);
+            spectator.detectChanges();
+            await vi.advanceTimersByTimeAsync(0);
+            expect((spectator.component as any)._ready()).toBe(true);
+        } finally {
+            vi.useRealTimers();
+            org.active_settings_ready.set(true);
+        }
+    });
+
+    it('should be ready as soon as the building settings are', async () => {
+        vi.useFakeTimers();
+        try {
+            spectator = createComponent();
+            Object.defineProperty(spectator.inject(Router), 'url', {
+                value: '/book/parking/events',
+                configurable: true,
+            });
+            void spectator.component.ngOnInit();
+            // Only microtasks run, so a fixed wait would never end
+            await vi.advanceTimersByTimeAsync(0);
+            expect((spectator.component as any)._ready()).toBe(true);
+        } finally {
+            vi.useRealTimers();
+        }
+    });
 
     it('should show the level selector on the booking list by default', () => {
         spectator = createComponent();

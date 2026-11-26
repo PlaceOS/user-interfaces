@@ -37,6 +37,7 @@ describe('LockersTopbarComponent', () => {
             }),
             MockProvider(OrganisationService, {
                 initialised: signal(true),
+                active_settings_ready: signal(true),
                 active_region: signal(null),
                 active_building: signal({ id: 'bld-1', timezone: 'UTC' }),
                 levelWithID: vi.fn(),
@@ -56,6 +57,18 @@ describe('LockersTopbarComponent', () => {
 
     beforeEach(() => {
         spectator = createComponent();
+    });
+
+    it('should be ready as soon as the building settings are', async () => {
+        vi.useFakeTimers();
+        try {
+            void spectator.component.ngOnInit();
+            // Only microtasks run, so a fixed wait would never end
+            await vi.advanceTimersByTimeAsync(0);
+            expect((spectator.component as any)._ready()).toBe(true);
+        } finally {
+            vi.useRealTimers();
+        }
     });
 
     it('should clear search when switching locker views', () => {

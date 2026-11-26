@@ -3,6 +3,7 @@ import {
     computed,
     effect,
     inject,
+    Injector,
     OnInit,
     signal,
     untracked,
@@ -12,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
+    firstValueWhere,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -212,6 +214,7 @@ import { LockerStateService } from './locker-state.service';
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);
     private _org = inject(OrganisationService);
+    private readonly _injector = inject(Injector);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     /** Writes filters to the URL after the page transition */
@@ -340,8 +343,14 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        // The filter effects react to the levels and query params. They also
+        // read building settings, so wait until those are in effect.
         await this._org.waitUntilInitialised();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await firstValueWhere(
+            this._org.active_settings_ready,
+            (ready) => ready,
+            this._injector,
+        );
         this._state.setSearch('');
         this._ready.set(true);
     }
