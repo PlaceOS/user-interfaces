@@ -135,8 +135,8 @@ export class EventsStateService extends AsyncHandler {
     private _driver_events = signal<Record<string, CalendarEvent[]>>({});
     /** Pending room booking approval requests */
     private _pending = signal<CalendarEvent[]>([]);
-    /** Whether the pending approval binding has been set up */
-    private _pending_bound = false;
+    /** Approval binding that `pending` listens to */
+    private _pending_binding: unknown = null;
 
     /** Signal for active date */
     public readonly date = this._date.asReadonly();
@@ -417,15 +417,27 @@ export class EventsStateService extends AsyncHandler {
                 this._removed_added = [];
             });
         });
-        // Bind to room booking approval requests once the module is available
+        // Bind to the room booking approval requests of the active building
         effect(() => {
             this._org.active_building();
-            if (this._pending_bound) return;
-            const mod = this._org.module?.('approvals', 'RoomBookingApproval');
-            if (!mod) return;
-            this._pending_bound = true;
+            // Building bindings name the module, so wait until they load
+            const loaded = this._org.active_building_loaded?.() !== false;
+            const mod = loaded
+                ? this._org.module?.('approvals', 'RoomBookingApproval')
+                : null;
+            if (!mod) {
+                this._pending_binding = null;
+                this.unsub('pending');
+                this.unsub('pending-listen');
+                this._pending.set([]);
+                return;
+            }
             const binding =
                 mod.binding<Partial<CalendarEvent>[]>('approval_required');
+            // Buildings can share one module, and so one binding
+            if (binding === this._pending_binding) return;
+            this._pending_binding = binding;
+            // Named subscriptions replace the binding of the last building
             this.subscription('pending', binding.bind());
             const listen = binding.listen();
             const apply = (value) =>
