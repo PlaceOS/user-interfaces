@@ -39,6 +39,8 @@ describe('MediaListComponent folders', () => {
         media_tags,
         media_tag_counts,
         media_view_mode,
+        media_view: signal({}),
+        search_term: signal(''),
         folder_tag: signal<string | null>(null),
         folder_media: signal<unknown[]>([]),
         folder_loading: signal(false),
@@ -296,6 +298,23 @@ describe('MediaListComponent folders', () => {
 
         expect(media_stub.loadMoreMedia).toHaveBeenCalledOnce();
         expect(media_stub.folder_tag()).toBeNull();
+    });
+
+    it('adds loaded media to the screen a part at a time', () => {
+        media_view_mode.set('grid');
+        media_items.set(
+            Array.from({ length: 250 }, (_, index) => media(`m${index}`, [])),
+        );
+        const component = make();
+        expect(component.rendered_media()).toHaveLength(200);
+
+        component.showMore();
+        expect(component.rendered_media()).toHaveLength(250);
+        expect(media_stub.loadMoreMedia).not.toHaveBeenCalled();
+
+        // Selected items stay on screen in the other layout
+        media_view_mode.set('list');
+        expect(component.rendered_media()).toHaveLength(250);
     });
 
     it('clears the open folder when leaving folder view', () => {

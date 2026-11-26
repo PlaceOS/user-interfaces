@@ -42,6 +42,8 @@ import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
+/** Media items added to the screen at a time */
+const RENDER_STEP = 200;
 
 /**
  * Tag chips of a media item in the list and grid layouts: the first two tags,
@@ -412,7 +414,7 @@ export class MediaTagChipsComponent {
                         }
                     } @else {
                         @for (
-                            media_item of display_media();
+                            media_item of rendered_media();
                             track media_item.id
                         ) {
                             @if (view_mode() === 'list') {
@@ -672,7 +674,15 @@ export class MediaTagChipsComponent {
                             }
                         }
                     }
-                    @if (has_more()) {
+                    <!-- Separate sentinels, so a new page that arrives while the
+                         sentinel is in view gets a new one that emits -->
+                    @if (rendered_media().length < display_media().length) {
+                        <div
+                            class="col-span-full h-px w-full"
+                            intersect
+                            (intersect)="showMore()"
+                        ></div>
+                    } @else if (has_more()) {
                         <div
                             class="col-span-full h-px w-full"
                             intersect
@@ -989,7 +999,10 @@ export class MediaListComponent {
     });
     public readonly selected_media = computed(() => {
         const selected_ids = this.selected_ids();
-        return this.display_media().filter((item) => selected_ids.has(item.id));
+        // Only items on screen, so bulk actions never touch a hidden item
+        return this.rendered_media().filter((item) =>
+            selected_ids.has(item.id),
+        );
     });
     public readonly selected_count = computed(
         () => this.selected_media().length,
@@ -1142,7 +1155,7 @@ export class MediaListComponent {
     public readonly masonry_columns = computed(() =>
         this.view_mode() === 'masonry'
             ? masonryColumns(
-                  this.display_media(),
+                  this.rendered_media(),
                   this._width() - this._list_padding,
               )
             : [],
@@ -1160,7 +1173,7 @@ export class MediaListComponent {
     public readonly drag_media = computed(() =>
         this.view_mode() === 'masonry'
             ? this.masonry_columns().flat()
-            : this.display_media(),
+            : this.rendered_media(),
     );
 
     /**
@@ -1182,6 +1195,32 @@ export class MediaListComponent {
         this._aspect_ratios.update((ratios) =>
             new Map(ratios).set(id, clamped),
         );
+    }
+
+    /**
+     * Most media items on screen. A sort, a filter or the Untagged folder
+     * loads the whole library, so the grid adds items as the user scrolls
+     * instead of drawing them all. Resets when the items change, but not
+     * between grid and list, so selected items stay on screen.
+     */
+    private readonly _render_limit = linkedSignal({
+        source: () => ({
+            group_id: this._context.selected_group_id(),
+            include_child_data: this._context.include_child_data(),
+            search: this._media_service.search_term(),
+            folder: this.selected_folder(),
+            view: this._media_service.media_view(),
+        }),
+        computation: () => RENDER_STEP,
+    });
+    /** Media items on screen, the first part of `display_media` */
+    public readonly rendered_media = computed(() =>
+        this.display_media().slice(0, this._render_limit()),
+    );
+
+    /** Show more of the loaded items */
+    public showMore() {
+        this._render_limit.update((limit) => limit + RENDER_STEP);
     }
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
