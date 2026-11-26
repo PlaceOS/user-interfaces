@@ -106,6 +106,18 @@ export const REMOVE_KEYS = [
     '_valid_cache_expiry',
 ];
 
+/**
+ * Whether a report of the given type covers the active region instead of the
+ * active building. `use_region` turns this on for all reports.
+ * `parking.use_region` turns it on for the parking report.
+ */
+export function reportUsesRegion(settings: SettingsService, type?: string) {
+    return (
+        !!settings.get('app.use_region') ||
+        (type === 'parking' && !!settings.get('app.parking.use_region'))
+    );
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -170,7 +182,7 @@ export class ReportsStateService extends AsyncHandler {
     private readonly _inventory = computed(
         () => {
             const { type, zones = [] } = this._options();
-            const use_region = !!this._settings.get('app.use_region');
+            const use_region = reportUsesRegion(this._settings, type);
             const building = this._org.active_building();
             const region = this._org.active_region();
             const selected = zones.filter(
@@ -507,7 +519,7 @@ export class ReportsStateService extends AsyncHandler {
             ? options.zones.filter((z) => z !== 'All').join(',')
             : '';
         if (!zones) {
-            zones = this._settings.get('app.use_region')
+            zones = reportUsesRegion(this._settings, options.type)
                 ? this._org.region.id
                 : this._org.building.id;
         }

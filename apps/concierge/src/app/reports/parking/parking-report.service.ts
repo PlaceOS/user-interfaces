@@ -10,7 +10,11 @@ import {
 } from '@placeos/common';
 import { format, isSameDay } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
-import { REMOVE_KEYS, ReportsStateService } from '../reports-state.service';
+import {
+    REMOVE_KEYS,
+    ReportsStateService,
+    reportUsesRegion,
+} from '../reports-state.service';
 
 export interface ReportOptions {
     /** Zones to check available space for */
@@ -63,7 +67,7 @@ export class ParkingReportService {
             );
             if (!zones.length) {
                 zones = (
-                    this._settings.get('app.use_region')
+                    this.use_region
                         ? this._org.levelsForRegion()
                         : this._org.levelsForBuilding()
                 )
@@ -71,7 +75,7 @@ export class ParkingReportService {
                     .map((_) => _.id);
             }
             if (!zones.length) return {};
-            const scope_id = this._settings.get('app.use_region')
+            const scope_id = this.use_region
                 ? this._org.region?.id
                 : this._org.building?.id;
             if (!scope_id) return {};
@@ -94,6 +98,11 @@ export class ParkingReportService {
         },
     });
     public readonly counts = this._counts.value;
+
+    /** Whether the parking report covers the active region */
+    public get use_region() {
+        return reportUsesRegion(this._settings, 'parking');
+    }
 
     public get timezone() {
         return (this._settings.get('app.parking.use_building_timezone') ??

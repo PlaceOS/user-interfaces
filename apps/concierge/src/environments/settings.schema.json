@@ -427,6 +427,10 @@
                     "type": "boolean",
                     "description": "Whether to hide parking bay numbers in parking booking lists"
                 },
+                "use_region": {
+                    "type": "boolean",
+                    "description": "Whether the parking pages list the levels and bookings of the active region instead of the active building. The booking list then shows a location column with the building and level of each booking. The parking report also uses the region. `use_region` also turns this on."
+                },
                 "hide_level_selector_on_booking_list": {
                     "type": "boolean",
                     "description": "Whether to hide the level selector when viewing the parking booking list"

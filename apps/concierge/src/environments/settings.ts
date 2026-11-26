@@ -48,6 +48,7 @@ const app = {
         show_waitlist: false,
         disable_styles: false,
         hide_bay_number: false,
+        use_region: false,
         hide_level_selector_on_booking_list: false,
         hide_users: false,
         hide_vehicles: false,

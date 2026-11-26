@@ -29,6 +29,7 @@ describe('ParkingTopbarComponent', () => {
         ],
         providers: [
             MockProvider(ParkingStateService, {
+                use_region: signal(false),
                 levels: signal([]),
                 bookable_levels: signal([]),
                 options: signal({

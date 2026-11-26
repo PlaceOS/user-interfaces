@@ -62,6 +62,7 @@ interface ParkingBookingColumnTemplates {
     type_template: TemplateRef<unknown>;
     date_template: TemplateRef<unknown>;
     bay_template: TemplateRef<unknown>;
+    location_template: TemplateRef<unknown>;
     person_template: TemplateRef<unknown>;
     host_template: TemplateRef<unknown>;
     plate_template: TemplateRef<unknown>;
@@ -76,6 +77,7 @@ interface ParkingBookingColumnTemplates {
     type_label: string;
     time_label: string;
     bay_number_label: string;
+    location_label: string;
     reserved_for_label: string;
     reserved_by_label: string;
     plate_number_label: string;
@@ -143,6 +145,7 @@ interface ParkingBookingColumnTemplates {
                             type_template,
                             date_template,
                             bay_template,
+                            location_template,
                             person_template,
                             host_template,
                             plate_template,
@@ -159,6 +162,7 @@ interface ParkingBookingColumnTemplates {
                             time_label: 'COMMON.TIME' | translate,
                             bay_number_label:
                                 'APP.CONCIERGE.PARKING_BAY_NUMBER' | translate,
+                            location_label: 'COMMON.LOCATION' | translate,
                             reserved_for_label:
                                 'APP.CONCIERGE.PARKING_RESERVED_FOR'
                                 | translate,
@@ -303,6 +307,23 @@ interface ParkingBookingColumnTemplates {
                         @let id = row.asset_id;
                         @if (id && !isRequestId(id)) {
                             {{ (id | parkingSpace | async)?.identifier || id }}
+                        } @else {
+                            <span class="opacity-70">
+                                {{ 'COMMON.EMPTY' | translate }}
+                            </span>
+                        }
+                    </div>
+                </ng-template>
+                <ng-template #location_template let-row="row">
+                    <div
+                        class="px-4 py-2"
+                        data-testid="parking-booking-location"
+                    >
+                        @if (row.building_name || row.level_name) {
+                            <div>{{ row.building_name }}</div>
+                            <div class="text-xs opacity-70">
+                                {{ row.level_name }}
+                            </div>
                         } @else {
                             <span class="opacity-70">
                                 {{ 'COMMON.EMPTY' | translate }}
@@ -719,6 +740,8 @@ export class ParkingBookingsListComponent
 {
     private _state = inject(ParkingStateService);
     private _settings = inject(SettingsService);
+    /** Shows the location column when the list covers a whole region */
+    public readonly use_region = this._state.use_region;
     /** Shows the payment column when the building has a payment driver */
     public readonly payments_enabled = inject(PaymentsService).is_enabled;
 
@@ -793,6 +816,9 @@ export class ParkingBookingsListComponent
                 // table's built-in search matches it (the `asset_id` field only
                 // holds the space id, not the bay number/name).
                 bay_number: this._state.bayNumber(booking),
+                ...(this.use_region()
+                    ? this._state.bookingLocation(booking)
+                    : {}),
                 // Intersection of the booking's user groups with the
                 // configured `show_user_groups` filter, surfaced for display.
                 user_groups: this.matchedUserGroups(booking),
@@ -1076,6 +1102,13 @@ export class ParkingBookingsListComponent
                 name: templates.bay_number_label,
                 content: templates.bay_template,
                 show: !this.hide_bay_number_column(),
+            },
+            {
+                key: 'location',
+                name: templates.location_label,
+                content: templates.location_template,
+                size: '12rem',
+                show: this.use_region(),
             },
             {
                 key: 'user_name',

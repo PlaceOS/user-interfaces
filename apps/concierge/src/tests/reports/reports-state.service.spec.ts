@@ -331,6 +331,20 @@ describe('ReportsStateService', () => {
         expect(spectator.service.bookings()).toEqual([booking]);
     });
 
+    it('should scope only the parking report to the region with parking.use_region', async () => {
+        settings_map['app.parking.use_region'] = true;
+        const zonesFor = async (type: 'parking' | 'desks') => {
+            vi.mocked(ts_client_mod.query).mockClear();
+            spectator.service.setOptions({ type, zones: [] });
+            await (spectator.service as any)._loadBookings();
+            return vi.mocked(ts_client_mod.query).mock.calls[0][0].query_params
+                .zones;
+        };
+
+        expect(await zonesFor('parking')).toBe('region-1');
+        expect(await zonesFor('desks')).toBe('bld-1');
+    });
+
     it('should query parking bookings in the building timezone', async () => {
         settings_map['app.bookings.use_building_timezone'] = true;
         const date = new Date('2026-04-06T12:00:00').valueOf();

@@ -1132,6 +1132,10 @@ import { UploadButtonComponent } from './upload-button.component';
                                         "
                                     ></settings-toggle>
                                     <settings-toggle
+                                        label="List bookings by region"
+                                        [formField]="form.parking.use_region"
+                                    ></settings-toggle>
+                                    <settings-toggle
                                         label="Hide level selector on booking list"
                                         [formField]="
                                             form.parking
@@ -1431,6 +1435,7 @@ export class ConciergeSettingsFormModalComponent implements OnInit {
             show_requests: false,
             show_waitlist: false,
             hide_bay_number: false,
+            use_region: false,
             hide_level_selector_on_booking_list: false,
             hide_users: false,
             hide_vehicles: false,
