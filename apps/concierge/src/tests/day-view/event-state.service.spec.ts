@@ -174,6 +174,40 @@ describe('EventsStateService', () => {
         expect(unbind).toHaveBeenCalledTimes(1);
     });
 
+    it('should keep the loaded events on screen while a poll loads', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            { resources: [{ email: '1' }] },
+        ] as any);
+        spectator.service.setZones(['bld-123']);
+        spectator.service.startPolling('day');
+        await settle();
+        expect(spectator.service.event_list()).toHaveLength(1);
+
+        // The next poll's request does not end
+        vi.mocked(ts_client.get).mockReturnValue(new Promise(() => {}) as any);
+        await vi.advanceTimersByTimeAsync(3 * 60 * 1000);
+        TestBed.tick();
+
+        expect(spectator.service.event_list()).toHaveLength(1);
+        // The list stays usable, as a poll is not a new load
+        expect(spectator.service.loading()).toBe(false);
+        spectator.service.stopPolling();
+    });
+
+    it('should show a retry as loading', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        spectator.service.setZones(['bld-123']);
+        spectator.service.startPolling('day');
+        await settle();
+
+        vi.mocked(ts_client.get).mockReturnValue(new Promise(() => {}) as any);
+        spectator.service.reload();
+        TestBed.tick();
+
+        expect(spectator.service.loading()).toBe(true);
+        spectator.service.stopPolling();
+    });
+
     it('should only flag shown rooms whose calendars did not load', async () => {
         vi.mocked(ts_client.responseHeaders).mockReturnValue({
             'x-calendar-issue': '1,group-events@place.com',

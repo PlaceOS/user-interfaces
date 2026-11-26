@@ -1,15 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, DestroyRef, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
     CalendarEvent,
-    SettingsService,
     i18n,
     nextValueFrom,
     settingSignal,
+    SettingsService,
 } from '@placeos/common';
 import {
     IconComponent,
@@ -346,6 +346,13 @@ export class RoomBookingsListComponent {
     public readonly payments_enabled = inject(PaymentsService).is_enabled;
 
     public readonly can_delete = settingSignal('events.allow_deleting', false);
+
+    constructor() {
+        // Load the bookings again every few minutes, as the timelines do
+        const stopPolling = this._state.poll();
+        inject(DestroyRef).onDestroy(stopPolling);
+    }
+
     public readonly events = this._state.filtered;
     public readonly date = this._state.date;
     public readonly period = this._state.period;

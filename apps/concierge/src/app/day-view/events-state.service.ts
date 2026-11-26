@@ -354,9 +354,17 @@ export class EventsStateService extends AsyncHandler {
     });
 
     /** Whether booking data is being loaded */
-    public readonly loading: Signal<boolean> = computed(
-        () => this._spaces.isLoading() || this._api_events.isLoading(),
-    );
+    /** Whether the user asked for the last reload, e.g. with Retry */
+    private readonly _manual_reload = signal(false);
+    /** Loading new data. A background reload of a poll does not count. */
+    public readonly loading: Signal<boolean> = computed(() => {
+        const status = this._api_events.status();
+        return (
+            this._spaces.isLoading() ||
+            status === 'loading' ||
+            (status === 'reloading' && this._manual_reload())
+        );
+    });
 
     /** Active filters */
     public get filters() {
@@ -476,12 +484,22 @@ export class EventsStateService extends AsyncHandler {
     public poll(delay: number = 3 * MINUTES) {
         const poll_delay = Math.max(delay, 3 * MINUTES);
         this._poll.set(Date.now());
-        this.interval('polling', () => this._poll.set(Date.now()), poll_delay);
+        // Reload keeps the loaded bookings on screen until the new ones
+        // arrive. It refuses while a load runs, so start a new one then.
+        this.interval(
+            'polling',
+            () => {
+                this._manual_reload.set(false);
+                if (!this._api_events.reload()) this._poll.set(Date.now());
+            },
+            poll_delay,
+        );
         return () => this.stopPolling();
     }
 
     /** Load the bookings from the API again */
     public reload() {
+        this._manual_reload.set(true);
         this._api_events.reload();
     }
 
