@@ -6,6 +6,7 @@ import {
     inject,
     input,
     OnDestroy,
+    output,
     signal,
 } from '@angular/core';
 import {
@@ -29,6 +30,7 @@ import {
                 class="flex h-full w-full items-center justify-center text-xs"
                 [class.object-cover]="cover()"
                 [class.object-contain]="!cover()"
+                (load)="onLoad($event)"
             />
         } @else {
             <div class="flex h-full w-full items-center justify-center">
@@ -49,11 +51,21 @@ export class MediaThumbnailComponent implements AfterViewInit, OnDestroy {
 
     public readonly item = input.required<SignageMedia>();
     public readonly cover = input(false);
+    /** Width over height of the thumbnail image, after it loads */
+    public readonly aspect_ratio = output<number>();
     public readonly in_view = signal(false);
     public readonly thumbnail_url = computed(() =>
         playlistMediaThumbnailUrl(this.item()),
     );
     public readonly media_icon = computed(() => playlistMediaIcon(this.item()));
+
+    public onLoad(event: Event) {
+        const { naturalWidth, naturalHeight } =
+            event.target as HTMLImageElement;
+        if (naturalWidth > 0 && naturalHeight > 0) {
+            this.aspect_ratio.emit(naturalWidth / naturalHeight);
+        }
+    }
 
     public ngAfterViewInit() {
         if (typeof IntersectionObserver === 'undefined') {

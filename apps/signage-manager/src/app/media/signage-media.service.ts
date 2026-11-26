@@ -200,7 +200,7 @@ interface SignageUploadOptions {
 }
 
 const SIGNAGE_VIEW_MODE_STORAGE_KEY = 'PlaceOS.SIGNAGE:media-view-mode:v1';
-type MediaViewMode = 'grid' | 'list' | 'folder';
+export type MediaViewMode = 'grid' | 'masonry' | 'list' | 'folder';
 
 /**
  * Signage media library: paging, tags, uploads and thumbnails, and
@@ -246,7 +246,9 @@ export class SignageMediaService {
     public readonly media_view_mode = storedSignal<MediaViewMode>(
         SIGNAGE_VIEW_MODE_STORAGE_KEY,
         (stored) =>
-            stored === 'list' || stored === 'folder' ? stored : 'grid',
+            stored === 'masonry' || stored === 'list' || stored === 'folder'
+                ? stored
+                : 'grid',
     );
 
     // --- Media (paged incrementally as the user scrolls) ---

@@ -2,12 +2,16 @@ import { DragDropModule } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 
 import {
+    afterNextRender,
     Component,
     computed,
+    DestroyRef,
     effect,
+    ElementRef,
     inject,
     input,
     linkedSignal,
+    signal,
     untracked,
 } from '@angular/core';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -29,6 +33,12 @@ import { MediaThumbnailComponent } from '../shared/media-thumbnail.component';
 import { SignageContextService } from '../signage-context.service';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { MediaSharedGroupsComponent } from './media-shared-groups.component';
+import {
+    clampMasonryAspectRatio,
+    masonryAspectRatio,
+    masonryColumnCount,
+    masonryColumns,
+} from './media-view.util';
 import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
@@ -231,227 +241,290 @@ export class MediaTagChipsComponent {
 
             @if (display_media().length > 0) {
                 <div
-                    [class]="
-                        view_mode() === 'list'
-                            ? 'flex w-full flex-col gap-2 p-4'
-                            : 'grid w-full grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
-                    "
+                    [class]="list_class()"
+                    [style.grid-template-columns]="masonry_grid_columns()"
                     cdkDropList
                     id="media-list"
                     role="list"
-                    [cdkDropListData]="display_media()"
+                    [cdkDropListData]="drag_media()"
                     [cdkDropListConnectedTo]="playlist_ids()"
                 >
-                    @for (media_item of display_media(); track media_item.id) {
-                        @if (view_mode() === 'list') {
-                            <!-- List (row) layout -->
-                            <div
-                                cdkDrag
-                                role="listitem"
-                                class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex items-center gap-3 rounded-lg border p-2 hover:shadow-md"
-                                [class.opacity-60]="isExpired(media_item)"
-                                [class.ring-2]="isSelected(media_item.id)"
-                                [class.ring-primary]="isSelected(media_item.id)"
-                            >
-                                <div
-                                    class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
-                                    *cdkDragPlaceholder
-                                >
-                                    <icon class="text-base-100 text-2xl"
-                                        >add</icon
+                    @if (view_mode() === 'masonry') {
+                        <!-- Masonry layout: each card goes in the shortest column -->
+                        @for (column of masonry_columns(); track $index) {
+                            <div class="flex flex-col gap-4" role="none">
+                                @for (
+                                    media_item of column;
+                                    track media_item.id
+                                ) {
+                                    <div
+                                        cdkDrag
+                                        role="listitem"
+                                        class="motion-fade-in bg-base-200 border-base-300 hover:border-info relative overflow-hidden rounded-lg border hover:shadow-xl"
+                                        [class.opacity-60]="
+                                            isExpired(media_item)
+                                        "
+                                        [class.ring-2]="
+                                            isSelected(media_item.id)
+                                        "
+                                        [class.ring-primary]="
+                                            isSelected(media_item.id)
+                                        "
+                                        [style.aspect-ratio]="
+                                            aspectRatio(media_item)
+                                        "
                                     >
-                                </div>
-                                <mat-checkbox
-                                    [checked]="isSelected(media_item.id)"
-                                    [aria-label]="
-                                        'SIGNAGE_MANAGER.SELECT_MEDIA'
-                                            | translate
-                                                : { name: media_item.name }
-                                    "
-                                    (click)="$event.stopPropagation()"
-                                    (change)="toggleSelection(media_item.id)"
-                                />
-                                <button
-                                    preview
-                                    type="button"
-                                    matRipple
-                                    (click)="previewItem(media_item)"
-                                    class="bg-base-200 relative h-14 w-20 flex-none overflow-hidden rounded"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.PREVIEW_MEDIA'
-                                            | translate
-                                                : { name: media_item.name }
-                                    "
-                                >
-                                    <media-thumbnail
-                                        [item]="media_item"
-                                        class="h-full w-full"
-                                    />
-                                </button>
-                                <div class="flex w-px flex-1 flex-col">
-                                    <button
-                                        class="text-base-content w-full truncate text-left"
-                                        [matTooltip]="media_item.name"
-                                        (click)="toggleSelection(media_item.id)"
-                                    >
-                                        {{ media_item.name }}
-                                    </button>
-                                    <div class="flex items-center gap-2">
-                                        <span
-                                            class="rounded-lg px-2 py-1 font-mono text-xs capitalize"
+                                        <div
+                                            class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
+                                            *cdkDragPlaceholder
+                                        >
+                                            <icon class="text-base-100 text-2xl"
+                                                >add</icon
+                                            >
+                                        </div>
+                                        <button
+                                            preview
+                                            type="button"
+                                            matRipple
+                                            class="absolute inset-0"
+                                            (click)="previewItem(media_item)"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.PREVIEW_MEDIA'
+                                                    | translate
+                                                        : {
+                                                              name: media_item.name,
+                                                          }
+                                            "
+                                        >
+                                            <media-thumbnail
+                                                [item]="media_item"
+                                                [cover]="true"
+                                                class="h-full w-full"
+                                                (aspect_ratio)="
+                                                    setAspectRatio(
+                                                        media_item.id,
+                                                        $event
+                                                    )
+                                                "
+                                            />
+                                        </button>
+                                        @if (isExpired(media_item)) {
+                                            <div
+                                                class="bg-error text-error-content pointer-events-none absolute inset-x-0 top-1/3 z-10 py-1 text-center text-xs font-bold tracking-wide"
+                                            >
+                                                {{
+                                                    'SIGNAGE_MANAGER.EXPIRED'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        }
+                                        <div
+                                            class="pointer-events-none absolute top-2 left-2 z-10 rounded-lg px-2 py-1 font-mono text-xs capitalize"
                                             [class]="typeBadgeClass(media_item)"
                                         >
                                             {{
                                                 typeLabelKey(media_item)
                                                     | translate
                                             }}
-                                        </span>
-                                        @if (isExpired(media_item)) {
+                                        </div>
+                                        <mat-checkbox
+                                            class="bg-base-100/80 absolute top-1 right-1 z-20 scale-75 rounded-lg"
+                                            [checked]="
+                                                isSelected(media_item.id)
+                                            "
+                                            [aria-label]="
+                                                'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                                    | translate
+                                                        : {
+                                                              name: media_item.name,
+                                                          }
+                                            "
+                                            (click)="$event.stopPropagation()"
+                                            (change)="
+                                                toggleSelection(media_item.id)
+                                            "
+                                        />
+                                        <!-- Caption on the image. Clicks outside its controls open the preview. -->
+                                        <div
+                                            class="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col gap-1 bg-linear-to-t from-black/80 via-black/50 to-transparent p-2 pt-8 text-white"
+                                        >
+                                            <div
+                                                class="flex items-center gap-2"
+                                            >
+                                                <button
+                                                    type="button"
+                                                    class="pointer-events-auto min-w-0 flex-1 truncate text-left font-medium"
+                                                    [matTooltip]="
+                                                        media_item.name
+                                                    "
+                                                    (click)="
+                                                        toggleSelection(
+                                                            media_item.id
+                                                        )
+                                                    "
+                                                >
+                                                    {{ media_item.name }}
+                                                </button>
+                                                @if (media_item.play_time) {
+                                                    <span
+                                                        class="font-mono text-xs"
+                                                    >
+                                                        {{
+                                                            media_item.play_time /
+                                                                1000
+                                                                | mediaDuration
+                                                        }}
+                                                    </span>
+                                                }
+                                                <button
+                                                    icon
+                                                    type="button"
+                                                    matRipple
+                                                    class="pointer-events-auto text-white"
+                                                    [matMenuTriggerFor]="menu"
+                                                    [matMenuTriggerData]="{
+                                                        item: media_item,
+                                                    }"
+                                                    [attr.aria-label]="
+                                                        'SIGNAGE_MANAGER.ACTIONS_FOR'
+                                                            | translate
+                                                                : {
+                                                                      name: media_item.name,
+                                                                  }
+                                                    "
+                                                >
+                                                    <icon>more_vert</icon>
+                                                </button>
+                                            </div>
+                                            @if (media_item.tags?.length) {
+                                                <div
+                                                    class="flex w-full items-center gap-1 overflow-hidden"
+                                                >
+                                                    <media-tag-chips
+                                                        [tags]="media_item.tags"
+                                                        chip_class="max-w-[45%] text-xs"
+                                                    />
+                                                </div>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    } @else {
+                        @for (
+                            media_item of display_media();
+                            track media_item.id
+                        ) {
+                            @if (view_mode() === 'list') {
+                                <!-- List (row) layout -->
+                                <div
+                                    cdkDrag
+                                    role="listitem"
+                                    class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex items-center gap-3 rounded-lg border p-2 hover:shadow-md"
+                                    [class.opacity-60]="isExpired(media_item)"
+                                    [class.ring-2]="isSelected(media_item.id)"
+                                    [class.ring-primary]="
+                                        isSelected(media_item.id)
+                                    "
+                                >
+                                    <div
+                                        class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
+                                        *cdkDragPlaceholder
+                                    >
+                                        <icon class="text-base-100 text-2xl"
+                                            >add</icon
+                                        >
+                                    </div>
+                                    <mat-checkbox
+                                        [checked]="isSelected(media_item.id)"
+                                        [aria-label]="
+                                            'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                                | translate
+                                                    : { name: media_item.name }
+                                        "
+                                        (click)="$event.stopPropagation()"
+                                        (change)="
+                                            toggleSelection(media_item.id)
+                                        "
+                                    />
+                                    <button
+                                        preview
+                                        type="button"
+                                        matRipple
+                                        (click)="previewItem(media_item)"
+                                        class="bg-base-200 relative h-14 w-20 flex-none overflow-hidden rounded"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.PREVIEW_MEDIA'
+                                                | translate
+                                                    : { name: media_item.name }
+                                        "
+                                    >
+                                        <media-thumbnail
+                                            [item]="media_item"
+                                            class="h-full w-full"
+                                        />
+                                    </button>
+                                    <div class="flex w-px flex-1 flex-col">
+                                        <button
+                                            class="text-base-content w-full truncate text-left"
+                                            [matTooltip]="media_item.name"
+                                            (click)="
+                                                toggleSelection(media_item.id)
+                                            "
+                                        >
+                                            {{ media_item.name }}
+                                        </button>
+                                        <div class="flex items-center gap-2">
                                             <span
-                                                class="bg-error text-error-content rounded px-2 py-1 text-xs font-bold"
+                                                class="rounded-lg px-2 py-1 font-mono text-xs capitalize"
+                                                [class]="
+                                                    typeBadgeClass(media_item)
+                                                "
                                             >
                                                 {{
-                                                    'SIGNAGE_MANAGER.EXPIRED'
+                                                    typeLabelKey(media_item)
                                                         | translate
                                                 }}
                                             </span>
-                                        }
-                                        @if (media_item.play_time) {
-                                            <span
-                                                class="text-base-content/70 hidden font-mono text-xs sm:block"
-                                            >
-                                                {{
-                                                    media_item.play_time / 1000
-                                                        | mediaDuration
-                                                }}
-                                            </span>
-                                        }
-                                        @if (media_item.tags?.length) {
-                                            <div
-                                                class="hidden items-center gap-1 lg:flex"
-                                            >
-                                                <media-tag-chips
-                                                    [tags]="media_item.tags"
-                                                    chip_class="max-w-32 text-[0.625rem]"
-                                                />
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
-                                <media-shared-groups
-                                    [item_id]="media_item.id"
-                                />
-                                <button
-                                    icon
-                                    default
-                                    type="button"
-                                    matRipple
-                                    [matMenuTriggerFor]="menu"
-                                    [matMenuTriggerData]="{ item: media_item }"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.ACTIONS_FOR'
-                                            | translate
-                                                : { name: media_item.name }
-                                    "
-                                >
-                                    <icon>more_vert</icon>
-                                </button>
-                            </div>
-                        } @else {
-                            <!-- Grid (card) layout -->
-                            <div
-                                cdkDrag
-                                role="listitem"
-                                class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
-                                [class.opacity-60]="isExpired(media_item)"
-                                [class.ring-2]="isSelected(media_item.id)"
-                                [class.ring-primary]="isSelected(media_item.id)"
-                            >
-                                <div
-                                    class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
-                                    *cdkDragPlaceholder
-                                >
-                                    <icon class="text-base-100 text-2xl"
-                                        >add</icon
-                                    >
-                                </div>
-                                <mat-checkbox
-                                    class="absolute top-4 right-4 z-20 rounded"
-                                    [checked]="isSelected(media_item.id)"
-                                    [aria-label]="
-                                        'SIGNAGE_MANAGER.SELECT_MEDIA'
-                                            | translate
-                                                : { name: media_item.name }
-                                    "
-                                    (click)="$event.stopPropagation()"
-                                    (change)="toggleSelection(media_item.id)"
-                                />
-                                <button
-                                    preview
-                                    type="button"
-                                    matRipple
-                                    (click)="previewItem(media_item)"
-                                    class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
-                                    [attr.aria-label]="
-                                        'SIGNAGE_MANAGER.PREVIEW_MEDIA'
-                                            | translate
-                                                : { name: media_item.name }
-                                    "
-                                >
-                                    @if (isExpired(media_item)) {
-                                        <div
-                                            class="bg-error text-error-content absolute inset-x-0 top-1/2 z-10 -translate-y-1/2 py-1 text-center text-xs font-bold tracking-wide"
-                                        >
-                                            {{
-                                                'SIGNAGE_MANAGER.EXPIRED'
-                                                    | translate
-                                            }}
+                                            @if (isExpired(media_item)) {
+                                                <span
+                                                    class="bg-error text-error-content rounded px-2 py-1 text-xs font-bold"
+                                                >
+                                                    {{
+                                                        'SIGNAGE_MANAGER.EXPIRED'
+                                                            | translate
+                                                    }}
+                                                </span>
+                                            }
+                                            @if (media_item.play_time) {
+                                                <span
+                                                    class="text-base-content/70 hidden font-mono text-xs sm:block"
+                                                >
+                                                    {{
+                                                        media_item.play_time /
+                                                            1000 | mediaDuration
+                                                    }}
+                                                </span>
+                                            }
+                                            @if (media_item.tags?.length) {
+                                                <div
+                                                    class="hidden items-center gap-1 lg:flex"
+                                                >
+                                                    <media-tag-chips
+                                                        [tags]="media_item.tags"
+                                                        chip_class="max-w-32 text-[0.625rem]"
+                                                    />
+                                                </div>
+                                            }
                                         </div>
-                                    }
-                                    <media-thumbnail
-                                        [item]="media_item"
-                                        class="h-full w-full"
+                                    </div>
+                                    <media-shared-groups
+                                        [item_id]="media_item.id"
                                     />
-                                    @if (thumbnailUrl(media_item)) {
-                                        <div
-                                            class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
-                                        >
-                                            <icon class="text-2xl"
-                                                >expand_content</icon
-                                            >
-                                        </div>
-                                    }
-                                    <div
-                                        class="absolute top-1 left-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
-                                        [class]="typeBadgeClass(media_item)"
-                                    >
-                                        {{
-                                            typeLabelKey(media_item) | translate
-                                        }}
-                                    </div>
-                                    @if (media_item.play_time) {
-                                        <div
-                                            class="bg-info text-info-content absolute right-1 bottom-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
-                                        >
-                                            {{
-                                                media_item.play_time / 1000
-                                                    | mediaDuration
-                                            }}
-                                        </div>
-                                    }
-                                </button>
-                                <div
-                                    class="relative top-1 flex w-full items-center justify-between"
-                                >
-                                    <button
-                                        class="text-base-content w-1/2 flex-1 truncate text-left"
-                                        [matTooltip]="media_item.name"
-                                        (click)="toggleSelection(media_item.id)"
-                                    >
-                                        {{ media_item.name }}
-                                    </button>
                                     <button
                                         icon
+                                        default
                                         type="button"
                                         matRipple
                                         [matMenuTriggerFor]="menu"
@@ -467,17 +540,137 @@ export class MediaTagChipsComponent {
                                         <icon>more_vert</icon>
                                     </button>
                                 </div>
-                                @if (media_item.tags?.length) {
+                            } @else {
+                                <!-- Grid (card) layout -->
+                                <div
+                                    cdkDrag
+                                    role="listitem"
+                                    class="motion-fade-in border-base-300 bg-base-100 hover:border-info relative flex flex-col items-center justify-center rounded-lg border p-3 hover:opacity-80 hover:shadow-xl"
+                                    [class.opacity-60]="isExpired(media_item)"
+                                    [class.ring-2]="isSelected(media_item.id)"
+                                    [class.ring-primary]="
+                                        isSelected(media_item.id)
+                                    "
+                                >
                                     <div
-                                        class="flex min-h-6 w-full items-center gap-1 overflow-hidden"
+                                        class="border-base-400 bg-base-300 flex min-h-10 min-w-10 items-center justify-center rounded-2xl border-4 border-dashed opacity-30"
+                                        *cdkDragPlaceholder
                                     >
-                                        <media-tag-chips
-                                            [tags]="media_item.tags"
-                                            chip_class="max-w-[45%] text-xs"
-                                        />
+                                        <icon class="text-base-100 text-2xl"
+                                            >add</icon
+                                        >
                                     </div>
-                                }
-                            </div>
+                                    <mat-checkbox
+                                        class="absolute top-4 right-4 z-20 rounded"
+                                        [checked]="isSelected(media_item.id)"
+                                        [aria-label]="
+                                            'SIGNAGE_MANAGER.SELECT_MEDIA'
+                                                | translate
+                                                    : { name: media_item.name }
+                                        "
+                                        (click)="$event.stopPropagation()"
+                                        (change)="
+                                            toggleSelection(media_item.id)
+                                        "
+                                    />
+                                    <button
+                                        preview
+                                        type="button"
+                                        matRipple
+                                        (click)="previewItem(media_item)"
+                                        class="bg-base-200 relative h-36 w-full overflow-hidden rounded-lg"
+                                        [attr.aria-label]="
+                                            'SIGNAGE_MANAGER.PREVIEW_MEDIA'
+                                                | translate
+                                                    : { name: media_item.name }
+                                        "
+                                    >
+                                        @if (isExpired(media_item)) {
+                                            <div
+                                                class="bg-error text-error-content absolute inset-x-0 top-1/2 z-10 -translate-y-1/2 py-1 text-center text-xs font-bold tracking-wide"
+                                            >
+                                                {{
+                                                    'SIGNAGE_MANAGER.EXPIRED'
+                                                        | translate
+                                                }}
+                                            </div>
+                                        }
+                                        <media-thumbnail
+                                            [item]="media_item"
+                                            class="h-full w-full"
+                                        />
+                                        @if (thumbnailUrl(media_item)) {
+                                            <div
+                                                class="absolute inset-0 flex items-end justify-end p-1 opacity-0 transition-opacity duration-200 hover:opacity-100"
+                                            >
+                                                <icon class="text-2xl"
+                                                    >expand_content</icon
+                                                >
+                                            </div>
+                                        }
+                                        <div
+                                            class="absolute top-1 left-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
+                                            [class]="typeBadgeClass(media_item)"
+                                        >
+                                            {{
+                                                typeLabelKey(media_item)
+                                                    | translate
+                                            }}
+                                        </div>
+                                        @if (media_item.play_time) {
+                                            <div
+                                                class="bg-info text-info-content absolute right-1 bottom-1 rounded-lg px-2 py-1 font-mono text-xs capitalize"
+                                            >
+                                                {{
+                                                    media_item.play_time / 1000
+                                                        | mediaDuration
+                                                }}
+                                            </div>
+                                        }
+                                    </button>
+                                    <div
+                                        class="relative top-1 flex w-full items-center justify-between"
+                                    >
+                                        <button
+                                            class="text-base-content w-1/2 flex-1 truncate text-left"
+                                            [matTooltip]="media_item.name"
+                                            (click)="
+                                                toggleSelection(media_item.id)
+                                            "
+                                        >
+                                            {{ media_item.name }}
+                                        </button>
+                                        <button
+                                            icon
+                                            type="button"
+                                            matRipple
+                                            [matMenuTriggerFor]="menu"
+                                            [matMenuTriggerData]="{
+                                                item: media_item,
+                                            }"
+                                            [attr.aria-label]="
+                                                'SIGNAGE_MANAGER.ACTIONS_FOR'
+                                                    | translate
+                                                        : {
+                                                              name: media_item.name,
+                                                          }
+                                            "
+                                        >
+                                            <icon>more_vert</icon>
+                                        </button>
+                                    </div>
+                                    @if (media_item.tags?.length) {
+                                        <div
+                                            class="flex min-h-6 w-full items-center gap-1 overflow-hidden"
+                                        >
+                                            <media-tag-chips
+                                                [tags]="media_item.tags"
+                                                chip_class="max-w-[45%] text-xs"
+                                            />
+                                        </div>
+                                    }
+                                </div>
+                            }
                         }
                     }
                     @if (has_more()) {
@@ -800,6 +993,18 @@ export class MediaListComponent {
     );
 
     constructor() {
+        // Masonry columns follow the width of the list, not the viewport, as
+        // the playlist sidebar takes part of the page.
+        const element: HTMLElement = inject(ElementRef).nativeElement;
+        const destroy_ref = inject(DestroyRef);
+        afterNextRender(() => {
+            if (typeof ResizeObserver === 'undefined') return;
+            const observer = new ResizeObserver(([entry]) =>
+                this._width.set(entry.contentRect.width),
+            );
+            observer.observe(element);
+            destroy_ref.onDestroy(() => observer.disconnect());
+        });
         // An open folder filters the loaded pages, and its items can be on
         // any page, so load every page while it is open. Paging stops on the
         // last page, an empty page or an error.
@@ -891,6 +1096,67 @@ export class MediaListComponent {
             (item.tags || []).includes(folder),
         );
     });
+
+    /** Width of the list in pixels */
+    private readonly _width = signal(0);
+    /** Padding of the media list, from its `p-4` class */
+    private readonly _list_padding = 32;
+
+    public readonly list_class = computed(() => {
+        switch (this.view_mode()) {
+            case 'list':
+                return 'flex w-full flex-col gap-2 p-4';
+            case 'masonry':
+                return 'grid w-full items-start gap-4 p-4';
+            default:
+                return 'grid w-full grid-cols-1 gap-4 p-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+        }
+    });
+
+    public readonly masonry_columns = computed(() =>
+        this.view_mode() === 'masonry'
+            ? masonryColumns(
+                  this.display_media(),
+                  masonryColumnCount(this._width() - this._list_padding),
+              )
+            : [],
+    );
+
+    public readonly masonry_grid_columns = computed(() => {
+        const count = this.masonry_columns().length;
+        return count ? `repeat(${count}, minmax(0, 1fr))` : null;
+    });
+
+    /**
+     * Drag data of the list. The CDK finds the index of a dragged card from
+     * its DOM position, and masonry puts the cards in DOM order by column.
+     */
+    public readonly drag_media = computed(() =>
+        this.view_mode() === 'masonry'
+            ? this.masonry_columns().flat()
+            : this.display_media(),
+    );
+
+    /**
+     * Width over height of loaded thumbnails, by media ID. A masonry card
+     * shows the real shape of its thumbnail after it loads. The column of a
+     * card stays on its orientation, so cards do not move between columns
+     * as thumbnails load.
+     */
+    private readonly _aspect_ratios = signal(new Map<string, number>());
+
+    /** Width over height of the thumbnail of a masonry card */
+    public aspectRatio(item: SignageMedia) {
+        return this._aspect_ratios().get(item.id) ?? masonryAspectRatio(item);
+    }
+
+    public setAspectRatio(id: string, ratio: number) {
+        const clamped = clampMasonryAspectRatio(ratio);
+        if (this._aspect_ratios().get(id) === clamped) return;
+        this._aspect_ratios.update((ratios) =>
+            new Map(ratios).set(id, clamped),
+        );
+    }
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
     public readonly has_more = this._media_service.media_has_more;
