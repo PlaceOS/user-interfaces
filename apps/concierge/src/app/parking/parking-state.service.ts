@@ -46,7 +46,6 @@ import {
     currentUser,
     downloadFile,
     flatten,
-    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     loadTextFileFromInputEvent,
@@ -64,7 +63,6 @@ import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import {
     addHours,
-    addMinutes,
     endOfDay,
     endOfWeek,
     getUnixTime,
@@ -73,6 +71,7 @@ import {
 } from 'date-fns';
 import { clearAssignedBooking } from '../ui/assigned-booking';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
 import { ParkingAssignSpaceModalComponent } from './parking-assign-space-modal.component';
@@ -155,12 +154,6 @@ export class ParkingStateService extends AsyncHandler {
             this._settings.get('app.bookings.use_building_timezone'))
             ? this._org.building?.timezone
             : '';
-    }
-
-    public get tz_offset() {
-        const tz = this.timezone;
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     /** Whether the organisation data has finished loading */
@@ -474,8 +467,8 @@ export class ParkingStateService extends AsyncHandler {
             options.period === 'week'
                 ? endOfWeek(options.date, { weekStartsOn: week_start })
                 : endOfDay(options.date);
-        const period_start = addMinutes(range_start, this.tz_offset * 60);
-        const period_end = addMinutes(range_end, this.tz_offset * 60);
+        const period_start = buildingDayStart(range_start, this.timezone);
+        const period_end = buildingDayEnd(range_end, this.timezone);
         return () =>
             queryPagedBookings({
                 period_start: getUnixTime(period_start),

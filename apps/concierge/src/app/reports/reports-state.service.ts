@@ -23,7 +23,6 @@ import {
     CalendarEvent,
     downloadFile,
     flatten,
-    getTimezoneDifferenceInHours,
     HashMap,
     i18n,
     jsonToCsv,
@@ -39,7 +38,6 @@ import { queryAllEvents, requestSpacesForZone } from '@placeos/events';
 import { PlaceAsset, showMetadata } from '@placeos/ts-client';
 import {
     addDays,
-    addMinutes,
     endOfDay,
     format,
     getUnixTime,
@@ -47,6 +45,7 @@ import {
     setDay,
     startOfDay,
 } from 'date-fns';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import {
     activeReportBookings,
     activeReportEvents,
@@ -507,13 +506,8 @@ export class ReportsStateService extends AsyncHandler {
                 this._settings.get('app.bookings.use_building_timezone')) &&
             this._org.building?.timezone
         ) {
-            const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-            const offset = getTimezoneDifferenceInHours(
-                current_tz,
-                this._org.building.timezone,
-            );
-            start = addMinutes(start, offset * 60);
-            end = addMinutes(end, offset * 60);
+            start = buildingDayStart(start, this._org.building.timezone);
+            end = buildingDayEnd(end, this._org.building.timezone);
         }
         let zones = options?.zones
             ? options.zones.filter((z) => z !== 'All').join(',')

@@ -36,7 +36,6 @@ import {
     csvToJson,
     Desk,
     downloadFile,
-    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     notifyError,
@@ -56,14 +55,7 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import {
-    addHours,
-    addMinutes,
-    endOfDay,
-    format,
-    getUnixTime,
-    startOfDay,
-} from 'date-fns';
+import { addHours, format, getUnixTime } from 'date-fns';
 
 import {
     openConfirmModal,
@@ -72,6 +64,7 @@ import {
 } from '@placeos/components';
 import { clearAssignedBooking } from '../ui/assigned-booking';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import {
     canChangeDeskBooking,
@@ -150,12 +143,11 @@ export class DesksStateService extends AsyncHandler {
     public readonly filters = this._filters.asReadonly();
     public readonly print_desk = signal<DeskQrItem | null>(null);
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    public get timezone(): string {
+        return this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     /**
@@ -392,8 +384,8 @@ export class DesksStateService extends AsyncHandler {
         filters: DeskFilters,
     ): () => QueryResponse<Booking> {
         const date = filters.date || Date.now();
-        const period_start = addMinutes(startOfDay(date), this.tz_offset * 60);
-        const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
+        const period_start = buildingDayStart(date, this.timezone);
+        const period_end = buildingDayEnd(date, this.timezone);
         const active_zones = this._getActiveZones(filters.zones);
         const all_zones =
             !active_zones.length || filters.zones?.includes('All');

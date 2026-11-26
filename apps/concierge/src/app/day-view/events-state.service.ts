@@ -19,7 +19,6 @@ import {
     SettingsService,
     Space,
     flatten,
-    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -36,7 +35,6 @@ import {
 } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
 import {
-    addMinutes,
     endOfDay,
     endOfMonth,
     endOfWeek,
@@ -48,6 +46,7 @@ import {
 } from 'date-fns';
 
 import { openConfirmModal } from '@placeos/components';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =
@@ -86,7 +85,7 @@ interface ApiEventsParams {
     spaces: Space[];
 }
 
-function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
+function periodFor(period, date, timezone = '', week_start: DayOfWeek = 0) {
     const start_result =
         period === 'month'
             ? startOfMonth(date)
@@ -99,8 +98,8 @@ function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
             : period === 'week'
               ? endOfWeek(date, { weekStartsOn: week_start })
               : endOfDay(date);
-    const start = addMinutes(start_result, tz_offset * 60);
-    const end = addMinutes(end_result, tz_offset * 60);
+    const start = buildingDayStart(start_result, timezone);
+    const end = buildingDayEnd(end_result, timezone);
     return { start, end };
 }
 
@@ -270,7 +269,7 @@ export class EventsStateService extends AsyncHandler {
             const { start, end } = periodFor(
                 period,
                 date,
-                this.tz_offset,
+                this.timezone,
                 this._week_start,
             );
             let failed = false;
@@ -341,7 +340,7 @@ export class EventsStateService extends AsyncHandler {
         const { start, end } = periodFor(
             period,
             date,
-            this.tz_offset,
+            this.timezone,
             this._week_start,
         );
         return this.filterEvents(
@@ -368,12 +367,11 @@ export class EventsStateService extends AsyncHandler {
         return this._settings.time_format;
     }
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.events.use_building_timezone')
-            ? this._org.building.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    public get timezone(): string {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     private get _week_start() {

@@ -33,7 +33,6 @@ import {
     assetZones,
     AsyncHandler,
     Booking,
-    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -47,17 +46,12 @@ import {
     User,
 } from '@placeos/common';
 import { PlaceAsset, QueryResponse } from '@placeos/ts-client';
-import {
-    addHours,
-    addMinutes,
-    endOfDay,
-    getUnixTime,
-    startOfDay,
-} from 'date-fns';
+import { addHours, getUnixTime } from 'date-fns';
 
 import { openConfirmModal, runBulkAction } from '@placeos/components';
 import { SelectUserModalComponent } from '@placeos/users';
 import { clearAssignedBooking } from '../ui/assigned-booking';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
@@ -154,12 +148,11 @@ export class LockerStateService extends AsyncHandler {
     /** Whether the latest load of bookings failed */
     public readonly load_error = this._load_error.asReadonly();
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    public get timezone(): string {
+        return this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     public readonly filters = this._filters.asReadonly();
@@ -376,8 +369,8 @@ export class LockerStateService extends AsyncHandler {
         filters: LockerFilters,
     ): () => QueryResponse<Booking> {
         const date = filters.date || Date.now();
-        const period_start = addMinutes(startOfDay(date), this.tz_offset * 60);
-        const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
+        const period_start = buildingDayStart(date, this.timezone);
+        const period_end = buildingDayEnd(date, this.timezone);
         const zones =
             !filters.zones ||
             filters.zones.some((z) => this._all_zones_keys.includes(z))

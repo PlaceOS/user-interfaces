@@ -10,12 +10,13 @@ import {
     SettingsService,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { getUnixTime } from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
+import { buildingDayEnd, buildingDayStart } from '../../app/ui/building-time';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -185,17 +186,13 @@ describe('LockerStateService', () => {
         const first_page = (spectator.service as any)._buildFirstPage({ date });
         first_page();
 
-        const offset = spectator.service.tz_offset;
+        const timezone = spectator.service.timezone;
         const paged = pagedBookingCalls();
         expect(paged.length).toBeGreaterThan(0);
         expect(paged[paged.length - 1][0].query_params).toEqual(
             expect.objectContaining({
-                period_start: getUnixTime(
-                    addMinutes(startOfDay(date), offset * 60),
-                ),
-                period_end: getUnixTime(
-                    addMinutes(endOfDay(date), offset * 60),
-                ),
+                period_start: getUnixTime(buildingDayStart(date, timezone)),
+                period_end: getUnixTime(buildingDayEnd(date, timezone)),
             }),
         );
     });

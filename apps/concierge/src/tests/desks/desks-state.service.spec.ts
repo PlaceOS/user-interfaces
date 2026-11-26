@@ -9,17 +9,10 @@ import {
     Desk,
     OrganisationService,
     SettingsService,
-    getTimezoneDifferenceInHours,
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
-import {
-    addHours,
-    addMinutes,
-    endOfDay,
-    getUnixTime,
-    startOfDay,
-} from 'date-fns';
+import { addHours, getUnixTime } from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
@@ -607,24 +600,7 @@ describe('DesksStateService', () => {
                 return undefined;
             },
         );
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const expected_offset = getTimezoneDifferenceInHours(
-            current_tz,
-            'Australia/Sydney',
-        );
-        const date = new Date('2026-06-15T12:00:00').valueOf();
-
-        expect(spectator.service.tz_offset).toBe(expected_offset);
-        expect(
-            getUnixTime(
-                addMinutes(startOfDay(date), spectator.service.tz_offset * 60),
-            ),
-        ).toBe(getUnixTime(addMinutes(startOfDay(date), expected_offset * 60)));
-        expect(
-            getUnixTime(
-                addMinutes(endOfDay(date), spectator.service.tz_offset * 60),
-            ),
-        ).toBe(getUnixTime(addMinutes(endOfDay(date), expected_offset * 60)));
+        expect(spectator.service.timezone).toBe('Australia/Sydney');
     });
 
     it('should include and show rejected desk bookings as declined', async () => {

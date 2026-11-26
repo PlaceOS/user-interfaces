@@ -5,13 +5,12 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { addDays, addMinutes, getUnixTime, startOfDay } from 'date-fns';
+import { getUnixTime } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
 import {
     Booking,
-    getTimezoneDifferenceInHours,
     OrganisationService,
     setNotifyOutlet,
     SettingsService,
@@ -184,16 +183,9 @@ describe('VisitorStateService', () => {
         TestBed.flushEffects();
         await wait(10);
 
-        // The service applies the building timezone offset via the real
-        // `getTimezoneDifferenceInHours` helper (workspace fn cannot be mocked
-        // under this builder), so compute the same offset here.
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const offset = getTimezoneDifferenceInHours(
-            current_tz,
-            'Australia/Sydney',
-        );
-        const start = addMinutes(startOfDay(new Date(date)), offset * 60);
-        const end = addDays(start, 1);
+        // Midnight in Sydney (UTC+10 in June) on the selected day
+        const start = new Date('2026-06-14T14:00:00Z');
+        const end = new Date('2026-06-15T14:00:00Z');
 
         expect(ts_client.query).toHaveBeenLastCalledWith(
             expect.objectContaining({

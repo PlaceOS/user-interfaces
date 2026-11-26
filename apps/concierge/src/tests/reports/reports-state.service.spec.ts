@@ -5,11 +5,10 @@ import {
     createServiceFactory,
     SpectatorService,
 } from '@ngneat/spectator/vitest';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { getUnixTime } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
 import {
-    getTimezoneDifferenceInHours,
     OrganisationService,
     setNotifyOutlet,
     SettingsService,
@@ -357,20 +356,12 @@ describe('ReportsStateService', () => {
 
         await (spectator.service as any)._loadBookings();
 
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        const offset = getTimezoneDifferenceInHours(
-            current_tz,
-            'Pacific/Auckland',
-        );
+        // Auckland is UTC+12 on 6 April 2026, after daylight saving ends
         expect(ts_client_mod.query).toHaveBeenCalledWith(
             expect.objectContaining({
                 query_params: expect.objectContaining({
-                    period_start: getUnixTime(
-                        addMinutes(startOfDay(date), offset * 60),
-                    ),
-                    period_end: getUnixTime(
-                        addMinutes(endOfDay(date), offset * 60),
-                    ),
+                    period_start: getUnixTime(new Date('2026-04-05T12:00:00Z')),
+                    period_end: getUnixTime(new Date('2026-04-06T11:59:59Z')),
                     type: 'parking',
                 }),
             }),

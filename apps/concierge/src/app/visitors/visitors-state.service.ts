@@ -7,7 +7,7 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
+import { addDays, format, getUnixTime } from 'date-fns';
 
 import { MatDialog } from '@angular/material/dialog';
 import {
@@ -26,7 +26,6 @@ import {
     OrganisationService,
     SettingsService,
     downloadFile,
-    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     notifyError,
@@ -34,6 +33,7 @@ import {
     unique,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
+import { buildingDayStart } from '../ui/building-time';
 import { confirmAction, errorText } from '../ui/modal-actions';
 import { VisitorInductionModalComponent } from './visitor-induction-modal.component';
 import { VisitorNotesModalComponent } from './visitor-notes-modal.component';
@@ -102,12 +102,11 @@ export class VisitorsStateService extends AsyncHandler {
             .sort((a, b) => a.date - b.date);
     });
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    public get timezone(): string {
+        return this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     constructor() {
@@ -141,8 +140,11 @@ export class VisitorsStateService extends AsyncHandler {
         this.loading.set(true);
         this.load_error.set(false);
         const date = filters.date ? new Date(filters.date) : new Date();
-        const start = addMinutes(startOfDay(date), this.tz_offset * 60);
-        const end = addDays(start, filters.period || 1);
+        const start = buildingDayStart(date, this.timezone);
+        const end = buildingDayStart(
+            addDays(date, filters.period || 1),
+            this.timezone,
+        );
         let failed = false;
         // Row actions write by booking ID, so keep one row for each ID
         const list = await queryAllBookingsOrThrow(

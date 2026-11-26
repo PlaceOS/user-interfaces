@@ -14,7 +14,7 @@ import {
     setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { getUnixTime } from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
@@ -28,6 +28,7 @@ import {
     type ParkingSpace,
 } from '../../app/parking/parking-state.service';
 import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal.component';
+import { buildingDayEnd, buildingDayStart } from '../../app/ui/building-time';
 import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -191,13 +192,13 @@ describe('ParkingStateService', () => {
         TestBed.flushEffects();
         await vi.advanceTimersByTimeAsync(1100);
 
-        const offset = spectator.service.tz_offset;
+        const timezone = spectator.service.timezone;
         const params = bookingsParams();
         expect(params.get('period_start')).toBe(
-            String(getUnixTime(addMinutes(startOfDay(date), offset * 60))),
+            String(getUnixTime(buildingDayStart(date, timezone))),
         );
         expect(params.get('period_end')).toBe(
-            String(getUnixTime(addMinutes(endOfDay(date), offset * 60))),
+            String(getUnixTime(buildingDayEnd(date, timezone))),
         );
 
         vi.useRealTimers();
@@ -215,13 +216,13 @@ describe('ParkingStateService', () => {
         TestBed.flushEffects();
         await vi.advanceTimersByTimeAsync(1100);
 
-        const offset = spectator.service.tz_offset;
+        const timezone = spectator.service.timezone;
         const params = bookingsParams();
         expect(params.get('period_start')).toBe(
-            String(getUnixTime(addMinutes(startOfDay(date), offset * 60))),
+            String(getUnixTime(buildingDayStart(date, timezone))),
         );
         expect(params.get('period_end')).toBe(
-            String(getUnixTime(addMinutes(endOfDay(date), offset * 60))),
+            String(getUnixTime(buildingDayEnd(date, timezone))),
         );
 
         vi.useRealTimers();

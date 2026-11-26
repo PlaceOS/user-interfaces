@@ -14,7 +14,6 @@ import { MatSelectModule } from '@angular/material/select';
 import { queryAllBookings } from '@placeos/bookings';
 import {
     currentUser,
-    getTimezoneDifferenceInHours,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -24,7 +23,8 @@ import {
 import { FullscreenModalShellComponent } from '@placeos/components';
 import { queryAllEvents } from '@placeos/events';
 import { UserListFieldComponent } from '@placeos/form-fields';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
+import { getUnixTime } from 'date-fns';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 
 const EMAIL_REGEX = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
 
@@ -329,14 +329,8 @@ export class BroadcastEmailModalComponent {
                 this.model().recipients.map((user) => user.email),
             );
         }
-        const period_start = addMinutes(
-            startOfDay(Date.now()),
-            this._tzOffset() * 60,
-        );
-        const period_end = addMinutes(
-            endOfDay(Date.now()),
-            this._tzOffset() * 60,
-        );
+        const period_start = buildingDayStart(Date.now(), this._timezone());
+        const period_end = buildingDayEnd(Date.now(), this._timezone());
         const query = {
             period_start: getUnixTime(period_start),
             period_end: getUnixTime(period_end),
@@ -413,11 +407,10 @@ export class BroadcastEmailModalComponent {
         return default_zones.filter((zone_id) => !!zone_id);
     }
 
-    private _tzOffset() {
-        const tz = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building?.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    private _timezone(): string {
+        return this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 }
