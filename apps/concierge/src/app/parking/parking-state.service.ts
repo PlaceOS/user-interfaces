@@ -687,6 +687,7 @@ export class ParkingStateService extends AsyncHandler {
         const search_term = search.toLowerCase();
         if (!search_term) return list;
         const spaces = this.spaces();
+        const use_region = this.use_region();
         return list.filter(
             (booking) =>
                 booking.user_name?.toLowerCase().includes(search_term) ||
@@ -699,7 +700,11 @@ export class ParkingStateService extends AsyncHandler {
                     .includes(search_term) ||
                 this.bayNumber(booking, spaces)
                     ?.toLowerCase()
-                    .includes(search_term),
+                    .includes(search_term) ||
+                (use_region &&
+                    this.bookingLocation(booking)
+                        .location.toLowerCase()
+                        .includes(search_term)),
         );
     }
 
