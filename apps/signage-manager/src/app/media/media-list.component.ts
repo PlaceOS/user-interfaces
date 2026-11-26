@@ -36,7 +36,6 @@ import { MediaSharedGroupsComponent } from './media-shared-groups.component';
 import {
     clampMasonryAspectRatio,
     masonryAspectRatio,
-    masonryColumnCount,
     masonryColumns,
 } from './media-view.util';
 import { SignageMediaService } from './signage-media.service';
@@ -402,7 +401,7 @@ export class MediaTagChipsComponent {
                                                 >
                                                     <media-tag-chips
                                                         [tags]="media_item.tags"
-                                                        chip_class="max-w-[45%] text-xs"
+                                                        chip_class="pointer-events-auto max-w-[45%] text-xs"
                                                     />
                                                 </div>
                                             }
@@ -1117,7 +1116,7 @@ export class MediaListComponent {
         this.view_mode() === 'masonry'
             ? masonryColumns(
                   this.display_media(),
-                  masonryColumnCount(this._width() - this._list_padding),
+                  this._width() - this._list_padding,
               )
             : [],
     );

@@ -69,18 +69,19 @@ describe('media view util', () => {
         ).toBe(true);
     });
 
-    it('puts each masonry card in the shortest column', () => {
+    it('puts each masonry card in the shortest column, with the gaps', () => {
         const tall = { id: 'tall', orientation: 'portrait' } as const;
         const wide = (id: string) =>
             ({ id, orientation: 'landscape' }) as const;
+        // Two 200px columns. Three landscape cards are shorter than the
+        // portrait card, but taller with the gaps between them.
         const columns = masonryColumns(
-            [tall, wide('a'), wide('b'), wide('c')],
-            2,
+            [tall, wide('a'), wide('b'), wide('c'), wide('d')],
+            416,
         );
 
-        // The portrait card is as tall as the three landscape cards
         expect(columns.map((column) => column.map((item) => item.id))).toEqual([
-            ['tall'],
+            ['tall', 'd'],
             ['a', 'b', 'c'],
         ]);
     });

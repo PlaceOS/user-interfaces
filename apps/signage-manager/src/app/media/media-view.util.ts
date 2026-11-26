@@ -139,18 +139,25 @@ export function masonryAspectRatio(item: Pick<SignageMedia, 'orientation'>) {
  * thumbnail loads. A placed item depends only on the items before it, thus a
  * new page of media adds to the column ends and does not move loaded items.
  * @param items Media in display order
- * @param count Number of columns
+ * @param width Width of the column area in pixels
  */
 export function masonryColumns<T extends Pick<SignageMedia, 'orientation'>>(
     items: readonly T[],
-    count: number,
+    width: number,
 ): T[][] {
-    const columns: T[][] = Array.from({ length: Math.max(1, count) }, () => []);
+    const count = masonryColumnCount(width);
+    const column_width = Math.max(
+        1,
+        (width - MASONRY_GAP * (count - 1)) / count,
+    );
+    // Heights are in column widths, so the gap is too
+    const gap = MASONRY_GAP / column_width;
+    const columns: T[][] = Array.from({ length: count }, () => []);
     const heights = columns.map(() => 0);
     for (const item of items) {
         const shortest = heights.indexOf(Math.min(...heights));
         columns[shortest].push(item);
-        heights[shortest] += 1 / masonryAspectRatio(item);
+        heights[shortest] += 1 / masonryAspectRatio(item) + gap;
     }
     return columns;
 }
