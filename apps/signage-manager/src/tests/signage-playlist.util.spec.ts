@@ -359,6 +359,23 @@ describe('playlist status', () => {
         ).toBe('expired');
     });
 
+    it('marks a playlist expired when its play once schedule has played', () => {
+        const status = (play_at: number, play_period?: number) =>
+            playlistStatus(
+                { id: 'a', schedules: [{ play_at, play_period }] },
+                {},
+                {},
+                now,
+            );
+
+        expect(status(seconds(now - day), 60)).toBe('expired');
+        expect(status(seconds(now - 30 * 60_000), 60)).toBe(null);
+        expect(status(seconds(now + day))).toBe(null);
+        // A single pass can still start in the player's trigger window
+        expect(status(seconds(now - 1000), 0)).toBe(null);
+        expect(status(seconds(now - 60_000), 0)).toBe('expired');
+    });
+
     it('marks a playlist pending before it starts', () => {
         expect(
             playlistStatus(

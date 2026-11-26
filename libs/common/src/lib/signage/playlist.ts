@@ -3,6 +3,12 @@ import { MediaAnimation, SignagePlaylistSchedule } from '@placeos/ts-client';
 /** Play period of a schedule that does not set one: the whole day */
 export const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 
+/**
+ * Time in milliseconds after its start that the player can still start a
+ * single pass run (play period 0).
+ */
+export const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
+
 /** Schedule start in Unix seconds and the mask that repeats by occurrence. */
 export type ScheduleMask = Pick<SignagePlaylistSchedule, 'valid_from' | 'mask'>;
 

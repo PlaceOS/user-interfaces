@@ -7,6 +7,7 @@ import {
     isPlayOnceSchedule,
     mediaAnimation,
     parsePlayAtLocal,
+    SINGLE_PASS_TRIGGER_WINDOW_MS,
 } from '@placeos/common';
 import {
     MediaAnimation,
@@ -213,8 +214,23 @@ export function playlistScheduleExpiryTooltip(
 }
 
 /**
+ * End of a schedule in Unix seconds, or 0 when it has no end. A play once
+ * schedule ends after its play period, or at its end date when that is sooner.
+ * A single pass (period 0) ends when the player can no longer start it.
+ */
+function scheduleEnd(schedule: Partial<SignagePlaylistSchedule>) {
+    const start = playOnceStart(schedule);
+    const period_seconds =
+        playPeriodMinutes(schedule) * 60 ||
+        SINGLE_PASS_TRIGGER_WINDOW_MS / 1000;
+    const once_end = start ? getUnixTime(start) + period_seconds : 0;
+    const ends = [schedule.valid_until || 0, once_end].filter((end) => end);
+    return ends.length ? Math.min(...ends) : 0;
+}
+
+/**
  * When a playlist stopped playing, in Unix seconds: its own end date, or the
- * last schedule end date when every schedule has ended. 0 while it can play.
+ * last schedule end when every schedule has ended. 0 while it can play.
  */
 export function playlistExpiredAt(
     playlist: {
@@ -226,9 +242,7 @@ export function playlistExpiredAt(
     if (playlist.valid_until && playlist.valid_until * 1000 < now) {
         return playlist.valid_until;
     }
-    const ends = (playlist.schedules || []).map(
-        ({ valid_until }) => valid_until || 0,
-    );
+    const ends = (playlist.schedules || []).map(scheduleEnd);
     if (!ends.length || ends.some((end) => !end || end * 1000 >= now)) {
         return 0;
     }

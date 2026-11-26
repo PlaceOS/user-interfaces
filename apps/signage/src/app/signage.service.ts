@@ -11,6 +11,7 @@ import {
     scoped_log,
     SECONDS,
     shuffleArray,
+    SINGLE_PASS_TRIGGER_WINDOW_MS,
     withTimeout,
 } from '@placeos/common';
 import {
@@ -123,7 +124,6 @@ const METRIC_TYPES: readonly (keyof SignageMetrics)[] = [
     'media_counts',
 ];
 
-const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 /** How far ahead media for a not-yet-active scheduled playlist is downloaded */
 const MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
 /** Minimum delay between recovery downloads of a single missing media file */
