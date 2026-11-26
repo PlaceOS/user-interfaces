@@ -94,6 +94,35 @@ describe('clearAssignedBooking', () => {
         expect(ts_client.patch).not.toHaveBeenCalled();
     });
 
+    it('deletes a weekday series that starts after a weekend unassign', async () => {
+        // Saturday; the series made today starts on Monday
+        const saturday = new Date(2026, 5, 13, 12).valueOf();
+        const monday = getUnixTime(new Date(2026, 5, 15, 9));
+        listBookings([
+            { id: 'series', instance: monday, booking_start: monday },
+            { id: 'later', booking_start: monday },
+        ]);
+        vi.mocked(ts_client.get).mockResolvedValue({
+            id: 'series',
+            booking_start: monday,
+        } as never);
+
+        await clearAssignedBooking(
+            'parking',
+            'space-1',
+            'a@place.tech',
+            saturday,
+        );
+
+        // The series goes, a single booking on a later day stays
+        expect(ts_client.del).toHaveBeenCalledOnce();
+        expect(ts_client.del).toHaveBeenCalledWith(
+            expect.stringContaining('/bookings/series?'),
+            expect.anything(),
+        );
+        expect(ts_client.patch).not.toHaveBeenCalled();
+    });
+
     it('does nothing without an assignee', async () => {
         await clearAssignedBooking('locker', 'space-1', '', now);
 

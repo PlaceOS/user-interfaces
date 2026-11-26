@@ -1407,7 +1407,13 @@ describe('ParkingStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         // _clearAssignedBooking -> queryAllBookings -> query -> existing booking
         (ts_client.query as any).mockResolvedValue({
-            data: [{ id: 'booking-1', asset_id: 'space-1' }],
+            data: [
+                {
+                    id: 'booking-1',
+                    asset_id: 'space-1',
+                    booking_start: Math.floor(Date.now() / 1000),
+                },
+            ],
             total: 1,
             next: null,
         });

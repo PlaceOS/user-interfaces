@@ -1003,7 +1003,13 @@ describe('DesksStateService', () => {
         spectator.service.setFilters({ zones: ['level-1'] });
         // `_clearAssignedBooking` looks the old booking up with a paged query
         vi.mocked(ts_client_mod.query).mockResolvedValueOnce({
-            data: [{ id: 'booking-1', asset_id: 'desk-1' }],
+            data: [
+                {
+                    id: 'booking-1',
+                    asset_id: 'desk-1',
+                    booking_start: Math.floor(Date.now() / 1000),
+                },
+            ],
             total: 1,
             next: null,
         } as any);

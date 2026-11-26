@@ -1506,7 +1506,7 @@ export class SignageMediaService {
         await this._playlist_service.addMediaToPlaylist(
             playlist_id,
             media_id,
-            this._media_list.items().find(({ id }) => id === media_id),
+            this._loadedMedia().find(({ id }) => id === media_id),
         );
     }
 
@@ -1521,8 +1521,13 @@ export class SignageMediaService {
         return this._playlist_service.addMediaItemsToPlaylist(
             playlist_id,
             media_ids,
-            this._media_list.items().filter(({ id }) => media_ids.includes(id)),
+            this._loadedMedia().filter(({ id }) => media_ids.includes(id)),
         );
+    }
+
+    /** Media in the library list and the open tag folder */
+    private _loadedMedia() {
+        return [...this._media_list.items(), ...this._folder_list.items()];
     }
 
     private _uploadThumbnailImage(data_url: string, name: string) {
