@@ -1,7 +1,10 @@
 import {
     applyMediaView,
+    clampMasonryAspectRatio,
     DEFAULT_MEDIA_VIEW,
     isMediaViewActive,
+    masonryColumnCount,
+    masonryColumns,
 } from '../../app/media/media-view.util';
 
 const DAY_S = 24 * 60 * 60;
@@ -64,5 +67,30 @@ describe('media view util', () => {
         expect(
             isMediaViewActive({ ...DEFAULT_MEDIA_VIEW, type: 'image' }),
         ).toBe(true);
+    });
+
+    it('puts each masonry card in the shortest column, with the gaps', () => {
+        const tall = { id: 'tall', orientation: 'portrait' } as const;
+        const wide = (id: string) =>
+            ({ id, orientation: 'landscape' }) as const;
+        // Two 200px columns. Three landscape cards are shorter than the
+        // portrait card, but taller with the gaps between them.
+        const columns = masonryColumns(
+            [tall, wide('a'), wide('b'), wide('c'), wide('d')],
+            416,
+        );
+
+        expect(columns.map((column) => column.map((item) => item.id))).toEqual([
+            ['tall', 'd'],
+            ['a', 'b', 'c'],
+        ]);
+    });
+
+    it('fits masonry columns to the width in bounds', () => {
+        expect(masonryColumnCount(0)).toBe(1);
+        expect(masonryColumnCount(700)).toBe(3);
+        expect(masonryColumnCount(100_000)).toBe(8);
+        expect(clampMasonryAspectRatio(10)).toBe(2);
+        expect(clampMasonryAspectRatio(0.1)).toBe(0.5);
     });
 });

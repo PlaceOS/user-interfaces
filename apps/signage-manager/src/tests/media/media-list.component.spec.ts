@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { SignageMedia } from '@placeos/ts-client';
 import { ImageGenService } from '../../app/image-gen/image-gen.service';
 import { MediaListComponent } from '../../app/media/media-list.component';
 import { SignageMediaService } from '../../app/media/signage-media.service';
@@ -293,5 +294,18 @@ describe('MediaListComponent folders', () => {
             expect.objectContaining({ id: 'c' }),
         ]);
         expect(component.selected_count()).toBe(0);
+    });
+
+    it('shows the loaded thumbnail shape on a masonry card', () => {
+        const component = make();
+        const item = {
+            id: 'a',
+            orientation: 'portrait',
+        } as SignageMedia;
+        expect(component.aspectRatio(item)).toBe(9 / 16);
+
+        component.setAspectRatio('a', 4 / 3);
+
+        expect(component.aspectRatio(item)).toBe(4 / 3);
     });
 });

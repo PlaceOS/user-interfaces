@@ -471,6 +471,11 @@ export class MediaListHeaderComponent {
     public readonly view_options = [
         { mode: 'grid', icon: 'grid_view', label: 'SIGNAGE_MANAGER.VIEW_GRID' },
         {
+            mode: 'masonry',
+            icon: 'dashboard',
+            label: 'SIGNAGE_MANAGER.VIEW_MASONRY',
+        },
+        {
             mode: 'list',
             icon: 'view_list',
             label: 'SIGNAGE_MANAGER.VIEW_LIST',
