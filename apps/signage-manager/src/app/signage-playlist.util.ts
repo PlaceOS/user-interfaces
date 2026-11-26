@@ -260,6 +260,22 @@ export function playlistExpiredAt(
     return Math.max(...ends);
 }
 
+/**
+ * When a playlist stops playing, in Unix seconds: the earlier of its own end
+ * date and the end of its last schedule, or 0 when it never ends.
+ */
+export function playlistEndsAt(playlist: {
+    valid_until?: number;
+    schedules?: readonly Partial<SignagePlaylistSchedule>[];
+}) {
+    const schedules_end = playlistExpiredAt(
+        { schedules: playlist.schedules },
+        Number.MAX_SAFE_INTEGER,
+    );
+    const ends = [playlist.valid_until || 0, schedules_end].filter((_) => _);
+    return ends.length ? Math.min(...ends) : 0;
+}
+
 /** Status badge of a playlist in a list. Null when it needs no badge. */
 export type PlaylistStatus =
     | 'expired'

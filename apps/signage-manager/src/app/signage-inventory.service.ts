@@ -10,13 +10,14 @@ import {
     SignageMedia,
     SignagePlaylist,
 } from '@placeos/ts-client';
+import { isDisplayOnline } from './displays/display-status.util';
 import { querySignageDisplays } from './displays/signage-display';
 import {
     findTakeoverConflicts,
     type TakeoverConflict,
 } from './schedules/schedule-conflicts.util';
 import { SignageContextService } from './signage-context.service';
-import { playlistExpiredAt } from './signage-playlist.util';
+import { playlistEndsAt, playlistExpiredAt } from './signage-playlist.util';
 import { PAGE_SIZE, queryAll } from './signage-service.util';
 
 /** Every display, zone and playlist in the active group */
@@ -35,8 +36,14 @@ export interface ContentReport {
     empty_displays: PlaceSystem[];
     /** Playlists not assigned to any display or zone */
     unassigned_playlists: SignagePlaylist[];
+    /** Time in milliseconds that the report checked against */
+    checked_at: number;
+    /** Displays whose player has not checked in recently, or never */
+    offline_displays: PlaceSystem[];
     /** Expired playlists, or playlists with only expired schedules, that are still assigned */
     expired_playlists: SignagePlaylist[];
+    /** Assigned playlists that expire within `EXPIRING_DAYS` */
+    expiring_playlists: SignagePlaylist[];
     /** Expired media that is still in a playlist */
     expired_media: { media: SignageMedia; playlists: SignagePlaylist[] }[];
     /** Expired media items not checked, because the report checks at most 100 */
@@ -45,6 +52,9 @@ export interface ContentReport {
     conflicts: TakeoverConflict[];
 }
 
+/** Days ahead that the report lists playlists that expire */
+const EXPIRING_DAYS = 7;
+const EXPIRING_WINDOW_MS = EXPIRING_DAYS * 24 * 60 * 60 * 1000;
 /** Most expired media items the report looks up playlists for */
 const MAX_EXPIRED_MEDIA_CHECKS = 100;
 /** Most media requests the report sends at the same time */
@@ -175,11 +185,24 @@ export class SignageInventoryService {
             unassigned_playlists: playlists.filter(
                 ({ id }) => !assigned_ids.has(id),
             ),
+            checked_at: now,
+            offline_displays: displays.filter(
+                (display) => !isDisplayOnline(display.signage_last_seen, now),
+            ),
             expired_playlists: playlists.filter(
                 (playlist) =>
                     assigned_ids.has(playlist.id) &&
                     !!playlistExpiredAt(playlist, now),
             ),
+            expiring_playlists: playlists.filter((playlist) => {
+                const ends_at = playlistEndsAt(playlist) * 1000;
+                return (
+                    playlist.enabled &&
+                    assigned_ids.has(playlist.id) &&
+                    ends_at > now &&
+                    ends_at <= now + EXPIRING_WINDOW_MS
+                );
+            }),
             expired_media: expired_media_check.items,
             expired_media_unchecked: expired_media_check.unchecked,
             conflicts: findTakeoverConflicts({ displays, zones, playlists }),

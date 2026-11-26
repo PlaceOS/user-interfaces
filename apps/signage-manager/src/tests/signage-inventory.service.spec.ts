@@ -185,6 +185,51 @@ describe('SignageInventoryService', () => {
             expect(report.expired_playlists.map(({ id }) => id)).toEqual(['c']);
         });
 
+        it('lists assigned playlists that expire within a week', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageInventoryServiceTestAccess;
+            const now = Date.now();
+            const ending = (id: string, days: number) =>
+                new SignagePlaylist({
+                    id,
+                    name: id,
+                    valid_until: Math.floor(now / 1000) + days * 86_400,
+                });
+            vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
+                displays: [
+                    new PlaceSystem({
+                        id: 'd1',
+                        playlists: ['soon', 'later', 'off'],
+                        signage_last_seen: Math.floor(now / 1000) - 3600,
+                    }),
+                ],
+                zones: [],
+                // `loose` expires soon but is not assigned
+                playlists: [
+                    ending('soon', 3),
+                    ending('later', 30),
+                    ending('loose', 3),
+                    // Assigned, but disabled, so it plays nowhere
+                    new SignagePlaylist({
+                        ...ending('off', 3),
+                        enabled: false,
+                    }),
+                ],
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+
+            const report = await service.loadContentReport(now);
+
+            expect(report.expiring_playlists.map(({ id }) => id)).toEqual([
+                'soon',
+            ]);
+            // Its player last checked in an hour ago
+            expect(report.offline_displays.map(({ id }) => id)).toEqual(['d1']);
+        });
+
         it('checks expired media a few at a time and counts the rest', async () => {
             const service = createService();
             const test_service =
