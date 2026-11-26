@@ -26,6 +26,7 @@ import {
     lockerFromAsset,
     queryPagedBookings,
     rejectBooking,
+    rejectBookingInstance,
     saveBooking,
     setBookingCheckedIn,
 } from '@placeos/bookings';
@@ -36,6 +37,7 @@ import {
     i18n,
     nextValueFrom,
     notifyError,
+    notifyInfo,
     notifySuccess,
     OrganisationService,
     RecurrenceDays,
@@ -322,6 +324,9 @@ export class LockerStateService extends AsyncHandler {
     private _next_page_fn: (() => QueryResponse<Booking> | null) | null = null;
     /** Token used to discard responses from superseded page loads */
     private _load_token = 0;
+    /** Params of the first page query, and of the bookings that loaded */
+    private _first_page_params: unknown = null;
+    private _bookings_loaded_for: unknown = null;
     private readonly _bookings_params = computed(
         () => ({
             filters: this._filters(),
@@ -354,11 +359,13 @@ export class LockerStateService extends AsyncHandler {
         // Rebuild the paging query whenever the filters or initialised state
         // change. Debounced to collapse rapid updates.
         effect(() => {
-            const { filters, loaded } = this._bookings_params_debounced.value();
+            const params = this._bookings_params_debounced.value();
+            const { filters, loaded } = params;
             if (!loaded) return;
             untracked(() => {
                 this._first_page = this._buildFirstPage(filters);
                 this._next_page_fn = this._first_page;
+                this._first_page_params = params;
                 this._loadPage(true);
             });
         });
@@ -414,6 +421,8 @@ export class LockerStateService extends AsyncHandler {
         });
         if (token !== this._load_token) return;
         this._load_error.set(failed);
+        if (reset && !failed)
+            this._bookings_loaded_for = this._first_page_params;
         const { data = [], total = 0, next = null } = resp || {};
         const has_next = data.length > 0 && !!next;
         this._next_page_fn = has_next ? next : null;
@@ -504,12 +513,20 @@ export class LockerStateService extends AsyncHandler {
             }),
         );
     }
+    /**
+     * Release every locker of the building with the locker driver, after the
+     * user confirms. Says so when there are no lockers, and loads the lockers
+     * again afterwards.
+     */
     public async releaseAllLockers(confirm = false) {
         const mod = this._org.module('lockers', 'Lockers');
         if (!mod) return notifyError(i18n('APP.CONCIERGE.LOCKERS_NO_DRIVER'));
+        // An empty list before it loads or after an error is not "no lockers"
+        if (!['resolved', 'local'].includes(this._lockers.status())) return;
+        if (!this.lockers().length) {
+            return notifyInfo(i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_NONE'));
+        }
         let close: () => void;
-        const lockers = this.lockers();
-        if (!lockers.length) return;
         if (confirm) {
             const result = await openConfirmModal(
                 {
@@ -523,17 +540,70 @@ export class LockerStateService extends AsyncHandler {
             result.loading(i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_LOADING'));
             close = result.close;
         }
-        await mod.execute('release_all_lockers', []).catch((e) => {
+        try {
+            await mod.execute('release_all_lockers', []);
+        } catch (e) {
             notifyError(
                 i18n('APP.CONCIERGE.LOCKERS_RELEASE_ALL_ERROR', {
                     error: errorText(e),
                 }),
             );
-            if (close) close();
             throw e;
-        });
+        } finally {
+            close?.();
+            // Show which lockers are free now
+            this._change.set(Date.now());
+        }
         notifySuccess(i18n(`APP.CONCIERGE.LOCKERS_RELEASE_ALL_SUCCESS`));
-        if (close) close();
+    }
+
+    /**
+     * Reject the locker bookings shown that can still change, after the
+     * user confirms.
+     * @returns `false` if the user cancelled or nothing could be rejected
+     */
+    public async rejectAllBookings() {
+        // The list must be the bookings of the date and levels on screen
+        if (!this._bookingsCurrent()) return false;
+        const loaded_for = this._bookings_loaded_for;
+        const list = this.filtered_bookings().filter(
+            (booking) =>
+                !booking.deleted &&
+                (booking.status === 'tentative' ||
+                    booking.status === 'approved'),
+        );
+        if (!list.length) {
+            notifyInfo(i18n('APP.CONCIERGE.LOCKERS_REJECT_ALL_NONE'));
+            return false;
+        }
+        const failed = await runBulkAction(
+            list,
+            // A load can change the list while the user confirms
+            (booking) =>
+                this._bookingsCurrent() &&
+                this._bookings_loaded_for === loaded_for
+                    ? this._rejectBooking(booking)
+                    : Promise.reject(new Error('The bookings changed')),
+            bulkRejectOptions(list.length, this._dialog),
+        );
+        if (failed === null) return false;
+        this.refresh();
+        return true;
+    }
+
+    /** Whether the loaded bookings are for the date and levels on screen */
+    private _bookingsCurrent() {
+        return (
+            this._bookings_loaded_for === this._bookings_params() &&
+            !this._load_error()
+        );
+    }
+
+    /** Reject a booking, or only its occurrence when it is recurring */
+    private _rejectBooking(booking: Booking) {
+        return booking.instance
+            ? rejectBookingInstance(booking.id, booking.instance)
+            : rejectBooking(booking.id);
     }
 
     public async releaseLocker(locker: Locker, confirm = false) {
@@ -905,7 +975,9 @@ export class LockerStateService extends AsyncHandler {
         const failed = await runBulkAction(
             bookings,
             (locker) =>
-                approve ? approveBooking(locker.id) : rejectBooking(locker.id),
+                approve
+                    ? approveBooking(locker.id)
+                    : this._rejectBooking(locker),
             approve ? {} : bulkRejectOptions(bookings.length, this._dialog),
         );
         if (failed === null) return false;

@@ -158,8 +158,28 @@ import { LockerStateService } from './locker-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
+            @if (path() === 'events') {
+                <button
+                    icon
+                    default
+                    error
+                    matRipple
+                    (click)="rejectAllBookings()"
+                    [matTooltip]="
+                        'APP.CONCIERGE.LOCKERS_REJECT_ALL' | translate
+                    "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.LOCKERS_REJECT_ALL' | translate
+                    "
+                >
+                    <icon>event_busy</icon>
+                </button>
+            }
             @if (path() === 'events' || path() === 'map') {
-                <date-options (dateChange)="setDate($event)"></date-options>
+                <date-options
+                    [date]="filters().date || now"
+                    (dateChange)="setDate($event)"
+                ></date-options>
             }
         </div>
     `,
@@ -230,6 +250,10 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     public readonly newLockerBank = () => this._state.editLockerBank();
     public readonly releaseAllLockers = () =>
         this._state.releaseAllLockers(true);
+    public readonly rejectAllBookings = () => this._state.rejectAllBookings();
+    /** Date that the bookings show, so the picker matches the list */
+    public readonly filters = this._state.filters;
+    public readonly now = Date.now();
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('lockers')) return;
