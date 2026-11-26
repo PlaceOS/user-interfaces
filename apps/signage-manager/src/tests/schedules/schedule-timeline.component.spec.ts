@@ -123,6 +123,66 @@ describe('ScheduleTimelineComponent', () => {
         );
     });
 
+    it('dims the blocks that an enabled takeover hides while it plays', () => {
+        const component = make([
+            row({
+                blocks: [
+                    block(),
+                    block({
+                        playlist: {
+                            id: 'pl-2',
+                            name: 'Alert',
+                            enabled: true,
+                        } as any,
+                        takeover: true,
+                        start_minutes: 600,
+                        duration_minutes: 30,
+                    }),
+                    block({
+                        playlist: { id: 'pl-3', name: 'Later' } as any,
+                        start_minutes: 900,
+                        duration_minutes: 60,
+                    }),
+                ],
+            }),
+        ]);
+
+        const [news, alert, later] = component.view_rows()[0].blocks;
+
+        expect(news.under_takeover).toBe(true);
+        expect(news.aria_label).toContain('Hidden while a takeover plays');
+        fixture.detectChanges();
+        const hatched =
+            fixture.nativeElement.querySelectorAll('.under-takeover');
+        expect(hatched).toHaveLength(1);
+        expect(alert.under_takeover).toBe(false);
+        expect(later.under_takeover).toBe(false);
+    });
+
+    it('does not dim a block that starts after a short takeover ends', () => {
+        const component = make([
+            row({
+                blocks: [
+                    block({
+                        playlist: {
+                            id: 'pl-2',
+                            name: 'Alert',
+                            enabled: true,
+                        } as any,
+                        takeover: true,
+                        start_minutes: 600,
+                        duration_minutes: 5,
+                    }),
+                    block({ start_minutes: 610, duration_minutes: 5 }),
+                ],
+            }),
+        ]);
+
+        const [, news] = component.view_rows()[0].blocks;
+
+        expect(news.under_takeover).toBe(false);
+    });
+
     it('shows a takeover label on takeover blocks', async () => {
         make([
             row({

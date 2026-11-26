@@ -3531,6 +3531,7 @@
         "TAB_USERS": "用户",
         "TAB_ZONES": "区域",
         "TAKEOVER_PLAYBACK": "接管播放",
+        "TOOLTIP_UNDER_TAKEOVER": "接管播放期间隐藏",
         "TAKEOVER_SUFFIX": " · 接管",
         "TAG_NAME": "标签名称",
         "TEMPLATES_PAGE_TITLE": "数字标牌模板",

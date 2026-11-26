@@ -3531,6 +3531,7 @@
         "TAB_USERS": "Utenti",
         "TAB_ZONES": "Zone",
         "TAKEOVER_PLAYBACK": "Riproduzione presa di controllo",
+        "TOOLTIP_UNDER_TAKEOVER": "Nascosta mentre è in riproduzione una presa di controllo",
         "TAKEOVER_SUFFIX": " · presa di controllo",
         "TAG_NAME": "Nome tag",
         "TEMPLATES_PAGE_TITLE": "Modelli di segnaletica",

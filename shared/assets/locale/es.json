@@ -3531,6 +3531,7 @@
         "TAB_USERS": "Usuarios",
         "TAB_ZONES": "Zonas",
         "TAKEOVER_PLAYBACK": "Reproducción de toma de control",
+        "TOOLTIP_UNDER_TAKEOVER": "Oculta mientras se reproduce una toma de control",
         "TAKEOVER_SUFFIX": " · toma de control",
         "TAG_NAME": "Nombre de la etiqueta",
         "TEMPLATES_PAGE_TITLE": "Plantillas de señalización",

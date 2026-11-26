@@ -170,6 +170,12 @@ describe('SchedulesSectionComponent', () => {
         component.previousDay();
         expect(isSameDay(component.selected_date(), start)).toBe(true);
 
+        // A day picked in the date field
+        component.setDate(addDays(start, 21).valueOf() + 3_600_000);
+        expect(component.selected_date()).toEqual(
+            startOfDay(addDays(start, 21)),
+        );
+
         component.selected_date.set(addDays(start, 5));
         component.goToToday();
         expect(

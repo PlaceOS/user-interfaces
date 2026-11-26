@@ -3531,6 +3531,7 @@
         "TAB_USERS": "ユーザー",
         "TAB_ZONES": "ゾーン",
         "TAKEOVER_PLAYBACK": "テイクオーバー再生",
+        "TOOLTIP_UNDER_TAKEOVER": "テイクオーバー再生中は非表示",
         "TAKEOVER_SUFFIX": "・テイクオーバー",
         "TAG_NAME": "タグ名",
         "TEMPLATES_PAGE_TITLE": "サイネージテンプレート",

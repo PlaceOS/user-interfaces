@@ -3531,6 +3531,7 @@
         "TAB_USERS": "Utilisateurs",
         "TAB_ZONES": "Zones",
         "TAKEOVER_PLAYBACK": "Lecture de prise de contrôle",
+        "TOOLTIP_UNDER_TAKEOVER": "Masquée pendant une prise de contrôle",
         "TAKEOVER_SUFFIX": " · prise de contrôle",
         "TAG_NAME": "Nom de l'étiquette",
         "TEMPLATES_PAGE_TITLE": "Modèles d'affichage",

@@ -16,6 +16,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { i18n, withTimeout } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
@@ -141,7 +142,7 @@ const INVENTORY_REFRESH_TIMEOUT_MS = 60 * 1000;
                     <div
                         class="mt-2.5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
                     >
-                        <div class="flex items-center gap-0.5">
+                        <div class="flex flex-wrap items-center gap-0.5">
                             <button
                                 icon
                                 type="button"
@@ -179,6 +180,12 @@ const INVENTORY_REFRESH_TIMEOUT_MS = 60 * 1000;
                             >
                                 <icon>chevron_right</icon>
                             </button>
+                            <a-date-field
+                                class="ml-1 w-48"
+                                [from]="1"
+                                [ngModel]="selected_date().valueOf()"
+                                (ngModelChange)="setDate($event)"
+                            ></a-date-field>
                             <div class="ml-1.5">
                                 <div
                                     class="text-sm leading-tight font-medium"
@@ -322,6 +329,7 @@ const INVENTORY_REFRESH_TIMEOUT_MS = 60 * 1000;
         MatInputModule,
         MatProgressSpinnerModule,
         TranslatePipe,
+        DateFieldComponent,
     ],
 })
 export class SchedulesSectionComponent {
@@ -570,5 +578,10 @@ export class SchedulesSectionComponent {
 
     public goToToday() {
         this.selected_date.set(startOfDay(new Date()));
+    }
+
+    /** Show the day of a date picked in the date field */
+    public setDate(date: number | null) {
+        if (date) this.selected_date.set(startOfDay(date));
     }
 }

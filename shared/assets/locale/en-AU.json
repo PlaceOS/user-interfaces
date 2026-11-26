@@ -786,6 +786,7 @@
         "TAB_USERS": "Users",
         "TAB_ZONES": "Zones",
         "TAKEOVER_PLAYBACK": "Takeover playback",
+        "TOOLTIP_UNDER_TAKEOVER": "Hidden while a takeover plays",
         "TAKEOVER_SUFFIX": " · takeover",
         "TAG_NAME": "Tag name",
         "TEMPLATES_PAGE_TITLE": "Signage Templates",
