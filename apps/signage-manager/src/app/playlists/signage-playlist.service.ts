@@ -16,6 +16,7 @@ import {
     notifySuccess,
     notifyWarn,
     OrganisationService,
+    withTimeout,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import {
@@ -84,6 +85,8 @@ interface PlaylistMetaState {
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 /** Most playlist thumbnail and approval lookups to run at once */
 const PLAYLIST_META_CONCURRENCY = 4;
+/** Most time in milliseconds for each request of a playlist order save */
+const ORDER_SAVE_TIMEOUT_MS = 30 * 1000;
 
 /** A change that can give a display a new takeover schedule */
 interface TakeoverChange {
@@ -764,6 +767,15 @@ export class SignagePlaylistService {
         });
     }
 
+    /** Order saves that are waiting or running, by playlist ID */
+    private readonly _order_saves = new Map<string, Promise<void>>();
+    /** Bumped for each new order, so only the latest one changes the list */
+    private _order_token = 0;
+    /** Last item list that the server has, by playlist ID, to show on failure */
+    private readonly _saved_orders = new Map<string, SignagePlaylistMedia>();
+    /** List that the last order of each playlist showed */
+    private readonly _shown_orders = new Map<string, SignagePlaylistMedia>();
+
     public async removeMediaFromPlaylist(
         playlist_id: string,
         playlist_item_id: string,
@@ -891,35 +903,120 @@ export class SignagePlaylistService {
 
     /**
      * Save a new order of the shown playlist items. The list shows the new
-     * order at once and goes back to the old order when the save fails.
+     * order at once. Saves of a playlist run one at a time, and each applies
+     * the order to the saved list, so items that another user changed are
+     * kept. Only the latest order changes the list after its save: it shows
+     * the saved list, or the last saved list when the save fails.
      * @param media_ids Ids of the shown items, in the new order
      */
-    public async reorderPlaylistMedia(
-        playlist_id: string,
-        media_ids: string[],
-    ) {
+    public reorderPlaylistMedia(playlist_id: string, media_ids: string[]) {
         if (
             !this._context.requirePermission(
                 this._context.can_update(),
                 'SIGNAGE_MANAGER.SVC_NO_UPDATE_PLAYLISTS',
             )
         )
-            return;
+            return Promise.resolve();
         const previous = this._mediaList();
         const loaded = this._selected_playlist_id() === playlist_id;
-        const items = reorderPlaylistItemIds(
-            (loaded && previous?.items) || [],
-            media_ids,
-        );
-        this._showPlaylistMedia(playlist_id, previous, items);
-        try {
-            await updateSignagePlaylistMedia(playlist_id, items);
-        } catch {
-            this._showPlaylistMedia(playlist_id, previous);
-            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REORDER_PLAYLIST'));
-            return;
+        // A list that this service did not show came from the server
+        if (
+            loaded &&
+            previous &&
+            (!this._order_saves.has(playlist_id) ||
+                previous !== this._shown_orders.get(playlist_id))
+        ) {
+            this._saved_orders.set(playlist_id, previous);
         }
+        const token = ++this._order_token;
+        this._showPlaylistMedia(
+            playlist_id,
+            previous,
+            loaded && previous?.items?.length
+                ? reorderPlaylistItemIds(previous.items, media_ids)
+                : media_ids,
+        );
+        const shown = this._mediaList();
+        if (shown) this._shown_orders.set(playlist_id, shown);
+        const save = (
+            this._order_saves.get(playlist_id) || Promise.resolve()
+        ).then(() =>
+            this._savePlaylistOrder(playlist_id, media_ids, (saved) =>
+                this._showSavedOrder(playlist_id, token, shown, saved),
+            ),
+        );
+        this._order_saves.set(playlist_id, save);
+        save.finally(() => {
+            if (this._order_saves.get(playlist_id) === save) {
+                this._order_saves.delete(playlist_id);
+                this._shown_orders.delete(playlist_id);
+                this._saved_orders.delete(playlist_id);
+            }
+        });
+        return save;
+    }
+
+    /**
+     * Save an order of the shown items to the playlist's saved item list.
+     * Ends only when the write ends, so the next save of the playlist cannot
+     * overtake a slow write. A write that takes longer than
+     * `ORDER_SAVE_TIMEOUT_MS` shows an error while it keeps waiting.
+     * @param done Called with the saved list, or with null when it failed
+     */
+    private async _savePlaylistOrder(
+        playlist_id: string,
+        media_ids: string[],
+        done: (saved: SignagePlaylistMedia | null) => void,
+    ) {
+        const notifyFailed = () =>
+            notifyError(i18n('SIGNAGE_MANAGER.SVC_ERR_REORDER_PLAYLIST'));
+        let media_list: SignagePlaylistMedia;
+        try {
+            media_list = await withTimeout(
+                listSignagePlaylistMedia(playlist_id),
+                ORDER_SAVE_TIMEOUT_MS,
+            );
+        } catch {
+            notifyFailed();
+            return done(null);
+        }
+        // The server has this list, so a failed write goes back to it
+        this._saved_orders.set(playlist_id, media_list);
+        const items = reorderPlaylistItemIds(media_list.items || [], media_ids);
+        const write = updateSignagePlaylistMedia(playlist_id, items).then(
+            () => true,
+            () => false,
+        );
+        const in_time = await withTimeout(write, ORDER_SAVE_TIMEOUT_MS).then(
+            () => true,
+            () => false,
+        );
+        if (!in_time) notifyFailed();
+        if (!(await write)) {
+            if (in_time) notifyFailed();
+            return done(null);
+        }
+        const saved = new SignagePlaylistMedia({ ...media_list, items });
+        this._saved_orders.set(playlist_id, saved);
         this._setPlaylistMediaState(playlist_id, items, { approved: false });
+        done(saved);
+    }
+
+    /**
+     * Show the result of the latest order save, while the list on screen is
+     * still the order it saved. A newer order or a fresh load is left alone.
+     */
+    private _showSavedOrder(
+        playlist_id: string,
+        token: number,
+        shown: SignagePlaylistMedia | null,
+        saved: SignagePlaylistMedia | null,
+    ) {
+        if (token !== this._order_token || this._mediaList() !== shown) return;
+        this._showPlaylistMedia(
+            playlist_id,
+            saved || this._saved_orders.get(playlist_id),
+        );
     }
 
     /**

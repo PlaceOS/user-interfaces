@@ -16,6 +16,7 @@ import {
     playlistScheduleNextPlayLabels,
     playlistStatus,
     playOnceStart,
+    reorderPlaylistItemIds,
 } from '../app/signage-playlist.util';
 
 describe('signage playlist util', () => {
@@ -329,6 +330,24 @@ describe('schedule masks', () => {
 
         expect(playlistLoopDuration(items, 20_000)).toBe(72_000);
         expect(playlistLoopDuration(items)).toBe(67_000);
+    });
+});
+
+describe('playlist item reorder', () => {
+    it('keeps the count of repeated items that another user added', () => {
+        expect(
+            reorderPlaylistItemIds(['a', 'a', 'b', 'c'], ['b', 'c', 'a']),
+        ).toEqual(['b', 'a', 'c', 'a']);
+    });
+
+    it('keeps a saved list that another user cleared empty', () => {
+        expect(reorderPlaylistItemIds([], ['b', 'a'])).toEqual([]);
+    });
+
+    it('does not add back items that the saved list no longer has', () => {
+        expect(
+            reorderPlaylistItemIds(['a', 'c', 'd'], ['c', 'b', 'a']),
+        ).toEqual(['c', 'a', 'd']);
     });
 });
 

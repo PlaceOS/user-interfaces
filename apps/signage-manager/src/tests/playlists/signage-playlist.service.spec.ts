@@ -346,6 +346,12 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'missing', 'b', 'c'],
                 media,
             });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['a', 'missing', 'b', 'c'],
+                    media,
+                }),
+            );
             let saved: (value: unknown) => void = () => {};
             (updateSignagePlaylistMedia as any).mockReturnValue(
                 new Promise((resolve) => (saved = resolve)),
@@ -358,15 +364,270 @@ describe('SignagePlaylistService', () => {
             ]);
 
             expect(playlistMediaIdsShown(service)).toEqual(['c', 'a', 'b']);
-            expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
-                'c',
-                'missing',
-                'a',
-                'b',
-            ]);
+            await vi.waitFor(() =>
+                expect(updateSignagePlaylistMedia).toHaveBeenCalledWith(
+                    'pl-1',
+                    ['c', 'missing', 'a', 'b'],
+                ),
+            );
             saved({});
             await saving;
             expect(playlistMediaIdsShown(service)).toEqual(['c', 'a', 'b']);
+        });
+
+        it('keeps items that another user changed since the list loaded', async () => {
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            // Another user added d and removed b
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['a', 'c', 'd'],
+                    media: [media[0], media[2]],
+                }),
+            );
+            (updateSignagePlaylistMedia as any).mockResolvedValue({});
+
+            await service.reorderPlaylistMedia('pl-1', ['c', 'b', 'a']);
+
+            expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
+                'c',
+                'a',
+                'd',
+            ]);
+        });
+
+        it('saves one order at a time', async () => {
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            vi.mocked(listSignagePlaylistMedia).mockImplementation(
+                async () =>
+                    new SignagePlaylistMedia({
+                        items: [...saved_items],
+                        media,
+                    }),
+            );
+            let saved_items = ['a', 'b', 'c'];
+            let finish_first: () => void = () => {};
+            (updateSignagePlaylistMedia as any)
+                .mockImplementationOnce(
+                    (_: string, items: string[]) =>
+                        new Promise<void>((resolve) => {
+                            finish_first = () => {
+                                saved_items = items;
+                                resolve();
+                            };
+                        }),
+                )
+                .mockImplementation(async (_: string, items: string[]) => {
+                    saved_items = items;
+                });
+
+            const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
+            const second = service.reorderPlaylistMedia('pl-1', [
+                'b',
+                'c',
+                'a',
+            ]);
+            await vi.waitFor(() =>
+                expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(1),
+            );
+            finish_first();
+            await Promise.all([first, second]);
+
+            expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(2);
+            expect(saved_items).toEqual(['b', 'c', 'a']);
+        });
+
+        it('shows the last saved list when every queued save fails', async () => {
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            );
+            (updateSignagePlaylistMedia as any).mockRejectedValue(
+                new Error('Forbidden'),
+            );
+
+            const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
+            const second = service.reorderPlaylistMedia('pl-1', [
+                'c',
+                'b',
+                'a',
+            ]);
+            expect(playlistMediaIdsShown(service)).toEqual(['c', 'b', 'a']);
+            await first;
+            // The first result does not replace the newer order
+            expect(playlistMediaIdsShown(service)).toEqual(['c', 'b', 'a']);
+            await second;
+
+            expect(playlistMediaIdsShown(service)).toEqual(['a', 'b', 'c']);
+        });
+
+        it('rolls back to a list that loaded while an earlier save was waiting', async () => {
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            // The second save cannot read the list again
+            vi.mocked(listSignagePlaylistMedia)
+                .mockResolvedValueOnce(
+                    new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+                )
+                .mockRejectedValue(new Error('Offline'));
+            let fail_first: () => void = () => {};
+            (updateSignagePlaylistMedia as any)
+                .mockImplementationOnce(
+                    () =>
+                        new Promise((_, reject) => {
+                            fail_first = () => reject(new Error('Forbidden'));
+                        }),
+                )
+                .mockRejectedValue(new Error('Forbidden'));
+
+            const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
+            await vi.waitFor(() =>
+                expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(1),
+            );
+            // The playlist loads again, then the user drags once more
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['c', 'b', 'a'],
+                media,
+            });
+            const second = service.reorderPlaylistMedia('pl-1', [
+                'b',
+                'c',
+                'a',
+            ]);
+            fail_first();
+            await Promise.all([first, second]);
+
+            expect(playlistMediaIdsShown(service)).toEqual(['c', 'b', 'a']);
+        });
+
+        it('keeps the next save waiting until a slow write ends', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            );
+            let finish_first: () => void = () => {};
+            (updateSignagePlaylistMedia as any)
+                .mockImplementationOnce(
+                    () =>
+                        new Promise<void>(
+                            (resolve) => (finish_first = resolve),
+                        ),
+                )
+                .mockResolvedValue({});
+
+            const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
+            const second = service.reorderPlaylistMedia('pl-1', [
+                'c',
+                'b',
+                'a',
+            ]);
+            await vi.advanceTimersByTimeAsync(31_000);
+            // The first write timed out, but the second waits for it
+            expect(notify_open).toHaveBeenCalled();
+            expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(1);
+
+            finish_first();
+            await vi.advanceTimersByTimeAsync(0);
+            await Promise.all([first, second]);
+            expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(2);
+            vi.useRealTimers();
+        });
+
+        it('rolls back to the list that the server sent before a failed write', async () => {
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({
+                    items: ['b', 'a', 'c'],
+                    media,
+                }),
+            );
+            (updateSignagePlaylistMedia as any).mockRejectedValue(
+                new Error('Forbidden'),
+            );
+
+            await service.reorderPlaylistMedia('pl-1', ['c', 'a', 'b']);
+
+            expect(playlistMediaIdsShown(service)).toEqual(['b', 'a', 'c']);
+        });
+
+        it('shows a write that ends after the timeout', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            );
+            let finish: () => void = () => {};
+            (updateSignagePlaylistMedia as any).mockImplementationOnce(
+                () => new Promise<void>((resolve) => (finish = resolve)),
+            );
+
+            const saving = service.reorderPlaylistMedia('pl-1', [
+                'c',
+                'a',
+                'b',
+            ]);
+            await vi.advanceTimersByTimeAsync(31_000);
+            expect(notify_open).toHaveBeenCalled();
+            finish();
+            await saving;
+
+            expect(playlistMediaIdsShown(service)).toEqual(['c', 'a', 'b']);
+            vi.useRealTimers();
+        });
+
+        it('leaves a list that loaded again during the save', async () => {
+            const service = createService();
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['a', 'b', 'c'],
+                media,
+            });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            );
+            (updateSignagePlaylistMedia as any).mockRejectedValue(
+                new Error('Forbidden'),
+            );
+
+            const saving = service.reorderPlaylistMedia('pl-1', [
+                'c',
+                'a',
+                'b',
+            ]);
+            // The user opens the playlist again and it loads
+            showPlaylistMedia(service, 'pl-1', {
+                items: ['b', 'c', 'a'],
+                media,
+            });
+            await saving;
+
+            expect(playlistMediaIdsShown(service)).toEqual(['b', 'c', 'a']);
         });
 
         it('restores the old order and reports an error when the save fails', async () => {
@@ -375,6 +636,9 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
+            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
+                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            );
             (updateSignagePlaylistMedia as any).mockRejectedValue(
                 new Error('Forbidden'),
             );

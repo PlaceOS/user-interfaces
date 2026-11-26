@@ -135,8 +135,10 @@ export function playlistItemMediaIds(list: {
 
 /**
  * Apply a new order of the shown playlist items to the saved item ids.
- * Items that do not resolve to media are not shown, so they keep their
- * position instead of being dropped from the playlist.
+ * Items that are not shown keep their position, e.g. items without media
+ * or items that another user added. Each saved item is used once, so an id
+ * that the saved list no longer has is not added back, and repeated items
+ * keep their count.
  * @param item_ids Saved item ids of the playlist
  * @param ordered_ids Ids of the shown items, in the new order
  */
@@ -144,14 +146,23 @@ export function reorderPlaylistItemIds(
     item_ids: string[],
     ordered_ids: string[],
 ) {
-    if (!item_ids.length) return [...ordered_ids];
-    const shown_ids = new Set(ordered_ids);
+    const available = new Map<string, number>();
+    for (const id of item_ids) available.set(id, (available.get(id) || 0) + 1);
+    const ordered = ordered_ids.filter((id) => {
+        const count = available.get(id) || 0;
+        if (count) available.set(id, count - 1);
+        return count > 0;
+    });
+    // Slots of the shown items, which take the new order
+    const shown = new Map<string, number>();
+    for (const id of ordered) shown.set(id, (shown.get(id) || 0) + 1);
     let next_index = 0;
-    return item_ids.map((id) =>
-        shown_ids.has(id) && next_index < ordered_ids.length
-            ? ordered_ids[next_index++]
-            : id,
-    );
+    return item_ids.map((id) => {
+        const count = shown.get(id) || 0;
+        if (!count) return id;
+        shown.set(id, count - 1);
+        return ordered[next_index++];
+    });
 }
 
 export function playlistMediaIds(list: PlaylistMediaList) {
