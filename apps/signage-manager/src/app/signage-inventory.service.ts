@@ -1,6 +1,7 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { mapWithLimit } from '@placeos/common';
+import { mapWithLimit, withTimeout } from '@placeos/common';
 import {
+    listSignagePlaylistMedia,
     PlaceSystem,
     PlaceZone,
     querySignageMedia,
@@ -48,6 +49,10 @@ export interface ContentReport {
     expired_media: { media: SignageMedia; playlists: SignagePlaylist[] }[];
     /** Expired media items not checked, because the report checks at most 100 */
     expired_media_unchecked: number;
+    /** Playlists whose approval was requested and not given yet */
+    awaiting_review: SignagePlaylist[];
+    /** Playlists not checked for review, because the report checks at most 100 */
+    awaiting_review_unchecked: number;
     /** Takeover playlists that overlap on a display in the coming weeks */
     conflicts: TakeoverConflict[];
 }
@@ -55,6 +60,10 @@ export interface ContentReport {
 /** Days ahead that the report lists playlists that expire */
 const EXPIRING_DAYS = 7;
 const EXPIRING_WINDOW_MS = EXPIRING_DAYS * 24 * 60 * 60 * 1000;
+/** Most playlists the report checks for a review request */
+const MAX_REVIEW_CHECKS = 100;
+/** Most time in milliseconds for one playlist review check */
+const REVIEW_CHECK_TIMEOUT_MS = 15 * 1000;
 /** Most expired media items the report looks up playlists for */
 const MAX_EXPIRED_MEDIA_CHECKS = 100;
 /** Most media requests the report sends at the same time */
@@ -150,13 +159,23 @@ export class SignageInventoryService {
         return { displays, zones, playlists };
     }
 
-    /** Find content that needs attention, for the report page */
-    public async loadContentReport(now = Date.now()): Promise<ContentReport> {
+    /**
+     * Find content that needs attention, for the report page
+     * @param signal Stops the review checks that have not started
+     */
+    public async loadContentReport(
+        now = Date.now(),
+        signal?: AbortSignal,
+    ): Promise<ContentReport> {
         const [{ displays, zones, playlists }, expired_media_check] =
             await Promise.all([
                 this.loadSignageInventory(),
                 this._expiredMediaInPlaylists(now),
             ]);
+        const review_check = await this._playlistsAwaitingReview(
+            playlists,
+            signal,
+        );
         const zone_playlists = new Map(
             zones.map((zone) => [zone.id, zone.playlists || []]),
         );
@@ -203,9 +222,51 @@ export class SignageInventoryService {
                     ends_at <= now + EXPIRING_WINDOW_MS
                 );
             }),
+            awaiting_review: review_check.items,
+            awaiting_review_unchecked: review_check.unchecked,
             expired_media: expired_media_check.items,
             expired_media_unchecked: expired_media_check.unchecked,
             conflicts: findTakeoverConflicts({ displays, zones, playlists }),
+        };
+    }
+
+    /**
+     * Playlists whose approval was requested and not given, read from each
+     * playlist's media list. Checks at most `MAX_REVIEW_CHECKS` playlists, a
+     * few at a time, each bounded by `REVIEW_CHECK_TIMEOUT_MS`.
+     * @returns The playlists, and the number of playlists not checked: over
+     * the limit, failed, late, or skipped after `signal` aborts
+     */
+    private async _playlistsAwaitingReview(
+        playlists: SignagePlaylist[],
+        signal?: AbortSignal,
+    ) {
+        const checked = playlists.slice(0, MAX_REVIEW_CHECKS);
+        // A late read is still open, so start no more reads after one
+        let timed_out = false;
+        // True or false when read, null when not read
+        const states = await mapWithLimit(
+            checked,
+            EXPIRED_MEDIA_CONCURRENCY,
+            (playlist) =>
+                signal?.aborted || timed_out
+                    ? Promise.resolve(null)
+                    : withTimeout(
+                          listSignagePlaylistMedia(playlist.id),
+                          REVIEW_CHECK_TIMEOUT_MS,
+                          'timeout',
+                          () => (timed_out = true),
+                      ).then(
+                          (media) =>
+                              media.approval_requested && !media.approved,
+                          () => null,
+                      ),
+        );
+        return {
+            items: checked.filter((_, index) => states[index] === true),
+            unchecked:
+                playlists.length -
+                states.filter((state) => state !== null).length,
         };
     }
 

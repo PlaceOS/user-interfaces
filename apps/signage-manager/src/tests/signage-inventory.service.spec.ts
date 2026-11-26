@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
+    listSignagePlaylistMedia,
     PlaceSystem,
     PlaceZone,
     query,
@@ -38,6 +39,10 @@ describe('SignageInventoryService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settings.get.mockReturnValue(false);
+        vi.mocked(listSignagePlaylistMedia).mockResolvedValue({
+            approved: true,
+            approval_requested: false,
+        } as never);
         TestBed.configureTestingModule({
             providers: [
                 { provide: SettingsService, useValue: settings },
@@ -183,6 +188,120 @@ describe('SignageInventoryService', () => {
                 'b',
             ]);
             expect(report.expired_playlists.map(({ id }) => id)).toEqual(['c']);
+        });
+
+        it('lists playlists whose approval was requested and not given', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageInventoryServiceTestAccess;
+            vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
+                displays: [],
+                zones: [],
+                playlists: ['asked', 'done', 'none'].map(
+                    (id) => new SignagePlaylist({ id, name: id }),
+                ),
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+            vi.mocked(listSignagePlaylistMedia).mockImplementation(
+                async (id) =>
+                    ({
+                        asked: { approved: false, approval_requested: true },
+                        done: { approved: true, approval_requested: true },
+                        none: { approved: false, approval_requested: false },
+                    })[id] as never,
+            );
+
+            const report = await service.loadContentReport();
+
+            expect(report.awaiting_review.map(({ id }) => id)).toEqual([
+                'asked',
+            ]);
+            expect(report.awaiting_review_unchecked).toBe(0);
+        });
+
+        it('counts playlists that fail or take too long as not checked', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            const test_service =
+                service as unknown as SignageInventoryServiceTestAccess;
+            vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
+                displays: [],
+                zones: [],
+                playlists: ['slow', 'fails'].map(
+                    (id) => new SignagePlaylist({ id, name: id }),
+                ),
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+            vi.mocked(listSignagePlaylistMedia).mockImplementation((id) =>
+                id === 'slow'
+                    ? new Promise(() => {})
+                    : Promise.reject(new Error('500')),
+            );
+
+            const loading = service.loadContentReport();
+            await vi.advanceTimersByTimeAsync(16_000);
+            const report = await loading;
+
+            expect(report.awaiting_review).toEqual([]);
+            expect(report.awaiting_review_unchecked).toBe(2);
+            vi.useRealTimers();
+        });
+
+        it('starts no more review checks after one takes too long', async () => {
+            vi.useFakeTimers();
+            const service = createService();
+            const test_service =
+                service as unknown as SignageInventoryServiceTestAccess;
+            vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
+                displays: [],
+                zones: [],
+                playlists: Array.from(
+                    { length: 7 },
+                    (_, index) =>
+                        new SignagePlaylist({ id: `p${index}`, name: 'p' }),
+                ),
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+            vi.mocked(listSignagePlaylistMedia).mockClear();
+            vi.mocked(listSignagePlaylistMedia).mockImplementation(
+                () => new Promise(() => {}),
+            );
+
+            const loading = service.loadContentReport();
+            await vi.advanceTimersByTimeAsync(16_000);
+            const report = await loading;
+
+            // Six reads at a time, and the seventh never starts
+            expect(listSignagePlaylistMedia).toHaveBeenCalledTimes(6);
+            expect(report.awaiting_review_unchecked).toBe(7);
+            vi.useRealTimers();
+        });
+
+        it('stops the review checks when the load is cancelled', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageInventoryServiceTestAccess;
+            vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
+                displays: [],
+                zones: [],
+                playlists: [new SignagePlaylist({ id: 'p1', name: 'p1' })],
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+            vi.mocked(listSignagePlaylistMedia).mockClear();
+            const controller = new AbortController();
+            controller.abort();
+
+            await service.loadContentReport(Date.now(), controller.signal);
+
+            expect(listSignagePlaylistMedia).not.toHaveBeenCalled();
         });
 
         it('lists assigned playlists that expire within a week', async () => {

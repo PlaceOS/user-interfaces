@@ -47,7 +47,8 @@ interface ReportSection {
 /**
  * Report of content that needs attention: displays with nothing to play,
  * offline displays, playlists that play nowhere, expired content that is
- * still in use, playlists that expire soon, and takeover conflicts.
+ * still in use, playlists that expire soon, playlists awaiting review, and
+ * takeover conflicts.
  */
 @Component({
     selector: 'content-report',
@@ -227,7 +228,8 @@ export class ContentReportComponent {
     // The refresh button loads it again.
     public readonly report = resource({
         params: () => this._inventory_service.inventory_key(),
-        loader: () => this._inventory_service.loadContentReport(),
+        loader: ({ abortSignal }) =>
+            this._inventory_service.loadContentReport(Date.now(), abortSignal),
     });
 
     public readonly sections = computed<ReportSection[]>(() => {
@@ -322,6 +324,25 @@ export class ContentReportComponent {
                     ),
                     route: ['/playlists', playlist.id],
                 })),
+            },
+            {
+                id: 'awaiting-review',
+                icon: 'pending_actions',
+                title: 'SIGNAGE_MANAGER.REPORT_AWAITING_REVIEW',
+                hint: 'SIGNAGE_MANAGER.REPORT_AWAITING_REVIEW_HINT',
+                rows: report.awaiting_review.map((playlist) => ({
+                    key: playlist.id,
+                    label: playlist.name,
+                    detail: playlist.description || '',
+                    route: ['/playlists', playlist.id],
+                })),
+                note: report.awaiting_review_unchecked
+                    ? i18n(
+                          'SIGNAGE_MANAGER.REPORT_AWAITING_REVIEW_PARTIAL',
+                          { count: report.awaiting_review_unchecked },
+                          report.awaiting_review_unchecked,
+                      )
+                    : '',
             },
             {
                 id: 'expired-media',
