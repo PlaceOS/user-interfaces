@@ -16,6 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import {
     CalendarEvent,
     getTimezoneOffsetString,
+    i18n,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -27,6 +28,7 @@ import {
     IconComponent,
     LevelPipe,
     openConfirmModal,
+    runBulkAction,
     TranslatePipe,
 } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
@@ -91,6 +93,19 @@ import { EventsStateService } from './events-state.service';
                     search
                 </icon>
             </div>
+            @if (approvable().length > 1) {
+                <button
+                    btn
+                    matRipple
+                    class="inverse m-2"
+                    (click)="approveAll()"
+                >
+                    {{
+                        'APP.CONCIERGE.ROOMS_APPROVE_ALL'
+                            | translate: { count: approvable().length }
+                    }}
+                </button>
+            }
             <div
                 class="bg-base-200 relative flex-1 space-y-1 overflow-auto p-1"
             >
@@ -448,6 +463,59 @@ export class RoomBookingsApprovalsComponent implements OnInit {
         this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
         this._state.replace(this._eventWithStatus(event, 'approved'));
         notifySuccess('Booking approved');
+    }
+
+    /** Requests shown that are not approved, declined or in progress */
+    public readonly approvable = computed(() => {
+        const status = this.status();
+        const in_progress = this.in_progress();
+        return this.filtered_pending().filter(
+            (event) => !status[event.id] && !in_progress[event.id],
+        );
+    });
+
+    /** Approve every request shown, a few at a time, after the user confirms */
+    public async approveAll() {
+        const mod = this._org.module('approvals', 'RoomBookingApproval');
+        const events = this.approvable();
+        if (!mod || !events.length) return;
+        return runBulkAction(
+            events,
+            async (shown) => {
+                // Another user or the binding can handle it while this runs,
+                // so use the latest copy of the request
+                const event = this.pending().find(({ id }) => id === shown.id);
+                if (
+                    !event ||
+                    this.status()[event.id] ||
+                    this.in_progress()[event.id]
+                ) {
+                    throw new Error('No longer pending');
+                }
+                this._setInProgress([event], 'accept');
+                try {
+                    await mod.execute(
+                        'accept_event',
+                        [event.mailbox, event.id],
+                        30 * 1000,
+                    );
+                } finally {
+                    this._clearInProgress([event]);
+                }
+                this.status.update((s) => ({ ...s, [event.id]: 'accept' }));
+                this._state.replace(this._eventWithStatus(event, 'approved'));
+            },
+            {
+                dialog: this._dialog,
+                confirm: {
+                    title: i18n('APP.CONCIERGE.ROOMS_APPROVE_ALL_TITLE'),
+                    content: i18n('APP.CONCIERGE.ROOMS_APPROVE_ALL_MSG', {
+                        count: events.length,
+                    }),
+                    icon: 'event_available',
+                },
+            },
+        );
     }
 
     public async approveSeries(event: CalendarEvent) {

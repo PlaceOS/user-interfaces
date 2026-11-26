@@ -148,6 +148,51 @@ describe('RoomBookingsApprovalsComponent', () => {
         expect(replace.mock.calls[0][0].status).toBe('approved');
     });
 
+    it('should approve every shown request that is not approved yet', async () => {
+        const request = (id: string) =>
+            new CalendarEvent({ id, title: id, mailbox: 'room@example.com' });
+        pending.set([request('a'), request('b'), request('c')]);
+        spectator.component.status.set({ c: 'accept' });
+
+        await spectator.component.approveAll();
+
+        expect(dialog_open).toHaveBeenCalled();
+        expect(execute.mock.calls.map((call: any[]) => call[1][1])).toEqual([
+            'a',
+            'b',
+        ]);
+        expect(spectator.component.status()).toEqual({
+            a: 'accept',
+            b: 'accept',
+            c: 'accept',
+        });
+        expect(spectator.component.in_progress()).toEqual({});
+    });
+
+    it('should skip a request that left the queue while approving', async () => {
+        const request = (id: string) =>
+            new CalendarEvent({ id, title: id, mailbox: 'room@example.com' });
+        pending.set([request('a'), request('b')]);
+        // The binding drops b once the confirmation closes
+        dialog_open.mockImplementationOnce(() => {
+            pending.set([request('a')]);
+            return {
+                componentInstance: {
+                    event: of({ reason: 'done' }),
+                    loading: { set: vi.fn() },
+                },
+                afterClosed: () => NEVER,
+                close: vi.fn(),
+            };
+        });
+
+        await spectator.component.approveAll();
+
+        expect(execute.mock.calls.map((call: any[]) => call[1][1])).toEqual([
+            'a',
+        ]);
+    });
+
     it('should update the room booking table after rejecting a booking', async () => {
         const event = new CalendarEvent({
             id: 'event-1',
