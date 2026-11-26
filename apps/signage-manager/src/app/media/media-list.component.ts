@@ -975,17 +975,21 @@ export class MediaListComponent {
             .fill(0)
             .map((_, idx) => `playlist-${idx}`),
     );
-    /** Selected media, cleared when the library scope changes. */
+    /**
+     * Selected media, cleared when the library scope or the open folder
+     * changes, as the selection covers the items on screen.
+     */
     public readonly selected_ids = linkedSignal({
         source: () => ({
             group_id: this._context.selected_group_id(),
             include_child_data: this._context.include_child_data(),
+            folder: this.selected_folder(),
         }),
         computation: () => new Set<string>(),
     });
     public readonly selected_media = computed(() => {
         const selected_ids = this.selected_ids();
-        return this.media().filter((item) => selected_ids.has(item.id));
+        return this.display_media().filter((item) => selected_ids.has(item.id));
     });
     public readonly selected_count = computed(
         () => this.selected_media().length,
@@ -1004,22 +1008,47 @@ export class MediaListComponent {
             observer.observe(element);
             destroy_ref.onDestroy(() => observer.disconnect());
         });
-        // An open folder filters the loaded pages, and its items can be on
-        // any page, so load every page while it is open. Paging stops on the
+        // The server lists the media of an open tag folder
+        effect(() => {
+            const folder = this.selected_folder();
+            const tag =
+                this.view_mode() === 'folder' &&
+                folder !== null &&
+                folder !== UNTAGGED
+                    ? folder
+                    : null;
+            untracked(() => this._media_service.folder_tag.set(tag));
+        });
+        destroy_ref.onDestroy(() => this._media_service.folder_tag.set(null));
+        // The server cannot list untagged media, and they can be on any page,
+        // so load every page while the folder is open. Paging stops on the
         // last page, an empty page or an error.
         effect(() => {
             if (this.view_mode() !== 'folder') return;
-            if (this.selected_folder() === null) return;
-            if (!this.has_more() || this.loading()) return;
-            untracked(() => this.loadMore());
+            if (this.selected_folder() !== UNTAGGED) return;
+            if (!this._media_service.media_has_more()) return;
+            if (this._media_service.media_loading()) return;
+            untracked(() => this._media_service.loadMoreMedia());
         });
     }
 
     public readonly media = this._media_service.media;
     public readonly media_tags = this._media_service.media_tags;
     public readonly media_tag_counts = this._media_service.media_tag_counts;
-    public readonly loading = this._media_service.media_loading;
-    public readonly error = this._media_service.media_error;
+    /** Whether a tag folder is open, which has its own server list */
+    private readonly _in_tag_folder = computed(
+        () => this._media_service.folder_tag() !== null,
+    );
+    public readonly loading = computed(() =>
+        this._in_tag_folder()
+            ? this._media_service.folder_loading()
+            : this._media_service.media_loading(),
+    );
+    public readonly error = computed(() =>
+        this._in_tag_folder()
+            ? this._media_service.folder_error()
+            : this._media_service.media_error(),
+    );
     public readonly view_mode = this._media_service.media_view_mode;
     public readonly groups = this._context.signage_groups;
     public readonly selected_group_id = this._context.selected_group_id;
@@ -1091,9 +1120,7 @@ export class MediaListComponent {
         if (folder === UNTAGGED) {
             return this.media().filter((item) => !(item.tags || []).length);
         }
-        return this.media().filter((item) =>
-            (item.tags || []).includes(folder),
-        );
+        return this._in_tag_folder() ? this._media_service.folder_media() : [];
     });
 
     /** Width of the list in pixels */
@@ -1158,13 +1185,19 @@ export class MediaListComponent {
     }
 
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._media_service.media_has_more;
+    public readonly has_more = computed(() =>
+        this._in_tag_folder()
+            ? this._media_service.folder_has_more()
+            : this._media_service.media_has_more(),
+    );
     public loadMore() {
-        this._media_service.loadMoreMedia();
+        if (this._in_tag_folder()) this._media_service.loadMoreFolderMedia();
+        else this._media_service.loadMoreMedia();
     }
 
     public retry() {
-        this._media_service.retryMedia();
+        if (this._in_tag_folder()) this._media_service.retryFolderMedia();
+        else this._media_service.retryMedia();
     }
 
     public openFolder(folder_id: string) {

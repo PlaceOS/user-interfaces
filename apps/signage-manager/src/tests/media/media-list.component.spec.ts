@@ -39,6 +39,13 @@ describe('MediaListComponent folders', () => {
         media_tags,
         media_tag_counts,
         media_view_mode,
+        folder_tag: signal<string | null>(null),
+        folder_media: signal<unknown[]>([]),
+        folder_loading: signal(false),
+        folder_has_more: signal(false),
+        folder_error: signal(false),
+        loadMoreFolderMedia: vi.fn(),
+        retryFolderMedia: vi.fn(),
         media_has_more: signal(false),
         media_loading: signal(false),
         media_error: signal(false),
@@ -91,6 +98,8 @@ describe('MediaListComponent folders', () => {
         media_stub.media_has_more.set(false);
         media_stub.media_error.set(false);
         media_stub.loadMoreMedia.mockReset();
+        media_stub.folder_tag.set(null);
+        media_stub.folder_media.set([]);
     });
 
     it('offers the group tabs only while the media group tabs are enabled', () => {
@@ -185,7 +194,13 @@ describe('MediaListComponent folders', () => {
 
     it('shows only media in the opened folder', () => {
         const component = make();
+        // The server lists a tag folder
+        media_stub.folder_media.set([
+            media('a', ['news']),
+            media('b', ['news']),
+        ]);
         component.openFolder('news');
+        TestBed.flushEffects();
         expect(component.display_media().map((m) => m.id)).toEqual(['a', 'b']);
 
         component.openFolder(component.untagged_id);
@@ -237,26 +252,50 @@ describe('MediaListComponent folders', () => {
         expect(media_stub.retryMedia).toHaveBeenCalled();
     });
 
-    // A folder filters the loaded pages, and its items can be on any page
-    it('loads every page while a folder is open', () => {
+    it('shows the server list of an open tag folder without paging the library', () => {
+        const component = make();
+        media_stub.media_has_more.set(true);
+        media_stub.folder_media.set([media('z', ['news'])]);
+
+        component.openFolder('news');
+        TestBed.flushEffects();
+
+        expect(media_stub.folder_tag()).toBe('news');
+        expect(component.display_media().map((m) => m.id)).toEqual(['z']);
+        expect(media_stub.loadMoreMedia).not.toHaveBeenCalled();
+        component.closeFolder();
+        TestBed.flushEffects();
+        expect(media_stub.folder_tag()).toBeNull();
+        media_stub.media_has_more.set(false);
+    });
+
+    it('clears the selection when another folder opens', () => {
+        const component = make();
+        component.toggleSelection('a');
+        TestBed.flushEffects();
+
+        component.openFolder('news');
+        TestBed.flushEffects();
+
+        expect(component.selected_ids().size).toBe(0);
+    });
+
+    // The server cannot list untagged media, and they can be on any page
+    it('loads every page while the untagged folder is open', () => {
         const component = make();
         media_stub.loadMoreMedia.mockImplementation(() => {
-            media_items.update((items) => [...items, media('d', ['news'])]);
+            media_items.update((items) => [...items, media('d', [])]);
             media_stub.media_has_more.set(false);
         });
         media_stub.media_has_more.set(true);
         TestBed.flushEffects();
         expect(media_stub.loadMoreMedia).not.toHaveBeenCalled();
 
-        component.openFolder('news');
+        component.openFolder(component.untagged_id);
         TestBed.flushEffects();
 
         expect(media_stub.loadMoreMedia).toHaveBeenCalledOnce();
-        expect(component.display_media().map((m) => m.id)).toEqual([
-            'a',
-            'b',
-            'd',
-        ]);
+        expect(media_stub.folder_tag()).toBeNull();
     });
 
     it('clears the open folder when leaving folder view', () => {

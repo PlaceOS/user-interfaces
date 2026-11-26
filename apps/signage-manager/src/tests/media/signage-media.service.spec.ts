@@ -156,6 +156,25 @@ describe('SignageMediaService', () => {
             .mockImplementation(implementation);
     }
 
+    it('applies saved changes to the open tag folder in place', () => {
+        const service = createService();
+        const test_service = service as SignageMediaServiceTestAccess;
+        const item = (id: string, tags: string[], created_at = 1) =>
+            new SignageMedia({ id, name: id, tags, created_at });
+        service.folder_tag.set('news');
+        test_service['_folder_list'].update(() => [
+            item('a', ['news']),
+            item('b', ['news']),
+        ]);
+
+        // A delete, an edit that drops the tag and an upload with the tag
+        test_service['_removeMediaFromList'](['a']);
+        test_service['_syncFolderList']([item('b', ['lobby'])]);
+        test_service['_addMediaToList'](item('c', ['news'], 2), false);
+
+        expect(service.folder_media().map(({ id }) => id)).toEqual(['c']);
+    });
+
     it('rejects widget plugins when adding media', async () => {
         const service = createService();
         const edit_media = vi.spyOn(service, 'editMedia');

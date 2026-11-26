@@ -86,6 +86,25 @@ describe('registerMockSignage', () => {
         ]);
     });
 
+    it('should list only media with a requested tag', () => {
+        const tagged: string = handler(
+            'POST',
+            `${API}/media`,
+        )({
+            body: { name: 'Tagged', tags: ['folder-test'] },
+        }).id;
+        createMedia('Untagged');
+
+        const list = handler(
+            'GET',
+            `${API}/media`,
+        )({
+            query_params: { tags: 'folder-test' },
+        }) as unknown as HashMap[];
+
+        expect(list.map((item) => item.id)).toEqual([tagged]);
+    });
+
     it('should rename a tag without duplicate tags', () => {
         const id = handler(
             'POST',
