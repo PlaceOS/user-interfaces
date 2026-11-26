@@ -244,6 +244,56 @@ describe('ParkingStateService', () => {
         vi.useRealTimers();
     });
 
+    it('should list bookings for the region when parking.use_region is set', async () => {
+        vi.useFakeTimers();
+        // The mock is shared across tests, so use the last signal it made
+        const settings = vi.mocked(spectator.inject(SettingsService).signal);
+        const calls = settings.mock.calls as unknown[][];
+        const index = calls
+            .map((args) => args[0])
+            .lastIndexOf('parking.use_region');
+        settings.mock.results[index].value.set(true);
+
+        expect(spectator.service.use_region()).toBe(true);
+        spectator.service.setOptions({ request_filter: 'all', zones: [] });
+        TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
+        TestBed.flushEffects();
+        await vi.advanceTimersByTimeAsync(1100);
+
+        expect(bookingsParams().get('zones')).toBe('region-1');
+
+        vi.useRealTimers();
+    });
+
+    it('should search bookings by building and level in the region scope', () => {
+        const settings = vi.mocked(spectator.inject(SettingsService).signal);
+        const calls = settings.mock.calls as unknown[][];
+        const index = calls
+            .map((args) => args[0])
+            .lastIndexOf('parking.use_region');
+        const use_region = settings.mock.results[index].value;
+        use_region.set(true);
+        vi.spyOn(spectator.service, 'bookingLocation').mockImplementation(
+            (booking: Booking) => ({
+                building_name: '',
+                level_name: '',
+                location: booking.id === 'b' ? 'Tower B P1' : 'Tower A P1',
+            }),
+        );
+        const bookings = [{ id: 'a' }, { id: 'b' }] as unknown as Booking[];
+
+        expect(
+            spectator.service
+                .filterEventSearch(bookings, 'tower b')
+                .map(({ id }) => id),
+        ).toEqual(['b']);
+
+        // Turn it off again before the bookings reload, which would run
+        // after this test ends
+        use_region.set(false);
+    });
+
     it('should filter request listings by the building zone when levels are disabled', async () => {
         vi.useFakeTimers();
 

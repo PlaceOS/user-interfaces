@@ -39,7 +39,7 @@ import { DateRangeFieldComponent } from '@placeos/form-fields';
 import { listChildMetadata } from '@placeos/ts-client';
 import { endOfDay, startOfDay } from 'date-fns';
 import { queryParamsWriter } from '../ui/page-transitions';
-import { ReportOptions } from './reports-state.service';
+import { ReportOptions, reportUsesRegion } from './reports-state.service';
 
 type ReportResourceType = ReportOptions['type'];
 
@@ -209,7 +209,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         defaultValue: [] as BuildingLevel[],
         loader: async ({ params }) => {
             const { bld, region, resource_type } = params;
-            const use_region = this._settings.get('app.use_region');
+            const use_region = reportUsesRegion(this._settings, resource_type);
             const scope_id = use_region ? region?.id : bld?.id;
             const levels = use_region
                 ? this._org.levelsForRegion(region)
@@ -221,8 +221,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
         if (this.resource_type() !== 'parking' || !this._levels.isLoading()) {
             return this._levels.value();
         }
-        const use_region = this._settings.get('app.use_region');
-        const levels = use_region
+        const levels = this.use_region
             ? this._org.levelsForRegion(this._org.active_region())
             : this._org.levelsForBuilding(this._org.active_building());
         return this._parkingLevels(levels);
@@ -255,7 +254,7 @@ export class ReportsOptionsComponent extends AsyncHandler implements OnInit {
     };
 
     public get use_region() {
-        return !!this._settings.get('app.use_region');
+        return reportUsesRegion(this._settings, this.resource_type());
     }
 
     public get week_start() {

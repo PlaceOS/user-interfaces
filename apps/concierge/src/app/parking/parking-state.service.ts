@@ -176,13 +176,26 @@ export class ParkingStateService extends AsyncHandler {
 
     /** Reactive `app.use_region` setting, kept in sync on building/region overrides */
     private readonly _use_region = this._settings.signal('use_region', false);
+    /** Reactive `app.parking.use_region` setting */
+    private readonly _parking_use_region = this._settings.signal(
+        'parking.use_region',
+        false,
+    );
+    /**
+     * Whether the parking pages list the levels and bookings of the active
+     * region instead of the active building. `parking.use_region` turns this
+     * on for parking only. `use_region` turns it on for the whole app.
+     */
+    public readonly use_region = computed(
+        () => !!(this._use_region() || this._parking_use_region()),
+    );
 
     /** List of available parking levels for the current building */
     public readonly levels = computed(() => {
         // Read `use_region` as a signal so the computed re-runs when building/region
         // overrides change it. Reading it non-reactively let this singleton computed
         // get stuck on the wrong branch and report no parking levels after load.
-        const use_region = this._use_region();
+        const use_region = this.use_region();
         this._org.active_region();
         const bld = this._org.active_building();
         if (!bld) return [];
@@ -382,7 +395,12 @@ export class ParkingStateService extends AsyncHandler {
             const bld = this._org.active_building();
             const users = this._users_resource.value();
             return bld?.id && users
-                ? { bld, options: this._options(), users }
+                ? {
+                      bld,
+                      options: this._options(),
+                      users,
+                      use_region: this.use_region(),
+                  }
                 : undefined;
         },
         {
@@ -392,6 +410,7 @@ export class ParkingStateService extends AsyncHandler {
                     !!b &&
                     a.bld === b.bld &&
                     a.users === b.users &&
+                    a.use_region === b.use_region &&
                     a.options.date === b.options.date &&
                     a.options.period === b.options.period &&
                     a.options.zones.join() === b.options.zones.join()),
@@ -579,11 +598,7 @@ export class ParkingStateService extends AsyncHandler {
         if (allow_level_filter && options.zones?.length) {
             return options.zones.join(',');
         }
-        return (
-            (this._settings.get('app.use_region')
-                ? this._org.region?.id
-                : '') || bld?.id
-        );
+        return (this.use_region() ? this._org.region?.id : '') || bld?.id;
     }
 
     public isRequest(booking: Booking) {
@@ -672,6 +687,7 @@ export class ParkingStateService extends AsyncHandler {
         const search_term = search.toLowerCase();
         if (!search_term) return list;
         const spaces = this.spaces();
+        const use_region = this.use_region();
         return list.filter(
             (booking) =>
                 booking.user_name?.toLowerCase().includes(search_term) ||
@@ -684,7 +700,11 @@ export class ParkingStateService extends AsyncHandler {
                     .includes(search_term) ||
                 this.bayNumber(booking, spaces)
                     ?.toLowerCase()
-                    .includes(search_term),
+                    .includes(search_term) ||
+                (use_region &&
+                    this.bookingLocation(booking)
+                        .location.toLowerCase()
+                        .includes(search_term)),
         );
     }
 
@@ -696,6 +716,22 @@ export class ParkingStateService extends AsyncHandler {
         if (resolved) return resolved;
         const space = spaces.find((_) => _.id === asset_id);
         return space?.identifier || '';
+    }
+
+    /**
+     * Building and level names of a booking, for the location column of the
+     * region booking list. `location` joins the two names so the table can
+     * sort and search by it.
+     */
+    public bookingLocation(booking: Booking) {
+        const { building, level } = this._org.locationWithID(booking.zones);
+        const building_name = building?.display_name || building?.name || '';
+        const level_name = level?.display_name || level?.name || '';
+        return {
+            building_name,
+            level_name,
+            location: [building_name, level_name].filter(Boolean).join(' '),
+        };
     }
 
     public activeBookings(list: Booking[]) {

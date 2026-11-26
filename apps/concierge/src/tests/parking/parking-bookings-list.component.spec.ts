@@ -22,11 +22,18 @@ describe('ParkingBookingsListComponent', () => {
     let timezone = 'Australia/Perth';
     let selected_date = Date.now();
     let request_filter: 'all' | 'bookings' | 'requests' | 'waitlist' = 'all';
+    const use_region = signal(false);
 
     const createComponent = createComponentFactory({
         component: ParkingBookingsListComponent,
         providers: [
             MockProvider(ParkingStateService, {
+                use_region,
+                bookingLocation: vi.fn(() => ({
+                    building_name: 'Tower A',
+                    level_name: 'P1',
+                    location: 'Tower A P1',
+                })),
                 load_error: signal(false),
                 bookings: (() => bookings) as any,
                 options: (() => ({
@@ -107,6 +114,7 @@ describe('ParkingBookingsListComponent', () => {
         timezone = 'Australia/Perth';
         selected_date = Date.now();
         request_filter = 'all';
+        use_region.set(false);
         settingSignal('parking.allow_editing', true).set(true);
         settingSignal('parking.allow_deleting', false).set(false);
     });
@@ -472,6 +480,40 @@ describe('ParkingBookingsListComponent', () => {
             'booking-electric',
             'booking-none',
         ]);
+    });
+
+    it('should show the building and level column only for the region scope', () => {
+        bookings = [
+            {
+                id: 'booking-1',
+                asset_id: 'bay-1',
+                zones: ['bld-1', 'lvl-1'],
+                date: selected_date,
+                date_end: selected_date + 60 * 60 * 1000,
+                extension_data: {},
+            } as unknown as Booking,
+        ];
+        spectator = createComponent();
+        const columnKeys = () =>
+            spectator
+                .query(SimpleTableComponent)
+                ?.active_columns()
+                .map((column) => column.key);
+        expect(columnKeys()).not.toContain('location');
+
+        use_region.set(true);
+        spectator.detectChanges();
+
+        expect(columnKeys()).toContain('location');
+        expect(spectator.component.filtered_events()[0]).toMatchObject({
+            building_name: 'Tower A',
+            level_name: 'P1',
+            location: 'Tower A P1',
+        });
+        expect(
+            spectator.query('[data-testid="parking-booking-location"]')
+                ?.textContent,
+        ).toContain('Tower A');
     });
 
     it('should hide the bay number column when viewing requests', () => {

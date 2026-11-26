@@ -534,8 +534,9 @@ export class ParkingTopbarComponent extends AsyncHandler implements OnInit {
         this.updateZones(zone ? [zone] : []);
     };
 
+    /** Whether the parking pages use the active region, see `ParkingStateService.use_region` */
     public get use_region() {
-        return !!this._settings.get('app.use_region');
+        return this._state.use_region();
     }
 
     public get disable_reservations() {

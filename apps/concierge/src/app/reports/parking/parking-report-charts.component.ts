@@ -8,12 +8,7 @@ import {
     OnDestroy,
     viewChild,
 } from '@angular/core';
-import {
-    AsyncHandler,
-    OrganisationService,
-    SettingsService,
-    unique,
-} from '@placeos/common';
+import { AsyncHandler, OrganisationService, unique } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 import {
     ArcElement,
@@ -120,7 +115,6 @@ export class ParkingReportChartsComponent
 {
     private _state = inject(ParkingReportService);
     private _org = inject(OrganisationService);
-    private _settings = inject(SettingsService);
     private readonly _bookings = this._state.bookings;
     private readonly _counts = this._state.counts;
 
@@ -132,7 +126,7 @@ export class ParkingReportChartsComponent
         let zones = Object.keys(counts);
         if (!zones.length) {
             zones = (
-                this._settings.get('app.use_region')
+                this._state.use_region
                     ? this._org.levelsForRegion()
                     : this._org.levelsForBuilding()
             )
