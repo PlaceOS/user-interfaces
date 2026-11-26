@@ -273,6 +273,127 @@ describe('SignagePlaylistService', () => {
         );
     });
 
+    it('saves the failed item schedules again and reloads after a partial save', async () => {
+        const service = createService();
+        service.selected_playlist.set(
+            new SignagePlaylist({ id: 'playlist-1', distribution: true }),
+        );
+        let close: (value?: unknown) => void = () => {};
+        dialog.open.mockReturnValueOnce({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    close = handler;
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        (updateSignagePlaylistMediaSchedule as any)
+            .mockResolvedValueOnce({})
+            .mockRejectedValueOnce(new Error('500'))
+            .mockResolvedValue({});
+        const changed = vi.spyOn(
+            TestBed.inject(SignageContextService),
+            'changed',
+        );
+        const editing = service.editPlaylistItemSchedules([
+            new SignagePlaylistItemSchedule({ id: 's-1', item_id: 'm-1' }),
+            new SignagePlaylistItemSchedule({ id: 's-2', item_id: 'm-2' }),
+        ]);
+        await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
+        const { save } = dialog.open.mock.calls[0][1].data;
+        const schedules = [{ play_cron: '0 9 * * *', play_period: 30 }];
+
+        await expect(save('s-1', schedules)).rejects.toThrow();
+        await save('s-1', schedules);
+
+        const ids = (updateSignagePlaylistMediaSchedule as any).mock.calls.map(
+            (call: unknown[]) => call[1],
+        );
+        expect(ids).toEqual(['s-1', 's-2', 's-2']);
+        close(true);
+        await editing;
+        expect(changed).toHaveBeenCalled();
+    });
+
+    it('reloads the playlist items when a write ends after the modal closes', async () => {
+        const service = createService();
+        service.selected_playlist.set(
+            new SignagePlaylist({ id: 'playlist-1', distribution: true }),
+        );
+        let close: (value?: unknown) => void = () => {};
+        dialog.open.mockReturnValueOnce({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    close = handler;
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        let finish: () => void = () => {};
+        (updateSignagePlaylistMediaSchedule as any).mockImplementationOnce(
+            () => new Promise<void>((resolve) => (finish = resolve)),
+        );
+        const reloads = () =>
+            (service as unknown as { _playlist_change: () => number })[
+                '_playlist_change'
+            ]();
+        const editing = service.editPlaylistItemSchedules([
+            new SignagePlaylistItemSchedule({ id: 's-1', item_id: 'm-1' }),
+        ]);
+        await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
+        const { save } = dialog.open.mock.calls[0][1].data;
+        const saving = save('s-1', [{ play_cron: '0 9 * * *' }]);
+        const before = reloads();
+
+        // Back closes the modal while the write runs
+        close(undefined);
+        await editing;
+        expect(reloads()).toBe(before);
+        finish();
+        await saving;
+
+        expect(reloads()).toBe(before + 1);
+    });
+
+    it('reloads the playlist items when the modal closes after a partial save', async () => {
+        const service = createService();
+        service.selected_playlist.set(
+            new SignagePlaylist({ id: 'playlist-1', distribution: true }),
+        );
+        let close: (value?: unknown) => void = () => {};
+        dialog.open.mockReturnValueOnce({
+            afterClosed: () => ({
+                subscribe: (handler: (value?: unknown) => void) => {
+                    close = handler;
+                    return { unsubscribe: vi.fn() };
+                },
+            }),
+        });
+        (updateSignagePlaylistMediaSchedule as any)
+            .mockResolvedValueOnce({})
+            .mockRejectedValueOnce(new Error('500'));
+        const reloads = () =>
+            (service as unknown as { _playlist_change: () => number })[
+                '_playlist_change'
+            ]();
+        const editing = service.editPlaylistItemSchedules([
+            new SignagePlaylistItemSchedule({ id: 's-1', item_id: 'm-1' }),
+            new SignagePlaylistItemSchedule({ id: 's-2', item_id: 'm-2' }),
+        ]);
+        await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
+        const { save } = dialog.open.mock.calls[0][1].data;
+        await expect(
+            save('s-1', [{ play_cron: '0 9 * * *', play_period: 30 }]),
+        ).rejects.toThrow();
+        const before = reloads();
+
+        // The user cancels after the error
+        close(undefined);
+        await editing;
+
+        expect(reloads()).toBe(before + 1);
+    });
+
     it('removes a distribution schedule from the playlist items', async () => {
         const service = createService();
         (listSignagePlaylistMedia as any).mockResolvedValue({

@@ -12,6 +12,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     i18n,
+    mapWithLimit,
     notifyError,
     notifySuccess,
     notifyWarn,
@@ -85,6 +86,8 @@ interface PlaylistMetaState {
 const PLAYLIST_META_SESSION_KEY = 'PlaceOS.SIGNAGE:playlist-meta-cache:v1';
 /** Most playlist thumbnail and approval lookups to run at once */
 const PLAYLIST_META_CONCURRENCY = 4;
+/** Most item schedule saves to send at the same time */
+const SCHEDULE_SAVE_CONCURRENCY = 4;
 /** Most time in milliseconds for each request of a playlist order save */
 const ORDER_SAVE_TIMEOUT_MS = 30 * 1000;
 
@@ -1052,30 +1055,53 @@ export class SignagePlaylistService {
             return false;
         const { PlaylistItemScheduleModalComponent } =
             await import('../shared/playlist-item-schedule-modal.component');
+        const reload = () => {
+            this._playlist_change.update((count) => count + 1);
+            this._context.changed();
+        };
+        // Items still to save. A retry with the same schedules saves only the
+        // items that failed. Changed schedules are saved to every item.
+        let pending = schedule_items;
+        let pending_schedules = '';
+        let saved_any = false;
+        let closed = false;
+        const save = async (
+            _schedule_id: string,
+            schedules: SignagePlaylistItemSchedule['schedules'],
+        ) => {
+            const key = JSON.stringify(schedules);
+            if (key !== pending_schedules) pending = schedule_items;
+            pending_schedules = key;
+            const failed: SignagePlaylistItemSchedule[] = [];
+            await mapWithLimit(pending, SCHEDULE_SAVE_CONCURRENCY, (item) =>
+                updateSignagePlaylistMediaSchedule(
+                    playlist.id,
+                    item.id || item.item_id,
+                    { item_id: item.item_id, schedules },
+                ).then(
+                    () => {
+                        saved_any = true;
+                        // The modal closed during the save, so show this item
+                        if (closed) reload();
+                    },
+                    () => {
+                        failed.push(item);
+                    },
+                ),
+            );
+            pending = failed;
+            if (failed.length) {
+                throw new Error(`${failed.length} item schedules failed`);
+            }
+        };
         const ref = this._dialog.open(PlaylistItemScheduleModalComponent, {
-            data: {
-                item: schedule_items[0],
-                save: (_schedule_id, schedules) =>
-                    Promise.all(
-                        schedule_items.map((item) =>
-                            updateSignagePlaylistMediaSchedule(
-                                playlist.id,
-                                item.id || item.item_id,
-                                {
-                                    item_id: item.item_id,
-                                    schedules,
-                                },
-                            ),
-                        ),
-                    ),
-            },
+            data: { item: schedule_items[0], save },
             panelClass: 'mobile-fullscreen',
         });
         const result = await dialogClosed(ref);
-        if (result) {
-            this._playlist_change.update((count) => count + 1);
-            this._context.changed();
-        }
+        closed = true;
+        // Items that saved before a failure change the list too
+        if (result || saved_any) reload();
         return !!result;
     }
 
