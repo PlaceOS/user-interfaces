@@ -15,6 +15,7 @@ import {
     OrganisationService,
     StaffUser,
     timePeriodsIntersect,
+    unique,
 } from '@placeos/common';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 
@@ -34,7 +35,13 @@ export class StaffStateService extends AsyncHandler {
     /** Set after a failed check-in load; one notice per run of failures. */
     private _events_failed = false;
     private readonly _users = signal<StaffUser[]>([]);
+    /** Search string of the loaded directory list */
+    private readonly _users_query = signal('');
+    /** First directory page, loaded with an empty search */
+    private readonly _directory = signal<StaffUser[]>([]);
     private readonly _poll = signal(0);
+    /** Cancels the directory load that is in progress. */
+    private _users_abort?: AbortController;
 
     public readonly loading = signal<boolean>(false);
     /** True while the staff directory is loading. */
@@ -47,17 +54,28 @@ export class StaffStateService extends AsyncHandler {
     public readonly user_events = signal<Record<string, boolean>>({});
 
     public readonly filtered_users = computed(() => {
-        const filter = this.search().toLowerCase();
-        const users = this._users();
+        const search = this.search();
+        const filter = search.toLowerCase();
+        const matches = (list: StaffUser[]) =>
+            !filter
+                ? list
+                : list.filter(
+                      (i) =>
+                          i.name.toLowerCase().includes(filter) ||
+                          i.email.toLowerCase().includes(filter),
+                  );
+        // Server results can miss part-word matches, so add the matches from
+        // the first page. Before the results arrive, filter the old list.
+        const users =
+            search === this._users_query()
+                ? unique(
+                      [...this._users(), ...matches(this._directory())],
+                      'email',
+                  ).sort((a, b) => a.name.localeCompare(b.name))
+                : matches(this._users());
         const options = this.filters();
         const onsite = this.user_events();
-        return users.filter(
-            (i) =>
-                (!filter ||
-                    i.name.toLowerCase().includes(filter) ||
-                    i.email.toLowerCase().includes(filter)) &&
-                (!options.only_onsite || onsite[i.email]),
-        );
+        return users.filter((i) => !options.only_onsite || onsite[i.email]);
     });
 
     constructor() {
@@ -74,8 +92,13 @@ export class StaffStateService extends AsyncHandler {
         this.filters.set({ ...this.filters(), ...filters });
     }
 
+    /** Filters the loaded list now, then searches the directory after a pause. */
     public setSearchString(search: string) {
+        if (search === this.search()) return;
         this.search.set(search);
+        // A load for the old search must not replace the list for this one
+        this._users_abort?.abort();
+        this.timeout('search', () => this.loadUsers(), 300);
     }
 
     public startPolling(delay: number = 3 * MINUTES) {
@@ -160,22 +183,34 @@ export class StaffStateService extends AsyncHandler {
     }
 
     /**
-     * Loads the staff directory. Call it again to retry after a failure; a call
-     * while a load is in progress does nothing.
+     * Searches the staff directory with the current search string. The
+     * directory API returns one page, so the search runs on the server.
+     * Call it again to retry after a failure. A new call cancels a load that
+     * is in progress.
      */
     public async loadUsers() {
-        if (this.users_loading()) return;
+        this.clearTimeout('search');
+        this._users_abort?.abort();
+        const abort = new AbortController();
+        this._users_abort = abort;
         this.users_loading.set(true);
         this.users_error.set(false);
         try {
-            const user_list = await searchStaff('');
+            const query = this.search();
+            const user_list = await searchStaff(query, {
+                signal: abort.signal,
+            });
+            if (abort.signal.aborted) return;
             user_list.sort((a, b) => a.name.localeCompare(b.name));
             this._users.set(user_list);
+            this._users_query.set(query);
+            if (!query) this._directory.set(user_list);
         } catch (err) {
+            if (abort.signal.aborted) return;
             console.error('Staff directory load failed:', err);
             this.users_error.set(true);
         } finally {
-            this.users_loading.set(false);
+            if (this._users_abort === abort) this.users_loading.set(false);
         }
     }
 }

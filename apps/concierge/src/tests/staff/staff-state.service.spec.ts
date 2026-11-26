@@ -120,19 +120,77 @@ describe('StaffStateService', () => {
         expect(snackbar.open).toHaveBeenCalledTimes(2);
         setNotifyOutlet(null);
     });
-    it('should ignore a directory load while one is in progress', async () => {
-        let resolve: (value: unknown) => void;
-        get.mockClear();
-        get.mockReturnValue(new Promise((r) => (resolve = r)));
+    it('should keep only the latest directory load', async () => {
+        let resolve_first: (value: unknown) => void;
+        get.mockReturnValueOnce(new Promise((r) => (resolve_first = r)));
+        get.mockResolvedValueOnce([{ name: 'Ann', email: 'ann@place.tech' }]);
 
         const first = spectator.service.loadUsers();
         const second = spectator.service.loadUsers();
-        expect(spectator.service.users_loading()).toBe(true);
-        expect(get).toHaveBeenCalledTimes(1);
+        await second;
+        resolve_first([{ name: 'Old', email: 'old@place.tech' }]);
+        await first;
 
-        resolve([]);
-        await Promise.all([first, second]);
         expect(spectator.service.users_loading()).toBe(false);
+        expect(spectator.service.filtered_users().map((_) => _.name)).toEqual([
+            'Ann',
+        ]);
+    });
+    it('should drop a load for the old search when the search changes', async () => {
+        let resolve_old: (value: unknown) => void;
+        get.mockReturnValueOnce(new Promise((r) => (resolve_old = r)));
+        const old_load = spectator.service.loadUsers();
+
+        spectator.service.setSearchString('ann');
+        resolve_old([{ name: 'Ann Old', email: 'old@place.tech' }]);
+        await old_load;
+
+        expect(spectator.service.filtered_users()).toEqual([]);
+        expect(spectator.service.users_loading()).toBe(false);
+    });
+    it('should show every match the server returns for the search', async () => {
+        get.mockResolvedValue([{ name: 'Jane Smith', email: 'js@place.tech' }]);
+        spectator.service.search.set('Ja Sm');
+
+        await spectator.service.loadUsers();
+
+        expect(spectator.service.filtered_users().map((_) => _.name)).toEqual([
+            'Jane Smith',
+        ]);
+    });
+    it('should keep part-word matches from the first page', async () => {
+        get.mockResolvedValueOnce([
+            { name: 'Jane Smith', email: 'js@place.tech' },
+            { name: 'Ann Lee', email: 'al@place.tech' },
+        ]);
+        await spectator.service.loadUsers();
+        get.mockResolvedValueOnce([
+            { name: 'Bo Mitch', email: 'bm@place.tech' },
+        ]);
+        spectator.service.search.set('mit');
+
+        await spectator.service.loadUsers();
+
+        expect(spectator.service.filtered_users().map((_) => _.name)).toEqual([
+            'Bo Mitch',
+            'Jane Smith',
+        ]);
+    });
+    it('should search the directory on the server after a pause', async () => {
+        vi.useFakeTimers();
+        get.mockClear();
+
+        spectator.service.setSearchString('ze');
+        await vi.advanceTimersByTimeAsync(200);
+        spectator.service.setSearchString('zed');
+        expect(get).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(300);
+
+        const directory_urls = get.mock.calls
+            .map(([url]) => url)
+            .filter((url) => url.includes('/people'));
+        expect(directory_urls).toEqual([expect.stringContaining('q=zed')]);
+        vi.useRealTimers();
     });
     it('should filter users without matching case', () => {
         (spectator.service as any)._users.set([
