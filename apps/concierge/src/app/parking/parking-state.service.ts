@@ -30,7 +30,6 @@ import {
     approveBookingInstance,
     bookedResourceList,
     parkingRequestStatus,
-    queryAllBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
@@ -71,8 +70,8 @@ import {
     getUnixTime,
     startOfDay,
     startOfWeek,
-    subDays,
 } from 'date-fns';
+import { clearAssignedBooking } from '../ui/assigned-booking';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { confirmAction, errorText, saveFromModal } from '../ui/modal-actions';
@@ -1370,30 +1369,12 @@ export class ParkingStateService extends AsyncHandler {
         }
     }
 
-    private async _clearAssignedBooking(resource: ParkingSpace) {
-        const today = Date.now();
-        const booking_list = await queryAllBookings({
-            period_start: getUnixTime(startOfDay(today)),
-            period_end: getUnixTime(endOfDay(today)),
-            type: 'parking',
-            email: resource.assigned_to,
-            include_checked_out: true,
-            limit: 200,
-        });
-        const filtered = booking_list.filter((_) => _.asset_id === resource.id);
-        for (const booking of filtered) {
-            const is_recurring = booking.instance;
-            if (is_recurring) {
-                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await updateBooking(
-                    booking.id,
-                    { recurrence_end: yesterday_end },
-                    'patch',
-                );
-            } else {
-                await removeBookingApi(booking.id);
-            }
-        }
+    private _clearAssignedBooking(resource: ParkingSpace) {
+        return clearAssignedBooking(
+            'parking',
+            resource.id,
+            resource.assigned_to,
+        );
     }
 
     private async _restoreAssignedBooking(resource: ParkingSpace) {

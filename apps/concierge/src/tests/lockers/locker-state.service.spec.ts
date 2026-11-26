@@ -409,4 +409,40 @@ describe('LockerStateService', () => {
             }),
         );
     });
+
+    it('should put the old assignee back when their booking cannot be cleared', async () => {
+        spectator = createService();
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                loading: { set: vi.fn() },
+                event: of({
+                    reason: 'done',
+                    metadata: {
+                        name: 'Locker 1',
+                        assigned_to: 'new@example.com',
+                    },
+                }),
+            },
+            close: vi.fn(),
+        });
+        (ts_client.updateAsset as any).mockResolvedValue({ id: 'locker-1' });
+        (ts_client.query as any).mockRejectedValue(new Error('500'));
+
+        // A failed save keeps the modal open, so the edit does not end
+        void spectator.service.editLocker(
+            { id: 'bank-1', tags: [] } as any,
+            {
+                id: 'locker-1',
+                name: 'Locker 1',
+                assigned_to: 'old@example.com',
+            } as any,
+        );
+        await settle();
+
+        const saves = (ts_client.updateAsset as any).mock.calls;
+        expect(saves).toHaveLength(2);
+        expect(JSON.stringify(saves[1])).toContain('old@example.com');
+        expect(JSON.stringify(saves[1])).not.toContain('new@example.com');
+    });
 });

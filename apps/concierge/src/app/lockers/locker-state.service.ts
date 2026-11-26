@@ -24,13 +24,10 @@ import {
     LockerBank,
     lockerBankFromAsset,
     lockerFromAsset,
-    queryBookings,
     queryPagedBookings,
     rejectBooking,
-    removeBooking,
     saveBooking,
     setBookingCheckedIn,
-    updateBooking,
 } from '@placeos/bookings';
 import {
     assetZones,
@@ -56,11 +53,11 @@ import {
     endOfDay,
     getUnixTime,
     startOfDay,
-    subDays,
 } from 'date-fns';
 
 import { openConfirmModal, runBulkAction } from '@placeos/components';
 import { SelectUserModalComponent } from '@placeos/users';
+import { clearAssignedBooking } from '../ui/assigned-booking';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import { LockerBankModalComponent } from './locker-bank-modal.component';
 import { LockerBookingModalComponent } from './locker-booking-modal.component';
@@ -666,7 +663,26 @@ export class LockerStateService extends AsyncHandler {
                     locker.assigned_to &&
                     locker.assigned_to !== new_locker.assigned_to
                 ) {
-                    await this._clearAssignedBooking(locker);
+                    await this._clearAssignedBooking(locker).catch(
+                        async (e) => {
+                            // The old booking is still in place, so put the
+                            // old assignee back on the locker
+                            const restore_error = await saveLockerAsset(
+                                lockerToAsset(
+                                    { ...locker, bank_id: bank.id, bank },
+                                    zone_id,
+                                    assetZones(this._org, zone_id),
+                                ),
+                            ).then(
+                                () => null,
+                                (error: unknown) => error,
+                            );
+                            if (!restore_error) throw e;
+                            // One notice names both errors
+                            this._change.set(Date.now());
+                            throw `${errorText(e)} The old assignee could not be put back. ${errorText(restore_error)}`;
+                        },
+                    );
                 }
                 if (
                     locker.assigned_to !== new_locker.assigned_to &&
@@ -904,28 +920,11 @@ export class LockerStateService extends AsyncHandler {
         return true;
     }
 
-    private async _clearAssignedBooking(resource: Locker) {
-        const today = Date.now();
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(today)),
-            period_end: getUnixTime(endOfDay(today)),
-            type: 'locker',
-            email: resource.assigned_to,
-            include_checked_out: true,
-        });
-        const filtered = booking_list.filter((_) => _.asset_id === resource.id);
-        for (const booking of filtered) {
-            const is_recurring = booking.instance;
-            if (is_recurring) {
-                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await updateBooking(
-                    booking.id,
-                    { recurrence_end: yesterday_end },
-                    'patch',
-                );
-            } else {
-                await removeBooking(booking.id);
-            }
-        }
+    private _clearAssignedBooking(resource: Locker) {
+        return clearAssignedBooking(
+            'locker',
+            resource.id,
+            resource.assigned_to,
+        );
     }
 }

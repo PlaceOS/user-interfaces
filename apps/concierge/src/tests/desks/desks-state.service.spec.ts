@@ -1025,10 +1025,12 @@ describe('DesksStateService', () => {
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
-        // `_clearAssignedBooking` looks the old booking up via queryBookings.
-        vi.mocked(ts_client_mod.get).mockResolvedValue([
-            { id: 'booking-1', asset_id: 'desk-1' },
-        ] as any);
+        // `_clearAssignedBooking` looks the old booking up with a paged query
+        vi.mocked(ts_client_mod.query).mockResolvedValueOnce({
+            data: [{ id: 'booking-1', asset_id: 'desk-1' }],
+            total: 1,
+            next: null,
+        } as any);
         // First save (new assignment) conflicts; the restore save succeeds.
         vi.mocked(ts_client_mod.post)
             .mockRejectedValueOnce({ status: 409 })

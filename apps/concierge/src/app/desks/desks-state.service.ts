@@ -21,14 +21,12 @@ import {
 import {
     approveBooking,
     cancelOverlappingRecurringBookings,
-    queryBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
     removeBooking,
     saveBooking,
     setBookingCheckedIn,
-    updateBooking,
 } from '@placeos/bookings';
 import {
     assetZones,
@@ -65,7 +63,6 @@ import {
     format,
     getUnixTime,
     startOfDay,
-    subDays,
 } from 'date-fns';
 
 import {
@@ -73,6 +70,7 @@ import {
     rowSearchText,
     runBulkAction,
 } from '@placeos/components';
+import { clearAssignedBooking } from '../ui/assigned-booking';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import {
@@ -1219,35 +1217,8 @@ export class DesksStateService extends AsyncHandler {
         await saveBooking(this._createAssignedBooking(desk, zone).toJSON());
     }
 
-    private async _clearAssignedBooking(desk: Desk) {
-        const today = Date.now();
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(today)),
-            period_end: getUnixTime(endOfDay(today)),
-            type: 'desk',
-            email: desk.assigned_to,
-            include_checked_out: true,
-        });
-        const filtered = booking_list.filter((_) => _.asset_id === desk.id);
-        const today_start = getUnixTime(startOfDay(today));
-        for (const booking of filtered) {
-            const is_recurring = booking.instance;
-            const series_starts_today =
-                getUnixTime(startOfDay(booking.booking_start * 1000)) ===
-                today_start;
-            if (is_recurring && !series_starts_today) {
-                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await updateBooking(
-                    booking.id,
-                    { recurrence_end: yesterday_end },
-                    'patch',
-                );
-            } else {
-                // Series starts today (truncating to yesterday would be
-                // invalid) or it is a one-off booking, so delete it outright.
-                await removeBooking(booking.parent_id || booking.id);
-            }
-        }
+    private _clearAssignedBooking(desk: Desk) {
+        return clearAssignedBooking('desk', desk.id, desk.assigned_to);
     }
 
     /** Selected zone filters with the "all levels" sentinel keys stripped */
