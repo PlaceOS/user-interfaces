@@ -91,6 +91,23 @@ describe('VisitorStateService', () => {
         );
     });
 
+    it('should flag a failed visitor load', async () => {
+        vi.mocked(ts_client.query).mockRejectedValue(new Error('500'));
+        TestBed.flushEffects();
+        await wait(10);
+        expect(spectator.service.load_error()).toBe(true);
+        expect(spectator.service.loading()).toBe(false);
+
+        vi.mocked(ts_client.query).mockReturnValue(new Promise(() => {}));
+        spectator.service.poll();
+        TestBed.flushEffects();
+        // Loads wait 500 ms for more filter changes
+        await wait(600);
+        TestBed.flushEffects();
+        expect(spectator.service.loading()).toBe(true);
+        expect(spectator.service.load_error()).toBe(false);
+    });
+
     it('should not load while the visitors view is closed', async () => {
         spectator.service.deactivate();
         TestBed.flushEffects();

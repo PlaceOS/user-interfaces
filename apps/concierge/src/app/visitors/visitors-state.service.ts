@@ -12,7 +12,7 @@ import { addDays, addMinutes, format, getUnixTime, startOfDay } from 'date-fns';
 import { MatDialog } from '@angular/material/dialog';
 import {
     approveBooking,
-    queryAllBookings,
+    queryAllBookingsOrThrow,
     rejectBooking,
     setBookingCheckedIn,
     updateBooking,
@@ -31,6 +31,7 @@ import {
     jsonToCsv,
     notifyError,
     notifySuccess,
+    unique,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
 import { confirmAction, errorText } from '../ui/modal-actions';
@@ -138,11 +139,13 @@ export class VisitorsStateService extends AsyncHandler {
         const controller = new AbortController();
         this._load_controller = controller;
         this.loading.set(true);
+        this.load_error.set(false);
         const date = filters.date ? new Date(filters.date) : new Date();
         const start = addMinutes(startOfDay(date), this.tz_offset * 60);
         const end = addDays(start, filters.period || 1);
         let failed = false;
-        const list = await queryAllBookings(
+        // Row actions write by booking ID, so keep one row for each ID
+        const list = await queryAllBookingsOrThrow(
             {
                 type: 'visitor',
                 period_start: getUnixTime(start),
@@ -153,10 +156,13 @@ export class VisitorsStateService extends AsyncHandler {
                 limit: 200,
             },
             { signal: controller.signal },
-        ).catch(() => {
-            failed = true;
-            return [] as Booking[];
-        });
+        ).then(
+            (bookings) => unique(bookings, 'id'),
+            () => {
+                failed = true;
+                return [] as Booking[];
+            },
+        );
         // A newer load or a closed view owns the state now
         if (controller.signal.aborted) return;
         this._load_controller = undefined;

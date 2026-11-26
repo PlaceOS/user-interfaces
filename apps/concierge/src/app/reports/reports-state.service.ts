@@ -14,7 +14,7 @@ import {
     queryLockerBankAssetsForZones,
     queryParkingSpacesForZones,
 } from '@placeos/assets';
-import { queryAllBookings } from '@placeos/bookings';
+import { queryAllBookingsOrThrow } from '@placeos/bookings';
 import {
     AsyncHandler,
     BookableHoursRange,
@@ -546,7 +546,7 @@ export class ReportsStateService extends AsyncHandler {
                     { signal },
                 );
             } else if (booking_type) {
-                list = await queryAllBookings(
+                list = await queryAllBookingsOrThrow(
                     {
                         ...query,
                         include_deleted: true,

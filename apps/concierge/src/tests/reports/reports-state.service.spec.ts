@@ -395,6 +395,24 @@ describe('ReportsStateService', () => {
         );
     });
 
+    it('should offer a retry when a booking load fails', async () => {
+        vi.mocked(ts_client_mod.query).mockRejectedValue(new Error('500'));
+        spectator.service.setOptions({
+            type: 'desks',
+            zones: ['z1'],
+            start: 1000,
+            end: 2000,
+        });
+
+        await (spectator.service as any)._loadBookings();
+
+        expect(notify_open).toHaveBeenCalledWith(
+            'COMMON.LOAD_ERROR',
+            'COMMON.RETRY',
+            expect.anything(),
+        );
+    });
+
     it('should schedule report generation on a debounce timer', () => {
         const timeout_spy = vi
             .spyOn(spectator.service as any, 'timeout')
