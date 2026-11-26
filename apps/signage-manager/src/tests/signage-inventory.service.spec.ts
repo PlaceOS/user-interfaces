@@ -4,6 +4,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import {
     PlaceSystem,
+    PlaceZone,
     query,
     querySignageMedia,
     querySignagePlaylists,
@@ -139,6 +140,30 @@ describe('SignageInventoryService', () => {
                         name: 'Hall',
                         playlists: ['c'],
                     }),
+                    new PlaceSystem({
+                        id: 'd4',
+                        name: 'Lift',
+                        playlists: ['off'],
+                    }),
+                    new PlaceSystem({
+                        id: 'd5',
+                        name: 'Shared',
+                        playlists: ['other-group'],
+                    }),
+                    new PlaceSystem({ id: 'd6', name: 'Off', zones: ['z1'] }),
+                    new PlaceSystem({ id: 'd7', name: 'On', zones: ['z2'] }),
+                ],
+                zones: [
+                    new PlaceZone({ id: 'z1', playlists: ['off'] }),
+                    new PlaceZone({ id: 'z2', playlists: ['off', 'a'] }),
+                ],
+                playlists: [
+                    ...inventory.playlists,
+                    new SignagePlaylist({
+                        id: 'off',
+                        name: 'Off',
+                        enabled: false,
+                    }),
                 ],
             });
             test_service['_expiredMediaInPlaylists'] = vi
@@ -147,7 +172,13 @@ describe('SignageInventoryService', () => {
 
             const report = await service.loadContentReport();
 
-            expect(report.empty_displays.map(({ id }) => id)).toEqual(['d2']);
+            // d3 has only an expired playlist, d4 and d6 only a disabled one
+            expect(report.empty_displays.map(({ id }) => id)).toEqual([
+                'd2',
+                'd3',
+                'd4',
+                'd6',
+            ]);
             expect(report.unassigned_playlists.map(({ id }) => id)).toEqual([
                 'b',
             ]);

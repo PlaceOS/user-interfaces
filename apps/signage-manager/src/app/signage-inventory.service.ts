@@ -28,7 +28,10 @@ export interface SignageInventory {
 
 /** Content that needs attention, shown on the report page */
 export interface ContentReport {
-    /** Displays with no playlist from the display or its zones */
+    /**
+     * Displays with no playlist that can play, from the display or its zones.
+     * Disabled and expired playlists cannot play.
+     */
     empty_displays: PlaceSystem[];
     /** Playlists not assigned to any display or zone */
     unassigned_playlists: SignagePlaylist[];
@@ -150,13 +153,24 @@ export class SignageInventoryService {
         const assigned_ids = new Set(
             [...displays, ...zones].flatMap((item) => item.playlists || []),
         );
+        const playlists_by_id = new Map(playlists.map((_) => [_.id, _]));
+        // A playlist outside the inventory, such as a shared one, may play
+        const canPlay = (id: string) => {
+            const playlist = playlists_by_id.get(id);
+            return (
+                !playlist ||
+                (playlist.enabled && !playlistExpiredAt(playlist, now))
+            );
+        };
         return {
             empty_displays: displays.filter(
                 (display) =>
-                    !display.playlists?.length &&
-                    !(display.zones || []).some(
-                        (zone_id) => zone_playlists.get(zone_id)?.length,
-                    ),
+                    ![
+                        ...(display.playlists || []),
+                        ...(display.zones || []).flatMap(
+                            (zone_id) => zone_playlists.get(zone_id) || [],
+                        ),
+                    ].some(canPlay),
             ),
             unassigned_playlists: playlists.filter(
                 ({ id }) => !assigned_ids.has(id),
