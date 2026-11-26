@@ -60,6 +60,7 @@ import { addHours, format, getUnixTime } from 'date-fns';
 import {
     openConfirmModal,
     rowSearchText,
+    runBulk,
     runBulkAction,
 } from '@placeos/components';
 import { clearAssignedBooking } from '../ui/assigned-booking';
@@ -882,25 +883,29 @@ export class DesksStateService extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_LOADING'));
-        try {
-            await Promise.all(
-                list.map((desk) => this._rejectDeskBooking(desk)),
-            );
-            list.forEach((desk) => {
-                (desk as any).approved = false;
-                (desk as any).rejected = true;
-                (desk as any).status = 'declined';
-                this._setBookingStatus(desk, 'declined');
-            });
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.DESKS_REJECT_ALL_ERROR', { error: e }),
-            );
-            throw e;
-        } finally {
-            resp.close();
+        // A few at a time, and the bookings that fail do not stop the rest
+        const failed = new Set(
+            await runBulk(list, (desk) => this._rejectDeskBooking(desk)),
+        );
+        resp.close();
+        for (const desk of list) {
+            if (failed.has(desk)) continue;
+            (desk as any).approved = false;
+            (desk as any).rejected = true;
+            (desk as any).status = 'declined';
+            this._setBookingStatus(desk, 'declined');
         }
-        notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
+        if (failed.size) {
+            notifyError(
+                i18n('COMMON.BULK_PARTIAL', {
+                    done: list.length - failed.size,
+                    total: list.length,
+                    failed: failed.size,
+                }),
+            );
+        } else {
+            notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
+        }
         this.refresh();
     }
 

@@ -1272,20 +1272,14 @@ describe('DesksStateService', () => {
         );
     });
 
-    it('should close the reject all confirmation when a desk rejection fails', async () => {
+    it('should reject the other desk bookings when one rejection fails', async () => {
         const confirm_ref = mockConfirm();
+        const list = [
+            { id: 'booking-1', instance: 1_740_000_000, status: 'tentative' },
+            { id: 'booking-2', status: 'approved' },
+        ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
-            value: () => ({
-                list: [
-                    {
-                        id: 'booking-1',
-                        instance: 1_740_000_000,
-                        status: 'tentative',
-                    },
-                ],
-                total: 1,
-                has_next: false,
-            }),
+            value: () => ({ list, total: list.length, has_next: false }),
         });
         vi.mocked(ts_client_mod.post).mockImplementation((url) =>
             String(url).includes('/reject/')
@@ -1294,22 +1288,19 @@ describe('DesksStateService', () => {
         );
         const refresh_spy = vi.spyOn(spectator.service, 'refresh');
 
-        await expect(spectator.service.rejectAllDesks()).rejects.toBe(
-            '405 Method Not Allowed',
-        );
+        await spectator.service.rejectAllDesks();
 
+        expect(confirm_ref.close).toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
-            'APP.CONCIERGE.DESKS_REJECT_ALL_ERROR',
+            'COMMON.BULK_PARTIAL',
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(confirm_ref.close).toHaveBeenCalled();
-        expect(notify_open).not.toHaveBeenCalledWith(
-            'APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS',
-            expect.anything(),
-            expect.anything(),
-        );
-        expect(refresh_spy).not.toHaveBeenCalled();
+        expect(list.map((desk) => desk.status)).toEqual([
+            'tentative',
+            'declined',
+        ]);
+        expect(refresh_spy).toHaveBeenCalled();
     });
 
     it('should approve only the selected desk bookings that can still change', async () => {
