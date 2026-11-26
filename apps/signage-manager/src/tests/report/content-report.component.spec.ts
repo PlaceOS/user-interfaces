@@ -41,6 +41,7 @@ describe('ContentReportComponent', () => {
         inventory_key.set({ group_id: 'g-1', change: 1 });
         load_report.mockResolvedValue({
             expired_media_unchecked: 0,
+            never_played: [],
             awaiting_review: [{ id: 'p2', name: 'Launch', description: '' }],
             awaiting_review_unchecked: 0,
             checked_at: new Date(2026, 8, 20).valueOf(),
@@ -101,6 +102,7 @@ describe('ContentReportComponent', () => {
             'unassigned-playlists': [],
             'expired-playlists': [],
             'expiring-playlists': ['Sale | 22 Sep 2026'],
+            'never-played': [],
             'awaiting-review': ['Launch | '],
             'expired-media': ['Poster | News, Cafe'],
         });

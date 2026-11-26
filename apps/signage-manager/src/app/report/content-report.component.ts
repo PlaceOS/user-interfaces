@@ -47,8 +47,8 @@ interface ReportSection {
 /**
  * Report of content that needs attention: displays with nothing to play,
  * offline displays, playlists that play nowhere, expired content that is
- * still in use, playlists that expire soon, playlists awaiting review, and
- * takeover conflicts.
+ * still in use, playlists that expire soon, playlists that never played,
+ * playlists awaiting review, and takeover conflicts.
  */
 @Component({
     selector: 'content-report',
@@ -322,6 +322,18 @@ export class ContentReportComponent {
                         playlistEndsAt(playlist) * 1000,
                         'd MMM yyyy',
                     ),
+                    route: ['/playlists', playlist.id],
+                })),
+            },
+            {
+                id: 'never-played',
+                icon: 'play_disabled',
+                title: 'SIGNAGE_MANAGER.REPORT_NEVER_PLAYED',
+                hint: 'SIGNAGE_MANAGER.REPORT_NEVER_PLAYED_HINT',
+                rows: report.never_played.map((playlist) => ({
+                    key: playlist.id,
+                    label: playlist.name,
+                    detail: playlist.description || '',
                     route: ['/playlists', playlist.id],
                 })),
             },

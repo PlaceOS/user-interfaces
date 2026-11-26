@@ -1,5 +1,5 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { mapWithLimit, withTimeout } from '@placeos/common';
+import { isPlayOnceSchedule, mapWithLimit, withTimeout } from '@placeos/common';
 import {
     listSignagePlaylistMedia,
     PlaceSystem,
@@ -10,6 +10,7 @@ import {
     showSignageMedia,
     SignageMedia,
     SignagePlaylist,
+    type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
 import { isDisplayOnline } from './displays/display-status.util';
 import { querySignageDisplays } from './displays/signage-display';
@@ -17,8 +18,16 @@ import {
     findTakeoverConflicts,
     type TakeoverConflict,
 } from './schedules/schedule-conflicts.util';
+import {
+    MINUTES_PER_DAY,
+    playlistSchedules,
+} from './schedules/signage-schedule.util';
 import { SignageContextService } from './signage-context.service';
-import { playlistEndsAt, playlistExpiredAt } from './signage-playlist.util';
+import {
+    playlistEndsAt,
+    playlistExpiredAt,
+    playPeriodMinutes,
+} from './signage-playlist.util';
 import { PAGE_SIZE, queryAll } from './signage-service.util';
 
 /** Every display, zone and playlist in the active group */
@@ -49,6 +58,11 @@ export interface ContentReport {
     expired_media: { media: SignageMedia; playlists: SignagePlaylist[] }[];
     /** Expired media items not checked, because the report checks at most 100 */
     expired_media_unchecked: number;
+    /**
+     * Enabled, assigned playlists that play all day but that the players
+     * have never played, though they were made over a day ago
+     */
+    never_played: SignagePlaylist[];
     /** Playlists whose approval was requested and not given yet */
     awaiting_review: SignagePlaylist[];
     /** Playlists not checked for review, because the report checks at most 100 */
@@ -60,6 +74,25 @@ export interface ContentReport {
 /** Days ahead that the report lists playlists that expire */
 const EXPIRING_DAYS = 7;
 const EXPIRING_WINDOW_MS = EXPIRING_DAYS * 24 * 60 * 60 * 1000;
+/** Age in milliseconds before a playlist that never played is reported */
+const NEW_PLAYLIST_MS = 24 * 60 * 60 * 1000;
+/**
+ * Whether a schedule has played all day, every day, for over a day and
+ * still does: the background schedule of a playlist that should play.
+ */
+function playsAllDay(schedule: Partial<SignagePlaylistSchedule>, now: number) {
+    return (
+        schedule.play_cron?.trim().split(/\s+/).join(' ') === '0 0 * * *' &&
+        playPeriodMinutes(schedule) >= MINUTES_PER_DAY &&
+        !schedule.mask &&
+        !schedule.play_takeover &&
+        !isPlayOnceSchedule(schedule) &&
+        // Valid for over a day, so a midnight run has had its chance
+        (schedule.valid_from || 0) * 1000 <= now - NEW_PLAYLIST_MS &&
+        (!schedule.valid_until || schedule.valid_until * 1000 > now)
+    );
+}
+
 /** Most playlists the report checks for a review request */
 const MAX_REVIEW_CHECKS = 100;
 /** Most time in milliseconds for one playlist review check */
@@ -222,6 +255,23 @@ export class SignageInventoryService {
                     ends_at <= now + EXPIRING_WINDOW_MS
                 );
             }),
+            never_played: playlists.filter(
+                (playlist) =>
+                    playlist.enabled &&
+                    assigned_ids.has(playlist.id) &&
+                    !playlist.play_count &&
+                    // The player counts no plays of shuffled or
+                    // distribution playlists
+                    !playlist.random &&
+                    !playlist.distribution &&
+                    // Other schedules can have their first run ahead
+                    playlistSchedules(playlist).some((schedule) =>
+                        playsAllDay(schedule, now),
+                    ) &&
+                    !playlistExpiredAt(playlist, now) &&
+                    (playlist.valid_from || 0) * 1000 <= now &&
+                    playlist.created_at * 1000 <= now - NEW_PLAYLIST_MS,
+            ),
             awaiting_review: review_check.items,
             awaiting_review_unchecked: review_check.unchecked,
             expired_media: expired_media_check.items,

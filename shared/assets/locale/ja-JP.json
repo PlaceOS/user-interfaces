@@ -3153,6 +3153,8 @@
         "REPORT_OFFLINE_DISPLAYS_HINT": "プレーヤーが 5 分間接続していない、または一度も接続していないディスプレイ。",
         "REPORT_EXPIRING_PLAYLISTS": "まもなく期限切れのプレイリスト",
         "REPORT_EXPIRING_PLAYLISTS_HINT": "今後 7 日以内に終了日、またはすべてのスケジュールの終了に達する割り当て済みプレイリスト。",
+        "REPORT_NEVER_PLAYED": "一度も再生されていないプレイリスト",
+        "REPORT_NEVER_PLAYED_HINT": "終日のスケジュールがあり、有効で割り当て済み、作成から 1 日以上たつのにどのプレーヤーも再生していないプレイリスト。メディアとディスプレイを確認してください。",
         "REPORT_AWAITING_REVIEW": "レビュー待ちのプレイリスト",
         "REPORT_AWAITING_REVIEW_HINT": "承認を依頼したがまだ承認されていないプレイリスト。",
         "REPORT_AWAITING_REVIEW_PARTIAL": "レポートはさらに {{ count }} 件のプレイリストを確認していません。",

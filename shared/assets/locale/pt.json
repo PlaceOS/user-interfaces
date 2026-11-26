@@ -3153,6 +3153,8 @@
         "REPORT_OFFLINE_DISPLAYS_HINT": "Ecrãs cujo leitor não se liga há 5 minutos ou nunca se ligou.",
         "REPORT_EXPIRING_PLAYLISTS": "Listas de reprodução a expirar",
         "REPORT_EXPIRING_PLAYLISTS_HINT": "Listas atribuídas que atingem a data de fim, ou o fim de todos os agendamentos, nos próximos 7 dias.",
+        "REPORT_NEVER_PLAYED": "Listas nunca reproduzidas",
+        "REPORT_NEVER_PLAYED_HINT": "Listas ativas e atribuídas com agendamento de todo o dia que nenhum leitor reproduziu, embora criadas há mais de um dia. Verifique os conteúdos e ecrãs.",
         "REPORT_AWAITING_REVIEW": "Listas a aguardar revisão",
         "REPORT_AWAITING_REVIEW_HINT": "Listas cuja aprovação foi pedida e ainda não foi dada.",
         "REPORT_AWAITING_REVIEW_PARTIAL": "O relatório não verificou mais {{ count }} listas.",

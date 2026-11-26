@@ -3153,6 +3153,8 @@
         "REPORT_OFFLINE_DISPLAYS_HINT": "播放器已有 5 分钟未连接或从未连接的显示屏。",
         "REPORT_EXPIRING_PLAYLISTS": "即将过期的播放列表",
         "REPORT_EXPIRING_PLAYLISTS_HINT": "在未来 7 天内到达结束日期或所有计划结束时间的已分配播放列表。",
+        "REPORT_NEVER_PLAYED": "从未播放的播放列表",
+        "REPORT_NEVER_PLAYED_HINT": "已启用并分配、全天播放、创建超过一天但从未被任何播放器播放的播放列表。请检查其媒体和显示屏。",
         "REPORT_AWAITING_REVIEW": "待审核的播放列表",
         "REPORT_AWAITING_REVIEW_HINT": "已申请批准但尚未批准的播放列表。",
         "REPORT_AWAITING_REVIEW_PARTIAL": "报告未检查另外 {{ count }} 个播放列表。",

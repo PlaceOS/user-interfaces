@@ -3153,6 +3153,8 @@
         "REPORT_OFFLINE_DISPLAYS_HINT": "Écrans dont le lecteur ne s'est pas connecté depuis 5 minutes, ou jamais.",
         "REPORT_EXPIRING_PLAYLISTS": "Listes de lecture bientôt expirées",
         "REPORT_EXPIRING_PLAYLISTS_HINT": "Listes attribuées qui atteignent leur date de fin, ou la fin de toutes leurs programmations, dans les 7 prochains jours.",
+        "REPORT_NEVER_PLAYED": "Listes jamais lues",
+        "REPORT_NEVER_PLAYED_HINT": "Listes activées et attribuées avec une programmation toute la journée qu'aucun lecteur n'a lues, bien que créées il y a plus d'un jour. Vérifiez leurs médias et écrans.",
         "REPORT_AWAITING_REVIEW": "Listes en attente de validation",
         "REPORT_AWAITING_REVIEW_HINT": "Listes dont l'approbation a été demandée mais pas encore donnée.",
         "REPORT_AWAITING_REVIEW_PARTIAL": "Le rapport n'a pas vérifié {{ count }} autres listes.",

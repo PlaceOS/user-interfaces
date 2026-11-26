@@ -304,6 +304,82 @@ describe('SignageInventoryService', () => {
             expect(listSignagePlaylistMedia).not.toHaveBeenCalled();
         });
 
+        it('lists assigned playlists that never played though they could have', async () => {
+            const service = createService();
+            const test_service =
+                service as unknown as SignageInventoryServiceTestAccess;
+            const now = Date.now();
+            const old = Math.floor(now / 1000) - 3 * 86_400;
+            // The all day schedule that the playlist editor saves
+            const all_day = {
+                play_cron: '0 0 * * *',
+                play_period: 1440,
+                play_takeover: false,
+            };
+            const playlist = (id: string, data = {}) =>
+                new SignagePlaylist({
+                    id,
+                    name: id,
+                    created_at: old,
+                    schedules: [all_day],
+                    ...data,
+                });
+            vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
+                displays: [
+                    new PlaceSystem({
+                        id: 'd1',
+                        playlists: [
+                            'idle',
+                            'played',
+                            'new',
+                            'weekly',
+                            'off',
+                            'shuffled',
+                            'split',
+                            'ended',
+                            'fresh',
+                        ],
+                    }),
+                ],
+                zones: [],
+                playlists: [
+                    playlist('idle'),
+                    playlist('played', { play_count: 4 }),
+                    playlist('new', { created_at: Math.floor(now / 1000) }),
+                    playlist('weekly', {
+                        schedules: [{ play_cron: '0 9 * * 1' }],
+                    }),
+                    playlist('off', { enabled: false }),
+                    playlist('shuffled', { random: true }),
+                    playlist('split', { distribution: true }),
+                    // Its all day schedule ended, a weekly one goes on
+                    playlist('ended', {
+                        schedules: [
+                            { ...all_day, valid_until: old },
+                            { play_cron: '0 9 * * 1' },
+                        ],
+                    }),
+                    // Its all day schedule started this afternoon
+                    playlist('fresh', {
+                        schedules: [
+                            {
+                                ...all_day,
+                                valid_from: Math.floor(now / 1000) - 3600,
+                            },
+                        ],
+                    }),
+                    playlist('loose'),
+                ],
+            });
+            test_service['_expiredMediaInPlaylists'] = vi
+                .fn()
+                .mockResolvedValue({ items: [], unchecked: 0 });
+
+            const report = await service.loadContentReport(now);
+
+            expect(report.never_played.map(({ id }) => id)).toEqual(['idle']);
+        });
+
         it('lists assigned playlists that expire within a week', async () => {
             const service = createService();
             const test_service =

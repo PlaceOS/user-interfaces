@@ -401,6 +401,8 @@
         "REPORT_OFFLINE_DISPLAYS_HINT": "Displays whose player has not checked in for 5 minutes, or has never checked in.",
         "REPORT_EXPIRING_PLAYLISTS": "Playlists that expire soon",
         "REPORT_EXPIRING_PLAYLISTS_HINT": "Assigned playlists that reach their end date, or the end of all their schedules, in the next 7 days.",
+        "REPORT_NEVER_PLAYED": "Playlists that never played",
+        "REPORT_NEVER_PLAYED_HINT": "Enabled, assigned playlists with an all day schedule that no player has played, though they were made over a day ago. Check their media and the displays they are on.",
         "REPORT_AWAITING_REVIEW": "Playlists awaiting review",
         "REPORT_AWAITING_REVIEW_HINT": "Playlists whose approval was requested and not given yet.",
         "REPORT_AWAITING_REVIEW_PARTIAL": "The report did not check {{ count }} more playlists.",

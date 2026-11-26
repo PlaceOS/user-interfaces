@@ -3153,6 +3153,8 @@
         "REPORT_OFFLINE_DISPLAYS_HINT": "Pantallas cuyo reproductor no se conecta desde hace 5 minutos o nunca se ha conectado.",
         "REPORT_EXPIRING_PLAYLISTS": "Listas de reproducción que caducan pronto",
         "REPORT_EXPIRING_PLAYLISTS_HINT": "Listas asignadas que llegan a su fecha de fin, o al fin de todas sus programaciones, en los próximos 7 días.",
+        "REPORT_NEVER_PLAYED": "Listas que nunca se reprodujeron",
+        "REPORT_NEVER_PLAYED_HINT": "Listas activadas y asignadas con programación de todo el día que ningún reproductor ha reproducido, aunque se crearon hace más de un día. Revise sus contenidos y pantallas.",
         "REPORT_AWAITING_REVIEW": "Listas pendientes de revisión",
         "REPORT_AWAITING_REVIEW_HINT": "Listas cuya aprobación se solicitó y aún no se ha concedido.",
         "REPORT_AWAITING_REVIEW_PARTIAL": "El informe no comprobó {{ count }} listas más.",
