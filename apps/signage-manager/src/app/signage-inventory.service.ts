@@ -1,6 +1,7 @@
 import { computed, inject, Injectable } from '@angular/core';
-import { mapWithLimit } from '@placeos/common';
+import { isPlayOnceSchedule, mapWithLimit, withTimeout } from '@placeos/common';
 import {
+    listSignagePlaylistMedia,
     PlaceSystem,
     PlaceZone,
     querySignageMedia,
@@ -9,14 +10,24 @@ import {
     showSignageMedia,
     SignageMedia,
     SignagePlaylist,
+    type SignagePlaylistSchedule,
 } from '@placeos/ts-client';
+import { isDisplayOnline } from './displays/display-status.util';
 import { querySignageDisplays } from './displays/signage-display';
 import {
     findTakeoverConflicts,
     type TakeoverConflict,
 } from './schedules/schedule-conflicts.util';
+import {
+    MINUTES_PER_DAY,
+    playlistSchedules,
+} from './schedules/signage-schedule.util';
 import { SignageContextService } from './signage-context.service';
-import { playlistExpiredAt } from './signage-playlist.util';
+import {
+    playlistEndsAt,
+    playlistExpiredAt,
+    playPeriodMinutes,
+} from './signage-playlist.util';
 import { PAGE_SIZE, queryAll } from './signage-service.util';
 
 /** Every display, zone and playlist in the active group */
@@ -28,20 +39,64 @@ export interface SignageInventory {
 
 /** Content that needs attention, shown on the report page */
 export interface ContentReport {
-    /** Displays with no playlist from the display or its zones */
+    /**
+     * Displays with no playlist that can play, from the display or its zones.
+     * Disabled and expired playlists cannot play.
+     */
     empty_displays: PlaceSystem[];
     /** Playlists not assigned to any display or zone */
     unassigned_playlists: SignagePlaylist[];
+    /** Time in milliseconds that the report checked against */
+    checked_at: number;
+    /** Displays whose player has not checked in recently, or never */
+    offline_displays: PlaceSystem[];
     /** Expired playlists, or playlists with only expired schedules, that are still assigned */
     expired_playlists: SignagePlaylist[];
+    /** Assigned playlists that expire within `EXPIRING_DAYS` */
+    expiring_playlists: SignagePlaylist[];
     /** Expired media that is still in a playlist */
     expired_media: { media: SignageMedia; playlists: SignagePlaylist[] }[];
     /** Expired media items not checked, because the report checks at most 100 */
     expired_media_unchecked: number;
+    /**
+     * Enabled, assigned playlists that play all day but that the players
+     * have never played, though they were made over a day ago
+     */
+    never_played: SignagePlaylist[];
+    /** Playlists whose approval was requested and not given yet */
+    awaiting_review: SignagePlaylist[];
+    /** Playlists not checked for review, because the report checks at most 100 */
+    awaiting_review_unchecked: number;
     /** Takeover playlists that overlap on a display in the coming weeks */
     conflicts: TakeoverConflict[];
 }
 
+/** Days ahead that the report lists playlists that expire */
+const EXPIRING_DAYS = 7;
+const EXPIRING_WINDOW_MS = EXPIRING_DAYS * 24 * 60 * 60 * 1000;
+/** Age in milliseconds before a playlist that never played is reported */
+const NEW_PLAYLIST_MS = 24 * 60 * 60 * 1000;
+/**
+ * Whether a schedule has played all day, every day, for over a day and
+ * still does: the background schedule of a playlist that should play.
+ */
+function playsAllDay(schedule: Partial<SignagePlaylistSchedule>, now: number) {
+    return (
+        schedule.play_cron?.trim().split(/\s+/).join(' ') === '0 0 * * *' &&
+        playPeriodMinutes(schedule) >= MINUTES_PER_DAY &&
+        !schedule.mask &&
+        !schedule.play_takeover &&
+        !isPlayOnceSchedule(schedule) &&
+        // Valid for over a day, so a midnight run has had its chance
+        (schedule.valid_from || 0) * 1000 <= now - NEW_PLAYLIST_MS &&
+        (!schedule.valid_until || schedule.valid_until * 1000 > now)
+    );
+}
+
+/** Most playlists the report checks for a review request */
+const MAX_REVIEW_CHECKS = 100;
+/** Most time in milliseconds for one playlist review check */
+const REVIEW_CHECK_TIMEOUT_MS = 15 * 1000;
 /** Most expired media items the report looks up playlists for */
 const MAX_EXPIRED_MEDIA_CHECKS = 100;
 /** Most media requests the report sends at the same time */
@@ -137,38 +192,131 @@ export class SignageInventoryService {
         return { displays, zones, playlists };
     }
 
-    /** Find content that needs attention, for the report page */
-    public async loadContentReport(now = Date.now()): Promise<ContentReport> {
+    /**
+     * Find content that needs attention, for the report page
+     * @param signal Stops the review checks that have not started
+     */
+    public async loadContentReport(
+        now = Date.now(),
+        signal?: AbortSignal,
+    ): Promise<ContentReport> {
         const [{ displays, zones, playlists }, expired_media_check] =
             await Promise.all([
                 this.loadSignageInventory(),
                 this._expiredMediaInPlaylists(now),
             ]);
+        const review_check = await this._playlistsAwaitingReview(
+            playlists,
+            signal,
+        );
         const zone_playlists = new Map(
             zones.map((zone) => [zone.id, zone.playlists || []]),
         );
         const assigned_ids = new Set(
             [...displays, ...zones].flatMap((item) => item.playlists || []),
         );
+        const playlists_by_id = new Map(playlists.map((_) => [_.id, _]));
+        // A playlist outside the inventory, such as a shared one, may play
+        const canPlay = (id: string) => {
+            const playlist = playlists_by_id.get(id);
+            return (
+                !playlist ||
+                (playlist.enabled && !playlistExpiredAt(playlist, now))
+            );
+        };
         return {
             empty_displays: displays.filter(
                 (display) =>
-                    !display.playlists?.length &&
-                    !(display.zones || []).some(
-                        (zone_id) => zone_playlists.get(zone_id)?.length,
-                    ),
+                    ![
+                        ...(display.playlists || []),
+                        ...(display.zones || []).flatMap(
+                            (zone_id) => zone_playlists.get(zone_id) || [],
+                        ),
+                    ].some(canPlay),
             ),
             unassigned_playlists: playlists.filter(
                 ({ id }) => !assigned_ids.has(id),
+            ),
+            checked_at: now,
+            offline_displays: displays.filter(
+                (display) => !isDisplayOnline(display.signage_last_seen, now),
             ),
             expired_playlists: playlists.filter(
                 (playlist) =>
                     assigned_ids.has(playlist.id) &&
                     !!playlistExpiredAt(playlist, now),
             ),
+            expiring_playlists: playlists.filter((playlist) => {
+                const ends_at = playlistEndsAt(playlist) * 1000;
+                return (
+                    playlist.enabled &&
+                    assigned_ids.has(playlist.id) &&
+                    ends_at > now &&
+                    ends_at <= now + EXPIRING_WINDOW_MS
+                );
+            }),
+            never_played: playlists.filter(
+                (playlist) =>
+                    playlist.enabled &&
+                    assigned_ids.has(playlist.id) &&
+                    !playlist.play_count &&
+                    // The player counts no plays of shuffled or
+                    // distribution playlists
+                    !playlist.random &&
+                    !playlist.distribution &&
+                    // Other schedules can have their first run ahead
+                    playlistSchedules(playlist).some((schedule) =>
+                        playsAllDay(schedule, now),
+                    ) &&
+                    !playlistExpiredAt(playlist, now) &&
+                    (playlist.valid_from || 0) * 1000 <= now &&
+                    playlist.created_at * 1000 <= now - NEW_PLAYLIST_MS,
+            ),
+            awaiting_review: review_check.items,
+            awaiting_review_unchecked: review_check.unchecked,
             expired_media: expired_media_check.items,
             expired_media_unchecked: expired_media_check.unchecked,
             conflicts: findTakeoverConflicts({ displays, zones, playlists }),
+        };
+    }
+
+    /**
+     * Playlists whose approval was requested and not given, read from each
+     * playlist's media list. Checks at most `MAX_REVIEW_CHECKS` playlists, a
+     * few at a time, each bounded by `REVIEW_CHECK_TIMEOUT_MS`.
+     * @returns The playlists, and the number of playlists not checked: over
+     * the limit, failed, late, or skipped after `signal` aborts
+     */
+    private async _playlistsAwaitingReview(
+        playlists: SignagePlaylist[],
+        signal?: AbortSignal,
+    ) {
+        const checked = playlists.slice(0, MAX_REVIEW_CHECKS);
+        // A late read is still open, so start no more reads after one
+        let timed_out = false;
+        // True or false when read, null when not read
+        const states = await mapWithLimit(
+            checked,
+            EXPIRED_MEDIA_CONCURRENCY,
+            (playlist) =>
+                signal?.aborted || timed_out
+                    ? Promise.resolve(null)
+                    : withTimeout(
+                          listSignagePlaylistMedia(playlist.id),
+                          REVIEW_CHECK_TIMEOUT_MS,
+                          'timeout',
+                          () => (timed_out = true),
+                      ).then(
+                          (media) =>
+                              media.approval_requested && !media.approved,
+                          () => null,
+                      ),
+        );
+        return {
+            items: checked.filter((_, index) => states[index] === true),
+            unchecked:
+                playlists.length -
+                states.filter((state) => state !== null).length,
         };
     }
 

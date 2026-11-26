@@ -237,7 +237,9 @@ export function queryPagedBookings(q: BookingsQueryParams) {
 const MAX_PAGES = 50;
 
 /**
- * List all bookings
+ * List all bookings, each booking ID once. Returns an empty list when a
+ * request fails. Use `queryAllBookingsOrThrow` to keep each instance of a
+ * recurring booking.
  * @param q Parameters to pass to the API request
  * @param options.signal Stops requests for more pages after an abort.
  * The function then returns an empty list, so callers must discard it.
@@ -246,29 +248,58 @@ export async function queryAllBookings(
     q: BookingsQueryParams,
     options: { signal?: AbortSignal } = {},
 ): Promise<Booking[]> {
-    const { signal } = options;
     try {
-        if (signal?.aborted) return [];
-        let { data, next } = await query<Booking>({
-            query_params: q,
-            fn: (item) => new Booking(item),
-            endpoint: BOOKINGS_ENDPOINT,
-            path: '',
-        });
-        const list = [...data];
-        let count = 1;
-        while (next && count <= MAX_PAGES) {
-            if (signal?.aborted) return [];
-            const resp = await next();
-            data = resp.data;
-            next = resp.next;
-            list.push(...data);
-            count += 1;
-        }
-        return signal?.aborted ? [] : unique(list, 'id');
+        return unique(await queryAllBookingPages(q, options.signal), 'id');
     } catch (_) {
         return [];
     }
+}
+
+/**
+ * List all bookings. Rejects when a request fails. Keeps each instance of a
+ * recurring booking, as instances share an ID.
+ * @param q Parameters to pass to the API request
+ * @param options.signal Stops requests for more pages after an abort.
+ * The function then returns an empty list, or rejects if a request in
+ * progress fails, so callers must discard the result.
+ */
+export async function queryAllBookingsOrThrow(
+    q: BookingsQueryParams,
+    options: { signal?: AbortSignal } = {},
+): Promise<Booking[]> {
+    const list = await queryAllBookingPages(q, options.signal);
+    const keys = new Set<string>();
+    return list.filter((booking) => {
+        const key = `${booking.id}:${booking.instance || ''}`;
+        if (keys.has(key)) return false;
+        keys.add(key);
+        return true;
+    });
+}
+
+/** Every page of bookings, up to `MAX_PAGES`. Empty after an abort. */
+async function queryAllBookingPages(
+    q: BookingsQueryParams,
+    signal?: AbortSignal,
+): Promise<Booking[]> {
+    if (signal?.aborted) return [];
+    let { data, next } = await query<Booking>({
+        query_params: q,
+        fn: (item) => new Booking(item),
+        endpoint: BOOKINGS_ENDPOINT,
+        path: '',
+    });
+    const list = [...data];
+    let count = 1;
+    while (next && count <= MAX_PAGES) {
+        if (signal?.aborted) return [];
+        const resp = await next();
+        data = resp.data;
+        next = resp.next;
+        list.push(...data);
+        count += 1;
+    }
+    return signal?.aborted ? [] : list;
 }
 
 /**

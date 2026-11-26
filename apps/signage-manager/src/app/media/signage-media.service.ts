@@ -302,8 +302,9 @@ export class SignageMediaService {
     // The API cannot sort or filter by type or expiry, so the browser does it.
     // That needs the whole library, so load the remaining pages one at a time
     // while a sort or filter is active. Stops when the last page is loaded.
+    // An open tag folder pages its own list instead.
     private readonly _load_all_media = effect(() => {
-        if (!this.media_view_active()) return;
+        if (!this.media_view_active() || this.folder_tag()) return;
         if (!this.media_has_more() || this.media_loading()) return;
         untracked(() => this.loadMoreMedia());
     });
@@ -317,6 +318,64 @@ export class SignageMediaService {
     public retryMedia() {
         if (!this._media_list.retry()) {
             this._media_reload.update((count) => count + 1);
+        }
+    }
+
+    // --- Media of an open tag folder, filtered by the server ---
+    // A separate list, so local changes to the library list are kept.
+    /** Tag of the open tag folder, or null when no tag folder is open */
+    public readonly folder_tag = signal<string | null>(null);
+    private readonly _folder_list = new PagedList<SignageMedia>({
+        sort: (a, b) => b.created_at - a.created_at,
+    });
+    private readonly _folder_reload = signal(0);
+    /** Loaded media of the open tag folder, with the library view applied */
+    public readonly folder_media = computed(() =>
+        applyMediaView(this._folder_list.items(), this.media_view()),
+    );
+    public readonly folder_loading = this._folder_list.loading;
+    public readonly folder_has_more = this._folder_list.has_more;
+    public readonly folder_error = this._folder_list.error;
+    /** Media count the backend reports for the open tag folder */
+    public readonly folder_total = this._folder_list.total;
+
+    // Load the first folder page when the folder or the library query changes
+    private readonly _reload_folder = effect(() => {
+        const tag = this.folder_tag();
+        const initialised = this._org.initialised();
+        const can_query = this._context.can_query_group_data();
+        const group_id = this._context.api_group_id_debounced.value();
+        const search = this._media_search_debounced.value().trim();
+        const query_params = this._context.contentQueryParams(
+            { limit: PAGE_SIZE, tags: tag || '', ...searchParam(search) },
+            group_id,
+        );
+        this._context.data_change();
+        this._folder_reload();
+        untracked(() =>
+            this._folder_list.reset(
+                tag && initialised && can_query
+                    ? querySignageMedia(query_params)
+                    : null,
+            ),
+        );
+    });
+
+    // Sorts and filters need every page of the folder, as for the library
+    private readonly _load_all_folder_media = effect(() => {
+        if (!this.folder_tag() || !this.media_view_active()) return;
+        if (!this.folder_has_more() || this.folder_loading()) return;
+        untracked(() => this.loadMoreFolderMedia());
+    });
+
+    public loadMoreFolderMedia() {
+        this._folder_list.loadMore();
+    }
+
+    /** Load the folder page that failed again */
+    public retryFolderMedia() {
+        if (!this._folder_list.retry()) {
+            this._folder_reload.update((count) => count + 1);
         }
     }
 
@@ -397,6 +456,7 @@ export class SignageMediaService {
                 (a, b) => b.created_at - a.created_at,
             ),
         );
+        this._syncFolderList([item]);
         // Only an item with tags changes the tag counts
         if (reload_tags && item.tags?.length) this._media_tags.reload();
     }
@@ -409,7 +469,42 @@ export class SignageMediaService {
             items.filter((item) => !removed.has(item.id)),
         );
         this._media_list.adjustTotal(-removed.size);
+        this._syncFolderList([], media_ids);
         this._media_tags.reload();
+    }
+
+    /**
+     * Apply saved media changes to the open tag folder, in place, as the
+     * search index can lag the write. Items without the folder tag leave it.
+     * @param changed Created or updated media
+     * @param removed_ids IDs of deleted media
+     */
+    private _syncFolderList(
+        changed: SignageMedia[],
+        removed_ids: string[] = [],
+    ) {
+        const tag = this.folder_tag();
+        if (!tag) return;
+        const removed = new Set(removed_ids);
+        const by_id = new Map(changed.map((item) => [item.id, item]));
+        const items = this._folder_list.items();
+        const kept = items
+            .filter((item) => {
+                if (removed.has(item.id)) return false;
+                const update = by_id.get(item.id);
+                return !update || (update.tags || []).includes(tag);
+            })
+            .map((item) => by_id.get(item.id) || item);
+        const added = changed.filter(
+            (item) =>
+                (item.tags || []).includes(tag) &&
+                !items.some(({ id }) => id === item.id),
+        );
+        const next = [...added, ...kept].sort(
+            (a, b) => b.created_at - a.created_at,
+        );
+        this._folder_list.update(() => next);
+        this._folder_list.adjustTotal(next.length - items.length);
     }
 
     /**
@@ -917,6 +1012,7 @@ export class SignageMediaService {
         this._media_list.update((items) =>
             items.map((item) => (item.id === id ? updated_media : item)),
         );
+        this._syncFolderList([updated_media]);
         this._media_tags.reload();
         return updated_media;
     }
@@ -1274,15 +1370,13 @@ export class SignageMediaService {
                 .map(({ id, tags }) => [id, tags]),
         );
         if (saved.size) {
-            this._media_list.update((items) =>
-                items.map((item) =>
-                    saved.has(item.id)
-                        ? new SignageMedia({
-                              ...item,
-                              tags: saved.get(item.id),
-                          })
-                        : item,
-                ),
+            const withTags = (item: SignageMedia) =>
+                saved.has(item.id)
+                    ? new SignageMedia({ ...item, tags: saved.get(item.id) })
+                    : item;
+            this._media_list.update((items) => items.map(withTags));
+            this._syncFolderList(
+                media_items.filter(({ id }) => saved.has(id)).map(withTags),
             );
             this._media_tags.reload();
         }
@@ -1412,7 +1506,7 @@ export class SignageMediaService {
         await this._playlist_service.addMediaToPlaylist(
             playlist_id,
             media_id,
-            this._media_list.items().find(({ id }) => id === media_id),
+            this._loadedMedia().find(({ id }) => id === media_id),
         );
     }
 
@@ -1427,8 +1521,13 @@ export class SignageMediaService {
         return this._playlist_service.addMediaItemsToPlaylist(
             playlist_id,
             media_ids,
-            this._media_list.items().filter(({ id }) => media_ids.includes(id)),
+            this._loadedMedia().filter(({ id }) => media_ids.includes(id)),
         );
+    }
+
+    /** Media in the library list and the open tag folder */
+    private _loadedMedia() {
+        return [...this._media_list.items(), ...this._folder_list.items()];
     }
 
     private _uploadThumbnailImage(data_url: string, name: string) {

@@ -1,4 +1,10 @@
-import { Component, computed, inject, resource } from '@angular/core';
+import {
+    Component,
+    computed,
+    inject,
+    LOCALE_ID,
+    resource,
+} from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
@@ -6,10 +12,14 @@ import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import type { SignageMedia } from '@placeos/ts-client';
 import { format } from 'date-fns';
+import {
+    displayLastSeen,
+    displayStatusKey,
+} from '../displays/display-status.util';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { CONFLICT_WINDOW_DAYS } from '../schedules/schedule-conflicts.util';
 import { SignageInventoryService } from '../signage-inventory.service';
-import { playlistExpiredAt } from '../signage-playlist.util';
+import { playlistEndsAt, playlistExpiredAt } from '../signage-playlist.util';
 
 /** Most rows shown in each report section */
 const MAX_ROWS = 50;
@@ -35,9 +45,10 @@ interface ReportSection {
 }
 
 /**
- * Report of content that needs attention: displays with no playlists,
- * playlists that play nowhere, expired content that is still in use, and
- * takeover conflicts.
+ * Report of content that needs attention: displays with nothing to play,
+ * offline displays, playlists that play nowhere, expired content that is
+ * still in use, playlists that expire soon, playlists that never played,
+ * playlists awaiting review, and takeover conflicts.
  */
 @Component({
     selector: 'content-report',
@@ -209,6 +220,7 @@ interface ReportSection {
 export class ContentReportComponent {
     private readonly _inventory_service = inject(SignageInventoryService);
     private readonly _media_preview = inject(MediaPreviewService);
+    private readonly _locale = inject(LOCALE_ID);
 
     public readonly max_rows = MAX_ROWS;
     public readonly window_days = CONFLICT_WINDOW_DAYS;
@@ -216,12 +228,15 @@ export class ContentReportComponent {
     // The refresh button loads it again.
     public readonly report = resource({
         params: () => this._inventory_service.inventory_key(),
-        loader: () => this._inventory_service.loadContentReport(),
+        loader: ({ abortSignal }) =>
+            this._inventory_service.loadContentReport(Date.now(), abortSignal),
     });
 
     public readonly sections = computed<ReportSection[]>(() => {
         const report = this.report.value();
         if (!report) return [];
+        // Use the time that the report checked, so rows match its choices
+        const now = report.checked_at;
         return [
             {
                 id: 'conflicts',
@@ -244,6 +259,27 @@ export class ContentReportComponent {
                     key: display.id,
                     label: display.display_name || display.name,
                     detail: display.description || '',
+                    route: ['/displays', display.id],
+                })),
+            },
+            {
+                id: 'offline-displays',
+                icon: 'cloud_off',
+                title: 'SIGNAGE_MANAGER.REPORT_OFFLINE_DISPLAYS',
+                hint: 'SIGNAGE_MANAGER.REPORT_OFFLINE_DISPLAYS_HINT',
+                rows: report.offline_displays.map((display) => ({
+                    key: display.id,
+                    label: display.display_name || display.name,
+                    detail: i18n(
+                        displayStatusKey(display.signage_last_seen, now),
+                        {
+                            time: displayLastSeen(
+                                display.signage_last_seen,
+                                now,
+                                this._locale,
+                            ),
+                        },
+                    ),
                     route: ['/displays', display.id],
                 })),
             },
@@ -273,6 +309,52 @@ export class ContentReportComponent {
                     ),
                     route: ['/playlists', playlist.id],
                 })),
+            },
+            {
+                id: 'expiring-playlists',
+                icon: 'schedule',
+                title: 'SIGNAGE_MANAGER.REPORT_EXPIRING_PLAYLISTS',
+                hint: 'SIGNAGE_MANAGER.REPORT_EXPIRING_PLAYLISTS_HINT',
+                rows: report.expiring_playlists.map((playlist) => ({
+                    key: playlist.id,
+                    label: playlist.name,
+                    detail: format(
+                        playlistEndsAt(playlist) * 1000,
+                        'd MMM yyyy',
+                    ),
+                    route: ['/playlists', playlist.id],
+                })),
+            },
+            {
+                id: 'never-played',
+                icon: 'play_disabled',
+                title: 'SIGNAGE_MANAGER.REPORT_NEVER_PLAYED',
+                hint: 'SIGNAGE_MANAGER.REPORT_NEVER_PLAYED_HINT',
+                rows: report.never_played.map((playlist) => ({
+                    key: playlist.id,
+                    label: playlist.name,
+                    detail: playlist.description || '',
+                    route: ['/playlists', playlist.id],
+                })),
+            },
+            {
+                id: 'awaiting-review',
+                icon: 'pending_actions',
+                title: 'SIGNAGE_MANAGER.REPORT_AWAITING_REVIEW',
+                hint: 'SIGNAGE_MANAGER.REPORT_AWAITING_REVIEW_HINT',
+                rows: report.awaiting_review.map((playlist) => ({
+                    key: playlist.id,
+                    label: playlist.name,
+                    detail: playlist.description || '',
+                    route: ['/playlists', playlist.id],
+                })),
+                note: report.awaiting_review_unchecked
+                    ? i18n(
+                          'SIGNAGE_MANAGER.REPORT_AWAITING_REVIEW_PARTIAL',
+                          { count: report.awaiting_review_unchecked },
+                          report.awaiting_review_unchecked,
+                      )
+                    : '',
             },
             {
                 id: 'expired-media',

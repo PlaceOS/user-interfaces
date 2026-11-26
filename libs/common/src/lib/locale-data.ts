@@ -11,6 +11,7 @@ const SUPPORTED_LOCALES: Record<string, () => Promise<{ default: unknown }>> = {
     fr: () => import('@angular/common/locales/fr'),
     it: () => import('@angular/common/locales/it'),
     ja: () => import('@angular/common/locales/ja'),
+    pt: () => import('@angular/common/locales/pt'),
     zh: () => import('@angular/common/locales/zh'),
 };
 

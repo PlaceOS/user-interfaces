@@ -23,6 +23,7 @@ import {
     isInWaitlistWeek,
     parentBookingId,
     queryAllBookings,
+    queryAllBookingsOrThrow,
     queryBookings,
     queryBookingsOrThrow,
     queryResourceAvailability,
@@ -182,6 +183,40 @@ describe('[Booking API]', () => {
                     endpoint: `/api/staff/v1/bookings`,
                 }),
             );
+            spy.mockReset();
+        });
+
+        it('should keep each instance of a recurring booking from the OrThrow variant', async () => {
+            const spy = vi.spyOn(ts_client, 'query');
+            spy.mockResolvedValue({
+                total: 3,
+                data: [
+                    new Booking({ id: 'b-1', instance: 100 }),
+                    new Booking({ id: 'b-1', instance: 200 }),
+                    new Booking({ id: 'b-1', instance: 200 }),
+                ],
+                next: null,
+            });
+            const q = { period_start: 1, period_end: 2, type: 'desk' as const };
+
+            const list = await queryAllBookingsOrThrow(q);
+
+            expect(list.map((booking) => booking.instance)).toEqual([100, 200]);
+            expect(await queryAllBookings(q)).toHaveLength(1);
+            spy.mockReset();
+        });
+
+        it('should reject from the OrThrow variant when a later page fails', async () => {
+            const spy = vi.spyOn(ts_client, 'query');
+            spy.mockImplementation(async () => ({
+                total: 2,
+                data: [new Booking({ id: 'b-1' })],
+                next: () => Promise.reject(new Error('500')),
+            }));
+            const q = { period_start: 1, period_end: 2, type: 'desk' as const };
+
+            await expect(queryAllBookingsOrThrow(q)).rejects.toThrow('500');
+            expect(await queryAllBookings(q)).toEqual([]);
             spy.mockReset();
         });
 

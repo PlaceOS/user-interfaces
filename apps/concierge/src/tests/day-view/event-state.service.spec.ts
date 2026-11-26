@@ -128,6 +128,86 @@ describe('EventsStateService', () => {
         expect(spectator.service.event_list()).toHaveLength(2);
     });
 
+    it('should list the pending approvals of the active building', async () => {
+        const org = TestBed.inject(OrganisationService) as any;
+        const unbind = vi.fn();
+        const bindings: Record<string, unknown> = {};
+        // One binding for each module, as ts-client caches them
+        const binding = (id: string) =>
+            (bindings[id] ||= {
+                bind: () => unbind,
+                listen: () =>
+                    Object.assign(() => ({ [id]: [{ id: `evt-${id}` }] }), {
+                        subscribe: () => ({ unsubscribe: vi.fn() }),
+                    }),
+            });
+        const module_of: Record<string, string> = {
+            'bld-1': 'sys-1',
+            'bld-2': 'sys-2',
+            'bld-3': 'sys-2',
+        };
+        const loaded = signal(true);
+        org.active_building_loaded = loaded;
+        org.module = vi.fn(() => ({
+            binding: () => binding(module_of[org.active_building().id]),
+        }));
+        const pendingIds = () => spectator.service.pending().map((_) => _.id);
+
+        org.active_building.set({ id: 'bld-1' });
+        TestBed.tick();
+        expect(pendingIds()).toEqual(['evt-sys-1']);
+
+        // The building's bindings load after the building is selected
+        loaded.set(false);
+        org.active_building.set({ id: 'bld-2' });
+        TestBed.tick();
+        expect(pendingIds()).toEqual([]);
+        loaded.set(true);
+        TestBed.tick();
+        expect(pendingIds()).toEqual(['evt-sys-2']);
+        expect(unbind).toHaveBeenCalledTimes(1);
+
+        // A building that shares the module keeps the same binding
+        org.active_building.set({ id: 'bld-3' });
+        TestBed.tick();
+        expect(pendingIds()).toEqual(['evt-sys-2']);
+        expect(unbind).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the loaded events on screen while a poll loads', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([
+            { resources: [{ email: '1' }] },
+        ] as any);
+        spectator.service.setZones(['bld-123']);
+        spectator.service.startPolling('day');
+        await settle();
+        expect(spectator.service.event_list()).toHaveLength(1);
+
+        // The next poll's request does not end
+        vi.mocked(ts_client.get).mockReturnValue(new Promise(() => {}) as any);
+        await vi.advanceTimersByTimeAsync(3 * 60 * 1000);
+        TestBed.tick();
+
+        expect(spectator.service.event_list()).toHaveLength(1);
+        // The list stays usable, as a poll is not a new load
+        expect(spectator.service.loading()).toBe(false);
+        spectator.service.stopPolling();
+    });
+
+    it('should show a retry as loading', async () => {
+        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        spectator.service.setZones(['bld-123']);
+        spectator.service.startPolling('day');
+        await settle();
+
+        vi.mocked(ts_client.get).mockReturnValue(new Promise(() => {}) as any);
+        spectator.service.reload();
+        TestBed.tick();
+
+        expect(spectator.service.loading()).toBe(true);
+        spectator.service.stopPolling();
+    });
+
     it('should only flag shown rooms whose calendars did not load', async () => {
         vi.mocked(ts_client.responseHeaders).mockReturnValue({
             'x-calendar-issue': '1,group-events@place.com',

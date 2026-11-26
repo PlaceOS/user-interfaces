@@ -30,6 +30,8 @@ interface TimelineBlockView {
     enabled: boolean;
     time: string;
     takeover: boolean;
+    /** Whether an enabled takeover plays over part of this block */
+    under_takeover: boolean;
     awaiting_approval: boolean;
     source: string;
     from_zone: boolean;
@@ -192,6 +194,9 @@ function dayPercent(minutes: number) {
                                         class="relative flex h-full w-full flex-col overflow-hidden rounded-md border px-2 py-1"
                                         [class.border-dashed]="block.from_zone"
                                         [class.takeover]="block.takeover"
+                                        [class.under-takeover]="
+                                            block.under_takeover
+                                        "
                                         [style.background-color]="
                                             block.bg_color
                                         "
@@ -291,6 +296,15 @@ function dayPercent(minutes: number) {
                 flex: 1;
             }
 
+            /* Hatched, so the text keeps its contrast */
+            .under-takeover {
+                background-image: repeating-linear-gradient(
+                    135deg,
+                    rgb(255 255 255 / 0.55) 0 6px,
+                    transparent 6px 12px
+                );
+            }
+
             @media (min-width: 640px) {
                 :host {
                     --header-width: 16rem;
@@ -378,13 +392,28 @@ export class ScheduleTimelineComponent {
     public readonly view_rows = computed<TimelineRowView[]>(() => {
         const approvals = this.playlist_approval_status();
         const show_source = this.view_tab() === 'displays';
-        return this.rows().map((row) => ({
-            row,
-            height: Math.max(4, row.lane_count * LANE_HEIGHT + 2 * ROW_PADDING),
-            blocks: row.blocks.map((block) =>
-                this._blockView(row, block, approvals, show_source),
-            ),
-        }));
+        return this.rows().map((row) => {
+            // Takeovers replace the normal playlists while they play
+            const takeovers = row.blocks.filter(
+                (block) => block.takeover && block.playlist.enabled,
+            );
+            return {
+                row,
+                height: Math.max(
+                    4,
+                    row.lane_count * LANE_HEIGHT + 2 * ROW_PADDING,
+                ),
+                blocks: row.blocks.map((block) =>
+                    this._blockView(
+                        row,
+                        block,
+                        approvals,
+                        show_source,
+                        takeovers,
+                    ),
+                ),
+            };
+        });
     });
 
     /** Online status of display rows. Updates each minute. */
@@ -408,8 +437,23 @@ export class ScheduleTimelineComponent {
         block: TimelineBlock,
         approvals: Record<string, boolean>,
         show_source: boolean,
+        takeovers: TimelineBlock[],
     ): TimelineBlockView {
         const { playlist } = block;
+        // Real lengths, as the screen pads short blocks. A single pass
+        // counts as one minute.
+        const playEnd = (item: TimelineBlock) =>
+            item.start_minutes + Math.max(1, item.duration_minutes);
+        const under_takeover =
+            !block.takeover &&
+            takeovers.some(
+                (other) =>
+                    other.start_minutes < playEnd(block) &&
+                    block.start_minutes < playEnd(other),
+            );
+        const hidden = under_takeover
+            ? i18n('SIGNAGE_MANAGER.TOOLTIP_UNDER_TAKEOVER')
+            : '';
         const awaiting_approval =
             playlist.id in approvals && !approvals[playlist.id];
         const colours = awaiting_approval
@@ -454,6 +498,7 @@ export class ScheduleTimelineComponent {
             enabled: !!playlist.enabled,
             time,
             takeover: block.takeover,
+            under_takeover,
             awaiting_approval,
             source,
             from_zone: show_source && block.source_type === 'zone',
@@ -471,6 +516,7 @@ export class ScheduleTimelineComponent {
                 i18n('SIGNAGE_MANAGER.TOOLTIP_TIME', { time }),
                 disabled,
                 takeover,
+                hidden,
                 tooltip_source,
                 awaiting_approval
                     ? i18n('SIGNAGE_MANAGER.TOOLTIP_STATUS_AWAITING')
@@ -484,6 +530,7 @@ export class ScheduleTimelineComponent {
                 block.all_day ? i18n('SIGNAGE_MANAGER.ALL_DAY_LOWER') : time,
                 disabled,
                 takeover,
+                hidden,
                 approval,
                 source,
             ]

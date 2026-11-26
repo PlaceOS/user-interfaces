@@ -21,14 +21,12 @@ import {
 import {
     approveBooking,
     cancelOverlappingRecurringBookings,
-    queryBookings,
     queryPagedBookings,
     rejectBooking,
     rejectBookingInstance,
     removeBooking,
     saveBooking,
     setBookingCheckedIn,
-    updateBooking,
 } from '@placeos/bookings';
 import {
     assetZones,
@@ -38,7 +36,6 @@ import {
     csvToJson,
     Desk,
     downloadFile,
-    getTimezoneDifferenceInHours,
     i18n,
     jsonToCsv,
     notifyError,
@@ -58,22 +55,17 @@ import {
     showMetadata,
     updateMetadata,
 } from '@placeos/ts-client';
-import {
-    addHours,
-    addMinutes,
-    endOfDay,
-    format,
-    getUnixTime,
-    startOfDay,
-    subDays,
-} from 'date-fns';
+import { addHours, format, getUnixTime } from 'date-fns';
 
 import {
     openConfirmModal,
     rowSearchText,
+    runBulk,
     runBulkAction,
 } from '@placeos/components';
+import { clearAssignedBooking } from '../ui/assigned-booking';
 import { BookingHistoryModalComponent } from '../ui/booking-history-modal.component';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import { bulkRejectOptions } from '../ui/bulk-booking-actions';
 import {
     canChangeDeskBooking,
@@ -152,12 +144,11 @@ export class DesksStateService extends AsyncHandler {
     public readonly filters = this._filters.asReadonly();
     public readonly print_desk = signal<DeskQrItem | null>(null);
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.bookings.use_building_timezone')
-            ? this._org.building.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    public get timezone(): string {
+        return this._settings.get('app.bookings.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     /**
@@ -394,8 +385,8 @@ export class DesksStateService extends AsyncHandler {
         filters: DeskFilters,
     ): () => QueryResponse<Booking> {
         const date = filters.date || Date.now();
-        const period_start = addMinutes(startOfDay(date), this.tz_offset * 60);
-        const period_end = addMinutes(endOfDay(date), this.tz_offset * 60);
+        const period_start = buildingDayStart(date, this.timezone);
+        const period_end = buildingDayEnd(date, this.timezone);
         const active_zones = this._getActiveZones(filters.zones);
         const all_zones =
             !active_zones.length || filters.zones?.includes('All');
@@ -892,25 +883,29 @@ export class DesksStateService extends AsyncHandler {
         );
         if (resp.reason !== 'done') return;
         resp.loading(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_LOADING'));
-        try {
-            await Promise.all(
-                list.map((desk) => this._rejectDeskBooking(desk)),
-            );
-            list.forEach((desk) => {
-                (desk as any).approved = false;
-                (desk as any).rejected = true;
-                (desk as any).status = 'declined';
-                this._setBookingStatus(desk, 'declined');
-            });
-        } catch (e) {
-            notifyError(
-                i18n('APP.CONCIERGE.DESKS_REJECT_ALL_ERROR', { error: e }),
-            );
-            throw e;
-        } finally {
-            resp.close();
+        // A few at a time, and the bookings that fail do not stop the rest
+        const failed = new Set(
+            await runBulk(list, (desk) => this._rejectDeskBooking(desk)),
+        );
+        resp.close();
+        for (const desk of list) {
+            if (failed.has(desk)) continue;
+            (desk as any).approved = false;
+            (desk as any).rejected = true;
+            (desk as any).status = 'declined';
+            this._setBookingStatus(desk, 'declined');
         }
-        notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
+        if (failed.size) {
+            notifyError(
+                i18n('COMMON.BULK_PARTIAL', {
+                    done: list.length - failed.size,
+                    total: list.length,
+                    failed: failed.size,
+                }),
+            );
+        } else {
+            notifySuccess(i18n('APP.CONCIERGE.DESKS_REJECT_ALL_SUCCESS'));
+        }
         this.refresh();
     }
 
@@ -1219,35 +1214,8 @@ export class DesksStateService extends AsyncHandler {
         await saveBooking(this._createAssignedBooking(desk, zone).toJSON());
     }
 
-    private async _clearAssignedBooking(desk: Desk) {
-        const today = Date.now();
-        const booking_list = await queryBookings({
-            period_start: getUnixTime(startOfDay(today)),
-            period_end: getUnixTime(endOfDay(today)),
-            type: 'desk',
-            email: desk.assigned_to,
-            include_checked_out: true,
-        });
-        const filtered = booking_list.filter((_) => _.asset_id === desk.id);
-        const today_start = getUnixTime(startOfDay(today));
-        for (const booking of filtered) {
-            const is_recurring = booking.instance;
-            const series_starts_today =
-                getUnixTime(startOfDay(booking.booking_start * 1000)) ===
-                today_start;
-            if (is_recurring && !series_starts_today) {
-                const yesterday_end = getUnixTime(endOfDay(subDays(today, 1)));
-                await updateBooking(
-                    booking.id,
-                    { recurrence_end: yesterday_end },
-                    'patch',
-                );
-            } else {
-                // Series starts today (truncating to yesterday would be
-                // invalid) or it is a one-off booking, so delete it outright.
-                await removeBooking(booking.parent_id || booking.id);
-            }
-        }
+    private _clearAssignedBooking(desk: Desk) {
+        return clearAssignedBooking('desk', desk.id, desk.assigned_to);
     }
 
     /** Selected zone filters with the "all levels" sentinel keys stripped */

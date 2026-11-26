@@ -1337,10 +1337,18 @@ export function registerMockSignage() {
         path: '/api/engine/v2/signage/media',
         method: 'GET',
         page_size: MOCK_PAGE_SIZE,
-        callback: (request) =>
-            filterContentByGroup(MOCK_MEDIA, request.query_params).map(
-                toEngineMedia,
-            ),
+        callback: (request) => {
+            const tags = String(request.query_params.tags || '')
+                .split(',')
+                .filter((tag) => !!tag);
+            return filterContentByGroup(MOCK_MEDIA, request.query_params)
+                .filter(
+                    (item) =>
+                        !tags.length ||
+                        (item.tags || []).some((tag) => tags.includes(tag)),
+                )
+                .map(toEngineMedia);
+        },
     });
 
     registerMockEndpoint({

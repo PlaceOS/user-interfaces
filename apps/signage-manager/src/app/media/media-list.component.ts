@@ -42,6 +42,8 @@ import { SignageMediaService } from './signage-media.service';
 
 // Sentinel folder for media items without any tags.
 const UNTAGGED = '\0untagged';
+/** Media items added to the screen at a time */
+const RENDER_STEP = 200;
 
 /**
  * Tag chips of a media item in the list and grid layouts: the first two tags,
@@ -412,7 +414,7 @@ export class MediaTagChipsComponent {
                         }
                     } @else {
                         @for (
-                            media_item of display_media();
+                            media_item of rendered_media();
                             track media_item.id
                         ) {
                             @if (view_mode() === 'list') {
@@ -672,7 +674,15 @@ export class MediaTagChipsComponent {
                             }
                         }
                     }
-                    @if (has_more()) {
+                    <!-- Separate sentinels, so a new page that arrives while the
+                         sentinel is in view gets a new one that emits -->
+                    @if (rendered_media().length < display_media().length) {
+                        <div
+                            class="col-span-full h-px w-full"
+                            intersect
+                            (intersect)="showMore()"
+                        ></div>
+                    } @else if (has_more()) {
                         <div
                             class="col-span-full h-px w-full"
                             intersect
@@ -975,17 +985,24 @@ export class MediaListComponent {
             .fill(0)
             .map((_, idx) => `playlist-${idx}`),
     );
-    /** Selected media, cleared when the library scope changes. */
+    /**
+     * Selected media, cleared when the library scope or the open folder
+     * changes, as the selection covers the items on screen.
+     */
     public readonly selected_ids = linkedSignal({
         source: () => ({
             group_id: this._context.selected_group_id(),
             include_child_data: this._context.include_child_data(),
+            folder: this.selected_folder(),
         }),
         computation: () => new Set<string>(),
     });
     public readonly selected_media = computed(() => {
         const selected_ids = this.selected_ids();
-        return this.media().filter((item) => selected_ids.has(item.id));
+        // Only items on screen, so bulk actions never touch a hidden item
+        return this.rendered_media().filter((item) =>
+            selected_ids.has(item.id),
+        );
     });
     public readonly selected_count = computed(
         () => this.selected_media().length,
@@ -1004,22 +1021,47 @@ export class MediaListComponent {
             observer.observe(element);
             destroy_ref.onDestroy(() => observer.disconnect());
         });
-        // An open folder filters the loaded pages, and its items can be on
-        // any page, so load every page while it is open. Paging stops on the
+        // The server lists the media of an open tag folder
+        effect(() => {
+            const folder = this.selected_folder();
+            const tag =
+                this.view_mode() === 'folder' &&
+                folder !== null &&
+                folder !== UNTAGGED
+                    ? folder
+                    : null;
+            untracked(() => this._media_service.folder_tag.set(tag));
+        });
+        destroy_ref.onDestroy(() => this._media_service.folder_tag.set(null));
+        // The server cannot list untagged media, and they can be on any page,
+        // so load every page while the folder is open. Paging stops on the
         // last page, an empty page or an error.
         effect(() => {
             if (this.view_mode() !== 'folder') return;
-            if (this.selected_folder() === null) return;
-            if (!this.has_more() || this.loading()) return;
-            untracked(() => this.loadMore());
+            if (this.selected_folder() !== UNTAGGED) return;
+            if (!this._media_service.media_has_more()) return;
+            if (this._media_service.media_loading()) return;
+            untracked(() => this._media_service.loadMoreMedia());
         });
     }
 
     public readonly media = this._media_service.media;
     public readonly media_tags = this._media_service.media_tags;
     public readonly media_tag_counts = this._media_service.media_tag_counts;
-    public readonly loading = this._media_service.media_loading;
-    public readonly error = this._media_service.media_error;
+    /** Whether a tag folder is open, which has its own server list */
+    private readonly _in_tag_folder = computed(
+        () => this._media_service.folder_tag() !== null,
+    );
+    public readonly loading = computed(() =>
+        this._in_tag_folder()
+            ? this._media_service.folder_loading()
+            : this._media_service.media_loading(),
+    );
+    public readonly error = computed(() =>
+        this._in_tag_folder()
+            ? this._media_service.folder_error()
+            : this._media_service.media_error(),
+    );
     public readonly view_mode = this._media_service.media_view_mode;
     public readonly groups = this._context.signage_groups;
     public readonly selected_group_id = this._context.selected_group_id;
@@ -1091,9 +1133,7 @@ export class MediaListComponent {
         if (folder === UNTAGGED) {
             return this.media().filter((item) => !(item.tags || []).length);
         }
-        return this.media().filter((item) =>
-            (item.tags || []).includes(folder),
-        );
+        return this._in_tag_folder() ? this._media_service.folder_media() : [];
     });
 
     /** Width of the list in pixels */
@@ -1115,7 +1155,7 @@ export class MediaListComponent {
     public readonly masonry_columns = computed(() =>
         this.view_mode() === 'masonry'
             ? masonryColumns(
-                  this.display_media(),
+                  this.rendered_media(),
                   this._width() - this._list_padding,
               )
             : [],
@@ -1133,7 +1173,7 @@ export class MediaListComponent {
     public readonly drag_media = computed(() =>
         this.view_mode() === 'masonry'
             ? this.masonry_columns().flat()
-            : this.display_media(),
+            : this.rendered_media(),
     );
 
     /**
@@ -1157,14 +1197,46 @@ export class MediaListComponent {
         );
     }
 
+    /**
+     * Most media items on screen. A sort, a filter or the Untagged folder
+     * loads the whole library, so the grid adds items as the user scrolls
+     * instead of drawing them all. Resets when the items change, but not
+     * between grid and list, so selected items stay on screen.
+     */
+    private readonly _render_limit = linkedSignal({
+        source: () => ({
+            group_id: this._context.selected_group_id(),
+            include_child_data: this._context.include_child_data(),
+            search: this._media_service.search_term(),
+            folder: this.selected_folder(),
+            view: this._media_service.media_view(),
+        }),
+        computation: () => RENDER_STEP,
+    });
+    /** Media items on screen, the first part of `display_media` */
+    public readonly rendered_media = computed(() =>
+        this.display_media().slice(0, this._render_limit()),
+    );
+
+    /** Show more of the loaded items */
+    public showMore() {
+        this._render_limit.update((limit) => limit + RENDER_STEP);
+    }
+
     // Backend pagination: fetches the next page as the sentinel scrolls in.
-    public readonly has_more = this._media_service.media_has_more;
+    public readonly has_more = computed(() =>
+        this._in_tag_folder()
+            ? this._media_service.folder_has_more()
+            : this._media_service.media_has_more(),
+    );
     public loadMore() {
-        this._media_service.loadMoreMedia();
+        if (this._in_tag_folder()) this._media_service.loadMoreFolderMedia();
+        else this._media_service.loadMoreMedia();
     }
 
     public retry() {
-        this._media_service.retryMedia();
+        if (this._in_tag_folder()) this._media_service.retryFolderMedia();
+        else this._media_service.retryMedia();
     }
 
     public openFolder(folder_id: string) {

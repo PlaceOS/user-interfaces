@@ -127,6 +127,37 @@ describe('OrganisationService', () => {
         vi.useRealTimers();
     });
 
+    it('should not say the building settings are ready before they load', async () => {
+        vi.useFakeTimers();
+        const injector = createEnvironmentInjector(
+            [
+                OrganisationService,
+                {
+                    provide: SettingsService,
+                    useValue: {
+                        get: vi.fn(() => false),
+                        setOverrides: vi.fn(),
+                    },
+                },
+            ],
+            TestBed.inject(EnvironmentInjector),
+        );
+        const org = injector.get(OrganisationService) as any;
+        org._active_building.set({ id: 'bld-1' });
+
+        // The timer fires while the building metadata is still loading
+        org._updateSettingOverrides();
+        await vi.advanceTimersByTimeAsync(400);
+        org._loaded_buildings.set(['bld-1']);
+
+        expect(org.active_settings_ready()).toBe(false);
+        org._updateSettingOverrides();
+        await vi.advanceTimersByTimeAsync(400);
+        expect(org.active_settings_ready()).toBe(true);
+        injector.destroy();
+        vi.useRealTimers();
+    });
+
     it('should stop waiting when geolocation does not respond', async () => {
         vi.useFakeTimers();
         const original = Object.getOwnPropertyDescriptor(

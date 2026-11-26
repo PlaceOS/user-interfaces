@@ -14,6 +14,7 @@ describe('DisplayListComponent', () => {
     const displays_error = signal(false);
     const load_more = vi.fn();
     const retry_displays = vi.fn();
+    const refresh_displays = vi.fn();
     const display_stub = {
         display_search_term,
         filtered_displays,
@@ -23,6 +24,7 @@ describe('DisplayListComponent', () => {
         displays_error,
         loadMoreDisplays: load_more,
         retryDisplays: retry_displays,
+        refreshDisplays: refresh_displays,
     };
 
     function make() {
@@ -40,6 +42,7 @@ describe('DisplayListComponent', () => {
     beforeEach(() => {
         load_more.mockReset();
         retry_displays.mockReset();
+        refresh_displays.mockReset();
         displays_error.set(false);
         display_search_term.set('');
         filtered_displays.set([]);
@@ -94,6 +97,15 @@ describe('DisplayListComponent', () => {
         expect(component.lastSeen({ signage_last_seen: at(7) })).toBe(
             '7:36\u202fAM',
         );
+    });
+
+    it('loads the check-in times again every two minutes', () => {
+        vi.useFakeTimers();
+        make();
+
+        vi.advanceTimersByTime(2 * 60 * 1000);
+
+        expect(refresh_displays).toHaveBeenCalledTimes(1);
     });
 
     it('requests the next page when the sentinel triggers a load', () => {

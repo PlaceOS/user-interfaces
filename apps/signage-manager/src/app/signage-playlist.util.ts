@@ -7,6 +7,7 @@ import {
     isPlayOnceSchedule,
     mediaAnimation,
     parsePlayAtLocal,
+    SINGLE_PASS_TRIGGER_WINDOW_MS,
 } from '@placeos/common';
 import {
     MediaAnimation,
@@ -134,8 +135,10 @@ export function playlistItemMediaIds(list: {
 
 /**
  * Apply a new order of the shown playlist items to the saved item ids.
- * Items that do not resolve to media are not shown, so they keep their
- * position instead of being dropped from the playlist.
+ * Items that are not shown keep their position, e.g. items without media
+ * or items that another user added. Each saved item is used once, so an id
+ * that the saved list no longer has is not added back, and repeated items
+ * keep their count.
  * @param item_ids Saved item ids of the playlist
  * @param ordered_ids Ids of the shown items, in the new order
  */
@@ -143,14 +146,23 @@ export function reorderPlaylistItemIds(
     item_ids: string[],
     ordered_ids: string[],
 ) {
-    if (!item_ids.length) return [...ordered_ids];
-    const shown_ids = new Set(ordered_ids);
+    const available = new Map<string, number>();
+    for (const id of item_ids) available.set(id, (available.get(id) || 0) + 1);
+    const ordered = ordered_ids.filter((id) => {
+        const count = available.get(id) || 0;
+        if (count) available.set(id, count - 1);
+        return count > 0;
+    });
+    // Slots of the shown items, which take the new order
+    const shown = new Map<string, number>();
+    for (const id of ordered) shown.set(id, (shown.get(id) || 0) + 1);
     let next_index = 0;
-    return item_ids.map((id) =>
-        shown_ids.has(id) && next_index < ordered_ids.length
-            ? ordered_ids[next_index++]
-            : id,
-    );
+    return item_ids.map((id) => {
+        const count = shown.get(id) || 0;
+        if (!count) return id;
+        shown.set(id, count - 1);
+        return ordered[next_index++];
+    });
 }
 
 export function playlistMediaIds(list: PlaylistMediaList) {
@@ -213,8 +225,23 @@ export function playlistScheduleExpiryTooltip(
 }
 
 /**
+ * End of a schedule in Unix seconds, or 0 when it has no end. A play once
+ * schedule ends after its play period, or at its end date when that is sooner.
+ * A single pass (period 0) ends when the player can no longer start it.
+ */
+function scheduleEnd(schedule: Partial<SignagePlaylistSchedule>) {
+    const start = playOnceStart(schedule);
+    const period_seconds =
+        playPeriodMinutes(schedule) * 60 ||
+        SINGLE_PASS_TRIGGER_WINDOW_MS / 1000;
+    const once_end = start ? getUnixTime(start) + period_seconds : 0;
+    const ends = [schedule.valid_until || 0, once_end].filter((end) => end);
+    return ends.length ? Math.min(...ends) : 0;
+}
+
+/**
  * When a playlist stopped playing, in Unix seconds: its own end date, or the
- * last schedule end date when every schedule has ended. 0 while it can play.
+ * last schedule end when every schedule has ended. 0 while it can play.
  */
 export function playlistExpiredAt(
     playlist: {
@@ -226,13 +253,27 @@ export function playlistExpiredAt(
     if (playlist.valid_until && playlist.valid_until * 1000 < now) {
         return playlist.valid_until;
     }
-    const ends = (playlist.schedules || []).map(
-        ({ valid_until }) => valid_until || 0,
-    );
+    const ends = (playlist.schedules || []).map(scheduleEnd);
     if (!ends.length || ends.some((end) => !end || end * 1000 >= now)) {
         return 0;
     }
     return Math.max(...ends);
+}
+
+/**
+ * When a playlist stops playing, in Unix seconds: the earlier of its own end
+ * date and the end of its last schedule, or 0 when it never ends.
+ */
+export function playlistEndsAt(playlist: {
+    valid_until?: number;
+    schedules?: readonly Partial<SignagePlaylistSchedule>[];
+}) {
+    const schedules_end = playlistExpiredAt(
+        { schedules: playlist.schedules },
+        Number.MAX_SAFE_INTEGER,
+    );
+    const ends = [playlist.valid_until || 0, schedules_end].filter((_) => _);
+    return ends.length ? Math.min(...ends) : 0;
 }
 
 /** Status badge of a playlist in a list. Null when it needs no badge. */
@@ -280,9 +321,10 @@ export function createScheduleMaskFilter(
 ): (date: Date) => boolean {
     const mask = schedule.mask || '';
     const size = mask.length;
-    if (!size) return () => true;
+    const anchor = (schedule.valid_from || 0) * 1000;
+    // As in the player: without a mask, nothing plays before valid_from
+    if (!size) return (date) => !anchor || date.getTime() >= anchor;
     if (!hasPlayableScheduleMask(schedule)) return () => false;
-    const anchor = schedule.valid_from * 1000;
     if (isPlayOnceSchedule(schedule))
         return (date) => date.getTime() >= anchor && mask[0] === '1';
     const parts = cronParts(schedule.play_cron || '0 0 * * *');

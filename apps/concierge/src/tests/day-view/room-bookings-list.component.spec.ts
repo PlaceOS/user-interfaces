@@ -23,6 +23,7 @@ describe('RoomBookingsListComponent', () => {
             }),
     );
     const MockUserPipe = MockPipe(UserPipe, user_pipe_transform);
+    const stop_polling = vi.fn();
     const createComponent = createComponentFactory({
         component: RoomBookingsListComponent,
         shallow: true,
@@ -48,6 +49,7 @@ describe('RoomBookingsListComponent', () => {
                 newBooking: vi.fn(),
                 removeBooking: vi.fn(),
                 replace: vi.fn(),
+                poll: vi.fn(() => stop_polling),
             } as any),
             MockProvider(SettingsService, {
                 app_name: 'concierge',
@@ -68,6 +70,13 @@ describe('RoomBookingsListComponent', () => {
         spaces.set([]);
         loading.set(false);
         spectator = createComponent();
+    });
+
+    it('should load the bookings again while the list is open', () => {
+        const state = spectator.inject(EventsStateService);
+        expect(state.poll).toHaveBeenCalled();
+        spectator.fixture.destroy();
+        expect(stop_polling).toHaveBeenCalled();
     });
 
     it('should include setup and breakdown events provided by state', () => {

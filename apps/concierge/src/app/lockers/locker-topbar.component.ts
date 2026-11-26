@@ -3,6 +3,7 @@ import {
     computed,
     effect,
     inject,
+    Injector,
     OnInit,
     signal,
     untracked,
@@ -12,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 
 import {
     AsyncHandler,
+    firstValueWhere,
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
@@ -158,8 +160,28 @@ import { LockerStateService } from './locker-state.service';
                     <icon>lock_open</icon>
                 </button>
             }
+            @if (path() === 'events') {
+                <button
+                    icon
+                    default
+                    error
+                    matRipple
+                    (click)="rejectAllBookings()"
+                    [matTooltip]="
+                        'APP.CONCIERGE.LOCKERS_REJECT_ALL' | translate
+                    "
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.LOCKERS_REJECT_ALL' | translate
+                    "
+                >
+                    <icon>event_busy</icon>
+                </button>
+            }
             @if (path() === 'events' || path() === 'map') {
-                <date-options (dateChange)="setDate($event)"></date-options>
+                <date-options
+                    [date]="filters().date || now"
+                    (dateChange)="setDate($event)"
+                ></date-options>
             }
         </div>
     `,
@@ -192,6 +214,7 @@ import { LockerStateService } from './locker-state.service';
 export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     private _state = inject(LockerStateService);
     private _org = inject(OrganisationService);
+    private readonly _injector = inject(Injector);
     private _route = inject(ActivatedRoute);
     private _router = inject(Router);
     /** Writes filters to the URL after the page transition */
@@ -230,6 +253,10 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     public readonly newLockerBank = () => this._state.editLockerBank();
     public readonly releaseAllLockers = () =>
         this._state.releaseAllLockers(true);
+    public readonly rejectAllBookings = () => this._state.rejectAllBookings();
+    /** Date that the bookings show, so the picker matches the list */
+    public readonly filters = this._state.filters;
+    public readonly now = Date.now();
     /** List of levels for the active building */
     public readonly updateZones = (z) => {
         if (!this._router.url.includes('lockers')) return;
@@ -316,8 +343,14 @@ export class LockersTopbarComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
+        // The filter effects react to the levels and query params. They also
+        // read building settings, so wait until those are in effect.
         await this._org.waitUntilInitialised();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await firstValueWhere(
+            this._org.active_settings_ready,
+            (ready) => ready,
+            this._injector,
+        );
         this._state.setSearch('');
         this._ready.set(true);
     }

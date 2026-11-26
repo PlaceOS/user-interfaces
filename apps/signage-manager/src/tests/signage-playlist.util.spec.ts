@@ -16,6 +16,7 @@ import {
     playlistScheduleNextPlayLabels,
     playlistStatus,
     playOnceStart,
+    reorderPlaylistItemIds,
 } from '../app/signage-playlist.util';
 
 describe('signage playlist util', () => {
@@ -332,6 +333,38 @@ describe('schedule masks', () => {
     });
 });
 
+describe('schedule mask filter', () => {
+    it('allows no time before valid_from without a mask, as the player', () => {
+        const valid_from = Date.UTC(2026, 0, 10) / 1000;
+        const allows = createScheduleMaskFilter({
+            play_cron: '0 9 * * *',
+            valid_from,
+        });
+
+        expect(allows(new Date(Date.UTC(2026, 0, 9, 9)))).toBe(false);
+        expect(allows(new Date(Date.UTC(2026, 0, 10, 9)))).toBe(true);
+        expect(createScheduleMaskFilter({})(new Date(0))).toBe(true);
+    });
+});
+
+describe('playlist item reorder', () => {
+    it('keeps the count of repeated items that another user added', () => {
+        expect(
+            reorderPlaylistItemIds(['a', 'a', 'b', 'c'], ['b', 'c', 'a']),
+        ).toEqual(['b', 'a', 'c', 'a']);
+    });
+
+    it('keeps a saved list that another user cleared empty', () => {
+        expect(reorderPlaylistItemIds([], ['b', 'a'])).toEqual([]);
+    });
+
+    it('does not add back items that the saved list no longer has', () => {
+        expect(
+            reorderPlaylistItemIds(['a', 'c', 'd'], ['c', 'b', 'a']),
+        ).toEqual(['c', 'a', 'd']);
+    });
+});
+
 describe('playlist status', () => {
     const now = Date.UTC(2026, 0, 10);
     const seconds = (time: number) => Math.floor(time / 1000);
@@ -357,6 +390,23 @@ describe('playlist status', () => {
                 now,
             ),
         ).toBe('expired');
+    });
+
+    it('marks a playlist expired when its play once schedule has played', () => {
+        const status = (play_at: number, play_period?: number) =>
+            playlistStatus(
+                { id: 'a', schedules: [{ play_at, play_period }] },
+                {},
+                {},
+                now,
+            );
+
+        expect(status(seconds(now - day), 60)).toBe('expired');
+        expect(status(seconds(now - 30 * 60_000), 60)).toBe(null);
+        expect(status(seconds(now + day))).toBe(null);
+        // A single pass can still start in the player's trigger window
+        expect(status(seconds(now - 1000), 0)).toBe(null);
+        expect(status(seconds(now - 60_000), 0)).toBe('expired');
     });
 
     it('marks a playlist pending before it starts', () => {

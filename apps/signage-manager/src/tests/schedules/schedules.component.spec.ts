@@ -72,6 +72,23 @@ describe('SchedulesSectionComponent', () => {
         expect(component.zone_total()).toBe(1);
     });
 
+    it('keeps the timeline when a background refresh fails', async () => {
+        const component = await make();
+        const refresh = () =>
+            (
+                component as unknown as { _refreshInventory(): Promise<void> }
+            )._refreshInventory();
+
+        load_inventory.mockRejectedValueOnce(new Error('500'));
+        await refresh();
+        expect(component.inventory_error()).toBe(false);
+        expect(component.display_total()).toBe(2);
+
+        displays.set([{ id: 'd-3', name: 'Hall', zones: [], updated_at: 3 }]);
+        await refresh();
+        expect(component.rows().map((r) => r.id)).toEqual(['d-3']);
+    });
+
     it('builds one timeline row per display in the displays view', async () => {
         const component = await make();
         expect(component.rows().map((r) => r.id)).toEqual(['d-1', 'd-2']);
@@ -152,6 +169,12 @@ describe('SchedulesSectionComponent', () => {
         );
         component.previousDay();
         expect(isSameDay(component.selected_date(), start)).toBe(true);
+
+        // A day picked in the date field
+        component.setDate(addDays(start, 21).valueOf() + 3_600_000);
+        expect(component.selected_date()).toEqual(
+            startOfDay(addDays(start, 21)),
+        );
 
         component.selected_date.set(addDays(start, 5));
         component.goToToday();

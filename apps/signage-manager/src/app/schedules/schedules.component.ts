@@ -14,8 +14,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { i18n } from '@placeos/common';
+import { i18n, withTimeout } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import { DateFieldComponent } from '@placeos/form-fields';
 import { addDays, isSameDay, startOfDay } from 'date-fns';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { GroupBreadcrumbsComponent } from '../shared/group-breadcrumbs.component';
@@ -45,6 +46,14 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
         ? rows.filter((row) => row.search_index.includes(search))
         : rows;
 }
+
+/**
+ * Time in milliseconds between loads of the schedule inventory. Shorter than
+ * the offline time, so a display that checks in does not show offline.
+ */
+const INVENTORY_REFRESH_MS = 2 * 60 * 1000;
+/** Most time in milliseconds that a background inventory load can take */
+const INVENTORY_REFRESH_TIMEOUT_MS = 60 * 1000;
 
 @Component({
     selector: 'schedules-section',
@@ -133,7 +142,7 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                     <div
                         class="mt-2.5 flex flex-col gap-2 md:flex-row md:items-center md:justify-between"
                     >
-                        <div class="flex items-center gap-0.5">
+                        <div class="flex flex-wrap items-center gap-0.5">
                             <button
                                 icon
                                 type="button"
@@ -171,6 +180,12 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
                             >
                                 <icon>chevron_right</icon>
                             </button>
+                            <a-date-field
+                                class="ml-1 w-48"
+                                [from]="1"
+                                [ngModel]="selected_date().valueOf()"
+                                (ngModelChange)="setDate($event)"
+                            ></a-date-field>
                             <div class="ml-1.5">
                                 <div
                                     class="text-sm leading-tight font-medium"
@@ -314,6 +329,7 @@ function filterRows(rows: ScheduleTimelineRow[], search_term: string) {
         MatInputModule,
         MatProgressSpinnerModule,
         TranslatePipe,
+        DateFieldComponent,
     ],
 })
 export class SchedulesSectionComponent {
@@ -346,6 +362,8 @@ export class SchedulesSectionComponent {
     private readonly _zones = computed(
         () => this._inventory_value()?.zones || [],
     );
+
+    private _refreshing = false;
 
     public readonly inventory_loading = this._inventory.isLoading;
     public readonly inventory_error = computed(() => !!this._inventory.error());
@@ -487,7 +505,40 @@ export class SchedulesSectionComponent {
             () => this.current_time.set(new Date()),
             60_000,
         );
-        this._destroy_ref.onDestroy(() => clearInterval(timer));
+        // Load the inventory again for display check-ins and other users' changes
+        const refresh = setInterval(() => {
+            if (!document.hidden) this._refreshInventory();
+        }, INVENTORY_REFRESH_MS);
+        this._destroy_ref.onDestroy(() => {
+            clearInterval(timer);
+            clearInterval(refresh);
+        });
+    }
+
+    /**
+     * Load the inventory in the background. Keeps the timeline on screen, and
+     * drops a result that fails, is late or is for an older group.
+     */
+    private async _refreshInventory() {
+        if (this._refreshing || !this._inventory.hasValue()) return;
+        this._refreshing = true;
+        const key = this._inventory_service.inventory_key();
+        try {
+            const inventory = await withTimeout(
+                this._inventory_service.loadSignageInventory(),
+                INVENTORY_REFRESH_TIMEOUT_MS,
+            );
+            if (
+                key === this._inventory_service.inventory_key() &&
+                this._inventory.hasValue()
+            ) {
+                this._inventory.set(inventory);
+            }
+        } catch {
+            // The next refresh tries again
+        } finally {
+            this._refreshing = false;
+        }
     }
 
     /** Load the schedules again after an error */
@@ -527,5 +578,10 @@ export class SchedulesSectionComponent {
 
     public goToToday() {
         this.selected_date.set(startOfDay(new Date()));
+    }
+
+    /** Show the day of a date picked in the date field */
+    public setDate(date: number | null) {
+        if (date) this.selected_date.set(startOfDay(date));
     }
 }

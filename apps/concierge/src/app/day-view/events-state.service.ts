@@ -19,7 +19,6 @@ import {
     SettingsService,
     Space,
     flatten,
-    getTimezoneDifferenceInHours,
     i18n,
     nextValueFrom,
     notifyError,
@@ -36,7 +35,6 @@ import {
 } from '@placeos/events';
 import { getModule } from '@placeos/ts-client';
 import {
-    addMinutes,
     endOfDay,
     endOfMonth,
     endOfWeek,
@@ -48,6 +46,7 @@ import {
 } from 'date-fns';
 
 import { openConfirmModal } from '@placeos/components';
+import { buildingDayEnd, buildingDayStart } from '../ui/building-time';
 import { EventBookModalComponent } from './event-book-modal.component';
 
 export type BookingType =
@@ -86,7 +85,7 @@ interface ApiEventsParams {
     spaces: Space[];
 }
 
-function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
+function periodFor(period, date, timezone = '', week_start: DayOfWeek = 0) {
     const start_result =
         period === 'month'
             ? startOfMonth(date)
@@ -99,8 +98,8 @@ function periodFor(period, date, tz_offset = 0, week_start: DayOfWeek = 0) {
             : period === 'week'
               ? endOfWeek(date, { weekStartsOn: week_start })
               : endOfDay(date);
-    const start = addMinutes(start_result, tz_offset * 60);
-    const end = addMinutes(end_result, tz_offset * 60);
+    const start = buildingDayStart(start_result, timezone);
+    const end = buildingDayEnd(end_result, timezone);
     return { start, end };
 }
 
@@ -135,8 +134,8 @@ export class EventsStateService extends AsyncHandler {
     private _driver_events = signal<Record<string, CalendarEvent[]>>({});
     /** Pending room booking approval requests */
     private _pending = signal<CalendarEvent[]>([]);
-    /** Whether the pending approval binding has been set up */
-    private _pending_bound = false;
+    /** Approval binding that `pending` listens to */
+    private _pending_binding: unknown = null;
 
     /** Signal for active date */
     public readonly date = this._date.asReadonly();
@@ -270,7 +269,7 @@ export class EventsStateService extends AsyncHandler {
             const { start, end } = periodFor(
                 period,
                 date,
-                this.tz_offset,
+                this.timezone,
                 this._week_start,
             );
             let failed = false;
@@ -341,7 +340,7 @@ export class EventsStateService extends AsyncHandler {
         const { start, end } = periodFor(
             period,
             date,
-            this.tz_offset,
+            this.timezone,
             this._week_start,
         );
         return this.filterEvents(
@@ -355,9 +354,17 @@ export class EventsStateService extends AsyncHandler {
     });
 
     /** Whether booking data is being loaded */
-    public readonly loading: Signal<boolean> = computed(
-        () => this._spaces.isLoading() || this._api_events.isLoading(),
-    );
+    /** Whether the user asked for the last reload, e.g. with Retry */
+    private readonly _manual_reload = signal(false);
+    /** Loading new data. A background reload of a poll does not count. */
+    public readonly loading: Signal<boolean> = computed(() => {
+        const status = this._api_events.status();
+        return (
+            this._spaces.isLoading() ||
+            status === 'loading' ||
+            (status === 'reloading' && this._manual_reload())
+        );
+    });
 
     /** Active filters */
     public get filters() {
@@ -368,12 +375,11 @@ export class EventsStateService extends AsyncHandler {
         return this._settings.time_format;
     }
 
-    public get tz_offset() {
-        const tz = this._settings.get('app.events.use_building_timezone')
-            ? this._org.building.timezone
+    /** Timezone that booking times use, or '' for the browser timezone */
+    public get timezone(): string {
+        return this._settings.get('app.events.use_building_timezone')
+            ? this._org.building?.timezone || ''
             : '';
-        const current_tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        return !tz ? 0 : getTimezoneDifferenceInHours(current_tz, tz);
     }
 
     private get _week_start() {
@@ -417,15 +423,27 @@ export class EventsStateService extends AsyncHandler {
                 this._removed_added = [];
             });
         });
-        // Bind to room booking approval requests once the module is available
+        // Bind to the room booking approval requests of the active building
         effect(() => {
             this._org.active_building();
-            if (this._pending_bound) return;
-            const mod = this._org.module?.('approvals', 'RoomBookingApproval');
-            if (!mod) return;
-            this._pending_bound = true;
+            // Building bindings name the module, so wait until they load
+            const loaded = this._org.active_building_loaded?.() !== false;
+            const mod = loaded
+                ? this._org.module?.('approvals', 'RoomBookingApproval')
+                : null;
+            if (!mod) {
+                this._pending_binding = null;
+                this.unsub('pending');
+                this.unsub('pending-listen');
+                this._pending.set([]);
+                return;
+            }
             const binding =
                 mod.binding<Partial<CalendarEvent>[]>('approval_required');
+            // Buildings can share one module, and so one binding
+            if (binding === this._pending_binding) return;
+            this._pending_binding = binding;
+            // Named subscriptions replace the binding of the last building
             this.subscription('pending', binding.bind());
             const listen = binding.listen();
             const apply = (value) =>
@@ -466,12 +484,22 @@ export class EventsStateService extends AsyncHandler {
     public poll(delay: number = 3 * MINUTES) {
         const poll_delay = Math.max(delay, 3 * MINUTES);
         this._poll.set(Date.now());
-        this.interval('polling', () => this._poll.set(Date.now()), poll_delay);
+        // Reload keeps the loaded bookings on screen until the new ones
+        // arrive. It refuses while a load runs, so start a new one then.
+        this.interval(
+            'polling',
+            () => {
+                this._manual_reload.set(false);
+                if (!this._api_events.reload()) this._poll.set(Date.now());
+            },
+            poll_delay,
+        );
         return () => this.stopPolling();
     }
 
     /** Load the bookings from the API again */
     public reload() {
+        this._manual_reload.set(true);
         this._api_events.reload();
     }
 

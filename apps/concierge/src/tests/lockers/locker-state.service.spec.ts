@@ -8,14 +8,16 @@ import {
 import {
     OrganisationService,
     SettingsService,
+    setNotifyOutlet,
     setTimeInTimezone,
 } from '@placeos/common';
-import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
-import { NEVER, of } from 'rxjs';
+import { getUnixTime } from 'date-fns';
+import { NEVER, Observable, of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
+import { buildingDayEnd, buildingDayStart } from '../../app/ui/building-time';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -185,17 +187,13 @@ describe('LockerStateService', () => {
         const first_page = (spectator.service as any)._buildFirstPage({ date });
         first_page();
 
-        const offset = spectator.service.tz_offset;
+        const timezone = spectator.service.timezone;
         const paged = pagedBookingCalls();
         expect(paged.length).toBeGreaterThan(0);
         expect(paged[paged.length - 1][0].query_params).toEqual(
             expect.objectContaining({
-                period_start: getUnixTime(
-                    addMinutes(startOfDay(date), offset * 60),
-                ),
-                period_end: getUnixTime(
-                    addMinutes(endOfDay(date), offset * 60),
-                ),
+                period_start: getUnixTime(buildingDayStart(date, timezone)),
+                period_end: getUnixTime(buildingDayEnd(date, timezone)),
             }),
         );
     });
@@ -408,5 +406,170 @@ describe('LockerStateService', () => {
                 booking_end: getUnixTime(assigned_start + 20 * 60 * 60 * 1000),
             }),
         );
+    });
+
+    it('should put the old assignee back when their booking cannot be cleared', async () => {
+        spectator = createService();
+        (spectator.inject(MatDialog).open as any).mockReturnValue({
+            afterClosed: () => NEVER,
+            componentInstance: {
+                loading: { set: vi.fn() },
+                event: of({
+                    reason: 'done',
+                    metadata: {
+                        name: 'Locker 1',
+                        assigned_to: 'new@example.com',
+                    },
+                }),
+            },
+            close: vi.fn(),
+        });
+        (ts_client.updateAsset as any).mockResolvedValue({ id: 'locker-1' });
+        (ts_client.query as any).mockRejectedValue(new Error('500'));
+
+        // A failed save keeps the modal open, so the edit does not end
+        void spectator.service.editLocker(
+            { id: 'bank-1', tags: [] } as any,
+            {
+                id: 'locker-1',
+                name: 'Locker 1',
+                assigned_to: 'old@example.com',
+            } as any,
+        );
+        await settle();
+
+        const saves = (ts_client.updateAsset as any).mock.calls;
+        expect(saves).toHaveLength(2);
+        expect(JSON.stringify(saves[1])).toContain('old@example.com');
+        expect(JSON.stringify(saves[1])).not.toContain('new@example.com');
+    });
+
+    describe('release all and reject all', () => {
+        const locker = (id: string) => ({ id, bank_id: 'bank-1' }) as any;
+        let execute: ReturnType<typeof vi.fn>;
+
+        beforeEach(() => {
+            execute = vi.fn().mockResolvedValue(undefined);
+            // Set before the service is made, as the mock copies it then
+            organisation_service.module = vi.fn(() => ({ execute }));
+            spectator = createService();
+        });
+
+        it('releases the lockers and loads them again', async () => {
+            Object.defineProperty(spectator.service, 'lockers', {
+                value: () => [locker('l-1')],
+            });
+            await settle();
+            const change = (spectator.service as any)._change();
+
+            await spectator.service.releaseAllLockers();
+
+            expect(execute).toHaveBeenCalledOnce();
+            expect(execute).toHaveBeenCalledWith('release_all_lockers', []);
+            expect((spectator.service as any)._change()).not.toBe(change);
+        });
+
+        it('says there is nothing to release when there are no lockers', async () => {
+            const snackbar = {
+                open: vi.fn(() => ({
+                    onAction: () => ({ subscribe: vi.fn() }),
+                })),
+            };
+            setNotifyOutlet(snackbar as any);
+            Object.defineProperty(spectator.service, 'lockers', {
+                value: () => [],
+            });
+            await settle();
+
+            await spectator.service.releaseAllLockers();
+
+            expect(execute).not.toHaveBeenCalled();
+            expect(snackbar.open).toHaveBeenCalledWith(
+                'APP.CONCIERGE.LOCKERS_RELEASE_ALL_NONE',
+                expect.anything(),
+                expect.anything(),
+            );
+            setNotifyOutlet(null);
+        });
+
+        it('rejects the occurrences of the shown bookings that are active', async () => {
+            const service = spectator.service as any;
+            const params = service._bookings_params();
+            service._bookings_loaded_for = params;
+            service._first_page_params = params;
+            const booking = (id: string, extra = {}) =>
+                ({ id, status: 'tentative', deleted: false, ...extra }) as any;
+            Object.defineProperty(spectator.service, 'filtered_bookings', {
+                value: () => [
+                    booking('b-1', { instance: 1_740_000_000 }),
+                    booking('b-2', { status: 'declined' }),
+                    booking('b-3', { status: 'cancelled' }),
+                    booking('b-4', { deleted: true }),
+                ],
+            });
+            (spectator.inject(MatDialog).open as any).mockReturnValue({
+                componentInstance: {
+                    event: of({ reason: 'done' }),
+                    loading: { set: vi.fn() },
+                },
+                afterClosed: () => NEVER,
+                close: vi.fn(),
+            });
+
+            await spectator.service.rejectAllBookings();
+
+            expect(ts_client.post).toHaveBeenCalledOnce();
+            expect(ts_client.post).toHaveBeenCalledWith(
+                expect.stringContaining('/bookings/b-1/reject/1740000000'),
+                expect.anything(),
+            );
+        });
+
+        it('sends nothing when another date loads while the user confirms', async () => {
+            const service = spectator.service as any;
+            const params = service._bookings_params();
+            service._bookings_loaded_for = params;
+            Object.defineProperty(spectator.service, 'filtered_bookings', {
+                value: () => [{ id: 'b-1', status: 'tentative' }],
+            });
+            let confirm: (value: unknown) => void = () => {};
+            (spectator.inject(MatDialog).open as any).mockReturnValue({
+                componentInstance: {
+                    event: new Observable((subscriber) => {
+                        confirm = (value) => subscriber.next(value);
+                    }),
+                    loading: { set: vi.fn() },
+                },
+                afterClosed: () => NEVER,
+                close: vi.fn(),
+            });
+
+            const rejecting = spectator.service.rejectAllBookings();
+            // Another date loads, and its params become current
+            const next_params = { ...params };
+            service._bookings_loaded_for = next_params;
+            vi.spyOn(service, '_bookings_params').mockReturnValue(next_params);
+            confirm({ reason: 'done' });
+            await rejecting;
+
+            const rejects = (ts_client.post as any).mock.calls.filter(
+                ([url]: [string]) => url.includes('/reject'),
+            );
+            expect(rejects).toEqual([]);
+        });
+
+        it('does not reject a list from an earlier date', async () => {
+            const service = spectator.service as any;
+            service._bookings_loaded_for = { stale: true };
+            Object.defineProperty(spectator.service, 'filtered_bookings', {
+                value: () => [{ id: 'b-1', status: 'tentative' }],
+            });
+            await spectator.service.rejectAllBookings();
+
+            const rejects = (ts_client.post as any).mock.calls.filter(
+                ([url]: [string]) => url.includes('/reject'),
+            );
+            expect(rejects).toEqual([]);
+        });
     });
 });

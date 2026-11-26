@@ -41,11 +41,27 @@ describe('ContentReportComponent', () => {
         inventory_key.set({ group_id: 'g-1', change: 1 });
         load_report.mockResolvedValue({
             expired_media_unchecked: 0,
+            never_played: [],
+            awaiting_review: [{ id: 'p2', name: 'Launch', description: '' }],
+            awaiting_review_unchecked: 0,
+            checked_at: new Date(2026, 8, 20).valueOf(),
             empty_displays: [
                 { id: 'd1', name: 'SIGNAGE 1', display_name: 'Lobby' },
             ],
+            offline_displays: [{ id: 'd3', name: 'Hall' }],
             unassigned_playlists: [],
             expired_playlists: [],
+            // Its last schedule ends before its own end date
+            expiring_playlists: [
+                {
+                    id: 'p1',
+                    name: 'Sale',
+                    valid_until: new Date(2026, 8, 25).valueOf() / 1000,
+                    schedules: [
+                        { valid_until: new Date(2026, 8, 22).valueOf() / 1000 },
+                    ],
+                },
+            ],
             expired_media: [
                 {
                     media: { id: 'm1', name: 'Poster' },
@@ -82,16 +98,24 @@ describe('ContentReportComponent', () => {
         expect(rows).toEqual({
             conflicts: ['Fire drill · Launch | Cafe · Mon 28 Sep, 09:30'],
             'empty-displays': ['Lobby | '],
+            'offline-displays': ['Hall | Offline · Never seen'],
             'unassigned-playlists': [],
             'expired-playlists': [],
+            'expiring-playlists': ['Sale | 22 Sep 2026'],
+            'never-played': [],
+            'awaiting-review': ['Launch | '],
             'expired-media': ['Poster | News, Cafe'],
         });
     });
 
     it('links displays and playlists, and previews media', async () => {
         const component = await make();
-        const [conflicts, empty_displays, , , expired_media] =
-            component.sections();
+        const sections = Object.fromEntries(
+            component.sections().map((section) => [section.id, section]),
+        );
+        const conflicts = sections['conflicts'];
+        const empty_displays = sections['empty-displays'];
+        const expired_media = sections['expired-media'];
 
         expect(conflicts.rows[0].route).toEqual(['/displays', 'd2']);
         expect(empty_displays.rows[0].route).toEqual(['/displays', 'd1']);
