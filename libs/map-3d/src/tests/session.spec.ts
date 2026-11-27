@@ -55,6 +55,44 @@ describe('Map3DSession', () => {
         expect(session.kindHeight('desk')).toBe(0.8);
     });
 
+    it('keeps changes made after the map was serialised as unsaved', () => {
+        const session = new Map3DSession(SMALL_MAP);
+        session.detect();
+        session.serialise();
+        session.assign([session.map.svg.querySelector('#table-1')!], 'flat');
+        session.markSaved();
+        expect(session.dirty).toBe(true);
+        session.serialise();
+        session.markSaved();
+        expect(session.dirty).toBe(false);
+    });
+
+    it('does nothing for the height of a kind the map has none of', () => {
+        const session = new Map3DSession(SMALL_MAP);
+        session.detect();
+        session.serialise();
+        session.markSaved();
+        session.setKindHeight('partition', 1);
+        expect(session.can_undo).toBe(true);
+        expect(session.dirty).toBe(false);
+        const steps = session['_undo'].length;
+        session.setKindHeight('partition', 2);
+        expect(session['_undo'].length).toBe(steps);
+        session.setKindHeight('wall', 99);
+        expect(session.kindHeight('wall')).toBe(20);
+    });
+
+    it('reverts a scale with many decimal places', () => {
+        const session = new Map3DSession(
+            SMALL_MAP.replace('<svg ', '<svg data-3d-unit="12.345678" '),
+        );
+        session.assign([session.map.svg.querySelector('#table-1')!], 'desk');
+        expect(session.dirty).toBe(true);
+        session.revert();
+        expect(session.dirty).toBe(false);
+        expect(session.unit).toBe(12.345678);
+    });
+
     it('keeps the heights in use when it detects again', () => {
         const session = new Map3DSession(SMALL_MAP);
         session.detect();

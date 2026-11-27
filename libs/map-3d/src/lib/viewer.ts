@@ -536,6 +536,14 @@ export class Map3DViewer {
             const event = e as PointerEvent;
             this._cancelTurn();
             this._pointer_down = { x: event.clientX, y: event.clientY };
+            // The controls have captured the pointer, which sends the click
+            // to the container and not to content placed over the map
+            if (
+                this.overlays.contains(event.target as Node) &&
+                this.container.hasPointerCapture(event.pointerId)
+            ) {
+                this.container.releasePointerCapture(event.pointerId);
+            }
         });
         this._listen(this.container, 'click', (e) => this._onClick(e));
         this._listen(this.container, 'pointermove', (e) =>

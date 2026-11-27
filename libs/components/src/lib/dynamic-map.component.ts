@@ -263,6 +263,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     private _viewer_version = signal(0);
     /** Frame request of the zoom being animated, or `null` */
     private _zoom_frame: number | null = null;
+    /** Zoom the animation is going to */
+    private _zoom_target = 1;
     /** Counts viewer replacements, to drop a 3D viewer that loads after another change */
     private _viewer_request = 0;
     /** Previously loaded map URL, used to reset the view on map changes */
@@ -516,8 +518,12 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             this._viewer_version();
             const zoom_val = this.zoom() ?? 1;
             const viewer = this._map_viewer;
-            // A zoom being animated is applied to the viewer a frame at a time
-            if (!viewer || this._zoom_frame !== null) return;
+            if (!viewer) return;
+            if (this._zoom_frame !== null) {
+                // A zoom being animated is applied to the viewer a frame at a time
+                if (zoom_val === this._zoom_target) return;
+                this._cancelZoom();
+            }
             viewer.setZoom(zoom_val);
             if (viewer.zoom !== zoom_val) this.zoom.set(viewer.zoom);
         });
@@ -650,7 +656,11 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         }
         const start = performance.now();
         const step = () => {
-            if (this._map_viewer !== viewer) return this._cancelZoom();
+            if (this._map_viewer !== viewer) {
+                this._cancelZoom();
+                this._map_viewer?.setZoom(zoom);
+                return;
+            }
             const progress = Math.min(
                 1,
                 (performance.now() - start) / ZOOM_DURATION,
@@ -666,6 +676,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         };
         // The model holds where the zoom is going, so the next step starts from there
         this._zoom_frame = requestAnimationFrame(step);
+        this._zoom_target = zoom;
         this.zoom.set(zoom);
     }
 
@@ -783,20 +794,21 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         }
         this.loading.set(true);
         this.error.set(false);
-        this._map_viewer
+        const viewer = this._map_viewer;
+        viewer
             .setMap(src)
             .then(() => {
-                if (this.src() !== src || !this._map_viewer) return;
+                if (this.src() !== src || this._map_viewer !== viewer) return;
                 this.loading.set(false);
                 const mappings = Object.fromEntries(
-                    this._map_viewer.map?.element_bounds || [],
+                    viewer.map?.element_bounds || [],
                 );
                 this._element_mappings.set(mappings);
                 this.mapInfo.emit(mappings);
             })
             .catch((e) => {
                 console.warn('[MAP] Failed to load map.', e);
-                if (this.src() !== src) return;
+                if (this.src() !== src || this._map_viewer !== viewer) return;
                 this.loading.set(false);
                 this.error.set(true);
             });

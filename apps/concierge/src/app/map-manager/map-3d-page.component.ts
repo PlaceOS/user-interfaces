@@ -1060,7 +1060,8 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             this._loaded_map_id = saved.map_id;
             this.level.set(this._manager.level(level.id) || level);
             session.markSaved();
-            this._edited = false;
+            // Changes made while the map was being saved are still to save
+            this._edited = session.dirty;
             this.auto_converted.set(false);
             this._revision.update((revision) => revision + 1);
             notifySuccess(i18n('APP.CONCIERGE.MAPS_3D_SAVED'));

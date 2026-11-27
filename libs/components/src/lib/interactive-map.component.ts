@@ -156,7 +156,9 @@ export class InteractiveMapComponent {
         () =>
             this.has_3d() &&
             !this.unsupported_3d() &&
-            !this.options()?.disable_zoom,
+            !this.options()?.disable_zoom &&
+            !this.use_mapsindoors() &&
+            !this.use_cisco_maps,
     );
     public readonly mode = computed<'2d' | '3d'>(() =>
         this.can_3d() && this.preferred_mode() === '3d' ? '3d' : '2d',

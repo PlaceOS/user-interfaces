@@ -12,6 +12,7 @@ import {
     Map3DKind,
     MAP_3D_KINDS,
     mapUnit,
+    MAX_HEIGHT,
     ownAnnotation,
     setAnnotation,
     setMapUnit,
@@ -62,6 +63,8 @@ export class Map3DSession {
 
     private _saved: string;
     private _saved_unit: number;
+    /** The annotations and scale the map had when it was last serialised */
+    private _serialised: { state: string; unit: number } | null = null;
     private _undo: Snapshot[] = [];
     private _redo: Snapshot[] = [];
     private _shape_by_element = new Map<Element, MapShape>();
@@ -164,16 +167,16 @@ export class Map3DSession {
     /** Change the height of every element of a kind that has the kind's usual height. */
     public setKindHeight(kind: Map3DKind, height: number) {
         if (FLOOR_KINDS.has(kind) || !(height > 0)) return;
+        height = Math.min(MAX_HEIGHT, height);
         const current = this.kindHeight(kind);
+        const usual = this._annotated().filter((element) => {
+            const annotation = ownAnnotation(element);
+            return annotation?.kind === kind && annotation.height === current;
+        });
+        if (!usual.length || height === current) return;
         this._change(() => {
-            for (const element of this._annotated()) {
-                const annotation = ownAnnotation(element);
-                if (
-                    annotation?.kind === kind &&
-                    annotation.height === current
-                ) {
-                    setAnnotation(element, { ...annotation, height });
-                }
+            for (const element of usual) {
+                setAnnotation(element, { ...ownAnnotation(element)!, height });
             }
         });
     }
@@ -307,12 +310,21 @@ export class Map3DSession {
         )) {
             element.removeAttribute(HIDDEN_ATTR);
         }
+        this._serialised = { state: this._state(), unit: this.unit };
         return new XMLSerializer().serializeToString(svg);
     }
 
+    /**
+     * Record the map as saved, as it was when it was last serialised.
+     * Changes made since then stay unsaved.
+     */
     public markSaved() {
-        this._saved = this._state();
-        this._saved_unit = this.unit;
+        const { state, unit } = this._serialised || {
+            state: this._state(),
+            unit: this.unit,
+        };
+        this._saved = state;
+        this._saved_unit = unit;
     }
 
     /** Put the annotations back to how they were when opened or last saved. */
@@ -326,8 +338,10 @@ export class Map3DSession {
             for (const part of saved.split(';')) {
                 const [index, kind, height, base] = part.split(',');
                 if (index.startsWith('unit:')) {
-                    const unit = parseFloat(index.slice(5));
-                    if (unit > 0) setMapUnit(this.map.svg, unit);
+                    const unit = index.slice(5);
+                    if (parseFloat(unit) > 0) {
+                        this.map.svg.setAttribute(UNIT_ATTR, unit);
+                    }
                     continue;
                 }
                 const element = elements[parseInt(index, 10)];

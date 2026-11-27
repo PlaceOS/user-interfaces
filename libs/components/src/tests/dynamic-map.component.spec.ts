@@ -222,7 +222,8 @@ describe('DynamicMapComponent', () => {
         vi.stubGlobal('requestAnimationFrame', (frame: () => void) =>
             frames.push(frame),
         );
-        vi.stubGlobal('cancelAnimationFrame', () => undefined);
+        const cancel = vi.fn();
+        vi.stubGlobal('cancelAnimationFrame', cancel);
 
         component.zoomTo(2);
         TestBed.flushEffects();
@@ -239,6 +240,14 @@ describe('DynamicMapComponent', () => {
         expect(viewer.zoom).toBeCloseTo(2);
         expect(component.zoom()).toBeCloseTo(2);
         expect(frames.length).toBe(0);
+
+        // A zoom set from elsewhere during the animation takes over
+        component.zoomTo(4);
+        cancel.mockClear();
+        component.zoom.set(1);
+        TestBed.flushEffects();
+        expect(cancel).toHaveBeenCalled();
+        expect(viewer.zoom).toBe(1);
 
         vi.unstubAllGlobals();
         (component as any)._map_viewer = null;
