@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["topbar-header.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                align-items: center;\n            }\n\n            img {\n                max-height: calc(100% - 1rem);\n            }\n\n            button {\n                border-radius: 0.25rem;\n                background-color: rgba(255, 255, 255, 0.15);\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,eAAA;AACJ;AAEA;AACI,cAAA,KAAA,KAAA,EAAA;AACJ;AAEA;AACI,iBAAA;AACA,oBAAA,KAAA,GAAA,EAAA,GAAA,EAAA,GAAA,EAAA;AACJ;",
+  "names": []
+}
