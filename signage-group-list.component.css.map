@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["signage-group-list.component.ts"],
+  "sourcesContent": ["\n            .group-tree {\n                background: transparent;\n            }\n        "],
+  "mappings": ";AACY,CAAA;AACI,cAAA;AACJ;",
+  "names": []
+}
