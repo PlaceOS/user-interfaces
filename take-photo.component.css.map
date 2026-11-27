@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["take-photo.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                align-items: center;\n            }\n\n            [name='camera'] {\n                width: 22.5rem;\n                height: 25rem;\n            }\n\n            /* The live camera and the photo cross-fade */\n            video,\n            canvas {\n                transition: opacity var(--motion-base) var(--motion-ease);\n            }\n\n            /* A short white flash shows that the camera took the photo */\n            [shutter] {\n                position: absolute;\n                inset: 0;\n                pointer-events: none;\n                background: white;\n                opacity: 0;\n                animation: shutter var(--motion-base) ease-out;\n            }\n\n            @keyframes shutter {\n                from {\n                    opacity: 0.8;\n                }\n            }\n\n            button {\n                width: 8rem;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,eAAA;AACJ;AAEA,CAAA;AACI,SAAA;AACA,UAAA;AACJ;AAGA;;AAEI,cAAA,QAAA,IAAA,eAAA,IAAA;AACJ;AAGA,CAAA;AACI,YAAA;AACA,SAAA;AACA,kBAAA;AACA,cAAA;AACA,WAAA;AACA,aAAA,QAAA,IAAA,eAAA;AACJ;AAEA,WAHI;AAIA;AACI,aAAA;AACJ;AACJ;AAEA;AACI,SAAA;AACJ;",
+  "names": []
+}

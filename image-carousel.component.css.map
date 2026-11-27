@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["image-carousel.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                width: 100%;\n            }\n\n            [carousel] {\n                /* Horizontal swipes go to the carousel, vertical ones scroll */\n                touch-action: pan-y;\n            }\n\n            [image] {\n                transition: transform 300ms;\n            }\n\n            @media (prefers-reduced-motion: reduce) {\n                [image] {\n                    transition: none;\n                }\n            }\n\n            /* aria-disabled keeps focus on the button at the first or last image */\n            button[aria-disabled='true'] {\n                pointer-events: none;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA,CAAA;AAEI,gBAAA;AACJ;AAEA,CAAA;AACI,cAAA,UAAA;AACJ;AAEA,QAAA,wBAAA;AACI,GAAA;AACI,gBAAA;AACJ;AACJ;AAGA,MAAA,CAAA;AACI,kBAAA;AACJ;",
+  "names": []
+}
