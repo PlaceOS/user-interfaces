@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["sidebar-embed.component.ts"],
+  "sourcesContent": ["\n            :host {\n                display: block;\n                height: 100%;\n                width: 100%;\n            }\n\n            .sidebar-embed__container {\n                overflow: hidden;\n            }\n\n            .sidebar-embed__close {\n                left: 0.5rem;\n            }\n\n            @media (min-width: 640px) {\n                .sidebar-embed__close--left {\n                    right: calc(28rem + 0.5rem);\n                    left: auto;\n                }\n\n                .sidebar-embed__close--right {\n                    left: calc(28rem + 0.5rem);\n                }\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,UAAA;AACA,SAAA;AACJ;AAEA,CAAA;AACI,YAAA;AACJ;AAEA,CAAA;AACI,QAAA;AACJ;AAEA,QAAA,WAAA;AACI,GAAA;AACI,WAAA,KAAA,MAAA,EAAA;AACA,UAAA;AACJ;AAEA,GAAA;AACI,UAAA,KAAA,MAAA,EAAA;AACJ;AACJ;",
+  "names": []
+}

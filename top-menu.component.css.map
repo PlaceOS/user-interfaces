@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["top-menu.component.ts"],
+  "sourcesContent": ["\n            [menu] > * {\n                height: 3.5rem;\n                shrink: 1;\n            }\n\n            [bar] {\n                display: none;\n            }\n\n            .active > [bar] {\n                display: block;\n            }\n\n            a:not([mat-menu-item]):not(.active) {\n                opacity: 0.6;\n            }\n\n            a:not([mat-menu-item]):not(.active):hover {\n                border-radius: 0.5rem;\n                margin-top: 0.25rem;\n                margin-bottom: 0.25rem;\n                height: 3rem;\n\n                background-color: var(--base-200);\n                opacity: 0.4;\n            }\n\n            a:not(.active) [filled],\n            a.active [outline] {\n                display: none;\n            }\n        "],
+  "mappings": ";AACY,CAAA,MAAA,EAAA;AACI,UAAA;AACA,UAAA;AACJ;AAEA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA,OAAA,EAAA,CAAA;AACI,WAAA;AACJ;AAEA,CAAA,KAAA,CAAA,eAAA,KAAA,CAJA;AAKI,WAAA;AACJ;AAEA,CAAA,KAAA,CAAA,eAAA,KAAA,CARA,OAQA;AACI,iBAAA;AACA,cAAA;AACA,iBAAA;AACA,UAAA;AAEA,oBAAA,IAAA;AACA,WAAA;AACJ;AAEA,CAAA,KAAA,CAlBA,QAkBA,CAAA;EAlBA;AAoBI,WAAA;AACJ;",
+  "names": []
+}
