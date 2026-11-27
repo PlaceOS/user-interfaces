@@ -198,7 +198,58 @@ describe('DynamicMapComponent', () => {
         expect(event.defaultPrevented).toBe(true);
         expect(component.center()).toEqual({ x: 0.55, y: 0.5 });
         component.onKeydown(new KeyboardEvent('keydown', { key: '-' }));
-        expect(component.zoom()).toBeCloseTo(2 / 1.1);
+        expect(component.zoom()).toBeCloseTo(2 / 1.25);
+        (component as any)._map_viewer = null;
+        component.ngOnDestroy();
+    });
+
+    it('should change the zoom as a short animation', () => {
+        const component = TestBed.runInInjectionContext(
+            () => new DynamicMapComponent(),
+        );
+        const viewer = {
+            zoom: 1,
+            setZoom(zoom: number) {
+                this.zoom = zoom;
+            },
+        };
+        (component as any)._map_viewer = new Proxy(viewer, {
+            get: (target, key) => (key in target ? target[key] : () => null),
+        });
+        let now = 1000;
+        const frames: (() => void)[] = [];
+        vi.spyOn(performance, 'now').mockImplementation(() => now);
+        vi.stubGlobal('requestAnimationFrame', (frame: () => void) =>
+            frames.push(frame),
+        );
+        const cancel = vi.fn();
+        vi.stubGlobal('cancelAnimationFrame', cancel);
+
+        component.zoomTo(2);
+        TestBed.flushEffects();
+        expect(component.zoom()).toBe(2);
+        expect(viewer.zoom).toBe(1);
+
+        now += 100;
+        frames.shift()!();
+        expect(viewer.zoom).toBeGreaterThan(1);
+        expect(viewer.zoom).toBeLessThan(2);
+
+        now += 500;
+        frames.shift()!();
+        expect(viewer.zoom).toBeCloseTo(2);
+        expect(component.zoom()).toBeCloseTo(2);
+        expect(frames.length).toBe(0);
+
+        // A zoom set from elsewhere during the animation takes over
+        component.zoomTo(4);
+        cancel.mockClear();
+        component.zoom.set(1);
+        TestBed.flushEffects();
+        expect(cancel).toHaveBeenCalled();
+        expect(viewer.zoom).toBe(1);
+
+        vi.unstubAllGlobals();
         (component as any)._map_viewer = null;
         component.ngOnDestroy();
     });

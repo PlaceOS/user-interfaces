@@ -33,15 +33,23 @@ import {
     ViewerStyles,
 } from '@placeos/common';
 import { HotkeysService } from 'libs/common/src/lib/hotkeys.service';
+import type { Map3DViewer } from 'libs/map-3d/src/lib/viewer';
 
 import {
+    getMapDetails,
     MapAction,
     MapOverlay,
     MapViewChangeEvent,
     MapViewer,
 } from './map-viewer.class';
-import { MapZoomControlsComponent } from './map-zoom-controls.component';
+import {
+    MAP_ZOOM_STEP,
+    MapZoomControlsComponent,
+} from './map-zoom-controls.component';
 import { TranslatePipe } from './translate.pipe';
+
+/** Milliseconds a step of the zoom takes */
+const ZOOM_DURATION = 220;
 
 type DebugSection = 'styles' | 'features' | 'labels' | 'actions';
 
@@ -84,7 +92,11 @@ interface DebugDetailEntry {
         }
         <ng-content />
         @if (options()?.controls) {
-            <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
+            <map-zoom-controls
+                [zoom]="zoom()"
+                (zoomChange)="zoomTo($event)"
+                [(reset)]="reset"
+            />
         }
         @if (debug()) {
             <div
@@ -246,7 +258,15 @@ interface DebugDetailEntry {
 export class DynamicMapComponent implements OnInit, OnDestroy {
     private _injector = inject(Injector);
     private _zone = inject(NgZone);
-    private _map_viewer: MapViewer | null = null;
+    private _map_viewer: MapViewer | Map3DViewer | null = null;
+    /** Changes when the viewer is replaced, so effects apply their state to the new one */
+    private _viewer_version = signal(0);
+    /** Frame request of the zoom being animated, or `null` */
+    private _zoom_frame: number | null = null;
+    /** Zoom the animation is going to */
+    private _zoom_target = 1;
+    /** Counts viewer replacements, to drop a 3D viewer that loads after another change */
+    private _viewer_request = 0;
     /** Previously loaded map URL, used to reset the view on map changes */
     private _last_src = '';
     private _map_container =
@@ -274,7 +294,13 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     public actions = input<ViewAction[]>([]);
     public options = input({} as MapOptions);
     public focus = input('');
+    /** Draw the map flat or in 3D. 3D needs a map that has a 3D view. */
+    public mode = input<'2d' | '3d'>('2d');
+    /** Whether the 3D view is locked to an isometric one */
+    public isometric = input(false);
     public mapInfo = output<Record<string, MapElementBounds>>();
+    /** Emits when the 3D view cannot start. The map stays in 2D. */
+    public mode3dFailed = output<void>();
 
     public injectors = signal<Injector[]>([]);
     public loading = signal(false);
@@ -437,6 +463,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     constructor() {
         // Effect to load map when src changes
         effect(() => {
+            this._viewer_version();
             const src = this.src();
             if (src && this._map_viewer) {
                 // Reset the view when changing to a different map
@@ -451,6 +478,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
         // Effect to update styles when styles change
         effect(() => {
+            this._viewer_version();
             const styles = this.styles() || {};
             if (this._map_viewer) {
                 this._applyStyles(styles);
@@ -463,6 +491,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             const labels = this.labels() || [];
             // Read feature elements to create dependency
             const feature_elements = this._feature_elements();
+            this._viewer_version();
             if (this._map_viewer) {
                 this._applyOverlays(features, labels, feature_elements);
             }
@@ -476,6 +505,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
         // Effect to update actions when actions change
         effect(() => {
+            this._viewer_version();
             const actions = this.actions() || [];
             if (this._map_viewer) {
                 this._applyActions(actions);
@@ -485,9 +515,15 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         // Effect to sync zoom to MapViewer. The viewer limits the zoom, so
         // write a limited value back to the model.
         effect(() => {
+            this._viewer_version();
             const zoom_val = this.zoom() ?? 1;
             const viewer = this._map_viewer;
             if (!viewer) return;
+            if (this._zoom_frame !== null) {
+                // A zoom being animated is applied to the viewer a frame at a time
+                if (zoom_val === this._zoom_target) return;
+                this._cancelZoom();
+            }
             viewer.setZoom(zoom_val);
             if (viewer.zoom !== zoom_val) this.zoom.set(viewer.zoom);
         });
@@ -495,6 +531,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         // Effect to sync center to MapViewer, with the limited value written
         // back to the model
         effect(() => {
+            this._viewer_version();
             const center_val = this.center() ?? { x: 0.5, y: 0.5 };
             const viewer = this._map_viewer;
             if (!viewer) return;
@@ -507,12 +544,14 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
         // Effect to sync fixed-map resolution override to MapViewer
         effect(() => {
+            this._viewer_version();
             const megapixels = this.fixedResolution() ?? 0;
             this._map_viewer?.setFixedResolution(megapixels);
         });
 
         // Effect to sync interaction options to MapViewer
         effect(() => {
+            this._viewer_version();
             const options = this.options();
             this._map_viewer?.setOptions(options || {});
         });
@@ -522,11 +561,30 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             if (this.reset() > 0) {
                 this.zoom.set(1);
                 this.center.set({ x: 0.5, y: 0.5 });
+                const viewer = untracked(() => this._map_viewer);
+                if (viewer && 'resetView' in viewer) viewer.resetView();
+            }
+        });
+
+        // Effect to swap between the 2D and 3D viewers
+        effect(() => {
+            const mode = this.mode();
+            untracked(() => this._useViewer(mode));
+        });
+
+        // Effect to lock the 3D view to isometric
+        effect(() => {
+            this._viewer_version();
+            const isometric = this.isometric();
+            const viewer = this._map_viewer;
+            if (viewer && 'setIsometric' in viewer) {
+                viewer.setIsometric(isometric);
             }
         });
 
         // Effect to focus the view on a map element
         effect(() => {
+            this._viewer_version();
             const focus = this.focus();
             if (focus && this._element_mappings()) {
                 this._map_viewer?.focusOn(focus);
@@ -535,6 +593,7 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
 
         // Effect to sync debug mode and poll viewer state for the debug panel
         effect((onCleanup) => {
+            this._viewer_version();
             this._map_viewer?.setDebug(this.debug());
             if (!this.debug()) {
                 this._debug_state.set(null);
@@ -568,30 +627,122 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     }
 
     public ngOnInit() {
-        const container = this._map_container()?.nativeElement;
-        if (!container) return;
-        // Pointer, wheel and resize handlers fire on every frame while
-        // interacting with the map, keep them outside the Angular zone so
-        // they don't each trigger change detection
-        this._map_viewer = this._zone.runOutsideAngular(
-            () => new MapViewer(container),
-        );
-
-        // Sync view changes from user interaction back to the models.
-        // The constructor effects apply all other initial state.
-        // View change events are coalesced to one per frame by the viewer,
-        // so re-entering the zone here is at most one tick per frame.
-        this._map_viewer.onViewChange = (event: MapViewChangeEvent) =>
-            this._zone.run(() => {
-                this.zoom.set(event.zoom);
-                this.center.set(event.center);
-            });
+        this._useViewer(this.mode());
     }
 
     public ngOnDestroy() {
+        this._cancelZoom();
+        this._viewer_request++;
         this._hotkey_sub.unsubscribe();
         this._map_viewer?.destroy();
         this._map_viewer = null;
+    }
+
+    private _cancelZoom() {
+        if (this._zoom_frame !== null) cancelAnimationFrame(this._zoom_frame);
+        this._zoom_frame = null;
+    }
+
+    /** Change the zoom as a short animation. */
+    public zoomTo(zoom: number) {
+        const viewer = this._map_viewer;
+        this._cancelZoom();
+        const from = viewer?.zoom ?? 0;
+        const still =
+            typeof window !== 'undefined' &&
+            !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+        if (!viewer || still || !(from > 0) || !(zoom > 0)) {
+            return this.zoom.set(zoom);
+        }
+        const start = performance.now();
+        const step = () => {
+            if (this._map_viewer !== viewer) {
+                this._cancelZoom();
+                this._map_viewer?.setZoom(zoom);
+                return;
+            }
+            const progress = Math.min(
+                1,
+                (performance.now() - start) / ZOOM_DURATION,
+            );
+            const eased = 1 - Math.pow(1 - progress, 3);
+            viewer.setZoom(from * Math.pow(zoom / from, eased));
+            if (progress < 1) {
+                this._zoom_frame = requestAnimationFrame(step);
+                return;
+            }
+            this._zoom_frame = null;
+            this.zoom.set(viewer.zoom);
+        };
+        // The model holds where the zoom is going, so the next step starts from there
+        this._zoom_frame = requestAnimationFrame(step);
+        this._zoom_target = zoom;
+        this.zoom.set(zoom);
+    }
+
+    /**
+     * Turn the 3D view about the centre of the view, in degrees clockwise.
+     * An isometric view turns a quarter of a circle, to its next corner.
+     */
+    public rotateBy(degrees: number) {
+        const viewer = this._map_viewer;
+        if (viewer && 'turnBy' in viewer) viewer.turnBy(degrees);
+    }
+
+    /**
+     * Use the viewer for a mode. The 3D viewer is loaded on first use; until
+     * it arrives, and when it cannot start, the map is drawn in 2D.
+     */
+    private async _useViewer(mode: '2d' | '3d') {
+        const container = this._map_container()?.nativeElement;
+        if (!container) return;
+        const request = ++this._viewer_request;
+        if (!this._map_viewer) this._setViewer(() => new MapViewer(container));
+        const is_3d = 'setAngles' in this._map_viewer;
+        if (is_3d === (mode === '3d')) return;
+        if (mode === '2d') {
+            this._setViewer(() => new MapViewer(container));
+            return;
+        }
+        try {
+            const Map3DViewer = await this._load3DViewer();
+            if (request !== this._viewer_request) return;
+            this._setViewer(
+                () => new Map3DViewer(container, { load: getMapDetails }),
+            );
+        } catch (error) {
+            console.warn('[MAP] 3D view failed to start.', error);
+            if (request !== this._viewer_request) return;
+            if (!this._map_viewer) {
+                this._setViewer(() => new MapViewer(container));
+            }
+            this.mode3dFailed.emit();
+        }
+    }
+
+    /** The 3D viewer class, loaded on first use */
+    private _load3DViewer = () =>
+        import('libs/map-3d/src/lib/viewer').then((m) => m.Map3DViewer);
+
+    /** Replace the viewer. Both kinds draw into the same container, so the old one goes first. */
+    private _setViewer(create: () => MapViewer | Map3DViewer) {
+        this._map_viewer?.destroy();
+        this._map_viewer = null;
+        // Pointer, wheel and resize handlers fire on every frame while
+        // interacting with the map, keep them outside the Angular zone so
+        // they don't each trigger change detection
+        const viewer = this._zone.runOutsideAngular(create);
+        this._map_viewer = viewer;
+        // Sync view changes from user interaction back to the models.
+        // The constructor effects apply all other state.
+        // View change events are coalesced to one per frame by the viewer,
+        // so re-entering the zone here is at most one tick per frame.
+        viewer.onViewChange = (event: MapViewChangeEvent) =>
+            this._zone.run(() => {
+                if (this._zoom_frame === null) this.zoom.set(event.zoom);
+                this.center.set(event.center);
+            });
+        this._viewer_version.update((version) => version + 1);
     }
 
     /**
@@ -617,9 +768,9 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         // Pan a tenth of the view at each step
         const step = 0.1 / zoom;
         const changes: Record<string, () => void> = {
-            '+': () => !disable_zoom && this.zoom.set(zoom * 1.1),
-            '=': () => !disable_zoom && this.zoom.set(zoom * 1.1),
-            '-': () => !disable_zoom && this.zoom.set(zoom / 1.1),
+            '+': () => !disable_zoom && this.zoomTo(zoom * MAP_ZOOM_STEP),
+            '=': () => !disable_zoom && this.zoomTo(zoom * MAP_ZOOM_STEP),
+            '-': () => !disable_zoom && this.zoomTo(zoom / MAP_ZOOM_STEP),
             ArrowUp: () => !disable_pan && this.center.set({ x, y: y - step }),
             ArrowDown: () =>
                 !disable_pan && this.center.set({ x, y: y + step }),
@@ -643,20 +794,21 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         }
         this.loading.set(true);
         this.error.set(false);
-        this._map_viewer
+        const viewer = this._map_viewer;
+        viewer
             .setMap(src)
             .then(() => {
-                if (this.src() !== src || !this._map_viewer) return;
+                if (this.src() !== src || this._map_viewer !== viewer) return;
                 this.loading.set(false);
                 const mappings = Object.fromEntries(
-                    this._map_viewer.map?.element_bounds || [],
+                    viewer.map?.element_bounds || [],
                 );
                 this._element_mappings.set(mappings);
                 this.mapInfo.emit(mappings);
             })
             .catch((e) => {
                 console.warn('[MAP] Failed to load map.', e);
-                if (this.src() !== src) return;
+                if (this.src() !== src || this._map_viewer !== viewer) return;
                 this.loading.set(false);
                 this.error.set(true);
             });

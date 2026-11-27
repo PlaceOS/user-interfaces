@@ -1,5 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
@@ -98,6 +99,41 @@ describe('MapManagerComponent', () => {
 
         spectator.component.markBroken(broken.id);
         expect(spectator.component.thumbnailSrc(broken)).toBeNull();
+    });
+
+    it('should mark the maps that have a 3D view', async () => {
+        const flat = row('lvl-1', `/maps/${run}/flat.svg`);
+        const raised = row('lvl-2', `/maps/${run}/raised-3d.svg`);
+        fetch_mock.mockImplementation(async (url: string) => ({
+            ok: true,
+            text: async () =>
+                url.includes('raised-3d')
+                    ? MAP.replace('<svg', '<svg data-3d-unit="12"')
+                    : MAP,
+        }));
+        rows.set([flat, raised]);
+        await settle();
+
+        expect(spectator.component.has_3d().has(raised.map_id)).toBe(true);
+        expect(spectator.component.has_3d().has(flat.map_id)).toBe(false);
+        expect(spectator.component.convertLabel(raised)).toBe(
+            'APP.CONCIERGE.MAPS_3D_EDIT',
+        );
+        expect(spectator.component.convertLabel(flat)).toBe(
+            'APP.CONCIERGE.MAPS_3D_CONVERT',
+        );
+    });
+
+    it('should open the 3D page of a level', () => {
+        const navigate = vi
+            .spyOn(spectator.inject(Router), 'navigate')
+            .mockResolvedValue(true);
+        spectator.component.convertTo3D(row('lvl-9', '/maps/a.svg'));
+        expect(navigate).toHaveBeenCalledWith([
+            '/map-management',
+            'lvl-9',
+            '3d',
+        ]);
     });
 
     it('should release the loaded map images when destroyed', async () => {

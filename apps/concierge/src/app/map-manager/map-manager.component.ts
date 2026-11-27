@@ -21,6 +21,7 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
+import { hasMap3D } from 'libs/map-3d/src/lib/annotations';
 import { ApplicationSidebarComponent } from '../ui/app-sidebar.component';
 import { SearchbarComponent } from '../ui/searchbar.component';
 import { isApiUpload, MapRow } from './map-list.utilities';
@@ -128,7 +129,7 @@ import { MapManagementService } from './map-management.service';
                                     key: 'actions',
                                     name: ' ',
                                     content: action_template,
-                                    size: '6.25rem',
+                                    size: '9rem',
                                     sortable: false,
                                 },
                             ]"
@@ -161,7 +162,18 @@ import { MapManagementService } from './map-management.service';
                 class="px-4 py-2 text-left leading-tight"
                 (click)="copyToClipboard(row.id)"
             >
-                <div>{{ data }}</div>
+                <div class="flex items-center gap-2">
+                    {{ data }}
+                    @if (has_3d().has(row.map_id)) {
+                        <span
+                            badge-3d
+                            class="bg-info/15 text-info rounded px-1.5 text-[0.625rem] leading-4 font-semibold"
+                            [title]="'APP.CONCIERGE.MAPS_3D_BADGE' | translate"
+                        >
+                            3D
+                        </span>
+                    }
+                </div>
                 <div class="font-mono text-[0.625rem] opacity-70">
                     {{ row.id }}
                 </div>
@@ -211,12 +223,29 @@ import { MapManagementService } from './map-management.service';
                     icon
                     default
                     matRipple
+                    convert-3d
+                    (click)="convertTo3D(row)"
+                    [matTooltip]="convertLabel(row) | translate"
+                    [attr.aria-label]="convertLabel(row) | translate"
+                >
+                    <icon>view_in_ar</icon>
+                </button>
+                <button
+                    icon
+                    default
+                    matRipple
                     [matMenuTriggerFor]="menu"
                     [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                 >
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
+                    <button mat-menu-item (click)="convertTo3D(row)">
+                        <div class="flex items-center space-x-2">
+                            <icon class="text-2xl">view_in_ar</icon>
+                            <span>{{ convertLabel(row) | translate }}</span>
+                        </div>
+                    </button>
                     <a
                         mat-menu-item
                         target="_blank"
@@ -306,6 +335,9 @@ export class MapManagerComponent implements OnDestroy {
         this._loading.add(url);
         try {
             const details = await getMapDetails(url);
+            if (hasMap3D(details.raw_data)) {
+                this.has_3d.update((set) => new Set(set).add(url));
+            }
             const object_url = URL.createObjectURL(
                 new Blob([details.raw_data], { type: 'image/svg+xml' }),
             );
@@ -319,6 +351,8 @@ export class MapManagerComponent implements OnDestroy {
     public readonly options = this._manager.options;
     public readonly buildings = this._manager.buildings;
     public readonly broken = signal<ReadonlySet<string>>(new Set());
+    /** Map URLs of the maps that have a 3D view */
+    public readonly has_3d = signal<ReadonlySet<string>>(new Set());
 
     public readonly building_count = computed(() => this.buildings().length);
     /** Map Studio links use `rel="opener"` so Studio can ask for the token */
@@ -334,6 +368,17 @@ export class MapManagerComponent implements OnDestroy {
 
     public editMap(row: MapRow) {
         this._router.navigate(['/map-management', row.id]);
+    }
+
+    public convertTo3D(row: MapRow) {
+        this._router.navigate(['/map-management', row.id, '3d']);
+    }
+
+    /** Locale key of the 3D action: convert a flat map, or edit a 3D view. */
+    public convertLabel(row: MapRow): string {
+        return this.has_3d().has(row.map_id)
+            ? 'APP.CONCIERGE.MAPS_3D_EDIT'
+            : 'APP.CONCIERGE.MAPS_3D_CONVERT';
     }
 
     /** Map Studio on the level of the row */

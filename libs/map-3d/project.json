@@ -1,0 +1,37 @@
+{
+    "name": "map-3d",
+    "$schema": "../../node_modules/nx/schemas/project-schema.json",
+    "projectType": "library",
+    "sourceRoot": "libs/map-3d/src",
+    "prefix": "placeos",
+    "tags": [],
+    "targets": {
+        "lint": {},
+        "test": {
+            "executor": "@angular/build:unit-test",
+            "outputs": ["{workspaceRoot}/coverage/libs/map-3d"],
+            "options": {
+                "tsConfig": "libs/map-3d/tsconfig.spec.json",
+                "setupFiles": [
+                    "libs/common/src/test-storage.ts",
+                    "libs/map-3d/src/test-setup.ts"
+                ],
+                "isolate": true,
+                "watch": false,
+                "buildTarget": "map-3d:test-build:development"
+            }
+        },
+        "test-build": {
+            "executor": "@angular/build:application",
+            "options": {
+                "outputPath": "dist/libs/map-3d",
+                "browser": "libs/map-3d/src/index.ts",
+                "tsConfig": "libs/map-3d/tsconfig.spec.json",
+                "polyfills": []
+            },
+            "configurations": {
+                "development": {}
+            }
+        }
+    }
+}

@@ -1,9 +1,12 @@
-import { Component, model } from '@angular/core';
+import { Component, input, model, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
+
+/** How many times closer or further one step of the zoom takes the map */
+export const MAP_ZOOM_STEP = 1.25;
 
 @Component({
     selector: 'map-zoom-controls',
@@ -11,6 +14,88 @@ import { TranslatePipe } from './translate.pipe';
         <div
             class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
         >
+            @if (can3d()) {
+                <button
+                    icon
+                    matRipple
+                    toggle-3d
+                    [matTooltip]="
+                        (mode() === '3d'
+                            ? 'EXPLORE.VIEW_2D'
+                            : 'EXPLORE.VIEW_3D'
+                        ) | translate
+                    "
+                    [attr.aria-label]="
+                        (mode() === '3d'
+                            ? 'EXPLORE.VIEW_2D'
+                            : 'EXPLORE.VIEW_3D'
+                        ) | translate
+                    "
+                    [attr.aria-pressed]="mode() === '3d'"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200 text-sm font-semibold"
+                    (click)="
+                        mode.set(mode() === '3d' ? '2d' : '3d');
+                        $event.stopPropagation()
+                    "
+                >
+                    {{ mode() === '3d' ? '2D' : '3D' }}
+                </button>
+                @if (mode() === '3d') {
+                    <button
+                        icon
+                        matRipple
+                        toggle-isometric
+                        [matTooltip]="
+                            (isometric()
+                                ? 'EXPLORE.ISOMETRIC_UNLOCK'
+                                : 'EXPLORE.ISOMETRIC_LOCK'
+                            ) | translate
+                        "
+                        [attr.aria-label]="
+                            (isometric()
+                                ? 'EXPLORE.ISOMETRIC_UNLOCK'
+                                : 'EXPLORE.ISOMETRIC_LOCK'
+                            ) | translate
+                        "
+                        [attr.aria-pressed]="isometric()"
+                        matTooltipPosition="left"
+                        class="hover:bg-base-200"
+                        [class.bg-base-200]="isometric()"
+                        [class.text-secondary]="isometric()"
+                        (click)="
+                            isometric.set(!isometric());
+                            $event.stopPropagation()
+                        "
+                    >
+                        <icon>{{ isometric() ? 'lock' : 'view_in_ar' }}</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        rotate-left
+                        [matTooltip]="'EXPLORE.ROTATE_LEFT' | translate"
+                        [attr.aria-label]="'EXPLORE.ROTATE_LEFT' | translate"
+                        matTooltipPosition="left"
+                        class="hover:bg-base-200"
+                        (click)="rotate.emit(-45); $event.stopPropagation()"
+                    >
+                        <icon>rotate_left</icon>
+                    </button>
+                    <button
+                        icon
+                        matRipple
+                        rotate-right
+                        [matTooltip]="'EXPLORE.ROTATE_RIGHT' | translate"
+                        [attr.aria-label]="'EXPLORE.ROTATE_RIGHT' | translate"
+                        matTooltipPosition="left"
+                        class="hover:bg-base-200"
+                        (click)="rotate.emit(45); $event.stopPropagation()"
+                    >
+                        <icon>rotate_right</icon>
+                    </button>
+                }
+            }
             <button
                 icon
                 matRipple
@@ -18,7 +103,7 @@ import { TranslatePipe } from './translate.pipe';
                 [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
                 matTooltipPosition="left"
                 class="hover:bg-base-200"
-                (click)="zoom.set(zoom() * 1.1); $event.stopPropagation()"
+                (click)="zoom.set(zoom() * step); $event.stopPropagation()"
             >
                 <icon>add</icon>
             </button>
@@ -29,7 +114,7 @@ import { TranslatePipe } from './translate.pipe';
                 [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
                 matTooltipPosition="left"
                 class="hover:bg-base-200"
-                (click)="zoom.set(zoom() * (10 / 11)); $event.stopPropagation()"
+                (click)="zoom.set(zoom() / step); $event.stopPropagation()"
             >
                 <icon>remove</icon>
             </button>
@@ -56,6 +141,14 @@ import { TranslatePipe } from './translate.pipe';
     imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule],
 })
 export class MapZoomControlsComponent {
+    public readonly step = MAP_ZOOM_STEP;
     public zoom = model(1);
     public reset = model(0);
+    public mode = model<'2d' | '3d'>('2d');
+    /** Whether the 3D view is locked to an isometric one */
+    public isometric = model(false);
+    /** Whether the map on show has a 3D view to switch to */
+    public can3d = input(false);
+    /** Degrees clockwise to turn the 3D view by */
+    public rotate = output<number>();
 }
