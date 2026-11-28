@@ -240,12 +240,6 @@ import { MapManagementService } from './map-management.service';
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="convertTo3D(row)">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">view_in_ar</icon>
-                            <span>{{ convertLabel(row) | translate }}</span>
-                        </div>
-                    </button>
                     <a
                         mat-menu-item
                         target="_blank"

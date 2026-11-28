@@ -284,6 +284,18 @@ describe('Map3DPageComponent', () => {
         expect(document.activeElement).toBe(tabs[0]);
     });
 
+    it('selects every part of a kind from its chip', async () => {
+        await mount();
+        const { component } = spectator;
+        // Chips follow the kind order, which starts with walls
+        const [wall] = spectator.queryAll<HTMLButtonElement>('[select-kind]');
+        wall.click();
+        spectator.detectChanges();
+        expect(component.selected()).toHaveLength(2);
+        expect(component.selection_kind()).toBe('wall');
+        expect(wall.getAttribute('aria-pressed')).toBe('true');
+    });
+
     it('pans the preview with the arrow keys', async () => {
         await mount();
         const preview = spectator.query<HTMLElement>('[preview]')!;

@@ -12,132 +12,146 @@ export const MAP_ZOOM_STEP = 1.25;
 @Component({
     selector: 'map-zoom-controls',
     template: `
-        <div
-            class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
-        >
+        <div class="absolute right-2 bottom-16 flex flex-col gap-2">
+            <!-- The view controls and the zoom controls are separate groups -->
             @if (can3d()) {
-                <button
-                    icon
-                    matRipple
-                    toggle-3d
-                    [matTooltip]="
-                        (loading3d()
-                            ? 'EXPLORE.VIEW_3D_LOADING'
-                            : mode() === '3d'
-                              ? 'EXPLORE.VIEW_2D'
-                              : 'EXPLORE.VIEW_3D'
-                        ) | translate
-                    "
-                    [attr.aria-label]="
-                        (loading3d()
-                            ? 'EXPLORE.VIEW_3D_LOADING'
-                            : mode() === '3d'
-                              ? 'EXPLORE.VIEW_2D'
-                              : 'EXPLORE.VIEW_3D'
-                        ) | translate
-                    "
-                    [attr.aria-busy]="loading3d()"
-                    matTooltipPosition="left"
-                    class="hover:bg-base-200 text-sm font-semibold"
-                    (click)="
-                        mode.set(mode() === '3d' ? '2d' : '3d');
-                        $event.stopPropagation()
-                    "
+                <div
+                    view-group
+                    class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
                 >
-                    @if (loading3d()) {
-                        <mat-spinner class="mx-auto" [diameter]="16" />
-                    } @else {
-                        {{ mode() === '3d' ? '2D' : '3D' }}
-                    }
-                </button>
-                <!-- The 3D controls do nothing until the 3D view is on show -->
-                @if (mode() === '3d' && !loading3d()) {
                     <button
                         icon
                         matRipple
-                        toggle-isometric
+                        toggle-3d
                         [matTooltip]="
-                            (isometric()
-                                ? 'EXPLORE.ISOMETRIC_UNLOCK'
-                                : 'EXPLORE.ISOMETRIC_LOCK'
+                            (loading3d()
+                                ? 'EXPLORE.VIEW_3D_LOADING'
+                                : mode() === '3d'
+                                  ? 'EXPLORE.VIEW_2D'
+                                  : 'EXPLORE.VIEW_3D'
                             ) | translate
                         "
                         [attr.aria-label]="
-                            (isometric()
-                                ? 'EXPLORE.ISOMETRIC_UNLOCK'
-                                : 'EXPLORE.ISOMETRIC_LOCK'
+                            (loading3d()
+                                ? 'EXPLORE.VIEW_3D_LOADING'
+                                : mode() === '3d'
+                                  ? 'EXPLORE.VIEW_2D'
+                                  : 'EXPLORE.VIEW_3D'
                             ) | translate
                         "
+                        [attr.aria-busy]="loading3d()"
                         matTooltipPosition="left"
-                        class="hover:bg-base-200"
-                        [class.bg-base-200]="isometric()"
-                        [class.text-secondary]="isometric()"
+                        class="hover:bg-base-200 text-sm font-semibold"
                         (click)="
-                            isometric.set(!isometric());
+                            mode.set(mode() === '3d' ? '2d' : '3d');
                             $event.stopPropagation()
                         "
                     >
-                        <icon>{{ isometric() ? 'lock' : 'view_in_ar' }}</icon>
+                        @if (loading3d()) {
+                            <mat-spinner class="mx-auto" [diameter]="16" />
+                        } @else {
+                            {{ mode() === '3d' ? '2D' : '3D' }}
+                        }
                     </button>
-                    <button
-                        icon
-                        matRipple
-                        rotate-left
-                        [matTooltip]="'EXPLORE.ROTATE_LEFT' | translate"
-                        [attr.aria-label]="'EXPLORE.ROTATE_LEFT' | translate"
-                        matTooltipPosition="left"
-                        class="hover:bg-base-200"
-                        (click)="rotate.emit(-45); $event.stopPropagation()"
-                    >
-                        <icon>rotate_left</icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        rotate-right
-                        [matTooltip]="'EXPLORE.ROTATE_RIGHT' | translate"
-                        [attr.aria-label]="'EXPLORE.ROTATE_RIGHT' | translate"
-                        matTooltipPosition="left"
-                        class="hover:bg-base-200"
-                        (click)="rotate.emit(45); $event.stopPropagation()"
-                    >
-                        <icon>rotate_right</icon>
-                    </button>
-                }
+                    <!-- The 3D controls do nothing until the 3D view is on show -->
+                    @if (mode() === '3d' && !loading3d()) {
+                        <button
+                            icon
+                            matRipple
+                            toggle-isometric
+                            [matTooltip]="
+                                (isometric()
+                                    ? 'EXPLORE.ISOMETRIC_UNLOCK'
+                                    : 'EXPLORE.ISOMETRIC_LOCK'
+                                ) | translate
+                            "
+                            [attr.aria-label]="
+                                (isometric()
+                                    ? 'EXPLORE.ISOMETRIC_UNLOCK'
+                                    : 'EXPLORE.ISOMETRIC_LOCK'
+                                ) | translate
+                            "
+                            matTooltipPosition="left"
+                            class="hover:bg-base-200"
+                            [class.bg-base-200]="isometric()"
+                            [class.text-secondary]="isometric()"
+                            (click)="
+                                isometric.set(!isometric());
+                                $event.stopPropagation()
+                            "
+                        >
+                            <icon>{{
+                                isometric() ? 'lock' : 'view_in_ar'
+                            }}</icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            rotate-left
+                            [matTooltip]="'EXPLORE.ROTATE_LEFT' | translate"
+                            [attr.aria-label]="
+                                'EXPLORE.ROTATE_LEFT' | translate
+                            "
+                            matTooltipPosition="left"
+                            class="hover:bg-base-200"
+                            (click)="rotate.emit(-45); $event.stopPropagation()"
+                        >
+                            <icon>rotate_left</icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            rotate-right
+                            [matTooltip]="'EXPLORE.ROTATE_RIGHT' | translate"
+                            [attr.aria-label]="
+                                'EXPLORE.ROTATE_RIGHT' | translate
+                            "
+                            matTooltipPosition="left"
+                            class="hover:bg-base-200"
+                            (click)="rotate.emit(45); $event.stopPropagation()"
+                        >
+                            <icon>rotate_right</icon>
+                        </button>
+                    }
+                </div>
             }
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-                [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="zoom.set(zoom() * step); $event.stopPropagation()"
+            <div
+                class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
             >
-                <icon>add</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-                [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="zoom.set(zoom() / step); $event.stopPropagation()"
-            >
-                <icon>remove</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-                [attr.aria-label]="'EXPLORE.ZOOM_RESET' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="reset.set(reset() + 1); $event.stopPropagation()"
-            >
-                <icon>refresh</icon>
-            </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                    [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
+                    (click)="zoom.set(zoom() * step); $event.stopPropagation()"
+                >
+                    <icon>add</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                    [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
+                    (click)="zoom.set(zoom() / step); $event.stopPropagation()"
+                >
+                    <icon>remove</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                    [attr.aria-label]="'EXPLORE.ZOOM_RESET' | translate"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
+                    (click)="reset.set(reset() + 1); $event.stopPropagation()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </div>
         </div>
     `,
     styles: [
