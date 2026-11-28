@@ -1,7 +1,7 @@
 {
   "version": 3,
   "sources": ["map-3d-page.component.ts"],
-  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n        "],
-  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;",
+  "sourcesContent": ["\n            :host {\n                display: flex;\n                flex-direction: column;\n                height: 100%;\n                width: 100%;\n                background-color: var(--base-100);\n            }\n\n            /* A selected layer or part, set apart from a hovered row */\n            .selected-row {\n                background-color: color-mix(\n                    in srgb,\n                    var(--info) 18%,\n                    transparent\n                );\n                box-shadow: inset 3px 0 0 var(--info);\n                font-weight: 500;\n            }\n        "],
+  "mappings": ";AACY;AACI,WAAA;AACA,kBAAA;AACA,UAAA;AACA,SAAA;AACA,oBAAA,IAAA;AACJ;AAGA,CAAA;AACI,oBAAA;AAKA,cAAA,MAAA,IAAA,EAAA,EAAA,IAAA;AACA,eAAA;AACJ;",
   "names": []
 }
