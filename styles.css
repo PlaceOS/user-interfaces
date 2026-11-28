@@ -3189,6 +3189,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .h-28 {
   height: calc(var(--spacing) * 28);
 }
+#placeos .h-30 {
+  height: calc(var(--spacing) * 30);
+}
 #placeos .h-32 {
   height: calc(var(--spacing) * 32);
 }
