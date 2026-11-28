@@ -1,1 +1,0 @@
-import{t as Bm}from"./main-GZXZKZ3V.js";function n(){Bm(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
