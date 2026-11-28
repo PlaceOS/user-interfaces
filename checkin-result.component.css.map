@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["checkin-result.component.ts"],
+  "sourcesContent": ["\n            :host > div {\n                max-width: calc(100vw - 2rem);\n            }\n\n            /* The check mark pops in to show that the check-in is done */\n            .success-mark {\n                animation: success-pop calc(var(--motion-base) * 2)\n                    cubic-bezier(0.34, 1.56, 0.64, 1) backwards;\n            }\n\n            @keyframes success-pop {\n                from {\n                    opacity: 0;\n                    transform: scale(0.5);\n                }\n            }\n        "],
+  "mappings": ";AACY,MAAA,EAAA;AACI,aAAA,KAAA,MAAA,EAAA;AACJ;AAGA,CAAA;AACI,aAAA,YAAA,KAAA,IAAA,eAAA,EAAA;AAEJ;AAEA,WAJI;AAKA;AACI,aAAA;AACA,eAAA,MAAA;AACJ;AACJ;",
+  "names": []
+}
