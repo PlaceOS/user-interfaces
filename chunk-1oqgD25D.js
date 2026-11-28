@@ -1,1 +1,0 @@
-import{t as Mo}from"./main-UH4SC7BI.js";function n(){Mo(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};

@@ -1,0 +1,1 @@
+import{t as Mo}from"./main-ZC4J4QNO.js";function n(){Mo(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
