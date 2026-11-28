@@ -3,15 +3,15 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-W2GNPRJM.js";
-import "./chunk-54C5SIU4.js";
+} from "./chunk-XBZIRA6Q.js";
+import "./chunk-HDRBUUVW.js";
 import {
   AnnounceDirective,
   CONTROL_STORE_KEY
-} from "./chunk-GYAJVSLT.js";
+} from "./chunk-6SSSCEW2.js";
 import {
   TranslatePipe
-} from "./chunk-6BX6N24V.js";
+} from "./chunk-ET56YHY6.js";
 import "./chunk-M533ZSP3.js";
 import {
   LazySentryErrorHandler,
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-4S5LMLWV.js";
+} from "./chunk-O53D44KH.js";
 import {
   AsyncHandler,
   Bp,
@@ -70,7 +70,7 @@ import {
   unique,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-E7M3XE7N.js";
+} from "./chunk-3QUSSKPD.js";
 import {
   IconComponent
 } from "./chunk-UUKIMSRK.js";
@@ -11092,7 +11092,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-NRGF6LUC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-DJ7V7ITQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11136,7 +11136,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-NRGF6LUC.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-DJ7V7ITQ.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11209,22 +11209,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-7KE73FD5.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-PVXQ5HNK.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-DBFWCMFC.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-6Q47A3N2.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-XNL73NPJ.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-4LH3A6HI.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-N5TN6Q5V.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-DT5VN2KL.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
