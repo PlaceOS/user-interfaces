@@ -1,1 +1,0 @@
-import{t as Mo}from"./main-TI7GPNBE.js";function n(){Mo(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
