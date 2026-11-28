@@ -1546,6 +1546,7 @@
             "MAPS_3D_REMOVE_TITLE": "Remover a vista 3D?",
             "MAPS_3D_REMOVE_MSG": "Depois de guardar, este mapa é visto apenas em 2D. O desenho em si não é alterado.",
             "MAPS_3D_FOUND": "Neste mapa",
+            "MAPS_3D_SELECT_KIND": "Selecionar todos deste tipo",
             "MAPS_3D_AUTO_HINT": "As paredes, o mobiliário e as etiquetas foram deduzidos do mapa. Verifique o resultado, corrija o que estiver errado e guarde.",
             "MAPS_3D_SCALE": "Escala",
             "MAPS_3D_WIDTH": "Largura do mapa",
