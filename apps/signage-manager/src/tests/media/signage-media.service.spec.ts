@@ -165,7 +165,7 @@ describe('SignageMediaService', () => {
         const service = createService();
         const test_service = service as SignageMediaServiceTestAccess;
         const item = (id: string, tags: string[], created_at = 1) =>
-            new SignageMedia({ id, name: id, tags, created_at });
+            signageMedia({ id, name: id, tags, created_at });
         service.folder_tag.set('news');
         test_service['_folder_list'].update(() => [
             item('a', ['news']),

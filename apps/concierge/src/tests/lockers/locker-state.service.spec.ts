@@ -104,6 +104,8 @@ describe('LockerStateService', () => {
         vi.mocked(bookings.approve).mockResolvedValue(booking);
         vi.mocked(bookings.reject).mockReset();
         vi.mocked(bookings.reject).mockResolvedValue(booking);
+        vi.mocked(bookings.rejectInstance).mockReset();
+        vi.mocked(bookings.rejectInstance).mockResolvedValue(booking);
         vi.mocked(bookings.destroy).mockReset();
         vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
         (ts_client.assets.create as any).mockReset();
@@ -455,8 +457,10 @@ describe('LockerStateService', () => {
             },
             close: vi.fn(),
         });
-        (ts_client.updateAsset as any).mockResolvedValue({ id: 'locker-1' });
-        (ts_client.query as any).mockRejectedValue(new Error('500'));
+        (ts_client.assets.update as any).mockResolvedValue(
+            mockReply({ id: 'locker-1' }),
+        );
+        vi.mocked(bookings.query).mockRejectedValue(new Error('500'));
 
         // A failed save keeps the modal open, so the edit does not end
         void spectator.service.editLocker(
@@ -469,7 +473,7 @@ describe('LockerStateService', () => {
         );
         await settle();
 
-        const saves = (ts_client.updateAsset as any).mock.calls;
+        const saves = (ts_client.assets.update as any).mock.calls;
         expect(saves).toHaveLength(2);
         expect(JSON.stringify(saves[1])).toContain('old@example.com');
         expect(JSON.stringify(saves[1])).not.toContain('new@example.com');
@@ -532,10 +536,11 @@ describe('LockerStateService', () => {
                 ({ id, status: 'tentative', deleted: false, ...extra }) as any;
             Object.defineProperty(spectator.service, 'filtered_bookings', {
                 value: () => [
-                    booking('b-1', { instance: 1_740_000_000 }),
-                    booking('b-2', { status: 'declined' }),
-                    booking('b-3', { status: 'cancelled' }),
-                    booking('b-4', { deleted: true }),
+                    // The staff API takes integer booking IDs
+                    booking('1', { instance: 1_740_000_000 }),
+                    booking('2', { status: 'declined' }),
+                    booking('3', { status: 'cancelled' }),
+                    booking('4', { deleted: true }),
                 ],
             });
             (spectator.inject(MatDialog).open as any).mockReturnValue({
@@ -549,11 +554,12 @@ describe('LockerStateService', () => {
 
             await spectator.service.rejectAllBookings();
 
-            expect(ts_client.post).toHaveBeenCalledOnce();
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/bookings/b-1/reject/1740000000'),
-                expect.anything(),
-            );
+            expect(bookings.reject).not.toHaveBeenCalled();
+            expect(bookings.rejectInstance).toHaveBeenCalledOnce();
+            expect(bookings.rejectInstance).toHaveBeenCalledWith({
+                id: 1,
+                instance: 1_740_000_000,
+            });
         });
 
         it('sends nothing when another date loads while the user confirms', async () => {
@@ -561,7 +567,7 @@ describe('LockerStateService', () => {
             const params = service._bookings_params();
             service._bookings_loaded_for = params;
             Object.defineProperty(spectator.service, 'filtered_bookings', {
-                value: () => [{ id: 'b-1', status: 'tentative' }],
+                value: () => [{ id: '1', status: 'tentative' }],
             });
             let confirm: (value: unknown) => void = () => {};
             (spectator.inject(MatDialog).open as any).mockReturnValue({
@@ -583,24 +589,20 @@ describe('LockerStateService', () => {
             confirm({ reason: 'done' });
             await rejecting;
 
-            const rejects = (ts_client.post as any).mock.calls.filter(
-                ([url]: [string]) => url.includes('/reject'),
-            );
-            expect(rejects).toEqual([]);
+            expect(bookings.reject).not.toHaveBeenCalled();
+            expect(bookings.rejectInstance).not.toHaveBeenCalled();
         });
 
         it('does not reject a list from an earlier date', async () => {
             const service = spectator.service as any;
             service._bookings_loaded_for = { stale: true };
             Object.defineProperty(spectator.service, 'filtered_bookings', {
-                value: () => [{ id: 'b-1', status: 'tentative' }],
+                value: () => [{ id: '1', status: 'tentative' }],
             });
             await spectator.service.rejectAllBookings();
 
-            const rejects = (ts_client.post as any).mock.calls.filter(
-                ([url]: [string]) => url.includes('/reject'),
-            );
-            expect(rejects).toEqual([]);
+            expect(bookings.reject).not.toHaveBeenCalled();
+            expect(bookings.rejectInstance).not.toHaveBeenCalled();
         });
     });
 });

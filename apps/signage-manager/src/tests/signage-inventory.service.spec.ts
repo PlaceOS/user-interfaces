@@ -2,23 +2,16 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import {
-    listSignagePlaylistMedia,
-    PlaceSystem,
-    PlaceZone,
-    playlist,
-    playlist_media,
-    SignagePlaylist,
-    systems,
-    zones,
-} from '@placeos/ts-client';
-import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import { playlist, playlist_media, systems, zones } from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
 import { SignageContextService } from '../app/signage-context.service';
 import { SignageInventoryService } from '../app/signage-inventory.service';
 import {
+    playlistRevision,
     signageMedia,
     signagePlaylist,
     signageSystem,
+    signageZone,
 } from '../app/signage-models';
 
 type SignageInventoryServiceTestAccess = SignageInventoryService &
@@ -43,10 +36,11 @@ describe('SignageInventoryService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settings.get.mockReturnValue(false);
-        vi.mocked(listSignagePlaylistMedia).mockResolvedValue({
-            approved: true,
-            approval_requested: false,
-        } as never);
+        vi.mocked(playlist.media).mockResolvedValue(
+            mockReply(
+                playlistRevision({ approved: true, approval_requested: false }),
+            ),
+        );
         TestBed.configureTestingModule({
             providers: [
                 { provide: SettingsService, useValue: settings },
@@ -153,26 +147,26 @@ describe('SignageInventoryService', () => {
                         name: 'Hall',
                         playlists: ['c'],
                     }),
-                    new PlaceSystem({
+                    signageSystem({
                         id: 'd4',
                         name: 'Lift',
                         playlists: ['off'],
                     }),
-                    new PlaceSystem({
+                    signageSystem({
                         id: 'd5',
                         name: 'Shared',
                         playlists: ['other-group'],
                     }),
-                    new PlaceSystem({ id: 'd6', name: 'Off', zones: ['z1'] }),
-                    new PlaceSystem({ id: 'd7', name: 'On', zones: ['z2'] }),
+                    signageSystem({ id: 'd6', name: 'Off', zones: ['z1'] }),
+                    signageSystem({ id: 'd7', name: 'On', zones: ['z2'] }),
                 ],
                 zones: [
-                    new PlaceZone({ id: 'z1', playlists: ['off'] }),
-                    new PlaceZone({ id: 'z2', playlists: ['off', 'a'] }),
+                    signageZone({ id: 'z1', playlists: ['off'] }),
+                    signageZone({ id: 'z2', playlists: ['off', 'a'] }),
                 ],
                 playlists: [
                     ...inventory.playlists,
-                    new SignagePlaylist({
+                    signagePlaylist({
                         id: 'off',
                         name: 'Off',
                         enabled: false,
@@ -205,20 +199,29 @@ describe('SignageInventoryService', () => {
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [],
                 zones: [],
-                playlists: ['asked', 'done', 'none'].map(
-                    (id) => new SignagePlaylist({ id, name: id }),
+                playlists: ['asked', 'done', 'none'].map((id) =>
+                    signagePlaylist({ id, name: id }),
                 ),
             });
             test_service['_expiredMediaInPlaylists'] = vi
                 .fn()
                 .mockResolvedValue({ items: [], unchecked: 0 });
-            vi.mocked(listSignagePlaylistMedia).mockImplementation(
-                async (id) =>
-                    ({
-                        asked: { approved: false, approval_requested: true },
-                        done: { approved: true, approval_requested: true },
-                        none: { approved: false, approval_requested: false },
-                    })[id] as never,
+            vi.mocked(playlist.media).mockImplementation(
+                fromV1Mock(
+                    async (id: string) =>
+                        ({
+                            asked: {
+                                approved: false,
+                                approval_requested: true,
+                            },
+                            done: { approved: true, approval_requested: true },
+                            none: {
+                                approved: false,
+                                approval_requested: false,
+                            },
+                        })[id],
+                    ['id'],
+                ),
             );
 
             const report = await service.loadContentReport();
@@ -237,14 +240,14 @@ describe('SignageInventoryService', () => {
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [],
                 zones: [],
-                playlists: ['slow', 'fails'].map(
-                    (id) => new SignagePlaylist({ id, name: id }),
+                playlists: ['slow', 'fails'].map((id) =>
+                    signagePlaylist({ id, name: id }),
                 ),
             });
             test_service['_expiredMediaInPlaylists'] = vi
                 .fn()
                 .mockResolvedValue({ items: [], unchecked: 0 });
-            vi.mocked(listSignagePlaylistMedia).mockImplementation((id) =>
+            vi.mocked(playlist.media).mockImplementation(({ id }) =>
                 id === 'slow'
                     ? new Promise(() => {})
                     : Promise.reject(new Error('500')),
@@ -267,17 +270,15 @@ describe('SignageInventoryService', () => {
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [],
                 zones: [],
-                playlists: Array.from(
-                    { length: 7 },
-                    (_, index) =>
-                        new SignagePlaylist({ id: `p${index}`, name: 'p' }),
+                playlists: Array.from({ length: 7 }, (_, index) =>
+                    signagePlaylist({ id: `p${index}`, name: 'p' }),
                 ),
             });
             test_service['_expiredMediaInPlaylists'] = vi
                 .fn()
                 .mockResolvedValue({ items: [], unchecked: 0 });
-            vi.mocked(listSignagePlaylistMedia).mockClear();
-            vi.mocked(listSignagePlaylistMedia).mockImplementation(
+            vi.mocked(playlist.media).mockClear();
+            vi.mocked(playlist.media).mockImplementation(
                 () => new Promise(() => {}),
             );
 
@@ -286,7 +287,7 @@ describe('SignageInventoryService', () => {
             const report = await loading;
 
             // Six reads at a time, and the seventh never starts
-            expect(listSignagePlaylistMedia).toHaveBeenCalledTimes(6);
+            expect(playlist.media).toHaveBeenCalledTimes(6);
             expect(report.awaiting_review_unchecked).toBe(7);
             vi.useRealTimers();
         });
@@ -298,18 +299,18 @@ describe('SignageInventoryService', () => {
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [],
                 zones: [],
-                playlists: [new SignagePlaylist({ id: 'p1', name: 'p1' })],
+                playlists: [signagePlaylist({ id: 'p1', name: 'p1' })],
             });
             test_service['_expiredMediaInPlaylists'] = vi
                 .fn()
                 .mockResolvedValue({ items: [], unchecked: 0 });
-            vi.mocked(listSignagePlaylistMedia).mockClear();
+            vi.mocked(playlist.media).mockClear();
             const controller = new AbortController();
             controller.abort();
 
             await service.loadContentReport(Date.now(), controller.signal);
 
-            expect(listSignagePlaylistMedia).not.toHaveBeenCalled();
+            expect(playlist.media).not.toHaveBeenCalled();
         });
 
         it('lists assigned playlists that never played though they could have', async () => {
@@ -325,7 +326,7 @@ describe('SignageInventoryService', () => {
                 play_takeover: false,
             };
             const playlist = (id: string, data = {}) =>
-                new SignagePlaylist({
+                signagePlaylist({
                     id,
                     name: id,
                     created_at: old,
@@ -334,7 +335,7 @@ describe('SignageInventoryService', () => {
                 });
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [
-                    new PlaceSystem({
+                    signageSystem({
                         id: 'd1',
                         playlists: [
                             'idle',
@@ -394,14 +395,14 @@ describe('SignageInventoryService', () => {
                 service as unknown as SignageInventoryServiceTestAccess;
             const now = Date.now();
             const ending = (id: string, days: number) =>
-                new SignagePlaylist({
+                signagePlaylist({
                     id,
                     name: id,
                     valid_until: Math.floor(now / 1000) + days * 86_400,
                 });
             vi.spyOn(service, 'loadSignageInventory').mockResolvedValue({
                 displays: [
-                    new PlaceSystem({
+                    signageSystem({
                         id: 'd1',
                         playlists: ['soon', 'later', 'off'],
                         signage_last_seen: Math.floor(now / 1000) - 3600,
@@ -414,7 +415,7 @@ describe('SignageInventoryService', () => {
                     ending('later', 30),
                     ending('loose', 3),
                     // Assigned, but disabled, so it plays nowhere
-                    new SignagePlaylist({
+                    signagePlaylist({
                         ...ending('off', 3),
                         enabled: false,
                     }),

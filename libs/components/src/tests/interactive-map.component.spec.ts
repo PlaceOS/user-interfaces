@@ -15,9 +15,7 @@ import { InteractiveMapComponent } from '../lib/interactive-map.component';
 import { MapZoomControlsComponent } from '../lib/map-zoom-controls.component';
 import { MapsIndoorsComponent } from '../lib/maps-indoors.component';
 
-import * as ts_client from '@placeos/ts-client';
-
-vi.mock('@placeos/ts-client', { spy: true });
+import { startTestPlaceClient } from './test-place-client';
 
 describe('InteractiveMapComponent', () => {
     let spectator: Spectator<InteractiveMapComponent>;
@@ -132,8 +130,8 @@ describe('InteractiveMapComponent', () => {
         beforeEach(() => {
             run++;
             localStorage.removeItem('PLACEOS.map_view_mode');
-            vi.mocked(ts_client.authority).mockReturnValue({} as never);
-            vi.mocked(ts_client.token).mockReturnValue('');
+            // The map loads once the client has an authority
+            startTestPlaceClient().setAuthority({ id: 'auth' });
             vi.stubGlobal(
                 'fetch',
                 vi.fn(async (url: string) => ({

@@ -278,7 +278,7 @@ describe('SignagePlaylistService', () => {
     it('saves the failed item schedules again and reloads after a partial save', async () => {
         const service = createService();
         service.selected_playlist.set(
-            new SignagePlaylist({ id: 'playlist-1', distribution: true }),
+            signagePlaylist({ id: 'playlist-1', distribution: true }),
         );
         let close: (value?: unknown) => void = () => {};
         dialog.open.mockReturnValueOnce({
@@ -289,17 +289,17 @@ describe('SignagePlaylistService', () => {
                 },
             }),
         });
-        (updateSignagePlaylistMediaSchedule as any)
-            .mockResolvedValueOnce({})
+        (playlist_v7.updateSchedule as any)
+            .mockResolvedValueOnce(mockReply({}))
             .mockRejectedValueOnce(new Error('500'))
-            .mockResolvedValue({});
+            .mockResolvedValue(mockReply({}));
         const changed = vi.spyOn(
             TestBed.inject(SignageContextService),
             'changed',
         );
         const editing = service.editPlaylistItemSchedules([
-            new SignagePlaylistItemSchedule({ id: 's-1', item_id: 'm-1' }),
-            new SignagePlaylistItemSchedule({ id: 's-2', item_id: 'm-2' }),
+            playlistItemSchedule({ id: 's-1', item_id: 'm-1' }),
+            playlistItemSchedule({ id: 's-2', item_id: 'm-2' }),
         ]);
         await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
         const { save } = dialog.open.mock.calls[0][1].data;
@@ -308,9 +308,9 @@ describe('SignagePlaylistService', () => {
         await expect(save('s-1', schedules)).rejects.toThrow();
         await save('s-1', schedules);
 
-        const ids = (updateSignagePlaylistMediaSchedule as any).mock.calls.map(
-            (call: unknown[]) => call[1],
-        );
+        const ids = vi
+            .mocked(playlist_v7.updateSchedule)
+            .mock.calls.map(([input]) => input.item_id);
         expect(ids).toEqual(['s-1', 's-2', 's-2']);
         close(true);
         await editing;
@@ -320,7 +320,7 @@ describe('SignagePlaylistService', () => {
     it('reloads the playlist items when a write ends after the modal closes', async () => {
         const service = createService();
         service.selected_playlist.set(
-            new SignagePlaylist({ id: 'playlist-1', distribution: true }),
+            signagePlaylist({ id: 'playlist-1', distribution: true }),
         );
         let close: (value?: unknown) => void = () => {};
         dialog.open.mockReturnValueOnce({
@@ -332,15 +332,18 @@ describe('SignagePlaylistService', () => {
             }),
         });
         let finish: () => void = () => {};
-        (updateSignagePlaylistMediaSchedule as any).mockImplementationOnce(
-            () => new Promise<void>((resolve) => (finish = resolve)),
+        (playlist_v7.updateSchedule as any).mockImplementationOnce(
+            () =>
+                new Promise(
+                    (resolve) => (finish = () => resolve(mockReply({}))),
+                ),
         );
         const reloads = () =>
             (service as unknown as { _playlist_change: () => number })[
                 '_playlist_change'
             ]();
         const editing = service.editPlaylistItemSchedules([
-            new SignagePlaylistItemSchedule({ id: 's-1', item_id: 'm-1' }),
+            playlistItemSchedule({ id: 's-1', item_id: 'm-1' }),
         ]);
         await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
         const { save } = dialog.open.mock.calls[0][1].data;
@@ -360,7 +363,7 @@ describe('SignagePlaylistService', () => {
     it('reloads the playlist items when the modal closes after a partial save', async () => {
         const service = createService();
         service.selected_playlist.set(
-            new SignagePlaylist({ id: 'playlist-1', distribution: true }),
+            signagePlaylist({ id: 'playlist-1', distribution: true }),
         );
         let close: (value?: unknown) => void = () => {};
         dialog.open.mockReturnValueOnce({
@@ -371,16 +374,16 @@ describe('SignagePlaylistService', () => {
                 },
             }),
         });
-        (updateSignagePlaylistMediaSchedule as any)
-            .mockResolvedValueOnce({})
+        (playlist_v7.updateSchedule as any)
+            .mockResolvedValueOnce(mockReply({}))
             .mockRejectedValueOnce(new Error('500'));
         const reloads = () =>
             (service as unknown as { _playlist_change: () => number })[
                 '_playlist_change'
             ]();
         const editing = service.editPlaylistItemSchedules([
-            new SignagePlaylistItemSchedule({ id: 's-1', item_id: 'm-1' }),
-            new SignagePlaylistItemSchedule({ id: 's-2', item_id: 'm-2' }),
+            playlistItemSchedule({ id: 's-1', item_id: 'm-1' }),
+            playlistItemSchedule({ id: 's-2', item_id: 'm-2' }),
         ]);
         await vi.waitFor(() => expect(dialog.open).toHaveBeenCalled());
         const { save } = dialog.open.mock.calls[0][1].data;
@@ -474,11 +477,13 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'missing', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({
-                    items: ['a', 'missing', 'b', 'c'],
-                    media,
-                }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(
+                    playlistRevision({
+                        items: ['a', 'missing', 'b', 'c'],
+                        media,
+                    }),
+                ),
             );
             let saved: (value: unknown) => void = () => {};
             (playlist_v7.updateMedia as any).mockImplementation(
@@ -496,10 +501,10 @@ describe('SignagePlaylistService', () => {
 
             expect(playlistMediaIdsShown(service)).toEqual(['c', 'a', 'b']);
             await vi.waitFor(() =>
-                expect(updateSignagePlaylistMedia).toHaveBeenCalledWith(
-                    'pl-1',
-                    ['c', 'missing', 'a', 'b'],
-                ),
+                expect(playlist_v7.updateMedia).toHaveBeenCalledWith({
+                    id: 'pl-1',
+                    body: ['c', 'missing', 'a', 'b'],
+                }),
             );
             saved({});
             await saving;
@@ -513,21 +518,22 @@ describe('SignagePlaylistService', () => {
                 media,
             });
             // Another user added d and removed b
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({
-                    items: ['a', 'c', 'd'],
-                    media: [media[0], media[2]],
-                }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(
+                    playlistRevision({
+                        items: ['a', 'c', 'd'],
+                        media: [media[0], media[2]],
+                    }),
+                ),
             );
-            (updateSignagePlaylistMedia as any).mockResolvedValue({});
+            (playlist_v7.updateMedia as any).mockResolvedValue(mockReply({}));
 
             await service.reorderPlaylistMedia('pl-1', ['c', 'b', 'a']);
 
-            expect(updateSignagePlaylistMedia).toHaveBeenCalledWith('pl-1', [
-                'c',
-                'a',
-                'd',
-            ]);
+            expect(playlist_v7.updateMedia).toHaveBeenCalledWith({
+                id: 'pl-1',
+                body: ['c', 'a', 'd'],
+            });
         });
 
         it('saves one order at a time', async () => {
@@ -536,28 +542,37 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockImplementation(
-                async () =>
-                    new SignagePlaylistMedia({
+            vi.mocked(playlist_v7.media).mockImplementation(async () =>
+                mockReply(
+                    playlistRevision({
                         items: [...saved_items],
                         media,
                     }),
+                ),
             );
             let saved_items = ['a', 'b', 'c'];
             let finish_first: () => void = () => {};
-            (updateSignagePlaylistMedia as any)
+            (playlist_v7.updateMedia as any)
                 .mockImplementationOnce(
-                    (_: string, items: string[]) =>
-                        new Promise<void>((resolve) => {
-                            finish_first = () => {
-                                saved_items = items;
-                                resolve();
-                            };
-                        }),
+                    fromV1Mock(
+                        (_: string, items: string[]) =>
+                            new Promise<void>((resolve) => {
+                                finish_first = () => {
+                                    saved_items = items;
+                                    resolve();
+                                };
+                            }),
+                        ['id', 'body'],
+                    ),
                 )
-                .mockImplementation(async (_: string, items: string[]) => {
-                    saved_items = items;
-                });
+                .mockImplementation(
+                    fromV1Mock(
+                        async (_: string, items: string[]) => {
+                            saved_items = items;
+                        },
+                        ['id', 'body'],
+                    ),
+                );
 
             const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
             const second = service.reorderPlaylistMedia('pl-1', [
@@ -566,12 +581,12 @@ describe('SignagePlaylistService', () => {
                 'a',
             ]);
             await vi.waitFor(() =>
-                expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(1),
+                expect(playlist_v7.updateMedia).toHaveBeenCalledTimes(1),
             );
             finish_first();
             await Promise.all([first, second]);
 
-            expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(2);
+            expect(playlist_v7.updateMedia).toHaveBeenCalledTimes(2);
             expect(saved_items).toEqual(['b', 'c', 'a']);
         });
 
@@ -581,10 +596,10 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(playlistRevision({ items: ['a', 'b', 'c'], media })),
             );
-            (updateSignagePlaylistMedia as any).mockRejectedValue(
+            (playlist_v7.updateMedia as any).mockRejectedValue(
                 new Error('Forbidden'),
             );
 
@@ -610,13 +625,15 @@ describe('SignagePlaylistService', () => {
                 media,
             });
             // The second save cannot read the list again
-            vi.mocked(listSignagePlaylistMedia)
+            vi.mocked(playlist_v7.media)
                 .mockResolvedValueOnce(
-                    new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+                    mockReply(
+                        playlistRevision({ items: ['a', 'b', 'c'], media }),
+                    ),
                 )
                 .mockRejectedValue(new Error('Offline'));
             let fail_first: () => void = () => {};
-            (updateSignagePlaylistMedia as any)
+            (playlist_v7.updateMedia as any)
                 .mockImplementationOnce(
                     () =>
                         new Promise((_, reject) => {
@@ -627,7 +644,7 @@ describe('SignagePlaylistService', () => {
 
             const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
             await vi.waitFor(() =>
-                expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(1),
+                expect(playlist_v7.updateMedia).toHaveBeenCalledTimes(1),
             );
             // The playlist loads again, then the user drags once more
             showPlaylistMedia(service, 'pl-1', {
@@ -652,18 +669,19 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(playlistRevision({ items: ['a', 'b', 'c'], media })),
             );
             let finish_first: () => void = () => {};
-            (updateSignagePlaylistMedia as any)
+            (playlist_v7.updateMedia as any)
                 .mockImplementationOnce(
                     () =>
-                        new Promise<void>(
-                            (resolve) => (finish_first = resolve),
+                        new Promise(
+                            (resolve) =>
+                                (finish_first = () => resolve(mockReply({}))),
                         ),
                 )
-                .mockResolvedValue({});
+                .mockResolvedValue(mockReply({}));
 
             const first = service.reorderPlaylistMedia('pl-1', ['b', 'a', 'c']);
             const second = service.reorderPlaylistMedia('pl-1', [
@@ -674,12 +692,12 @@ describe('SignagePlaylistService', () => {
             await vi.advanceTimersByTimeAsync(31_000);
             // The first write timed out, but the second waits for it
             expect(notify_open).toHaveBeenCalled();
-            expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(1);
+            expect(playlist_v7.updateMedia).toHaveBeenCalledTimes(1);
 
             finish_first();
             await vi.advanceTimersByTimeAsync(0);
             await Promise.all([first, second]);
-            expect(updateSignagePlaylistMedia).toHaveBeenCalledTimes(2);
+            expect(playlist_v7.updateMedia).toHaveBeenCalledTimes(2);
             vi.useRealTimers();
         });
 
@@ -689,13 +707,15 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({
-                    items: ['b', 'a', 'c'],
-                    media,
-                }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(
+                    playlistRevision({
+                        items: ['b', 'a', 'c'],
+                        media,
+                    }),
+                ),
             );
-            (updateSignagePlaylistMedia as any).mockRejectedValue(
+            (playlist_v7.updateMedia as any).mockRejectedValue(
                 new Error('Forbidden'),
             );
 
@@ -711,12 +731,15 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(playlistRevision({ items: ['a', 'b', 'c'], media })),
             );
             let finish: () => void = () => {};
-            (updateSignagePlaylistMedia as any).mockImplementationOnce(
-                () => new Promise<void>((resolve) => (finish = resolve)),
+            (playlist_v7.updateMedia as any).mockImplementationOnce(
+                () =>
+                    new Promise(
+                        (resolve) => (finish = () => resolve(mockReply({}))),
+                    ),
             );
 
             const saving = service.reorderPlaylistMedia('pl-1', [
@@ -739,10 +762,10 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(playlistRevision({ items: ['a', 'b', 'c'], media })),
             );
-            (updateSignagePlaylistMedia as any).mockRejectedValue(
+            (playlist_v7.updateMedia as any).mockRejectedValue(
                 new Error('Forbidden'),
             );
 
@@ -767,10 +790,10 @@ describe('SignagePlaylistService', () => {
                 items: ['a', 'b', 'c'],
                 media,
             });
-            vi.mocked(listSignagePlaylistMedia).mockResolvedValue(
-                new SignagePlaylistMedia({ items: ['a', 'b', 'c'], media }),
+            vi.mocked(playlist_v7.media).mockResolvedValue(
+                mockReply(playlistRevision({ items: ['a', 'b', 'c'], media })),
             );
-            (updateSignagePlaylistMedia as any).mockRejectedValue(
+            (playlist_v7.updateMedia as any).mockRejectedValue(
                 new Error('Forbidden'),
             );
 

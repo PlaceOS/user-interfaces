@@ -495,7 +495,7 @@ export class RoomBookingsApprovalsComponent implements OnInit {
                     await mod.execute(
                         'accept_event',
                         [event.mailbox, event.id],
-                        30 * 1000,
+                        { timeout_ms: 30 * 1000 },
                     );
                 } finally {
                     this._clearInProgress([event]);

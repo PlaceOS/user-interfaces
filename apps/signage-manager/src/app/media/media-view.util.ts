@@ -122,7 +122,7 @@ export function clampMasonryAspectRatio(ratio: number) {
 }
 
 /** Width over height of a masonry thumbnail, from the media orientation */
-export function masonryAspectRatio(item: Pick<SignageMedia, 'orientation'>) {
+export function masonryAspectRatio(item: Pick<PlaylistItem, 'orientation'>) {
     switch (item.orientation) {
         case 'portrait':
             return 9 / 16;
@@ -141,7 +141,7 @@ export function masonryAspectRatio(item: Pick<SignageMedia, 'orientation'>) {
  * @param items Media in display order
  * @param width Width of the column area in pixels
  */
-export function masonryColumns<T extends Pick<SignageMedia, 'orientation'>>(
+export function masonryColumns<T extends Pick<PlaylistItem, 'orientation'>>(
     items: readonly T[],
     width: number,
 ): T[][] {

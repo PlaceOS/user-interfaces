@@ -224,7 +224,7 @@ export function playlistScheduleExpiryTooltip(
  * schedule ends after its play period, or at its end date when that is sooner.
  * A single pass (period 0) ends when the player can no longer start it.
  */
-function scheduleEnd(schedule: Partial<SignagePlaylistSchedule>) {
+function scheduleEnd(schedule: Partial<PlaylistSchedule>) {
     const start = playOnceStart(schedule);
     const period_seconds =
         playPeriodMinutes(schedule) * 60 ||
@@ -260,8 +260,8 @@ export function playlistExpiredAt(
  * date and the end of its last schedule, or 0 when it never ends.
  */
 export function playlistEndsAt(playlist: {
-    valid_until?: number;
-    schedules?: readonly Partial<SignagePlaylistSchedule>[];
+    valid_until?: number | null;
+    schedules?: readonly Partial<PlaylistSchedule>[] | null;
 }) {
     const schedules_end = playlistExpiredAt(
         { schedules: playlist.schedules },

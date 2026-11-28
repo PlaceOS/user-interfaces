@@ -1185,7 +1185,7 @@ export class MediaListComponent {
     private readonly _aspect_ratios = signal(new Map<string, number>());
 
     /** Width over height of the thumbnail of a masonry card */
-    public aspectRatio(item: SignageMedia) {
+    public aspectRatio(item: PlaylistItem) {
         return this._aspect_ratios().get(item.id) ?? masonryAspectRatio(item);
     }
 
