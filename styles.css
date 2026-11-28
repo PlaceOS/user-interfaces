@@ -5036,6 +5036,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .px-2 {
   padding-inline: calc(var(--spacing) * 2);
 }
+#placeos .px-2\.5 {
+  padding-inline: calc(var(--spacing) * 2.5);
+}
 #placeos .px-3 {
   padding-inline: calc(var(--spacing) * 3);
 }
@@ -6050,19 +6053,6 @@ input:where([type=button], [type=reset], [type=submit]),
     var(--tw-ring-shadow),
     var(--tw-shadow);
 }
-@media (width < 64rem) {
-  #placeos .max-lg\:sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border-width: 0;
-  }
-}
 @media (width < 48rem) {
   #placeos .max-md\:sr-only {
     position: absolute;
@@ -6373,6 +6363,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 48rem) {
   #placeos .md\:hidden {
     display: none;
+  }
+}
+@media (width >= 48rem) {
+  #placeos .md\:w-32 {
+    width: calc(var(--spacing) * 32);
   }
 }
 @media (width >= 48rem) {
