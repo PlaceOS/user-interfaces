@@ -156,11 +156,15 @@ function transformScale(path: ShapePath): number {
 /**
  * Parse SVG text into the outlines of its drawn elements. Elements inside
  * `<defs>` and other containers that never paint, hidden elements and text are
- * left out.
+ * left out. Throws when the text is not an SVG document.
  */
 export function parseMap(svg_text: string): ParsedMap {
     const data = new SVGLoader().parse(svg_text);
     const svg = data.xml as unknown as Element;
+    // The loader does not throw on bad markup, it returns the error document
+    if (svg?.localName !== 'svg' || svg.querySelector('parsererror')) {
+        throw new Error('The map is not a valid SVG file');
+    }
     const styles = new StyleResolver(svg);
     const view_box = parseViewBox(svg);
     const tolerance = Math.max(view_box.width, view_box.height) / 20000;

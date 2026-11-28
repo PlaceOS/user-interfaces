@@ -151,14 +151,20 @@ export class InteractiveMapComponent {
     public readonly preferred_mode = signal<'2d' | '3d'>(storedMode());
     /** Whether the user has the 3D view locked to an isometric one */
     public readonly isometric = signal(storedIsometric());
-    /** The switch shows only on a zoomable map with a 3D view */
-    public readonly can_3d = computed(
+    /**
+     * Whether this map can show 3D at all: an SVG map with our zoom controls,
+     * which hold the switch back to 2D
+     */
+    private readonly _allows_3d = computed(
         () =>
-            this.has_3d() &&
-            !this.unsupported_3d() &&
+            !!this.options()?.controls &&
             !this.options()?.disable_zoom &&
             !this.use_mapsindoors() &&
             !this.use_cisco_maps,
+    );
+    /** The switch shows only on a map that allows 3D and has a 3D view */
+    public readonly can_3d = computed(
+        () => this._allows_3d() && this.has_3d() && !this.unsupported_3d(),
     );
     public readonly mode = computed<'2d' | '3d'>(() =>
         this.can_3d() && this.preferred_mode() === '3d' ? '3d' : '2d',
@@ -171,7 +177,7 @@ export class InteractiveMapComponent {
             const src = this.src();
             let current = true;
             onCleanup(() => (current = false));
-            if (!src) return this.has_3d.set(false);
+            if (!src || !this._allows_3d()) return this.has_3d.set(false);
             // has_3d keeps its last value until the next map has loaded
             getMapDetails(src)
                 .then((details) => hasMap3D(details.raw_data))

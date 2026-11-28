@@ -397,7 +397,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                                 ('APP.CONCIERGE.MAPS_3D_UNNAMED'
                                                     | translate)
                                         }}
-                                        <span class="text-xs opacity-50">{{
+                                        <span class="text-xs opacity-70">{{
                                             layer.count
                                         }}</span>
                                     </button>
@@ -418,7 +418,6 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                                 : 'APP.CONCIERGE.MAPS_3D_HIDE'
                                             ) | translate
                                         "
-                                        [attr.aria-pressed]="layer.hidden"
                                         (click)="toggleHidden(layer)"
                                     >
                                         <icon class="text-base">{{
@@ -1100,7 +1099,7 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         );
         viewer.onPick = (pick) =>
             this._zone.run(() => this._pick(pick.shape, pick.event.shiftKey));
-        viewer.onHover = (shape) => viewer.setHighlight(this.selected(), shape);
+        viewer.onHover = (shape) => viewer.setHover(shape);
         session.onChange = () => {
             this._edited = this.ready();
             viewer.refresh();

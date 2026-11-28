@@ -16,6 +16,7 @@ class Fake3DViewer {
     public center = { x: 0.5, y: 0.5 };
     public tilt = 48;
     public bearing = 0;
+    public aspect = 1;
     public map = { element_bounds: new Map() };
     public destroy = vi.fn();
     public setMap = vi.fn(async () => undefined);
@@ -143,6 +144,42 @@ describe('DynamicMapComponent in 3D', () => {
         component.rotateBy(45);
         expect(state.viewer_3d?.['turnBy']).toHaveBeenCalledTimes(1);
         expect(state.viewer_3d?.['turnBy']).toHaveBeenCalledWith(45);
+        component.ngOnDestroy();
+    });
+
+    it('should pan with the arrow keys along the screen of a turned view', async () => {
+        const component = createMap();
+        mode.set('3d');
+        await settle();
+        state.viewer_3d!['bearing'] = 90;
+        const key = (key: string) =>
+            component.onKeydown(
+                new KeyboardEvent('keydown', { key, cancelable: true }),
+            );
+        key('ArrowRight');
+        expect(component.center().x).toBeCloseTo(0.5);
+        expect(component.center().y).toBeCloseTo(0.6);
+        key('ArrowUp');
+        expect(component.center().x).toBeCloseTo(0.6);
+        expect(component.center().y).toBeCloseTo(0.6);
+        component.ngOnDestroy();
+    });
+
+    it('should pan straight across the screen of a wide map turned to an angle', async () => {
+        const component = createMap();
+        mode.set('3d');
+        await settle();
+        // A map twice as wide as it is deep, turned 45 degrees
+        Object.assign(state.viewer_3d!, { bearing: 45, aspect: 2 });
+        component.onKeydown(
+            new KeyboardEvent('keydown', {
+                key: 'ArrowRight',
+                cancelable: true,
+            }),
+        );
+        // In map units, the move is along the screen's right: 45 degrees
+        const { x, y } = component.center();
+        expect((y - 0.5) / 2 / (x - 0.5)).toBeCloseTo(1);
         component.ngOnDestroy();
     });
 

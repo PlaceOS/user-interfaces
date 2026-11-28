@@ -55,10 +55,6 @@ describe('MapZoomControlsComponent', () => {
         spectator.setInput('mode', '3d');
         spectator.click('[toggle-isometric]');
         expect(spectator.component.isometric()).toBe(true);
-        expect(spectator.query('[toggle-isometric]')).toHaveAttribute(
-            'aria-pressed',
-            'true',
-        );
         spectator.click('[toggle-isometric]');
         expect(spectator.component.isometric()).toBe(false);
     });

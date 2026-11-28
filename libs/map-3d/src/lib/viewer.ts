@@ -180,6 +180,9 @@ const FLOOR_CSS = layerCss(
 const LABEL_CSS = layerCss((kind) => kind === 'label', false);
 const SPACE_CSS = layerCss((kind) => kind === 'space', false);
 
+/** Action events that end a press, which a drag must not trigger */
+const RELEASE_EVENTS = new Set(['click', 'mouseup', 'pointerup', 'touchend']);
+
 /** The bearing in degrees of the corner of the map nearest to a bearing */
 function nearestCorner(bearing: number): number {
     return (
@@ -398,6 +401,10 @@ export class Map3DViewer {
     private _action_handlers = new Map<string, (e: Event) => void>();
     private _action_last_triggered = new Map<string, number>();
     private _pointer_down: Map3DPoint | null = null;
+    /** Set once the press moves more than 5px or adds a finger, so its release is not an action */
+    private _dragged = false;
+    /** Pointers pressed on the map now */
+    private _pointers = new Set<number>();
     private _hover_shape: MapShape | null = null;
     /** Height in metres of the top of each raised element, by element ID */
     private _top_by_id = new Map<string, number>();
@@ -535,6 +542,11 @@ export class Map3DViewer {
         this._listen(this.container, 'pointerdown', (e) => {
             const event = e as PointerEvent;
             this._cancelTurn();
+            // A primary pointer starts a new gesture, which also drops a release
+            // that never arrived. A second finger makes it a pinch.
+            if (event.isPrimary) this._pointers.clear();
+            this._dragged = this._pointers.size > 0;
+            this._pointers.add(event.pointerId);
             this._pointer_down = { x: event.clientX, y: event.clientY };
             // The controls have captured the pointer, which sends the click
             // to the container and not to content placed over the map
@@ -545,6 +557,11 @@ export class Map3DViewer {
                 this.container.releasePointerCapture(event.pointerId);
             }
         });
+        for (const name of ['pointerup', 'pointercancel']) {
+            this._listen(this.container, name, (e) =>
+                this._pointers.delete((e as PointerEvent).pointerId),
+            );
+        }
         this._listen(this.container, 'click', (e) => this._onClick(e));
         this._listen(this.container, 'pointermove', (e) =>
             this._onPointerMove(e as PointerEvent),
@@ -583,6 +600,11 @@ export class Map3DViewer {
 
     public get overlay_count(): number {
         return this._overlay_instances.length;
+    }
+
+    /** Width over depth of the map on show */
+    public get aspect(): number {
+        return this._width / this._depth || 1;
     }
 
     /** SVG user units per metre of the map on show */
@@ -722,17 +744,22 @@ export class Map3DViewer {
      * keeps its tilt and turns about the middle of the map.
      */
     public setAngles(tilt: number, bearing: number) {
+        this._cancelTurn();
         if (this.isometric) tilt = ISOMETRIC_TILT;
         this._placeCamera(tilt, bearing);
         this._invalidate();
+        // An isometric turn can move the centre, which hosts keep in step with
+        this._notifyViewChange();
     }
 
     /**
-     * Turn the view as a short animation, by an angle in degrees clockwise.
-     * An isometric view turns the same way to the next corner of the map,
-     * about the middle of the map.
+     * Turn the map on screen as a short animation, by an angle in degrees
+     * clockwise. An isometric view turns the same way to the next corner of
+     * the map, about the middle of the map.
      */
     public turnBy(degrees: number) {
+        // The bearing is the camera's, which goes round the other way to the map
+        degrees = -degrees;
         const tilt = this.isometric ? ISOMETRIC_TILT : this.tilt;
         const from = this.bearing;
         // A turn asked for during another carries on from where that one was going
@@ -812,12 +839,14 @@ export class Map3DViewer {
         this._notifyViewChange();
     }
 
-    /** Outline drawn elements as selected and one as hovered. */
-    public setHighlight(
-        selected: readonly MapShape[],
-        hover?: MapShape | null,
-    ) {
+    /** Outline drawn elements as selected, and clear the hovered one. */
+    public setHighlight(selected: readonly MapShape[]) {
         this._setOutline(this._selection, this._selection_fill, selected);
+        this.setHover(null);
+    }
+
+    /** Outline one drawn element as hovered, or none. */
+    public setHover(hover: MapShape | null) {
         this._setOutline(this._hover, this._hover_fill, hover ? [hover] : []);
         this._invalidate();
     }
@@ -875,7 +904,10 @@ export class Map3DViewer {
         const event_names = new Set(actions.flatMap((_) => _.events));
         for (const event_name of event_names) {
             const handler = (e: Event) =>
-                this._handleActionEvent(event_name, e as PointerEvent);
+                this._handleActionEvent(
+                    event_name,
+                    e as PointerEvent | TouchEvent,
+                );
             this._action_handlers.set(event_name, handler);
             this.container.addEventListener(event_name, handler);
         }
@@ -1388,11 +1420,19 @@ export class Map3DViewer {
         });
     }
 
-    /** Screen position in CSS pixels of a point on the map at a height in metres. */
-    private _project(x: number, y: number, height: number, out: Vector3) {
+    /**
+     * Screen position in CSS pixels of a point on the map at a height in metres.
+     * @param view Size of the container in CSS pixels
+     */
+    private _project(
+        x: number,
+        y: number,
+        height: number,
+        view: { width: number; height: number },
+        out: Vector3,
+    ) {
         out.set(x * this._width, height, y * this._depth).project(this._camera);
-        const width = this.container.clientWidth || 1;
-        const view_height = this.container.clientHeight || 1;
+        const { width, height: view_height } = view;
         const visible = out.z > -1 && out.z < 1;
         out.set(
             ((out.x + 1) / 2) * width,
@@ -1406,6 +1446,11 @@ export class Map3DViewer {
         if (!this.map?.element_bounds) return;
         this._camera.updateMatrixWorld();
         const point = new Vector3();
+        // Read before the loop writes styles, so the layout is read once
+        const view = {
+            width: this.container.clientWidth || 1,
+            height: this.container.clientHeight || 1,
+        };
         const setDisplay = (instance: OverlayInstance, value: string) => {
             if (instance.last_display === value) return;
             instance.last_display = value;
@@ -1461,6 +1506,7 @@ export class Map3DViewer {
                             bounds.x + bounds.w * dx,
                             bounds.y + bounds.h * dy,
                             height,
+                            view,
                             point,
                         );
                         if (!point.z) visible = false;
@@ -1482,6 +1528,7 @@ export class Map3DViewer {
                     bounds.x + bounds.w / 2,
                     bounds.y + bounds.h / 2,
                     top,
+                    view,
                     point,
                 );
                 if (!point.z) {
@@ -1563,25 +1610,23 @@ export class Map3DViewer {
         return null;
     }
 
-    private _wasDrag(e: { clientX: number; clientY: number }): boolean {
-        return (
-            !!this._pointer_down &&
-            Math.hypot(
-                e.clientX - this._pointer_down.x,
-                e.clientY - this._pointer_down.y,
-            ) > 5
-        );
-    }
-
     private _onClick(e: Event) {
         const event = e as MouseEvent;
-        if (!this.onPick || this._wasDrag(event)) return;
+        if (!this.onPick || this._dragged) return;
         const hit = this._hit(event);
         if (!hit) return;
         this.onPick({ point: hit.point, shape: this._shapeAt(hit), event });
     }
 
     private _onPointerMove(e: PointerEvent) {
+        const down = this._pointer_down;
+        if (
+            e.buttons &&
+            down &&
+            Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5
+        ) {
+            this._dragged = true;
+        }
         if (!this.onHover || e.buttons) return;
         const hit = this._hit(e);
         this._setHover(hit ? this._shapeAt(hit) : null);
@@ -1593,10 +1638,17 @@ export class Map3DViewer {
         this.onHover?.(shape);
     }
 
-    private _handleActionEvent(event_name: string, e: PointerEvent) {
+    private _handleActionEvent(
+        event_name: string,
+        e: PointerEvent | TouchEvent,
+    ) {
         if (!this.map?.element_bounds) return;
-        if (event_name === 'click' && this._wasDrag(e)) return;
-        const hit = this._hit(e);
+        // A press that moved the map is a drag, so its release is not an action
+        if (RELEASE_EVENTS.has(event_name) && this._dragged) return;
+        // A touch event has its position on the touch that changed
+        const position = 'changedTouches' in e ? e.changedTouches[0] : e;
+        if (!position) return;
+        const hit = this._hit(position);
         if (!hit) return;
         const norm = hit.point;
 

@@ -167,7 +167,7 @@ import { MapManagementService } from './map-management.service';
                     @if (has_3d().has(row.map_id)) {
                         <span
                             badge-3d
-                            class="bg-info/15 text-info rounded px-1.5 text-[0.625rem] leading-4 font-semibold"
+                            class="bg-base-200 text-base-content rounded px-1.5 text-[0.625rem] leading-4 font-semibold"
                             [title]="'APP.CONCIERGE.MAPS_3D_BADGE' | translate"
                         >
                             3D

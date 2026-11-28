@@ -31,7 +31,6 @@ export const MAP_ZOOM_STEP = 1.25;
                             : 'EXPLORE.VIEW_3D'
                         ) | translate
                     "
-                    [attr.aria-pressed]="mode() === '3d'"
                     matTooltipPosition="left"
                     class="hover:bg-base-200 text-sm font-semibold"
                     (click)="
@@ -58,7 +57,6 @@ export const MAP_ZOOM_STEP = 1.25;
                                 : 'EXPLORE.ISOMETRIC_LOCK'
                             ) | translate
                         "
-                        [attr.aria-pressed]="isometric()"
                         matTooltipPosition="left"
                         class="hover:bg-base-200"
                         [class.bg-base-200]="isometric()"

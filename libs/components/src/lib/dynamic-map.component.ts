@@ -765,19 +765,29 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         const { disable_zoom, disable_pan } = this.options() || {};
         const zoom = this.zoom() ?? 1;
         const { x, y } = this.center() ?? { x: 0.5, y: 0.5 };
-        // Pan a tenth of the view at each step
+        // Pan a tenth of the view at each step, along the axes of the screen.
+        // A turned 3D view has its screen axes at its bearing to the map's,
+        // so the step turns in map units and is then scaled to each axis.
         const step = 0.1 / zoom;
+        const viewer = this._map_viewer;
+        const turned = !!viewer && 'bearing' in viewer;
+        const bearing = turned ? (viewer.bearing * Math.PI) / 180 : 0;
+        const aspect = turned ? viewer.aspect : 1;
+        const [cos, sin] = [Math.cos(bearing), Math.sin(bearing)];
+        const pan = (across: number, down: number) =>
+            !disable_pan &&
+            this.center.set({
+                x: x + step * (across * cos - down * sin),
+                y: y + step * aspect * (across * sin + down * cos),
+            });
         const changes: Record<string, () => void> = {
             '+': () => !disable_zoom && this.zoomTo(zoom * MAP_ZOOM_STEP),
             '=': () => !disable_zoom && this.zoomTo(zoom * MAP_ZOOM_STEP),
             '-': () => !disable_zoom && this.zoomTo(zoom / MAP_ZOOM_STEP),
-            ArrowUp: () => !disable_pan && this.center.set({ x, y: y - step }),
-            ArrowDown: () =>
-                !disable_pan && this.center.set({ x, y: y + step }),
-            ArrowLeft: () =>
-                !disable_pan && this.center.set({ x: x - step, y }),
-            ArrowRight: () =>
-                !disable_pan && this.center.set({ x: x + step, y }),
+            ArrowUp: () => pan(0, -1),
+            ArrowDown: () => pan(0, 1),
+            ArrowLeft: () => pan(-1, 0),
+            ArrowRight: () => pan(1, 0),
         };
         if (!changes[event.key]) return;
         event.preventDefault();

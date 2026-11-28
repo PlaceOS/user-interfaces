@@ -21,6 +21,7 @@ class FakeViewer {
     public setMapData = vi.fn();
     public refresh = vi.fn();
     public setHighlight = vi.fn();
+    public setHover = vi.fn();
     public setAngles = vi.fn();
     public turnBy = vi.fn();
     public setZoom = vi.fn();
