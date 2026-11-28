@@ -18,14 +18,14 @@ import {
   MatInputModule,
   MatPrefix,
   MatSuffix
-} from "./chunk-WT7HDEMS.js";
+} from "./chunk-FIKH2KYN.js";
 import {
   MatTooltip,
   MatTooltipModule
 } from "./chunk-Q4NIVP2K.js";
 import {
   CustomTooltipComponent
-} from "./chunk-UEEVS5PU.js";
+} from "./chunk-BL2CDXAR.js";
 import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
@@ -42,10 +42,10 @@ import {
   SpacePipe,
   requestSpacesForZone,
   setHours
-} from "./chunk-PSJMLULT.js";
+} from "./chunk-QIIRFF3I.js";
 import {
   TranslatePipe
-} from "./chunk-NPEPUDHK.js";
+} from "./chunk-C3LWAHSW.js";
 import {
   FORM_FIELD,
   FormField,
@@ -54,7 +54,7 @@ import {
   form,
   required,
   validate
-} from "./chunk-MVIKUWKV.js";
+} from "./chunk-QU2A5RZK.js";
 import {
   AbstractControl,
   Booking,
@@ -84,7 +84,7 @@ import {
   stringToMinutes,
   toBookingRecurrence,
   toQueryString
-} from "./chunk-X2EJ45QW.js";
+} from "./chunk-7J4ARTV5.js";
 import {
   $,
   AssetRequest,
@@ -184,7 +184,7 @@ import {
   up,
   userSignal,
   user_group_names
-} from "./chunk-EBNBNZC3.js";
+} from "./chunk-OKXQ6UYM.js";
 import {
   BasePortalOutlet,
   CdkConnectedOverlay,
@@ -7526,15 +7526,15 @@ var MapViewer = class {
 };
 
 // libs/components/src/lib/map-zoom-controls.component.ts
-function MapZoomControlsComponent_Conditional_1_Conditional_3_Template(rf, ctx) {
+function MapZoomControlsComponent_Conditional_1_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
-    \u0275\u0275element(0, "mat-spinner", 3);
+    \u0275\u0275element(0, "mat-spinner", 5);
   }
   if (rf & 2) {
     \u0275\u0275property("diameter", 16);
   }
 }
-function MapZoomControlsComponent_Conditional_1_Conditional_4_Template(rf, ctx) {
+function MapZoomControlsComponent_Conditional_1_Conditional_5_Template(rf, ctx) {
   if (rf & 1) {
     \u0275\u0275text(0);
   }
@@ -7543,13 +7543,13 @@ function MapZoomControlsComponent_Conditional_1_Conditional_4_Template(rf, ctx) 
     \u0275\u0275textInterpolate1(" ", ctx_r1.mode() === "3d" ? "2D" : "3D", " ");
   }
 }
-function MapZoomControlsComponent_Conditional_1_Conditional_5_Template(rf, ctx) {
+function MapZoomControlsComponent_Conditional_1_Conditional_6_Template(rf, ctx) {
   if (rf & 1) {
     const _r3 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 4);
+    \u0275\u0275elementStart(0, "button", 6);
     \u0275\u0275pipe(1, "translate");
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Conditional_5_Template_button_click_0_listener($event) {
+    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Conditional_6_Template_button_click_0_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       ctx_r1.isometric.set(!ctx_r1.isometric());
@@ -7558,10 +7558,10 @@ function MapZoomControlsComponent_Conditional_1_Conditional_5_Template(rf, ctx) 
     \u0275\u0275elementStart(3, "icon");
     \u0275\u0275text(4);
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(5, "button", 5);
+    \u0275\u0275elementStart(5, "button", 7);
     \u0275\u0275pipe(6, "translate");
     \u0275\u0275pipe(7, "translate");
-    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Conditional_5_Template_button_click_5_listener($event) {
+    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Conditional_6_Template_button_click_5_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       ctx_r1.rotate.emit(-45);
@@ -7570,10 +7570,10 @@ function MapZoomControlsComponent_Conditional_1_Conditional_5_Template(rf, ctx) 
     \u0275\u0275elementStart(8, "icon");
     \u0275\u0275text(9, "rotate_left");
     \u0275\u0275elementEnd()();
-    \u0275\u0275elementStart(10, "button", 6);
+    \u0275\u0275elementStart(10, "button", 8);
     \u0275\u0275pipe(11, "translate");
     \u0275\u0275pipe(12, "translate");
-    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Conditional_5_Template_button_click_10_listener($event) {
+    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Conditional_6_Template_button_click_10_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext(2);
       ctx_r1.rotate.emit(45);
@@ -7601,27 +7601,29 @@ function MapZoomControlsComponent_Conditional_1_Conditional_5_Template(rf, ctx) 
 function MapZoomControlsComponent_Conditional_1_Template(rf, ctx) {
   if (rf & 1) {
     const _r1 = \u0275\u0275getCurrentView();
-    \u0275\u0275elementStart(0, "button", 2);
-    \u0275\u0275pipe(1, "translate");
+    \u0275\u0275elementStart(0, "div", 1)(1, "button", 4);
     \u0275\u0275pipe(2, "translate");
-    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Template_button_click_0_listener($event) {
+    \u0275\u0275pipe(3, "translate");
+    \u0275\u0275listener("click", function MapZoomControlsComponent_Conditional_1_Template_button_click_1_listener($event) {
       \u0275\u0275restoreView(_r1);
       const ctx_r1 = \u0275\u0275nextContext();
       ctx_r1.mode.set(ctx_r1.mode() === "3d" ? "2d" : "3d");
       return \u0275\u0275resetView($event.stopPropagation());
     });
-    \u0275\u0275conditionalCreate(3, MapZoomControlsComponent_Conditional_1_Conditional_3_Template, 1, 1, "mat-spinner", 3)(4, MapZoomControlsComponent_Conditional_1_Conditional_4_Template, 1, 1);
+    \u0275\u0275conditionalCreate(4, MapZoomControlsComponent_Conditional_1_Conditional_4_Template, 1, 1, "mat-spinner", 5)(5, MapZoomControlsComponent_Conditional_1_Conditional_5_Template, 1, 1);
     \u0275\u0275elementEnd();
-    \u0275\u0275conditionalCreate(5, MapZoomControlsComponent_Conditional_1_Conditional_5_Template, 15, 23);
+    \u0275\u0275conditionalCreate(6, MapZoomControlsComponent_Conditional_1_Conditional_6_Template, 15, 23);
+    \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(1, 5, ctx_r1.loading3d() ? "EXPLORE.VIEW_3D_LOADING" : ctx_r1.mode() === "3d" ? "EXPLORE.VIEW_2D" : "EXPLORE.VIEW_3D"));
-    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(2, 7, ctx_r1.loading3d() ? "EXPLORE.VIEW_3D_LOADING" : ctx_r1.mode() === "3d" ? "EXPLORE.VIEW_2D" : "EXPLORE.VIEW_3D"))("aria-busy", ctx_r1.loading3d());
+    \u0275\u0275advance();
+    \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(2, 5, ctx_r1.loading3d() ? "EXPLORE.VIEW_3D_LOADING" : ctx_r1.mode() === "3d" ? "EXPLORE.VIEW_2D" : "EXPLORE.VIEW_3D"));
+    \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(3, 7, ctx_r1.loading3d() ? "EXPLORE.VIEW_3D_LOADING" : ctx_r1.mode() === "3d" ? "EXPLORE.VIEW_2D" : "EXPLORE.VIEW_3D"))("aria-busy", ctx_r1.loading3d());
     \u0275\u0275advance(3);
-    \u0275\u0275conditional(ctx_r1.loading3d() ? 3 : 4);
+    \u0275\u0275conditional(ctx_r1.loading3d() ? 4 : 5);
     \u0275\u0275advance(2);
-    \u0275\u0275conditional(ctx_r1.mode() === "3d" && !ctx_r1.loading3d() ? 5 : -1);
+    \u0275\u0275conditional(ctx_r1.mode() === "3d" && !ctx_r1.loading3d() ? 6 : -1);
   }
 }
 var MAP_ZOOM_STEP = 1.25;
@@ -7678,53 +7680,53 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], inputs: { zoom: [1, "zoom"], reset: [1, "reset"], mode: [1, "mode"], isometric: [1, "isometric"], can3d: [1, "can3d"], loading3d: [1, "loading3d"] }, outputs: { zoom: "zoomChange", reset: "resetChange", mode: "modeChange", isometric: "isometricChange", rotate: "rotate" }, decls: 17, vars: 19, consts: [[1, "bg-base-100", "divide-base-300", "border-base-300", "absolute", "right-2", "bottom-16", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "toggle-3d", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", "text-sm", "font-semibold", 3, "click", "matTooltip"], [1, "mx-auto", 3, "diameter"], ["icon", "", "matRipple", "", "toggle-isometric", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "rotate-left", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "rotate-right", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _MapZoomControlsComponent, selectors: [["map-zoom-controls"]], inputs: { zoom: [1, "zoom"], reset: [1, "reset"], mode: [1, "mode"], isometric: [1, "isometric"], can3d: [1, "can3d"], loading3d: [1, "loading3d"] }, outputs: { zoom: "zoomChange", reset: "resetChange", mode: "modeChange", isometric: "isometricChange", rotate: "rotate" }, decls: 18, vars: 19, consts: [[1, "absolute", "right-2", "bottom-16", "flex", "flex-col", "gap-2"], ["view-group", "", 1, "bg-base-100", "divide-base-300", "border-base-300", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], [1, "bg-base-100", "divide-base-300", "border-base-300", "flex", "flex-col", "divide-y", "overflow-hidden", "rounded-lg", "border", "shadow-md"], ["icon", "", "matRipple", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "toggle-3d", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", "text-sm", "font-semibold", 3, "click", "matTooltip"], [1, "mx-auto", 3, "diameter"], ["icon", "", "matRipple", "", "toggle-isometric", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "rotate-left", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"], ["icon", "", "matRipple", "", "rotate-right", "", "matTooltipPosition", "left", 1, "hover:bg-base-200", 3, "click", "matTooltip"]], template: function MapZoomControlsComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275elementStart(0, "div", 0);
-        \u0275\u0275conditionalCreate(1, MapZoomControlsComponent_Conditional_1_Template, 6, 9);
-        \u0275\u0275elementStart(2, "button", 1);
-        \u0275\u0275pipe(3, "translate");
+        \u0275\u0275conditionalCreate(1, MapZoomControlsComponent_Conditional_1_Template, 7, 9, "div", 1);
+        \u0275\u0275elementStart(2, "div", 2)(3, "button", 3);
         \u0275\u0275pipe(4, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_2_listener($event) {
+        \u0275\u0275pipe(5, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_3_listener($event) {
           ctx.zoom.set(ctx.zoom() * ctx.step);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(5, "icon");
-        \u0275\u0275text(6, "add");
+        \u0275\u0275elementStart(6, "icon");
+        \u0275\u0275text(7, "add");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(7, "button", 1);
-        \u0275\u0275pipe(8, "translate");
+        \u0275\u0275elementStart(8, "button", 3);
         \u0275\u0275pipe(9, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_7_listener($event) {
+        \u0275\u0275pipe(10, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_8_listener($event) {
           ctx.zoom.set(ctx.zoom() / ctx.step);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(10, "icon");
-        \u0275\u0275text(11, "remove");
+        \u0275\u0275elementStart(11, "icon");
+        \u0275\u0275text(12, "remove");
         \u0275\u0275elementEnd()();
-        \u0275\u0275elementStart(12, "button", 1);
-        \u0275\u0275pipe(13, "translate");
+        \u0275\u0275elementStart(13, "button", 3);
         \u0275\u0275pipe(14, "translate");
-        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_12_listener($event) {
+        \u0275\u0275pipe(15, "translate");
+        \u0275\u0275listener("click", function MapZoomControlsComponent_Template_button_click_13_listener($event) {
           ctx.reset.set(ctx.reset() + 1);
           return $event.stopPropagation();
         });
-        \u0275\u0275elementStart(15, "icon");
-        \u0275\u0275text(16, "refresh");
-        \u0275\u0275elementEnd()()();
+        \u0275\u0275elementStart(16, "icon");
+        \u0275\u0275text(17, "refresh");
+        \u0275\u0275elementEnd()()()();
       }
       if (rf & 2) {
         \u0275\u0275advance();
         \u0275\u0275conditional(ctx.can3d() ? 1 : -1);
-        \u0275\u0275advance();
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(3, 7, "EXPLORE.ZOOM_IN"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(4, 9, "EXPLORE.ZOOM_IN"));
+        \u0275\u0275advance(2);
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(4, 7, "EXPLORE.ZOOM_IN"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(5, 9, "EXPLORE.ZOOM_IN"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(8, 11, "EXPLORE.ZOOM_OUT"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(9, 13, "EXPLORE.ZOOM_OUT"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(9, 11, "EXPLORE.ZOOM_OUT"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(10, 13, "EXPLORE.ZOOM_OUT"));
         \u0275\u0275advance(5);
-        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(13, 15, "EXPLORE.ZOOM_RESET"));
-        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(14, 17, "EXPLORE.ZOOM_RESET"));
+        \u0275\u0275property("matTooltip", \u0275\u0275pipeBind1(14, 15, "EXPLORE.ZOOM_RESET"));
+        \u0275\u0275attribute("aria-label", \u0275\u0275pipeBind1(15, 17, "EXPLORE.ZOOM_RESET"));
       }
     }, dependencies: [
       IconComponent,
@@ -7742,132 +7744,146 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadata(MapZoomControlsComponent, [{
     type: Component,
     args: [{ selector: "map-zoom-controls", template: `
-        <div
-            class="bg-base-100 divide-base-300 border-base-300 absolute right-2 bottom-16 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
-        >
+        <div class="absolute right-2 bottom-16 flex flex-col gap-2">
+            <!-- The view controls and the zoom controls are separate groups -->
             @if (can3d()) {
-                <button
-                    icon
-                    matRipple
-                    toggle-3d
-                    [matTooltip]="
-                        (loading3d()
-                            ? 'EXPLORE.VIEW_3D_LOADING'
-                            : mode() === '3d'
-                              ? 'EXPLORE.VIEW_2D'
-                              : 'EXPLORE.VIEW_3D'
-                        ) | translate
-                    "
-                    [attr.aria-label]="
-                        (loading3d()
-                            ? 'EXPLORE.VIEW_3D_LOADING'
-                            : mode() === '3d'
-                              ? 'EXPLORE.VIEW_2D'
-                              : 'EXPLORE.VIEW_3D'
-                        ) | translate
-                    "
-                    [attr.aria-busy]="loading3d()"
-                    matTooltipPosition="left"
-                    class="hover:bg-base-200 text-sm font-semibold"
-                    (click)="
-                        mode.set(mode() === '3d' ? '2d' : '3d');
-                        $event.stopPropagation()
-                    "
+                <div
+                    view-group
+                    class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
                 >
-                    @if (loading3d()) {
-                        <mat-spinner class="mx-auto" [diameter]="16" />
-                    } @else {
-                        {{ mode() === '3d' ? '2D' : '3D' }}
-                    }
-                </button>
-                <!-- The 3D controls do nothing until the 3D view is on show -->
-                @if (mode() === '3d' && !loading3d()) {
                     <button
                         icon
                         matRipple
-                        toggle-isometric
+                        toggle-3d
                         [matTooltip]="
-                            (isometric()
-                                ? 'EXPLORE.ISOMETRIC_UNLOCK'
-                                : 'EXPLORE.ISOMETRIC_LOCK'
+                            (loading3d()
+                                ? 'EXPLORE.VIEW_3D_LOADING'
+                                : mode() === '3d'
+                                  ? 'EXPLORE.VIEW_2D'
+                                  : 'EXPLORE.VIEW_3D'
                             ) | translate
                         "
                         [attr.aria-label]="
-                            (isometric()
-                                ? 'EXPLORE.ISOMETRIC_UNLOCK'
-                                : 'EXPLORE.ISOMETRIC_LOCK'
+                            (loading3d()
+                                ? 'EXPLORE.VIEW_3D_LOADING'
+                                : mode() === '3d'
+                                  ? 'EXPLORE.VIEW_2D'
+                                  : 'EXPLORE.VIEW_3D'
                             ) | translate
                         "
+                        [attr.aria-busy]="loading3d()"
                         matTooltipPosition="left"
-                        class="hover:bg-base-200"
-                        [class.bg-base-200]="isometric()"
-                        [class.text-secondary]="isometric()"
+                        class="hover:bg-base-200 text-sm font-semibold"
                         (click)="
-                            isometric.set(!isometric());
+                            mode.set(mode() === '3d' ? '2d' : '3d');
                             $event.stopPropagation()
                         "
                     >
-                        <icon>{{ isometric() ? 'lock' : 'view_in_ar' }}</icon>
+                        @if (loading3d()) {
+                            <mat-spinner class="mx-auto" [diameter]="16" />
+                        } @else {
+                            {{ mode() === '3d' ? '2D' : '3D' }}
+                        }
                     </button>
-                    <button
-                        icon
-                        matRipple
-                        rotate-left
-                        [matTooltip]="'EXPLORE.ROTATE_LEFT' | translate"
-                        [attr.aria-label]="'EXPLORE.ROTATE_LEFT' | translate"
-                        matTooltipPosition="left"
-                        class="hover:bg-base-200"
-                        (click)="rotate.emit(-45); $event.stopPropagation()"
-                    >
-                        <icon>rotate_left</icon>
-                    </button>
-                    <button
-                        icon
-                        matRipple
-                        rotate-right
-                        [matTooltip]="'EXPLORE.ROTATE_RIGHT' | translate"
-                        [attr.aria-label]="'EXPLORE.ROTATE_RIGHT' | translate"
-                        matTooltipPosition="left"
-                        class="hover:bg-base-200"
-                        (click)="rotate.emit(45); $event.stopPropagation()"
-                    >
-                        <icon>rotate_right</icon>
-                    </button>
-                }
+                    <!-- The 3D controls do nothing until the 3D view is on show -->
+                    @if (mode() === '3d' && !loading3d()) {
+                        <button
+                            icon
+                            matRipple
+                            toggle-isometric
+                            [matTooltip]="
+                                (isometric()
+                                    ? 'EXPLORE.ISOMETRIC_UNLOCK'
+                                    : 'EXPLORE.ISOMETRIC_LOCK'
+                                ) | translate
+                            "
+                            [attr.aria-label]="
+                                (isometric()
+                                    ? 'EXPLORE.ISOMETRIC_UNLOCK'
+                                    : 'EXPLORE.ISOMETRIC_LOCK'
+                                ) | translate
+                            "
+                            matTooltipPosition="left"
+                            class="hover:bg-base-200"
+                            [class.bg-base-200]="isometric()"
+                            [class.text-secondary]="isometric()"
+                            (click)="
+                                isometric.set(!isometric());
+                                $event.stopPropagation()
+                            "
+                        >
+                            <icon>{{
+                                isometric() ? 'lock' : 'view_in_ar'
+                            }}</icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            rotate-left
+                            [matTooltip]="'EXPLORE.ROTATE_LEFT' | translate"
+                            [attr.aria-label]="
+                                'EXPLORE.ROTATE_LEFT' | translate
+                            "
+                            matTooltipPosition="left"
+                            class="hover:bg-base-200"
+                            (click)="rotate.emit(-45); $event.stopPropagation()"
+                        >
+                            <icon>rotate_left</icon>
+                        </button>
+                        <button
+                            icon
+                            matRipple
+                            rotate-right
+                            [matTooltip]="'EXPLORE.ROTATE_RIGHT' | translate"
+                            [attr.aria-label]="
+                                'EXPLORE.ROTATE_RIGHT' | translate
+                            "
+                            matTooltipPosition="left"
+                            class="hover:bg-base-200"
+                            (click)="rotate.emit(45); $event.stopPropagation()"
+                        >
+                            <icon>rotate_right</icon>
+                        </button>
+                    }
+                </div>
             }
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
-                [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="zoom.set(zoom() * step); $event.stopPropagation()"
+            <div
+                class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-md"
             >
-                <icon>add</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
-                [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="zoom.set(zoom() / step); $event.stopPropagation()"
-            >
-                <icon>remove</icon>
-            </button>
-            <button
-                icon
-                matRipple
-                [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
-                [attr.aria-label]="'EXPLORE.ZOOM_RESET' | translate"
-                matTooltipPosition="left"
-                class="hover:bg-base-200"
-                (click)="reset.set(reset() + 1); $event.stopPropagation()"
-            >
-                <icon>refresh</icon>
-            </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_IN' | translate"
+                    [attr.aria-label]="'EXPLORE.ZOOM_IN' | translate"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
+                    (click)="zoom.set(zoom() * step); $event.stopPropagation()"
+                >
+                    <icon>add</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_OUT' | translate"
+                    [attr.aria-label]="'EXPLORE.ZOOM_OUT' | translate"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
+                    (click)="zoom.set(zoom() / step); $event.stopPropagation()"
+                >
+                    <icon>remove</icon>
+                </button>
+                <button
+                    icon
+                    matRipple
+                    [matTooltip]="'EXPLORE.ZOOM_RESET' | translate"
+                    [attr.aria-label]="'EXPLORE.ZOOM_RESET' | translate"
+                    matTooltipPosition="left"
+                    class="hover:bg-base-200"
+                    (click)="reset.set(reset() + 1); $event.stopPropagation()"
+                >
+                    <icon>refresh</icon>
+                </button>
+            </div>
         </div>
     `, imports: [
       IconComponent,
@@ -7879,7 +7895,7 @@ var MapZoomControlsComponent = class _MapZoomControlsComponent {
   }], null, { zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }], mode: [{ type: Input, args: [{ isSignal: true, alias: "mode", required: false }] }, { type: Output, args: ["modeChange"] }], isometric: [{ type: Input, args: [{ isSignal: true, alias: "isometric", required: false }] }, { type: Output, args: ["isometricChange"] }], can3d: [{ type: Input, args: [{ isSignal: true, alias: "can3d", required: false }] }], loading3d: [{ type: Input, args: [{ isSignal: true, alias: "loading3d", required: false }] }], rotate: [{ type: Output, args: ["rotate"] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 158 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(MapZoomControlsComponent, { className: "MapZoomControlsComponent", filePath: "libs/components/src/lib/map-zoom-controls.component.ts", lineNumber: 172 });
 })();
 
 // libs/components/src/lib/dynamic-map.component.ts
@@ -28431,5 +28447,5 @@ var CalendarPaneComponent = class _CalendarPaneComponent {
 export {
   CalendarPaneComponent
 };
-//# debugId=23e95f28-b666-534f-856f-151d427ed5b3
-//# sourceMappingURL=calendar-pane.component-NA4C2WTR.js.map
+//# debugId=df53286b-7e86-589f-ad96-40d4d2052baa
+//# sourceMappingURL=calendar-pane.component-32KEVS3V.js.map
