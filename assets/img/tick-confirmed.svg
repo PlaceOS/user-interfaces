@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="142" height="142" viewBox="0 0 142 142">
+  <g id="tick-confirmed" transform="translate(-150 -2)">
+    <path id="Path_19998" data-name="Path 19998" d="M71,0A71,71,0,1,1,0,71,71,71,0,0,1,71,0Z" transform="translate(150 2)" fill="#fff"/>
+    <path id="tick_icon" data-name="tick icon" d="M14.5,35.542l19.3,19.3L67.692,20.8" transform="translate(179.5 35.2)" fill="none" stroke="#21a453" stroke-miterlimit="10" stroke-width="8"/>
+  </g>
+</svg>
