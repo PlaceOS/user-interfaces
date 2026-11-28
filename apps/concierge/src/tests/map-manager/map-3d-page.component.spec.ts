@@ -264,6 +264,26 @@ describe('Map3DPageComponent', () => {
         expect(names).toEqual([`${kind} 1`, `${kind} 2`]);
     });
 
+    it('switches between the map and details tabs', async () => {
+        await mount();
+        const tabs = spectator.queryAll<HTMLButtonElement>('[role="tab"]');
+        const details = spectator.query('aside')!;
+        const map = spectator.query('main')!;
+        expect(details).toHaveClass('max-md:hidden');
+        expect(map).not.toHaveClass('max-md:hidden');
+        tabs[1].click();
+        spectator.detectChanges();
+        expect(details).not.toHaveClass('max-md:hidden');
+        expect(map).toHaveClass('max-md:hidden');
+        expect(tabs[1].getAttribute('aria-selected')).toBe('true');
+        tabs[1].dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }),
+        );
+        spectator.detectChanges();
+        expect(map).not.toHaveClass('max-md:hidden');
+        expect(document.activeElement).toBe(tabs[0]);
+    });
+
     it('pans the preview with the arrow keys', async () => {
         await mount();
         const preview = spectator.query<HTMLElement>('[preview]')!;

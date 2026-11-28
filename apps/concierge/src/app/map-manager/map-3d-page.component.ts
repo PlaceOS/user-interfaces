@@ -222,11 +222,37 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
             </div>
         }
         <div
+            role="tablist"
+            class="border-base-200 bg-base-100 flex flex-none border-b md:hidden"
+            [class.hidden]="!!error()"
+        >
+            @for (tab of narrow_tabs; track tab.id) {
+                <button
+                    role="tab"
+                    class="h-10 flex-1 border-b-2 text-sm"
+                    [id]="'map-3d-tab-' + tab.id"
+                    [attr.aria-controls]="'map-3d-' + tab.id"
+                    [attr.aria-selected]="narrow_tab() === tab.id"
+                    [attr.tabindex]="narrow_tab() === tab.id ? 0 : -1"
+                    [class.border-transparent]="narrow_tab() !== tab.id"
+                    [class.opacity-70]="narrow_tab() !== tab.id"
+                    [class.border-secondary]="narrow_tab() === tab.id"
+                    [class.font-medium]="narrow_tab() === tab.id"
+                    (click)="narrow_tab.set(tab.id)"
+                    (keydown)="onTabKeydown($event)"
+                >
+                    {{ tab.name | translate }}
+                </button>
+            }
+        </div>
+        <div
             class="flex min-h-0 flex-1 flex-col md:flex-row"
             [class.hidden]="!!error()"
         >
             <aside
-                class="border-base-200 bg-base-100 flex max-h-[45%] w-full flex-none flex-col overflow-y-auto border-b text-sm md:max-h-none md:w-80 md:border-r md:border-b-0"
+                id="map-3d-details"
+                [class]="narrow_tab() === 'details' ? '' : 'max-md:hidden'"
+                class="border-base-200 bg-base-100 flex min-h-0 w-full flex-1 flex-col overflow-y-auto text-sm md:w-80 md:flex-none md:border-r"
             >
                 @if (ready()) {
                     <section class="border-base-200 border-b p-4">
@@ -540,7 +566,11 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                     <div class="p-4 opacity-70">{{ loading() }}</div>
                 }
             </aside>
-            <main class="bg-base-200 relative min-w-0 flex-1">
+            <main
+                id="map-3d-map"
+                [class]="narrow_tab() === 'map' ? '' : 'max-md:hidden'"
+                class="bg-base-200 relative min-w-0 flex-1"
+            >
                 <div
                     #map
                     preview
@@ -832,6 +862,13 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
     public readonly raised_kinds = RAISED_KINDS;
     /** Most drawn elements listed under one group, to keep the list short */
     public readonly max_listed_shapes = 200;
+    /** Tabs that hold the map and the details on narrow screens */
+    public readonly narrow_tabs = [
+        { id: 'map', name: 'COMMON.MAP' },
+        { id: 'details', name: 'COMMON.DETAILS' },
+    ] as const;
+    /** The tab on show on narrow screens. Wide screens show both. */
+    public readonly narrow_tab = signal<'map' | 'details'>('map');
 
     public readonly level_id = signal('');
     public readonly level = signal<BuildingLevel | null>(null);
@@ -1129,6 +1166,22 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             this.targets.set(targets.filter((_) => _ !== element));
         } else this.targets.set([...targets, element]);
         this._showSelection();
+    }
+
+    /** The arrow keys, Home and End move between the two tabs */
+    public onTabKeydown(event: KeyboardEvent) {
+        const ids = this.narrow_tabs.map((tab) => tab.id);
+        const index = ids.indexOf(this.narrow_tab());
+        const next = {
+            ArrowLeft: ids[(index + ids.length - 1) % ids.length],
+            ArrowRight: ids[(index + 1) % ids.length],
+            Home: ids[0],
+            End: ids[ids.length - 1],
+        }[event.key];
+        if (!next) return;
+        event.preventDefault();
+        this.narrow_tab.set(next);
+        document.getElementById(`map-3d-tab-${next}`)?.focus();
     }
 
     public focusPreview() {
