@@ -3209,6 +3209,10 @@ input:where([type=button], [type=reset], [type=submit]),
   width: calc(var(--spacing) * 2);
   height: calc(var(--spacing) * 2);
 }
+#placeos .size-6 {
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+}
 #placeos .size-40 {
   width: calc(var(--spacing) * 40);
   height: calc(var(--spacing) * 40);
@@ -3287,6 +3291,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-28 {
   height: calc(var(--spacing) * 28);
+}
+#placeos .h-30 {
+  height: calc(var(--spacing) * 30);
 }
 #placeos .h-32 {
   height: calc(var(--spacing) * 32);
@@ -3777,6 +3784,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .w-\[32rem\] {
   width: 32rem;
 }
+#placeos .w-\[44rem\] {
+  width: 44rem;
+}
 #placeos .w-\[65vw\] {
   width: 65vw;
 }
@@ -4201,6 +4211,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .cursor-grab {
   cursor: grab;
 }
+#placeos .cursor-help {
+  cursor: help;
+}
 #placeos .cursor-pointer {
   cursor: pointer;
 }
@@ -4350,6 +4363,9 @@ input:where([type=button], [type=reset], [type=submit]),
   --tw-space-y-reverse: 0;
   margin-block-start: calc(0.5em * var(--tw-space-y-reverse));
   margin-block-end: calc(0.5em * calc(1 - var(--tw-space-y-reverse)));
+}
+#placeos .gap-x-1 {
+  column-gap: calc(var(--spacing) * 1);
 }
 #placeos .gap-x-4 {
   column-gap: calc(var(--spacing) * 4);
@@ -4720,6 +4736,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .border-white\/40 {
   border-color: color-mix(in oklab, #ffffff 40%, transparent);
 }
+#placeos .\!bg-secondary {
+  background-color: var(--secondary) !important;
+}
 #placeos .bg-approval {
   background-color: var(--approval);
 }
@@ -4743,6 +4762,14 @@ input:where([type=button], [type=reset], [type=submit]),
 @supports (color: color-mix(in lab, red, red)) {
   #placeos .bg-base-100\/60 {
     background-color: color-mix(in oklab, var(--base-100) 60%, transparent);
+  }
+}
+#placeos .bg-base-100\/90 {
+  background-color: var(--base-100);
+}
+@supports (color: color-mix(in lab, red, red)) {
+  #placeos .bg-base-100\/90 {
+    background-color: color-mix(in oklab, var(--base-100) 90%, transparent);
   }
 }
 #placeos .bg-base-200 {
@@ -5315,6 +5342,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .whitespace-pre-wrap {
   white-space: pre-wrap;
 }
+#placeos .\!text-secondary-content {
+  color: var(--secondary-content) !important;
+}
 #placeos .text-approval {
   color: var(--approval);
 }
@@ -5611,6 +5641,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .invert {
   --tw-invert: invert(100%);
   filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
+}
+#placeos .\!filter {
+  filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,) !important;
 }
 #placeos .filter {
   filter: var(--tw-blur,) var(--tw-brightness,) var(--tw-contrast,) var(--tw-grayscale,) var(--tw-hue-rotate,) var(--tw-invert,) var(--tw-saturate,) var(--tw-sepia,) var(--tw-drop-shadow,);
@@ -6001,6 +6034,19 @@ input:where([type=button], [type=reset], [type=submit]),
     var(--tw-ring-offset-shadow),
     var(--tw-ring-shadow),
     var(--tw-shadow);
+}
+@media (width < 64rem) {
+  #placeos .max-lg\:sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border-width: 0;
+  }
 }
 @media (width < 48rem) {
   #placeos .max-md\:sr-only {
