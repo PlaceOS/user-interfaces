@@ -331,7 +331,8 @@ export class Map3DViewer {
     /** The parsed map. Annotations changed on it show after `refresh()`. */
     public parsed: ParsedMap | null = null;
     public footprints: Footprint[] = [];
-    public map_image: HTMLCanvasElement | null = null;
+    /** Size in pixels of the floor texture. Its canvas is released once on the GPU. */
+    public map_image: { width: number; height: number } | null = null;
     public styles_string = '';
     /** Target of the view on the map, 0 to 1 on each axis */
     public center: Map3DPoint = { x: 0.5, y: 0.5 };
@@ -569,14 +570,9 @@ export class Map3DViewer {
         this._listen(this.container, 'pointerleave', () =>
             this._setHover(null),
         );
+        // The texture canvases are released after upload, so draw them again
         this._listen(this.canvas, 'webglcontextrestored', () => {
-            for (const texture of [
-                this._texture,
-                this._label_texture,
-                this._space_texture,
-            ]) {
-                if (texture) texture.needsUpdate = true;
-            }
+            this._renderMapImage();
             this._invalidate();
         });
         this._onResize();
@@ -1303,14 +1299,20 @@ export class Map3DViewer {
             has_labels
                 ? this._rasterise(svg_text, width, height, LABEL_CSS)
                 : null,
+            // Spaces are flat fills, so half the size loses only edge sharpness
             has_spaces
-                ? this._rasterise(svg_text, width, height, SPACE_CSS)
+                ? this._rasterise(
+                      svg_text,
+                      Math.max(1, Math.round(width / 2)),
+                      Math.max(1, Math.round(height / 2)),
+                      SPACE_CSS,
+                  )
                 : null,
         ]);
         if (generation !== this._image_generation || this._destroyed) return;
         if (!floor) return console.error('Failed to load map image');
 
-        this.map_image = floor;
+        this.map_image = { width: floor.width, height: floor.height };
         this._texture?.dispose();
         this._texture = this._textureOf(floor);
         for (const mesh of [this._floor, this._solid, this._glass]) {
@@ -1341,8 +1343,16 @@ export class Map3DViewer {
         this._invalidate();
     }
 
+    /**
+     * A texture of a canvas. The canvas is emptied once the GPU has it, as
+     * nothing reads it again; a lost WebGL context draws the map again.
+     */
     private _textureOf(canvas: HTMLCanvasElement): CanvasTexture {
         const texture = new CanvasTexture(canvas);
+        texture.onUpdate = () => {
+            canvas.width = 0;
+            canvas.height = 0;
+        };
         texture.colorSpace = SRGBColorSpace;
         texture.anisotropy = this._renderer.capabilities.getMaxAnisotropy();
         texture.minFilter = LinearMipmapLinearFilter;
