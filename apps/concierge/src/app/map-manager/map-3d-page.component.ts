@@ -12,6 +12,8 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import {
@@ -80,6 +82,14 @@ export const MAP_3D_KIND_OPTIONS: readonly KindOption[] = [
     { id: 'flat', name: 'APP.CONCIERGE.MAPS_3D_KIND_FLAT', colour: '#cbd5e1' },
 ];
 
+/** Colour of each kind, and none for a group of mixed kinds */
+const KIND_COLOURS: Readonly<Record<Map3DKind | 'mixed', string>> = {
+    ...(Object.fromEntries(
+        MAP_3D_KIND_OPTIONS.map((option) => [option.id, option.colour]),
+    ) as Record<Map3DKind, string>),
+    mixed: 'transparent',
+};
+
 const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
     (option) => !FLOOR_KINDS.has(option.id),
 );
@@ -92,7 +102,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
     },
     template: `
         <header
-            class="border-base-200 bg-base-100 flex h-16 flex-none items-center gap-3 border-b pr-4 pl-2"
+            class="border-base-200 bg-base-100 flex min-h-16 flex-none flex-wrap items-center gap-x-3 gap-y-1 border-b py-2 pr-4 pl-2"
         >
             <a
                 icon
@@ -115,7 +125,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                     {{ 'APP.CONCIERGE.MAPS_3D_SUBTITLE' | translate }}
                 </div>
             </div>
-            <div class="ml-auto flex items-center gap-2">
+            <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
                 @if (ready()) {
                     <p
                         class="mr-2 flex items-center gap-1.5 text-sm"
@@ -160,38 +170,37 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                         <icon>redo</icon>
                     </button>
                     <button
-                        btn
+                        icon
                         matRipple
-                        class="clear"
+                        more-actions
                         [disabled]="!!saving()"
-                        (click)="detect()"
+                        [matMenuTriggerFor]="more_menu"
+                        [matTooltip]="'COMMON.MORE_OPTIONS' | translate"
+                        [attr.aria-label]="'COMMON.MORE_OPTIONS' | translate"
                     >
-                        <div class="flex items-center space-x-2">
-                            <icon>auto_fix_high</icon>
-                            <div class="pr-2 max-lg:sr-only">
-                                {{ 'APP.CONCIERGE.MAPS_3D_DETECT' | translate }}
-                            </div>
-                        </div>
+                        <icon>more_vert</icon>
                     </button>
-                    @if (has_saved_3d()) {
-                        <button
-                            btn
-                            matRipple
-                            class="clear"
-                            [disabled]="!!saving()"
-                            (click)="remove()"
-                        >
-                            <div class="flex items-center space-x-2">
-                                <icon>layers_clear</icon>
-                                <div class="pr-2 max-lg:sr-only">
-                                    {{
-                                        'APP.CONCIERGE.MAPS_3D_REMOVE'
-                                            | translate
-                                    }}
-                                </div>
+                    <mat-menu #more_menu="matMenu" xPosition="before">
+                        <button mat-menu-item (click)="detect()">
+                            <div class="flex items-center gap-2">
+                                <icon class="text-2xl">auto_fix_high</icon>
+                                <span>{{
+                                    'APP.CONCIERGE.MAPS_3D_DETECT' | translate
+                                }}</span>
                             </div>
                         </button>
-                    }
+                        @if (has_saved_3d()) {
+                            <button mat-menu-item remove-3d (click)="remove()">
+                                <div class="text-error flex items-center gap-2">
+                                    <icon class="text-2xl">layers_clear</icon>
+                                    <span>{{
+                                        'APP.CONCIERGE.MAPS_3D_REMOVE'
+                                            | translate
+                                    }}</span>
+                                </div>
+                            </button>
+                        }
+                    </mat-menu>
                     <button
                         btn
                         matRipple
@@ -204,7 +213,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                     <button
                         btn
                         matRipple
-                        class="w-32"
+                        class="w-24 md:w-32"
                         [disabled]="!dirty() || !!saving()"
                         (click)="save()"
                     >
@@ -221,9 +230,38 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 <p class="mt-2">{{ error() }}</p>
             </div>
         }
-        <div class="flex min-h-0 flex-1" [class.hidden]="!!error()">
+        <div
+            role="tablist"
+            class="border-base-200 bg-base-100 flex flex-none border-b md:hidden"
+            [class.hidden]="!!error()"
+        >
+            @for (tab of narrow_tabs; track tab.id) {
+                <button
+                    role="tab"
+                    class="h-10 flex-1 border-b-2 text-sm"
+                    [id]="'map-3d-tab-' + tab.id"
+                    [attr.aria-controls]="'map-3d-' + tab.id"
+                    [attr.aria-selected]="narrow_tab() === tab.id"
+                    [attr.tabindex]="narrow_tab() === tab.id ? 0 : -1"
+                    [class.border-transparent]="narrow_tab() !== tab.id"
+                    [class.opacity-70]="narrow_tab() !== tab.id"
+                    [class.border-secondary]="narrow_tab() === tab.id"
+                    [class.font-medium]="narrow_tab() === tab.id"
+                    (click)="narrow_tab.set(tab.id)"
+                    (keydown)="onTabKeydown($event)"
+                >
+                    {{ tab.name | translate }}
+                </button>
+            }
+        </div>
+        <div
+            class="flex min-h-0 flex-1 flex-col md:flex-row"
+            [class.hidden]="!!error()"
+        >
             <aside
-                class="border-base-200 bg-base-100 flex w-80 flex-none flex-col overflow-y-auto border-r text-sm"
+                id="map-3d-details"
+                [class]="narrow_tab() === 'details' ? '' : 'max-md:hidden'"
+                class="border-base-200 bg-base-100 flex min-h-0 w-full flex-1 flex-col overflow-y-auto text-sm md:w-80 md:flex-none md:border-r"
             >
                 @if (ready()) {
                     <section class="border-base-200 border-b p-4">
@@ -233,17 +271,33 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                         <ul class="flex flex-wrap gap-1.5">
                             @for (option of kinds; track option.id) {
                                 @if (counts()[option.id]) {
-                                    <li
-                                        class="bg-base-200 flex h-6 items-center gap-1.5 rounded-full px-2 text-xs"
-                                    >
-                                        <span
-                                            class="size-2 rounded-full"
-                                            [style.background]="option.colour"
-                                        ></span>
-                                        {{ option.name | translate }}
-                                        <span class="opacity-60">{{
-                                            counts()[option.id]
-                                        }}</span>
+                                    <li>
+                                        <button
+                                            select-kind
+                                            class="bg-base-200 hover:bg-base-300 flex h-7 items-center gap-1.5 rounded-full px-2.5 text-xs"
+                                            [class.selected-chip]="
+                                                isKindSelected(option.id)
+                                            "
+                                            [attr.aria-pressed]="
+                                                isKindSelected(option.id)
+                                            "
+                                            [matTooltip]="
+                                                'APP.CONCIERGE.MAPS_3D_SELECT_KIND'
+                                                    | translate
+                                            "
+                                            (click)="selectKind(option.id)"
+                                        >
+                                            <span
+                                                class="size-2 rounded-full"
+                                                [style.background]="
+                                                    option.colour
+                                                "
+                                            ></span>
+                                            {{ option.name | translate }}
+                                            <span class="opacity-60">{{
+                                                counts()[option.id]
+                                            }}</span>
+                                        </button>
                                     </li>
                                 }
                             }
@@ -270,7 +324,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                     type="number"
                                     name="map-width"
                                     min="1"
-                                    step="1"
+                                    step="0.1"
                                     class="border-base-300 bg-base-100 h-8 w-20 rounded border px-2 text-right"
                                     [attr.aria-label]="
                                         'APP.CONCIERGE.MAPS_3D_WIDTH'
@@ -326,7 +380,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                             [name]="'height-' + option.id"
                                             min="0.05"
                                             max="20"
-                                            step="0.05"
+                                            step="0.01"
                                             class="border-base-300 bg-base-100 h-8 w-20 rounded border px-2 text-right"
                                             [attr.aria-label]="
                                                 option.name | translate
@@ -361,7 +415,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                             ) {
                                 <li
                                     class="hover:bg-base-200 flex h-9 items-center gap-1 rounded pr-1"
-                                    [class.bg-base-200]="
+                                    [class.selected-row]="
                                         isTarget(layer.element)
                                     "
                                     [style.padding-left.rem]="
@@ -371,7 +425,10 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                     <button
                                         icon
                                         class="size-6 flex-none"
-                                        [class.invisible]="!layer.has_children"
+                                        [class.invisible]="
+                                            !layer.has_children &&
+                                            !layer_shapes().has(layer.element)
+                                        "
                                         [attr.aria-expanded]="
                                             expanded().has(layer.element)
                                         "
@@ -387,17 +444,33 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                                 : 'chevron_right'
                                         }}</icon>
                                     </button>
+                                    <span
+                                        class="border-base-300 size-2 flex-none rounded-full"
+                                        [class.border]="layer.kind === 'mixed'"
+                                        [style.background]="
+                                            kind_colours[layer.kind]
+                                        "
+                                        aria-hidden="true"
+                                    ></span>
                                     <button
-                                        class="min-w-0 flex-1 truncate text-left"
+                                        class="ml-1 min-w-0 flex-1 truncate text-left"
                                         [title]="layer.name"
-                                        (click)="selectElement(layer.element)"
+                                        [attr.aria-pressed]="
+                                            isTarget(layer.element)
+                                        "
+                                        (click)="
+                                            selectElement(
+                                                layer.element,
+                                                $event.shiftKey
+                                            )
+                                        "
                                     >
                                         {{
                                             layer.name ||
                                                 ('APP.CONCIERGE.MAPS_3D_UNNAMED'
                                                     | translate)
                                         }}
-                                        <span class="text-xs opacity-50">{{
+                                        <span class="text-xs opacity-70">{{
                                             layer.count
                                         }}</span>
                                     </button>
@@ -418,7 +491,6 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                                 : 'APP.CONCIERGE.MAPS_3D_HIDE'
                                             ) | translate
                                         "
-                                        [attr.aria-pressed]="layer.hidden"
                                         (click)="toggleHidden(layer)"
                                     >
                                         <icon class="text-base">{{
@@ -456,18 +528,104 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                         }
                                     </select>
                                 </li>
+                                @if (expanded().has(layer.element)) {
+                                    @let shapes =
+                                        layer_shapes().get(layer.element) || [];
+                                    @for (
+                                        shape of shapes.slice(
+                                            0,
+                                            max_listed_shapes
+                                        );
+                                        track shape.index
+                                    ) {
+                                        <li
+                                            layer-shape
+                                            class="hover:bg-base-200 flex h-8 items-center rounded pr-1"
+                                            [class.selected-row]="
+                                                isTarget(shape.element)
+                                            "
+                                            [style.padding-left.rem]="
+                                                (layer.depth + 1) * 0.75 + 1.75
+                                            "
+                                        >
+                                            <button
+                                                class="min-w-0 flex-1 truncate text-left text-xs"
+                                                [attr.aria-pressed]="
+                                                    isTarget(shape.element)
+                                                "
+                                                (click)="
+                                                    selectElement(
+                                                        shape.element,
+                                                        $event.shiftKey
+                                                    )
+                                                "
+                                            >
+                                                {{
+                                                    shape_names().get(
+                                                        shape.element
+                                                    )
+                                                }}
+                                            </button>
+                                        </li>
+                                    }
+                                    @if (shapes.length > max_listed_shapes) {
+                                        <li
+                                            class="flex h-8 items-center text-xs opacity-70"
+                                            [style.padding-left.rem]="
+                                                (layer.depth + 1) * 0.75 + 1.75
+                                            "
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.MAPS_3D_MORE_SHAPES'
+                                                    | translate
+                                                        : {
+                                                              count:
+                                                                  shapes.length -
+                                                                  max_listed_shapes,
+                                                          }
+                                            }}
+                                        </li>
+                                    }
+                                }
                             }
                         </ul>
+                        <p class="mt-2 text-xs leading-4 opacity-70">
+                            {{
+                                'APP.CONCIERGE.MAPS_3D_LAYERS_HINT' | translate
+                            }}
+                        </p>
                     </section>
                 } @else if (!error()) {
                     <div class="p-4 opacity-70">{{ loading() }}</div>
                 }
             </aside>
-            <main class="bg-base-200 relative min-w-0 flex-1">
-                <div #map class="absolute inset-0"></div>
+            <main
+                id="map-3d-map"
+                [class]="narrow_tab() === 'map' ? '' : 'max-md:hidden'"
+                class="bg-base-200 relative min-w-0 flex-1"
+            >
+                <div
+                    #map
+                    preview
+                    tabindex="0"
+                    role="region"
+                    class="focus-visible:outline-info absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.MAPS_3D_PREVIEW' | translate
+                    "
+                    (keydown)="onPreviewKeydown($event)"
+                ></div>
+                @if (!ready() && !error()) {
+                    <div
+                        class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-3 text-sm opacity-70"
+                    >
+                        <mat-spinner [diameter]="32" />
+                        {{ loading() }}
+                    </div>
+                }
                 @if (ready()) {
                     <p
-                        class="bg-base-100/90 border-base-300 pointer-events-none absolute top-3 left-3 rounded-full border px-3 py-1 text-xs shadow-sm"
+                        class="bg-base-100/90 border-base-300 pointer-events-none absolute top-3 left-3 max-w-[calc(100%-9rem)] rounded-2xl border px-3 py-1 text-xs shadow-sm"
                     >
                         {{ 'APP.CONCIERGE.MAPS_3D_PICK_HINT' | translate }}
                     </p>
@@ -502,7 +660,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                             </button>
                         </div>
                         <div
-                            class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-sm"
+                            class="bg-base-100 divide-base-300 border-base-300 flex divide-x overflow-hidden rounded-lg border shadow-sm md:flex-col md:divide-x-0 md:divide-y"
                         >
                             <button
                                 icon
@@ -572,7 +730,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 @if (targets().length) {
                     <div
                         selection
-                        class="bg-base-100 border-base-300 absolute bottom-4 left-1/2 flex w-[44rem] max-w-[calc(100%-2rem)] -translate-x-1/2 flex-col gap-3 rounded-xl border p-4 text-sm shadow-lg"
+                        class="bg-base-100 border-base-300 absolute bottom-2 left-1/2 flex w-[44rem] max-w-[calc(100%-1rem)] -translate-x-1/2 flex-col gap-2 rounded-xl border p-3 text-sm shadow-lg md:bottom-4 md:max-w-[calc(100%-2rem)] md:gap-3 md:p-4"
                     >
                         <div class="flex items-center gap-2">
                             <div class="min-w-0 flex-1">
@@ -618,6 +776,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 }}
                             </button>
                             <button
+                                clear-selection
                                 icon
                                 matRipple
                                 [matTooltip]="
@@ -626,15 +785,28 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 [attr.aria-label]="
                                     'APP.CONCIERGE.MAPS_3D_CLEAR' | translate
                                 "
-                                (click)="clearSelection()"
+                                (click)="clearSelection(); focusPreview()"
                             >
                                 <icon>close</icon>
                             </button>
                         </div>
-                        <div class="flex flex-wrap items-center gap-1.5">
+                        <div
+                            role="group"
+                            class="-mx-3 flex items-center gap-1.5 overflow-x-auto px-3 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+                            [attr.aria-label]="
+                                'APP.CONCIERGE.MAPS_3D_KIND' | translate
+                            "
+                        >
+                            <span
+                                class="mr-1 flex-none text-xs opacity-70"
+                                aria-hidden="true"
+                                >{{
+                                    'APP.CONCIERGE.MAPS_3D_KIND' | translate
+                                }}</span
+                            >
                             @for (option of kinds; track option.id) {
                                 <button
-                                    class="border-base-300 hover:bg-base-200 flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs"
+                                    class="border-base-300 hover:bg-base-200 flex h-8 flex-none items-center gap-1.5 rounded-full border px-3 text-xs"
                                     [class.!bg-secondary]="
                                         selection_kind() === option.id
                                     "
@@ -654,7 +826,9 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 </button>
                             }
                             @if (selection_raised()) {
-                                <div class="ml-auto flex items-center gap-1">
+                                <div
+                                    class="ml-auto flex flex-none items-center gap-1"
+                                >
                                     <span class="text-xs opacity-70">{{
                                         'APP.CONCIERGE.MAPS_3D_HEIGHT'
                                             | translate
@@ -664,7 +838,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                         name="selection-height"
                                         min="0.05"
                                         max="20"
-                                        step="0.05"
+                                        step="0.01"
                                         class="border-base-300 bg-base-100 h-8 w-20 rounded border px-2 text-right"
                                         [attr.aria-label]="
                                             'APP.CONCIERGE.MAPS_3D_HEIGHT'
@@ -695,11 +869,34 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 width: 100%;
                 background-color: var(--base-100);
             }
+
+            /* A selected layer or part, set apart from a hovered row */
+            .selected-row {
+                background-color: color-mix(
+                    in srgb,
+                    var(--info) 18%,
+                    transparent
+                );
+                box-shadow: inset 3px 0 0 var(--info);
+                font-weight: 500;
+            }
+
+            /* A kind chip whose whole kind is the selection */
+            .selected-chip {
+                background-color: color-mix(
+                    in srgb,
+                    var(--info) 18%,
+                    transparent
+                );
+                box-shadow: inset 0 0 0 1px var(--info);
+            }
         `,
     ],
     imports: [
         RouterModule,
         FormsModule,
+        MatMenuModule,
+        MatProgressSpinnerModule,
         MatRippleModule,
         MatTooltipModule,
         IconComponent,
@@ -727,6 +924,16 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
 
     public readonly kinds = MAP_3D_KIND_OPTIONS;
     public readonly raised_kinds = RAISED_KINDS;
+    public readonly kind_colours = KIND_COLOURS;
+    /** Most drawn elements listed under one group, to keep the list short */
+    public readonly max_listed_shapes = 200;
+    /** Tabs that hold the map and the details on narrow screens */
+    public readonly narrow_tabs = [
+        { id: 'map', name: 'COMMON.MAP' },
+        { id: 'details', name: 'COMMON.DETAILS' },
+    ] as const;
+    /** The tab on show on narrow screens. Wide screens show both. */
+    public readonly narrow_tab = signal<'map' | 'details'>('map');
 
     public readonly level_id = signal('');
     public readonly level = signal<BuildingLevel | null>(null);
@@ -769,7 +976,7 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         this._revision();
         const heights = {} as Record<Map3DKind, number>;
         for (const kind of MAP_3D_KINDS) {
-            heights[kind] = this._session?.kindHeight(kind) || 0;
+            heights[kind] = toStep(this._session?.kindHeight(kind) || 0);
         }
         return heights;
     });
@@ -791,6 +998,49 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             }
         }
         return visible;
+    });
+    /** Drawn elements of each listed group that no listed group inside it holds */
+    public readonly layer_shapes = computed(() => {
+        const session = this._session;
+        const by_layer = new Map<Element, MapShape[]>();
+        if (!session) return by_layer;
+        const listed = new Set(this.layers().map((layer) => layer.element));
+        for (const shape of session.map.shapes) {
+            let current = shape.element.parentElement;
+            while (current && !listed.has(current)) {
+                current = current.parentElement;
+            }
+            if (!current) continue;
+            const shapes = by_layer.get(current) || [];
+            shapes.push(shape);
+            by_layer.set(current, shapes);
+        }
+        return by_layer;
+    });
+    /**
+     * Names of the parts listed under expanded groups. A part with no id is
+     * named by its kind and a count, such as "Furniture 3".
+     */
+    public readonly shape_names = computed(() => {
+        this._revision();
+        const session = this._session;
+        const names = new Map<Element, string>();
+        if (!session) return names;
+        const by_layer = this.layer_shapes();
+        for (const layer of this.expanded()) {
+            const shapes = (by_layer.get(layer) || []).slice(
+                0,
+                this.max_listed_shapes,
+            );
+            const counts = new Map<Map3DKind, number>();
+            for (const { element } of shapes) {
+                const kind = session.kindOf(element);
+                const count = (counts.get(kind) || 0) + 1;
+                counts.set(kind, count);
+                names.set(element, nameOf(element) || kindName(kind, count));
+            }
+        }
+        return names;
     });
     /** Drawn elements the targets cover */
     public readonly selected = computed(() => {
@@ -824,7 +1074,7 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
                 this._session!.heightOf(shape.element),
             ),
         );
-        return heights.size === 1 ? [...heights][0] : null;
+        return heights.size === 1 ? toStep([...heights][0]) : null;
     });
     /** Named groups around a single selected element or group */
     public readonly path = computed(() => {
@@ -837,7 +1087,13 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
     });
     public readonly path_leaf = computed(() => {
         const [target] = this.targets();
-        return target ? nameOf(target) || target.localName : '';
+        if (!target) return '';
+        this._revision();
+        return (
+            nameOf(target) ||
+            this.shape_names().get(target) ||
+            (this._session ? kindName(this._session.kindOf(target)) : '')
+        );
     });
 
     constructor() {
@@ -967,9 +1223,73 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         return this.targets().includes(element);
     }
 
-    public selectElement(element: Element) {
-        this.targets.set([element]);
+    /** Select an element, or with `add`, add it to the selection or take it out. */
+    public selectElement(element: Element, add = false) {
+        const targets = this.targets();
+        if (!add) this.targets.set([element]);
+        else if (targets.includes(element)) {
+            this.targets.set(targets.filter((_) => _ !== element));
+        } else this.targets.set([...targets, element]);
         this._showSelection();
+    }
+
+    /** The arrow keys, Home and End move between the two tabs */
+    public onTabKeydown(event: KeyboardEvent) {
+        const ids = this.narrow_tabs.map((tab) => tab.id);
+        const index = ids.indexOf(this.narrow_tab());
+        const next = {
+            ArrowLeft: ids[(index + ids.length - 1) % ids.length],
+            ArrowRight: ids[(index + 1) % ids.length],
+            Home: ids[0],
+            End: ids[ids.length - 1],
+        }[event.key];
+        if (!next) return;
+        event.preventDefault();
+        this.narrow_tab.set(next);
+        document.getElementById(`map-3d-tab-${next}`)?.focus();
+    }
+
+    public focusPreview() {
+        this._map()?.nativeElement.focus();
+    }
+
+    /** Pan with the arrow keys and zoom with + and - while the preview has focus */
+    public onPreviewKeydown(event: KeyboardEvent) {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const viewer = this._viewer;
+        if (!viewer) return;
+        const changes: Record<string, () => void> = {
+            ArrowUp: () => viewer.panBy(0, -1),
+            ArrowDown: () => viewer.panBy(0, 1),
+            ArrowLeft: () => viewer.panBy(-1, 0),
+            ArrowRight: () => viewer.panBy(1, 0),
+            '+': () => this.zoomBy(1.25),
+            '=': () => this.zoomBy(1.25),
+            '-': () => this.zoomBy(0.8),
+        };
+        if (!changes[event.key]) return;
+        event.preventDefault();
+        changes[event.key]();
+    }
+
+    /** Select every drawn element of a kind */
+    public selectKind(kind: Map3DKind) {
+        const session = this._session;
+        if (!session) return;
+        this.targets.set(
+            session.map.shapes
+                .filter((shape) => session.kindOf(shape.element) === kind)
+                .map((shape) => shape.element),
+        );
+        this._showSelection();
+    }
+
+    /** Whether the selection is every drawn element of a kind */
+    public isKindSelected(kind: Map3DKind): boolean {
+        return (
+            this.selection_kind() === kind &&
+            this.selected().length === this.counts()[kind]
+        );
     }
 
     public selectSimilar() {
@@ -1029,9 +1349,8 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         if (!session || !level || !session.dirty || this.saving()) return;
         this.saving.set(i18n('COMMON.SAVING'));
         try {
-            const current_map_id = await this._manager
-                .currentMapId(level.id)
-                .catch(() => this._loaded_map_id);
+            // A failed lookup stops the save, which could replace a newer map
+            const current_map_id = await this._manager.currentMapId(level.id);
             if (current_map_id !== this._loaded_map_id) {
                 const ok = await this._confirm(
                     i18n('APP.CONCIERGE.MAPS_CHANGED_ELSEWHERE_TITLE'),
@@ -1100,7 +1419,7 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         );
         viewer.onPick = (pick) =>
             this._zone.run(() => this._pick(pick.shape, pick.event.shiftKey));
-        viewer.onHover = (shape) => viewer.setHighlight(this.selected(), shape);
+        viewer.onHover = (shape) => viewer.setHover(shape);
         session.onChange = () => {
             this._edited = this.ready();
             viewer.refresh();
@@ -1111,21 +1430,16 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             session.detect();
             this.auto_converted.set(true);
         }
+        if (!(await viewer.draw())) {
+            throw new Error(i18n('APP.CONCIERGE.MAPS_3D_DRAW_ERROR'));
+        }
         this._revision.update((revision) => revision + 1);
         this.ready.set(true);
     }
 
     private _pick(shape: MapShape | null, add: boolean) {
-        if (!shape) {
-            if (!add) this.clearSelection();
-            return;
-        }
-        const targets = this.targets();
-        if (!add) this.targets.set([shape.element]);
-        else if (targets.includes(shape.element)) {
-            this.targets.set(targets.filter((_) => _ !== shape.element));
-        } else this.targets.set([...targets, shape.element]);
-        this._showSelection();
+        if (shape) this.selectElement(shape.element, add);
+        else if (!add) this.clearSelection();
     }
 
     private _showSelection() {
@@ -1150,6 +1464,18 @@ function nameOf(element: Element): string {
     return (
         element.getAttribute('data-name') || element.getAttribute('id') || ''
     );
+}
+
+/** The translated name of a kind, with a count after it when given */
+function kindName(kind: Map3DKind, count?: number): string {
+    const option = MAP_3D_KIND_OPTIONS.find((_) => _.id === kind);
+    const name = option ? i18n(option.name) : kind;
+    return count ? `${name} ${count}` : name;
+}
+
+/** Rounds a height or width to the 0.01 step of its field */
+function toStep(value: number): number {
+    return Math.round(value * 100) / 100;
 }
 
 function errorText(error: unknown): string {

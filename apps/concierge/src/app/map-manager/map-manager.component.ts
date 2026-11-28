@@ -167,7 +167,7 @@ import { MapManagementService } from './map-management.service';
                     @if (has_3d().has(row.map_id)) {
                         <span
                             badge-3d
-                            class="bg-info/15 text-info rounded px-1.5 text-[0.625rem] leading-4 font-semibold"
+                            class="bg-base-200 text-base-content rounded px-1.5 text-[0.625rem] leading-4 font-semibold"
                             [title]="'APP.CONCIERGE.MAPS_3D_BADGE' | translate"
                         >
                             3D
@@ -240,12 +240,6 @@ import { MapManagementService } from './map-management.service';
                     <icon>more_vert</icon>
                 </button>
                 <mat-menu #menu="matMenu">
-                    <button mat-menu-item (click)="convertTo3D(row)">
-                        <div class="flex items-center space-x-2">
-                            <icon class="text-2xl">view_in_ar</icon>
-                            <span>{{ convertLabel(row) | translate }}</span>
-                        </div>
-                    </button>
                     <a
                         mat-menu-item
                         target="_blank"

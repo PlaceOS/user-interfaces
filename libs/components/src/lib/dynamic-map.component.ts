@@ -299,8 +299,15 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
     /** Whether the 3D view is locked to an isometric one */
     public isometric = input(false);
     public mapInfo = output<Record<string, MapElementBounds>>();
-    /** Emits when the 3D view cannot start. The map stays in 2D. */
-    public mode3dFailed = output<void>();
+    /**
+     * Emits when the 3D view cannot start, and the map stays in 2D:
+     * `unsupported` when this device cannot draw it, `load` when its code
+     * did not download, which a later try can fix.
+     */
+    public mode3dFailed = output<'unsupported' | 'load'>();
+    /** Emits `true` while the 3D view downloads after a switch to it, then `false` */
+    public loading3d = output<boolean>();
+    private _loading_3d = false;
 
     public injectors = signal<Injector[]>([]);
     public loading = signal(false);
@@ -697,6 +704,8 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         const container = this._map_container()?.nativeElement;
         if (!container) return;
         const request = ++this._viewer_request;
+        // A newer request replaces a download still going
+        this._setLoading3d(false);
         if (!this._map_viewer) this._setViewer(() => new MapViewer(container));
         const is_3d = 'setAngles' in this._map_viewer;
         if (is_3d === (mode === '3d')) return;
@@ -704,20 +713,35 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
             this._setViewer(() => new MapViewer(container));
             return;
         }
+        this._setLoading3d(true);
+        let Map3DViewer: typeof import('libs/map-3d/src/lib/viewer').Map3DViewer;
         try {
-            const Map3DViewer = await this._load3DViewer();
+            Map3DViewer = await this._load3DViewer();
+        } catch (error) {
+            console.warn('[MAP] 3D view failed to download.', error);
             if (request !== this._viewer_request) return;
+            this._setLoading3d(false);
+            return this.mode3dFailed.emit('load');
+        }
+        if (request !== this._viewer_request) return;
+        this._setLoading3d(false);
+        try {
             this._setViewer(
                 () => new Map3DViewer(container, { load: getMapDetails }),
             );
         } catch (error) {
             console.warn('[MAP] 3D view failed to start.', error);
-            if (request !== this._viewer_request) return;
             if (!this._map_viewer) {
                 this._setViewer(() => new MapViewer(container));
             }
-            this.mode3dFailed.emit();
+            this.mode3dFailed.emit('unsupported');
         }
+    }
+
+    private _setLoading3d(loading: boolean) {
+        if (loading === this._loading_3d) return;
+        this._loading_3d = loading;
+        this.loading3d.emit(loading);
     }
 
     /** The 3D viewer class, loaded on first use */
@@ -765,19 +789,23 @@ export class DynamicMapComponent implements OnInit, OnDestroy {
         const { disable_zoom, disable_pan } = this.options() || {};
         const zoom = this.zoom() ?? 1;
         const { x, y } = this.center() ?? { x: 0.5, y: 0.5 };
-        // Pan a tenth of the view at each step
+        // Pan a tenth of the view at each step, along the axes of the screen.
+        // The 3D view can be turned, so it pans itself along its screen.
         const step = 0.1 / zoom;
+        const viewer = this._map_viewer;
+        const pan = (across: number, down: number) => {
+            if (disable_pan) return;
+            if (viewer && 'panBy' in viewer) viewer.panBy(across, down);
+            else this.center.set({ x: x + step * across, y: y + step * down });
+        };
         const changes: Record<string, () => void> = {
             '+': () => !disable_zoom && this.zoomTo(zoom * MAP_ZOOM_STEP),
             '=': () => !disable_zoom && this.zoomTo(zoom * MAP_ZOOM_STEP),
             '-': () => !disable_zoom && this.zoomTo(zoom / MAP_ZOOM_STEP),
-            ArrowUp: () => !disable_pan && this.center.set({ x, y: y - step }),
-            ArrowDown: () =>
-                !disable_pan && this.center.set({ x, y: y + step }),
-            ArrowLeft: () =>
-                !disable_pan && this.center.set({ x: x - step, y }),
-            ArrowRight: () =>
-                !disable_pan && this.center.set({ x: x + step, y }),
+            ArrowUp: () => pan(0, -1),
+            ArrowDown: () => pan(0, 1),
+            ArrowLeft: () => pan(-1, 0),
+            ArrowRight: () => pan(1, 0),
         };
         if (!changes[event.key]) return;
         event.preventDefault();

@@ -21,7 +21,9 @@ import {
     ViewerStyles,
 } from '@placeos/common';
 import { log } from 'libs/common/src/lib/general';
+import { i18n } from 'libs/common/src/lib/locale.service';
 import { MapsPeopleService } from 'libs/common/src/lib/mapspeople.service';
+import { notifyError, notifyInfo } from 'libs/common/src/lib/notifications';
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { ExploreStateService } from 'libs/explore/src/lib/explore-state.service';
 import { hasMap3D } from 'libs/map-3d/src/lib/annotations';
@@ -89,7 +91,8 @@ function storedIsometric(): boolean {
                 [fixedResolution]="fixedResolution()"
                 [mode]="mode()"
                 [isometric]="isometric()"
-                (mode3dFailed)="unsupported_3d.set(true)"
+                (mode3dFailed)="on3dFailed($event)"
+                (loading3d)="loading_3d.set($event)"
                 (mapInfo)="mapInfo.emit($event)"
             >
                 <ng-content />
@@ -101,6 +104,7 @@ function storedIsometric(): boolean {
                 (zoomChange)="zoomTo($event)"
                 [(reset)]="reset"
                 [can3d]="can_3d()"
+                [loading3d]="loading_3d()"
                 [mode]="mode()"
                 (modeChange)="setMode($event)"
                 [isometric]="isometric()"
@@ -151,27 +155,35 @@ export class InteractiveMapComponent {
     public readonly preferred_mode = signal<'2d' | '3d'>(storedMode());
     /** Whether the user has the 3D view locked to an isometric one */
     public readonly isometric = signal(storedIsometric());
-    /** The switch shows only on a zoomable map with a 3D view */
-    public readonly can_3d = computed(
+    /**
+     * Whether this map can show 3D at all: an SVG map with our zoom controls,
+     * which hold the switch back to 2D
+     */
+    private readonly _allows_3d = computed(
         () =>
-            this.has_3d() &&
-            !this.unsupported_3d() &&
+            !!this.options()?.controls &&
             !this.options()?.disable_zoom &&
             !this.use_mapsindoors() &&
             !this.use_cisco_maps,
+    );
+    /** The switch shows only on a map that allows 3D and has a 3D view */
+    public readonly can_3d = computed(
+        () => this._allows_3d() && this.has_3d() && !this.unsupported_3d(),
     );
     public readonly mode = computed<'2d' | '3d'>(() =>
         this.can_3d() && this.preferred_mode() === '3d' ? '3d' : '2d',
     );
 
     private readonly _map = viewChild(DynamicMapComponent);
+    /** Whether the 3D view is downloading after the switch to it */
+    public readonly loading_3d = signal(false);
 
     constructor() {
         effect((onCleanup) => {
             const src = this.src();
             let current = true;
             onCleanup(() => (current = false));
-            if (!src) return this.has_3d.set(false);
+            if (!src || !this._allows_3d()) return this.has_3d.set(false);
             // has_3d keeps its last value until the next map has loaded
             getMapDetails(src)
                 .then((details) => hasMap3D(details.raw_data))
@@ -180,6 +192,21 @@ export class InteractiveMapComponent {
                     if (current) this.has_3d.set(has_3d);
                 });
         });
+    }
+
+    /**
+     * The map stays in 2D. A device that cannot draw 3D loses the switch; a
+     * download that failed leaves it, so the user can try again.
+     */
+    public on3dFailed(reason: 'unsupported' | 'load') {
+        if (reason === 'unsupported') {
+            this.unsupported_3d.set(true);
+            notifyInfo(i18n('EXPLORE.VIEW_3D_UNSUPPORTED'));
+            return;
+        }
+        // Back to 2D for this page only, so the saved choice tries 3D next visit
+        this.preferred_mode.set('2d');
+        notifyError(i18n('EXPLORE.VIEW_3D_LOAD_FAILED'));
     }
 
     public setMode(mode: '2d' | '3d') {

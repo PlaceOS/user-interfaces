@@ -1,4 +1,4 @@
-import { turnAbout, turnTarget } from '../lib/viewer';
+import { panCentre, turnAbout, turnTarget } from '../lib/viewer';
 
 describe('turnTarget', () => {
     it('turns a free view by the angle asked for', () => {
@@ -31,5 +31,25 @@ describe('turnAbout', () => {
         const [back_x, back_z] = turnAbout([x, z], [5, 5], -90);
         expect(back_x).toBeCloseTo(6);
         expect(back_z).toBeCloseTo(5);
+    });
+});
+
+describe('panCentre', () => {
+    const centre = { x: 0.5, y: 0.5 };
+
+    it('pans along the screen of a view turned a quarter', () => {
+        const right = panCentre(centre, 1, 90, 1, 1, 0);
+        expect(right.x).toBeCloseTo(0.5);
+        expect(right.y).toBeCloseTo(0.6);
+        const up = panCentre(centre, 1, 90, 1, 0, -1);
+        expect(up.x).toBeCloseTo(0.6);
+        expect(up.y).toBeCloseTo(0.5);
+    });
+
+    it('pans straight across the screen of a wide map turned to an angle', () => {
+        // A map twice as wide as it is deep, turned 45 degrees
+        const { x, y } = panCentre(centre, 1, 45, 2, 1, 0);
+        // In map units, the move is along the screen's right: 45 degrees
+        expect((y - 0.5) / 2 / (x - 0.5)).toBeCloseTo(1);
     });
 });

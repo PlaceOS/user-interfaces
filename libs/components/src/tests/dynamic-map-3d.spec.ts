@@ -16,6 +16,7 @@ class Fake3DViewer {
     public center = { x: 0.5, y: 0.5 };
     public tilt = 48;
     public bearing = 0;
+    public panBy = vi.fn();
     public map = { element_bounds: new Map() };
     public destroy = vi.fn();
     public setMap = vi.fn(async () => undefined);
@@ -130,6 +131,30 @@ describe('DynamicMapComponent in 3D', () => {
         await settle();
 
         expect(failed).toHaveBeenCalledTimes(1);
+        expect(failed).toHaveBeenCalledWith('unsupported');
+        expect(component['_map_viewer']).toBeInstanceOf(MapViewer);
+        component.ngOnDestroy();
+    });
+
+    it('should show the download and report one that fails apart from a device that cannot draw 3D', async () => {
+        const component = createMap();
+        let fail!: (error: Error) => void;
+        component['_load3DViewer'] = (() =>
+            new Promise((_, reject) => (fail = reject))) as never;
+        const failed = vi.fn();
+        component.mode3dFailed.subscribe(failed);
+        const loading: boolean[] = [];
+        component.loading3d.subscribe((value) => loading.push(value));
+        await settle();
+
+        mode.set('3d');
+        await settle();
+        expect(loading).toEqual([true]);
+        fail(new Error('Chunk failed'));
+        await settle();
+
+        expect(loading).toEqual([true, false]);
+        expect(failed).toHaveBeenCalledWith('load');
         expect(component['_map_viewer']).toBeInstanceOf(MapViewer);
         component.ngOnDestroy();
     });
@@ -143,6 +168,21 @@ describe('DynamicMapComponent in 3D', () => {
         component.rotateBy(45);
         expect(state.viewer_3d?.['turnBy']).toHaveBeenCalledTimes(1);
         expect(state.viewer_3d?.['turnBy']).toHaveBeenCalledWith(45);
+        component.ngOnDestroy();
+    });
+
+    it('should pan the 3D view along its screen with the arrow keys', async () => {
+        const component = createMap();
+        mode.set('3d');
+        await settle();
+        const key = (key: string) =>
+            component.onKeydown(
+                new KeyboardEvent('keydown', { key, cancelable: true }),
+            );
+        key('ArrowRight');
+        key('ArrowUp');
+        expect(state.viewer_3d?.['panBy']).toHaveBeenNthCalledWith(1, 1, 0);
+        expect(state.viewer_3d?.['panBy']).toHaveBeenNthCalledWith(2, 0, -1);
         component.ngOnDestroy();
     });
 

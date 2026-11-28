@@ -118,6 +118,8 @@ describe('InteractiveMapComponent', () => {
         const FLAT =
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9 9"/>';
         const RAISED = FLAT.replace('<svg', '<svg data-3d-unit="10"');
+        // The 3D switch is part of the map's own zoom controls
+        const CONTROLS = { controls: true };
         // The map store caches by URL for the whole run, so every test uses new URLs
         let run = 0;
 
@@ -141,7 +143,7 @@ describe('InteractiveMapComponent', () => {
                     text: async () => (url.includes('raised') ? RAISED : FLAT),
                 })),
             );
-            spectator = createComponent();
+            spectator = createComponent({ props: { options: CONTROLS } });
         });
 
         afterEach(() => vi.unstubAllGlobals());
@@ -165,7 +167,7 @@ describe('InteractiveMapComponent', () => {
             await show(`/maps/${run}/other-raised.svg`);
             expect(spectator.component.mode()).toBe('3d');
 
-            spectator = createComponent();
+            spectator = createComponent({ props: { options: CONTROLS } });
             expect(spectator.component.preferred_mode()).toBe('3d');
         });
 
@@ -183,12 +185,33 @@ describe('InteractiveMapComponent', () => {
         it('should stay in 2D on a fixed map and where 3D cannot start', async () => {
             await show(`/maps/${run}/raised.svg`);
             spectator.component.setMode('3d');
-            spectator.setInput('options', { disable_zoom: true });
+            spectator.setInput('options', { ...CONTROLS, disable_zoom: true });
             expect(spectator.component.mode()).toBe('2d');
-            spectator.setInput('options', {});
+            spectator.setInput('options', CONTROLS);
+            await show(`/maps/${run}/raised.svg`);
             expect(spectator.component.mode()).toBe('3d');
             spectator.component.unsupported_3d.set(true);
             expect(spectator.component.can_3d()).toBe(false);
+            expect(spectator.component.mode()).toBe('2d');
+        });
+
+        it('should keep the switch after a failed download and drop it where 3D cannot start', async () => {
+            await show(`/maps/${run}/raised.svg`);
+            spectator.component.setMode('3d');
+            spectator.component.on3dFailed('load');
+            expect(spectator.component.mode()).toBe('2d');
+            expect(spectator.component.can_3d()).toBe(true);
+            // The saved choice still asks for 3D next visit
+            expect(localStorage.getItem('PLACEOS.map_view_mode')).toBe('3d');
+            spectator.component.on3dFailed('unsupported');
+            expect(spectator.component.can_3d()).toBe(false);
+        });
+
+        it('should stay in 2D on a map without its own switch back', async () => {
+            spectator.setInput('options', {});
+            spectator.component.setMode('3d');
+            await show(`/maps/${run}/raised.svg`);
+            expect(spectator.component.has_3d()).toBe(false);
             expect(spectator.component.mode()).toBe('2d');
         });
     });

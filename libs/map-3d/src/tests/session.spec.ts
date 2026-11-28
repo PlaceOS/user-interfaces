@@ -12,6 +12,13 @@ describe('Map3DSession', () => {
         expect(session.can_undo).toBe(false);
     });
 
+    it('refuses a file that is not an SVG map', () => {
+        expect(
+            () => new Map3DSession('<html><body>Sign in</body></html>'),
+        ).toThrow();
+        expect(() => new Map3DSession('<svg><g></svg>')).toThrow();
+    });
+
     it('detects, saves and reopens with the same annotations', () => {
         const session = new Map3DSession(SMALL_MAP);
         const changes = vi.fn();

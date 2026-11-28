@@ -180,6 +180,9 @@ const FLOOR_CSS = layerCss(
 const LABEL_CSS = layerCss((kind) => kind === 'label', false);
 const SPACE_CSS = layerCss((kind) => kind === 'space', false);
 
+/** Action events that end a press, which a drag must not trigger */
+const RELEASE_EVENTS = new Set(['click', 'mouseup', 'pointerup', 'touchend']);
+
 /** The bearing in degrees of the corner of the map nearest to a bearing */
 function nearestCorner(bearing: number): number {
     return (
@@ -221,6 +224,32 @@ export function turnAbout(
         centre[0] + x * Math.cos(angle) + z * Math.sin(angle),
         centre[1] - x * Math.sin(angle) + z * Math.cos(angle),
     ];
+}
+
+/**
+ * The centre of the view after a keyboard pan along the screen. A step is a
+ * tenth of the view. The step turns with the view in map units, then is
+ * scaled to each axis, so it goes straight across the screen of any map.
+ * @param bearing Degrees the view is turned, as `Map3DViewer.bearing`
+ * @param aspect Width over depth of the map
+ * @param across Steps to the right of the screen
+ * @param down Steps down the screen
+ */
+export function panCentre(
+    centre: Map3DPoint,
+    zoom: number,
+    bearing: number,
+    aspect: number,
+    across: number,
+    down: number,
+): Map3DPoint {
+    const step = 0.1 / zoom;
+    const angle = (bearing * Math.PI) / 180;
+    const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+    return {
+        x: centre.x + step * (across * cos - down * sin),
+        y: centre.y + step * aspect * (across * sin + down * cos),
+    };
 }
 
 function reducedMotion(): boolean {
@@ -328,7 +357,8 @@ export class Map3DViewer {
     /** The parsed map. Annotations changed on it show after `refresh()`. */
     public parsed: ParsedMap | null = null;
     public footprints: Footprint[] = [];
-    public map_image: HTMLCanvasElement | null = null;
+    /** Size in pixels of the floor texture. Its canvas is released once on the GPU. */
+    public map_image: { width: number; height: number } | null = null;
     public styles_string = '';
     /** Target of the view on the map, 0 to 1 on each axis */
     public center: Map3DPoint = { x: 0.5, y: 0.5 };
@@ -398,6 +428,10 @@ export class Map3DViewer {
     private _action_handlers = new Map<string, (e: Event) => void>();
     private _action_last_triggered = new Map<string, number>();
     private _pointer_down: Map3DPoint | null = null;
+    /** Set once the press moves more than 5px or adds a finger, so its release is not an action */
+    private _dragged = false;
+    /** Pointers pressed on the map now */
+    private _pointers = new Set<number>();
     private _hover_shape: MapShape | null = null;
     /** Height in metres of the top of each raised element, by element ID */
     private _top_by_id = new Map<string, number>();
@@ -535,6 +569,11 @@ export class Map3DViewer {
         this._listen(this.container, 'pointerdown', (e) => {
             const event = e as PointerEvent;
             this._cancelTurn();
+            // A primary pointer starts a new gesture, which also drops a release
+            // that never arrived. A second finger makes it a pinch.
+            if (event.isPrimary) this._pointers.clear();
+            this._dragged = this._pointers.size > 0;
+            this._pointers.add(event.pointerId);
             this._pointer_down = { x: event.clientX, y: event.clientY };
             // The controls have captured the pointer, which sends the click
             // to the container and not to content placed over the map
@@ -545,6 +584,11 @@ export class Map3DViewer {
                 this.container.releasePointerCapture(event.pointerId);
             }
         });
+        for (const name of ['pointerup', 'pointercancel']) {
+            this._listen(this.container, name, (e) =>
+                this._pointers.delete((e as PointerEvent).pointerId),
+            );
+        }
         this._listen(this.container, 'click', (e) => this._onClick(e));
         this._listen(this.container, 'pointermove', (e) =>
             this._onPointerMove(e as PointerEvent),
@@ -552,14 +596,9 @@ export class Map3DViewer {
         this._listen(this.container, 'pointerleave', () =>
             this._setHover(null),
         );
+        // The texture canvases are released after upload, so draw them again
         this._listen(this.canvas, 'webglcontextrestored', () => {
-            for (const texture of [
-                this._texture,
-                this._label_texture,
-                this._space_texture,
-            ]) {
-                if (texture) texture.needsUpdate = true;
-            }
+            this._renderMapImage();
             this._invalidate();
         });
         this._onResize();
@@ -585,6 +624,11 @@ export class Map3DViewer {
         return this._overlay_instances.length;
     }
 
+    /** Width over depth of the map on show */
+    public get aspect(): number {
+        return this._width / this._depth || 1;
+    }
+
     /** SVG user units per metre of the map on show */
     public get unit(): number {
         return this._unit;
@@ -596,6 +640,7 @@ export class Map3DViewer {
         const map = await this._load(path);
         if (this._map_path !== path || this._destroyed) return;
         this.setMapData(map);
+        if (!(await this.draw())) throw new Error('Failed to draw the map');
     }
 
     /**
@@ -605,7 +650,23 @@ export class Map3DViewer {
     public setMapData(map: Map3DDetails, parsed?: ParsedMap) {
         this.map = map;
         this.parsed = parsed || parseMap(map.raw_data);
+        // The previous map's textures do not fit this one
+        this._image_generation++;
+        this._setTextures(null, null, null);
         this.refresh();
+    }
+
+    /**
+     * Draw the map's textures now, not on the next frame. Resolves `false`
+     * when the browser cannot draw the map, and `true` when drawn or when a
+     * later change replaced this drawing.
+     */
+    public draw(): Promise<boolean> {
+        if (this._image_frame_id !== null) {
+            cancelAnimationFrame(this._image_frame_id);
+            this._image_frame_id = null;
+        }
+        return this._doRenderMapImage();
     }
 
     /**
@@ -722,17 +783,22 @@ export class Map3DViewer {
      * keeps its tilt and turns about the middle of the map.
      */
     public setAngles(tilt: number, bearing: number) {
+        this._cancelTurn();
         if (this.isometric) tilt = ISOMETRIC_TILT;
         this._placeCamera(tilt, bearing);
         this._invalidate();
+        // An isometric turn can move the centre, which hosts keep in step with
+        this._notifyViewChange();
     }
 
     /**
-     * Turn the view as a short animation, by an angle in degrees clockwise.
-     * An isometric view turns the same way to the next corner of the map,
-     * about the middle of the map.
+     * Turn the map on screen as a short animation, by an angle in degrees
+     * clockwise. An isometric view turns the same way to the next corner of
+     * the map, about the middle of the map.
      */
     public turnBy(degrees: number) {
+        // The bearing is the camera's, which goes round the other way to the map
+        degrees = -degrees;
         const tilt = this.isometric ? ISOMETRIC_TILT : this.tilt;
         const from = this.bearing;
         // A turn asked for during another carries on from where that one was going
@@ -802,6 +868,21 @@ export class Map3DViewer {
         this.debug_info.highlight_id = ref;
     }
 
+    /** Pan along the screen, in steps of a tenth of the view. */
+    public panBy(across: number, down: number) {
+        this.setCenter(
+            panCentre(
+                this.center,
+                this.zoom,
+                this.bearing,
+                this.aspect,
+                across,
+                down,
+            ),
+        );
+        this._notifyViewChange();
+    }
+
     public focusOn(ref: string) {
         const bounds = this.map?.element_bounds.get(ref);
         if (!bounds) return;
@@ -812,12 +893,14 @@ export class Map3DViewer {
         this._notifyViewChange();
     }
 
-    /** Outline drawn elements as selected and one as hovered. */
-    public setHighlight(
-        selected: readonly MapShape[],
-        hover?: MapShape | null,
-    ) {
+    /** Outline drawn elements as selected, and clear the hovered one. */
+    public setHighlight(selected: readonly MapShape[]) {
         this._setOutline(this._selection, this._selection_fill, selected);
+        this.setHover(null);
+    }
+
+    /** Outline one drawn element as hovered, or none. */
+    public setHover(hover: MapShape | null) {
         this._setOutline(this._hover, this._hover_fill, hover ? [hover] : []);
         this._invalidate();
     }
@@ -875,7 +958,10 @@ export class Map3DViewer {
         const event_names = new Set(actions.flatMap((_) => _.events));
         for (const event_name of event_names) {
             const handler = (e: Event) =>
-                this._handleActionEvent(event_name, e as PointerEvent);
+                this._handleActionEvent(
+                    event_name,
+                    e as PointerEvent | TouchEvent,
+                );
             this._action_handlers.set(event_name, handler);
             this.container.addEventListener(event_name, handler);
         }
@@ -1255,8 +1341,9 @@ export class Map3DViewer {
         });
     }
 
-    private async _doRenderMapImage() {
-        if (!this.map?.raw_data || !this.parsed) return;
+    /** Draw the textures. Resolves `false` only when the floor cannot be drawn. */
+    private async _doRenderMapImage(): Promise<boolean> {
+        if (!this.map?.raw_data || !this.parsed) return true;
         const generation = ++this._image_generation;
         const { width, height } = this._textureSize();
         const has_labels = !!this.parsed.svg.querySelector(
@@ -1271,21 +1358,43 @@ export class Map3DViewer {
             has_labels
                 ? this._rasterise(svg_text, width, height, LABEL_CSS)
                 : null,
+            // Spaces are flat fills, so half the size loses only edge sharpness
             has_spaces
-                ? this._rasterise(svg_text, width, height, SPACE_CSS)
+                ? this._rasterise(
+                      svg_text,
+                      Math.max(1, Math.round(width / 2)),
+                      Math.max(1, Math.round(height / 2)),
+                      SPACE_CSS,
+                  )
                 : null,
         ]);
-        if (generation !== this._image_generation || this._destroyed) return;
-        if (!floor) return console.error('Failed to load map image');
+        if (generation !== this._image_generation || this._destroyed) {
+            return true;
+        }
+        if (!floor) {
+            console.error('Failed to load map image');
+            return false;
+        }
+        this._setTextures(floor, spaces, labels);
+        return true;
+    }
 
-        this.map_image = floor;
+    /** Replace the textures. A layer with no canvas is not drawn. */
+    private _setTextures(
+        floor: HTMLCanvasElement | null,
+        spaces: HTMLCanvasElement | null,
+        labels: HTMLCanvasElement | null,
+    ) {
+        this.map_image = floor
+            ? { width: floor.width, height: floor.height }
+            : null;
         this._texture?.dispose();
-        this._texture = this._textureOf(floor);
+        this._texture = floor ? this._textureOf(floor) : null;
         for (const mesh of [this._floor, this._solid, this._glass]) {
             mesh.material.map = this._texture;
             mesh.material.needsUpdate = true;
         }
-        this._floor.visible = true;
+        this._floor.visible = !!floor;
 
         this._space_texture?.dispose();
         this._space_texture = null;
@@ -1309,8 +1418,16 @@ export class Map3DViewer {
         this._invalidate();
     }
 
+    /**
+     * A texture of a canvas. The canvas is emptied once the GPU has it, as
+     * nothing reads it again; a lost WebGL context draws the map again.
+     */
     private _textureOf(canvas: HTMLCanvasElement): CanvasTexture {
         const texture = new CanvasTexture(canvas);
+        texture.onUpdate = () => {
+            canvas.width = 0;
+            canvas.height = 0;
+        };
         texture.colorSpace = SRGBColorSpace;
         texture.anisotropy = this._renderer.capabilities.getMaxAnisotropy();
         texture.minFilter = LinearMipmapLinearFilter;
@@ -1388,11 +1505,19 @@ export class Map3DViewer {
         });
     }
 
-    /** Screen position in CSS pixels of a point on the map at a height in metres. */
-    private _project(x: number, y: number, height: number, out: Vector3) {
+    /**
+     * Screen position in CSS pixels of a point on the map at a height in metres.
+     * @param view Size of the container in CSS pixels
+     */
+    private _project(
+        x: number,
+        y: number,
+        height: number,
+        view: { width: number; height: number },
+        out: Vector3,
+    ) {
         out.set(x * this._width, height, y * this._depth).project(this._camera);
-        const width = this.container.clientWidth || 1;
-        const view_height = this.container.clientHeight || 1;
+        const { width, height: view_height } = view;
         const visible = out.z > -1 && out.z < 1;
         out.set(
             ((out.x + 1) / 2) * width,
@@ -1406,6 +1531,11 @@ export class Map3DViewer {
         if (!this.map?.element_bounds) return;
         this._camera.updateMatrixWorld();
         const point = new Vector3();
+        // Read before the loop writes styles, so the layout is read once
+        const view = {
+            width: this.container.clientWidth || 1,
+            height: this.container.clientHeight || 1,
+        };
         const setDisplay = (instance: OverlayInstance, value: string) => {
             if (instance.last_display === value) return;
             instance.last_display = value;
@@ -1461,6 +1591,7 @@ export class Map3DViewer {
                             bounds.x + bounds.w * dx,
                             bounds.y + bounds.h * dy,
                             height,
+                            view,
                             point,
                         );
                         if (!point.z) visible = false;
@@ -1482,6 +1613,7 @@ export class Map3DViewer {
                     bounds.x + bounds.w / 2,
                     bounds.y + bounds.h / 2,
                     top,
+                    view,
                     point,
                 );
                 if (!point.z) {
@@ -1563,25 +1695,23 @@ export class Map3DViewer {
         return null;
     }
 
-    private _wasDrag(e: { clientX: number; clientY: number }): boolean {
-        return (
-            !!this._pointer_down &&
-            Math.hypot(
-                e.clientX - this._pointer_down.x,
-                e.clientY - this._pointer_down.y,
-            ) > 5
-        );
-    }
-
     private _onClick(e: Event) {
         const event = e as MouseEvent;
-        if (!this.onPick || this._wasDrag(event)) return;
+        if (!this.onPick || this._dragged) return;
         const hit = this._hit(event);
         if (!hit) return;
         this.onPick({ point: hit.point, shape: this._shapeAt(hit), event });
     }
 
     private _onPointerMove(e: PointerEvent) {
+        const down = this._pointer_down;
+        if (
+            e.buttons &&
+            down &&
+            Math.hypot(e.clientX - down.x, e.clientY - down.y) > 5
+        ) {
+            this._dragged = true;
+        }
         if (!this.onHover || e.buttons) return;
         const hit = this._hit(e);
         this._setHover(hit ? this._shapeAt(hit) : null);
@@ -1593,10 +1723,17 @@ export class Map3DViewer {
         this.onHover?.(shape);
     }
 
-    private _handleActionEvent(event_name: string, e: PointerEvent) {
+    private _handleActionEvent(
+        event_name: string,
+        e: PointerEvent | TouchEvent,
+    ) {
         if (!this.map?.element_bounds) return;
-        if (event_name === 'click' && this._wasDrag(e)) return;
-        const hit = this._hit(e);
+        // A press that moved the map is a drag, so its release is not an action
+        if (RELEASE_EVENTS.has(event_name) && this._dragged) return;
+        // A touch event has its position on the touch that changed
+        const position = 'changedTouches' in e ? e.changedTouches[0] : e;
+        if (!position) return;
+        const hit = this._hit(position);
         if (!hit) return;
         const norm = hit.point;
 
