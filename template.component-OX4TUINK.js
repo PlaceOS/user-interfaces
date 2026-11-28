@@ -17,7 +17,7 @@ import {
 } from "./chunk-GIUGUTEK.js";
 import {
   CustomTooltipComponent
-} from "./chunk-YMIWSI3Z.js";
+} from "./chunk-732NZ5TK.js";
 import "./chunk-CTXCYRHH.js";
 import {
   DefaultValueAccessor,
@@ -32,7 +32,7 @@ import {
   isDebugEnabled,
   recordHeartbeat,
   watchdogState
-} from "./chunk-6QJEE5OG.js";
+} from "./chunk-TZETGRXX.js";
 import {
   TranslatePipe
 } from "./chunk-KLSOG6PN.js";
@@ -41,7 +41,7 @@ import {
   getModule,
   setAutoReloadGate,
   updateCheckState
-} from "./chunk-5T5VXB77.js";
+} from "./chunk-JRRATZ7R.js";
 import {
   API_PATH,
   AsyncHandler,
@@ -56,7 +56,7 @@ import {
   isOnline,
   placeFetch,
   token
-} from "./chunk-OBUPUK7P.js";
+} from "./chunk-UOGYWSZD.js";
 import {
   MediaAnimation,
   addDays,
@@ -430,6 +430,7 @@ function cronDaySlots(parts) {
 
 // libs/common/src/lib/signage/playlist.ts
 var DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
+var SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1e3;
 function isValidScheduleMask(mask) {
   return mask.length > 0 && mask.length <= 128 && !/[^01]/.test(mask);
 }
@@ -7208,7 +7209,6 @@ var METRIC_TYPES = [
   "playlist_counts",
   "media_counts"
 ];
-var SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1e3;
 var MEDIA_CACHE_LOOK_AHEAD_SECONDS = 24 * 60 * 60;
 var MEDIA_RECOVERY_INTERVAL_MS = 15 * SECONDS;
 var POLL_INTERVAL_MS = 1 * MINUTES;
@@ -9308,5 +9308,5 @@ var SignageTemplateComponent = class _SignageTemplateComponent extends AsyncHand
 export {
   SignageTemplateComponent
 };
-//# debugId=3f37facc-46b3-5552-9647-db60f3be2e0f
-//# sourceMappingURL=template.component-4ONP35XW.js.map
+//# debugId=0f3a0ce0-2ede-57bf-bedf-5cbf2a29c93d
+//# sourceMappingURL=template.component-OX4TUINK.js.map

@@ -4,7 +4,7 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-45HYPIBP.js";
+} from "./chunk-6ZNYCD5R.js";
 import {
   MAX_REMOTE_DEBUG_COMMANDS,
   REMOTE_DEBUG_MODULE,
@@ -14,12 +14,12 @@ import {
   remoteDebugLogsBinding,
   remoteDebugResultsBinding,
   toQueryString
-} from "./chunk-5T5VXB77.js";
+} from "./chunk-JRRATZ7R.js";
 import {
   addMonths,
   getUnixTime,
   isBefore
-} from "./chunk-OBUPUK7P.js";
+} from "./chunk-UOGYWSZD.js";
 import {
   addDays,
   addMinutes,
@@ -5591,7 +5591,10 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterContentByGroup(MOCK_MEDIA, request.query_params).map(toEngineMedia)
+    callback: (request) => {
+      const tags = String(request.query_params.tags || "").split(",").filter((tag) => !!tag);
+      return filterContentByGroup(MOCK_MEDIA, request.query_params).filter((item) => !tags.length || (item.tags || []).some((tag) => tags.includes(tag))).map(toEngineMedia);
+    }
   });
   registerMockEndpoint2({
     path: "/api/engine/v2/signage/media/tags",
@@ -9707,5 +9710,5 @@ function mocksInit() {
 export {
   mocksInit
 };
-//# debugId=449fab33-68a2-58a8-a9ce-85bd4a4bac1d
-//# sourceMappingURL=src-THQW2ORQ.js.map
+//# debugId=4fff88a4-553f-5c1b-bae3-5aebd8bc72b4
+//# sourceMappingURL=src-LP3O5W6X.js.map

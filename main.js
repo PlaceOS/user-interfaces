@@ -1,6 +1,13 @@
 import {
+  STORE_DISPLAY_KEY,
+  hasBootstrappedDisplay
+} from "./chunk-OQDJRCPY.js";
+import {
   AnnounceDirective
 } from "./chunk-Z4ZQHZ26.js";
+import {
+  RemoteSetupService
+} from "./chunk-6ZNYCD5R.js";
 import {
   isDebugMode,
   recordFatalError,
@@ -8,14 +15,7 @@ import {
   resetBootRetries,
   scheduleBootRetry,
   startWatchdog
-} from "./chunk-6QJEE5OG.js";
-import {
-  STORE_DISPLAY_KEY,
-  hasBootstrappedDisplay
-} from "./chunk-OQDJRCPY.js";
-import {
-  RemoteSetupService
-} from "./chunk-45HYPIBP.js";
+} from "./chunk-TZETGRXX.js";
 import {
   TranslatePipe
 } from "./chunk-KLSOG6PN.js";
@@ -36,7 +36,7 @@ import {
   serviceWorkerUpdate,
   setInitReloadHandler,
   setMocks
-} from "./chunk-5T5VXB77.js";
+} from "./chunk-JRRATZ7R.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -50,7 +50,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-OBUPUK7P.js";
+} from "./chunk-UOGYWSZD.js";
 import {
   LocaleService,
   errorMessage,
@@ -207,6 +207,7 @@ var SUPPORTED_LOCALES = {
   fr: () => import("./fr-VGOUTF6K.js"),
   it: () => import("./it-UULPVB4A.js"),
   ja: () => import("./ja-JE2B3FPC.js"),
+  pt: () => import("./pt-SR34KR6G.js"),
   zh: () => import("./zh-KH6XG5QO.js")
 };
 async function registerActiveLocale(locale) {
@@ -1408,7 +1409,7 @@ function signageRemoteSetup(router) {
 // apps/signage/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-JD7GEMP7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-K3X6HDFY.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -1438,7 +1439,7 @@ var AppComponent = class _AppComponent {
     startWatchdog({ isExpectedToRun: hasBootstrappedDisplay });
     setNotifyFilter(() => isDebugMode());
     setInitReloadHandler(() => requestRecovery("init-error"));
-    setMocks(() => import("./src-THQW2ORQ.js").then(({ mocksInit }) => mocksInit()));
+    setMocks(() => import("./src-LP3O5W6X.js").then(({ mocksInit }) => mocksInit()));
     this._placeos.init();
     this._remote_setup.start(signageRemoteSetup(this._router));
   }
@@ -1473,7 +1474,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-JD7GEMP7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-K3X6HDFY.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -1513,7 +1514,7 @@ var environment = {
 };
 
 // apps/signage/src/app/app.routes.ts
-var loadSignageTemplate = () => import("./template.component-4ONP35XW.js").then((m) => m.SignageTemplateComponent);
+var loadSignageTemplate = () => import("./template.component-OX4TUINK.js").then((m) => m.SignageTemplateComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -1521,7 +1522,7 @@ var routes = [
   },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-HVPAGEJW.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-XOCOAG76.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
@@ -1583,5 +1584,5 @@ bootstrapApplication(AppComponent, appConfig).then(() => resetBootRetries()).cat
   console.error(err);
   scheduleBootRetry();
 });
-//# debugId=9a3d09cf-812e-5b90-8bac-6d761b187fd4
+//# debugId=d98f9bec-12b9-5251-9a6e-538092b7bbe5
 //# sourceMappingURL=main.js.map
