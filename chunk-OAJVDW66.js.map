@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "sources": [
+    "apps/concierge/src/app/ui/pulse-on-change.directive.ts"
+  ],
+  "sourcesContent": [
+    "import { Directive, effect, ElementRef, inject, input } from '@angular/core';\n\n/**\n * Pulses the host when `pulseOnChange` changes, so a value that changes\n * after an action or a live update draws the eye. The first value does not\n * pulse. The animation is the `motion-pulse` class in styles.css.\n */\n@Directive({ selector: '[pulseOnChange]' })\nexport class PulseOnChangeDirective {\n    public readonly pulseOnChange = input.required<unknown>();\n\n    private readonly _element = inject<ElementRef<HTMLElement>>(ElementRef);\n\n    constructor() {\n        let first = true;\n        effect(() => {\n            this.pulseOnChange();\n            if (first) {\n                first = false;\n                return;\n            }\n            const element = this._element.nativeElement;\n            element.classList.remove('motion-pulse');\n            // Reading the layout restarts the animation when the class is added again\n            void element.offsetWidth;\n            element.classList.add('motion-pulse');\n        });\n    }\n}\n"
+  ],
+  "mappings": ";;;;;;;;;;;;AAQM,IAAO,yBAAP,MAAO,wBAAsB;EAK/B,cAAA;AAJgB,SAAA,gBAAgB,MAAM;;;;;;AAErB,SAAA,WAAW,OAAgC,UAAU;AAGlE,QAAI,QAAQ;AACZ,WAAO,MAAK;AACR,WAAK,cAAa;AAClB,UAAI,OAAO;AACP,gBAAQ;AACR;MACJ;AACA,YAAM,UAAU,KAAK,SAAS;AAC9B,cAAQ,UAAU,OAAO,cAAc;AAEvC,WAAK,QAAQ;AACb,cAAQ,UAAU,IAAI,cAAc;IACxC,CAAC;EACL;;;uCAnBS,yBAAsB;IAAA;EAAA;;yEAAtB,yBAAsB,WAAA,CAAA,CAAA,IAAA,iBAAA,EAAA,CAAA,GAAA,QAAA,EAAA,eAAA,CAAA,GAAA,eAAA,EAAA,EAAA,CAAA;EAAA;;;sEAAtB,wBAAsB,CAAA;UADlC;WAAU,EAAE,UAAU,kBAAiB,CAAE;;;",
+  "names": [],
+  "debugId": "28904d6b-673e-5936-95c7-e2382e6cb0d7"
+}

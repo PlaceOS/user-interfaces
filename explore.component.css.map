@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["explore.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: absolute;\n                display: flex;\n                flex-direction: column;\n                top: 0;\n                left: 0;\n                right: 0;\n                bottom: 0;\n                background-color: var(--base-200);\n            }\n\n            hr {\n                margin-top: 0.5rem !important;\n                margin-bottom: 0.5rem !important;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACA,WAAA;AACA,kBAAA;AACA,OAAA;AACA,QAAA;AACA,SAAA;AACA,UAAA;AACA,oBAAA,IAAA;AACJ;AAEA;AACI,cAAA;AACA,iBAAA;AACJ;",
+  "names": []
+}
