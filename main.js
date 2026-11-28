@@ -4,10 +4,10 @@ import {
 import {
   CommandPaletteService,
   injectNavItems
-} from "./chunk-IIJCUA2N.js";
+} from "./chunk-FIVTWBE5.js";
 import {
   SignageTemplateService
-} from "./chunk-5HFW23BF.js";
+} from "./chunk-SWGLHYGB.js";
 import "./chunk-47G7VHQQ.js";
 import {
   blockMissedFileDrop
@@ -19,21 +19,21 @@ import {
   MatMenuTrigger
 } from "./chunk-ZIWTZUG3.js";
 import "./chunk-JP65A7ZL.js";
-import "./chunk-6TW6CLC4.js";
+import "./chunk-XPZYOIOV.js";
 import {
   AuthenticatedImageDirective
-} from "./chunk-XCT7G6KV.js";
+} from "./chunk-QM35KC2P.js";
 import "./chunk-6VBXCNSH.js";
 import {
   openConfirmModal
-} from "./chunk-MRNN65OO.js";
+} from "./chunk-H4NOBH7V.js";
 import {
   AnnounceDirective
 } from "./chunk-JTTV2COP.js";
 import "./chunk-MNAOEVWZ.js";
 import {
   SignageContextService
-} from "./chunk-VZ5VYAIL.js";
+} from "./chunk-JWFD6BES.js";
 import "./chunk-SG57ZUUB.js";
 import "./chunk-5G4V6J43.js";
 import {
@@ -49,7 +49,7 @@ import {
 } from "./chunk-M4R2OMQ3.js";
 import {
   CustomTooltipComponent
-} from "./chunk-SILZWTLB.js";
+} from "./chunk-FQORKC2S.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -79,7 +79,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-LZWVGB63.js";
+} from "./chunk-SJG55VYM.js";
 import "./chunk-ENFA7HCT.js";
 import "./chunk-WG7PJTZZ.js";
 import {
@@ -95,7 +95,7 @@ import {
   themedLogo,
   user_groups_failed,
   user_groups_loaded
-} from "./chunk-M4QWEK43.js";
+} from "./chunk-WSSSWKJM.js";
 import {
   IconComponent
 } from "./chunk-BQWZIAG6.js";
@@ -888,7 +888,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-465LOUML.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-CUD24P5P.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1016,7 +1016,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-465LOUML.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-CUD24P5P.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -12168,7 +12168,7 @@ var NavSidebarComponent = class _NavSidebarComponent {
 var _c04 = ["main"];
 var AppComponent_Defer_14_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-7LITUV7X.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-5D4IWNP7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Conditional_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -12313,7 +12313,7 @@ var AppComponent = class _AppComponent {
     setMocks(mocksInit);
     await this._placeos.init();
     this._uploads.init();
-    const { ImageGenService } = await import("./image-gen.service-WEPJMYGZ.js");
+    const { ImageGenService } = await import("./image-gen.service-PGDFZUTM.js");
     const image_gen = this._injector.get(ImageGenService);
     await image_gen.load(Mt()?.config?.org_zone);
     if (image_gen.enabled())
@@ -12393,7 +12393,7 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-7LITUV7X.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-5D4IWNP7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -12647,58 +12647,58 @@ var APP_ROUTES = [
       {
         path: "media",
         title: "SIGNAGE_MANAGER.NAV_MEDIA",
-        loadComponent: () => import("./media.component-QZQV3URW.js").then((m) => m.MediaSectionComponent)
+        loadComponent: () => import("./media.component-TJ7WUY4G.js").then((m) => m.MediaSectionComponent)
       },
       {
         matcher: listOrItem("playlists"),
         title: "SIGNAGE_MANAGER.NAV_PLAYLISTS",
-        loadComponent: () => import("./playlists.component-XM7NK2XC.js").then((m) => m.PlaylistsSectionComponent)
+        loadComponent: () => import("./playlists.component-7I5YDSKW.js").then((m) => m.PlaylistsSectionComponent)
       },
       {
         path: "templates/:id",
         canActivate: [templatesEnabledGuard],
         canDeactivate: [templateUnsavedGuard],
         title: "SIGNAGE_MANAGER.NAV_TEMPLATES",
-        loadComponent: () => import("./templates.component-ZHUQNYFZ.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-BD52GP62.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "templates",
         canActivate: [templatesEnabledGuard],
         title: "SIGNAGE_MANAGER.NAV_TEMPLATES",
-        loadComponent: () => import("./templates.component-ZHUQNYFZ.js").then((m) => m.TemplatesSectionComponent)
+        loadComponent: () => import("./templates.component-BD52GP62.js").then((m) => m.TemplatesSectionComponent)
       },
       {
         path: "schedules",
         title: "SIGNAGE_MANAGER.NAV_SCHEDULES",
-        loadComponent: () => import("./schedules.component-N2AKNJ7F.js").then((m) => m.SchedulesSectionComponent)
+        loadComponent: () => import("./schedules.component-JM3UUZR7.js").then((m) => m.SchedulesSectionComponent)
       },
       {
         matcher: listOrItem("displays"),
         title: "SIGNAGE_MANAGER.NAV_DISPLAYS",
-        loadComponent: () => import("./displays.component-ZYWNT3HL.js").then((m) => m.DisplaysSectionComponent)
+        loadComponent: () => import("./displays.component-F3UN5NPX.js").then((m) => m.DisplaysSectionComponent)
       },
       {
         path: "manage",
         title: "SIGNAGE_MANAGER.NAV_MANAGE",
-        loadComponent: () => import("./manage.component-D62NMCI2.js").then((m) => m.ManageSectionComponent),
+        loadComponent: () => import("./manage.component-H32AIT53.js").then((m) => m.ManageSectionComponent),
         children: [
           { path: "", pathMatch: "full", redirectTo: "report" },
           {
             path: "report",
             title: "SIGNAGE_MANAGER.NAV_REPORT",
-            loadComponent: () => import("./content-report.component-J73NKHB4.js").then((m) => m.ContentReportComponent)
+            loadComponent: () => import("./content-report.component-LJ5CQ4P6.js").then((m) => m.ContentReportComponent)
           },
           {
             path: "branding",
             title: "SIGNAGE_MANAGER.NAV_BRANDING",
-            loadComponent: () => import("./branding.component-7KY7OBOR.js").then((m) => m.BrandingComponent)
+            loadComponent: () => import("./branding.component-ZYF53BWG.js").then((m) => m.BrandingComponent)
           }
         ]
       },
       {
         path: "remote-setup",
         data: { nav: false },
-        loadComponent: () => import("./remote-setup.component-TGL2LOHE.js").then((m) => m.RemoteSetupComponent)
+        loadComponent: () => import("./remote-setup.component-WRRHRVL7.js").then((m) => m.RemoteSetupComponent)
       },
       // Old addresses of the pages now under Manage
       { path: "report", redirectTo: "manage/report" },
@@ -12707,12 +12707,12 @@ var APP_ROUTES = [
         path: "groups",
         canActivate: [manageGroupsGuard],
         title: "COMMON.GROUPS",
-        loadComponent: () => import("./groups.component-54E3B27I.js").then((m) => m.GroupsSectionComponent)
+        loadComponent: () => import("./groups.component-VE4AMC2L.js").then((m) => m.GroupsSectionComponent)
       },
       {
         matcher: listOrItem("zones"),
         title: "SIGNAGE_MANAGER.NAV_ZONES",
-        loadComponent: () => import("./zones.component-XW4S73FM.js").then((m) => m.ZonesSectionComponent)
+        loadComponent: () => import("./zones.component-HERFA6C3.js").then((m) => m.ZonesSectionComponent)
       },
       { path: "**", redirectTo: "media" }
     ]
