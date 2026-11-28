@@ -3,18 +3,18 @@ import {
   REMOTE_SETUP_MODULE,
   RemoteSetupService,
   remoteSetupCommandBinding
-} from "./chunk-BBWOZ7H6.js";
-import "./chunk-SP3ENZAW.js";
+} from "./chunk-RRCVZJRE.js";
+import "./chunk-K6HQER7H.js";
 import {
   CONTROL_STORE_KEY
 } from "./chunk-VGS37IMQ.js";
 import {
   AnnounceDirective
 } from "./chunk-GXSAJRU2.js";
-import "./chunk-FI3A5UES.js";
 import {
   TranslatePipe
 } from "./chunk-KUR4YJNN.js";
+import "./chunk-FI3A5UES.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -38,7 +38,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-QCU7GTA4.js";
+} from "./chunk-BA3FPURQ.js";
 import {
   GroupPermission,
   SettingsService,
@@ -54,7 +54,7 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-ND2QCIPI.js";
+} from "./chunk-SBB6V3ZC.js";
 import {
   AsyncHandler,
   addDays,
@@ -6968,7 +6968,10 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterContentByGroup(MOCK_MEDIA, request.query_params).map(toEngineMedia)
+    callback: (request) => {
+      const tags = String(request.query_params.tags || "").split(",").filter((tag) => !!tag);
+      return filterContentByGroup(MOCK_MEDIA, request.query_params).filter((item) => !tags.length || (item.tags || []).some((tag) => tags.includes(tag))).map(toEngineMedia);
+    }
   });
   registerMockEndpoint2({
     path: "/api/engine/v2/signage/media/tags",
@@ -11136,7 +11139,7 @@ function controlRemoteSetup(router) {
 // apps/control/src/app/app.component.ts
 var AppComponent_Defer_2_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-5YKZEHVS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-DR4KJMT7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -11180,7 +11183,7 @@ var AppComponent = _AppComponent;
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-5YKZEHVS.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-DR4KJMT7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11253,22 +11256,22 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-AOCVFDAK.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-Q6Q6XXF5.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system",
-    loadComponent: () => import("./main-view.component-DR5FV6IO.js").then((m) => m.ControlMainViewComponent),
+    loadComponent: () => import("./main-view.component-IK4EMUU6.js").then((m) => m.ControlMainViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     matcher: tabbedRouteMatcher,
-    loadComponent: () => import("./tabbed-view.component-QUGR6Z2B.js").then((m) => m.ControlTabbedViewComponent),
+    loadComponent: () => import("./tabbed-view.component-EDKLHGZV.js").then((m) => m.ControlTabbedViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system/call",
-    loadComponent: () => import("./video-call-view.component-3X7QNFGK.js").then((m) => m.ControlVideoCallViewComponent),
+    loadComponent: () => import("./video-call-view.component-MM4SSYEA.js").then((m) => m.ControlVideoCallViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11296,5 +11299,5 @@ bootstrapApplication(AppComponent, {
     }
   ]
 }).catch((err) => console.error(err));
-//# debugId=f6ad25b5-6f0d-57fa-a479-5a620a15cb30
+//# debugId=a779d2c8-4990-54f1-b312-a9425dfa3ef2
 //# sourceMappingURL=main.js.map

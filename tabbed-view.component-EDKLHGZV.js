@@ -1,10 +1,10 @@
 import {
+  VideoCallPageComponent
+} from "./chunk-WEYWMWFG.js";
+import {
   ICON_MAP,
   NextMeetingComponent
-} from "./chunk-UGT3JZMF.js";
-import {
-  VideoCallPageComponent
-} from "./chunk-25ASGIOH.js";
+} from "./chunk-GHTPYZJD.js";
 import {
   AuthenticatedImageDirective,
   BindingDirective,
@@ -27,7 +27,7 @@ import {
   moveCamera,
   selectCamera,
   zoomCamera
-} from "./chunk-B4BD5VNY.js";
+} from "./chunk-SMNIFJ7U.js";
 import "./chunk-RDHX4CDJ.js";
 import "./chunk-UWELCONB.js";
 import {
@@ -50,24 +50,24 @@ import "./chunk-27DXE7KO.js";
 import {
   MatOption
 } from "./chunk-WLTGB6ES.js";
-import "./chunk-SP3ENZAW.js";
+import "./chunk-K6HQER7H.js";
 import "./chunk-VGS37IMQ.js";
 import "./chunk-GXSAJRU2.js";
-import "./chunk-FI3A5UES.js";
 import {
   TranslatePipe
 } from "./chunk-KUR4YJNN.js";
+import "./chunk-FI3A5UES.js";
 import {
   OrganisationService,
   getModule
-} from "./chunk-QCU7GTA4.js";
+} from "./chunk-BA3FPURQ.js";
 import {
   SettingsService,
   apiKey,
   currentUser,
   themedLogo,
   token
-} from "./chunk-ND2QCIPI.js";
+} from "./chunk-SBB6V3ZC.js";
 import {
   AsyncHandler,
   i18n,
@@ -4242,4 +4242,4 @@ export {
   ControlTabbedViewComponent
 };
 //# debugId=5095596c-a7fb-5d1b-81a6-1aacdf26f671
-//# sourceMappingURL=tabbed-view.component-QUGR6Z2B.js.map
+//# sourceMappingURL=tabbed-view.component-EDKLHGZV.js.map
