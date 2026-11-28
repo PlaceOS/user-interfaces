@@ -1546,6 +1546,7 @@
             "MAPS_3D_REMOVE_TITLE": "移除3D视图？",
             "MAPS_3D_REMOVE_MSG": "保存后，此地图仅以2D显示。图纸本身不会更改。",
             "MAPS_3D_FOUND": "此地图包含",
+            "MAPS_3D_SELECT_KIND": "选择此类型的全部项",
             "MAPS_3D_AUTO_HINT": "墙体、家具和标签已根据地图自动识别。请检查结果，修正错误后保存。",
             "MAPS_3D_SCALE": "比例",
             "MAPS_3D_WIDTH": "地图宽度",
