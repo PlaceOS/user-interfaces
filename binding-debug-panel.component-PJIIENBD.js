@@ -6,7 +6,7 @@ import {
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-7OUEFZ6V.js";
+} from "./chunk-HQSVAS6I.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -14,12 +14,12 @@ import {
 import "./chunk-XPXIQO3T.js";
 import {
   Clipboard
-} from "./chunk-O6YLBH3X.js";
+} from "./chunk-IH6NX7SG.js";
 import {
   AsyncHandler,
   HotkeysService,
   Ua
-} from "./chunk-DFV3ZWU5.js";
+} from "./chunk-A77QVGTW.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
@@ -1912,4 +1912,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=465fbdc3-2585-5f93-aee0-6f5c387db185
-//# sourceMappingURL=binding-debug-panel.component-GFBD6SSR.js.map
+//# sourceMappingURL=binding-debug-panel.component-PJIIENBD.js.map
