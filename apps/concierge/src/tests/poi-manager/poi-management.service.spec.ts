@@ -10,6 +10,7 @@ import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import {
     POIManagementService,
     PointOfInterest,
@@ -50,12 +51,21 @@ describe('POIManagementService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {},
-        });
-        (ts_client_mod.updateMetadata as any).mockResolvedValue({
-            id: 'meta-1',
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {},
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client_mod.metadata.update as any).mockResolvedValue(
+            mockReply({
+                id: 'meta-1',
+            }),
+        );
         spectator = createService();
         (spectator.inject(MatDialog) as any).open = dialog_open;
     });
@@ -73,12 +83,23 @@ describe('POIManagementService', () => {
     };
 
     it('should load points of interest for the active building levels', async () => {
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {
-                'lvl-1': [{ id: 'poi-1', name: 'Foyer', level_id: 'lvl-1' }],
-                'lvl-2': [{ id: 'poi-2', name: 'Cafe', level_id: 'lvl-2' }],
-            },
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {
+                        'lvl-1': [
+                            { id: 'poi-1', name: 'Foyer', level_id: 'lvl-1' },
+                        ],
+                        'lvl-2': [
+                            { id: 'poi-2', name: 'Cafe', level_id: 'lvl-2' },
+                        ],
+                    },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
 
         spectator = createService();
         TestBed.flushEffects();
@@ -89,14 +110,21 @@ describe('POIManagementService', () => {
     });
 
     it('should filter features by the search string', async () => {
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {
-                'lvl-1': [
-                    { id: 'poi-1', name: 'Foyer', level_id: 'lvl-1' },
-                    { id: 'poi-2', name: 'Cafe', level_id: 'lvl-1' },
-                ],
-            },
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {
+                        'lvl-1': [
+                            { id: 'poi-1', name: 'Foyer', level_id: 'lvl-1' },
+                            { id: 'poi-2', name: 'Cafe', level_id: 'lvl-1' },
+                        ],
+                    },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
 
         spectator = createService();
         TestBed.flushEffects();
@@ -118,28 +146,35 @@ describe('POIManagementService', () => {
 
     it('should remove a point of interest from every level in the metadata', async () => {
         confirmRef('done');
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {
-                'lvl-1': [{ id: 'poi-1' }, { id: 'poi-2' }],
-                'lvl-2': [{ id: 'poi-1' }],
-            },
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {
+                        'lvl-1': [{ id: 'poi-1' }, { id: 'poi-2' }],
+                        'lvl-2': [{ id: 'poi-1' }],
+                    },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
 
         await spectator.service.removePointOfInterest({
             id: 'poi-1',
             name: 'Foyer',
         } as PointOfInterest);
 
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'org-1',
-            expect.objectContaining({
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'org-1',
+            body: expect.objectContaining({
                 name: 'points-of-interest',
                 details: {
                     'lvl-1': [{ id: 'poi-2' }],
                     'lvl-2': [],
                 },
             }),
-        );
+        });
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -155,6 +190,6 @@ describe('POIManagementService', () => {
             name: 'Foyer',
         } as PointOfInterest);
 
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
     });
 });

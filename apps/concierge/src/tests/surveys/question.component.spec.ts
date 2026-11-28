@@ -1,9 +1,10 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 
 import { QuestionComponent } from '../../app/surveys/question.component';
-import { QuestionType } from '../../app/surveys/types';
+import { questionDraft, QuestionType } from '../../app/surveys/types';
 
-import { SurveyQuestion } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { SurveyQuestion } from '@placeos/ts-client/staff';
 
 describe('QuestionComponent', () => {
     let spectator: Spectator<QuestionComponent>;
@@ -16,7 +17,7 @@ describe('QuestionComponent', () => {
 
     it('should mark a titled single-line question as valid', () => {
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: 'Name?',
                 type: QuestionType.Single_Line_Text,
             }),
@@ -26,7 +27,7 @@ describe('QuestionComponent', () => {
 
     it('should treat an untitled question as invalid', () => {
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: '',
                 type: QuestionType.Single_Line_Text,
             }),
@@ -36,7 +37,7 @@ describe('QuestionComponent', () => {
 
     it('should require all choices to have text for choice questions', () => {
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: 'Pick',
                 type: QuestionType.Radio_Group,
                 choices: [{ text: 'A' }, { text: '' }],
@@ -45,7 +46,7 @@ describe('QuestionComponent', () => {
         expect(spectator.component.valid()).toBe(false);
 
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: 'Pick',
                 type: QuestionType.Radio_Group,
                 choices: [{ text: 'A' }, { text: 'B' }],
@@ -56,7 +57,7 @@ describe('QuestionComponent', () => {
 
     it('should require a minimum rating of three for rating questions', () => {
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: 'Rate',
                 type: QuestionType.Rating,
                 max_rating: 2,
@@ -67,7 +68,7 @@ describe('QuestionComponent', () => {
 
     it('should add and remove options via the option helpers', () => {
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: 'Pick',
                 type: QuestionType.Check_Box,
                 choices: [{ text: 'A' }],
@@ -86,7 +87,7 @@ describe('QuestionComponent', () => {
 
     it('should derive rating options and type flags', () => {
         spectator.component.question.set(
-            new SurveyQuestion({
+            questionDraft({
                 title: 'Rate',
                 type: QuestionType.Drop_Down,
                 max_rating: 4,
@@ -100,19 +101,29 @@ describe('QuestionComponent', () => {
     });
 
     it('should replace non-array choices from the API with a list', () => {
-        const question = new SurveyQuestion({ title: 'Q', type: 'radiogroup' });
-        (question as any).choices = {};
-        spectator.component.question.set(question);
+        const question = mockData(SurveyQuestion, {
+            title: 'Q',
+            type: 'radiogroup',
+            choices: {},
+        });
 
-        spectator.component.ngOnInit();
-
-        expect(spectator.component.question().choices).toEqual([]);
+        expect(questionDraft(question).choices).toEqual([]);
     });
 
-    it('should default choices and max rating on init', () => {
-        const question = new SurveyQuestion({ title: 'Q', type: 'text' });
-        delete question.choices;
-        question.max_rating = 0;
+    it('should keep the text choices from the API with all their fields', () => {
+        const question = mockData(SurveyQuestion, {
+            title: 'Q',
+            type: 'radiogroup',
+            choices: [{ text: 'A', value: 'a' }, 'B', null],
+        });
+
+        expect(questionDraft(question).choices).toEqual([
+            { text: 'A', value: 'a' },
+        ]);
+    });
+
+    it('should default the max rating on init', () => {
+        const question = questionDraft({ title: 'Q', type: 'text' });
         spectator.component.question.set(question);
 
         spectator.component.ngOnInit();

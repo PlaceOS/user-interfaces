@@ -37,10 +37,9 @@ import {
 } from '@placeos/components';
 import { CounterComponent } from '@placeos/form-fields';
 import {
-    mediaThumbnail,
     SignageTemplateLayout,
     SignageTemplateLayoutPosition,
-    SignageTemplateMapping,
+    type SignageTemplateMapping,
 } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { scheduleSummary } from '../shared/schedule-summary.util';
@@ -55,6 +54,7 @@ import {
     pluginSchema,
     schemaDefaults,
 } from '../signage-plugin.util';
+import { mediaThumbnailUrl } from '../signage-url.util';
 import { SignageZoneService } from '../zones/signage-zone.service';
 import { SignageTemplateService } from './signage-template.service';
 import {
@@ -817,7 +817,7 @@ export class TemplateLayoutListComponent {
     public readonly zones = this._zone_service.all_zones;
     public readonly background_url = computed(() => {
         const background_id = this.selected_template()?.background_item_id;
-        return background_id ? mediaThumbnail(background_id) : '';
+        return background_id ? mediaThumbnailUrl(background_id) : '';
     });
     // A computed only changes when the ID does, so a new object for the same
     // template after a save does not load the mappings again
@@ -869,7 +869,13 @@ export class TemplateLayoutListComponent {
     public addLayout(position: SignageTemplateLayoutPosition) {
         this.layouts.update((layouts) => [
             ...layouts,
-            { position, plugin_params: {} },
+            {
+                position,
+                plugin_id: null,
+                x_pos: null,
+                y_pos: null,
+                plugin_params: {},
+            },
         ]);
         this.selected_index.set(this.layouts().length - 1);
     }

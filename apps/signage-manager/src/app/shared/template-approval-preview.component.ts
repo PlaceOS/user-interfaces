@@ -7,12 +7,12 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    mediaThumbnail,
-    SignageTemplate,
+    type SignageTemplate,
     SignageTemplateLayout,
 } from '@placeos/ts-client';
 import { SignagePluginService } from '../signage-plugin.service';
 import { pluginName } from '../signage-plugin.util';
+import { mediaThumbnailUrl } from '../signage-url.util';
 import {
     layoutAxisPercentage,
     layoutPositionAxes,
@@ -582,7 +582,7 @@ export class TemplateApprovalPreviewComponent {
 
     public backgroundUrl(template: SignageTemplate) {
         return template.background_item_id
-            ? mediaThumbnail(template.background_item_id)
+            ? mediaThumbnailUrl(template.background_item_id)
             : '';
     }
 
@@ -611,9 +611,10 @@ export class TemplateApprovalPreviewComponent {
         other: SignageTemplate | null,
         current: boolean,
     ): TemplateVersionPreview {
-        const layouts = computeTemplateLayout(template.layouts).items.map(
-            ({ layout, rect }, index) =>
-                this.layoutPreview(layout, index, rect, other, current),
+        const layouts = computeTemplateLayout([
+            ...(template.layouts || []),
+        ]).items.map(({ layout, rect }, index) =>
+            this.layoutPreview(layout, index, rect, other, current),
         );
         const other_tags = other?.tags || [];
         return {

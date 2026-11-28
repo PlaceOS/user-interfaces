@@ -17,11 +17,12 @@ import {
     VERSION,
 } from '@placeos/common';
 import {
-    PlaceSystem,
-    querySignageTemplates,
-    querySystems,
-    SignageTemplate,
+    signage_templates,
+    type SignageTemplate,
+    type System,
+    systems,
 } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -221,16 +222,17 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     private readonly _displays = resource({
         params: () => this._org.initialised(),
         loader: async ({ params: initialised }) => {
-            if (!initialised) return [] as PlaceSystem[];
-            const result = await querySystems({
-                zone_id: this._org.organisation?.id,
-                limit: 500,
-                fields: ['id', 'name', 'display_name', 'email', 'zones'].join(
-                    ',',
-                ),
-                signage: true,
-            });
-            return result.data.sort((a, b) =>
+            if (!initialised) return [] as System[];
+            const org_id = this._org.organisation?.id;
+            const result = await systems
+                .query({
+                    zone_id: org_id ? [org_id] : undefined,
+                    limit: 500,
+                    fields: ['id', 'name', 'display_name', 'email', 'zones'],
+                    signage: true,
+                })
+                .then(orThrowPage);
+            return [...result.data].sort((a, b) =>
                 (a.display_name || a.name).localeCompare(
                     b.display_name || b.name,
                 ),
@@ -242,10 +244,13 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
         params: () => this.templates_enabled() && this._org.initialised(),
         loader: async ({ params: enabled }) => {
             if (!enabled) return [] as SignageTemplate[];
-            const result = await querySignageTemplates({ limit: 500 }).catch(
-                () => ({ data: [] }),
+            const result = await signage_templates
+                .query({ limit: 500 })
+                .then(orThrowPage)
+                .catch(() => ({ data: [] as SignageTemplate[] }));
+            return [...result.data].sort((a, b) =>
+                (a.name || '').localeCompare(b.name || ''),
             );
-            return result.data.sort((a, b) => a.name.localeCompare(b.name));
         },
     });
 
@@ -258,11 +263,11 @@ export class BootstrapComponent extends AsyncHandler implements OnInit {
     /** Templates available when template bootstrapping is enabled. */
     public readonly templates = computed(() => this._templates.value() ?? []);
 
-    public level(system: PlaceSystem) {
+    public level(system: System) {
         return this._org.levelWithID([...(system.zones || [])]);
     }
 
-    public building(system: PlaceSystem) {
+    public building(system: System) {
         const zones = system.zones || [];
         return this._org.buildings.find(({ id }) => zones.includes(id));
     }

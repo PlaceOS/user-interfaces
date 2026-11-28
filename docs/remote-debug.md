@@ -80,7 +80,7 @@ A screen capture counts the inlined files (4 MB maximum), the canvas and video i
 
 A request gets the entries at its level and the levels below it in this table.
 
-When `window.debug` is on, ts-client logs each driver call. The device does not collect the ts-client lines of its own `post_logs` and `command_result` calls.
+When `window.debug` is on, ts-client logs each change of a binding. The device does not collect the ts-client lines about the bindings of the RemoteDebug driver, because its own `post_logs` and `command_result` calls change them.
 
 Most app logs use `log()` from `libs/common/src/lib/general.ts`. These logs show only when `window.debug` is on. While a request at the `debug` level is active, the device shows these logs also when `window.debug` is off.
 
@@ -346,19 +346,19 @@ Use the [Admin views](#admin-views) in mock mode. The browser console also has t
 
 ```js
 const id = localStorage.getItem('PLACEOS.DEVICE_ID');
-app.remote_debug.call('send_command', [id, 'snapshot']);
+app.remote_debug.$send_command(id, 'snapshot');
 // After the result arrives, open the file in a new tab
 const last = app.remote_debug[`results:${id}`].at(-1);
 window.open(last.result.data.upload_id);
 // A device for the views to list
-app.remote_debug.call('register', [{ id: 'DEV-3F9A0C12B7E4', app: 'Signage', version: '1', build: 'a', url: 'https://placeos.test/signage/#/signage/sys-1', user_agent: '', started_at: Date.now() }]);
+app.remote_debug.$register({ id: 'DEV-3F9A0C12B7E4', app: 'Signage', version: '1', build: 'a', url: 'https://placeos.test/signage/#/signage/sys-1', user_agent: '', started_at: Date.now() });
 ```
 
 ### Call load
 
 A device that is not fixed, such as a staff browser, calls the driver only while it has an active request or a new command.
 
-A fixed device also calls `register` so that the admin views list it. A fixed device is signed in with an API key, or was set up as a fixed device, for example from its bootstrap screen (ts-client `isFixedDevice()`). The first call is after a random wait of 60 seconds maximum, so that devices that start together, for example after a power cut, spread their calls. Then the device calls `register` one time each 15 minutes. For 1,000 fixed devices, this is approximately one call each second. A device that is not fixed makes no calls. It checks again after each random wait, so a device that becomes fixed without a reload registers in 60 seconds maximum.
+A fixed device also calls `register` so that the admin views list it. A fixed device is signed in with an API key, or was set up as a fixed device, for example from its bootstrap screen (`isFixedDevice()` of `@placeos/common`). The first call is after a random wait of 60 seconds maximum, so that devices that start together, for example after a power cut, spread their calls. Then the device calls `register` one time each 15 minutes. For 1,000 fixed devices, this is approximately one call each second. A device that is not fixed makes no calls. It checks again after each random wait, so a device that becomes fixed without a reload registers in 60 seconds maximum.
 
 The admin views show a device as online when it called the driver in the last 35 minutes: two heartbeats and 5 minutes.
 

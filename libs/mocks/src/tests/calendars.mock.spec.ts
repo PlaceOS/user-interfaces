@@ -1,4 +1,4 @@
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { registerMockEndpoint } from '@placeos/ts-client/compat';
 
 import { registerMockCalendars } from '../lib/api/calendars.mock';
 import { MOCK_EVENTS } from '../lib/api/events.data';
@@ -6,7 +6,7 @@ import { MOCK_SPACES } from '../lib/api/spaces.data';
 import { ACTIVE_USER, MOCK_STAFF } from '../lib/api/users.data';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 /** Far after the generated mock events, so only test events match */
 const START = Date.UTC(2099, 0, 1) / 1000;
@@ -43,7 +43,7 @@ describe('registerMockCalendars', () => {
     describe('availability', () => {
         const [busy, free] = MOCK_SPACES;
         const available = (query_params: Record<string, string>) =>
-            endpoint<{ resource: { id: string } }[]>(
+            endpoint<{ system: { id: string } }[]>(
                 'GET',
                 '/api/staff/v1/calendars/availability',
             )({
@@ -52,7 +52,7 @@ describe('registerMockCalendars', () => {
                     period_end: `${START + HOUR}`,
                     ...query_params,
                 },
-            }).map(({ resource }) => resource.id);
+            }).map(({ system }) => system.id);
 
         beforeAll(() => {
             MOCK_EVENTS.push({

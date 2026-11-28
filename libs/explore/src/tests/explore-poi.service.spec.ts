@@ -12,6 +12,7 @@ import { ExploreStateService } from '../lib/explore-state.service';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 
 describe('ExplorePointOfInterestService', () => {
     let spectator: SpectatorService<ExplorePointOfInterestService>;
@@ -38,9 +39,17 @@ describe('ExplorePointOfInterestService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService();
     });
 
@@ -134,24 +143,32 @@ describe('ExplorePointOfInterestService', () => {
     it('should show the loaded points of interest of the active level only', async () => {
         const state = spectator.inject(ExploreStateService);
         const poi = (location: string) => ({ location, image: 'http://img' });
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {
-                'lvl-1': [poi('poi-1')],
-                'lvl-2': [poi('poi-2')],
-                // Levels outside the building are left out
-                'lvl-9': [poi('poi-9')],
-            },
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {
+                            'lvl-1': [poi('poi-1')],
+                            'lvl-2': [poi('poi-2')],
+                            // Levels outside the building are left out
+                            'lvl-9': [poi('poi-9')],
+                        },
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
 
         await vi.waitFor(() => {
             TestBed.tick();
             const [, features] = vi.mocked(state.setFeatures).mock.calls.at(-1);
             expect(features.map((_) => _.location)).toEqual(['poi-1']);
         });
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'org-1',
-            'points-of-interest',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'org-1',
+            name: 'points-of-interest',
+        });
     });
 
     it('should not open the modal when the press is held down', () => {

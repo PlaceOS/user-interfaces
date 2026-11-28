@@ -1,14 +1,28 @@
-import { Survey, SurveyAnswer, SurveyQuestion } from '@placeos/ts-client';
+import {
+    type SurveyAnswerInput,
+    type SurveyInput,
+    type SurveyQuestionInput,
+} from '@placeos/ts-client/staff';
 
 import { MOCK_PAGE_SIZE, persist, registerMockEndpoint } from '../session';
 
-export const MOCK_SURVEYS: Survey[] = [
+/** A record that the mock server keeps and changes */
+type Writable<T> = { -readonly [K in keyof T]: T[K] };
+/*
+ * The records have only some fields. The client gives the other fields their
+ * empty value. A `trigger` must be a value of the staff API.
+ */
+type MockSurvey = Writable<SurveyInput>;
+type MockQuestion = Writable<SurveyQuestionInput>;
+type MockAnswer = Writable<SurveyAnswerInput>;
+
+export const MOCK_SURVEYS: MockSurvey[] = [
     {
         id: 1,
         title: 'Employee Satisfaction Survey',
         description:
             'Annual survey to assess employee satisfaction and workplace culture',
-        trigger: 'quarterly',
+        trigger: 'none',
         building_id: 'bld-01',
         zone_id: 'bld-01_lvl-G',
         pages: [
@@ -29,7 +43,7 @@ export const MOCK_SURVEYS: Survey[] = [
         id: 2,
         title: 'Facility Feedback Survey',
         description: 'Help us improve our office facilities and amenities',
-        trigger: 'monthly',
+        trigger: 'none',
         building_id: 'bld-02',
         zone_id: 'bld-02_lvl-2',
         pages: [
@@ -44,7 +58,7 @@ export const MOCK_SURVEYS: Survey[] = [
         id: 3,
         title: 'Meeting Room Experience',
         description: 'Quick feedback about your meeting room experience',
-        trigger: 'after_booking',
+        trigger: 'ended',
         building_id: 'bld-03',
         zone_id: 'bld-03_lvl-1',
         pages: [
@@ -59,7 +73,7 @@ export const MOCK_SURVEYS: Survey[] = [
         id: 4,
         title: 'Melbourne Office Feedback',
         description: 'Help us improve the Melbourne office experience',
-        trigger: 'monthly',
+        trigger: 'none',
         building_id: 'bld-04',
         zone_id: 'bld-04_lvl-1',
         pages: [
@@ -74,7 +88,7 @@ export const MOCK_SURVEYS: Survey[] = [
         id: 5,
         title: 'Innovation Lab Usage Survey',
         description: 'Feedback on research and development facilities',
-        trigger: 'quarterly',
+        trigger: 'none',
         building_id: 'bld-05',
         zone_id: 'bld-05_lvl-2',
         pages: [
@@ -89,7 +103,7 @@ export const MOCK_SURVEYS: Survey[] = [
         id: 6,
         title: 'Parking Experience Survey',
         description: 'Help us improve parking facilities',
-        trigger: 'weekly',
+        trigger: 'none',
         building_id: 'bld-01',
         zone_id: 'bld-01_lvl-P1',
         pages: [
@@ -104,7 +118,7 @@ export const MOCK_SURVEYS: Survey[] = [
         id: 7,
         title: 'Comprehensive Feedback Survey',
         description: 'A survey with all question types for testing',
-        trigger: 'monthly',
+        trigger: 'none',
         building_id: 'bld-01',
         zone_id: 'bld-01_lvl-1',
         pages: [
@@ -122,7 +136,7 @@ export const MOCK_SURVEYS: Survey[] = [
     },
 ];
 
-export const MOCK_QUESTIONS: SurveyQuestion[] = [
+export const MOCK_QUESTIONS: MockQuestion[] = [
     {
         id: 1,
         title: 'How satisfied are you with your current role?',
@@ -481,7 +495,7 @@ export const MOCK_QUESTIONS: SurveyQuestion[] = [
     },
 ];
 
-export const MOCK_ANSWERS: SurveyAnswer[] = [
+export const MOCK_ANSWERS: MockAnswer[] = [
     {
         id: 1,
         question_id: 1,
@@ -638,8 +652,8 @@ export function registerMockSurveys() {
                 const surveyId = parseInt(query_params.survey_id as string);
                 const survey = MOCK_SURVEYS.find((s) => s.id === surveyId);
                 if (survey) {
-                    const questionIds = survey.pages.flatMap(
-                        (page) => page.question_order,
+                    const questionIds = (survey.pages ?? []).flatMap(
+                        (page) => page.question_order ?? [],
                     );
                     filteredQuestions = filteredQuestions.filter((q) =>
                         questionIds.includes(q.id),
@@ -660,7 +674,7 @@ export function registerMockSurveys() {
                     ? query_params.tags
                     : [query_params.tags];
                 filteredQuestions = filteredQuestions.filter((q) =>
-                    searchTags.some((tag) => q.tags.includes(tag as string)),
+                    searchTags.some((tag) => q.tags?.includes(tag as string)),
                 );
             }
 
@@ -759,11 +773,11 @@ export function registerMockSurveys() {
         delay_variance: 10,
         callback: (request) => {
             const body = request.body;
-            const answers: SurveyAnswer[] = Array.isArray(body) ? body : [body];
-            const created_answers: SurveyAnswer[] = [];
+            const answers: MockAnswer[] = Array.isArray(body) ? body : [body];
+            const created_answers: MockAnswer[] = [];
 
             for (const answer of answers) {
-                const new_answer: SurveyAnswer = {
+                const new_answer: MockAnswer = {
                     id: nextId(MOCK_ANSWERS),
                     survey_id: answer.survey_id,
                     question_id: answer.question_id,
@@ -783,7 +797,7 @@ export function registerMockSurveys() {
         path: '/api/staff/v1/surveys',
         method: 'POST',
         callback: ({ body }) => {
-            const survey = { ...body, id: nextId(MOCK_SURVEYS) } as Survey;
+            const survey: MockSurvey = { ...body, id: nextId(MOCK_SURVEYS) };
             MOCK_SURVEYS.push(survey);
             return survey;
         },
@@ -811,10 +825,10 @@ export function registerMockSurveys() {
         path: '/api/staff/v1/surveys/questions',
         method: 'POST',
         callback: ({ body }) => {
-            const question = {
+            const question: MockQuestion = {
                 ...body,
                 id: nextId(MOCK_QUESTIONS),
-            } as SurveyQuestion;
+            };
             MOCK_QUESTIONS.push(question);
             return question;
         },

@@ -10,7 +10,7 @@ import {
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageTemplate } from '@placeos/ts-client';
+import { type SignageTemplate } from '@placeos/ts-client';
 import { IntersectDirective } from '../shared/intersect.directive';
 import { PlaylistStatusBadgeComponent } from '../shared/playlist-status-badge.component';
 import { scrollSelectionIntoView } from '../shared/scroll-selection.util';

@@ -1,10 +1,10 @@
 import { computed, signal } from '@angular/core';
 import {
-    currentGroups,
-    PlaceCurrentGroup,
-    showUser,
-    token,
+    groups as groups_v7,
+    type GroupsCurrentGroup,
+    users,
 } from '@placeos/ts-client';
+import { CallFailed, orThrow } from '@placeos/ts-client/compat';
 import {
     BehaviorSubject,
     combineLatest,
@@ -14,7 +14,8 @@ import {
     timer,
 } from 'rxjs';
 import { catchError, first, map, retry } from 'rxjs/operators';
-import { mockModeRequested, placeSetupDone } from './placeos';
+import { loggableError } from './general';
+import { placeClientStarted, token } from './place-client';
 import { isPublicMode } from './public-mode';
 import { setDefaultCreator } from './types/event.class';
 import { EMPTY_USER, isEmptyUser, StaffUser } from './types/user.class';
@@ -53,7 +54,7 @@ const _current_user = new BehaviorSubject<StaffUser>(EMPTY_USER);
 const _change = new BehaviorSubject(0);
 
 export const current_user = _current_user.asObservable();
-export const user_groups = signal<PlaceCurrentGroup[]>([]);
+export const user_groups = signal<readonly GroupsCurrentGroup[]>([]);
 export const user_groups_loaded = signal(false);
 /** Whether the last request for the user's groups failed */
 export const user_groups_failed = signal(false);
@@ -231,11 +232,11 @@ async function loadUserGroups() {
         return;
     }
     try {
-        const groups = await currentGroups({});
+        const groups = await groups_v7.current({}).then(orThrow);
         user_groups.set(groups);
         console.log('Permissions:', user_permissions());
     } catch (error) {
-        console.warn('Failed to load user groups.', error);
+        console.warn('Failed to load user groups.', loggableError(error));
         user_groups.set([]);
         user_groups_failed.set(true);
     } finally {
@@ -255,11 +256,12 @@ export function initialiseUser() {
     if (!is_public_mode) applyCachedUserData();
     // Defer so that each retry sends a new request. A promise passed
     // directly gives the same rejection to every retry.
-    // In mock mode, wait for the mocks: an app that loads them on demand can
-    // still be loading them now, and the request would go to the real backend
-    const ready = mockModeRequested() ? placeSetupDone() : Promise.resolve();
+    // Wait until setup configured the client: a request before it throws.
+    // In mock mode setup also waits for the mocks, which an app can load on
+    // demand, so the request does not go to the real backend.
+    const ready = placeClientStarted();
     const user_request = combineLatest([
-        defer(() => ready.then(() => showUser('current'))),
+        defer(() => ready.then(() => users.current().then(orThrow))),
         _change,
     ]).pipe(map(([i]) => new StaffUser(i)));
     if (is_public_mode) {
@@ -268,7 +270,7 @@ export function initialiseUser() {
                 catchError((error) => {
                     console.warn(
                         'User loading failed in public mode, using local public user data.',
-                        error,
+                        loggableError(error),
                     );
                     return of(setPublicUser());
                 }),
@@ -284,7 +286,7 @@ export function initialiseUser() {
                     const delay_ms = Math.min(1000 * Math.pow(2, count), 30000);
                     console.warn(
                         `User loading failed, retrying in ${delay_ms}ms (attempt ${count}/10)`,
-                        error,
+                        loggableError(error),
                     );
                     return timer(delay_ms);
                 },
@@ -293,7 +295,10 @@ export function initialiseUser() {
         .subscribe({
             next: (user) => applyUser(user),
             error: (error) =>
-                console.error('User loading failed after 10 retries.', error),
+                console.error(
+                    'User loading failed after 10 retries.',
+                    loggableError(error),
+                ),
         });
 }
 
@@ -308,16 +313,22 @@ function applyUser(user: StaffUser) {
 export function reloadUserData() {
     setTimeout(async () => {
         try {
-            const p_user = await showUser('current');
+            const p_user = await users.current().then(orThrow);
             applyUser(new StaffUser(p_user));
         } catch (error) {
             if (isPublicMode()) {
                 console.warn(
                     'User reload failed in public mode, using local public user data.',
-                    error,
+                    loggableError(error),
                 );
                 setPublicUser();
                 return;
+            }
+            // Only the kind and the status reach the error reports: the
+            // response body of a failed call can hold personal data
+            if (error instanceof CallFailed) {
+                const { kind } = error.error;
+                throw new Error(`User reload failed: ${kind} ${error.status}`);
             }
             throw error;
         }
@@ -335,12 +346,15 @@ export async function checkUserGroupChanges(): Promise<boolean> {
     const current = currentUser();
     if (isPublicMode() || isEmptyUser(current)) return false;
     try {
-        const user = new StaffUser(await showUser('current'));
+        const user = new StaffUser(await users.current().then(orThrow));
         if (sameGroups(current.groups || [], user.groups || [])) return false;
         await applyUser(user);
         return true;
     } catch (error) {
-        console.warn('Failed to check for user group changes.', error);
+        console.warn(
+            'Failed to check for user group changes.',
+            loggableError(error),
+        );
         return false;
     }
 }

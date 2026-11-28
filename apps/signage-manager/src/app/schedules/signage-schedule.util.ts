@@ -5,7 +5,7 @@ import {
     i18n,
     isPlayOnceSchedule,
 } from '@placeos/common';
-import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
+import { type Playlist, PlaylistSchedule } from '@placeos/ts-client';
 import {
     addDays,
     differenceInCalendarDays,
@@ -36,7 +36,7 @@ export const MINUTES_PER_DAY = 1440;
 const MIN_VISIBLE_MINUTES = 15;
 
 export interface ScheduleBlock {
-    playlist: SignagePlaylist;
+    playlist: Playlist;
     day_index: number;
     start_minutes: number;
     duration_minutes: number;
@@ -51,7 +51,7 @@ export interface ScheduleBlock {
 }
 
 export interface ScheduleAssignment {
-    playlist: SignagePlaylist;
+    playlist: Playlist;
     source_type?: 'display' | 'zone';
     source_label?: string;
 }
@@ -91,7 +91,7 @@ export interface ScheduleItem {
 }
 
 /** Schedule of a playlist with no schedules */
-const ALL_DAY_SCHEDULE: Partial<SignagePlaylistSchedule> = {
+const ALL_DAY_SCHEDULE: Partial<PlaylistSchedule> = {
     play_cron: '0 0 * * *',
     play_period: MINUTES_PER_DAY,
 };
@@ -102,13 +102,13 @@ const ALL_DAY_SCHEDULE: Partial<SignagePlaylistSchedule> = {
  * takeover.
  */
 export function playlistSchedules(
-    playlist: Pick<SignagePlaylist, 'schedules'>,
-): Partial<SignagePlaylistSchedule>[] {
+    playlist: Pick<Playlist, 'schedules'>,
+): readonly Partial<PlaylistSchedule>[] {
     return playlist.schedules?.length ? playlist.schedules : [ALL_DAY_SCHEDULE];
 }
 
 /** Whether any schedule of the playlist is a takeover */
-export function hasTakeoverSchedule(playlist: SignagePlaylist) {
+export function hasTakeoverSchedule(playlist: Playlist) {
     return playlistSchedules(playlist).some(
         (schedule) => !!schedule.play_takeover,
     );
@@ -165,8 +165,8 @@ function playedRun(
     day: Date,
     starts_at: Date,
     duration: number,
-    schedule: Partial<SignagePlaylistSchedule>,
-    playlist: Pick<SignagePlaylist, 'valid_from' | 'valid_until'>,
+    schedule: Partial<PlaylistSchedule>,
+    playlist: Pick<Playlist, 'valid_from' | 'valid_until'>,
 ) {
     const time = starts_at.getTime();
     const ends_at = earliestEnd(schedule.valid_until, playlist.valid_until);
@@ -196,7 +196,7 @@ function playedRun(
 
 /** Start times of a schedule on a day, before the dates and mask apply */
 function scheduleStarts(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     slots: readonly number[],
     parts: readonly string[] | null,
     day: Date,
@@ -388,7 +388,7 @@ export function buildDayTimelineBlocks(
 export function buildDisplayScheduleAssignments(
     display: ScheduleItem,
     zones: ScheduleItem[],
-    playlists: SignagePlaylist[],
+    playlists: Playlist[],
 ): ScheduleAssignment[] {
     const playlist_map = new Map(
         playlists.map((playlist) => [playlist.id, playlist]),
@@ -448,14 +448,14 @@ export function buildDisplayScheduleAssignments(
 
 export function buildZoneScheduleAssignments(
     zone: ScheduleItem,
-    playlists: SignagePlaylist[],
+    playlists: Playlist[],
 ): ScheduleAssignment[] {
     const playlist_map = new Map(
         playlists.map((playlist) => [playlist.id, playlist]),
     );
     return (zone.playlists || [])
         .map((playlist_id) => playlist_map.get(playlist_id))
-        .filter((playlist): playlist is SignagePlaylist => !!playlist)
+        .filter((playlist): playlist is Playlist => !!playlist)
         .sort((left, right) => left.name.localeCompare(right.name))
         .map((playlist) => ({
             playlist,

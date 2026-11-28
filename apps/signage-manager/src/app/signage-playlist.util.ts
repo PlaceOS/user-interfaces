@@ -10,15 +10,15 @@ import {
     SINGLE_PASS_TRIGGER_WINDOW_MS,
 } from '@placeos/common';
 import {
-    MediaAnimation,
-    SignageMedia,
-    type SignagePlaylistItemSchedule,
-    type SignagePlaylistSchedule,
+    type PlaylistItem,
+    type PlaylistItemSchedule,
+    type PlaylistSchedule,
 } from '@placeos/ts-client';
+import { type MediaAnimation } from '@placeos/ts-client/compat';
 import { format, fromUnixTime, getUnixTime } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';
 import { nextCronDates } from './signage-cron.util';
-import { uploadUrl } from './signage-url.util';
+import { mediaUrl, uploadUrl } from './signage-url.util';
 
 /** Format a date as a `play_at_local` value in the viewer's timezone. */
 export function formatPlayAtLocal(date: Date | number) {
@@ -29,44 +29,39 @@ export function formatPlayAtLocal(date: Date | number) {
  * Start of a play once schedule, or null for a recurring schedule.
  * The viewer's timezone resolves `play_at_local` values.
  */
-export function playOnceStart(schedule: Partial<SignagePlaylistSchedule>) {
+export function playOnceStart(schedule: Partial<PlaylistSchedule>) {
     if (schedule.play_at) return fromUnixTime(schedule.play_at);
     const local_time = parsePlayAtLocal(schedule.play_at_local);
     return local_time === null ? null : new Date(local_time);
 }
 
 /**
- * Default animation of a playlist that ts-client loaded. The API returns
- * the index of the animation, and `SignagePlaylist` replaces a falsy value
- * with `cut`. So index 0 (`default`) arrives as the name `cut`, while a
- * saved Cut arrives as the index 1. Read the name `cut` as the default.
+ * Default animation of a playlist. The API returns the index of the
+ * animation, e.g. 0 for the default and 1 for a cut.
  *
  * The player treats the default as its own transition, not as a cut, so
  * the two must not be merged.
  */
 export function playlistAnimation(playlist: {
-    default_animation?: MediaAnimation | number;
+    default_animation?: number | null;
 }): MediaAnimation {
-    const value = playlist.default_animation;
-    return value === MediaAnimation.Cut
-        ? MediaAnimation.Default
-        : mediaAnimation(value);
+    return mediaAnimation(playlist.default_animation);
 }
 
-export function playlistMediaThumbnailUrl(item: SignageMedia) {
-    // `SignageMedia.thumbnail_url` builds an uploads URL whether or not a
-    // thumbnail exists, so items without one render as a broken image
+/** Thumbnail of a media item. Empty for an item without a thumbnail, which
+ * would otherwise render as a broken image. */
+export function playlistMediaThumbnailUrl(item: PlaylistItem) {
     if (!item?.thumbnail_id) return '';
     return item.id
         ? `/api/engine/v2/signage/media/${item.id}/thumbnail`
-        : item.thumbnail_url || '';
+        : uploadUrl(item.thumbnail_id);
 }
 
-export function playlistMediaUrl(item: SignageMedia) {
-    return item?.media_id ? uploadUrl(item.media_id) : item?.media_uri || '';
+export function playlistMediaUrl(item: PlaylistItem) {
+    return mediaUrl(item);
 }
 
-export function playlistMediaIcon(item: SignageMedia) {
+export function playlistMediaIcon(item: PlaylistItem) {
     return item?.media_type === 'video'
         ? 'video_library'
         : item?.media_type === 'webpage'
@@ -80,13 +75,13 @@ export function playlistMediaIcon(item: SignageMedia) {
 export interface PlaylistItemEntry {
     /** Saved item id: a media id, or a schedule item id in a distribution playlist */
     id: string;
-    media: SignageMedia;
+    media: PlaylistItem;
 }
 
 type PlaylistMediaList = {
-    items?: string[];
-    media?: SignageMedia[];
-    schedules?: SignagePlaylistItemSchedule[];
+    items?: readonly string[] | null;
+    media?: readonly PlaylistItem[] | null;
+    schedules?: readonly PlaylistItemSchedule[] | null;
 };
 
 /**
@@ -123,8 +118,8 @@ export function playlistMediaItems(list: PlaylistMediaList) {
  * are schedule item ids, so they map to the media that they schedule.
  */
 export function playlistItemMediaIds(list: {
-    items?: string[];
-    schedules?: SignagePlaylistItemSchedule[];
+    items?: readonly string[] | null;
+    schedules?: readonly PlaylistItemSchedule[] | null;
 }) {
     const schedule_map = playlistItemScheduleMap(list);
     return (list.items || []).map((id) => {
@@ -143,8 +138,8 @@ export function playlistItemMediaIds(list: {
  * @param ordered_ids Ids of the shown items, in the new order
  */
 export function reorderPlaylistItemIds(
-    item_ids: string[],
-    ordered_ids: string[],
+    item_ids: readonly string[],
+    ordered_ids: readonly string[],
 ) {
     const available = new Map<string, number>();
     for (const id of item_ids) available.set(id, (available.get(id) || 0) + 1);
@@ -170,9 +165,9 @@ export function playlistMediaIds(list: PlaylistMediaList) {
 }
 
 export function playlistItemScheduleMap(list: {
-    schedules?: SignagePlaylistItemSchedule[];
+    schedules?: readonly PlaylistItemSchedule[] | null;
 }) {
-    const map = new Map<string, SignagePlaylistItemSchedule>();
+    const map = new Map<string, PlaylistItemSchedule>();
     for (const item of list.schedules || []) {
         if (item.id) map.set(item.id, item);
         if (item.item_id) map.set(item.item_id, item);
@@ -185,7 +180,7 @@ export function playlistItemScheduleMap(list: {
  * Play length of a schedule in minutes. A schedule without one plays all
  * day. A length of 0 plays the playlist once.
  */
-export function playPeriodMinutes(schedule: Partial<SignagePlaylistSchedule>) {
+export function playPeriodMinutes(schedule: Partial<PlaylistSchedule>) {
     return Number.isFinite(schedule.play_period)
         ? Math.max(0, schedule.play_period || 0)
         : DEFAULT_PLAY_PERIOD_MINUTES;
@@ -202,7 +197,7 @@ const DEFAULT_PLAY_TIME_MS = 15 * 1000;
  * @param default_duration Playlist default play time in milliseconds
  */
 export function playlistLoopDuration(
-    items: Pick<SignageMedia, 'play_time' | 'video_length'>[],
+    items: readonly Pick<PlaylistItem, 'play_time' | 'video_length'>[],
     default_duration = 0,
 ) {
     return items.reduce(
@@ -217,7 +212,7 @@ export function playlistLoopDuration(
 }
 
 export function playlistScheduleExpiryTooltip(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
 ) {
     return schedule.valid_until
         ? fromUnixTime(schedule.valid_until).toLocaleString()
@@ -229,7 +224,7 @@ export function playlistScheduleExpiryTooltip(
  * schedule ends after its play period, or at its end date when that is sooner.
  * A single pass (period 0) ends when the player can no longer start it.
  */
-function scheduleEnd(schedule: Partial<SignagePlaylistSchedule>) {
+function scheduleEnd(schedule: Partial<PlaylistSchedule>) {
     const start = playOnceStart(schedule);
     const period_seconds =
         playPeriodMinutes(schedule) * 60 ||
@@ -245,8 +240,8 @@ function scheduleEnd(schedule: Partial<SignagePlaylistSchedule>) {
  */
 export function playlistExpiredAt(
     playlist: {
-        valid_until?: number;
-        schedules?: readonly Partial<SignagePlaylistSchedule>[];
+        valid_until?: number | null;
+        schedules?: readonly Partial<PlaylistSchedule>[] | null;
     },
     now = Date.now(),
 ) {
@@ -265,8 +260,8 @@ export function playlistExpiredAt(
  * date and the end of its last schedule, or 0 when it never ends.
  */
 export function playlistEndsAt(playlist: {
-    valid_until?: number;
-    schedules?: readonly Partial<SignagePlaylistSchedule>[];
+    valid_until?: number | null;
+    schedules?: readonly Partial<PlaylistSchedule>[] | null;
 }) {
     const schedules_end = playlistExpiredAt(
         { schedules: playlist.schedules },
@@ -294,9 +289,9 @@ export type PlaylistStatus =
 export function playlistStatus(
     playlist: {
         id: string;
-        valid_from?: number;
-        valid_until?: number;
-        schedules?: readonly Partial<SignagePlaylistSchedule>[];
+        valid_from?: number | null;
+        valid_until?: number | null;
+        schedules?: readonly Partial<PlaylistSchedule>[] | null;
     },
     approvals: Record<string, boolean>,
     requests: Record<string, boolean>,
@@ -316,7 +311,7 @@ export function playlistStatus(
  * Call this filter only for timestamps that match the schedule.
  */
 export function createScheduleMaskFilter(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     timezone?: string,
 ): (date: Date) => boolean {
     const mask = schedule.mask || '';
@@ -460,7 +455,7 @@ interface PlaySession {
 
 /** Next plays of one schedule, inside its validity window and mask. */
 function nextSchedulePlays(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     count: number,
     now: number,
 ): PlaySession[] {
@@ -493,7 +488,7 @@ function nextSchedulePlays(
  * is under way plays at `now`. Null when no play is left.
  */
 export function playlistNextPlayTime(
-    schedules: Partial<SignagePlaylistSchedule>[],
+    schedules: readonly Partial<PlaylistSchedule>[],
     now = Date.now(),
 ): number | null {
     let next = Infinity;
@@ -511,7 +506,7 @@ export function playlistNextPlayTime(
 
 /** Time ranges of the next plays of all the schedules, earliest first. */
 export function playlistNextPlayLabels(
-    schedules: Partial<SignagePlaylistSchedule>[],
+    schedules: readonly Partial<PlaylistSchedule>[],
     count = 5,
     now = Date.now(),
 ) {
@@ -524,7 +519,7 @@ export function playlistNextPlayLabels(
 
 /** Time ranges of the next plays of one schedule. */
 export function playlistScheduleNextPlayLabels(
-    schedule: Partial<SignagePlaylistSchedule>,
+    schedule: Partial<PlaylistSchedule>,
     count = 5,
 ) {
     return playlistNextPlayLabels([schedule], count);

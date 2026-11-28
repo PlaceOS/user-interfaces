@@ -9,14 +9,16 @@ import {
     viewChild,
 } from '@angular/core';
 import { ControlValueAccessor, FormsModule } from '@angular/forms';
-import { PlaceSystem, querySystems } from '@placeos/ts-client';
+import { type System, systems } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 
 import { CommonModule } from '@angular/common';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { AsyncHandler, provideValueAccessor } from '@placeos/common';
+import { AsyncHandler } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { IconComponent } from '@placeos/components';
 import { inGroupScope } from '../support-groups';
 import { SupportGroupsService } from '../support-groups.service';
@@ -136,9 +138,7 @@ export class SystemSearchFieldComponent
     /** Placeholder to display on the form input */
     public readonly placeholder = input<string>(undefined);
     /** Function for filtering out options */
-    public readonly exclude = input<
-        (_: PlaceSystem, search: string) => boolean
-    >(
+    public readonly exclude = input<(_: System, search: string) => boolean>(
         (v, search) =>
             (v.name || '').toLowerCase().indexOf(search) < 0 &&
             (v.email || '').toLowerCase().indexOf(search) < 0 &&
@@ -149,29 +149,29 @@ export class SystemSearchFieldComponent
     private _groups = inject(SupportGroupsService);
     /** Service used for searching items. By default, the systems of the
      * selected support group. */
-    public readonly query_fn = input<(_: string) => Promise<PlaceSystem[]>>(
-        (q) => {
-            const group_id = this._groups.group_id();
-            const scope = this._groups.scope();
-            if (scope && !scope.reachable.size) return Promise.resolve([]);
-            return querySystems({ q, ...(group_id ? { group_id } : {}) }).then(
-                (resp) =>
-                    resp.data.filter((system) =>
-                        inGroupScope(system.zones || [], scope),
-                    ),
+    public readonly query_fn = input<(_: string) => Promise<System[]>>((q) => {
+        const group_id = this._groups.group_id();
+        const scope = this._groups.scope();
+        if (scope && !scope.reachable.size) return Promise.resolve([]);
+        return systems
+            .query({ q, ...(group_id ? { group_id } : {}) })
+            .then(orThrowPage)
+            .then((resp) =>
+                resp.data.filter((system) =>
+                    inGroupScope(system.zones || [], scope),
+                ),
             );
-        },
-    );
+    });
     /** Currently selected item */
     public active_item = signal(null);
     /** Item list to display */
-    public item_list = signal<PlaceSystem[]>([]);
+    public item_list = signal<System[]>([]);
     /** Current display value of the search input field  */
     public search_str = signal('');
     /** Form control on change handler */
-    private _onChange: (_: PlaceSystem) => void;
+    private _onChange: (_: System) => void;
     /** Form control on touch handler */
-    private _onTouch: (_: PlaceSystem) => void;
+    private _onTouch: (_: System) => void;
 
     private readonly _input_el =
         viewChild<ElementRef<HTMLInputElement>>('input');
@@ -230,7 +230,7 @@ export class SystemSearchFieldComponent
      * Update the form field value
      * @param new_value New value to set on the form field
      */
-    public setValue(new_value: PlaceSystem): void {
+    public setValue(new_value: System): void {
         this.active_item.set(new_value);
         this.search_str.set(new_value?.name || '');
         if (this._onChange) {
@@ -243,7 +243,7 @@ export class SystemSearchFieldComponent
      * Update local value when form control value is changed
      * @param value The new value for the component
      */
-    public writeValue(value: PlaceSystem) {
+    public writeValue(value: System) {
         this.active_item.set(value);
         this.resetSearchString();
     }
@@ -253,7 +253,7 @@ export class SystemSearchFieldComponent
      * control's value changes in the UI.
      * @param fn The callback function to register
      */
-    public registerOnChange(fn: (_: PlaceSystem) => void): void {
+    public registerOnChange(fn: (_: System) => void): void {
         this._onChange = fn;
     }
 
@@ -262,7 +262,7 @@ export class SystemSearchFieldComponent
      * on initialization to update the form model on blur.
      * @param fn The callback function to register
      */
-    public registerOnTouched(fn: (_: PlaceSystem) => void): void {
+    public registerOnTouched(fn: (_: System) => void): void {
         this._onTouch = fn;
     }
 

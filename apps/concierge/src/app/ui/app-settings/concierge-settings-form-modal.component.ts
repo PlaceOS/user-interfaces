@@ -12,7 +12,7 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 
 import { DEFAULT_SETTINGS } from 'apps/concierge/src/environments/settings';
 import { format } from 'date-fns';
@@ -1307,7 +1307,7 @@ import { UploadButtonComponent } from './upload-button.component';
 })
 export class ConciergeSettingsFormModalComponent implements OnInit {
     private _data = inject<{
-        zone: PlaceZone;
+        zone: Zone;
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<ConciergeSettingsFormModalComponent>>(MatDialogRef);

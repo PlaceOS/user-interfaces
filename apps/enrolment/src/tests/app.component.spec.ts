@@ -5,19 +5,26 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     failInitialisation,
     initialisationComplete,
+    isMock,
     settingSignal,
     SettingsService,
 } from '@placeos/common';
+import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
+import { configure, createAuthSession } from '@placeos/ts-client';
+import {
+    clearMockEndpoints,
+    listMockedEndpoints,
+} from '@placeos/ts-client/compat';
 import { BehaviorSubject } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
 import { AppComponent } from '../app/app.component';
 
-// `setupPlace` runs for real and ends in ts-client `setup`
+// The real `setupPlace` runs with a fake login session, so it makes no request
 vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
+    let fake: FakeSession;
     let error_handler: { handleError: ReturnType<typeof vi.fn> };
     let set_overrides: ReturnType<typeof vi.fn>;
     let fetch_mock: ReturnType<typeof vi.fn>;
@@ -53,8 +60,11 @@ describe('AppComponent', () => {
             json: async () => ({ config: { enrolment: { theme: 'dark' } } }),
         });
         vi.stubGlobal('fetch', fetch_mock);
-        (ts_client.setup as any).mockReset();
-        (ts_client.setup as any).mockResolvedValue(undefined);
+        fake = startFakePlaceClient();
+        // Only the calls of the test count
+        vi.mocked(createAuthSession).mockClear();
+        vi.mocked(configure).mockClear();
+        clearMockEndpoints();
         error_handler = { handleError: vi.fn() };
         set_overrides = vi.fn();
         spectator = createComponent({
@@ -84,7 +94,7 @@ describe('AppComponent', () => {
 
         expect(set_overrides).toHaveBeenCalledWith([{ theme: 'dark' }]);
         expect(set_overrides.mock.invocationCallOrder[0]).toBeLessThan(
-            (ts_client.setup as any).mock.invocationCallOrder[0],
+            vi.mocked(createAuthSession).mock.invocationCallOrder[0],
         );
         expect(initialisationComplete()()).toBe(true);
         expect(spectator.query('router-outlet')).toExist();
@@ -113,7 +123,7 @@ describe('AppComponent', () => {
             expect(text()).toContain('Try again');
             expect(spectator.query('router-outlet')).not.toExist();
             expect(error_handler.handleError).toHaveBeenCalledTimes(1);
-            expect(ts_client.setup).not.toHaveBeenCalled();
+            expect(configure).not.toHaveBeenCalled();
         },
     );
 
@@ -136,7 +146,7 @@ describe('AppComponent', () => {
         await start();
 
         expect(text()).toContain('Enrolment could not connect');
-        expect(ts_client.setup).not.toHaveBeenCalled();
+        expect(configure).not.toHaveBeenCalled();
     });
 
     it('should start the mock backend instead of asking the server in mock mode', async () => {
@@ -146,16 +156,17 @@ describe('AppComponent', () => {
 
         expect(fetch_mock).not.toHaveBeenCalled();
         // The mock backend registers its endpoints with ts-client
-        expect(ts_client.registerMockEndpoint).toHaveBeenCalled();
-        expect(ts_client.setup).toHaveBeenCalledWith(
-            expect.objectContaining({ mock: true }),
-        );
+        expect(listMockedEndpoints().length).toBeGreaterThan(0);
+        expect(isMock()).toBe(true);
         expect(set_overrides).toHaveBeenCalledWith([{}]);
         expect(initialisationComplete()()).toBe(true);
     });
 
     it('should show an authentication error when sign in fails', async () => {
-        (ts_client.setup as any).mockRejectedValue(new Error('denied'));
+        vi.mocked(fake.session.start).mockResolvedValue({
+            ok: false,
+            error: { kind: 'authority_invalid', path: '$', expected: 'object' },
+        });
 
         await start();
 

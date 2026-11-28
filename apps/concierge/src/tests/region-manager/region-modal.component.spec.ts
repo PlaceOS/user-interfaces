@@ -1,11 +1,13 @@
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 
 import { RegionModalComponent } from '../../app/region-manager/region-modal.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -37,11 +39,16 @@ describe('RegionModalComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client.authority as any).mockReturnValue({ description: 'ACME' });
-        (ts_client.addZone as any).mockReset();
-        (ts_client.updateZone as any).mockReset();
-        (ts_client.addZone as any).mockResolvedValue({ id: 'region-new' });
-        (ts_client.updateZone as any).mockResolvedValue({ id: 'r1' });
+        // The authority of mock mode has an empty description
+        startMockPlaceClient();
+        (ts_client.zones.create as any).mockReset();
+        (ts_client.zones.update as any).mockReset();
+        (ts_client.zones.create as any).mockResolvedValue(
+            mockReply({ id: 'region-new' }),
+        );
+        (ts_client.zones.update as any).mockResolvedValue(
+            mockReply({ id: 'r1' }),
+        );
     });
 
     afterEach(() => {
@@ -80,7 +87,7 @@ describe('RegionModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client.addZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
     });
 
     it('should create a new region with the region tag and close on success', async () => {
@@ -92,12 +99,12 @@ describe('RegionModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.addZone).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.zones.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 tags: ['region'],
-                name: 'REGION ACME East Region',
+                name: 'REGION  East Region',
             }),
-        );
+        });
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith({
             id: 'region-new',
         });
@@ -109,10 +116,10 @@ describe('RegionModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.updateZone).toHaveBeenCalledWith(
-            'r1',
-            expect.objectContaining({ tags: ['region'] }),
-        );
-        expect(ts_client.addZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.update).toHaveBeenCalledWith({
+            id: 'r1',
+            body: expect.objectContaining({ tags: ['region'] }),
+        });
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
     });
 });

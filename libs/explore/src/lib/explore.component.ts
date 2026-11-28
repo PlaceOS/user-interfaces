@@ -22,6 +22,8 @@ import {
 import {
     AsyncHandler,
     flatten,
+    getModule,
+    HashMap,
     log,
     notifyError,
     OrganisationService,
@@ -30,7 +32,6 @@ import {
     themedLogo,
     User,
 } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { CustomTooltipComponent } from 'libs/components/src/lib/custom-tooltip.component';
 import { DynamicMapComponent } from 'libs/components/src/lib/dynamic-map.component';
@@ -519,7 +520,7 @@ export class ExploreComponent extends AsyncHandler implements OnInit {
         }
         const mod = getModule(locate_details.system_id, locate_details.module);
         const locations: MapLocation[] = (
-            await mod.execute('locate_user', [
+            await mod.execute<HashMap[]>('locate_user', [
                 user.email,
                 user.username || user.id,
             ])

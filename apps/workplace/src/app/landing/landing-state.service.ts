@@ -6,28 +6,26 @@ import {
     signal,
     untracked,
 } from '@angular/core';
-import {
-    authority,
-    getModule,
-    PlaceVariableBinding,
-    queryUsers,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
+import { metadata as metadata_v7, users as users_v7 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 
 import {
     AsyncHandler,
+    authority,
     Booking,
     BookingRuleset,
     BuildingLevel,
     currentUser,
     filterResourcesFromRules,
+    getModule,
     HashMap,
     i18n,
+    jsonList,
     OrganisationService,
     SettingsService,
     Space,
     StaffUser,
+    toJsonValue,
     unique,
     User,
 } from '@placeos/common';
@@ -55,7 +53,6 @@ export class LandingStateService extends AsyncHandler {
     private _loading_spaces = signal(false);
     private _contacts = signal<StaffUser[]>([]);
     private _level_occupancy = signal<BuildingLevel[]>([]);
-    private _occupancy_binding: PlaceVariableBinding;
     private _booking_rules = signal<BookingRuleset[]>([]);
     private _space_list = signal<Space[]>([]);
     private _space_statuses = signal<unknown[]>([]);
@@ -107,9 +104,10 @@ export class LandingStateService extends AsyncHandler {
     public search_fn = async (q: string, signal?: AbortSignal) =>
         this._settings.get('app.basic_user_search') ||
         this._settings.get('app.colleagues_require_auth') !== false
-            ? queryUsers({ q, authority_id: authority()?.id }).then(
-                  ({ data }) => data.map((_) => new StaffUser(_)),
-              )
+            ? users_v7
+                  .query({ q, authority_id: authority()?.id })
+                  .then(orThrowPage)
+                  .then(({ data }) => data.map((_) => new StaffUser(_)))
             : searchStaff(q, { signal });
 
     constructor() {
@@ -120,17 +118,18 @@ export class LandingStateService extends AsyncHandler {
             let active = true;
             onCleanup(() => (active = false));
             this._loading_spaces.set(true);
-            const metadata = await showMetadata(
-                bld.id,
-                `room_booking_rules`,
-            ).catch(() => ({ details: [] }));
+            const metadata = await metadata_v7
+                .show({ id: bld.id, name: `room_booking_rules` })
+                .then(orThrow)
+                .then((data) => data[`room_booking_rules`])
+                .catch(() => ({ details: [] }));
             const spaces = await requestSpacesForZone(bld.id)
                 .toPromise()
                 .catch(() => []);
             if (!active) return;
             this._loading_spaces.set(false);
             this._booking_rules.set(
-                metadata?.details instanceof Array ? metadata.details : [],
+                jsonList<BookingRuleset>(metadata?.details),
             );
             this._space_list.set((spaces || []).filter((s) => s.bookable));
             this.updateBuildingMetadata();
@@ -144,7 +143,7 @@ export class LandingStateService extends AsyncHandler {
                 const binding = getModule(space.id, 'Bookings').variable(
                     'status',
                 );
-                const unsubscribe = binding.bindThenSubscribe((status) => {
+                const unsubscribe = binding.subscribe((status) => {
                     const next_statuses = [...untracked(this._space_statuses)];
                     next_statuses[idx] = status;
                     this._space_statuses.set(next_statuses);
@@ -208,10 +207,11 @@ export class LandingStateService extends AsyncHandler {
         this.updateContacts();
         const mod = this._org.module('area_management', 'AreaManagement');
         if (!mod) return;
-        const binding = mod.variable('overview');
+        const binding =
+            mod.variable<HashMap<{ recommendation: number }>>('overview');
         this.subscription(
             'overview',
-            binding.bindThenSubscribe((d) => this.updateOccupancy(d || {})),
+            binding.subscribe((d) => this.updateOccupancy(d || {})),
         );
     }
 
@@ -256,33 +256,48 @@ export class LandingStateService extends AsyncHandler {
         let users = [...this._contacts()];
         users.push(user);
         users = unique(users, 'email');
-        await updateMetadata(currentUser().id, {
-            name: 'contacts',
-            description: 'Contacts for the User',
-            details: users,
-        });
+        await metadata_v7
+            .update({
+                id: currentUser().id,
+                body: {
+                    name: 'contacts',
+                    description: 'Contacts for the User',
+                    details: toJsonValue(users),
+                },
+            })
+            .then(orThrow);
         this.updateContacts(true);
     }
 
     public async addContacts(user_list: User[]) {
         let users = [...this._contacts(), ...user_list];
         users = unique(users, 'email');
-        await updateMetadata(currentUser().id, {
-            name: 'contacts',
-            description: 'Contacts for the User',
-            details: users,
-        });
+        await metadata_v7
+            .update({
+                id: currentUser().id,
+                body: {
+                    name: 'contacts',
+                    description: 'Contacts for the User',
+                    details: toJsonValue(users),
+                },
+            })
+            .then(orThrow);
         this.updateContacts(true);
     }
 
     public async removeContact(user: User) {
         let users = [...this._contacts()];
         users = users.filter((u) => u.email !== user.email);
-        await updateMetadata(currentUser().id, {
-            name: 'contacts',
-            description: 'Contacts for the User',
-            details: users,
-        });
+        await metadata_v7
+            .update({
+                id: currentUser().id,
+                body: {
+                    name: 'contacts',
+                    description: 'Contacts for the User',
+                    details: toJsonValue(users),
+                },
+            })
+            .then(orThrow);
         this.updateContacts(true);
     }
 
@@ -301,10 +316,13 @@ export class LandingStateService extends AsyncHandler {
         const { sys, module, index } = occupancy;
         const mod = getModule(sys, module, index);
         if (!mod) return;
-        this._occupancy_binding = mod.variable('occupancy');
+        const binding =
+            mod.variable<HashMap<{ recommendation_factor: number }>>(
+                'occupancy',
+            );
         this.subscription(
             'occupancy_binding',
-            this._occupancy_binding.bindThenSubscribe((value) => {
+            binding.subscribe((value) => {
                 const levels = Object.keys(value || {}).map((key) => ({
                     id: key,
                     ...value[key],

@@ -1,17 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import {
-    apiEndpoint,
-    removeSignageMedia,
-    showSignageMedia,
-    SignageMedia,
-} from '@placeos/ts-client';
+import { type Group, playlist_media } from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { NEVER, of } from 'rxjs';
 
 import { SignageSharedWithComponent } from '../../app/shared/signage-shared-with.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signageMedia } from '../../app/signage-models';
 import { signage_shared_groups_change } from '../../app/signage-shared-groups.util';
+import { signageGroup } from '../signage-test-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -26,21 +24,17 @@ describe('SignageSharedWithComponent', () => {
     let dialog_open: ReturnType<typeof vi.fn>;
     const service_stub = { changed: vi.fn() };
     const two_groups = [
-        { id: 'grp-1', name: 'Facilities' },
-        { id: 'grp-2', name: 'Marketing' },
+        signageGroup({ id: 'grp-1', name: 'Facilities' }),
+        signageGroup({ id: 'grp-2', name: 'Marketing' }),
     ];
 
-    function serverGroups(groups: Array<{ id: string; name: string }>) {
-        vi.mocked(showSignageMedia).mockResolvedValue(
-            new SignageMedia({ shared_with: groups }),
+    function serverGroups(groups: Group[]) {
+        vi.mocked(playlist_media.show).mockResolvedValue(
+            mockReply(signageMedia({ shared_with: groups })),
         );
     }
 
-    function make(
-        groups: Array<{ id: string; name: string }>,
-        group_id = 'grp-1',
-        allow_unshare = true,
-    ) {
+    function make(groups: Group[], group_id = 'grp-1', allow_unshare = true) {
         TestBed.configureTestingModule({
             providers: [
                 { provide: MatDialog, useValue: { open: dialog_open } },
@@ -61,8 +55,7 @@ describe('SignageSharedWithComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         dialog_open = vi.fn(() => makeConfirmRef('done'));
-        (apiEndpoint as any).mockReturnValue('/api/engine/v2');
-        (removeSignageMedia as any).mockResolvedValue({});
+        (playlist_media.destroy as any).mockResolvedValue(mockReply({}));
         serverGroups(two_groups);
         setNotifyOutlet(
             {
@@ -78,7 +71,9 @@ describe('SignageSharedWithComponent', () => {
     afterEach(() => setNotifyOutlet(null, true));
 
     it('hides the section while the item only lives in the current group', () => {
-        const component = make([{ id: 'grp-1', name: 'Facilities' }]);
+        const component = make([
+            signageGroup({ id: 'grp-1', name: 'Facilities' }),
+        ]);
 
         expect(component.visible()).toBe(false);
     });
@@ -91,8 +86,8 @@ describe('SignageSharedWithComponent', () => {
 
     it('shows the groups holding the item', () => {
         const component = make([
-            { id: 'grp-1', name: 'Facilities' },
-            { id: 'grp-2', name: 'Marketing' },
+            signageGroup({ id: 'grp-1', name: 'Facilities' }),
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
         ]);
 
         expect(component.visible()).toBe(true);
@@ -100,7 +95,10 @@ describe('SignageSharedWithComponent', () => {
     });
 
     it('shows the owning group without an unlink action from the all groups view', () => {
-        const component = make([{ id: 'grp-2', name: 'Marketing' }], '');
+        const component = make(
+            [signageGroup({ id: 'grp-2', name: 'Marketing' })],
+            '',
+        );
 
         // Unlinking the last group would delete the item, so the user has to
         // delete it instead.
@@ -111,8 +109,8 @@ describe('SignageSharedWithComponent', () => {
     it('hides unlink actions in read-only views', () => {
         const component = make(
             [
-                { id: 'grp-1', name: 'Facilities' },
-                { id: 'grp-2', name: 'Marketing' },
+                signageGroup({ id: 'grp-1', name: 'Facilities' }),
+                signageGroup({ id: 'grp-2', name: 'Marketing' }),
             ],
             'grp-1',
             false,
@@ -142,9 +140,12 @@ describe('SignageSharedWithComponent', () => {
         const component = make(two_groups);
         const change = signage_shared_groups_change();
 
-        await component.unshare({ id: 'grp-2', name: 'Marketing' });
+        await component.unshare(
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
+        );
 
-        expect(removeSignageMedia).toHaveBeenCalledWith('media-1', {
+        expect(playlist_media.destroy).toHaveBeenCalledWith({
+            id: 'media-1',
             group_id: 'grp-2',
         });
         expect(signage_shared_groups_change()).toBe(change + 1);
@@ -152,34 +153,36 @@ describe('SignageSharedWithComponent', () => {
     });
 
     it('keeps the last group when another user unlinked the others', async () => {
-        serverGroups([{ id: 'grp-2', name: 'Marketing' }]);
+        serverGroups([signageGroup({ id: 'grp-2', name: 'Marketing' })]);
         const component = make(two_groups);
 
-        await component.unshare({ id: 'grp-2', name: 'Marketing' });
+        await component.unshare(
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
+        );
 
-        expect(showSignageMedia).toHaveBeenCalledWith('media-1', {
-            group_id: 'grp-1',
-        });
-        expect(removeSignageMedia).not.toHaveBeenCalled();
+        expect(playlist_media.show).toHaveBeenCalledWith({ id: 'media-1' });
+        expect(playlist_media.destroy).not.toHaveBeenCalled();
     });
 
     it('marks the group as unlinking while the request is pending', async () => {
         let finish_unshare: () => void;
-        (removeSignageMedia as any).mockImplementation(
-            () =>
-                new Promise<void>((resolve) => {
-                    finish_unshare = resolve;
-                }),
+        (playlist_media.destroy as any).mockImplementation(
+            fromV1Mock(
+                () =>
+                    new Promise<void>((resolve) => {
+                        finish_unshare = resolve;
+                    }),
+                ['id', '...'],
+            ),
         );
         const component = make([
-            { id: 'grp-1', name: 'Facilities' },
-            { id: 'grp-2', name: 'Marketing' },
+            signageGroup({ id: 'grp-1', name: 'Facilities' }),
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
         ]);
 
-        const pending = component.unshare({
-            id: 'grp-2',
-            name: 'Marketing',
-        });
+        const pending = component.unshare(
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
+        );
         await vi.waitFor(() => {
             expect(component.unsharing_group_id()).toBe('grp-2');
         });
@@ -193,12 +196,14 @@ describe('SignageSharedWithComponent', () => {
     it('keeps the group when the confirmation is dismissed', async () => {
         dialog_open = vi.fn(() => makeConfirmRef(''));
         const component = make([
-            { id: 'grp-1', name: 'Facilities' },
-            { id: 'grp-2', name: 'Marketing' },
+            signageGroup({ id: 'grp-1', name: 'Facilities' }),
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
         ]);
 
-        await component.unshare({ id: 'grp-2', name: 'Marketing' });
+        await component.unshare(
+            signageGroup({ id: 'grp-2', name: 'Marketing' }),
+        );
 
-        expect(removeSignageMedia).not.toHaveBeenCalled();
+        expect(playlist_media.destroy).not.toHaveBeenCalled();
     });
 });

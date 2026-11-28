@@ -13,24 +13,23 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceZone, QueryResponse } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
+import { type QueryResponse } from '../shared/paged-list';
 import { byDisplayName, PagedSearch } from '../shared/paged-search';
 import { ZoneSelectTreeComponent } from '../shared/zone-select-tree.component';
+import { signageZone } from '../signage-models';
 
 export interface ZoneEditModalData {
-    zone: PlaceZone;
+    zone: Zone;
     default_parent_id?: string;
-    roots: () => PlaceZone[];
-    zones: () => PlaceZone[];
-    load_children: (parent_id: string) => Promise<PlaceZone[]>;
+    roots: () => Zone[];
+    zones: () => Zone[];
+    load_children: (parent_id: string) => Promise<Zone[]>;
     query_zones: (
         search: string,
         parent_id: string,
-    ) => QueryResponse<PlaceZone> | null;
-    onSave: (
-        zone: PlaceZone,
-        data: ZoneEditFormModel,
-    ) => Promise<PlaceZone | null>;
+    ) => QueryResponse<Zone> | null;
+    onSave: (zone: Zone, data: ZoneEditFormModel) => Promise<Zone | null>;
 }
 
 export interface ZoneEditFormModel {
@@ -176,23 +175,20 @@ export class ZoneEditModalComponent {
         required(path.name);
         required(path.parent_id);
     });
-    public readonly selected_parent = linkedSignal<
-        PlaceZone[],
-        PlaceZone | null
-    >({
+    public readonly selected_parent = linkedSignal<Zone[], Zone | null>({
         source: this.available_zones,
         computation: (zones, previous) => {
             const parent_id = this.model().parent_id;
             return (
                 zones.find((zone) => zone.id === parent_id) ||
                 previous?.value ||
-                (parent_id ? new PlaceZone({ id: parent_id }) : null)
+                (parent_id ? signageZone({ id: parent_id }) : null)
             );
         },
     });
     // The tree can clear its search scope, but that keeps the parent
     public readonly search_scope = linkedSignal(() => this.selected_parent());
-    public readonly zone_list = new PagedSearch<PlaceZone>((search) => {
+    public readonly zone_list = new PagedSearch<Zone>((search) => {
         const parent_id = this.search_scope()?.id;
         return search.trim()
             ? this._data.query_zones(search, parent_id || '')
@@ -200,7 +196,7 @@ export class ZoneEditModalComponent {
     }, byDisplayName);
     public readonly loadChildren = this._data.load_children;
 
-    public selectParent(zone: PlaceZone) {
+    public selectParent(zone: Zone) {
         this.selected_parent.set(zone);
         this.model.update((model) => ({ ...model, parent_id: zone.id }));
     }

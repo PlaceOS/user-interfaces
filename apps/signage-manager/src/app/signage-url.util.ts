@@ -1,4 +1,5 @@
-import { parseWebUrl } from '@placeos/common';
+import { apiEndpoint, parseWebUrl } from '@placeos/common';
+import type { PlaylistItem } from '@placeos/ts-client';
 
 /**
  * Absolute http or https `url` in the parsed form, or null for other URLs.
@@ -25,6 +26,19 @@ export function webPageFrameUrl(url: string): string {
 /** URL that serves an upload, relative to the page origin */
 export function uploadUrl(upload_id: string) {
     return `/api/engine/v2/uploads/${encodeURIComponent(upload_id)}/url`;
+}
+
+/**
+ * URL that serves the media of an item: its upload, or its external URL.
+ * 6.x of ts-client had this as `SignageMedia.media_url`.
+ */
+export function mediaUrl(item: Pick<PlaylistItem, 'media_id' | 'media_uri'>) {
+    return item?.media_id ? uploadUrl(item.media_id) : item?.media_uri || '';
+}
+
+/** URL of the thumbnail image of a media item */
+export function mediaThumbnailUrl(media_id: string) {
+    return `${apiEndpoint()}/signage/media/${encodeURIComponent(media_id)}/thumbnail`;
 }
 
 /**

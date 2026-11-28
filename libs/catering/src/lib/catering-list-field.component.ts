@@ -19,13 +19,13 @@ import {
     CateringOrder,
     i18n,
     OrganisationService,
-    provideValueAccessor,
     randomString,
     SETTING_KEYS,
     SettingsService,
     Space,
     toggleListItem,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { endOfDay, startOfDay } from 'date-fns';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';

@@ -1,11 +1,11 @@
 import { signal, WritableSignal } from '@angular/core';
-import { PlaceModuleBinding, PlaceVariableBinding } from '@placeos/ts-client';
-
-interface ClientWritableSignal<T> {
-    readonly value: T;
-    set(value: T): void;
-    subscribe(listener: (value: T) => void): () => void;
-}
+import { placeRealtime } from '@placeos/common';
+import type {
+    BindingState,
+    JsonValue,
+    Realtime,
+    RealtimeTarget,
+} from '@placeos/ts-client';
 
 export interface BindingRecord {
     key: string;
@@ -14,12 +14,14 @@ export interface BindingRecord {
     module_name: string;
     module_index: number;
     name: string;
-    binding: PlaceVariableBinding;
-    value: WritableSignal<unknown>;
+    /** Number of listeners that are bound now */
+    count: number;
+    value: WritableSignal<JsonValue | undefined>;
     last_update: WritableSignal<number>;
     overridden: WritableSignal<boolean>;
-    driver_value: unknown;
-    emit(value: unknown): void;
+    driver_value: JsonValue | undefined;
+    /** Sends a value to each listener of the binding */
+    emit(value: JsonValue): void;
 }
 
 export interface ExecuteMessage {
@@ -35,97 +37,130 @@ export interface ExecuteMessage {
     error: boolean;
 }
 
+/** Most messages that `execute_messages` keeps */
+const EXECUTE_MESSAGES_MAX = 250;
+
 /** Driver bindings seen since the hooks were installed */
 export const binding_records = signal<BindingRecord[]>([]);
 /** Latest command requests and responses, oldest first */
 export const execute_messages = signal<ExecuteMessage[]>([]);
 export const records_by_key = new Map<string, BindingRecord>();
+/** Listeners of each binding record, by record key. `emit` calls them */
+const listeners_by_key = new Map<string, Set<(state: BindingState) => void>>();
+/** Realtime clients that have the hooks */
+const hooked = new WeakSet<Realtime>();
 let execute_id = 0;
 
-function bindingKey(module: PlaceModuleBinding, binding: PlaceVariableBinding) {
-    return `${module.system.id}|${module.id}|${binding.name}`;
+function moduleDetails(target: RealtimeTarget) {
+    const index = target.index ?? 1;
+    return {
+        system_id: target.sys,
+        module_id: `${target.mod}_${index}`,
+        module_name: target.mod,
+        module_index: index,
+    };
 }
 
-function trackBinding(
-    module: PlaceModuleBinding,
-    binding: PlaceVariableBinding,
-) {
-    const key = bindingKey(module, binding);
-    if (records_by_key.has(key)) return binding;
-    const source = binding.listen() as unknown as ClientWritableSignal<unknown>;
-    const emit = source.set.bind(source);
+function trackBinding(target: RealtimeTarget, realtime: Realtime) {
+    const details = moduleDetails(target);
+    const key = `${details.system_id}|${details.module_id}|${target.name}`;
+    const existing = records_by_key.get(key);
+    if (existing) return existing;
+    const state = realtime.value(target);
+    const value = state.kind === 'value' ? state.value : undefined;
+    const listeners = new Set<(state: BindingState) => void>();
     const record: BindingRecord = {
         key,
-        system_id: module.system.id,
-        module_id: module.id,
-        module_name: module.name,
-        module_index: module.index,
-        name: binding.name,
-        binding,
-        value: signal(source.value),
-        last_update: signal(source.value === undefined ? 0 : Date.now()),
+        ...details,
+        name: target.name,
+        count: 0,
+        value: signal(value),
+        last_update: signal(value === undefined ? 0 : Date.now()),
         overridden: signal(false),
-        driver_value: source.value,
-        emit,
+        driver_value: value,
+        emit: (next) => {
+            record.value.set(next);
+            for (const listener of listeners) {
+                listener({ kind: 'value', value: next });
+            }
+        },
     };
     records_by_key.set(key, record);
+    listeners_by_key.set(key, listeners);
     binding_records.update((records) => [...records, record]);
-    source.subscribe((value) => record.value.set(value));
-    source.set = (value) => {
-        record.driver_value = value;
-        record.last_update.set(Date.now());
-        if (!record.overridden()) emit(value);
-    };
-    return binding;
+    return record;
 }
 
 function addExecuteMessage(message: ExecuteMessage) {
-    execute_messages.update((messages) => [...messages, message].slice(-250));
+    execute_messages.update((messages) =>
+        [...messages, message].slice(-EXECUTE_MESSAGES_MAX),
+    );
 }
 
 /**
  * Record driver bindings and commands for the binding debug panel. The
  * launcher calls this for admin and support users when it loads, so the
  * panel also shows activity from before it first opens. Only bindings
- * requested after this call are recorded. Safe to call more than once.
+ * made after this call are recorded. Safe to call more than once. Does
+ * nothing before `setupPlace` makes the realtime client.
  */
 export function installBindingDebugHooks() {
-    const prototype = PlaceModuleBinding.prototype as PlaceModuleBinding & {
-        __binding_debug_hooks__?: boolean;
-    };
-    if (prototype.__binding_debug_hooks__) return;
-    prototype.__binding_debug_hooks__ = true;
+    let realtime: Realtime;
+    try {
+        realtime = placeRealtime();
+    } catch {
+        return;
+    }
+    if (hooked.has(realtime)) return;
+    hooked.add(realtime);
 
-    const variable = PlaceModuleBinding.prototype.variable;
-    PlaceModuleBinding.prototype.variable = function <T>(name: string) {
-        return trackBinding(
-            this,
-            variable.call(this, name),
-        ) as PlaceVariableBinding<T>;
+    const bind = realtime.bind;
+    realtime.bind = (target, listener) => {
+        const record = trackBinding(target, realtime);
+        const listeners = listeners_by_key.get(record.key);
+        // Driver values wait while the value is overridden
+        const wrapped = (state: BindingState) => {
+            if (state.kind === 'value') {
+                record.driver_value = state.value;
+                record.last_update.set(Date.now());
+                if (record.overridden()) return;
+                record.value.set(state.value);
+            }
+            listener(state);
+        };
+        listeners.add(listener);
+        record.count += 1;
+        const release = bind(target, wrapped);
+        const override = record.overridden() ? record.value() : undefined;
+        if (override !== undefined)
+            listener({ kind: 'value', value: override });
+        let released = false;
+        return () => {
+            if (released) return;
+            released = true;
+            listeners.delete(listener);
+            record.count -= 1;
+            release();
+        };
     };
 
-    const binding = PlaceModuleBinding.prototype.binding;
-    PlaceModuleBinding.prototype.binding = function <T>(name: string) {
-        return trackBinding(
-            this,
-            binding.call(this, name),
-        ) as PlaceVariableBinding<T>;
+    const value = realtime.value;
+    realtime.value = (target) => {
+        const { system_id, module_id } = moduleDetails(target);
+        const record = records_by_key.get(
+            `${system_id}|${module_id}|${target.name}`,
+        );
+        const override = record?.overridden() ? record.value() : undefined;
+        if (override !== undefined) return { kind: 'value', value: override };
+        return value(target);
     };
 
-    const execute = PlaceModuleBinding.prototype.execute;
-    PlaceModuleBinding.prototype.execute = function <T>(
-        method: string,
-        args: unknown[] = [],
-        timeout_delay?: number,
-    ) {
-        const id = ++execute_id;
+    const exec = realtime.exec;
+    realtime.exec = (target, args = [], options) => {
         const details = {
-            id,
-            system_id: this.system.id,
-            module_id: this.id,
-            module_name: this.name,
-            module_index: this.index,
-            method,
+            id: ++execute_id,
+            ...moduleDetails(target),
+            method: target.name,
         };
         addExecuteMessage({
             ...details,
@@ -134,17 +169,17 @@ export function installBindingDebugHooks() {
             time: Date.now(),
             error: false,
         });
-        const request = execute.call(this, method, args, timeout_delay);
+        const request = exec(target, args, options);
         request.then(
-            (value) =>
+            (result) =>
                 addExecuteMessage({
                     ...details,
                     direction: 'receive',
-                    value,
+                    value: result.ok === false ? result.error : result.value,
                     time: Date.now(),
-                    error: false,
+                    error: result.ok === false,
                 }),
-            (error) =>
+            (error: unknown) =>
                 addExecuteMessage({
                     ...details,
                     direction: 'receive',
@@ -153,6 +188,6 @@ export function installBindingDebugHooks() {
                     error: true,
                 }),
         );
-        return request as Promise<T>;
+        return request;
     };
 }

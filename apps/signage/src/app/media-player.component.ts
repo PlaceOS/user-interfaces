@@ -23,7 +23,8 @@ import {
     PluginInteractionPayload,
     SignagePluginMessageType,
 } from '@placeos/components';
-import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
+import { type SignagePlugin } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { DebugOverlayComponent } from './debug-overlay.component';
 import {
     MediaControlEvent,

@@ -1,7 +1,8 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { authority, setAPI_Key } from '@placeos/ts-client';
+import type { JsonValue } from '@placeos/ts-client';
 
 import {
+    authority,
     currentUser,
     failInitialisation,
     firstTruthyValueFrom,
@@ -11,7 +12,6 @@ import {
     retryInitialisation,
     SettingsService,
     setupPlace,
-    storeApiKeyFromUrl,
     waitForCurrentUser,
     withTimeout,
 } from '@placeos/common';
@@ -104,9 +104,6 @@ export class AppComponent implements OnInit {
             // Only allow paths
             if (!this._continue.startsWith('/')) this._continue = '';
         }
-        if (params.has('x-api-key')) {
-            setAPI_Key(params.get('x-api-key') || '');
-        }
         await firstTruthyValueFrom(this._settings.initialised);
         const settings = this._settings.get('composer') || {};
         settings.mock = mockModeRequested() || !!this._settings.get('mock');
@@ -115,7 +112,8 @@ export class AppComponent implements OnInit {
             await import('@placeos/mocks').then(({ mocksInit }) => mocksInit());
         }
         try {
-            await setupPlace(settings).finally(storeApiKeyFromUrl);
+            // The login session reads `x-api-key` from the URL and removes it
+            await setupPlace(settings);
             await withTimeout(
                 waitForCurrentUser(),
                 30_000,
@@ -140,16 +138,17 @@ export class AppComponent implements OnInit {
             return;
         }
         const user = currentUser();
-        const mappings = autho.config['redirect_mappings'] || {};
-        const path_mappings = autho.config['path_mappings'] || {};
+        const config = autho.config || {};
+        const mappings = jsonObject(config['redirect_mappings']);
+        const path_mappings = jsonObject(config['path_mappings']);
         const user_domain = user.email.split('@')[1];
-        const redirect_domain = mappings[user_domain] || location.host;
-        const domain_path_mapping = path_mappings[redirect_domain] || {};
+        const redirect_domain = text(mappings[user_domain]) || location.host;
+        const domain_path_mapping = jsonObject(path_mappings[redirect_domain]);
         let redirect_path = this._continue;
         for (const path in domain_path_mapping) {
             redirect_path = redirect_path.replace(
                 path,
-                domain_path_mapping[path],
+                text(domain_path_mapping[path]),
             );
         }
         const url = `${location.protocol}//${redirect_domain}${redirect_path}`;
@@ -157,4 +156,21 @@ export class AppComponent implements OnInit {
         console.log('Redirect:', url);
         location.href = url;
     }
+}
+
+type JsonObject = { readonly [key: string]: JsonValue };
+
+/** The JSON object in `value`, or an empty object */
+function jsonObject(value: JsonValue | undefined): JsonObject {
+    return isJsonObject(value) ? value : {};
+}
+
+// `Array.isArray` does not narrow out a readonly array, so this guard does
+function isJsonObject(value: JsonValue | undefined): value is JsonObject {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
+}
+
+/** The string in `value`, or `''` */
+function text(value: JsonValue | undefined): string {
+    return typeof value === 'string' ? value : '';
 }

@@ -7,7 +7,7 @@ import {
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { playlistStatus } from '../signage-playlist.util';
 import { PlaylistStatusBadgeComponent } from './playlist-status-badge.component';
@@ -154,7 +154,7 @@ import { PlaylistThumbnailComponent } from './playlist-thumbnail.component';
 export class AssignedPlaylistsPanelComponent {
     private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly playlists = input.required<readonly SignagePlaylist[]>();
+    public readonly playlists = input.required<readonly Playlist[]>();
     /** Shows the loading state in place of the empty state */
     public readonly loading = input(false);
     /** Shows a retry in place of the empty state */
@@ -172,7 +172,7 @@ export class AssignedPlaylistsPanelComponent {
     public readonly remove = output<string>();
     public readonly retry = output();
 
-    public getStatus(playlist: SignagePlaylist) {
+    public getStatus(playlist: Playlist) {
         return playlistStatus(
             playlist,
             this._playlist_service.playlist_approval_status(),

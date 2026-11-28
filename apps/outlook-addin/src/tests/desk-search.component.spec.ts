@@ -11,7 +11,7 @@ import {
     BookingFormValue,
 } from '@placeos/bookings';
 import { OrganisationService } from '@placeos/common';
-import { PlaceZone } from '@placeos/ts-client';
+import { parseResponse, Zone, type ZoneInput } from '@placeos/ts-client';
 
 import { DeskSearchComponent } from '../app/calendar/desk-search.component';
 import { OutlookEventService } from '../app/calendar/outlook-event.service';
@@ -20,12 +20,19 @@ import { MemoryItemAdapter } from '../app/calendar/outlook-item.adapter';
 const MIDNIGHT = new Date(2026, 9, 1).valueOf();
 const HOUR = 60 * 60 * 1000;
 
-const desk = (id: string, zone: Partial<PlaceZone>): BookingAsset => ({
+/** A zone with the empty value for each field that is not given */
+function zoneOf(data: ZoneInput): Zone {
+    const result = parseResponse(Zone, data, { missing_fields: 'zero' });
+    if (result.ok === false) throw new Error('Invalid zone');
+    return result.value;
+}
+
+const desk = (id: string, zone: ZoneInput): BookingAsset => ({
     id,
     name: id,
     bookable: true,
     features: [],
-    zone: new PlaceZone(zone),
+    zone: zoneOf(zone),
 });
 
 describe('DeskSearchComponent', () => {

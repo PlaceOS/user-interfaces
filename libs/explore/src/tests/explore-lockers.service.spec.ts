@@ -5,6 +5,7 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
 
 import { ExploreLockersService } from '../lib/explore-lockers.service';
 import { DEFAULT_COLOURS } from '../lib/explore-spaces.service';
@@ -38,26 +39,32 @@ describe('ExploreLockersService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'cat-lockers', name: '_LOCKERS_', hidden: true }],
-        } as any);
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [
-                {
-                    id: 'type-lockers',
-                    name: '_LOCKERS_',
-                    category_id: 'cat-lockers',
-                },
-                {
-                    id: 'type-banks',
-                    name: '_LOCKER_BANKS_',
-                    category_id: 'cat-lockers',
-                },
-            ],
-        } as any);
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({
-            data: [],
-        } as any);
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'cat-lockers', name: '_LOCKERS_', hidden: true }],
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'type-lockers',
+                        name: '_LOCKERS_',
+                        category_id: 'cat-lockers',
+                    },
+                    {
+                        id: 'type-banks',
+                        name: '_LOCKER_BANKS_',
+                        category_id: 'cat-lockers',
+                    },
+                ],
+            } as any),
+        );
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
         spectator = createService();
         // Provider mocks are shared, so reset implementations set by a test
         vi.mocked(spectator.inject(SettingsService).get).mockReset();
@@ -67,17 +74,21 @@ describe('ExploreLockersService', () => {
         vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
             (key: string) => key === 'app.use_region',
         );
-        vi.mocked(ts_client.queryAssets).mockImplementation(
-            async ({ type_id }: any) =>
-                ({
-                    data:
-                        type_id === 'type-banks'
-                            ? [{ id: 'b1', zone_id: 'lvl-1' }]
-                            : [
-                                  { id: 'l1', parent_id: 'b1' },
-                                  { id: 'l2', parent_id: 'gone' },
-                              ],
-                }) as any,
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                async ({ type_id }: any) =>
+                    ({
+                        data:
+                            type_id === 'type-banks'
+                                ? [{ id: 'b1', zone_id: 'lvl-1' }]
+                                : [
+                                      { id: 'l1', parent_id: 'b1' },
+                                      { id: 'l2', parent_id: 'gone' },
+                                  ],
+                    }) as any,
+                ['...'],
+                'page',
+            ),
         );
 
         await vi.waitFor(() => {
@@ -90,7 +101,7 @@ describe('ExploreLockersService', () => {
             spectator.service.locker_banks()[0].lockers.map((_) => _.id),
         ).toEqual(['l1']);
         const zones = vi
-            .mocked(ts_client.queryAssets)
+            .mocked(ts_client.assets.query)
             .mock.calls.map(([query]) => (query as any).zone_id);
         expect(new Set(zones)).toEqual(new Set(['region-1']));
     });
@@ -131,7 +142,7 @@ describe('ExploreLockersService', () => {
         let update: (data: unknown) => void;
         vi.mocked(org.module).mockReturnValue({
             variable: () => ({
-                bindThenSubscribe: (callback) => {
+                subscribe: (callback) => {
                     update = callback;
                     return () => null;
                 },

@@ -6,8 +6,14 @@ import { SettingsService } from '@placeos/common';
 import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import {
+    surveys,
+    surveys_answers,
+    surveys_questions,
+} from '@placeos/ts-client/staff';
 import { SurveyOutletComponent } from '../lib/survey-outlet.component';
 
 const SURVEY = {
@@ -63,11 +69,14 @@ describe('SurveyOutletComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showSurvey).mockResolvedValue(SURVEY);
-        vi.mocked(ts_client.showQuestion).mockImplementation((id) =>
-            Promise.resolve({ ...QUESTIONS[+id] }),
+        vi.mocked(surveys.show).mockResolvedValue(mockReply(SURVEY));
+        vi.mocked(surveys_questions.show).mockImplementation(
+            fromV1Mock(
+                (id) => Promise.resolve({ ...QUESTIONS[+id] }),
+                ['id', '...'],
+            ),
         );
-        vi.mocked(ts_client.addAnswer).mockResolvedValue([]);
+        vi.mocked(surveys_answers.create).mockResolvedValue(mockReply([]));
     });
 
     it('should load the survey from the route id parameter', async () => {
@@ -82,7 +91,7 @@ describe('SurveyOutletComponent', () => {
             ],
         });
         await settle();
-        expect(ts_client.showSurvey).toHaveBeenCalledWith('12');
+        expect(surveys.show).toHaveBeenCalledWith({ id: 12 });
         expect('header h2').toContainText('Workplace Feedback');
         expect('main[page] h3').toContainText('First Page');
     });
@@ -91,7 +100,7 @@ describe('SurveyOutletComponent', () => {
         spectator = createComponent();
         spectator.setInput({ survey: SURVEY });
         await settle();
-        expect(ts_client.showQuestion).toHaveBeenCalledTimes(3);
+        expect(surveys_questions.show).toHaveBeenCalledTimes(3);
         const form = spectator.component.form();
         expect(Object.keys(form.controls)).toEqual(['1', '2', '3']);
         // Rating questions generate their option list from max_rating
@@ -137,21 +146,28 @@ describe('SurveyOutletComponent', () => {
         await settle();
         spectator.component.setRating('1', 5);
         await spectator.component.submitSurvey();
-        expect(ts_client.addAnswer).toHaveBeenCalledWith([
-            {
-                survey_id: 12,
-                question_id: 1,
-                type: 'rating',
-                answer_json: 5,
-            },
-            { survey_id: 12, question_id: 2, type: 'text', answer_json: '' },
-            {
-                survey_id: 12,
-                question_id: 3,
-                type: 'checkbox',
-                answer_json: [],
-            },
-        ]);
+        expect(surveys_answers.create).toHaveBeenCalledWith({
+            body: [
+                {
+                    survey_id: 12,
+                    question_id: 1,
+                    type: 'rating',
+                    answer_json: 5,
+                },
+                {
+                    survey_id: 12,
+                    question_id: 2,
+                    type: 'text',
+                    answer_json: '',
+                },
+                {
+                    survey_id: 12,
+                    question_id: 3,
+                    type: 'checkbox',
+                    answer_json: [],
+                },
+            ],
+        });
         expect(spectator.component.success()).toBe(true);
         spectator.detectChanges();
         expect('main[loading]').toExist();
@@ -163,14 +179,14 @@ describe('SurveyOutletComponent', () => {
         await settle();
         spectator.component.nextPage();
         await spectator.component.submitSurvey();
-        expect(ts_client.addAnswer).not.toHaveBeenCalled();
+        expect(surveys_answers.create).not.toHaveBeenCalled();
         expect(spectator.component.success()).toBe(false);
         expect(spectator.component.loading()).toBe('');
         expect(spectator.component.active_page()).toBe(0);
     });
 
     it('should show the form again when saving answers fails', async () => {
-        vi.mocked(ts_client.addAnswer).mockRejectedValue(new Error('500'));
+        vi.mocked(surveys_answers.create).mockRejectedValue(new Error('500'));
         spectator = createComponent();
         spectator.setInput({ survey: SURVEY });
         await settle();
@@ -197,10 +213,12 @@ describe('SurveyOutletComponent', () => {
     });
 
     it('should stop loading when the survey has no pages', async () => {
-        vi.mocked(ts_client.showSurvey).mockResolvedValue({
-            ...SURVEY,
-            pages: [],
-        });
+        vi.mocked(surveys.show).mockResolvedValue(
+            mockReply({
+                ...SURVEY,
+                pages: [],
+            }),
+        );
         spectator = createComponent();
         spectator.setInput({ survey_id: '12' });
         await settle();
@@ -222,7 +240,7 @@ describe('SurveyOutletComponent', () => {
     });
 
     it('should stop loading when a question fails to load', async () => {
-        vi.mocked(ts_client.showQuestion).mockRejectedValue(new Error('500'));
+        vi.mocked(surveys_questions.show).mockRejectedValue(new Error('500'));
         spectator = createComponent();
         spectator.setInput({ survey: SURVEY });
         await settle();
@@ -232,8 +250,14 @@ describe('SurveyOutletComponent', () => {
 
     it('should not emit not_found while a slow survey loads', async () => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.showSurvey).mockReturnValue(
-            new Promise((resolve) => setTimeout(() => resolve(SURVEY), 8000)),
+        vi.mocked(surveys.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    new Promise((resolve) =>
+                        setTimeout(() => resolve(SURVEY), 8000),
+                    ),
+                ['id', '...'],
+            ),
         );
         spectator = createComponent();
         const emitted = vi.fn();
@@ -247,7 +271,7 @@ describe('SurveyOutletComponent', () => {
     });
 
     it('should emit not_found when the survey does not exist', async () => {
-        vi.mocked(ts_client.showSurvey).mockRejectedValue({ status: 404 });
+        vi.mocked(surveys.show).mockRejectedValue({ status: 404 });
         spectator = createComponent();
         const emitted = vi.fn();
         spectator.component.not_found.subscribe(emitted);
@@ -257,7 +281,7 @@ describe('SurveyOutletComponent', () => {
     });
 
     it('should not emit not_found when the survey fails to load', async () => {
-        vi.mocked(ts_client.showSurvey).mockRejectedValue({ status: 500 });
+        vi.mocked(surveys.show).mockRejectedValue({ status: 500 });
         spectator = createComponent();
         const emitted = vi.fn();
         spectator.component.not_found.subscribe(emitted);

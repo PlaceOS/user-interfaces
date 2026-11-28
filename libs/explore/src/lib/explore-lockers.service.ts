@@ -128,10 +128,12 @@ export class ExploreLockersService extends AsyncHandler {
                     'AreaManagement',
                 );
                 if (!mod) return;
-                const binding = mod.variable(lvl.id);
+                const binding = mod.variable<{
+                    value?: Record<string, unknown>[];
+                }>(lvl.id);
                 this.subscription(
                     `lvl-in_use`,
-                    binding.bindThenSubscribe((data) =>
+                    binding.subscribe((data) =>
                         this._status.set(
                             data?.value?.filter(
                                 (_) => _.location === 'locker',

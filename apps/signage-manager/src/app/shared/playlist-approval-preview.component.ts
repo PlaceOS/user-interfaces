@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, input, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { SignageMedia, SignagePlaylistMedia } from '@placeos/ts-client';
+import { type PlaylistItem, type PlaylistRevision } from '@placeos/ts-client';
 import { playlistMediaThumbnailUrl } from '../signage-playlist.util';
 import { MediaThumbnailComponent } from './media-thumbnail.component';
 
@@ -139,11 +139,11 @@ import { MediaThumbnailComponent } from './media-thumbnail.component';
     ],
 })
 export class PlaylistApprovalPreviewComponent {
-    public readonly versions = input<SignagePlaylistMedia[]>([]);
-    public readonly media = input<SignageMedia[][]>([]);
-    public readonly preview = output<SignageMedia>();
+    public readonly versions = input<PlaylistRevision[]>([]);
+    public readonly media = input<PlaylistItem[][]>([]);
+    public readonly preview = output<PlaylistItem>();
 
-    public thumbnailUrl(item: SignageMedia) {
+    public thumbnailUrl(item: PlaylistItem) {
         return playlistMediaThumbnailUrl(item);
     }
 }

@@ -17,7 +17,7 @@ import {
     queryEventHistory,
     queryEvents,
 } from '@placeos/events';
-import { PlaceSystem } from '@placeos/ts-client';
+import { type System } from '@placeos/ts-client';
 import { UserPipe } from '@placeos/users';
 import { getUnixTime, startOfDay, subDays, subMonths } from 'date-fns';
 
@@ -359,10 +359,10 @@ type HistoryPeriod = 'week' | 'month' | '3_months' | '12_months';
     ],
 })
 export class RoomBookingHistoryModalComponent {
-    private _data = inject<{ room: PlaceSystem }>(MAT_DIALOG_DATA);
+    private _data = inject<{ room: System }>(MAT_DIALOG_DATA);
     private _settings = inject(SettingsService);
 
-    public readonly room: PlaceSystem = this._data.room;
+    public readonly room: System = this._data.room;
     public readonly period = signal<HistoryPeriod>('week');
     public readonly loading = signal(false);
     public readonly expanded = signal<Record<string, boolean>>({});

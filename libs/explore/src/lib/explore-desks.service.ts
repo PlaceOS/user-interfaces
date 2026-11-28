@@ -11,7 +11,8 @@ import {
     WritableSignal,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addDays, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     deskFromAsset,
@@ -29,6 +30,7 @@ import {
     firstValueWhere,
     i18n,
     isWithinBookableHours,
+    jsonRecords,
     notifyError,
     notifySuccess,
     OrganisationService,
@@ -61,6 +63,12 @@ export interface DesksStats {
     occupied: number;
     total: number;
 }
+
+/** Desk booking from the `desk_bookings` status of AreaManagement */
+type BindingDeskBooking = Partial<Booking> & {
+    started_at?: number;
+    ends_at?: number;
+};
 
 @Injectable()
 export class ExploreDesksService extends AsyncHandler implements OnDestroy {
@@ -107,12 +115,14 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
                     )
                     .catch(() => [] as Desk[]);
             }
-            return showMetadata(lvl.id, 'desks')
+            return metadata
+                .show({ id: lvl.id, name: 'desks' })
+                .then(orThrow)
+                .then((data) => data['desks'])
                 .catch(() => ({ details: [] }))
                 .then((i) =>
-                    (i?.details instanceof Array ? i.details : []).map(
-                        (j: Record<string, unknown>) =>
-                            new Desk({ ...j, zone: lvl as any }),
+                    jsonRecords(i?.details).map(
+                        (j) => new Desk({ ...j, zone: lvl as any }),
                     ),
                 );
         },
@@ -207,20 +217,25 @@ export class ExploreDesksService extends AsyncHandler implements OnDestroy {
     private _bindToLevel(zone_id: string) {
         const mod = this._org.module('area_management', 'AreaManagement');
         if (!mod) return;
-        const binding = mod.variable(zone_id);
+        const area_binding = this._org.binding('area_management');
+        const system_id =
+            typeof area_binding === 'string' ? area_binding : area_binding?.id;
+        const binding = mod.variable<{ value: any[] }>(zone_id);
         if (binding) {
             this.subscription(
                 `lvl-in_use`,
-                binding.bindThenSubscribe((d) =>
-                    this.processBindingChange(d || {}, mod.system.id),
+                binding.subscribe((d) =>
+                    this.processBindingChange(d || { value: [] }, system_id),
                 ),
             );
         }
-        const bookings_binding = mod.variable(`${zone_id}:desk_bookings`);
+        const bookings_binding = mod.variable<
+            Record<string, BindingDeskBooking[]>
+        >(`${zone_id}:desk_bookings`);
         if (bookings_binding) {
             this.subscription(
                 `lvl-desk_bookings`,
-                bookings_binding.bindThenSubscribe((d) => {
+                bookings_binding.subscribe((d) => {
                     const value = { ...(d || {}) };
                     for (const id in value) {
                         const new_bookings = value[id].map(

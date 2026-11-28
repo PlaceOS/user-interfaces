@@ -18,11 +18,12 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    showSignageMedia,
-    SignageMedia,
-    SignagePlaylist,
-    SignagePlugin,
+    type Playlist,
+    playlist_media,
+    type PlaylistItem,
+    type SignagePlugin,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { SignageMediaService } from '../media/signage-media.service';
 import {
     playlistMediaThumbnailUrl,
@@ -33,7 +34,7 @@ import { animationLabel, mediaTypeLabel } from './media-labels.util';
 import { SignageSharedWithComponent } from './signage-shared-with.component';
 
 interface MediaPreviewModalData {
-    media: SignageMedia;
+    media: PlaylistItem;
     plugin?: SignagePlugin;
     group_id?: string;
 }
@@ -425,7 +426,7 @@ export class MediaPreviewModalComponent implements OnInit {
     public readonly media_loading = signal(this._hasLoadableMedia());
     public readonly media_error = signal(false);
 
-    public readonly containing_playlists = signal<SignagePlaylist[]>([]);
+    public readonly containing_playlists = signal<Playlist[]>([]);
     public readonly loading_playlists = signal(true);
     /** Whether the playlists that use the media failed to load */
     public readonly playlists_error = signal(false);
@@ -477,11 +478,10 @@ export class MediaPreviewModalComponent implements OnInit {
         this.loading_playlists.set(true);
         this.playlists_error.set(false);
         try {
-            const media = await showSignageMedia(
-                this.item.id,
-                this.group_id ? { group_id: this.group_id } : {},
-            );
-            this.containing_playlists.set(media.playlists || []);
+            const media = await playlist_media
+                .show({ id: this.item.id })
+                .then(orThrow);
+            this.containing_playlists.set([...(media.playlists || [])]);
         } catch {
             this.containing_playlists.set([]);
             this.playlists_error.set(true);

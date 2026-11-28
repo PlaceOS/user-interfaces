@@ -2,24 +2,23 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { i18n, setNotifyOutlet } from '@placeos/common';
-import { PlaceSystem, PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 import {
     DisplayEditModalComponent,
     DisplayEditModalData,
 } from '../../app/displays/display-edit-modal.component';
+import { signageSystem, signageZone } from '../../app/signage-models';
 
 describe('DisplayEditModalComponent', () => {
-    const roots = signal<PlaceZone[]>([]);
-    const zones = signal<PlaceZone[]>([]);
+    const roots = signal<Zone[]>([]);
+    const zones = signal<Zone[]>([]);
     const query_zones = vi.fn();
     const on_add = vi.fn();
     const on_edit = vi.fn();
     // A zone with the organisation as its only ancestor
-    const zone_ids = vi.fn(async (zone: PlaceZone) => ['org', zone.id]);
+    const zone_ids = vi.fn(async (zone: Zone) => ['org', zone.id]);
     const load_zone = vi.fn(async (id: string) =>
-        id === 'level-9'
-            ? new PlaceZone({ id, display_name: 'Level 9' })
-            : null,
+        id === 'level-9' ? signageZone({ id, display_name: 'Level 9' }) : null,
     );
     const dialog_ref = { close: vi.fn(), disableClose: false };
     const notify_open = vi.fn(() => ({
@@ -28,7 +27,7 @@ describe('DisplayEditModalComponent', () => {
     }));
 
     async function make(
-        display = new PlaceSystem({}),
+        display = signageSystem({}),
         default_zone_ids: string[] = [],
     ) {
         const data: DisplayEditModalData = {
@@ -63,13 +62,13 @@ describe('DisplayEditModalComponent', () => {
         query_zones.mockReturnValue(null);
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
-        roots.set([new PlaceZone({ id: 'org', name: 'Organisation' })]);
+        roots.set([signageZone({ id: 'org', name: 'Organisation' })]);
         zones.set([
-            new PlaceZone({ id: 'org', name: 'Organisation' }),
-            new PlaceZone({ id: 'building', name: 'Building' }),
+            signageZone({ id: 'org', name: 'Organisation' }),
+            signageZone({ id: 'building', name: 'Building' }),
         ]);
-        on_add.mockResolvedValue(new PlaceSystem({ id: 'display-new' }));
-        on_edit.mockResolvedValue(new PlaceSystem({ id: 'display-1' }));
+        on_add.mockResolvedValue(signageSystem({ id: 'display-new' }));
+        on_edit.mockResolvedValue(signageSystem({ id: 'display-1' }));
     });
 
     it('searches without a parent selection', async () => {
@@ -84,7 +83,7 @@ describe('DisplayEditModalComponent', () => {
     });
 
     it('creates a display with its default zones and orientation', async () => {
-        const component = await make(new PlaceSystem({}), ['org', 'building']);
+        const component = await make(signageSystem({}), ['org', 'building']);
         component.model.update((model) => ({
             ...model,
             name: 'SIGNAGE Foyer',
@@ -111,7 +110,7 @@ describe('DisplayEditModalComponent', () => {
 
     it('updates an existing display and preserves its zones', async () => {
         const component = await make(
-            new PlaceSystem({
+            signageSystem({
                 id: 'display-1',
                 name: 'SIGNAGE Old name',
                 display_name: 'Old name',
@@ -143,8 +142,8 @@ describe('DisplayEditModalComponent', () => {
     });
 
     it('adds and removes zones without duplicates', async () => {
-        const component = await make(new PlaceSystem({}), ['org']);
-        const building = new PlaceZone({ id: 'building', name: 'Building' });
+        const component = await make(signageSystem({}), ['org']);
+        const building = signageZone({ id: 'building', name: 'Building' });
 
         await component.addZone(building);
         await component.addZone(building);
@@ -156,7 +155,7 @@ describe('DisplayEditModalComponent', () => {
 
     it('shows the names of display zones outside the zone list', async () => {
         const component = await make(
-            new PlaceSystem({
+            signageSystem({
                 id: 'display-1',
                 zones: ['building', 'level-9'],
             }),
@@ -175,9 +174,9 @@ describe('DisplayEditModalComponent', () => {
 
     // Playlists of a building only reach displays that are in the building
     it('adds the ancestors of a chosen zone', async () => {
-        const component = await make(new PlaceSystem({}), []);
+        const component = await make(signageSystem({}), []);
 
-        await component.addZone(new PlaceZone({ id: 'level-1' }));
+        await component.addZone(signageZone({ id: 'level-1' }));
 
         expect(zone_ids).toHaveBeenCalledWith(
             expect.objectContaining({ id: 'level-1' }),

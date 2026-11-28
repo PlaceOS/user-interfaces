@@ -18,6 +18,7 @@ import { MockProvider } from 'ng-mocks';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { CateringOrderStateService } from '../../lib/catering-order-modal/catering-order-state.service';
 import { CateringSettings } from '../../lib/catering-state.service';
 
@@ -49,9 +50,17 @@ describe('CateringOrderStateService', () => {
         loadMenu.mockReset();
         settings_get.mockReset();
         spectator = createService();
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as never);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
     });
 
     /** Set private state that the service loads from the server */

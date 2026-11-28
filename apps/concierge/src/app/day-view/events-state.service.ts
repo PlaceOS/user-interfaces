@@ -19,6 +19,7 @@ import {
     SettingsService,
     Space,
     flatten,
+    getModule,
     i18n,
     nextValueFrom,
     notifyError,
@@ -33,7 +34,6 @@ import {
     queryEventListOrThrow,
     requestSpacesForZone,
 } from '@placeos/events';
-import { getModule } from '@placeos/ts-client';
 import {
     endOfDay,
     endOfMonth,
@@ -134,8 +134,8 @@ export class EventsStateService extends AsyncHandler {
     private _driver_events = signal<Record<string, CalendarEvent[]>>({});
     /** Pending room booking approval requests */
     private _pending = signal<CalendarEvent[]>([]);
-    /** Approval binding that `pending` listens to */
-    private _pending_binding: unknown = null;
+    /** Approval module that `pending` listens to, as `sys/mod_index` */
+    private _pending_module = '';
 
     /** Signal for active date */
     public readonly date = this._date.asReadonly();
@@ -397,8 +397,9 @@ export class EventsStateService extends AsyncHandler {
             const unsubscribes: Record<string, () => void> = {};
             for (const space of driver_spaces) {
                 const mod = getModule(space.id, 'Bookings');
-                const binding = mod.variable('bookings');
-                unsubscribes[space.id] = binding.bindThenSubscribe((value) => {
+                const binding =
+                    mod.variable<Partial<CalendarEvent>[]>('bookings');
+                unsubscribes[space.id] = binding.subscribe((value) => {
                     const events = (value || []).map(
                         (bkn) => new CalendarEvent(bkn),
                     );
@@ -432,28 +433,33 @@ export class EventsStateService extends AsyncHandler {
                 ? this._org.module?.('approvals', 'RoomBookingApproval')
                 : null;
             if (!mod) {
-                this._pending_binding = null;
+                this._pending_module = '';
                 this.unsub('pending');
-                this.unsub('pending-listen');
                 this._pending.set([]);
                 return;
             }
-            const binding =
-                mod.binding<Partial<CalendarEvent>[]>('approval_required');
             // Buildings can share one module, and so one binding
-            if (binding === this._pending_binding) return;
-            this._pending_binding = binding;
-            // Named subscriptions replace the binding of the last building
-            this.subscription('pending', binding.bind());
-            const listen = binding.listen();
-            const apply = (value) =>
-                this._pending.set(
-                    flatten<Partial<CalendarEvent>>(
-                        Object.values(value || {}),
-                    )?.map((i) => new CalendarEvent(i)) ?? [],
+            const key = `${mod.sys}/${mod.mod}_${mod.index}`;
+            if (key === this._pending_module) return;
+            this._pending_module = key;
+            // Do not show the requests of the last building until a value
+            this._pending.set([]);
+            const binding =
+                mod.variable<Record<string, Partial<CalendarEvent>[]>>(
+                    'approval_required',
                 );
-            apply(listen());
-            this.subscription('pending-listen', listen.subscribe(apply));
+            // Gives the value now when it is known, then each new value.
+            // Named subscriptions replace the binding of the last building.
+            this.subscription(
+                'pending',
+                binding.subscribe((value) =>
+                    this._pending.set(
+                        flatten<Partial<CalendarEvent>>(
+                            Object.values(value || {}),
+                        )?.map((i) => new CalendarEvent(i)) ?? [],
+                    ),
+                ),
+            );
         });
     }
 

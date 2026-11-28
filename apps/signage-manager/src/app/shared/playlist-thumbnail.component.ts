@@ -11,7 +11,7 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
 } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 
 @Component({
@@ -58,7 +58,7 @@ export class PlaylistThumbnailComponent implements AfterViewInit, OnDestroy {
     private readonly _playlist_service = inject(SignagePlaylistService);
     private _observer?: IntersectionObserver;
 
-    public readonly playlist = input.required<SignagePlaylist>();
+    public readonly playlist = input.required<Playlist>();
     public readonly in_view = signal(false);
     public readonly playlist_thumbnail_media =
         this._playlist_service.playlist_thumbnail_media;

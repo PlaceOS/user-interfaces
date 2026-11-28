@@ -28,7 +28,8 @@ import {
     notifyError,
     randomString,
 } from '@placeos/common';
-import { queryZones } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { endOfDay, set, startOfDay } from 'date-fns';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
@@ -456,7 +457,10 @@ export class BookingRulesFormComponent implements OnChanges {
     ).pipe(
         filter((_) => !!_),
         switchMap((bld) =>
-            queryZones({ parent_id: bld.id }).catch(() => ({ data: [] })),
+            zones
+                .query({ parent_id: [bld.id] })
+                .then(orThrowPage)
+                .catch(() => ({ data: [] })),
         ),
         map((res) => res.data),
         shareReplay(1),

@@ -6,11 +6,13 @@ import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { Survey, surveys } from '@placeos/ts-client/staff';
 import { NewSurveyService } from '../../app/surveys/new-survey.service';
 import { SurveyBuilderComponent } from '../../app/surveys/survey-builder.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('SurveyBuilderComponent', () => {
     let spectator: Spectator<SurveyBuilderComponent>;
@@ -56,8 +58,12 @@ describe('SurveyBuilderComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        vi.mocked(ts_client.addSurvey).mockResolvedValue({} as never);
-        vi.mocked(ts_client.updateSurvey).mockResolvedValue({} as never);
+        vi.mocked(surveys.create).mockResolvedValue(
+            mockReply(mockData(Survey, {})),
+        );
+        vi.mocked(surveys.update).mockResolvedValue(
+            mockReply(mockData(Survey, {})),
+        );
         service_survey.set(null);
         filtered_questions.set([]);
         questions.set([]);
@@ -184,8 +190,8 @@ describe('SurveyBuilderComponent', () => {
         spectator.component.model.update((m) => ({ ...m, title: '' }));
         await spectator.component.saveSurvey();
 
-        expect(ts_client.addSurvey).not.toHaveBeenCalled();
-        expect(ts_client.updateSurvey).not.toHaveBeenCalled();
+        expect(surveys.create).not.toHaveBeenCalled();
+        expect(surveys.update).not.toHaveBeenCalled();
     });
 
     it('should add and notify when saving a valid survey without an id', async () => {
@@ -195,8 +201,8 @@ describe('SurveyBuilderComponent', () => {
         }));
         await spectator.component.saveSurvey();
 
-        expect(ts_client.addSurvey).toHaveBeenCalled();
-        expect(ts_client.updateSurvey).not.toHaveBeenCalled();
+        expect(surveys.create).toHaveBeenCalled();
+        expect(surveys.update).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             'OK',
@@ -216,7 +222,7 @@ describe('SurveyBuilderComponent', () => {
         await spectator.fixture.whenStable();
 
         expect(save_survey).toHaveBeenCalled();
-        expect(ts_client.addSurvey).toHaveBeenCalled();
+        expect(surveys.create).toHaveBeenCalled();
     });
 
     it('should clear the active survey when opened without an id', () => {
@@ -228,19 +234,19 @@ describe('SurveyBuilderComponent', () => {
     });
 
     it('should update a new survey on the second save', async () => {
-        vi.mocked(ts_client.addSurvey).mockResolvedValue({
-            id: 's-1',
-        } as never);
+        vi.mocked(surveys.create).mockResolvedValue(
+            mockReply(mockData(Survey, { id: 31 })),
+        );
         spectator.component.model.update((m) => ({ ...m, title: 'My Survey' }));
 
         await spectator.component.saveSurvey();
         await spectator.component.saveSurvey();
 
-        expect(ts_client.addSurvey).toHaveBeenCalledTimes(1);
-        expect(ts_client.updateSurvey).toHaveBeenCalledWith(
-            's-1',
-            expect.objectContaining({ id: 's-1' }),
-        );
+        expect(surveys.create).toHaveBeenCalledTimes(1);
+        expect(surveys.update).toHaveBeenCalledWith({
+            id: 31,
+            body: expect.objectContaining({ id: 31 }),
+        });
     });
 
     it('should send new surveys without an ID and with a trigger', async () => {
@@ -252,9 +258,10 @@ describe('SurveyBuilderComponent', () => {
 
         await spectator.component.saveSurvey();
 
-        const body = vi.mocked(ts_client.addSurvey).mock.calls[0][0];
+        const { body } = vi.mocked(surveys.create).mock.calls[0][0];
         expect('id' in body).toBe(false);
-        expect(body.trigger).toBe('NONE');
+        // The API takes the trigger in lower case
+        expect(body.trigger).toBe('none');
     });
 
     it('should update the survey when the model already has an id', async () => {
@@ -265,10 +272,10 @@ describe('SurveyBuilderComponent', () => {
         }));
         await spectator.component.saveSurvey();
 
-        expect(ts_client.updateSurvey).toHaveBeenCalledWith(
-            '12',
-            expect.objectContaining({ id: 12 }),
-        );
-        expect(ts_client.addSurvey).not.toHaveBeenCalled();
+        expect(surveys.update).toHaveBeenCalledWith({
+            id: 12,
+            body: expect.objectContaining({ id: 12 }),
+        });
+        expect(surveys.create).not.toHaveBeenCalled();
     });
 });

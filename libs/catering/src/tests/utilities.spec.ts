@@ -4,6 +4,7 @@ import { AttachedResourceRuleset } from '@placeos/components';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import {
     cateringItemAvailable,
     getCateringRulesForZone,
@@ -25,16 +26,24 @@ describe('catering utilities', () => {
     // Caching and error handling are tested with zoneRulesetLoader in components
     it('should load rules from the catering config of the zone', async () => {
         const details = [{ name: '*', rules: [] }];
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details,
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details,
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await expect(getCateringRulesForZone('zone-a')).resolves.toEqual(
             details,
         );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-a',
-            'catering_config',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-a',
+            name: 'catering_config',
+        });
     });
 
     describe('cateringItemAvailable', () => {

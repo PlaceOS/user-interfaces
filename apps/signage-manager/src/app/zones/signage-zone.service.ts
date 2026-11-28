@@ -16,27 +16,26 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import {
-    addZone as createZone,
-    removeZone as deleteZone,
-    PlaceZone,
-    type QueryResponse,
-    queryZones,
-    showZone,
-    SignagePlaylist,
-    updateZone,
+    type Playlist,
+    type Zone,
+    type ZoneInput,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import { displayZoneIds, type ZoneNode } from '../displays/display-zones.util';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import { type QueryResponse } from '../shared/paged-list';
 import { PlaylistAssignments } from '../shared/playlist-assignments';
 import { SignageContextService } from '../signage-context.service';
+import { signageZone } from '../signage-models';
 import { dialogClosed, mergeItems } from '../signage-service.util';
 import type { ZoneEditFormModel } from './zone-edit-modal.component';
 
 /** One load of a zone list, with the number of zones the server has */
 interface ZoneList {
-    zones: PlaceZone[];
+    zones: Zone[];
     total: number;
 }
 
@@ -55,29 +54,31 @@ export class SignageZoneService {
     private readonly _context = inject(SignageContextService);
     private readonly _playlist_service = inject(SignagePlaylistService);
 
-    private readonly _zone_overrides = signal<Record<string, PlaceZone>>({});
+    private readonly _zone_overrides = signal<Record<string, Zone>>({});
 
     /** Search reachable zones, or the direct children of a selected parent. */
     public querySelectableZones(
         search: string,
         parent_id = '',
         group_id = this._context.api_group_id_debounced.value(),
-    ): QueryResponse<PlaceZone> | null {
+    ): QueryResponse<Zone> | null {
         if (!this._context.canQueryLists() || !search.trim()) {
             return null;
         }
         if (parent_id) return this._queryChildZones(parent_id, search.trim());
-        return queryZones(
-            this._context.groupQueryParams(
-                {
-                    q: search.trim(),
-                    limit: 2500,
-                    include_children_count: true,
-                    ...(group_id ? { descendants: true } : {}),
-                },
-                group_id,
-            ),
-        );
+        return zones_v7
+            .query(
+                this._context.groupQueryParams(
+                    {
+                        q: search.trim(),
+                        limit: 2500,
+                        include_children_count: true,
+                        ...(group_id ? { descendants: true } : {}),
+                    },
+                    group_id,
+                ),
+            )
+            .then(orThrowPage);
     }
 
     public async zoneChildren(parent_id: string) {
@@ -86,12 +87,14 @@ export class SignageZoneService {
     }
 
     private _queryChildZones(parent_id: string, q?: string) {
-        return queryZones({
-            ...(q ? { q } : {}),
-            parent_id,
-            limit: 2500,
-            include_children_count: true,
-        });
+        return zones_v7
+            .query({
+                ...(q ? { q } : {}),
+                parent_id: [parent_id],
+                limit: 2500,
+                include_children_count: true,
+            })
+            .then(orThrowPage);
     }
 
     /**
@@ -100,7 +103,7 @@ export class SignageZoneService {
      * query puts the resource in its error state.
      */
     private _zoneResource(
-        load: (group_id: string) => QueryResponse<PlaceZone> | null,
+        load: (group_id: string) => QueryResponse<Zone> | null,
     ) {
         return resource({
             params: () => ({
@@ -124,12 +127,14 @@ export class SignageZoneService {
     }
 
     private readonly _zone_list = this._zoneResource((group_id) =>
-        queryZones(
-            this._context.groupQueryParams(
-                { limit: 250, tags: 'signage' },
-                group_id,
-            ),
-        ),
+        zones_v7
+            .query(
+                this._context.groupQueryParams(
+                    { limit: 250, tags: ['signage'] },
+                    group_id,
+                ),
+            )
+            .then(orThrowPage),
     );
     public readonly zones = computed(() =>
         mergeItems(loadedZones(this._zone_list), this._zone_overrides()),
@@ -143,12 +148,14 @@ export class SignageZoneService {
     );
 
     private readonly _all_zone_list = this._zoneResource((group_id) =>
-        queryZones(
-            this._context.groupQueryParams(
-                { limit: 500, include_children_count: true },
-                group_id,
-            ),
-        ),
+        zones_v7
+            .query(
+                this._context.groupQueryParams(
+                    { limit: 500, include_children_count: true },
+                    group_id,
+                ),
+            )
+            .then(orThrowPage),
     );
     public readonly all_zones = computed(() =>
         mergeItems(loadedZones(this._all_zone_list), this._zone_overrides()),
@@ -159,11 +166,13 @@ export class SignageZoneService {
     private readonly _org_root_list = this._zoneResource((group_id) =>
         group_id
             ? null
-            : queryZones({
-                  limit: 500,
-                  include_children_count: true,
-                  parent_id: 'root',
-              }),
+            : zones_v7
+                  .query({
+                      limit: 500,
+                      include_children_count: true,
+                      parent_id: ['root'],
+                  })
+                  .then(orThrowPage),
     );
     public readonly root_zones = computed(() => {
         if (this._context.api_group_id_debounced.value()) {
@@ -231,18 +240,21 @@ export class SignageZoneService {
             this._org.organisation,
             this._org.region,
             this._org.building,
-        ].filter((zone): zone is PlaceZone => !!zone?.id);
+        ].filter((zone): zone is Zone => !!zone?.id);
         return displayZoneIds(zones, known_zones, async (zone_id) =>
-            showZone(zone_id).catch(() => null),
+            zones_v7
+                .show({ id: zone_id })
+                .then(orThrow)
+                .catch(() => null),
         );
     }
 
     // Cleared when the user switches group
-    public readonly selected_zone = linkedSignal<number, PlaceZone | null>({
+    public readonly selected_zone = linkedSignal<number, Zone | null>({
         source: this._context.group_switch,
         computation: () => null,
     });
-    private readonly _assignments = new PlaylistAssignments<PlaceZone>({
+    private readonly _assignments = new PlaylistAssignments<Zone>({
         context: this._context,
         playlist_service: this._playlist_service,
         dialog: this._dialog,
@@ -252,7 +264,12 @@ export class SignageZoneService {
         already_assigned_key: 'SIGNAGE_MANAGER.SVC_PLAYLIST_IN_ZONE',
         add_error_key: 'SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR',
         save_playlists: (zone, playlists) =>
-            updateZone(zone.id, { playlists, version: zone.version }, 'patch'),
+            zones_v7
+                .update({
+                    id: zone.id,
+                    body: { playlists },
+                })
+                .then(orThrow),
     });
     // Cleared when the selected zone changes, as the search is within it
     public readonly zone_search_term = linkedSignal({
@@ -260,9 +277,9 @@ export class SignageZoneService {
         computation: () => '',
     });
     public readonly zone_tree_expanded = signal<Record<string, boolean>>({});
-    public readonly zone_tree_children_cache = signal<
-        Record<string, PlaceZone[]>
-    >({});
+    public readonly zone_tree_children_cache = signal<Record<string, Zone[]>>(
+        {},
+    );
     private readonly _zone_search_debounced = debounced(
         this.zone_search_term,
         400,
@@ -302,7 +319,7 @@ export class SignageZoneService {
         );
     }
 
-    public async addPlaylistToZone(zone: PlaceZone) {
+    public async addPlaylistToZone(zone: Zone) {
         if (!this._assignments.canAssign()) return;
         const playlist_id = await this._assignments.pickPlaylist();
         if (!playlist_id) return;
@@ -314,7 +331,7 @@ export class SignageZoneService {
         if (updated) this.selected_zone.set(updated);
     }
 
-    public async removePlaylistFromZone(zone: PlaceZone, playlist_id: string) {
+    public async removePlaylistFromZone(zone: Zone, playlist_id: string) {
         const updated = await this._assignments.remove(
             zone,
             playlist_id,
@@ -323,7 +340,7 @@ export class SignageZoneService {
         if (updated) this.selected_zone.set(updated);
     }
 
-    public async addZoneToPlaylist(playlist: SignagePlaylist) {
+    public async addZoneToPlaylist(playlist: Playlist) {
         if (!this._assignments.canAssign()) return;
         const { ZoneSelectModalComponent } =
             await import('../shared/zone-select-modal.component');
@@ -336,7 +353,10 @@ export class SignageZoneService {
         // list never loaded
         const zone =
             this.zones().find((z) => z.id === zone_id) ||
-            (await showZone(zone_id).catch(() => null));
+            (await zones_v7
+                .show({ id: zone_id })
+                .then(orThrow)
+                .catch(() => null));
         if (!zone) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ASSIGNMENT_ERROR'));
             return;
@@ -349,10 +369,7 @@ export class SignageZoneService {
         this._assignments.updateSelection(updated);
     }
 
-    public async removeZoneFromPlaylist(
-        playlist: SignagePlaylist,
-        zone: PlaceZone,
-    ) {
+    public async removeZoneFromPlaylist(playlist: Playlist, zone: Zone) {
         const updated = await this._assignments.remove(
             zone,
             playlist.id,
@@ -364,7 +381,7 @@ export class SignageZoneService {
     public async addZone() {
         if (!this._canManageZones()) return null;
         const result = await this._openZoneEditModal({
-            zone: new PlaceZone({}),
+            zone: signageZone(),
             default_parent_id:
                 this.selected_zone()?.id || this.root_zones()[0]?.id || '',
         });
@@ -372,7 +389,7 @@ export class SignageZoneService {
         return result;
     }
 
-    public async editZone(zone: PlaceZone) {
+    public async editZone(zone: Zone) {
         if (!zone.tags?.includes('signage')) return null;
         if (!this._canManageZones()) return null;
         return this._openZoneEditModal({ zone });
@@ -386,7 +403,7 @@ export class SignageZoneService {
     }
 
     private async _openZoneEditModal(data: {
-        zone: PlaceZone;
+        zone: Zone;
         default_parent_id?: string;
     }) {
         const { ZoneEditModalComponent } =
@@ -395,15 +412,15 @@ export class SignageZoneService {
             data: {
                 ...data,
                 ...this.zoneTreeData(),
-                onSave: (zone: PlaceZone, form: ZoneEditFormModel) =>
+                onSave: (zone: Zone, form: ZoneEditFormModel) =>
                     this.saveZone(zone, form),
             },
             panelClass: 'mobile-fullscreen',
         });
-        return (await dialogClosed<PlaceZone>(ref)) || null;
+        return (await dialogClosed<Zone>(ref)) || null;
     }
 
-    public async saveZone(zone: PlaceZone, data: ZoneEditFormModel) {
+    public async saveZone(zone: Zone, data: ZoneEditFormModel) {
         if (
             !this._canManageZones() ||
             !data.parent_id ||
@@ -420,16 +437,19 @@ export class SignageZoneService {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_ZONE_PARENT_LOOP'));
             return null;
         }
-        const form_data: Partial<PlaceZone> = {
+        const form_data: ZoneInput = {
             name: data.name,
             display_name: data.display_name,
             description: data.description,
             parent_id: data.parent_id,
             tags: [...new Set([...(zone.tags || []), 'signage'])],
-            ...(zone.id ? { version: zone.version } : {}),
         };
         const result = await (
-            zone.id ? updateZone(zone.id, form_data) : createZone(form_data)
+            zone.id
+                ? zones_v7
+                      .update({ id: zone.id, body: form_data })
+                      .then(orThrow)
+                : zones_v7.create({ body: form_data }).then(orThrow)
         ).catch(() => null);
         if (!result) {
             notifyError(i18n('SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_SAVE_ERROR'));
@@ -455,13 +475,16 @@ export class SignageZoneService {
             if (current_id === ancestor_id) return true;
             const zone =
                 known.get(current_id) ||
-                (await showZone(current_id).catch(() => null));
+                (await zones_v7
+                    .show({ id: current_id })
+                    .then(orThrow)
+                    .catch(() => null));
             current_id = zone?.parent_id || '';
         }
         return false;
     }
 
-    public async removeZone(zone: PlaceZone) {
+    public async removeZone(zone: Zone) {
         if (!zone?.id || !zone.tags?.includes('signage')) return false;
         if (!this._canManageZones()) return false;
         const removed = await confirmThenRun(
@@ -476,7 +499,7 @@ export class SignageZoneService {
             {
                 loading_key: 'SIGNAGE_MANAGER.SVC_REMOVING',
                 error_key: 'SIGNAGE_MANAGER.SVC_SIGNAGE_ZONE_REMOVE_ERROR',
-                action: () => deleteZone(zone.id),
+                action: () => zones_v7.destroy({ id: zone.id }).then(orThrow),
             },
         );
         if (!removed) return false;

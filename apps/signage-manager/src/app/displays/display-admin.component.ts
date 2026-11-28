@@ -240,7 +240,7 @@ export class DisplayAdminComponent extends AsyncHandler {
                 'setup_devices',
                 setup
                     .variable<unknown>('devices')
-                    .bindThenSubscribe((value) =>
+                    .subscribe((value) =>
                         this._setup_devices.set(
                             value && typeof value === 'object'
                                 ? Object.values(

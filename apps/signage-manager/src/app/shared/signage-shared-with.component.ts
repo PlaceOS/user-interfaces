@@ -100,8 +100,7 @@ export class SignageSharedWithComponent {
             group_id: this.group_id(),
             shared_groups_change: signage_shared_groups_change(),
         }),
-        loader: ({ params }) =>
-            listSignageSharedGroups(params.type, params.id, params.group_id),
+        loader: ({ params }) => listSignageSharedGroups(params.type, params.id),
         defaultValue: [] as SignageSharedGroup[],
     });
 
@@ -143,7 +142,6 @@ export class SignageSharedWithComponent {
             const current = await listSignageSharedGroups(
                 this.type(),
                 this.item_id(),
-                this.group_id(),
             );
             if (
                 current.length < 2 ||

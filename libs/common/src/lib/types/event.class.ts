@@ -1,4 +1,4 @@
-import { PlaceSystem } from '@placeos/ts-client';
+import { type System } from '@placeos/ts-client';
 import {
     add,
     addDays,
@@ -336,9 +336,9 @@ export class CalendarEvent {
     /** Extra data associated with the event */
     public readonly extension_data: Partial<EventExtensionData>;
     /** System associated with the event */
-    public readonly system: PlaceSystem;
+    public readonly system: System;
     /** Previous system associated with the event */
-    public readonly old_system: PlaceSystem;
+    public readonly old_system: System;
     /** Host user details of the event */
     public readonly organiser: User;
     /** Type of event */

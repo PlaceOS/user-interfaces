@@ -16,12 +16,12 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceCurrentGroup } from '@placeos/ts-client';
+import { GroupsCurrentGroup } from '@placeos/ts-client';
 import { groupHierarchy } from '../signage-context.service';
 
 export interface GroupSelectModalData {
     title: string;
-    groups: PlaceCurrentGroup[];
+    groups: GroupsCurrentGroup[];
     selected_group_id?: string;
     show_all_groups?: boolean;
     child_content?: {
@@ -256,7 +256,7 @@ export class GroupSelectModalComponent {
 
 /** Group in the modal list, with the names of its ancestors, root first */
 export interface GroupTreeRow {
-    item: PlaceCurrentGroup;
+    item: GroupsCurrentGroup;
     path: string[];
 }
 
@@ -269,9 +269,9 @@ const MAX_INDENT = 6;
  * parent cycle cannot loop forever. The first group of a cycle shows as a
  * root.
  */
-export function groupTreeRows(items: PlaceCurrentGroup[]) {
+export function groupTreeRows(items: GroupsCurrentGroup[]) {
     const ids = new Set(items.map(({ group }) => group.id));
-    const children = new Map<string, PlaceCurrentGroup[]>();
+    const children = new Map<string, GroupsCurrentGroup[]>();
     for (const item of items) {
         const parent_id = item.group.parent_id;
         if (!parent_id || !ids.has(parent_id)) continue;
@@ -281,7 +281,7 @@ export function groupTreeRows(items: PlaceCurrentGroup[]) {
     }
     const rows: GroupTreeRow[] = [];
     const seen = new Set<string>();
-    const visit = (item: PlaceCurrentGroup, path: string[]) => {
+    const visit = (item: GroupsCurrentGroup, path: string[]) => {
         if (seen.has(item.group.id)) return;
         seen.add(item.group.id);
         rows.push({ item, path });

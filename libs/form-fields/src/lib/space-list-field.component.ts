@@ -19,9 +19,9 @@ import {
     SETTING_KEYS,
     SettingsService,
     Space,
-    provideValueAccessor,
     toggleListItem,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

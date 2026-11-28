@@ -68,7 +68,15 @@ describe('TemplateLayoutListComponent', () => {
     it('appends and selects a new layout item', async () => {
         const component = await make();
         component.addLayout('bottom');
-        expect(draft()).toEqual([{ position: 'bottom', plugin_params: {} }]);
+        expect(draft()).toEqual([
+            {
+                position: 'bottom',
+                plugin_id: null,
+                x_pos: null,
+                y_pos: null,
+                plugin_params: {},
+            },
+        ]);
         expect(selected_index()).toBe(0);
         expect(component.view_tab()).toBe('items');
     });

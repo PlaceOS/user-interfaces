@@ -67,7 +67,7 @@ describe('RoomBookingsApprovalsComponent', () => {
         expect(execute).toHaveBeenCalledWith(
             'accept_recurring_event',
             ['room@example.com', 'series-1'],
-            30 * 1000,
+            { timeout_ms: 30 * 1000 },
         );
         expect(execute).not.toHaveBeenCalledWith('find_bookings_for_approval');
     });
@@ -142,7 +142,7 @@ describe('RoomBookingsApprovalsComponent', () => {
         expect(execute).toHaveBeenCalledWith(
             'accept_event',
             ['room@example.com', 'event-1'],
-            30 * 1000,
+            { timeout_ms: 30 * 1000 },
         );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('approved');
@@ -210,7 +210,7 @@ describe('RoomBookingsApprovalsComponent', () => {
         expect(execute).toHaveBeenCalledWith(
             'decline_event',
             ['room@example.com', 'event-1'],
-            30 * 1000,
+            { timeout_ms: 30 * 1000 },
         );
         expect(replace).toHaveBeenCalledTimes(1);
         expect(replace.mock.calls[0][0].status).toBe('declined');

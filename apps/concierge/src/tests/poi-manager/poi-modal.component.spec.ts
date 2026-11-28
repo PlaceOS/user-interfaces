@@ -12,7 +12,9 @@ import {
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { PointOfInterest } from '../../app/poi-manager/poi-management.service';
 import { POIModalComponent } from '../../app/poi-manager/poi-modal.component';
 
@@ -59,17 +61,28 @@ describe('POIModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         // Reset (not just clear) so any leftover *Once implementations queued by
         // an earlier spec file in the shared ts-client spy don't leak in.
-        (ts_client_mod.post as any).mockReset();
-        (ts_client_mod.showMetadata as any).mockReset();
-        (ts_client_mod.updateMetadata as any).mockReset();
-        // createShortURL() -> post() at the ts-client boundary
-        (ts_client_mod.post as any).mockResolvedValue({ id: 'short-1' });
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {},
-        });
-        (ts_client_mod.updateMetadata as any).mockResolvedValue({
-            id: 'meta-1',
-        });
+        vi.mocked(ts_client_mod.short_url.create).mockReset();
+        (ts_client_mod.metadata.show as any).mockReset();
+        (ts_client_mod.metadata.update as any).mockReset();
+        // createShortURL() -> short_url.create()
+        vi.mocked(ts_client_mod.short_url.create).mockResolvedValue(
+            mockReply(mockData(ts_client_mod.ShortUrl, { id: 'short-1' })),
+        );
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {},
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client_mod.metadata.update as any).mockResolvedValue(
+            mockReply({
+                id: 'meta-1',
+            }),
+        );
     });
 
     afterEach(() => setNotifyOutlet(null, true));
@@ -111,7 +124,7 @@ describe('POIModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should create a short URL and persist metadata for a new point', async () => {
@@ -131,14 +144,13 @@ describe('POIModalComponent', () => {
         await spectator.component.save();
 
         // createShortURL() posts to the short_url endpoint
-        expect(ts_client_mod.post).toHaveBeenCalledWith(
-            '/api/engine/v2/short_url',
-            expect.objectContaining({ name: 'Foyer' }),
-        );
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'org-1',
-            expect.objectContaining({ name: 'points-of-interest' }),
-        );
+        expect(ts_client_mod.short_url.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({ name: 'Foyer' }),
+        });
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'org-1',
+            body: expect.objectContaining({ name: 'points-of-interest' }),
+        });
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'meta-1' });
     });
 });

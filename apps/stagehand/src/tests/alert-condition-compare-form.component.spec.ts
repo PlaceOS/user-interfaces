@@ -1,11 +1,15 @@
 import { signal } from '@angular/core';
 import { ComponentFixtureAutoDetect } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { TriggerConditionOperator } from '@placeos/ts-client';
+import { modules as modules_v7, systems } from '@placeos/ts-client';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-import { queryModules, systemModuleState } from '@placeos/ts-client';
+import {
+    mockPage,
+    mockReply,
+    TriggerConditionOperator,
+} from '@placeos/ts-client/compat';
 
 import { setNotifyOutlet } from '@placeos/common';
 import {
@@ -155,26 +159,24 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
 
         it('maps returned state keys into selectable status variables', async () => {
-            vi.mocked(systemModuleState).mockResolvedValue({
-                power: true,
-                volume: 50,
-            });
+            vi.mocked(systems.state).mockResolvedValue(
+                mockReply({ power: 'true', volume: '50' }),
+            );
 
             spectator.component.loadSystemStatusVariables('Display_1', 'left');
             await flush();
 
-            expect(systemModuleState).toHaveBeenCalledWith(
-                'sys-1',
-                'Display',
-                1,
-            );
+            expect(systems.state).toHaveBeenCalledWith({
+                sys_id: 'sys-1',
+                module_slug: 'Display_1',
+            });
             expect(
                 spectator.component.left_status_variables().map((_) => _.id),
             ).toEqual(['power', 'volume']);
         });
 
         it('falls back to a connected variable when the module has no state', async () => {
-            vi.mocked(systemModuleState).mockResolvedValue({});
+            vi.mocked(systems.state).mockResolvedValue(mockReply({}));
 
             spectator.component.loadSystemStatusVariables('Display_1', 'left');
             await flush();
@@ -186,11 +188,11 @@ describe('AlertConditionComparisonFormComponent', () => {
 
         it('ignores an empty module name without querying state', () => {
             spectator.component.loadSystemStatusVariables('', 'left');
-            expect(systemModuleState).not.toHaveBeenCalled();
+            expect(systems.state).not.toHaveBeenCalled();
         });
 
         it('notifies the user when state loading fails', async () => {
-            vi.mocked(systemModuleState).mockRejectedValue(new Error('nope'));
+            vi.mocked(systems.state).mockRejectedValue(new Error('nope'));
 
             spectator.component.loadSystemStatusVariables('Display_1', 'left');
             await flush();
@@ -200,10 +202,14 @@ describe('AlertConditionComparisonFormComponent', () => {
     });
 
     it('keeps the module and status of a saved condition the system no longer offers', async () => {
-        vi.mocked(queryModules).mockResolvedValue({
-            data: [{ id: 'mod-1', name: 'Display' }],
-        } as any);
-        vi.mocked(systemModuleState).mockResolvedValue({ power: true });
+        vi.mocked(modules_v7.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'mod-1', name: 'Display' }],
+            } as any),
+        );
+        vi.mocked(systems.state).mockResolvedValue(
+            mockReply({ power: 'true' }),
+        );
         const form = makeCompareForm({
             left: { mod: 'Camera_Main_2', status: 'zoom', keys: [] },
             right: { mod: 'Display_1', status: 'power', keys: [] },
@@ -224,12 +230,14 @@ describe('AlertConditionComparisonFormComponent', () => {
             'Display_1',
         ]);
         // the index is the last part of the name, the class the rest
-        expect(systemModuleState).toHaveBeenCalledWith(
-            'sys-1',
-            'Camera_Main',
-            2,
-        );
-        expect(systemModuleState).toHaveBeenCalledWith('sys-1', 'Display', 1);
+        expect(systems.state).toHaveBeenCalledWith({
+            sys_id: 'sys-1',
+            module_slug: 'Camera_Main_2',
+        });
+        expect(systems.state).toHaveBeenCalledWith({
+            sys_id: 'sys-1',
+            module_slug: 'Display_1',
+        });
         expect(
             spectator.component.left_status_variables().map((_) => _.id),
         ).toEqual(['zoom', 'power']);
@@ -241,13 +249,15 @@ describe('AlertConditionComparisonFormComponent', () => {
     });
 
     it('builds the selectable module list from the system modules on change', async () => {
-        vi.mocked(queryModules).mockResolvedValue({
-            data: [
-                { id: 'mod-1', name: 'Display' },
-                { id: 'mod-2', name: 'Display' },
-                { id: 'mod-3', custom_name: 'Bookings' },
-            ],
-        } as any);
+        vi.mocked(modules_v7.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'mod-1', name: 'Display' },
+                    { id: 'mod-2', name: 'Display' },
+                    { id: 'mod-3', custom_name: 'Bookings' },
+                ],
+            } as any),
+        );
         const form = makeCompareForm({ left: '', right: '' });
         spectator.fixture.componentRef.setInput('form', form);
         spectator.fixture.componentRef.setInput('system', {
@@ -260,7 +270,7 @@ describe('AlertConditionComparisonFormComponent', () => {
         });
         await flush();
 
-        expect(queryModules).toHaveBeenCalledWith({
+        expect(modules_v7.query).toHaveBeenCalledWith({
             control_system_id: 'sys-1',
         });
         expect(spectator.component.module_list().map((_) => _.name)).toEqual([

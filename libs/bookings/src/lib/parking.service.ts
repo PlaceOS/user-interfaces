@@ -12,7 +12,7 @@ import {
     SettingsService,
     userSignal,
 } from '@placeos/common';
-import { PlaceAsset } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     queryParkingSpacesForZones,
@@ -21,7 +21,7 @@ import {
 import { assignedDeskBuilding } from './booking-resource.loaders';
 import { queryBookings } from './bookings.fn';
 
-export type ParkingSpace = PlaceAsset;
+export type ParkingSpace = Asset;
 export type { ParkingUser } from 'libs/assets/src/lib/parking-assets.fn';
 
 @Injectable({

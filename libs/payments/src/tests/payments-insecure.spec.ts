@@ -9,7 +9,8 @@ import { MockProvider } from 'ng-mocks';
 
 import { Building, OrganisationService } from '@placeos/common';
 
-import { PAYMENT_CHECKOUT, PaymentsService } from '../lib/payments.service';
+import { PAYMENT_CHECKOUT } from '../lib/payment-checkout';
+import { PaymentsService } from '../lib/payments.service';
 
 describe('PaymentsService on an insecure page', () => {
     const execute = vi.fn();

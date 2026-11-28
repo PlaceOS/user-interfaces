@@ -18,7 +18,12 @@ import {
     Router,
     RouterOutlet,
 } from '@angular/router';
-import { PlaceOS_Service, setMocks, UploadsService } from '@placeos/common';
+import {
+    authority,
+    PlaceOS_Service,
+    setMocks,
+    UploadsService,
+} from '@placeos/common';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -27,7 +32,6 @@ import {
 } from '@placeos/components';
 import { SettingsDebugPanelLauncherComponent } from '@placeos/components/settings-debug';
 import { mocksInit } from '@placeos/mocks';
-import { authority } from '@placeos/ts-client';
 
 import { CommandPaletteService } from './shared/command-palette.service';
 import { blockMissedFileDrop } from './shared/file-drop.directive';
@@ -233,7 +237,8 @@ export class AppComponent implements OnInit {
         const { ImageGenService } =
             await import('./image-gen/image-gen.service');
         const image_gen = this._injector.get(ImageGenService);
-        await image_gen.load(authority()?.config?.org_zone);
+        const org_zone = authority()?.config?.['org_zone'];
+        await image_gen.load(typeof org_zone === 'string' ? org_zone : '');
         if (image_gen.enabled()) await image_gen.loadRecent();
     }
 }

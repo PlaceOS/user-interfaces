@@ -1,12 +1,16 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
 import {
+    API_PATH,
     AsyncHandler,
+    cleanObject,
     DEFAULT_PLAY_PERIOD_MINUTES,
+    getModule,
     hasPlayableScheduleMask,
     isPlayOnceSchedule,
     mediaAnimation,
     MINUTES,
     parsePlayAtLocal,
+    placeFetch,
     randomInt,
     scoped_log,
     SECONDS,
@@ -15,19 +19,14 @@ import {
     withTimeout,
 } from '@placeos/common';
 import {
-    apiEndpoint,
-    cleanObject,
-    getModule,
-    post,
-    querySignagePlugins,
-    responseHeaders,
-    showSignage,
-    SignageMedia,
-    SignagePlaylist,
-    SignagePlaylistSchedule,
-    SignagePlugin,
-    SignageTemplateMapping,
+    type PlaylistSchedule as ApiPlaylistSchedule,
+    type Playlist,
+    signage,
+    signage_plugins,
+    type SignagePlugin,
+    type SignageTemplateMapping,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import {
     getLastCronRunTimestampInRange,
     getNextCronRunTimestampInRange,
@@ -39,6 +38,7 @@ import {
     time,
     validateMedia,
 } from './media-helpers';
+import { type DisplayMedia, displayMedia, displayPlugin } from './signage-data';
 import { MediaPlayerItem } from './types';
 import { recordHeartbeat, watchdogState } from './watchdog';
 
@@ -75,10 +75,10 @@ interface SignageMetrics {
 type ScheduleKind = 'background' | 'takeover' | 'single-pass';
 
 /** A playlist schedule from the API, which can omit any field */
-type PlaylistSchedule = Partial<SignagePlaylistSchedule>;
+type PlaylistSchedule = Partial<ApiPlaylistSchedule>;
 
 interface ActivePlaylistSchedule {
-    playlist: SignagePlaylist;
+    playlist: Playlist;
     schedule: PlaylistSchedule;
     starts_at: number;
     /** End of the window in which this run counts as active */
@@ -200,17 +200,18 @@ function displayCacheKey(id: string) {
     return `${DISPLAY_KEY}.${id}`;
 }
 
-function displayRequestURL(
+/** Path of the display details, `GET /api/engine/v2/signage/{system_id}` */
+function displayRequestPath(
     id: string,
     query_params: Record<string, boolean | string>,
 ) {
     const query_string = Object.entries(query_params)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&');
-    return `${apiEndpoint()}/signage/${id}${query_string ? `?${query_string}` : ''}`;
+    return `${API_PATH}/signage/${encodeURIComponent(id)}${query_string ? `?${query_string}` : ''}`;
 }
 
-function playlistSchedules(playlist: SignagePlaylist): PlaylistSchedule[] {
+function playlistSchedules(playlist: Playlist): readonly PlaylistSchedule[] {
     return playlist.schedules || [];
 }
 
@@ -326,7 +327,7 @@ function isScheduleKind(schedule: PlaylistSchedule, kind?: ScheduleKind) {
 
 /** Schedules of a playlist active at `now`, limited to `kind` when given */
 function activePlaylistSchedules(
-    playlist: SignagePlaylist,
+    playlist: Playlist,
     now = time(),
     kind?: ScheduleKind,
 ) {
@@ -349,7 +350,7 @@ function activePlaylistSchedules(
 }
 
 function activePlaylistSchedule(
-    playlist: SignagePlaylist,
+    playlist: Playlist,
     now = time(),
     kind?: ScheduleKind,
 ) {
@@ -403,7 +404,7 @@ function nextScheduledPlaylistStart(
 }
 
 function playlistStartsWithin(
-    playlist: SignagePlaylist,
+    playlist: Playlist,
     now: number,
     horizon_seconds: number,
 ) {
@@ -413,14 +414,14 @@ function playlistStartsWithin(
 }
 
 /** Media of each display payload by id, built once per payload */
-const MEDIA_BY_ID = new WeakMap<SignageMedia[], Map<string, SignageMedia>>();
+const MEDIA_BY_ID = new WeakMap<DisplayMedia[], Map<string, DisplayMedia>>();
 
 /**
  * The media item with `id`. Playlists are rebuilt several times on every
  * schedule tick, so a scan of the whole list per item adds up on displays
  * with a lot of media.
  */
-function findMedia(media: SignageMedia[], id: string) {
+function findMedia(media: DisplayMedia[], id: string) {
     let by_id = MEDIA_BY_ID.get(media);
     if (!by_id) {
         by_id = new Map();
@@ -476,7 +477,7 @@ export class SignageService extends AsyncHandler {
     private _last_poll_success = 0;
     /** Wall-clock time of the last recovery download, keyed by media URL */
     private _media_recovery = new Map<string, number>();
-    private _playlists: SignagePlaylist[] = [];
+    private _playlists: Playlist[] = [];
     private _last_playlist: MediaPlayerItem[] = [];
     private _last_override_playlists: string[] = [];
     private _metrics = emptyMetrics();
@@ -729,9 +730,19 @@ export class SignageService extends AsyncHandler {
         if (this._last_modified) {
             headers['If-Modified-Since'] = this._last_modified;
         }
-        const request_options = {
-            headers,
-            cache: 'no-store' as const,
+        // The generated `signage.display` cannot send the validators, and its
+        // schema (`ControlSystem`) removes the playlist fields of the reply.
+        const request = async () => {
+            const response = await placeFetch(
+                displayRequestPath(id, query_params),
+                { headers, cache: 'no-store' },
+            );
+            if (response.status === 304) return null;
+            if (!response.ok) {
+                throw new Error(`Display request failed: ${response.status}`);
+            }
+            const body: unknown = await response.json();
+            return { body, headers: response.headers };
         };
 
         // A request that never settles would otherwise leave the poll waiting
@@ -740,22 +751,19 @@ export class SignageService extends AsyncHandler {
         let validators: DisplayValidators | null = null;
         try {
             const response = await withTimeout(
-                showSignage(id, query_params, request_options),
+                request(),
                 DISPLAY_FETCH_TIMEOUT_MS,
                 'Display request timed out',
             );
-            if (isDisplayPayload(response)) {
-                payload = response;
-                const response_headers = responseHeaders(
-                    displayRequestURL(id, query_params),
-                );
+            if (!response) return null;
+            if (isDisplayPayload(response.body)) {
+                payload = response.body;
                 validators = {
-                    etag: response_headers.etag || '',
-                    last_modified: response_headers['last-modified'] || '',
+                    etag: response.headers.get('etag') || '',
+                    last_modified: response.headers.get('last-modified') || '',
                 };
             }
         } catch (e) {
-            if (e instanceof Response && e.status === 304) return null;
             log.warn('Failed to fetch display details.', e);
         }
         if (!payload) payload = this._offlineDisplay(id);
@@ -787,24 +795,40 @@ export class SignageService extends AsyncHandler {
         }
     }
 
+    /**
+     * Binds the trigger variables of `display`. A binding that the new
+     * configuration still has is kept: a new binding has no value, so a held
+     * trigger would turn true again and replay its playlist.
+     */
     private _bindTriggers(display: any) {
-        const triggers = Object.keys(display.playlist_mappings || {}).filter(
-            (_) => _.startsWith('trig-'),
-        );
-        this.unsubWith('trigger_');
+        const names = Object.keys(display.playlist_mappings || {})
+            .filter((_) => _.startsWith('trig-'))
+            .map((id) => ({ id, name: `trigger_listen-${display.id}-${id}` }));
+        const wanted = new Set(names.map((_) => _.name));
+        for (const name of Object.keys(this._subscriptions)) {
+            if (name.startsWith('trigger_') && !wanted.has(name)) {
+                this.unsub(name);
+            }
+        }
         const mod = getModule(display.id, '_TRIGGER__1');
-        for (const id of triggers) {
+        for (const { id, name } of names) {
+            if (this.hasSubscription(name)) continue;
             const binding = mod.variable(id);
-            // Fire only when the value turns truthy. Subscribing emits the
-            // current value at once, and the bindings are rebuilt on every
-            // display change, so a held trigger would otherwise replay on
-            // each reload; a trigger resetting to false must not fire either.
-            let active = !!binding.value;
+            // Fire only when the value turns truthy. A trigger resetting to
+            // false must not fire. A new binding does not know the value
+            // yet, so its first value is the start state: a held trigger
+            // does not fire.
+            let known = binding.value() !== undefined;
+            let active = !!binding.value();
             this.subscription(
-                `trigger_listen-${id}`,
-                binding.bindThenSubscribe((value) => {
+                name,
+                binding.subscribe((value) => {
                     const was_active = active;
                     active = !!value;
+                    if (!known) {
+                        known = true;
+                        return;
+                    }
                     if (active && !was_active) this._handleTrigger(id);
                 }),
             );
@@ -1022,10 +1046,9 @@ export class SignageService extends AsyncHandler {
         this._metrics = emptyMetrics();
         const display_id = this._display();
         try {
-            await post(
-                `/api/engine/v2/signage/${encodeURIComponent(display_id)}/metrics`,
-                metrics,
-            );
+            await signage
+                .updateMetrics({ system_id: display_id, body: metrics })
+                .then(orThrow);
             log.debug('Posted metrics:', metrics);
         } catch (e) {
             log.warn('Failed to post metrics. Retrying later.', e);
@@ -1054,7 +1077,7 @@ export class SignageService extends AsyncHandler {
     }
 
     /** Whether a playlist currently belongs in normal playback */
-    private _isBackgroundPlaylist(playlist: SignagePlaylist, now = time()) {
+    private _isBackgroundPlaylist(playlist: Playlist, now = time()) {
         return (
             playlist.enabled &&
             (!playlistSchedules(playlist).length ||
@@ -1386,7 +1409,7 @@ export class SignageService extends AsyncHandler {
     private _getPlaylistMedia(
         display: any,
         playlists: string[],
-        filter_fn: (item: SignagePlaylist) => boolean = () => true,
+        filter_fn: (item: Playlist) => boolean = () => true,
         kind?: ScheduleKind,
     ): MediaPlayerItem[] {
         const plugins: SignagePlugin[] = display.plugins || [];
@@ -1416,9 +1439,8 @@ export class SignageService extends AsyncHandler {
             return {
                 ...source,
                 playlist_media:
-                    source.playlist_media?.map((_) => new SignageMedia(_)) ||
-                    [],
-                plugins: source.plugins?.map((_) => new SignagePlugin(_)) || [],
+                    source.playlist_media?.map((_) => displayMedia(_)) || [],
+                plugins: source.plugins?.map((_) => displayPlugin(_)) || [],
             };
         } catch (e) {
             log.error('Failed to parse display media.', e);
@@ -1433,8 +1455,8 @@ export class SignageService extends AsyncHandler {
     private _resolveDisplayPlugins(display: any) {
         const display_plugins = display?.plugins || [];
         const plugin_ids = display?.playlist_media
-            ?.filter((media: SignageMedia) => media.media_type === 'plugin')
-            .map((media: SignageMedia) => media.plugin_id)
+            ?.filter((media: DisplayMedia) => media.media_type === 'plugin')
+            .map((media: DisplayMedia) => media.plugin_id)
             .filter((id: string) => !!id);
         const unresolved_plugin = plugin_ids?.some(
             (id: string) =>
@@ -1443,12 +1465,15 @@ export class SignageService extends AsyncHandler {
                 ),
         );
         if (!unresolved_plugin) return Promise.resolve(display_plugins);
-        return querySignagePlugins({ limit: 500 })
+        return signage_plugins
+            .query({ limit: 500 })
+            .then(orThrowPage)
             .catch(() => ({ data: [] }))
             .then((result) => {
                 const plugins = new Map<string, SignagePlugin>();
                 for (const plugin of result.data || []) {
-                    if (plugin?.id) plugins.set(plugin.id, plugin);
+                    if (plugin?.id)
+                        plugins.set(plugin.id, displayPlugin(plugin));
                 }
                 for (const plugin of display_plugins) {
                     if (plugin?.id) plugins.set(plugin.id, plugin);
@@ -1459,14 +1484,14 @@ export class SignageService extends AsyncHandler {
 
     private _playlistConfig(display: any, id: string) {
         return display.playlist_config?.[id] as
-            | [SignagePlaylist, string[]]
+            | [Playlist, string[]]
             | undefined;
     }
 
     private _playlistMediaReferences(
         display: unknown,
         playlists: string[],
-        filter_fn: (item: SignagePlaylist) => boolean,
+        filter_fn: (item: Playlist) => boolean,
         kind?: ScheduleKind,
     ): PlaylistMediaReference[] {
         return playlists
@@ -1511,10 +1536,7 @@ export class SignageService extends AsyncHandler {
         return shuffle.order.map((index) => media[index]);
     }
 
-    private _playlistValidityWindow(
-        playlist: SignagePlaylist,
-        kind?: ScheduleKind,
-    ) {
+    private _playlistValidityWindow(playlist: Playlist, kind?: ScheduleKind) {
         const schedule = activePlaylistSchedule(playlist, time(), kind);
         const schedule_start = schedule
             ? Math.floor(schedule.starts_at / 1000)
@@ -1544,7 +1566,7 @@ export class SignageService extends AsyncHandler {
         const media_ref = findMedia(display.playlist_media, id);
         if (!media_ref) return null;
         if (!this._canEmbedMedia(display, media_ref)) return null;
-        const playlist: SignagePlaylist | undefined = this._playlistConfig(
+        const playlist: Playlist | undefined = this._playlistConfig(
             display,
             playlist_id,
         )?.[0];
@@ -1644,7 +1666,7 @@ export class SignageService extends AsyncHandler {
         return undefined;
     }
 
-    private _canEmbedMedia(display: any, media: SignageMedia) {
+    private _canEmbedMedia(display: any, media: DisplayMedia) {
         const embedded_display_id = signageDisplayIDFromURL(media.media_url);
         if (!embedded_display_id) return true;
         if (embedded_display_id === display.id) {
@@ -1676,7 +1698,7 @@ export class SignageService extends AsyncHandler {
      * item plays straight from the server: whatever is wrong with the cache,
      * the screen must not stay blank while it is sorted out.
      */
-    private async _mediaURL(media: SignageMedia, plugin?: SignagePlugin) {
+    private async _mediaURL(media: DisplayMedia, plugin?: SignagePlugin) {
         if (media.media_type === 'webpage' || media.media_type === 'plugin') {
             return media.media_url || plugin?.uri;
         }

@@ -1,9 +1,14 @@
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as client from '@placeos/ts-client';
 import { getMapDetails, MapViewer } from '../lib/map-viewer.class';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 describe('MapViewer overlays', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     beforeEach(() => {
         vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue(
             {} as CanvasRenderingContext2D,
@@ -192,6 +197,10 @@ describe('MapViewer overlays', () => {
 });
 
 describe('MapViewer zoom and pan', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let container: HTMLDivElement;
     let viewer: MapViewer;
 
@@ -295,6 +304,10 @@ describe('MapViewer zoom and pan', () => {
 });
 
 describe('getMapDetails', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     beforeEach(() => {
         // jsdom has no layout, so measure shapes from their own attributes
         Object.defineProperty(SVGElement.prototype, 'getBBox', {
@@ -321,10 +334,8 @@ describe('getMapDetails', () => {
     it('removes active content before the map SVG enters the page', async () => {
         const probe = window as unknown as Record<string, unknown>;
         delete probe.__map_xss;
-        vi.spyOn(client, 'authority').mockReturnValue(
-            {} as ReturnType<typeof client.authority>,
-        );
-        vi.spyOn(client, 'token').mockReturnValue('');
+        place.setAuthority({});
+        place.setToken('');
         const svg =
             '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 100" onload="window.__map_xss = 1">' +
             '<script>window.__map_xss = 2</script>' +
@@ -354,10 +365,8 @@ describe('getMapDetails', () => {
     });
 
     it('drops the least recently used map when the cache is full', async () => {
-        vi.spyOn(client, 'authority').mockReturnValue(
-            {} as ReturnType<typeof client.authority>,
-        );
-        vi.spyOn(client, 'token').mockReturnValue('');
+        place.setAuthority({});
+        place.setToken('');
         const fetch_map = vi.fn(() =>
             Promise.resolve(
                 new Response('<svg xmlns="http://www.w3.org/2000/svg"/>'),

@@ -1,4 +1,4 @@
-import { mockSystem, registerMockEndpoint } from '@placeos/ts-client';
+import { mockSystem, registerMockEndpoint } from '@placeos/ts-client/compat';
 
 import { mocksInit as emptyMocksInit } from '../empty';
 import { mocksInit } from '../index';
@@ -7,7 +7,7 @@ import { mocksInit } from '../index';
 // the interest here is what each `registerMock*` group asks for. An
 // `importOriginal` factory deadlocks here (the mock modules import this same
 // module at load), so the whole module is stubbed.
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 /** Handler options passed to `registerMockEndpoint` since the last reset */
 const registrations = () =>
@@ -15,12 +15,17 @@ const registrations = () =>
 
 describe('mocksInit', () => {
     beforeEach(() => {
-        // `createSystem` polls the system it just registered
+        // `createSystem` polls the system it just registered. Each system has
+        // its own modules, as in ts-client: one shared object would get its
+        // functions wrapped again for each system.
         vi.useFakeTimers();
-        vi.mocked(mockSystem).mockReturnValue({
-            Bookings: [{ $poll_bookings: vi.fn(), call: vi.fn() }],
-            AreaManagement: [{ $update: vi.fn(), call: vi.fn() }],
-        } as never);
+        vi.mocked(mockSystem).mockImplementation(
+            () =>
+                ({
+                    Bookings: [{ $poll_bookings: vi.fn(), call: vi.fn() }],
+                    AreaManagement: [{ $update: vi.fn(), call: vi.fn() }],
+                }) as never,
+        );
         vi.mocked(registerMockEndpoint).mockClear();
     });
 

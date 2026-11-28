@@ -3,8 +3,8 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { getModule } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 import { DialpadComponent } from './dialpad.component';
 

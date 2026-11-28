@@ -39,12 +39,14 @@ function capabilities(
     changes: Partial<ImageGenCapabilities> = {},
 ): ImageGenCapabilities {
     return {
+        reason: null,
         enabled: true,
         providers: [
             {
                 id: 'provider-1',
                 name: 'Provider',
                 provider: 'OPENAI',
+                region: null,
                 default_model: 'model-1',
                 models: [
                     {

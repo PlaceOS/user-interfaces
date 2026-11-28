@@ -26,9 +26,16 @@ import { EMPTY, Observable, of } from 'rxjs';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 // Workspace fns are bundled and cannot be mocked, so stub the API layer below them.
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    events,
+    PlaceCalendarEvent,
+    Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -50,7 +57,11 @@ describe('CateringOrdersService', () => {
 
     beforeEach(() => {
         active_building = signal({});
-        vi.mocked(ts_client.get).mockReset();
+        vi.mocked(events.query).mockReset();
+        vi.mocked(events.getMetadata).mockReset();
+        vi.mocked(events.patchMetadata).mockReset();
+        vi.mocked(bookings.query).mockReset();
+        vi.mocked(bookings.update).mockReset();
         spectator = createService();
         // The settings mock is shared by all tests
         vi.mocked(spectator.inject(SettingsService).get).mockReset();
@@ -85,18 +96,24 @@ describe('CateringOrdersService', () => {
     /** 9am on the day that the load tests show */
     const DAY = new Date(2026, 0, 1, 9).valueOf();
 
+    /** Catering orders with one coffee in each */
+    const apiOrders = (order_ids: string[]) =>
+        order_ids.map((order_id) => ({
+            id: order_id,
+            items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+        }));
+
     /** Event data from the API with one coffee in each order */
-    const apiEvent = (id: string, order_ids: string[], start = DAY) => ({
-        id,
-        event_start: start / 1000,
-        event_end: start / 1000 + 60 * 60,
-        extension_data: {
-            catering: order_ids.map((order_id) => ({
-                id: order_id,
-                items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
-            })),
-        },
-    });
+    const apiEvent = (id: string, order_ids: string[], start = DAY) =>
+        mockData(PlaceCalendarEvent, {
+            id,
+            event_start: start / 1000,
+            event_end: start / 1000 + 60 * 60,
+            extension_data: { catering: apiOrders(order_ids) },
+        });
+
+    /** Reply of the events list with the given events */
+    const eventList = (list: PlaceCalendarEvent[]) => mockReply(list);
 
     it('should use the assigned room for order metadata', () => {
         const event = new CalendarEvent({
@@ -147,7 +164,7 @@ describe('CateringOrdersService', () => {
     });
 
     it('should flag a failed load instead of showing an empty day', async () => {
-        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        vi.mocked(events.query).mockRejectedValue(new Error('offline'));
         await loadOrders();
 
         expect(spectator.service.load_error()).toBe(true);
@@ -156,25 +173,25 @@ describe('CateringOrdersService', () => {
     });
 
     it('should only fetch orders again when the date or zones change', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(events.query).mockResolvedValue(eventList([]));
         await loadOrders();
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(events.query).toHaveBeenCalledTimes(1);
         expect(spectator.service.load_error()).toBe(false);
         expect(spectator.service.last_updated()).toBeGreaterThan(0);
 
         spectator.service.filters = { search: 'tea', caterer: 'Cafe' };
         TestBed.tick();
         await flush();
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(events.query).toHaveBeenCalledTimes(1);
 
         spectator.service.filters = { date: new Date(2026, 0, 2).valueOf() };
         TestBed.tick();
         await flush();
-        expect(ts_client.get).toHaveBeenCalledTimes(2);
+        expect(events.query).toHaveBeenCalledTimes(2);
     });
 
     it('should revert the order status when the save fails', async () => {
-        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        vi.mocked(events.getMetadata).mockRejectedValue(new Error('offline'));
         const order = new CateringOrder({
             id: 'order-1',
             system_id: 'room-1',
@@ -318,16 +335,15 @@ describe('CateringOrdersService', () => {
         const changes = vi.fn();
         spectator.service.order_changes.subscribe(changes);
         spectator.service.filters = { date: DAY };
-        vi.mocked(ts_client.get).mockResolvedValue([
-            apiEvent('e1', ['o1']),
-        ] as any);
+        vi.mocked(events.query).mockResolvedValue(
+            eventList([apiEvent('e1', ['o1'])]),
+        );
         await loadOrders();
         expect(changes).not.toHaveBeenCalled();
 
-        vi.mocked(ts_client.get).mockResolvedValue([
-            apiEvent('e1', ['o1']),
-            apiEvent('e2', ['o2']),
-        ] as any);
+        vi.mocked(events.query).mockResolvedValue(
+            eventList([apiEvent('e1', ['o1']), apiEvent('e2', ['o2'])]),
+        );
         await pollOrders();
 
         expect(changes).toHaveBeenCalledTimes(1);
@@ -337,11 +353,13 @@ describe('CateringOrdersService', () => {
     it('should keep each order of the shown day once', async () => {
         spectator.service.filters = { date: DAY };
         const next_day = DAY + 24 * 60 * 60 * 1000;
-        vi.mocked(ts_client.get).mockResolvedValue([
-            apiEvent('e1', ['o1']),
-            apiEvent('e2', ['o1']),
-            apiEvent('e3', ['o2'], next_day),
-        ] as any);
+        vi.mocked(events.query).mockResolvedValue(
+            eventList([
+                apiEvent('e1', ['o1']),
+                apiEvent('e2', ['o1']),
+                apiEvent('e3', ['o2'], next_day),
+            ]),
+        );
 
         await loadOrders();
 
@@ -350,12 +368,12 @@ describe('CateringOrdersService', () => {
 
     it('should keep the list after a failed poll, and clear it for a new day', async () => {
         spectator.service.filters = { date: DAY };
-        vi.mocked(ts_client.get).mockResolvedValue([
-            apiEvent('e1', ['o1']),
-        ] as any);
+        vi.mocked(events.query).mockResolvedValue(
+            eventList([apiEvent('e1', ['o1'])]),
+        );
         await loadOrders();
 
-        vi.mocked(ts_client.get).mockRejectedValue(new Error('offline'));
+        vi.mocked(events.query).mockRejectedValue(new Error('offline'));
         await pollOrders();
         expect(spectator.service.load_error()).toBe(true);
         expect(ids(spectator.service.orders())).toEqual(['o1']);
@@ -367,22 +385,23 @@ describe('CateringOrdersService', () => {
     });
 
     it('should ignore a slow response from an older load', async () => {
-        let resolveOld: (events: unknown[]) => void = () => undefined;
-        vi.mocked(ts_client.get).mockReturnValueOnce(
-            new Promise((resolve) => (resolveOld = resolve)) as any,
+        type EventsResult = Awaited<ReturnType<typeof events.query>>;
+        let resolveOld: (result: EventsResult) => void = () => undefined;
+        vi.mocked(events.query).mockReturnValueOnce(
+            new Promise<EventsResult>((resolve) => (resolveOld = resolve)),
         );
         spectator.service.filters = { date: DAY };
         await loadOrders();
 
         const next_day = DAY + 24 * 60 * 60 * 1000;
-        vi.mocked(ts_client.get).mockResolvedValueOnce([
-            apiEvent('e2', ['new'], next_day),
-        ] as any);
+        vi.mocked(events.query).mockResolvedValueOnce(
+            eventList([apiEvent('e2', ['new'], next_day)]),
+        );
         spectator.service.filters = { date: next_day };
         TestBed.tick();
         await flush();
 
-        resolveOld([apiEvent('e1', ['old'])]);
+        resolveOld(eventList([apiEvent('e1', ['old'])]));
         await flush();
 
         expect(ids(spectator.service.orders())).toEqual(['new']);
@@ -390,8 +409,8 @@ describe('CateringOrdersService', () => {
     });
 
     it('should save the new status into the event catering list', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue({} as any);
-        vi.mocked(ts_client.patch).mockResolvedValue({} as any);
+        vi.mocked(events.getMetadata).mockResolvedValue(mockReply({}));
+        vi.mocked(events.patchMetadata).mockResolvedValue(mockReply({}));
         const event = new CalendarEvent({
             id: 'event-1',
             extension_data: {
@@ -410,10 +429,13 @@ describe('CateringOrdersService', () => {
 
         await spectator.service.updateStatus(order, 'ready');
 
-        const [url, metadata] = vi.mocked(ts_client.patch).mock.calls[0];
-        expect(url).toContain('/event-1/metadata/room-1');
-        const saved = (metadata as { catering: CateringOrder[] }).catering;
-        expect(saved.map((o) => [o.id, o.status])).toEqual([
+        const [input] = vi.mocked(events.patchMetadata).mock.calls[0];
+        expect(input).toEqual(
+            expect.objectContaining({ id: 'event-1', system_id: 'room-1' }),
+        );
+        const saved = input.body['catering'];
+        if (!Array.isArray(saved)) throw new Error('No saved catering');
+        expect(saved.map((o) => [o['id'], o['status']])).toEqual([
             ['o2', 'accepted'],
             ['o1', 'ready'],
         ]);
@@ -454,40 +476,49 @@ describe('CateringOrdersService', () => {
         );
 
         /** Booking data from the API for one order in the event */
-        const apiBooking = (id: string, order_id: string) => ({
-            id,
-            extension_data: {
-                details: {
-                    id: order_id,
-                    status: 'accepted',
-                    items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+        const apiBooking = (id: number, order_id: string) =>
+            mockData(StaffBooking, {
+                id,
+                extension_data: {
+                    details: {
+                        id: order_id,
+                        status: 'accepted',
+                        items: [{ id: 'coffee', name: 'Coffee', quantity: 1 }],
+                    },
                 },
-            },
-            linked_event: apiEvent('e1', []),
-        });
+                linked_event: {
+                    event_id: 'e1',
+                    event_start: DAY / 1000,
+                    event_end: DAY / 1000 + 60 * 60,
+                    ext_data: { catering: [] },
+                },
+            });
 
         it('should load orders from catering bookings for the day', async () => {
             spectator.service.filters = { date: DAY, zones: ['zone-1'] };
-            vi.mocked(ts_client.get).mockResolvedValue([
-                apiBooking('b1', 'o1'),
-            ] as any);
+            vi.mocked(bookings.query).mockResolvedValue(
+                mockReply([apiBooking(101, 'o1')]),
+            );
 
             await loadOrders();
 
-            const [url] = vi.mocked(ts_client.get).mock.calls[0];
-            expect(url).toContain('type=catering-order');
-            expect(url).toContain('zones=zone-1');
+            expect(vi.mocked(bookings.query).mock.calls[0][0]).toEqual(
+                expect.objectContaining({
+                    type: 'catering-order',
+                    zones: 'zone-1',
+                }),
+            );
             expect(ids(spectator.service.orders())).toEqual(['o1']);
         });
 
         it('should save the new status into the booking of the order', async () => {
             spectator.service.filters = { date: DAY, zones: ['zone-1'] };
-            vi.mocked(ts_client.get).mockResolvedValue([
-                apiBooking('b1', 'o1'),
-            ] as any);
-            vi.mocked(ts_client.patch)
-                .mockReset()
-                .mockResolvedValue({} as any);
+            vi.mocked(bookings.query).mockResolvedValue(
+                mockReply([apiBooking(101, 'o1')]),
+            );
+            vi.mocked(bookings.update).mockResolvedValue(
+                mockReply(apiBooking(101, 'o1')),
+            );
             await loadOrders();
 
             await spectator.service.updateStatus(
@@ -496,13 +527,17 @@ describe('CateringOrdersService', () => {
             );
 
             // One save to the booking. The event has no room for metadata.
-            expect(ts_client.patch).toHaveBeenCalledTimes(1);
-            const [url, body] = vi.mocked(ts_client.patch).mock.calls[0];
-            expect(url).toMatch(/\/b1$/);
-            expect(
-                (body as { extension_data: { details: CateringOrder } })
-                    .extension_data.details,
-            ).toEqual(expect.objectContaining({ id: 'o1', status: 'ready' }));
+            expect(bookings.update).toHaveBeenCalledTimes(1);
+            const [input] = vi.mocked(bookings.update).mock.calls[0];
+            expect(input.id).toBe(101);
+            expect(input.body.extension_data).toEqual(
+                expect.objectContaining({
+                    details: expect.objectContaining({
+                        id: 'o1',
+                        status: 'ready',
+                    }),
+                }),
+            );
         });
     });
 

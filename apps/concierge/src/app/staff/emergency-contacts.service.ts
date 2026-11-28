@@ -9,6 +9,7 @@ import {
     Asset,
     AssetCategory,
     AssetGroup,
+    cleanObject,
     i18n,
     notifyError,
     notifySuccess,
@@ -17,13 +18,13 @@ import {
     unique,
 } from '@placeos/common';
 import {
-    cleanObject,
-    queryAssetCategories,
-    queryAssetTypes,
-    removeAsset,
-    showMetadata,
-    updateMetadata,
+    asset_categories,
+    asset_types,
+    assets,
+    metadata,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
+import { jsonRecord, showMetadata } from '../metadata';
 
 export const EMERGENCY_CONTACTS_CATEGORY_NAME = '_EMERGENCY_CONTACTS_';
 
@@ -85,9 +86,11 @@ export class EmergencyContactsService {
         id: string;
     }): Promise<AssetCategory | null> {
         try {
-            const { data } = await queryAssetCategories({
-                zone_id: bld.id,
-            } as any);
+            const { data } = await asset_categories
+                .query({
+                    zone_id: bld.id,
+                } as any)
+                .then(orThrowPage);
             return (
                 data.find((c) => c.name === EMERGENCY_CONTACTS_CATEGORY_NAME) ||
                 null
@@ -104,10 +107,9 @@ export class EmergencyContactsService {
     ): Promise<AssetGroup | null> {
         if (!category) return null;
         try {
-            const { data } = await queryAssetTypes({
-                zone_id: bld.id,
-                q: category.name,
-            });
+            const { data } = await asset_types
+                .query({ zone_id: bld.id, q: category.name })
+                .then(orThrowPage);
             return (
                 data.find(
                     (g) =>
@@ -160,12 +162,11 @@ export class EmergencyContactsService {
                 bld.id,
                 'emergency_contacts',
             );
-            return (
-                (details as EmergencyContactData) || {
-                    contacts: [],
-                    roles: [],
-                }
-            );
+            return {
+                contacts: [],
+                roles: [],
+                ...jsonRecord<EmergencyContactData>(details),
+            };
         } catch {
             return { contacts: [], roles: [] };
         }
@@ -184,11 +185,11 @@ export class EmergencyContactsService {
         try {
             const new_category = await saveAssetCategory(
                 cleanObject(
-                    new AssetCategory({
+                    {
                         name: EMERGENCY_CONTACTS_CATEGORY_NAME,
                         description: JSON.stringify({ roles: [] }),
                         hidden: true,
-                    }),
+                    },
                     [0, undefined, '', null],
                 ),
             );
@@ -262,13 +263,13 @@ export class EmergencyContactsService {
             if (legacy_data.roles?.length) {
                 await saveAssetCategory(
                     cleanObject(
-                        new AssetCategory({
+                        {
                             ...category,
                             hidden: true,
                             description: JSON.stringify({
                                 roles: legacy_data.roles,
                             }),
-                        }),
+                        },
                         [0, null, undefined, ''],
                     ),
                 );
@@ -281,11 +282,16 @@ export class EmergencyContactsService {
             }
 
             // Clear old metadata after successful migration
-            await updateMetadata(bld.id, {
-                name: 'emergency_contacts',
-                description: 'Emergency Contacts (migrated to Assets)',
-                details: { contacts: [], roles: [], migrated: true },
-            });
+            await metadata
+                .update({
+                    id: bld.id,
+                    body: {
+                        name: 'emergency_contacts',
+                        description: 'Emergency Contacts (migrated to Assets)',
+                        details: { contacts: [], roles: [], migrated: true },
+                    },
+                })
+                .then(orThrow);
 
             this._change.set(Date.now());
             notifySuccess(
@@ -345,7 +351,7 @@ export class EmergencyContactsService {
     /** Delete an emergency contact */
     public async deleteContact(contact_id: string): Promise<boolean> {
         try {
-            await removeAsset(contact_id);
+            await assets.destroy({ id: contact_id }).then(orThrow);
             this._change.set(Date.now());
             notifySuccess(
                 i18n('APP.CONCIERGE.CONTACTS_DELETE_SUCCESS') ||
@@ -372,12 +378,10 @@ export class EmergencyContactsService {
                 throw new Error('Failed to create or find category');
             }
 
-            await saveAssetCategory(
-                new AssetCategory({
-                    ...category,
-                    description: JSON.stringify({ roles }),
-                }),
-            );
+            await saveAssetCategory({
+                ...category,
+                description: JSON.stringify({ roles }),
+            });
             this._change.set(Date.now());
             return true;
         } catch (e) {
@@ -469,7 +473,7 @@ export class EmergencyContactsService {
     /** Convert Asset to EmergencyContact */
     private assetToContact(asset: Asset): EmergencyContact {
         const other_data = asset.other_data as Record<string, any>;
-        const level = this._org.levelWithID(asset.zones);
+        const level = this._org.levelWithID([...(asset.zones || [])]);
         return {
             id: asset.id,
             name: asset.identifier || '',

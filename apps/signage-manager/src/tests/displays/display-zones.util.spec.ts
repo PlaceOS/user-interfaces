@@ -1,11 +1,11 @@
-import { PlaceZone } from '@placeos/ts-client';
 import { displayZoneIds } from '../../app/displays/display-zones.util';
+import { signageZone } from '../../app/signage-models';
 
 describe('displayZoneIds', () => {
     it('includes the selected group zone and its parent tree', async () => {
-        const organisation = new PlaceZone({ id: 'org' });
-        const region = new PlaceZone({ id: 'region', parent_id: 'org' });
-        const building = new PlaceZone({
+        const organisation = signageZone({ id: 'org' });
+        const region = signageZone({ id: 'region', parent_id: 'org' });
+        const building = signageZone({
             id: 'building',
             parent_id: 'region',
         });
@@ -24,9 +24,9 @@ describe('displayZoneIds', () => {
     });
 
     it('deduplicates shared ancestors for multiple group zones', async () => {
-        const organisation = new PlaceZone({ id: 'org' });
-        const first = new PlaceZone({ id: 'first', parent_id: 'org' });
-        const second = new PlaceZone({ id: 'second', parent_id: 'org' });
+        const organisation = signageZone({ id: 'org' });
+        const first = signageZone({ id: 'first', parent_id: 'org' });
+        const second = signageZone({ id: 'second', parent_id: 'org' });
 
         const result = await displayZoneIds(
             [first, second],

@@ -5,10 +5,11 @@ import { MockProvider, ngMocks } from 'ng-mocks';
 
 import { ExploreDeviceInfoComponent } from '../lib/explore-device-info.component';
 
-vi.mock('@placeos/ts-client');
-
 import { MAP_FEATURE_DATA, SettingsService } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 
 describe('ExploreDeviceInfoComponent', () => {
     let spectator: Spectator<ExploreDeviceInfoComponent>;
@@ -46,7 +47,8 @@ describe('ExploreDeviceInfoComponent', () => {
     const secondsAgo = (minutes: number) =>
         Math.floor(Date.now() / 1000) - minutes * 60;
 
-    beforeEach(() => vi.mocked(getModule).mockReset());
+    let client: TestPlaceClient;
+    beforeEach(() => (client = startTestPlaceClient()));
 
     it('should show location and range', () => {
         spectator = createComponent();
@@ -102,24 +104,32 @@ describe('ExploreDeviceInfoComponent', () => {
     });
 
     it('should load the owner of the device only once', async () => {
-        const execute = vi.fn(async () => ({ assigned_to: 'jo@place.tech' }));
-        vi.mocked(getModule).mockReturnValue({ execute } as any);
+        client.exec.mockResolvedValue({
+            ok: true,
+            value: { assigned_to: 'jo@place.tech' },
+        });
         spectator = createFor({});
 
         await spectator.component.loadUser();
         await spectator.component.loadUser();
 
-        expect(getModule).toHaveBeenCalledWith('sys-1', 'LocationServices');
-        expect(execute).toHaveBeenCalledOnce();
-        expect(execute).toHaveBeenCalledWith('check_ownership_of', ['aa:bb']);
+        expect(client.exec).toHaveBeenCalledOnce();
+        expect(client.exec.mock.calls[0][0]).toEqual(
+            expect.objectContaining({
+                sys: 'sys-1',
+                mod: 'LocationServices',
+                name: 'check_ownership_of',
+            }),
+        );
+        expect(client.commands()).toEqual([['check_ownership_of', ['aa:bb']]]);
         expect(spectator.component.username()).toBe('jo@place.tech');
     });
 
     it('should clear the owner when the ownership lookup fails', async () => {
-        const execute = vi.fn(async () => {
-            throw new Error('offline');
+        client.exec.mockResolvedValue({
+            ok: false,
+            error: { kind: 'disconnected' },
         });
-        vi.mocked(getModule).mockReturnValue({ execute } as any);
         spectator = createFor({});
 
         await spectator.component.loadUser();

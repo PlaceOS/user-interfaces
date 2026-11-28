@@ -15,7 +15,14 @@ import {
 import { addHours, getUnixTime } from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    Booking as StaffBooking,
+    type BookingInput as StaffBookingInput,
+    bookings,
+} from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 import { DeskModalComponent } from '../../app/desks/desk-modal.component';
 import {
@@ -26,6 +33,31 @@ import { BookingHistoryModalComponent } from '../../app/ui/booking-history-modal
 import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+type BookingOp = keyof typeof bookings;
+
+/** The calls of the staff booking operations `names`, in call order, as [name, input] */
+function bookingCalls(names: readonly BookingOp[]) {
+    return names
+        .flatMap((name) => {
+            const mock: { calls: unknown[][]; invocationCallOrder: number[] } =
+                vi.mocked(bookings[name]).mock;
+            return mock.calls.map((call, i) => ({
+                order: mock.invocationCallOrder[i],
+                entry: [name, call[0]] as [
+                    BookingOp,
+                    Readonly<Record<string, unknown>>,
+                ],
+            }));
+        })
+        .sort((a, b) => a.order - b.order)
+        .map(({ entry }) => entry);
+}
+
+/** A staff API booking reply, for the booking operation doubles */
+const bookingReply = (data: StaffBookingInput) =>
+    mockReply(mockData(StaffBooking, data));
 
 describe('DesksStateService', () => {
     let spectator: SpectatorService<DesksStateService>;
@@ -65,16 +97,22 @@ describe('DesksStateService', () => {
 
     // The workspace booking helpers (saveBooking, removeBooking, ...) are not
     // mockable under the bundling builder, so both stubbing and assertions
-    // happen at the ts-client boundary they resolve to:
-    //   queryBookings -> get('/bookings?...'), saveBooking -> post/patch,
-    //   rejectBooking(Instance) -> post('.../reject[/start]'),
-    //   removeBooking(Instance) -> del('.../{id}[/instance/{start}]')
+    // happen at the staff `bookings` operations they call:
+    //   queryBookings -> bookings.query, saveBooking -> create/update,
+    //   rejectBooking(Instance) -> reject(Instance),
+    //   removeBooking(Instance) -> destroy(Instance)
+    /** The booking writes that 6.x sent as POST requests */
     const posted_bookings = () =>
-        vi
-            .mocked(ts_client_mod.post)
-            .mock.calls.filter(([url]) => String(url).includes('/bookings'));
-    const del_urls = () =>
-        vi.mocked(ts_client_mod.del).mock.calls.map(([url]) => String(url));
+        bookingCalls([
+            'create',
+            'approve',
+            'approveInstance',
+            'reject',
+            'rejectInstance',
+            'checkIn',
+            'checkInInstance',
+        ]);
+    const removed_bookings = () => bookingCalls(['destroy', 'destroyInstance']);
 
     // The real `openConfirmModal` runs against a fake MatDialog ref: its
     // `event` emitter resolves the confirmation ({ reason: 'done' } emitted on
@@ -110,18 +148,41 @@ describe('DesksStateService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        vi.mocked(ts_client_mod.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client_mod.post).mockResolvedValue({} as any);
-        vi.mocked(ts_client_mod.patch).mockResolvedValue({} as any);
-        vi.mocked(ts_client_mod.put).mockResolvedValue({} as any);
-        vi.mocked(ts_client_mod.del).mockResolvedValue(undefined);
-        vi.mocked(ts_client_mod.updateMetadata).mockResolvedValue({} as never);
-        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [],
-        } as never);
+        const reply = bookingReply({ id: 1 });
+        vi.mocked(bookings.query).mockResolvedValue(mockPage({ data: [] }));
+        for (const name of [
+            'create',
+            'update',
+            'approve',
+            'approveInstance',
+            'reject',
+            'rejectInstance',
+            'checkIn',
+            'checkInInstance',
+        ] as const) {
+            vi.mocked(bookings[name]).mockResolvedValue(reply);
+        }
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
+        vi.mocked(bookings.destroyInstance).mockResolvedValue(mockReply(''));
+        vi.mocked(ts_client_mod.metadata.update).mockResolvedValue(
+            mockReply({} as never),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService();
     });
 
@@ -140,7 +201,7 @@ describe('DesksStateService', () => {
         'should not send status changes for a completed booking: %j',
         async (state) => {
             const booking = new Booking({
-                id: 'booking-1',
+                id: '1',
                 booking_start: getUnixTime(Date.now()),
                 duration: 60,
                 ...state,
@@ -155,7 +216,7 @@ describe('DesksStateService', () => {
 
     it('should prevent repeated status changes after rejecting an active booking', async () => {
         const booking = new Booking({
-            id: 'booking-1',
+            id: '1',
             booking_start: getUnixTime(Date.now()),
             duration: 60,
         });
@@ -171,14 +232,14 @@ describe('DesksStateService', () => {
         'should block cancellation after rejection, series: %s',
         async (series) => {
             const booking = new Booking({
-                id: 'booking-1',
+                id: '1',
                 booking_start: getUnixTime(Date.now()),
                 duration: 60,
                 rejected: true,
             });
             await spectator.service.cancelBooking(booking, series);
             expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
-            expect(del_urls()).toEqual([]);
+            expect(removed_bookings()).toEqual([]);
             expect(booking.status).toBe('declined');
         },
     );
@@ -187,26 +248,35 @@ describe('DesksStateService', () => {
         'should retain check-out completion and block another check-in, recurring: %s',
         async (recurring) => {
             const booking = new Booking({
-                id: 'booking-1',
+                id: '1',
                 booking_start: getUnixTime(Date.now()),
                 duration: 60,
                 recurrence_type: recurring ? 'daily' : 'none',
             });
             const checked_in_at = getUnixTime(Date.now());
-            vi.mocked(ts_client_mod.post).mockResolvedValueOnce({
-                ...booking.toJSON(),
-                checked_in: true,
-                checked_in_at,
-            } as never);
+            const check_in = recurring ? 'checkInInstance' : 'checkIn';
+            vi.mocked(bookings[check_in]).mockResolvedValueOnce(
+                bookingReply({
+                    id: 1,
+                    booking_start: booking.booking_start,
+                    booking_end: booking.booking_end,
+                    checked_in: true,
+                    checked_in_at,
+                }),
+            );
             await spectator.service.checkinDesk(booking);
             expect(booking.checked_in).toBe(true);
             const checked_out_at = checked_in_at + 1;
-            vi.mocked(ts_client_mod.post).mockResolvedValueOnce({
-                ...booking.toJSON(),
-                checked_in: false,
-                checked_in_at,
-                checked_out_at,
-            } as never);
+            vi.mocked(bookings[check_in]).mockResolvedValueOnce(
+                bookingReply({
+                    id: 1,
+                    booking_start: booking.booking_start,
+                    booking_end: booking.booking_end,
+                    checked_in: false,
+                    checked_in_at,
+                    checked_out_at,
+                }),
+            );
             await spectator.service.checkinDesk(booking, false);
             expect(booking.checked_in).toBe(false);
             expect(booking.checked_out_at).toBe(checked_out_at);
@@ -214,26 +284,44 @@ describe('DesksStateService', () => {
             expect(booking.status).toBe('ended');
             await spectator.service.checkinDesk(booking);
             expect(posted_bookings()).toHaveLength(2);
-            expect(posted_bookings()[1][0]).toContain(
+            expect(posted_bookings()[1]).toEqual(
                 recurring
-                    ? `/check_in/${booking.booking_start}?state=false`
-                    : '/check_in?state=false',
+                    ? [
+                          'checkInInstance',
+                          expect.objectContaining({
+                              id: 1,
+                              instance: booking.booking_start,
+                              state: false,
+                          }),
+                      ]
+                    : [
+                          'checkIn',
+                          expect.objectContaining({ id: 1, state: false }),
+                      ],
             );
         },
     );
 
     it('should manage desk resources through assets when enabled', async () => {
         settings_map['app.desks.use_assets'] = true;
-        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'desk-category', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
-            data: [{ id: 'desk-type', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({
-            id: 'asset-desk-1',
-        } as any);
-        vi.mocked(ts_client_mod.removeAsset).mockResolvedValue(undefined);
+        vi.mocked(ts_client_mod.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-category', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-type', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.create).mockResolvedValue(
+            mockReply({
+                id: 'asset-desk-1',
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.destroy).mockResolvedValue(
+            mockReply(undefined),
+        );
         spectator.service.setFilters({ zones: ['level-1'] });
         const desk = new Desk({
             id: 'desk-map-1',
@@ -248,49 +336,63 @@ describe('DesksStateService', () => {
             'level-1',
         );
 
-        expect(ts_client_mod.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client_mod.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 asset_type_id: 'desk-type',
                 zone_id: 'level-1',
                 identifier: 'Desk One',
                 map_id: 'desk-map-1',
             }),
-        );
-        expect(ts_client_mod.removeAsset).toHaveBeenCalledWith('asset-desk-1');
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        });
+        expect(ts_client_mod.assets.destroy).toHaveBeenCalledWith({
+            id: 'asset-desk-1',
+        });
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should update existing desk assets when importing desks', async () => {
         settings_map['app.desks.use_assets'] = true;
-        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'desk-category', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
-            data: [{ id: 'desk-type', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client_mod.queryAssets).mockImplementation(
-            async (query: any) =>
-                ({
-                    data:
-                        query.zone_id === 'level-2'
-                            ? [
-                                  {
-                                      id: 'asset-9',
-                                      asset_type_id: 'desk-type',
-                                      zone_id: 'level-2',
-                                      identifier: 'Old Name',
-                                      map_id: 'desk-6.06.1',
-                                      bookable: true,
-                                      images: ['desk.png'],
-                                      client_ids: { floorsense_id: 'fs-1' },
-                                      other_data: { tags: ['quiet'] },
-                                  },
-                              ]
-                            : [],
-                }) as any,
+        vi.mocked(ts_client_mod.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-category', name: '_DESKS_' }],
+            } as any),
         );
-        vi.mocked(ts_client_mod.updateAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-type', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockImplementation(
+            fromV1Mock(
+                async (query: any) =>
+                    ({
+                        data:
+                            query.zone_id === 'level-2'
+                                ? [
+                                      {
+                                          id: 'asset-9',
+                                          asset_type_id: 'desk-type',
+                                          zone_id: 'level-2',
+                                          identifier: 'Old Name',
+                                          map_id: 'desk-6.06.1',
+                                          bookable: true,
+                                          images: ['desk.png'],
+                                          client_ids: { floorsense_id: 'fs-1' },
+                                          other_data: { tags: ['quiet'] },
+                                      },
+                                  ]
+                                : [],
+                    }) as any,
+                ['...'],
+                'page',
+            ),
+        );
+        vi.mocked(ts_client_mod.assets.update).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client_mod.assets.create).mockResolvedValue(
+            mockReply({} as any),
+        );
         spectator.service.setFilters({ zones: ['level-1'] });
 
         // a metadata era CSV row, identified by the original desk id, and a
@@ -299,10 +401,10 @@ describe('DesksStateService', () => {
             'id,name,zone_id\ndesk-6.06.1,New Name,level-2\n,Brand New,',
         );
 
-        expect(ts_client_mod.updateAsset).toHaveBeenCalledTimes(1);
-        expect(ts_client_mod.updateAsset).toHaveBeenCalledWith(
-            'asset-9',
-            expect.objectContaining({
+        expect(ts_client_mod.assets.update).toHaveBeenCalledTimes(1);
+        expect(ts_client_mod.assets.update).toHaveBeenCalledWith({
+            id: 'asset-9',
+            body: expect.objectContaining({
                 zone_id: 'level-2',
                 identifier: 'New Name',
                 map_id: 'desk-6.06.1',
@@ -312,58 +414,68 @@ describe('DesksStateService', () => {
                 client_ids: { floorsense_id: 'fs-1' },
                 other_data: { tags: ['quiet'] },
             }),
-        );
+        });
         // rows without a level of their own use the selected level
-        expect(ts_client_mod.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client_mod.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 zone_id: 'level-1',
                 identifier: 'Brand New',
                 map_id: expect.stringMatching(/^desk-\d+$/),
             }),
-        );
+        });
     });
 
     it('should update desk assets matching the original desk id in place_id when importing', async () => {
         settings_map['app.desks.use_assets'] = true;
-        vi.mocked(ts_client_mod.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'desk-category', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client_mod.queryAssetTypes).mockResolvedValue({
-            data: [{ id: 'desk-type', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client_mod.queryAssets).mockResolvedValue({
-            data: [
-                {
-                    id: 'asset-9',
-                    asset_type_id: 'desk-type',
-                    zone_id: 'level-1',
-                    identifier: 'Old Name',
-                    map_id: 'map-9',
-                    client_ids: { place_id: 'desk-6.06.1' },
-                },
-            ],
-        } as any);
-        vi.mocked(ts_client_mod.updateAsset).mockResolvedValue({} as any);
-        vi.mocked(ts_client_mod.addAsset).mockResolvedValue({} as any);
+        vi.mocked(ts_client_mod.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-category', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-type', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'asset-9',
+                        asset_type_id: 'desk-type',
+                        zone_id: 'level-1',
+                        identifier: 'Old Name',
+                        map_id: 'map-9',
+                        client_ids: { place_id: 'desk-6.06.1' },
+                    },
+                ],
+            } as any),
+        );
+        vi.mocked(ts_client_mod.assets.update).mockResolvedValue(
+            mockReply({} as any),
+        );
+        vi.mocked(ts_client_mod.assets.create).mockResolvedValue(
+            mockReply({} as any),
+        );
         spectator.service.setFilters({ zones: ['level-1'] });
 
         await spectator.service.addDesks([
             { id: 'desk-6.06.1', name: 'New Name' } as any,
         ]);
 
-        expect(ts_client_mod.addAsset).not.toHaveBeenCalled();
-        expect(ts_client_mod.updateAsset).toHaveBeenCalledWith(
-            'asset-9',
-            expect.objectContaining({
+        expect(ts_client_mod.assets.create).not.toHaveBeenCalled();
+        expect(ts_client_mod.assets.update).toHaveBeenCalledWith({
+            id: 'asset-9',
+            body: expect.objectContaining({
                 identifier: 'New Name',
                 map_id: 'map-9',
                 client_ids: { place_id: 'desk-6.06.1' },
             }),
-        );
+        });
     });
 
     it('should open the booking history modal for a desk booking', () => {
-        const booking = new Booking({ id: 'booking-1' });
+        const booking = new Booking({ id: '1' });
 
         spectator.service.viewBookingHistory(booking);
 
@@ -410,9 +522,9 @@ describe('DesksStateService', () => {
                 },
             },
         );
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'level-chosen',
-            expect.objectContaining({
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'level-chosen',
+            body: expect.objectContaining({
                 details: [
                     expect.objectContaining({
                         id: 'desk-new',
@@ -420,7 +532,7 @@ describe('DesksStateService', () => {
                     }),
                 ],
             }),
-        );
+        });
     });
 
     const newDeskDialogRef = () => ({
@@ -442,47 +554,60 @@ describe('DesksStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(
             newDeskDialogRef(),
         );
-        vi.mocked(ts_client_mod.showMetadata).mockImplementation(
-            async (zone: string) =>
-                ({
-                    details:
-                        zone === 'level-other'
-                            ? [{ id: 'desk-stored', name: 'Stored Desk' }]
-                            : [],
-                }) as never,
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                async (zone: string) =>
+                    ({
+                        details:
+                            zone === 'level-other'
+                                ? [{ id: 'desk-stored', name: 'Stored Desk' }]
+                                : [],
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
         spectator.service.setFilters({ zones: ['level-selected'] });
 
         await spectator.service.editDesk();
 
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'level-other',
-            expect.objectContaining({
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'level-other',
+            body: expect.objectContaining({
                 details: [
                     expect.objectContaining({ id: 'desk-stored' }),
                     expect.objectContaining({ id: 'desk-new' }),
                 ],
             }),
-        );
+        });
     });
 
     it('should not write desks when the stored list cannot be read', async () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(
             newDeskDialogRef(),
         );
-        vi.mocked(ts_client_mod.showMetadata).mockRejectedValue('offline');
+        vi.mocked(ts_client_mod.metadata.show).mockRejectedValue('offline');
         spectator.service.setFilters({ zones: ['level-selected'] });
 
         await expect(spectator.service.editDesk()).rejects.toBe('offline');
 
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should not add a desk with an ID already used on the level', async () => {
         // Saves read the level's stored desk list.
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [{ id: 'desk-dup', name: 'Old' }],
-        } as never);
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [{ id: 'desk-dup', name: 'Old' }],
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         (spectator.inject(MatDialog).open as any).mockReturnValue({
             afterClosed: () =>
                 of({
@@ -495,7 +620,7 @@ describe('DesksStateService', () => {
 
         await spectator.service.editDesk();
 
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             'A desk with the ID "desk-dup" already exists.',
             expect.anything(),
@@ -524,7 +649,7 @@ describe('DesksStateService', () => {
 
         await spectator.service.editDesk();
 
-        expect(ts_client_mod.addAsset).not.toHaveBeenCalled();
+        expect(ts_client_mod.assets.create).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             'A desk with the ID "desk-dup" already exists.',
             expect.anything(),
@@ -608,7 +733,7 @@ describe('DesksStateService', () => {
             Promise.resolve({
                 data: [
                     {
-                        id: 'booking-1',
+                        id: '1',
                         rejected: true,
                         status: 'approved',
                     },
@@ -692,7 +817,7 @@ describe('DesksStateService', () => {
 
     it('should keep rejected status when a fast reload returns the old approved state', async () => {
         const booking = {
-            id: 'booking-1',
+            id: '1',
             approved: true,
             rejected: false,
             status: 'approved',
@@ -722,13 +847,13 @@ describe('DesksStateService', () => {
     it('should cancel only one recurring booking instance', async () => {
         mockConfirm();
         const booking = new Booking({
-            id: 'booking-1',
-            parent_id: 'booking-parent',
+            id: '1',
+            parent_id: '100',
             instance: 1_740_000_000,
         });
         const other_instance = new Booking({
-            id: 'booking-1',
-            parent_id: 'booking-parent',
+            id: '1',
+            parent_id: '100',
             instance: 1_740_086_400,
         });
         (spectator.service as any)._bookings_state.set({
@@ -739,8 +864,11 @@ describe('DesksStateService', () => {
 
         await spectator.service.cancelBooking(booking);
 
-        expect(del_urls()).toEqual([
-            expect.stringContaining('/booking-1/instance/1740000000'),
+        expect(removed_bookings()).toEqual([
+            [
+                'destroyInstance',
+                expect.objectContaining({ id: 1, instance: 1_740_000_000 }),
+            ],
         ]);
         expect(spectator.service.bookings()).toEqual([
             expect.objectContaining({
@@ -758,16 +886,16 @@ describe('DesksStateService', () => {
     it('should delete recurring booking series and update every instance', async () => {
         mockConfirm();
         const booking = new Booking({
-            id: 'booking-1',
-            parent_id: 'booking-parent',
+            id: '1',
+            parent_id: '100',
             instance: 1_740_000_000,
         });
         const other_instance = new Booking({
-            id: 'booking-2',
-            parent_id: 'booking-parent',
+            id: '2',
+            parent_id: '100',
             instance: 1_740_086_400,
         });
-        const unrelated_booking = new Booking({ id: 'booking-3' });
+        const unrelated_booking = new Booking({ id: '3' });
         (spectator.service as any)._bookings_state.set({
             list: [booking, other_instance, unrelated_booking],
             total: 3,
@@ -776,13 +904,13 @@ describe('DesksStateService', () => {
 
         await spectator.service.cancelBooking(booking, true);
 
-        expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/booking-parent\?utm_source=/),
+        expect(removed_bookings()).toEqual([
+            ['destroy', expect.objectContaining({ id: 100 })],
         ]);
         expect(spectator.service.bookings()).toEqual([
             expect.objectContaining({ deleted: true, status: 'cancelled' }),
             expect.objectContaining({ deleted: true, status: 'cancelled' }),
-            expect.objectContaining({ id: 'booking-3', deleted: false }),
+            expect.objectContaining({ id: '3', deleted: false }),
         ]);
     });
 
@@ -824,7 +952,7 @@ describe('DesksStateService', () => {
         await spectator.service.editDesk({ id: 'desk-1' } as any);
 
         expect(posted_bookings()).toHaveLength(1);
-        expect(posted_bookings()[0][1]).toEqual(
+        expect(posted_bookings()[0][1].body).toEqual(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(addHours(assigned_start, 22)),
@@ -833,8 +961,8 @@ describe('DesksStateService', () => {
     });
 
     it('should persist homebase when editing desks', async () => {
-        vi.spyOn(ts_client_mod, 'updateMetadata').mockReturnValue(
-            of({}) as any,
+        vi.spyOn(ts_client_mod.metadata, 'update').mockImplementation(
+            fromV1Mock(() => of({}) as any, ['id', 'body']),
         );
         const dialog_ref = {
             afterClosed: () =>
@@ -858,40 +986,48 @@ describe('DesksStateService', () => {
 
         await spectator.service.editDesk({ id: 'desk-1' } as any);
 
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'level-1',
-            expect.objectContaining({
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'level-1',
+            body: expect.objectContaining({
                 details: expect.arrayContaining([
                     expect.objectContaining({ homebase: 'Sydney HQ' }),
                 ]),
             }),
-        );
+        });
     });
 
     it('should cancel overlapping bookings after assigning a desk', async () => {
         const mock_now = new Date('2026-08-18T10:55:00').valueOf();
         vi.spyOn(Date, 'now').mockReturnValue(mock_now);
-        vi.mocked(ts_client_mod.post).mockResolvedValue({
-            id: 'assigned-booking',
-            booking_start: new Date('2026-08-18T03:00:00').valueOf() / 1000,
-            booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
-            booking_type: 'desk',
-            recurrence_type: 'daily',
-            user_email: 'staff@example.com',
-            asset_id: 'G-033',
-            zones: ['ground-floor'],
-        } as never);
-        vi.mocked(ts_client_mod.get).mockResolvedValue([
-            {
-                id: 'ad-hoc-booking',
-                booking_start: new Date('2026-08-18T16:45:00').valueOf() / 1000,
-                booking_end: new Date('2026-08-18T17:15:00').valueOf() / 1000,
+        vi.mocked(bookings.create).mockResolvedValue(
+            bookingReply({
+                id: 300,
+                booking_start: new Date('2026-08-18T03:00:00').valueOf() / 1000,
+                booking_end: new Date('2026-08-18T23:00:00').valueOf() / 1000,
                 booking_type: 'desk',
-                approved: true,
-                asset_id: 'F-010',
-                zones: ['first-floor'],
-            },
-        ] as never);
+                recurrence_type: 'daily',
+                user_email: 'staff@example.com',
+                asset_id: 'G-033',
+                zones: ['ground-floor'],
+            }),
+        );
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(StaffBooking, {
+                        id: 200,
+                        booking_start:
+                            new Date('2026-08-18T16:45:00').valueOf() / 1000,
+                        booking_end:
+                            new Date('2026-08-18T17:15:00').valueOf() / 1000,
+                        booking_type: 'desk',
+                        approved: true,
+                        asset_id: 'F-010',
+                        zones: ['first-floor'],
+                    }),
+                ],
+            }),
+        );
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -914,30 +1050,33 @@ describe('DesksStateService', () => {
 
         await spectator.service.editDesk({ id: 'G-033' } as Desk);
 
-        expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/ad-hoc-booking\?utm_source=/),
+        expect(removed_bookings()).toEqual([
+            ['destroy', expect.objectContaining({ id: 200 })],
         ]);
-        expect(posted_bookings()).not.toEqual(
-            expect.arrayContaining([
-                [
-                    expect.stringContaining('/ad-hoc-booking/reject'),
-                    expect.anything(),
-                ],
-            ]),
+        expect(bookings.reject).not.toHaveBeenCalledWith(
+            expect.objectContaining({ id: 200 }),
         );
     });
 
     it('should block assignments when the desk limit is reached', async () => {
         settings_map['app.desks.max_assigned_count'] = 1;
-        vi.mocked(ts_client_mod.showMetadata).mockResolvedValue({
-            details: [
-                {
-                    id: 'desk-existing',
-                    assigned_to: 'staff@example.com',
-                    assigned_name: 'Staff Name',
-                },
-            ],
-        } as never);
+        vi.mocked(ts_client_mod.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [
+                            {
+                                id: 'desk-existing',
+                                assigned_to: 'staff@example.com',
+                                assigned_name: 'Staff Name',
+                            },
+                        ],
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         const dialog_ref = {
             afterClosed: () =>
                 of({
@@ -967,7 +1106,7 @@ describe('DesksStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client_mod.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client_mod.metadata.update).not.toHaveBeenCalled();
         expect(posted_bookings()).toHaveLength(0);
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
@@ -1002,49 +1141,43 @@ describe('DesksStateService', () => {
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
         spectator.service.setFilters({ zones: ['level-1'] });
         // `_clearAssignedBooking` looks the old booking up with a paged query
-        vi.mocked(ts_client_mod.query).mockResolvedValueOnce({
-            data: [
-                {
-                    id: 'booking-1',
-                    asset_id: 'desk-1',
-                    booking_start: Math.floor(Date.now() / 1000),
-                },
-            ],
-            total: 1,
-            next: null,
-        } as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(StaffBooking, {
+                        id: 1,
+                        asset_id: 'desk-1',
+                        booking_start: Math.floor(Date.now() / 1000),
+                    }),
+                ],
+            }),
+        );
         // First save (new assignment) conflicts; the restore save succeeds.
-        vi.mocked(ts_client_mod.post)
+        vi.mocked(bookings.create)
             .mockRejectedValueOnce({ status: 409 })
-            .mockResolvedValueOnce({} as any);
+            .mockResolvedValueOnce(bookingReply({ id: 2 }));
 
         await spectator.service.editDesk(original_desk).catch(() => undefined);
 
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledTimes(2);
-        expect(del_urls()).toEqual([
-            expect.stringMatching(/\/bookings\/booking-1\?utm_source=/),
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledTimes(2);
+        expect(removed_bookings()).toEqual([
+            ['destroy', expect.objectContaining({ id: 1 })],
         ]);
         expect(posted_bookings()).toHaveLength(2);
-        expect(posted_bookings()[0][1]).toEqual(
+        expect(posted_bookings()[0][1].body).toEqual(
             expect.objectContaining({
                 user_email: 'new.staff@example.com',
                 user_name: 'New Staff',
                 asset_id: 'desk-1',
             }),
         );
-        expect(posted_bookings()[1][1]).toEqual(
+        expect(posted_bookings()[1][1].body).toEqual(
             expect.objectContaining({
                 user_email: 'old.staff@example.com',
                 user_name: 'Old Staff',
                 asset_id: 'desk-1',
-                asset_name: 'Desk 1',
-                zones: expect.arrayContaining([
-                    'org-1',
-                    'region-1',
-                    'bld-1',
-                    'level-1',
-                    { id: 'level-1' },
-                ]),
+                // The staff API has no `asset_name`: it is in `extension_data`
+                zones: ['org-1', 'region-1', 'bld-1', 'level-1'],
                 extension_data: expect.objectContaining({
                     asset_name: 'Desk 1',
                     is_assigned: true,
@@ -1055,7 +1188,7 @@ describe('DesksStateService', () => {
 
     it('should mark a rejected desk booking as declined', async () => {
         const booking = {
-            id: 'booking-1',
+            id: '1',
             approved: true,
             rejected: false,
             status: 'approved',
@@ -1063,12 +1196,7 @@ describe('DesksStateService', () => {
 
         await spectator.service.rejectDesk(booking);
 
-        expect(posted_bookings()).toEqual([
-            [
-                expect.stringContaining('/bookings/booking-1/reject'),
-                expect.anything(),
-            ],
-        ]);
+        expect(posted_bookings()).toEqual([['reject', { id: 1 }]]);
         expect(booking.approved).toBe(false);
         expect(booking.rejected).toBe(true);
         expect(booking.status).toBe('declined');
@@ -1081,16 +1209,21 @@ describe('DesksStateService', () => {
 
     it('should rethrow a failed check-in and keep the booking state', async () => {
         const booking = new Booking({
-            id: 'booking-1',
+            id: '1',
             booking_start: getUnixTime(Date.now()),
             duration: 60,
         });
-        // ts-client rejects with the HTTP response; the helper reads its body
-        vi.mocked(ts_client_mod.post).mockRejectedValueOnce(
-            new Response(JSON.stringify({ error: 'Desk is locked' }), {
+        // The helper reads the error from the body of the HTTP error
+        vi.mocked(bookings.checkIn).mockResolvedValueOnce({
+            ok: false,
+            error: {
+                kind: 'http',
                 status: 423,
-            }),
-        );
+                message: 'Desk is locked',
+                body: { error: 'Desk is locked' },
+                text: null,
+            },
+        });
 
         await expect(spectator.service.checkinDesk(booking)).rejects.toBe(
             'Desk is locked',
@@ -1168,7 +1301,7 @@ describe('DesksStateService', () => {
         // staff-api sends no total for pages that expand recurring bookings
         const next_page = vi.fn();
         const first_page = vi.fn().mockResolvedValue({
-            data: [new Booking({ id: 'booking-1' })],
+            data: [new Booking({ id: '1' })],
             total: 0,
             next: next_page,
         });
@@ -1187,7 +1320,7 @@ describe('DesksStateService', () => {
             total: 2,
             next: next_page,
         });
-        const booking = new Booking({ id: 'booking-1' });
+        const booking = new Booking({ id: '1' });
         (spectator.service as any)._bookings_state.set({
             list: [booking],
             total: 2,
@@ -1206,15 +1339,15 @@ describe('DesksStateService', () => {
     it('should reject active desk bookings with the instance endpoint where needed', async () => {
         const confirm_ref = mockConfirm();
         const list = [
-            { id: 'booking-1', status: 'approved' },
+            { id: '1', status: 'approved' },
             {
-                id: 'booking-2',
+                id: '2',
                 instance: 1_740_000_000,
                 status: 'tentative',
             },
-            { id: 'booking-3', status: 'declined' },
-            { id: 'booking-4', status: 'cancelled' },
-            { id: 'booking-5', status: 'ended' },
+            { id: '3', status: 'declined' },
+            { id: '4', status: 'cancelled' },
+            { id: '5', status: 'ended' },
         ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({
@@ -1227,14 +1360,11 @@ describe('DesksStateService', () => {
 
         await spectator.service.rejectAllDesks();
 
-        expect(vi.mocked(ts_client_mod.post)).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/booking-1/reject'),
-            expect.anything(),
-        );
-        expect(vi.mocked(ts_client_mod.post)).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/booking-2/reject/1740000000'),
-            expect.anything(),
-        );
+        expect(bookings.reject).toHaveBeenCalledWith({ id: 1 });
+        expect(bookings.rejectInstance).toHaveBeenCalledWith({
+            id: 2,
+            instance: 1_740_000_000,
+        });
         expect(posted_bookings()).toHaveLength(2);
         expect(confirm_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             'APP.CONCIERGE.DESKS_REJECT_ALL_LOADING',
@@ -1258,8 +1388,8 @@ describe('DesksStateService', () => {
     it('should only reject the desk bookings that match the search', async () => {
         mockConfirm();
         const list = [
-            { id: 'booking-1', status: 'approved', user_name: 'Alice Ng' },
-            { id: 'booking-2', status: 'approved', user_name: 'Bob Lee' },
+            { id: '1', status: 'approved', user_name: 'Alice Ng' },
+            { id: '2', status: 'approved', user_name: 'Bob Lee' },
         ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({ list, total: list.length, has_next: false }),
@@ -1268,29 +1398,22 @@ describe('DesksStateService', () => {
 
         await spectator.service.rejectAllDesks();
 
-        expect(vi.mocked(ts_client_mod.post)).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/booking-1/reject'),
-            expect.anything(),
-        );
-        expect(vi.mocked(ts_client_mod.post)).not.toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/booking-2/reject'),
-            expect.anything(),
-        );
+        expect(bookings.reject).toHaveBeenCalledWith({ id: 1 });
+        expect(bookings.reject).not.toHaveBeenCalledWith({ id: 2 });
     });
 
     it('should reject the other desk bookings when one rejection fails', async () => {
         const confirm_ref = mockConfirm();
         const list = [
-            { id: 'booking-1', instance: 1_740_000_000, status: 'tentative' },
-            { id: 'booking-2', status: 'approved' },
+            // The staff API takes integer booking IDs
+            { id: '1', instance: 1_740_000_000, status: 'tentative' },
+            { id: '2', status: 'approved' },
         ];
         Object.defineProperty(spectator.service, 'paged_bookings', {
             value: () => ({ list, total: list.length, has_next: false }),
         });
-        vi.mocked(ts_client_mod.post).mockImplementation((url) =>
-            String(url).includes('/reject/')
-                ? Promise.reject('405 Method Not Allowed')
-                : Promise.resolve({} as any),
+        vi.mocked(bookings.rejectInstance).mockRejectedValue(
+            '405 Method Not Allowed',
         );
         const refresh_spy = vi.spyOn(spectator.service, 'refresh');
 
@@ -1322,17 +1445,15 @@ describe('DesksStateService', () => {
 
         const done = await spectator.service.setBookingsApproval(
             [
-                booking('booking-1'),
-                booking('booking-2', { status: 'declined' }),
-                booking('booking-3', { deleted: true }),
+                booking('1'),
+                booking('2', { status: 'declined' }),
+                booking('3', { deleted: true }),
             ],
             true,
         );
 
         expect(done).toBe(true);
-        expect(posted_bookings().map(([url]) => url)).toEqual([
-            expect.stringContaining('/bookings/booking-1/approve'),
-        ]);
+        expect(posted_bookings()).toEqual([['approve', { id: 1 }]]);
         expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
         expect(refresh_spy).toHaveBeenCalled();
     });

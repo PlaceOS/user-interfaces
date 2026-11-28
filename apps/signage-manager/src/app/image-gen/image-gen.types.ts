@@ -1,42 +1,19 @@
 /** Mirrors the structs in rest-api's SignageAI controller. */
 
-export interface ImageGenModelCapabilities {
-    id: string;
-    name: string;
-    generate: boolean;
-    edit: boolean;
-    enhance: boolean;
-    max_references: number;
-    max_candidates: number;
-    qualities: string[];
-    aspect_ratios: string[];
-}
+import type {
+    ImageGenModelCapabilities as ModelCapabilities,
+    ImageGenProviderCapabilities as ProviderCapabilities,
+    SignageAiCapabilities,
+} from '@placeos/ts-client';
 
-export interface ImageGenProviderCapabilities {
-    id: string;
-    name: string;
-    provider: string;
-    region?: string;
-    default_model?: string;
-    models: ImageGenModelCapabilities[];
-}
+export type ImageGenModelCapabilities = ModelCapabilities;
 
-export interface ImageGenCapabilities {
-    enabled: boolean;
-    reason?: string;
-    providers: ImageGenProviderCapabilities[];
-    default_provider_id?: string;
-    aspect_ratios: string[];
-    qualities: string[];
-    max_candidates: number;
-    logo_layer: boolean;
-    quota: {
-        user_remaining_today: number | null;
-        domain_remaining_month: number | null;
-    };
-}
+export type ImageGenProviderCapabilities = ProviderCapabilities;
 
-export interface ImageGenJobImage {
+export type ImageGenCapabilities = SignageAiCapabilities;
+
+// A type, not an interface, so test data can be JSON
+export type ImageGenJobImage = {
     state?: string;
     index?: number;
     upload_id?: string;
@@ -46,7 +23,7 @@ export interface ImageGenJobImage {
     mime?: string;
     bytes?: number;
     item_id?: string;
-}
+};
 
 export type ImageGenJobState =
     | 'queued'
@@ -99,7 +76,8 @@ export interface ImageGenEditRequest extends ImageGenGenerateRequest {
     parent_job_id?: string;
 }
 
-export interface ImageGenBrandKit {
+// A type, not an interface, so a kit is a JSON object for the metadata
+export type ImageGenBrandKit = {
     organisation?: string;
     palette?: Record<string, string>;
     tone?: string;
@@ -111,7 +89,7 @@ export interface ImageGenBrandKit {
     logo_derived?: ImageGenLogoSlot;
     never_include?: string[];
     font?: { url?: string; family?: string } | string;
-}
+};
 
 /** which background a logo file is meant to sit on */
 export type ImageGenLogoSlot = 'on_light' | 'on_dark';

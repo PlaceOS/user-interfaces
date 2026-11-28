@@ -2,6 +2,7 @@ import { format } from 'date-fns';
 
 import { randomString, unique } from '../general';
 import { i18n } from '../locale.service';
+import type { ClassData } from '../types';
 import { Booking } from './booking.class';
 
 export let USER_DOMAIN = '@dev.place.tech';
@@ -80,7 +81,7 @@ export class User {
     /** Photo upload ID */
     public readonly photo_upload_id: string;
 
-    constructor(data: Partial<UserComplete> = {}) {
+    constructor(data: ClassData<UserComplete> = {}) {
         this.id = data.id || data.email || `USER::${randomString(8)}`;
         this.name = data.name || '';
         this.email = data.email || '';
@@ -106,7 +107,7 @@ export class User {
         this.resource = data.resource ?? false;
         this.locatable = data.locatable ?? false;
         this.response_status = data.response_status || '';
-        const groups = data.groups || [];
+        const groups = [...(data.groups || [])];
         this.department = data.department ?? '';
         if (data.sys_admin) groups.push('placeos_admin');
         if (data.support) groups.push('placeos_support');
@@ -154,8 +155,8 @@ export class GuestUser extends User {
 }
 
 export interface WorktimePreference {
-    /* Index of the day of the week. `0` being Sunday */
-    day_of_week: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+    /** Index of the day of the week, `0` (Sunday) to `6` */
+    day_of_week: number;
     blocks: WorktimeBlock[];
 }
 
@@ -273,14 +274,43 @@ export class StaffUser extends User {
         return !!block;
     }
 
-    constructor(data: Partial<StaffUser> = {}) {
+    constructor(data: StaffUserData = {}) {
         super(data);
         this.card_number = data.card_number || '';
         this.staff_id = data.staff_id || '';
         this.is_logged_in = !!data.is_logged_in;
-        this.work_preferences = data.work_preferences || [];
-        this.work_overrides = data.work_overrides || {};
+        this.work_preferences = (data.work_preferences || []).map(
+            copyWorktimePreference,
+        );
+        this.work_overrides = Object.fromEntries(
+            Object.entries(data.work_overrides || {}).map(([date, pref]) => [
+                date,
+                copyWorktimePreference(pref),
+            ]),
+        );
     }
+}
+
+/** Worktime preference data, such as a v7 `UserWorktimePreference` */
+interface WorktimePreferenceData {
+    readonly day_of_week: number;
+    readonly blocks: readonly WorktimeBlock[];
+}
+
+/** Constructor data of `StaffUser`. It accepts a v7 `User` */
+export type StaffUserData = Omit<
+    ClassData<StaffUser>,
+    'work_preferences' | 'work_overrides'
+> & {
+    readonly work_preferences?: readonly WorktimePreferenceData[];
+    readonly work_overrides?: Readonly<Record<string, WorktimePreferenceData>>;
+};
+
+/** Copy of a worktime preference that the app can change */
+function copyWorktimePreference(
+    pref: WorktimePreferenceData,
+): WorktimePreference {
+    return { day_of_week: pref.day_of_week, blocks: [...(pref.blocks || [])] };
 }
 
 /** Placeholder user used before the current user has loaded */

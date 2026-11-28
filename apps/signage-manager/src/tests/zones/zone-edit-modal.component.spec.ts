@@ -1,20 +1,21 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
+import { signageZone } from '../../app/signage-models';
 import {
     ZoneEditModalComponent,
     ZoneEditModalData,
 } from '../../app/zones/zone-edit-modal.component';
 
 describe('ZoneEditModalComponent', () => {
-    const roots = signal<PlaceZone[]>([]);
-    const zones = signal<PlaceZone[]>([]);
+    const roots = signal<Zone[]>([]);
+    const zones = signal<Zone[]>([]);
     const query_zones = vi.fn();
     const on_save = vi.fn();
     const dialog_ref = { close: vi.fn(), disableClose: false };
 
-    async function make(zone = new PlaceZone({}), default_parent_id = '') {
+    async function make(zone = signageZone({}), default_parent_id = '') {
         const data: ZoneEditModalData = {
             zone,
             default_parent_id,
@@ -43,12 +44,12 @@ describe('ZoneEditModalComponent', () => {
         vi.clearAllMocks();
         query_zones.mockReturnValue(null);
         dialog_ref.disableClose = false;
-        roots.set([new PlaceZone({ id: 'org', name: 'Organisation' })]);
+        roots.set([signageZone({ id: 'org', name: 'Organisation' })]);
         zones.set([
-            new PlaceZone({ id: 'org', name: 'Organisation' }),
-            new PlaceZone({ id: 'building', name: 'Building' }),
+            signageZone({ id: 'org', name: 'Organisation' }),
+            signageZone({ id: 'building', name: 'Building' }),
         ]);
-        on_save.mockResolvedValue(new PlaceZone({ id: 'zone-new' }));
+        on_save.mockResolvedValue(signageZone({ id: 'zone-new' }));
     });
 
     it('searches without a parent selection', async () => {
@@ -63,7 +64,7 @@ describe('ZoneEditModalComponent', () => {
     });
 
     it('creates a zone under the supplied default parent', async () => {
-        const component = await make(new PlaceZone({}), 'building');
+        const component = await make(signageZone({}), 'building');
         component.model.update((model) => ({
             ...model,
             name: 'SIGNAGE Reception',
@@ -88,9 +89,9 @@ describe('ZoneEditModalComponent', () => {
     });
 
     it('updates the parent selected from the accessible zone tree', async () => {
-        const component = await make(new PlaceZone({}), 'org');
+        const component = await make(signageZone({}), 'org');
 
-        component.selectParent(new PlaceZone({ id: 'building' }));
+        component.selectParent(signageZone({ id: 'building' }));
 
         expect(component.model().parent_id).toBe('building');
     });
@@ -106,7 +107,7 @@ describe('ZoneEditModalComponent', () => {
 
     it('seeds edits from the existing zone', async () => {
         const component = await make(
-            new PlaceZone({
+            signageZone({
                 id: 'zone-1',
                 name: 'SIGNAGE Lobby',
                 display_name: 'Lobby',

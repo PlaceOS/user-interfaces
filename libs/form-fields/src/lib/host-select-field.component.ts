@@ -6,11 +6,11 @@ import { MatSelectModule } from '@angular/material/select';
 import {
     Calendar,
     currentUser,
-    provideValueAccessor,
     StaffUser,
     unique,
     User,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 import { queryCalendars } from 'libs/events/src/lib/calendar.fn';
 

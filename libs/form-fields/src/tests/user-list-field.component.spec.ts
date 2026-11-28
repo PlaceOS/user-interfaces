@@ -22,11 +22,13 @@ import {
 } from '../lib/user-list-field.component';
 import { UserSearchFieldComponent } from '../lib/user-search-field.component';
 
-// The staff and guest searches run for real; only the ts-client `get` that
-// they call is stubbed.
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as ts_client from '@placeos/ts-client';
+// The staff and guest searches run for real, against the mock endpoints of
+// mock mode.
+import {
+    clearMockEndpoints,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
+import { startMockPlaceClient } from 'libs/common/src/tests/test-helpers';
 
 describe('internal email domains', () => {
     it('should default to the user domain and its root domain', () => {
@@ -340,36 +342,36 @@ describe('UserListFieldComponent', () => {
             return spectator.component.user_list();
         };
 
+        const search = vi.fn((path: string) =>
+            path.includes('/guests')
+                ? [
+                      { id: 'g1', name: 'Amy Smith', email: 'amy@example.com' },
+                      {
+                          id: 'g2',
+                          name: 'Bob Smithers',
+                          email: 'bob@guest.com',
+                      },
+                  ]
+                : [
+                      { id: 's1', name: 'Zed Smith', email: 'zed@place.tech' },
+                      { id: 's2', name: 'Amy Smith', email: 'amy@example.com' },
+                  ],
+        );
+        afterEach(() => clearMockEndpoints());
+
         beforeEach(() => {
-            vi.mocked(ts_client.get).mockClear();
-            vi.mocked(ts_client.get).mockImplementation(((url: string) =>
-                Promise.resolve(
-                    url.includes('/guests')
-                        ? [
-                              {
-                                  id: 'g1',
-                                  name: 'Amy Smith',
-                                  email: 'amy@example.com',
-                              },
-                              {
-                                  id: 'g2',
-                                  name: 'Bob Smithers',
-                                  email: 'bob@guest.com',
-                              },
-                          ]
-                        : [
-                              {
-                                  id: 's1',
-                                  name: 'Zed Smith',
-                                  email: 'zed@place.tech',
-                              },
-                              {
-                                  id: 's2',
-                                  name: 'Amy Smith',
-                                  email: 'amy@example.com',
-                              },
-                          ],
-                )) as any);
+            search.mockClear();
+            startMockPlaceClient();
+            for (const path of [
+                '/api/staff/v1/guests',
+                '/api/staff/v1/people',
+            ]) {
+                registerMockEndpoint({
+                    path,
+                    method: 'GET',
+                    callback: () => search(path),
+                });
+            }
             vi.mocked(spectator.inject(SettingsService).get).mockImplementation(
                 (key: string) =>
                     key === 'visitor-invitees'
@@ -385,7 +387,7 @@ describe('UserListFieldComponent', () => {
         it('should merge staff, guests and saved visitors once the search is long enough', async () => {
             spectator.setInput({ guests: true });
             expect(await searchFor('sm')).toEqual([]);
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(search).not.toHaveBeenCalled();
 
             const list = await searchFor('smi');
             // A staff match wins over a guest with the same email

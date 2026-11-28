@@ -6,7 +6,7 @@ import {
     MatDialogModule,
     MatDialogRef,
 } from '@angular/material/dialog';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 
 import {
     notifyError,
@@ -1559,7 +1559,7 @@ import { UploadButtonComponent } from './upload-button.component';
 })
 export class WorkplaceSettingsFormModalComponent implements OnInit {
     private _data = inject<{
-        zone: PlaceZone;
+        zone: Zone;
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<WorkplaceSettingsFormModalComponent>>(MatDialogRef);

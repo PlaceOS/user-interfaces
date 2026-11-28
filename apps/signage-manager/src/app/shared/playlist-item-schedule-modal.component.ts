@@ -8,10 +8,10 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    SignageMedia,
-    type SignagePlaylistItemSchedule,
-    type SignagePlaylistSchedule,
+    type PlaylistItemSchedule,
+    type PlaylistSchedule,
 } from '@placeos/ts-client';
+import { signageMedia } from '../signage-models';
 import { MediaThumbnailComponent } from './media-thumbnail.component';
 import {
     createPlaylistScheduleModel,
@@ -23,11 +23,8 @@ import {
 } from './playlist-schedule-form.component';
 
 export interface PlaylistItemScheduleModalData {
-    item: SignagePlaylistItemSchedule;
-    save: (
-        item_id: string,
-        schedules: SignagePlaylistSchedule[],
-    ) => Promise<unknown>;
+    item: PlaylistItemSchedule;
+    save: (item_id: string, schedules: PlaylistSchedule[]) => Promise<unknown>;
 }
 
 @Component({
@@ -113,7 +110,7 @@ export class PlaylistItemScheduleModalComponent {
         inject<MatDialogRef<PlaylistItemScheduleModalComponent>>(MatDialogRef);
 
     /** Media the schedules are attached to, shown as context in the modal header */
-    public readonly media = new SignageMedia(this._data.item.media || {});
+    public readonly media = signageMedia(this._data.item.media || {});
     public readonly loading = signal(false);
     public readonly model = signal<{ schedules: PlaylistScheduleFormModel[] }>({
         schedules: (this._data.item.schedules?.length

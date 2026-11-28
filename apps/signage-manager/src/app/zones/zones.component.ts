@@ -3,7 +3,8 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { showZone } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { selectRoutedItem } from '../displays/routed-selection.util';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -241,7 +242,8 @@ export class ZonesSectionComponent {
             list: this._zone_service.all_zones,
             selected: this._zone_service.selected_zone,
             // `all_zones` holds only the first 500 zones of the group
-            load: async (id) => decodeEntityNames(await showZone(id)),
+            load: async (id) =>
+                decodeEntityNames(await zones.show({ id }).then(orThrow)),
         });
     }
 

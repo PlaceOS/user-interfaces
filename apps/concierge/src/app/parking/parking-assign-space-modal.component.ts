@@ -46,7 +46,7 @@ import {
     InteractiveMapComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceAsset } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
 import { ExploreParkingInfoComponent } from 'libs/explore/src/lib/explore-parking-info.component';
 import { DEFAULT_COLOURS } from 'libs/explore/src/lib/explore-spaces.service';
 
@@ -84,7 +84,7 @@ export function mapLocationFromClick(e: any, map_info: BoundsMap = {}) {
 }
 
 export function availableParkingSpaces(
-    spaces: PlaceAsset[],
+    spaces: Asset[],
     booked_ids: Set<string>,
     clash_ids: Set<string>,
 ) {
@@ -267,7 +267,7 @@ export class ParkingAssignSpaceModalComponent
 
     public readonly levels = signal<BuildingLevel[]>([]);
     public readonly focus = signal('');
-    public readonly selected_space = signal<PlaceAsset | null>(null);
+    public readonly selected_space = signal<Asset | null>(null);
     public readonly loading = signal(false);
     public readonly selected_level = signal<BuildingLevel | null>(null);
     public readonly map_info = signal<BoundsMap>({});
@@ -439,13 +439,13 @@ export class ParkingAssignSpaceModalComponent
         this.focus.set('');
     }
 
-    public selectSpace(space: PlaceAsset) {
+    public selectSpace(space: Asset) {
         this.selected_space.set(space);
         this.focus.set(space.map_id || space.id);
         this._refreshStyles();
     }
 
-    public readonly space_label = (space: PlaceAsset) =>
+    public readonly space_label = (space: Asset) =>
         space?.identifier ||
         space?.name ||
         (space as any)?.display_name ||

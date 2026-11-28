@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
-import { PlaceGroupZone } from '@placeos/ts-client';
+import { type GroupZone } from '@placeos/ts-client';
 import { dialogClosed } from '../signage-service.util';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupMembersComponent } from './signage-group-members.component';
@@ -60,7 +60,7 @@ export class SignageGroupZonesComponent {
         if (zone) await this._group_admin.addManagedGroupZone(zone);
     }
 
-    public async editZonePermissions(row: PlaceGroupZone) {
+    public async editZonePermissions(row: GroupZone) {
         const result = await dialogClosed(
             this._dialog.open(SignageGroupPermissionsModalComponent, {
                 data: {
@@ -80,7 +80,7 @@ export class SignageGroupZonesComponent {
         }
     }
 
-    public removeZone(row: PlaceGroupZone) {
+    public removeZone(row: GroupZone) {
         this._group_admin.removeManagedGroupZone(row);
     }
 }

@@ -1,7 +1,7 @@
 import { inject, Injectable, Injector } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { loadLazyChunk } from '@placeos/common';
-import { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import { SignagePluginService } from '../signage-plugin.service';
 
@@ -17,7 +17,7 @@ export class MediaPreviewService {
     private readonly _context = inject(SignageContextService);
     private readonly _injector = inject(Injector);
 
-    public async previewMedia(item: SignageMedia) {
+    public async previewMedia(item: PlaylistItem) {
         // The plugin service loads the plugin lists, so get it only when needed
         const plugin =
             item.media_type === 'plugin' && item.plugin_id

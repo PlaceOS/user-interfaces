@@ -1,23 +1,26 @@
-import type { QueryResponse } from '@placeos/ts-client';
+import { type Page } from '@placeos/ts-client/compat';
 import { queryAllPages } from '../app/query-all-pages';
+
+type Item = { id: string };
+
+/** A 6.x style page, as `orThrowPage` gives it */
+const page = (
+    data: Item[],
+    total: number,
+    next: Page<Item[]>['next'],
+): Page<Item[]> => ({ data, total, next_offset: null, next });
 
 describe('queryAllPages', () => {
     it('should combine each page of results', async () => {
-        const last_page = vi.fn().mockResolvedValue({
-            data: [{ id: 'item-3' }],
-            total: 3,
-            next: null,
-        });
-        const next_page = vi.fn().mockResolvedValue({
-            data: [{ id: 'item-2' }],
-            total: 3,
-            next: last_page,
-        });
-        const first_page = Promise.resolve({
-            data: [{ id: 'item-1' }],
-            total: 3,
-            next: next_page,
-        }) as QueryResponse<{ id: string }>;
+        const last_page = vi.fn(() =>
+            Promise.resolve(page([{ id: 'item-3' }], 3, null)),
+        );
+        const next_page = vi.fn(() =>
+            Promise.resolve(page([{ id: 'item-2' }], 3, last_page)),
+        );
+        const first_page = Promise.resolve(
+            page([{ id: 'item-1' }], 3, next_page),
+        );
 
         const result = await queryAllPages(first_page);
 
@@ -31,17 +34,13 @@ describe('queryAllPages', () => {
     });
 
     it('should stop when the current page is empty', async () => {
-        const skipped_page = vi.fn();
-        const empty_page = vi.fn().mockResolvedValue({
-            data: [],
-            total: 3,
-            next: skipped_page,
-        });
-        const first_page = Promise.resolve({
-            data: [{ id: 'item-1' }],
-            total: 3,
-            next: empty_page,
-        }) as QueryResponse<{ id: string }>;
+        const skipped_page = vi.fn(() => null);
+        const empty_page = vi.fn(() =>
+            Promise.resolve(page([], 3, skipped_page)),
+        );
+        const first_page = Promise.resolve(
+            page([{ id: 'item-1' }], 3, empty_page),
+        );
 
         const result = await queryAllPages(first_page);
 
@@ -51,12 +50,10 @@ describe('queryAllPages', () => {
     });
 
     it('should stop when the list reaches the total', async () => {
-        const skipped_page = vi.fn();
-        const first_page = Promise.resolve({
-            data: [{ id: 'item-1' }, { id: 'item-2' }],
-            total: 2,
-            next: skipped_page,
-        }) as QueryResponse<{ id: string }>;
+        const skipped_page = vi.fn(() => null);
+        const first_page = Promise.resolve(
+            page([{ id: 'item-1' }, { id: 'item-2' }], 2, skipped_page),
+        );
 
         const result = await queryAllPages(first_page);
 
@@ -65,18 +62,15 @@ describe('queryAllPages', () => {
     });
 
     it('should stop after 50 pages when the API never ends', async () => {
-        type Page = { data: { id: number }[]; next: () => Promise<Page> };
         let count = 0;
-        const page = (): Promise<Page> => {
+        const endless = (): Promise<Page<Item[]>> => {
             count += 1;
             // Fail fast instead of looping forever if the bound regresses
             if (count > 50) throw new Error('requested page 51');
-            return Promise.resolve({ data: [{ id: count }], next: page });
+            return Promise.resolve(page([{ id: `${count}` }], 0, endless));
         };
 
-        const result = await queryAllPages(
-            page() as unknown as QueryResponse<{ id: number }>,
-        );
+        const result = await queryAllPages(endless());
 
         expect(result).toHaveLength(50);
         expect(count).toBe(50);

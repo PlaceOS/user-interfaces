@@ -3,7 +3,7 @@ import { HashMap } from '@placeos/common';
 import { registerMockSignage } from '../lib/api/signage.mock';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const API = '/api/engine/v2/signage';
 

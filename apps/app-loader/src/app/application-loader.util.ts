@@ -1,3 +1,5 @@
+import type { JsonValue } from '@placeos/ts-client';
+
 export interface ApplicationDetails {
     id?: string;
     name?: string;
@@ -23,6 +25,38 @@ export interface LauncherApplicationOptions {
     current_uri?: string;
     restrictions?: ApplicationRestriction[];
     user_groups?: string[];
+}
+
+/**
+ * Reads the applications of `oauth_applications.query`. The API document has
+ * no schema for this list, so the items are plain JSON. The server sends a
+ * numeric `id`, the mock data a string `id`.
+ */
+export function readApplications(
+    items: readonly JsonValue[],
+): ApplicationDetails[] {
+    const text = (value: JsonValue) =>
+        typeof value === 'string' || typeof value === 'number'
+            ? `${value}`
+            : undefined;
+    return items.flatMap((item) =>
+        isJsonObject(item)
+            ? [
+                  {
+                      id: text(item['id']),
+                      name: text(item['name']),
+                      redirect_uri: text(item['redirect_uri']),
+                  },
+              ]
+            : [],
+    );
+}
+
+// `Array.isArray` does not narrow out a readonly array, so this guard does
+function isJsonObject(
+    value: JsonValue,
+): value is { readonly [key: string]: JsonValue } {
+    return !!value && typeof value === 'object' && !Array.isArray(value);
 }
 
 export function buildLauncherApplications(

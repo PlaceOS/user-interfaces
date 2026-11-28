@@ -1,6 +1,6 @@
 import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Point } from '@placeos/common';
+import { HashMap, Point } from '@placeos/common';
 
 import { MatRippleModule } from '@angular/material/core';
 
@@ -410,7 +410,7 @@ export class ExploreMapViewComponent extends AsyncHandler implements OnInit {
         if (!mod) throw i18n('EXPLORE.LOCATE_SERVICE_UNAVAILABLE');
         const priority = binding?.priority || [];
         const locations: MapLocation[] = (
-            await mod.execute('locate_user', [
+            await mod.execute<HashMap[]>('locate_user', [
                 user.email,
                 user.username || user.id,
             ])

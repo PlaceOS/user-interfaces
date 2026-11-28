@@ -1,4 +1,4 @@
-import { SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { addDays, startOfDay } from 'date-fns';
 import {
     buildDisplayScheduleAssignments,
@@ -14,7 +14,7 @@ export const CONFLICT_WINDOW_DAYS = 14;
 /** Two takeover playlists that play at the same time on one display */
 export interface TakeoverConflict {
     display: ScheduleItem;
-    playlists: [SignagePlaylist, SignagePlaylist];
+    playlists: [Playlist, Playlist];
     starts_at: Date;
     ends_at: Date;
 }
@@ -22,7 +22,7 @@ export interface TakeoverConflict {
 export interface TakeoverConflictOptions {
     displays: ScheduleItem[];
     zones: ScheduleItem[];
-    playlists: SignagePlaylist[];
+    playlists: Playlist[];
     /** Only return conflicts that include this playlist */
     playlist_id?: string;
     /** Time to check from. Leaves out overlaps that end before it. Defaults to now. */
@@ -44,14 +44,14 @@ function wallClockDate(first_day: Date, minutes: number) {
 
 /** Minutes from the start of the first day in which a takeover plays */
 interface TakeoverRun {
-    playlist: SignagePlaylist;
+    playlist: Playlist;
     start: number;
     end: number;
 }
 
 /** Overlap of two takeover playlists, in minutes from the first day */
 interface TakeoverOverlap {
-    playlists: [SignagePlaylist, SignagePlaylist];
+    playlists: [Playlist, Playlist];
     start: number;
     end: number;
 }
@@ -69,8 +69,7 @@ interface PlaylistRuns {
 const byStart = (a: { start: number }, b: { start: number }) =>
     a.start - b.start;
 
-const pairKey = ([a, b]: [SignagePlaylist, SignagePlaylist]) =>
-    [a.id, b.id].sort().join('|');
+const pairKey = ([a, b]: [Playlist, Playlist]) => [a.id, b.id].sort().join('|');
 
 /**
  * Join touching or overlapping runs. Runs must be in start order. Keeps the
@@ -147,7 +146,7 @@ export function findTakeoverConflicts({
     );
     // Runs do not depend on the display, so build them once per playlist
     const playlist_runs = new Map<string, PlaylistRuns>();
-    const takeoverRuns = (playlist: SignagePlaylist) => {
+    const takeoverRuns = (playlist: Playlist) => {
         const cached = playlist_runs.get(playlist.id);
         if (cached) return cached;
         const runs: PlaylistRuns = { timed: [], single_pass: [] };
@@ -172,7 +171,7 @@ export function findTakeoverConflicts({
     };
     // Displays with the same takeover playlists have the same overlaps
     const set_overlaps = new Map<string, TakeoverOverlap[]>();
-    const overlapsOf = (assigned: SignagePlaylist[]) => {
+    const overlapsOf = (assigned: Playlist[]) => {
         const key = assigned
             .map(({ id }) => id)
             .sort()

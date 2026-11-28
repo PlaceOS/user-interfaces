@@ -22,11 +22,11 @@ import {
     i18n,
     notifyError,
     notifyInfo,
-    provideValueAccessor,
     randomString,
     unique,
     UploadsService,
 } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { ImageViewerComponent } from 'libs/components/src/lib/image-viewer.component';

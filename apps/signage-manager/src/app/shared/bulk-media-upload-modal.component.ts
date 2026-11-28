@@ -14,7 +14,7 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 import {
     bulkItemName,
     type BulkMediaUploadItem,
@@ -39,7 +39,7 @@ export interface BulkMediaUploadModalData {
     onUpload: (
         item: BulkMediaUploadItem,
         on_progress: (progress: number) => void,
-    ) => Promise<SignageMedia>;
+    ) => Promise<PlaylistItem>;
 }
 
 type BulkUploadStatus = 'pending' | 'uploading' | 'done' | 'error';

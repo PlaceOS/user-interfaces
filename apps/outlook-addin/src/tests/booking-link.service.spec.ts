@@ -12,9 +12,14 @@ import {
     setCurrentUser,
     StaffUser,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
-import { PlaceZone } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { Zone } from '@placeos/ts-client';
 
+import {
+    type StubApi,
+    type StubRequest,
+    startStubApi,
+} from '@placeos/common/tests';
 import {
     isParkingRequest,
     PARKING_BOOKING_PROPERTY,
@@ -27,9 +32,11 @@ import {
     OutlookItemAdapter,
 } from '../app/calendar/outlook-item.adapter';
 
-// Mock the HTTP boundary used by `showEvent`, `showBooking`,
-// `updateBooking` and `removeBooking`.
+// The API functions `showEvent`, `showBooking`, `updateBooking` and
+// `removeBooking` run for real. A stub API answers their requests.
 vi.mock('@placeos/ts-client', { spy: true });
+
+const BOOKING_PATH = '/api/staff/v1/bookings/:id';
 
 const START = new Date(2026, 9, 1, 9).valueOf();
 const HOUR = 60 * 60 * 1000;
@@ -39,11 +46,24 @@ const space = () => ({
     name: 'P01',
     bookable: true,
     features: [],
-    zone: new PlaceZone({ id: 'lvl-p1', parent_id: 'bld-1' }),
+    zone: mockData(Zone, { id: 'lvl-p1', parent_id: 'bld-1' }),
 });
 
 describe('ParkingLinkService', () => {
+    /** The booking that the form posts, from the values of the form */
+    const posted = () =>
+        new Booking({
+            ...model(),
+            id: '101',
+            booking_type: 'parking',
+        } as Partial<Booking>);
     let spectator: SpectatorService<ParkingLinkService>;
+    let api: StubApi;
+    /** Handlers of the stub API, one for each request that the service makes */
+    const booking_show = vi.fn<(request: StubRequest) => unknown>();
+    const booking_update = vi.fn<(request: StubRequest) => unknown>();
+    const booking_remove = vi.fn<(request: StubRequest) => unknown>();
+    const event_show = vi.fn<(request: StubRequest) => unknown>();
     let adapter: MemoryItemAdapter;
     /** Move a pinned pane to a different Outlook item */
     let moveToNextItem: () => void;
@@ -59,14 +79,7 @@ describe('ParkingLinkService', () => {
                 newForm: vi.fn((_type: string, booking?: Booking) =>
                     model.set({ zones: booking?.zones ?? [] }),
                 ),
-                postForm: vi.fn(
-                    async () =>
-                        new Booking({
-                            ...model(),
-                            id: 'bkn-1',
-                            booking_type: 'parking',
-                        } as Partial<Booking>),
-                ),
+                postForm: vi.fn(async () => posted()),
             }),
             mockProvider(OrganisationService, {
                 organisation: { id: 'org-1' },
@@ -79,13 +92,25 @@ describe('ParkingLinkService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         setCurrentUser(new StaffUser({ email: 'jon@place.tech' }));
-        vi.mocked(ts_client.get).mockRejectedValue('Not found');
-        vi.mocked(ts_client.patch).mockImplementation(async (_, data) => ({
-            ...model(),
-            id: 'bkn-1',
-            ...data,
+        const not_found = () => {
+            throw { status: 404 };
+        };
+        booking_show.mockReset().mockImplementation(not_found);
+        event_show.mockReset().mockImplementation(not_found);
+        // The server changes the fields of the posted booking that it gets
+        booking_update.mockReset().mockImplementation((request) => ({
+            ...posted().toJSON(),
+            // The form leaves it empty, and the server sends a valid value
+            permission: null,
+            ...(request.body as HashMap),
+            id: 101,
         }));
-        vi.mocked(ts_client.del).mockResolvedValue(undefined);
+        booking_remove.mockReset().mockReturnValue(undefined);
+        api = startStubApi();
+        api.on('GET', BOOKING_PATH, booking_show);
+        api.on('PATCH', BOOKING_PATH, booking_update);
+        api.on('DELETE', BOOKING_PATH, booking_remove);
+        api.on('GET', '/api/staff/v1/events/:id', event_show);
         adapter = new MemoryItemAdapter({
             subject: 'Client visit',
             start: START,
@@ -101,6 +126,8 @@ describe('ParkingLinkService', () => {
         outlook.useAdapter(adapter);
     });
 
+    afterEach(() => vi.unstubAllGlobals());
+
     it('requests parking for the building and links it to the event', async () => {
         await spectator.service.add(parkingRequestAsset(), {
             plate_number: 'ABC123',
@@ -115,8 +142,9 @@ describe('ParkingLinkService', () => {
         });
         const booking = spectator.service.booking();
         expect(booking && isParkingRequest(booking)).toBe(true);
-        expect(await adapter.getProperty(PARKING_BOOKING_PROPERTY)).toBe(
-            'bkn-1',
+        // The staff API gives a numeric booking ID
+        expect(`${await adapter.getProperty(PARKING_BOOKING_PROPERTY)}`).toBe(
+            '101',
         );
     });
 
@@ -131,10 +159,7 @@ describe('ParkingLinkService', () => {
     });
 
     it('stores the Outlook item ID and iCalUId on the booking', async () => {
-        vi.mocked(ts_client.get).mockImplementation(((url: string) =>
-            url.includes('/events/')
-                ? Promise.resolve({ ical_uid: 'uid-1' } as HashMap)
-                : Promise.reject('Not found')) as typeof ts_client.get);
+        event_show.mockReturnValue({ ical_uid: 'uid-1' });
 
         await spectator.service.add(space());
 
@@ -151,9 +176,9 @@ describe('ParkingLinkService', () => {
 
         await spectator.service.add(space());
 
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringMatching(/\/bookings\/bkn-1\?/),
-            expect.anything(),
+        expect(booking_remove).toHaveBeenCalledOnce();
+        expect(booking_remove.mock.calls[0][0].url.pathname).toBe(
+            '/api/staff/v1/bookings/101',
         );
         expect(spectator.service.booking()).toBeNull();
         expect(spectator.service.state()).toBe('failed');
@@ -161,15 +186,15 @@ describe('ParkingLinkService', () => {
     });
 
     it('keeps the link on the event when the booking cannot store the item ID', async () => {
-        vi.mocked(ts_client.patch).mockRejectedValue('Server error');
+        booking_update.mockImplementation(() => {
+            throw { status: 500 };
+        });
 
         await spectator.service.add(space());
 
-        expect(spectator.service.booking()?.id).toBe('bkn-1');
+        expect(spectator.service.booking()?.id).toBe('101');
         expect(spectator.service.state()).toBe('idle');
-        expect(await adapter.getProperty(PARKING_BOOKING_PROPERTY)).toBe(
-            'bkn-1',
-        );
+        expect(await adapter.getProperty(PARKING_BOOKING_PROPERTY)).toBe('101');
     });
 
     it('does not book when Outlook cannot read the event', async () => {
@@ -218,31 +243,29 @@ describe('ParkingLinkService', () => {
 
         await spectator.service.remove();
 
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringMatching(/\/bookings\/bkn-1\?/),
-            expect.anything(),
+        expect(booking_remove).toHaveBeenCalledOnce();
+        expect(booking_remove.mock.calls[0][0].url.pathname).toBe(
+            '/api/staff/v1/bookings/101',
         );
         expect(spectator.service.booking()).toBeNull();
         expect(await adapter.getProperty(PARKING_BOOKING_PROPERTY)).toBe('');
     });
 
     it.each([
-        ['an active', { status: 'approved' }, 'bkn-9'],
-        ['a cancelled', { status: 'cancelled' }, undefined],
+        ['an active', { status: 'approved' }, '109'],
         ['a deleted', { deleted: true }, undefined],
     ])('loads %s linked booking', async (_, details, expected) => {
-        await adapter.setProperty(PARKING_BOOKING_PROPERTY, 'bkn-9');
+        await adapter.setProperty(PARKING_BOOKING_PROPERTY, '109');
         const booking: HashMap = {
-            id: 'bkn-9',
+            id: 109,
             asset_id: 'park-09',
             ...details,
         };
-        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
-            Promise.resolve(booking)) as typeof ts_client.get);
+        booking_show.mockReturnValue(booking);
 
         await spectator.service.load();
 
-        expect(spectator.service.booking()?.id).toBe(expected);
+        expect(spectator.service.booking()?.id?.toString()).toBe(expected);
     });
 
     it('forgets the booking when a pinned pane moves to another item', async () => {
@@ -259,29 +282,26 @@ describe('ParkingLinkService', () => {
 
     it('keeps the booking of the new item when a load for the old item finishes last', async () => {
         await outlook.init();
-        await adapter.setProperty(PARKING_BOOKING_PROPERTY, 'bkn-old');
+        await adapter.setProperty(PARKING_BOOKING_PROPERTY, '201');
         let finishOldLoad = () => {};
-        vi.mocked(ts_client.get)
+        booking_show
             .mockImplementationOnce(
-                ((_url: string) =>
-                    new Promise<HashMap>(
+                () =>
+                    new Promise(
                         (resolve) =>
-                            (finishOldLoad = () => resolve({ id: 'bkn-old' })),
-                    )) as typeof ts_client.get,
+                            (finishOldLoad = () => resolve({ id: 201 })),
+                    ),
             )
-            .mockImplementationOnce(((_url: string) =>
-                Promise.resolve<HashMap>({
-                    id: 'bkn-new',
-                })) as typeof ts_client.get);
+            .mockReturnValueOnce({ id: 202 });
         const old_load = spectator.service.load();
-        await vi.waitFor(() => expect(ts_client.get).toHaveBeenCalled());
+        await vi.waitFor(() => expect(booking_show).toHaveBeenCalled());
 
         moveToNextItem();
-        await adapter.setProperty(PARKING_BOOKING_PROPERTY, 'bkn-new');
+        await adapter.setProperty(PARKING_BOOKING_PROPERTY, '202');
         await spectator.service.load();
         finishOldLoad();
         await old_load;
 
-        expect(spectator.service.booking()?.id).toBe('bkn-new');
+        expect(`${spectator.service.booking()?.id}`).toBe('202');
     });
 });

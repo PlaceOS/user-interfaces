@@ -9,14 +9,19 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { AutoAssignedDeskModalComponent } from '../../app/book/desk-flow/auto-assigned-desk-modal.component';
 
 describe('AutoAssignedDeskModalComponent', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: Spectator<AutoAssignedDeskModalComponent>;
     let model: WritableSignal<any>;
 
@@ -110,8 +115,8 @@ describe('AutoAssignedDeskModalComponent', () => {
         vi.mocked(
             spectator.inject(OrganisationService).levelWithID,
         ).mockReturnValue({ id: 'level-1', map_id: 'level-1-map.svg' } as any);
-        vi.mocked(ts_client.authority).mockReturnValue({} as any);
-        vi.mocked(ts_client.token).mockReturnValue('');
+        place.setAuthority({});
+        place.setToken('');
         // the colleague's desk is in a corner, beside one desk and away from the centre
         vi.stubGlobal(
             'fetch',

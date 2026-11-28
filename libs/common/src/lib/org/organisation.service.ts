@@ -6,26 +6,29 @@ import {
     effect,
     inject,
     signal,
+    untracked,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import {
-    PlaceZone,
-    authority,
-    bulkMetadata,
-    getModule,
-    isMock,
-    isOnline,
-    onlineState,
-    queryZones,
-    showMetadata,
-    waitForSignal,
+    metadata as metadata_v7,
+    zones as zones_v7,
+    type Zone,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 
 import { requestInitReload } from '../application';
 import { scoped_log, unique } from '../general';
 import { notifyError } from '../notifications';
+import {
+    authority,
+    isMock,
+    isOnline,
+    onlineState,
+    waitForOnline,
+} from '../place-client';
 import { setLoadingMessage } from '../placeos.service';
 import { isPublicMode } from '../public-mode';
+import { getModule } from '../realtime';
 import { SettingsService } from '../settings.service';
 import { firstValueWhere } from '../signal.utilities';
 import {
@@ -87,7 +90,7 @@ function cachedAuthority(): CachedAuthority | null {
     }
 }
 
-type ZoneQueryParams = Parameters<typeof queryZones>[0];
+type ZoneQueryParams = Parameters<typeof zones_v7.query>[0];
 type MetadataMap = Record<string, Record<string, any>>;
 interface CacheItem<T> {
     cached_at: number;
@@ -366,7 +369,7 @@ export class OrganisationService implements OnDestroy {
 
     constructor() {
         const online_state = onlineState();
-        const online = waitForSignal(online_state, (_) => _);
+        const online = waitForOnline();
         // Waiting forever prevents the loading UI and route guards from
         // recovering. After a short wait, try the cache and let the normal
         // request retry path handle a missing cache.
@@ -377,12 +380,12 @@ export class OrganisationService implements OnDestroy {
         start.then(() => this._scheduleInit());
         // A zone request can remain pending when authentication is interrupted.
         // Start a fresh load when authentication brings the client online again.
-        online_state.subscribe(
-            (is_online, was_online) => {
-                if (is_online && !was_online) this._scheduleInit();
-            },
-            { emitCurrent: false },
-        );
+        let was_online = online_state();
+        effect(() => {
+            const is_online = online_state();
+            if (is_online && !was_online) untracked(() => this._scheduleInit());
+            was_online = is_online;
+        });
         effect(() => {
             this._active_region();
             const building = this._active_building();
@@ -515,7 +518,7 @@ export class OrganisationService implements OnDestroy {
         return undefined;
     }
 
-    public addZone(zone: PlaceZone) {
+    public addZone(zone: Zone) {
         if (zone.tags.includes('region')) {
             const region = new Region(zone);
             const regions = this._region_list().filter(
@@ -558,7 +561,7 @@ export class OrganisationService implements OnDestroy {
         );
     }
 
-    public removeZone(zone: PlaceZone) {
+    public removeZone(zone: Zone) {
         if (zone.tags.includes('region')) {
             const regions = this._region_list().filter((_) => _.id !== zone.id);
             this._region_list.set(regions);
@@ -738,7 +741,7 @@ export class OrganisationService implements OnDestroy {
      */
     public async loadOrganisation(): Promise<void> {
         const org_list = await this._queryZones({
-            tags: 'org',
+            tags: ['org'],
             include_children_count: true,
         });
         if (org_list.length) {
@@ -767,8 +770,10 @@ export class OrganisationService implements OnDestroy {
     public async loadRegions(): Promise<void> {
         const list = (
             await this._queryZones({
-                tags: 'region',
-                parent_id: this._organisation?.id || '',
+                tags: ['region'],
+                parent_id: this._organisation?.id
+                    ? [this._organisation.id]
+                    : undefined,
                 limit: 200,
             }).catch(() => [])
         ).map((_) => new Region(_));
@@ -812,8 +817,8 @@ export class OrganisationService implements OnDestroy {
     ): Promise<Building[]> {
         const building_list = (
             await this._queryZones({
-                tags: 'building',
-                parent_id,
+                tags: ['building'],
+                parent_id: parent_id ? [parent_id] : undefined,
                 limit: 500,
             })
         ).map((_) => new Building(_));
@@ -890,7 +895,7 @@ export class OrganisationService implements OnDestroy {
      */
     public async loadLevels(): Promise<void> {
         let level_list = await this._queryZones({
-            tags: 'level',
+            tags: ['level'],
             limit: 2500,
         });
         level_list = level_list.filter((_) => _.parent_id);
@@ -1110,17 +1115,19 @@ export class OrganisationService implements OnDestroy {
         name: string,
         ids: string[],
     ): Promise<MetadataMap> {
-        const parent_ids = ids.filter(Boolean).join(',');
-        if (!parent_ids) return {};
+        const parent_ids = ids.filter(Boolean);
+        if (!parent_ids.length) return {};
         const cache_key = this._metadataCacheKey(name, ids);
         const cached_metadata = this._getCachedItem<MetadataMap>(cache_key);
         if (cached_metadata) return cached_metadata;
-        const metadata = await bulkMetadata(name, { parent_ids }).catch(
-            (err) =>
+        const metadata = await metadata_v7
+            .bulkFetch({ name, parent_ids })
+            .then(orThrow)
+            .catch((err) =>
                 err?.status === 404
                     ? this._individualMetadata(name, ids)
                     : ({} as Record<string, any>),
-        );
+            );
         const metadata_details = ids.reduce((map, id) => {
             map[id] = metadata[id]?.details || {};
             return map;
@@ -1136,10 +1143,14 @@ export class OrganisationService implements OnDestroy {
     ): Promise<Record<string, unknown>> {
         const items = await Promise.all(
             ids.filter(Boolean).map((id) =>
-                showMetadata(id, name).then(
-                    (item) => [id, item] as const,
-                    () => [id, null] as const,
-                ),
+                metadata_v7
+                    .show({ id, name })
+                    .then(orThrow)
+                    .then((data) => data[name])
+                    .then(
+                        (item) => [id, item] as const,
+                        () => [id, null] as const,
+                    ),
             ),
         );
         const metadata: Record<string, unknown> = {};
@@ -1149,17 +1160,14 @@ export class OrganisationService implements OnDestroy {
         return metadata;
     }
 
-    private async _queryZones(params: ZoneQueryParams): Promise<PlaceZone[]> {
+    private async _queryZones(params: ZoneQueryParams): Promise<Zone[]> {
         const cache_key = this._zoneCacheKey(params);
-        const cached_zones = this._getCachedItem<PlaceZone[]>(cache_key);
+        const cached_zones = this._getCachedItem<Zone[]>(cache_key);
         if (cached_zones) return cached_zones;
-        const zones =
-            (
-                await queryZones({
-                    ...params,
-                    authority_id: authority()?.id,
-                } as any)
-            ).data || [];
+        // The server limits zones to the authority of the domain
+        const zones = [
+            ...((await zones_v7.query(params).then(orThrowPage)).data || []),
+        ];
         this._setCachedItem(cache_key, zones);
         return zones;
     }
@@ -1170,15 +1178,20 @@ export class OrganisationService implements OnDestroy {
         return `${METADATA_CACHE_PREFIX}.${auth?.id || 'default'}.${name}.${parent_ids}`;
     }
 
+    /**
+     * Cache key of a zone query. A list filter, such as `tags`, is a comma
+     * separated string, as in 6.x, so the keys of 6.x caches still match.
+     */
     private _zoneCacheKey(params: ZoneQueryParams): string {
         const auth = cachedAuthority();
         const sorted_params = Object.keys(params)
             .sort()
             .reduce(
                 (cache_params, key) => {
-                    cache_params[key] = (params as Record<string, unknown>)[
-                        key
-                    ];
+                    const value = (params as Record<string, unknown>)[key];
+                    cache_params[key] = Array.isArray(value)
+                        ? value.join(',')
+                        : value;
                     return cache_params;
                 },
                 {} as Record<string, unknown>,

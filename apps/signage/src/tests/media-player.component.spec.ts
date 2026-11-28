@@ -6,7 +6,9 @@ import {
     createHostFactory,
     Spectator,
 } from '@ngneat/spectator/vitest';
-import { MediaAnimation, SignagePlugin } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { SignagePlugin } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 
 import { setMockTime, time } from '../app/media-helpers';
 import { MediaPlayerComponent } from '../app/media-player.component';
@@ -1247,7 +1249,7 @@ describe('MediaPlayerComponent', () => {
 
     it('should keep the current plugin visible until the next config starts playing', () => {
         vi.useFakeTimers();
-        const plugin = new SignagePlugin({
+        const plugin = mockData(SignagePlugin, {
             id: 'plugin-1',
             name: 'Weather',
             uri: 'https://plugins.example/weather',
@@ -1333,7 +1335,7 @@ describe('MediaPlayerComponent', () => {
 
     it('starts the item clock on paint confirmation and does not skip a short plugin while waiting', () => {
         vi.useFakeTimers();
-        const plugin = new SignagePlugin({
+        const plugin = mockData(SignagePlugin, {
             id: 'slow',
             uri: 'https://plugins.example/slow',
         });
@@ -1365,7 +1367,7 @@ describe('MediaPlayerComponent', () => {
 
     it('ignores a scheduled plugin start from an older display attempt', () => {
         vi.useFakeTimers();
-        const plugin = new SignagePlugin({
+        const plugin = mockData(SignagePlugin, {
             id: 'test',
             uri: 'https://plugins.example/test',
         });
@@ -1389,7 +1391,7 @@ describe('MediaPlayerComponent', () => {
 
     it('does not restart a pending plugin when iframe load and ready both arrive', () => {
         vi.useFakeTimers();
-        const plugin = new SignagePlugin({
+        const plugin = mockData(SignagePlugin, {
             id: 'test',
             uri: 'https://plugins.example/test',
         });

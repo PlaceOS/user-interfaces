@@ -18,7 +18,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AsyncHandler } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
-import { showSystem } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { DashboardsService } from './dashboards/dashboards.service';
 import { afterPageTransition } from './page-transitions';
 import { PulseOnChangeDirective } from './ui/pulse-on-change.directive';
@@ -523,7 +524,10 @@ export class AlertsComponent extends AsyncHandler implements OnInit {
     }
 
     private async _loadLocationName(location: string) {
-        const system = await showSystem(location).catch(() => null);
+        const system = await systems
+            .show({ sys_id: location })
+            .then(orThrow)
+            .catch(() => null);
         this._location_names.update((names) => ({
             ...names,
             [location]: system?.display_name || system?.name || '',

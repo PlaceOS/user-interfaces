@@ -34,7 +34,6 @@ export * from './lib/uploads.service';
 export * from './lib/user-group-sync';
 export * from './lib/user-idle-time.service';
 export { userSignal } from './lib/user-state';
-export * from './lib/value-accessor';
 
 export * from './lib/types/asset-request.class';
 export * from './lib/types/asset.class';

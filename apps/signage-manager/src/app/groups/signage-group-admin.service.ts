@@ -12,31 +12,22 @@ import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess, notifyWarn } from '@placeos/common';
 import { type ConfirmModalData, openConfirmModal } from '@placeos/components';
 import {
-    addGroup,
-    addGroupUser,
-    addGroupZone,
-    get,
-    PlaceGroup,
-    PlaceGroupUser,
-    PlaceGroupZone,
-    PlaceUser,
-    PlaceZone,
-    type PlaceZoneQueryOptions,
-    queryGroupUsers,
-    queryGroupZones,
-    type QueryResponse,
-    queryUsers,
-    queryZones,
-    removeGroup,
-    removeGroupUser,
-    removeGroupZone,
-    showGroup,
-    updateGroup,
-    updateGroupUser,
-    updateGroupZone,
+    type Group,
+    groups_users,
+    groups as groups_v7,
+    groups_zones,
+    type GroupUser,
+    type GroupZone,
+    type User,
+    users as users_v7,
+    type Zone,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
+import { groups as staff_groups } from '@placeos/ts-client/staff';
 import { confirmThenRun } from '../shared/confirm-then-run';
 import { decodeEntityNames } from '../shared/decode-entity-names.util';
+import { type QueryResponse } from '../shared/paged-list';
 import {
     groupHierarchy,
     lastLoaded,
@@ -50,8 +41,8 @@ import {
     SignageGroupFeatures,
 } from '../signage-features';
 import {
-    DirectoryGroup,
-    SignageGroupAccess,
+    type DirectoryGroup,
+    type SignageGroupAccess,
     signageGroupAccess,
 } from '../signage-group-access';
 import { PAGE_SIZE, queryAll, searchParam } from '../signage-service.util';
@@ -105,7 +96,7 @@ export class SignageGroupAdminService {
         }),
         // A failed load fails the resource, so the last loaded list stays
         loader: async ({ params }) => {
-            if (!params.user_email) return [] as PlaceGroup[];
+            if (!params.user_email) return [] as Group[];
             const groups = params.can_manage_all
                 ? await this._context.allSignageGroups(params.groups_change)
                 : await this._currentManageableGroups(params.groups_change);
@@ -203,7 +194,9 @@ export class SignageGroupAdminService {
     private readonly _managed_group_users = this._managedGroupResource(
         async (group_id) => {
             const users = await queryAll(
-                queryGroupUsers({ group_id, limit: PAGE_SIZE }),
+                groups_users
+                    .query({ group_id, limit: PAGE_SIZE })
+                    .then(orThrowPage),
             );
             return users.sort((a, b) =>
                 (a.user?.name || a.user_id).localeCompare(
@@ -225,7 +218,9 @@ export class SignageGroupAdminService {
     private readonly _managed_group_zones = this._managedGroupResource(
         async (group_id) => {
             const zones = await queryAll(
-                queryGroupZones({ group_id, limit: PAGE_SIZE }),
+                groups_zones
+                    .query({ group_id, limit: PAGE_SIZE })
+                    .then(orThrowPage),
             );
             return zones.sort((a, b) =>
                 (a.zone?.name || a.zone_id).localeCompare(
@@ -258,19 +253,13 @@ export class SignageGroupAdminService {
     }
 
     /** Zones a managed group can be given access to, not just signage ones */
-    public queryGroupZones(search = ''): QueryResponse<PlaceZone> | null {
-        const group = this.managed_group();
-        // The zones index takes `authority_id`, which the client options
-        // do not type
-        const query_params: PlaceZoneQueryOptions & { authority_id?: string } =
-            {
-                limit: PAGE_SIZE,
-                ...(group?.authority_id
-                    ? { authority_id: group.authority_id }
-                    : {}),
-                ...searchParam(search),
-            };
-        return queryZones(query_params);
+    public queryGroupZones(search = ''): QueryResponse<Zone> | null {
+        // The zone index of the server can filter by `authority_id`, but 7.x
+        // of ts-client does not have the param. The server gives the zones
+        // of the authority of the user.
+        return zones_v7
+            .query({ limit: PAGE_SIZE, ...searchParam(search) })
+            .then(orThrowPage);
     }
 
     /**
@@ -278,7 +267,7 @@ export class SignageGroupAdminService {
      * and managers of an ancestor group can, so members of a group cannot
      * lift the limits set on it.
      */
-    public canEditGroupFeatures(group: PlaceGroup | undefined) {
+    public canEditGroupFeatures(group: Group | undefined) {
         if (!group?.id) return false;
         if (this._context.is_sys_admin()) return true;
         const groups = this._context.signage_groups().map((item) => item.group);
@@ -297,13 +286,15 @@ export class SignageGroupAdminService {
 
     /** Read a group with its current feature flags */
     public async loadGroup(group_id: string) {
-        return decodeEntityNames(await showGroup(group_id));
+        return decodeEntityNames(
+            await groups_v7.show({ id: group_id }).then(orThrow),
+        );
     }
 
     /** Replace the signage flags a group sets itself, limited to what its
      * parent allows. Other subsystems keep their flags. */
     public async saveGroupFeatures(
-        group: PlaceGroup,
+        group: Group,
         signage: SignageGroupFeatures,
     ) {
         if (!this.canEditGroupFeatures(group)) {
@@ -317,14 +308,19 @@ export class SignageGroupAdminService {
                 .loadGroupFeatures(group.parent_id)
                 .catch(noGroupFeaturesOn404)
                 .then((parent) =>
-                    updateGroup(group.id, {
-                        features: {
-                            ...(group.features || {}),
-                            signage: {
-                                ...narrowGroupFeatures(signage, parent),
+                    groups_v7
+                        .update({
+                            id: group.id,
+                            body: {
+                                features: {
+                                    ...(group.features || {}),
+                                    signage: {
+                                        ...narrowGroupFeatures(signage, parent),
+                                    },
+                                },
                             },
-                        },
-                    }),
+                        })
+                        .then(orThrow),
                 ),
             'SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_FEATURES_SAVED',
@@ -333,21 +329,20 @@ export class SignageGroupAdminService {
 
     /** Default permissions and AD group mappings of a group */
     public async loadGroupAccess(group_id: string) {
-        return signageGroupAccess(await showGroup(group_id));
+        return signageGroupAccess(
+            await groups_v7.show({ id: group_id }).then(orThrow),
+        );
     }
 
     /** Replace the default permissions and AD group mappings of a group.
      * System admins and managers of the group can change them. */
-    public async saveGroupAccess(
-        group: PlaceGroup,
-        access: SignageGroupAccess,
-    ) {
+    public async saveGroupAccess(group: Group, access: SignageGroupAccess) {
         if (!this._context.canManageSignageGroup(group.id)) {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
             return null;
         }
         const result = await this._saveGroupChange(
-            updateGroup(group.id, access),
+            groups_v7.update({ id: group.id, body: access }).then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_ACCESS_SAVED',
         );
@@ -356,14 +351,10 @@ export class SignageGroupAdminService {
 
     /** Search the organisation directory for AD groups. Fails when the
      * domain has no staff API tenant or the directory cannot list groups. */
-    public async searchDirectoryGroups(search = '') {
+    public async searchDirectoryGroups(search = ''): Promise<DirectoryGroup[]> {
         const q = search.trim();
-        const url = `/api/staff/v1/groups${q ? `?q=${encodeURIComponent(q)}` : ''}`;
-        const list: unknown = await get(url);
-        if (!Array.isArray(list)) return [];
-        return list.filter(
-            (item): item is DirectoryGroup => typeof item?.id === 'string',
-        );
+        const list = await staff_groups.query(q ? { q } : {}).then(orThrow);
+        return list.filter((item) => !!item.id);
     }
 
     /**
@@ -373,7 +364,7 @@ export class SignageGroupAdminService {
      * new parent, so a manager cannot move a group out of the limits that
      * its parent groups set.
      */
-    public canChangeGroupParent(group: Partial<PlaceGroup>, parent_id: string) {
+    public canChangeGroupParent(group: Partial<Group>, parent_id: string) {
         if (!group.id || parent_id === (group.parent_id || '')) return true;
         const groups = this._context.signage_groups().map((item) => item.group);
         const parent = groups.find((item) => item.id === parent_id);
@@ -389,10 +380,7 @@ export class SignageGroupAdminService {
         );
     }
 
-    public async saveSignageGroup(
-        group: Partial<PlaceGroup>,
-        data: Partial<PlaceGroup>,
-    ) {
+    public async saveSignageGroup(group: Partial<Group>, data: Partial<Group>) {
         const managed_group_id = group.id || data.parent_id || '';
         if (!this._context.canManageSignageGroup(managed_group_id)) {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
@@ -414,13 +402,17 @@ export class SignageGroupAdminService {
             ),
         };
         return this._saveGroupChange(
-            group.id ? updateGroup(group.id, payload) : addGroup(payload),
+            group.id
+                ? groups_v7
+                      .update({ id: group.id, body: payload })
+                      .then(orThrow)
+                : groups_v7.create({ body: payload }).then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_SAVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_SAVED',
         );
     }
 
-    public async removeSignageGroup(group: PlaceGroup) {
+    public async removeSignageGroup(group: Group) {
         if (!group?.id) return;
         if (!this._context.canManageSignageGroup(group.id)) {
             notifyWarn(i18n('SIGNAGE_MANAGER.SVC_NO_MANAGE_GROUP'));
@@ -434,7 +426,7 @@ export class SignageGroupAdminService {
                 }),
                 icon: { content: 'delete' },
             },
-            () => removeGroup(group.id),
+            () => groups_v7.destroy({ id: group.id }).then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_GROUP',
             'SIGNAGE_MANAGER.SVC_GROUP_REMOVED',
         );
@@ -445,22 +437,26 @@ export class SignageGroupAdminService {
 
     public async searchGroupUsers(search = '') {
         const group = this.managed_group();
-        const { data } = await queryUsers({
-            q: search,
-            limit: 20,
-            ...(group?.authority_id
-                ? { authority_id: group.authority_id }
-                : {}),
-        });
+        const { data } = await users_v7
+            .query({
+                q: search,
+                limit: 20,
+                ...(group?.authority_id
+                    ? { authority_id: group.authority_id }
+                    : {}),
+            })
+            .then(orThrowPage);
         return data;
     }
 
-    public async addManagedGroupUser(user: PlaceUser) {
+    public async addManagedGroupUser(user: User) {
         const group_id = this.managed_group_id();
         if (!user?.id || !this._context.canManageSignageGroup(group_id)) return;
         // No permissions, so the backend applies the group's defaults
         await this._saveGroupChange(
-            addGroupUser({ group_id, user_id: user.id }),
+            groups_users
+                .create({ body: { group_id, user_id: user.id } })
+                .then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_ADD_USER',
             'SIGNAGE_MANAGER.SVC_USER_ADDED',
         );
@@ -468,10 +464,7 @@ export class SignageGroupAdminService {
 
     /** Change the permissions of a group user. Asks first when the user
      * takes the Manage permission from themselves. */
-    public async updateManagedGroupUser(
-        item: PlaceGroupUser,
-        permissions: number,
-    ) {
+    public async updateManagedGroupUser(item: GroupUser, permissions: number) {
         if (!this._context.canManageSignageGroup(item.group_id)) return;
         const manage = SignageGroupPermission.Manage;
         if (
@@ -491,9 +484,15 @@ export class SignageGroupAdminService {
             result.close();
         }
         await this._saveGroupChange(
-            updateGroupUser(item.user_id, item.group_id, {
-                permissions,
-            }),
+            groups_users
+                .update({
+                    user_id: item.user_id,
+                    group_id: item.group_id,
+                    body: {
+                        permissions,
+                    },
+                })
+                .then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_UPDATE_USER',
             'SIGNAGE_MANAGER.SVC_USER_UPDATED',
         );
@@ -501,7 +500,7 @@ export class SignageGroupAdminService {
 
     /** Remove a user from a group. The confirmation warns when users
      * remove themselves, as they can lose access to the group. */
-    public async removeManagedGroupUser(item: PlaceGroupUser) {
+    public async removeManagedGroupUser(item: GroupUser) {
         if (!this._context.canManageSignageGroup(item.group_id)) return;
         await this._confirmGroupRemove(
             {
@@ -513,7 +512,10 @@ export class SignageGroupAdminService {
                       }),
                 icon: { content: 'delete' },
             },
-            () => removeGroupUser(item.user_id, item.group_id),
+            () =>
+                groups_users
+                    .destroy({ user_id: item.user_id, group_id: item.group_id })
+                    .then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_USER',
             'SIGNAGE_MANAGER.SVC_USER_REMOVED',
         );
@@ -523,37 +525,47 @@ export class SignageGroupAdminService {
         return !!user_id && user_id === this._context.current_user()?.id;
     }
 
-    public async addManagedGroupZone(zone: PlaceZone) {
+    public async addManagedGroupZone(zone: Zone) {
         const group_id = this.managed_group_id();
         if (!zone?.id || !this._context.canManageSignageGroup(group_id)) return;
         await this._saveGroupChange(
-            addGroupZone({
-                group_id,
-                zone_id: zone.id,
-                permissions: 0,
-            }),
+            groups_zones
+                .create({
+                    body: {
+                        group_id,
+                        zone_id: zone.id,
+                        permissions: 0,
+                    },
+                })
+                .then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_ADD_ZONE',
             'SIGNAGE_MANAGER.SVC_ZONE_ADDED',
         );
     }
 
     public async updateManagedGroupZone(
-        item: PlaceGroupZone,
+        item: GroupZone,
         permissions: number,
         deny: boolean,
     ) {
         if (!this._context.canManageSignageGroup(item.group_id)) return;
         await this._saveGroupChange(
-            updateGroupZone(item.group_id, item.zone_id, {
-                permissions,
-                deny,
-            }),
+            groups_zones
+                .update({
+                    group_id: item.group_id,
+                    zone_id: item.zone_id,
+                    body: {
+                        permissions,
+                        deny,
+                    },
+                })
+                .then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_UPDATE_ZONE',
             'SIGNAGE_MANAGER.SVC_ZONE_UPDATED',
         );
     }
 
-    public async removeManagedGroupZone(item: PlaceGroupZone) {
+    public async removeManagedGroupZone(item: GroupZone) {
         if (!this._context.canManageSignageGroup(item.group_id)) return;
         await this._confirmGroupRemove(
             {
@@ -563,7 +575,10 @@ export class SignageGroupAdminService {
                 }),
                 icon: { content: 'delete' },
             },
-            () => removeGroupZone(item.group_id, item.zone_id),
+            () =>
+                groups_zones
+                    .destroy({ group_id: item.group_id, zone_id: item.zone_id })
+                    .then(orThrow),
             'SIGNAGE_MANAGER.SVC_ERR_REMOVE_ZONE',
             'SIGNAGE_MANAGER.SVC_ZONE_REMOVED',
         );

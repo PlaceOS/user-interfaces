@@ -3,12 +3,13 @@ import { DeferBlockBehavior, TestBed } from '@angular/core/testing';
 import {
     ConsoleHistoryService,
     EMPTY_USER,
+    getModule,
     HotkeysService,
     setCurrentUser,
     SettingsService,
     StaffUser,
 } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { binding_records } from '../lib/binding-debug-hooks';
 import { SettingsDebugPanelLauncherComponent } from '../lib/settings-debug-panel-launcher.component';
 
@@ -18,6 +19,8 @@ describe('SettingsDebugPanelLauncherComponent', () => {
     let logging_starts = 0;
 
     beforeEach(() => {
+        // The driver capture hooks need a realtime client
+        startMockPlaceClient();
         callbacks.clear();
         debug_overrides.set({});
         logging_starts = 0;
@@ -187,10 +190,13 @@ describe('SettingsDebugPanelLauncherComponent', () => {
         fixture.detectChanges();
         expect(logging_starts).toBe(1);
         const system_id = `sys-${Date.now()}-launcher`;
-        getModule(system_id, 'Display').variable('power');
+        const release = getModule(system_id, 'Display')
+            .variable('power')
+            .subscribe(() => undefined);
         expect(
             binding_records().some((record) => record.system_id === system_id),
         ).toBe(true);
+        release();
         expect(fixture.componentInstance.panel()).toBeNull();
     });
 

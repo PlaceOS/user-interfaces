@@ -23,11 +23,11 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    addAlert,
-    TriggerComparison,
+    alerts,
+    type TriggerConditionsComparison as TriggerComparison,
     TriggerConditions,
-    updateAlert,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { AlertConditionModalComponent } from './alert-conditions-modal.component';
 import { DashboardsService } from './dashboards.service';
 import { SystemSearchFieldComponent } from './system-search-field.component';
@@ -436,8 +436,8 @@ export class DashboardAlertManageComponent
             alert_dashboard_id: dashboard.id,
         };
         const method = new_alert.id
-            ? updateAlert(new_alert.id, new_alert)
-            : addAlert(new_alert);
+            ? alerts.update({ id: new_alert.id, body: new_alert }).then(orThrow)
+            : alerts.create({ body: new_alert }).then(orThrow);
         const result = await method.catch((_) => null);
         this.loading.set('');
         if (!result?.id) {

@@ -8,9 +8,7 @@ import { MapRow } from '../../app/map-manager/map-list.utilities';
 import { MapManagementService } from '../../app/map-manager/map-management.service';
 import { MapManagerComponent } from '../../app/map-manager/map-manager.component';
 
-import * as ts_client from '@placeos/ts-client';
-
-vi.mock('@placeos/ts-client', { spy: true });
+import { startMockPlaceClient } from '@placeos/common/tests';
 
 const MAP = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"/>';
 
@@ -40,8 +38,8 @@ describe('MapManagerComponent', () => {
 
     beforeEach(() => {
         run++;
-        vi.mocked(ts_client.authority).mockReturnValue({} as never);
-        vi.mocked(ts_client.token).mockReturnValue('');
+        // Mock mode has an authority, so the map store does not wait for one
+        startMockPlaceClient();
         fetch_mock = vi.fn(async (url: string) =>
             url.includes('missing')
                 ? { ok: false }
@@ -75,7 +73,10 @@ describe('MapManagerComponent', () => {
         await settle();
 
         expect(fetch_mock).toHaveBeenCalledTimes(1);
-        expect(fetch_mock).toHaveBeenCalledWith(upload.map_id, {});
+        expect(fetch_mock).toHaveBeenCalledWith(
+            upload.map_id,
+            expect.anything(),
+        );
         expect(spectator.component.thumbnailSrc(upload)).toMatch(/^blob:/);
     });
 

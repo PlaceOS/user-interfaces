@@ -7,12 +7,14 @@ import {
     signal,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import { showMetadata, updateMetadata, updateUser } from '@placeos/ts-client';
+import { metadata, users } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { format, isSameDay } from 'date-fns';
 
 import { AsyncHandler } from './async-handler.class';
 import { SETTING_KEYS } from './constants';
-import { getItemWithKeys, log, setAppName } from './general';
+import { getItemWithKeys, log, loggableError, setAppName } from './general';
+import { toJsonValue } from './json';
 import { DEFAULT_SETTINGS } from './settings';
 import { ApplicationIcon, HashMap } from './types';
 
@@ -168,6 +170,17 @@ export class SettingsService extends AsyncHandler {
     private _subjects: HashMap<WritableSignal<any>> = {};
     /** Mapping of pending settings */
     private _pending_settings: HashMap = {};
+    /** Number of the latest save, so only the latest save that waits sends */
+    private _save_count = 0;
+    /** Ends `_user_settings_loaded` */
+    private _endSettingsRead: (loaded: boolean) => void = () => undefined;
+    /**
+     * Resolves after the read of the stored user settings: `true` when they
+     * loaded, so a save can merge with them
+     */
+    private readonly _user_settings_loaded = new Promise<boolean>(
+        (resolve) => (this._endSettingsRead = resolve),
+    );
 
     /**
      * @hidden
@@ -297,8 +310,37 @@ export class SettingsService extends AsyncHandler {
             window.setting = (key) => this.get(key);
         }
         const user = await this._currentUser();
-        const data = await showMetadata(user.id, 'settings');
-        this._user_settings.set(withLegacyUserSettings(data.details || {}));
+        // Without saved settings the app uses the defaults
+        let loaded = true;
+        const data = await metadata
+            .show({ id: user.id, name: 'settings' })
+            .then(orThrow)
+            .then((data) => data['settings'])
+            .catch((error) => {
+                log(
+                    'Settings',
+                    'Unable to load user settings',
+                    loggableError(error),
+                    'warn',
+                );
+                loaded = false;
+                return null;
+            });
+
+        const details = data?.details;
+        // Text that is not JSON. 6.x failed to read it, so a save must not
+        // replace it.
+        if (typeof details === 'string') loaded = false;
+        this._user_settings.set(
+            withLegacyUserSettings(
+                details &&
+                    typeof details === 'object' &&
+                    !Array.isArray(details)
+                    ? details
+                    : {},
+            ),
+        );
+        this._endSettingsRead(loaded);
         this._updateSignals();
         this.timeout(
             'init',
@@ -356,7 +398,9 @@ export class SettingsService extends AsyncHandler {
     }
 
     public async updateLocatable(locatable: boolean) {
-        await updateUser(currentUser().id, { locatable }, 'patch');
+        await users
+            .update({ id: currentUser().id, body: { locatable } })
+            .then(orThrow);
         reloadUserData();
     }
 
@@ -402,17 +446,29 @@ export class SettingsService extends AsyncHandler {
     }
 
     private async _savePendingChanges() {
+        // A save replaces the stored settings, so it waits for them. When
+        // they did not load, the changes stay local, so the save does not
+        // remove the other settings.
+        const save = ++this._save_count;
+        if (!(await this._user_settings_loaded)) return;
+        // A later save that waited for the read sends the same changes
+        if (save !== this._save_count) return;
         const user = currentUser();
         if (!user?.id || !Object.keys(this._pending_settings).length) return;
         this._updateSignals();
-        await updateMetadata(user.id, {
-            name: 'settings',
-            description: '',
-            details: {
-                ...this._user_settings(),
-                ...this._pending_settings,
-            },
-        });
+        await metadata
+            .update({
+                id: user.id,
+                body: {
+                    name: 'settings',
+                    description: '',
+                    details: toJsonValue({
+                        ...this._user_settings(),
+                        ...this._pending_settings,
+                    }),
+                },
+            })
+            .then(orThrow);
         this._user_settings.set({
             ...this._user_settings(),
             ...this._pending_settings,

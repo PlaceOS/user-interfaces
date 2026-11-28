@@ -1,5 +1,6 @@
-import { Desk, flatten, OrganisationService } from '@placeos/common';
-import { isMock, listChildMetadata } from '@placeos/ts-client';
+import { Desk, flatten, isMock, OrganisationService } from '@placeos/common';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     deskFromAsset,
     queryDeskAssetsInZone,
@@ -25,7 +26,7 @@ function shareInFlight<T>(key: string, load: () => Promise<T>): Promise<T> {
 /** Child metadata of `zone_id` with the given `name`. Shares in-flight requests */
 function childMetadata(zone_id: string, name: string) {
     return shareInFlight(`metadata|${zone_id}|${name}`, () =>
-        listChildMetadata(zone_id, { name }),
+        metadata.childrenMetadata({ id: zone_id, name }).then(orThrow),
     );
 }
 
@@ -45,12 +46,18 @@ export async function loadParkingResources(
         use_region ? org.levelsForRegion() : org.levelsForBuilding()
     ).filter((_) => _.tags.includes('parking'));
     const spaces = await queryParkingSpacesForZones(levels.map((l) => l.id));
-    return spaces.map((s) => ({
-        ...s,
-        id: s.id || s.map_id,
-        groups: s.place_groups,
-        zone: org.levelWithID([s.zone_id]) as any,
-    })) as BookingAsset[];
+    return spaces.map(
+        (s): BookingAsset => ({
+            ...s,
+            id: s.id || s.map_id,
+            name: s.name || '',
+            bookable: !!s.bookable,
+            groups: [...(s.place_groups || [])],
+            features: [...(s.features || [])],
+            images: [...(s.images || [])],
+            zone: org.levelWithID([s.zone_id]) as any,
+        }),
+    );
 }
 
 /** Load desk resources from the assets API for the active building or region. */

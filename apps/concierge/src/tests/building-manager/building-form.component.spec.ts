@@ -1,11 +1,13 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 
 import { BuildingFormComponent } from '../../app/building-manager/building-form.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -40,11 +42,16 @@ describe('BuildingFormComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client.authority as any).mockReturnValue({ description: 'ACME' });
-        (ts_client.addZone as any).mockReset();
-        (ts_client.updateZone as any).mockReset();
-        (ts_client.addZone as any).mockResolvedValue({ id: 'new-bld' });
-        (ts_client.updateZone as any).mockResolvedValue({ id: 'b1' });
+        // The authority of mock mode has an empty description
+        startMockPlaceClient();
+        (ts_client.zones.create as any).mockReset();
+        (ts_client.zones.update as any).mockReset();
+        (ts_client.zones.create as any).mockResolvedValue(
+            mockReply({ id: 'new-bld' }),
+        );
+        (ts_client.zones.update as any).mockResolvedValue(
+            mockReply({ id: 'b1' }),
+        );
         spectator = createComponent();
     });
 
@@ -86,8 +93,8 @@ describe('BuildingFormComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client.addZone).not.toHaveBeenCalled();
-        expect(ts_client.updateZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
+        expect(ts_client.zones.update).not.toHaveBeenCalled();
     });
 
     it('should create a new building and emit the result when valid', async () => {
@@ -101,13 +108,13 @@ describe('BuildingFormComponent', () => {
 
         await spectator.component.saveChanges();
 
-        expect(ts_client.addZone).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.zones.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 tags: ['building'],
-                name: 'BLD ACME New Tower',
+                name: 'BLD  New Tower',
                 display_name: 'New Tower',
             }),
-        );
+        });
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -126,11 +133,11 @@ describe('BuildingFormComponent', () => {
 
         await spectator.component.saveChanges();
 
-        expect(ts_client.updateZone).toHaveBeenCalledWith(
-            'b1',
-            expect.objectContaining({ name: 'BLD ACME Edited Tower' }),
-        );
-        expect(ts_client.addZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.update).toHaveBeenCalledWith({
+            id: 'b1',
+            body: expect.objectContaining({ name: 'BLD  Edited Tower' }),
+        });
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
     });
 
     it('should not save again on later edits after a blocked save', async () => {
@@ -143,11 +150,11 @@ describe('BuildingFormComponent', () => {
         }));
         await flush();
 
-        expect(ts_client.addZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
     });
 
     it('should reset loading and surface an error when the save request fails', async () => {
-        (ts_client.addZone as any).mockRejectedValue({ message: 'nope' });
+        (ts_client.zones.create as any).mockRejectedValue({ message: 'nope' });
         spectator.component.model.update((m) => ({
             ...m,
             id: '',

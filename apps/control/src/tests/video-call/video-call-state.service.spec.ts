@@ -8,14 +8,19 @@ import {
 import { ControlStateService } from '../../app/control-state.service';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as client from '@placeos/ts-client';
+import type { JsonValue } from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 
 describe('VideoCallStateService', () => {
     let spectator: SpectatorService<VideoCallStateService>;
-    let execute_spy: ReturnType<typeof vi.fn>;
-    let variable_values: Record<string, unknown>;
+    let execute_spy: ReturnType<
+        typeof vi.fn<(method: string, args: readonly unknown[]) => unknown>
+    >;
+    let variable_values: Record<string, JsonValue>;
+    let place: TestPlaceClient;
     const system_id = signal('sys-1');
     const control_mock = { id: 'sys-1', system_id };
 
@@ -29,22 +34,14 @@ describe('VideoCallStateService', () => {
         execute_spy = vi.fn().mockResolvedValue('done');
         system_id.set('sys-1');
         control_mock.id = 'sys-1';
-        vi.mocked(client.getModule).mockImplementation(
-            () =>
-                ({
-                    execute: execute_spy,
-                    variable: (name: string) => {
-                        const listener = Object.assign(
-                            () => variable_values[name] ?? null,
-                            { subscribe: () => () => undefined },
-                        );
-                        return {
-                            bind: () => () => undefined,
-                            listen: () => listener,
-                        };
-                    },
-                }) as unknown as ReturnType<typeof client.getModule>,
-        );
+        place = startTestPlaceClient();
+        // The status values when the service binds them
+        place.bind.mockImplementation((target, listener) => {
+            const value = variable_values[target.name] ?? null;
+            listener({ kind: 'value', value });
+            return () => undefined;
+        });
+        place.useExecute(execute_spy);
         spectator = createService();
     });
 
@@ -96,7 +93,7 @@ describe('VideoCallStateService', () => {
         async (method, arg, command, args) => {
             const call = spectator.service[method] as (v: unknown) => unknown;
             await call.call(spectator.service, arg);
-            expect(client.getModule).toHaveBeenCalledWith('sys-1', 'VidConf');
+            expect(place.modules()).toContain('sys-1|VidConf_1');
             expect(execute_spy).toHaveBeenCalledWith(command, args);
         },
     );

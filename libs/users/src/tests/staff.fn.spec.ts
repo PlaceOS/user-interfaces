@@ -4,39 +4,81 @@ import {
     showStaff,
 } from '../lib/staff.fn';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import { TestBed } from '@angular/core/testing';
 import { SettingsService, StaffUser } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import {
+    clearMockEndpoints,
+    type MockHttpRequest,
+    mockReply,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
+import { PlaceCalendarUser, staff } from '@placeos/ts-client/staff';
+
+import { mockData } from 'libs/common/src/tests/mock-data';
+import { startMockPlaceClient } from 'libs/common/src/tests/test-helpers';
+
+const STAFF = '/api/staff/v1/people';
 
 let exclude_guests: boolean | undefined;
 const searchStaff = (q: string, signal?: AbortSignal) =>
     searchDirectory(q, { exclude_guests, signal });
 
-const mockGet = vi.mocked(
-    ts_client.get as unknown as (url: string) => Promise<unknown>,
-);
+/** `Link` header of each page that the directory sends, in order */
+let links: string[] = [];
+/** Path and query of each directory request, in mock mode */
+const mockGet = vi.fn((_path: string) => undefined);
+const pathOf = (request: MockHttpRequest) => {
+    const url = new URL(request.url, location.origin);
+    return `${url.pathname}${url.search}`;
+};
+/**
+ * Answers directory requests in mock mode: `pages`, one for each request,
+ * with the next `links` header. `link` makes the header of a request.
+ */
+function serve(
+    pages: unknown[][],
+    link = (_: MockHttpRequest, index: number) => links[index] ?? '',
+    before = () => undefined,
+) {
+    let index = 0;
+    registerMockEndpoint({
+        path: STAFF,
+        method: 'GET',
+        callback: (request) => {
+            mockGet(pathOf(request));
+            before();
+            return pages[Math.min(index, pages.length - 1)];
+        },
+        headers: (request) => {
+            const value = link(request, index++);
+            return value ? { Link: value } : {};
+        },
+    });
+}
 
 describe('[Staff API]', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        startMockPlaceClient();
         exclude_guests = undefined;
-        vi.mocked(ts_client.responseHeaders).mockReturnValue({});
+        links = [];
     });
+    afterEach(() => clearMockEndpoints());
     describe('searchStaff', () => {
         it('should GET staff as StaffUser objects without a query', async () => {
-            mockGet.mockResolvedValue([{ name: 'Jim' }]);
+            serve([[{ name: 'Jim' }]]);
             const list = await searchStaff('');
-            expect(ts_client.get).toHaveBeenCalledWith('/api/staff/v1/people');
+            expect(mockGet.mock.calls[0][0]).toBe('/api/staff/v1/people');
             expect(list).toHaveLength(1);
             expect(list[0]).toBeInstanceOf(StaffUser);
         });
 
         it('should allow filtering staff', async () => {
-            mockGet.mockResolvedValue([{ name: 'Jim' }]);
+            serve([[{ name: 'Jim' }]]);
             await searchStaff('Jim');
-            expect(ts_client.get).toHaveBeenCalledWith(
+            expect(mockGet.mock.calls[0][0]).toBe(
                 '/api/staff/v1/people?q=Jim&fields=id%2Cname%2Cemail%2Cusername%2Corganisation%2Cdepartment',
             );
         });
@@ -52,42 +94,44 @@ describe('[Staff API]', () => {
                 username: `guest${i}#EXT#@example.onmicrosoft.com`,
                 unmapped: { userType: 'Guest' },
             }));
-            mockGet.mockResolvedValueOnce(guests).mockResolvedValueOnce([
-                {
-                    id: 'member',
-                    name: 'Jack Employee',
-                    email: 'jack@example.com',
-                    unmapped: { userType: 'Member' },
-                },
-            ]);
             const next =
                 '/api/staff/v1/people?q=Jack&additional_fields=userType&next_page=opaque';
-            vi.mocked(ts_client.responseHeaders)
-                .mockReturnValueOnce({ link: `<${next}>; rel="next"` })
-                .mockReturnValueOnce({});
+            links = [`<${next}>; rel="next"`];
+            serve([
+                guests,
+                [
+                    {
+                        id: 'member',
+                        name: 'Jack Employee',
+                        email: 'jack@example.com',
+                        unmapped: { userType: 'Member' },
+                    },
+                ],
+            ]);
             const results = await searchStaff('Jack');
             expect(results.map((u) => u.id)).toEqual(['member']);
-            expect(ts_client.get).toHaveBeenCalledTimes(2);
-            expect(ts_client.get).toHaveBeenLastCalledWith(next);
+            expect(mockGet).toHaveBeenCalledTimes(2);
+            expect(mockGet.mock.calls[1][0]).toBe(next);
             const url = new URL(mockGet.mock.calls[0][0], location.origin);
             expect(url.searchParams.get('q')).toBe('Jack');
             expect(url.searchParams.get('additional_fields')).toBe('userType');
-            expect(ts_client.responseHeaders).toHaveBeenCalledWith(url.href);
         });
 
         it('uses explicit userType and falls back to the external username marker', async () => {
-            mockGet.mockResolvedValue([
-                { id: 'guest', unmapped: { userType: 'Guest' } },
-                {
-                    id: 'legacy-guest',
-                    username: 'user#ext#@example.onmicrosoft.com',
-                },
-                {
-                    id: 'member',
-                    username: 'user#EXT#@example.onmicrosoft.com',
-                    unmapped: { userType: 'Member' },
-                },
-                { id: 'google', email: 'google@example.com' },
+            serve([
+                [
+                    { id: 'guest', unmapped: { userType: 'Guest' } },
+                    {
+                        id: 'legacy-guest',
+                        username: 'user#ext#@example.onmicrosoft.com',
+                    },
+                    {
+                        id: 'member',
+                        username: 'user#EXT#@example.onmicrosoft.com',
+                        unmapped: { userType: 'Member' },
+                    },
+                    { id: 'google', email: 'google@example.com' },
+                ],
             ]);
             expect((await searchStaff('User')).map((u) => u.id)).toEqual([
                 'member',
@@ -99,17 +143,13 @@ describe('[Staff API]', () => {
             'keeps the previous request and results when setting is %s',
             async (value) => {
                 exclude_guests = value;
-                mockGet.mockResolvedValue([
-                    { id: 'guest', unmapped: { userType: 'Guest' } },
-                ]);
-                vi.mocked(ts_client.responseHeaders).mockReturnValue({
-                    link: '</api/staff/v1/people?next_page=more>; rel="next"',
-                });
+                links = ['</api/staff/v1/people?next_page=more>; rel="next"'];
+                serve([[{ id: 'guest', unmapped: { userType: 'Guest' } }]]);
                 expect((await searchStaff('Jack')).map((u) => u.id)).toEqual([
                     'guest',
                 ]);
-                expect(ts_client.get).toHaveBeenCalledTimes(1);
-                expect(ts_client.get).toHaveBeenCalledWith(
+                expect(mockGet).toHaveBeenCalledTimes(1);
+                expect(mockGet.mock.calls[0][0]).toBe(
                     '/api/staff/v1/people?q=Jack&fields=id%2Cname%2Cemail%2Cusername%2Corganisation%2Cdepartment',
                 );
             },
@@ -124,9 +164,11 @@ describe('[Staff API]', () => {
                     (key: string) => key === 'app.staff_search_exclude_guests',
                 );
             onTestFinished(() => get.mockRestore());
-            mockGet.mockResolvedValue([
-                { id: 'guest', unmapped: { userType: 'Guest' } },
-                { id: 'member', unmapped: { userType: 'Member' } },
+            serve([
+                [
+                    { id: 'guest', unmapped: { userType: 'Guest' } },
+                    { id: 'member', unmapped: { userType: 'Member' } },
+                ],
             ]);
             expect((await searchStaff('')).map((u) => u.id)).toEqual([
                 'member',
@@ -137,76 +179,71 @@ describe('[Staff API]', () => {
         });
 
         it('stops paging once 100 eligible results have been found', async () => {
-            mockGet.mockResolvedValue(
+            links = ['</api/staff/v1/people?next_page=more>; rel="next"'];
+            serve([
                 Array.from({ length: 100 }, (_, i) => ({ id: `member-${i}` })),
-            );
-            vi.mocked(ts_client.responseHeaders).mockReturnValue({
-                link: '</api/staff/v1/people?next_page=more>; rel="next"',
-            });
+            ]);
             expect(await searchStaff('Member')).toHaveLength(100);
-            expect(ts_client.get).toHaveBeenCalledTimes(1);
+            expect(mockGet).toHaveBeenCalledTimes(1);
         });
 
         it('stops fetching pages when an autocomplete search is cancelled', async () => {
             const controller = new AbortController();
-            mockGet.mockImplementation(async () => {
-                controller.abort();
-                return [];
-            });
+            serve([[]], undefined, () => controller.abort());
             await expect(
                 searchStaff('Jack', controller.signal),
             ).rejects.toThrow();
-            expect(ts_client.get).toHaveBeenCalledTimes(1);
+            expect(mockGet).toHaveBeenCalledTimes(1);
         });
 
         it.each([
             'https://other.example/api/staff/v1/people?next_page=more',
             '/api/staff/v1/tenants',
         ])('rejects an unexpected pagination target %s', async (next) => {
-            mockGet.mockResolvedValue([]);
-            vi.mocked(ts_client.responseHeaders).mockReturnValue({
-                link: `<${next}>; rel="next"`,
-            });
+            links = [`<${next}>; rel="next"`];
+            serve([[]]);
             await expect(searchStaff('Jack')).rejects.toThrow(
                 'Invalid staff directory pagination link',
             );
-            expect(ts_client.get).toHaveBeenCalledTimes(1);
+            expect(mockGet).toHaveBeenCalledTimes(1);
         });
     });
 
     it('rejects a pagination link that points back to a visited page', async () => {
         exclude_guests = true;
-        mockGet.mockResolvedValue([]);
-        vi.mocked(ts_client.responseHeaders).mockImplementation((href) => ({
-            link: `<${href}>; rel="next"`,
-        }));
+        serve([[]], (request) => `<${pathOf(request)}>; rel="next"`);
         await expect(searchStaff('Jack')).rejects.toThrow(
             'Invalid staff directory pagination link',
         );
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(mockGet).toHaveBeenCalledTimes(1);
     });
 
     describe('searchStaffByEmailPrefix', () => {
         it('escapes single quotes in the startsWith filter', async () => {
-            mockGet.mockResolvedValue([{ id: 'o', name: "Jim O'Neil" }]);
-            const list = await searchStaffByEmailPrefix("jim.o'neil");
-            const url = new URL(mockGet.mock.calls[0][0], location.origin);
-            expect(url.pathname).toBe('/api/staff/v1/people');
-            expect(url.searchParams.get('filter')).toBe(
-                "startsWith(mail,'jim.o''neil')",
+            vi.mocked(staff.query).mockResolvedValue(
+                mockReply([
+                    mockData(PlaceCalendarUser, {
+                        id: 'o',
+                        name: "Jim O'Neil",
+                    }),
+                ]),
             );
+            const list = await searchStaffByEmailPrefix("jim.o'neil");
+            expect(staff.query).toHaveBeenCalledWith({
+                filter: "startsWith(mail,'jim.o''neil')",
+            });
             expect(list[0]).toBeInstanceOf(StaffUser);
         });
     });
 
     describe('showStaff', () => {
-        it('should GET staff with an encoded ID', async () => {
-            mockGet.mockResolvedValue({ name: 'Jim' });
+        it('should get staff by ID', async () => {
+            vi.mocked(staff.show).mockResolvedValue(
+                mockReply(mockData(PlaceCalendarUser, { name: 'Jim' })),
+            );
             const item = await showStaff('jim@place.tech');
             expect(item).toBeInstanceOf(StaffUser);
-            expect(ts_client.get).toHaveBeenCalledWith(
-                '/api/staff/v1/people/jim%40place.tech',
-            );
+            expect(staff.show).toHaveBeenCalledWith({ id: 'jim@place.tech' });
         });
     });
 });

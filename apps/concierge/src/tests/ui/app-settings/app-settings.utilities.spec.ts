@@ -1,5 +1,6 @@
 import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import {
     applyAppSettings,
     applyBookingFallbacks,
@@ -227,9 +228,14 @@ describe('application settings utilities', () => {
     describe('loadLayeredAppSettings', () => {
         beforeEach(() => {
             vi.clearAllMocks();
-            vi.mocked(ts_client.showMetadata).mockImplementation(
-                async (id: string) =>
-                    ({ details: { default_route: id } }) as never,
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    async (id: string) =>
+                        ({ details: { default_route: id } }) as never,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
             );
         });
 
@@ -243,10 +249,10 @@ describe('application settings utilities', () => {
                 { default_route: 'default', use_region: true },
             );
 
-            expect(ts_client.showMetadata).toHaveBeenCalledWith(
-                'org-1',
-                'app_key',
-            );
+            expect(ts_client.metadata.show).toHaveBeenCalledWith({
+                id: 'org-1',
+                name: 'app_key',
+            });
             expect(layers).toEqual({
                 inherited: { default_route: 'parent-1', use_region: true },
                 stored: { default_route: 'zone-1' },
@@ -261,7 +267,7 @@ describe('application settings utilities', () => {
                 {},
             );
 
-            expect(ts_client.showMetadata).toHaveBeenCalledTimes(2);
+            expect(ts_client.metadata.show).toHaveBeenCalledTimes(2);
             expect(layers.inherited).toEqual({ default_route: 'org-1' });
         });
 
@@ -273,7 +279,7 @@ describe('application settings utilities', () => {
                 { default_route: 'default' },
             );
 
-            expect(ts_client.showMetadata).toHaveBeenCalledTimes(1);
+            expect(ts_client.metadata.show).toHaveBeenCalledTimes(1);
             expect(layers).toEqual({
                 inherited: { default_route: 'default' },
                 stored: { default_route: 'org-1' },
@@ -297,7 +303,9 @@ describe('application settings utilities', () => {
 
         beforeEach(() => {
             vi.clearAllMocks();
-            vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
+            vi.mocked(ts_client.metadata.update).mockResolvedValue(
+                mockReply({} as never),
+            );
         });
 
         afterEach(() => {
@@ -317,20 +325,23 @@ describe('application settings utilities', () => {
 
             await save();
 
-            expect(ts_client.updateMetadata).toHaveBeenCalledWith('zone-1', {
-                name: 'app_key',
-                description: expect.stringMatching(
-                    /\|C\] Concierge Application Settings$/,
-                ),
-                details: {
-                    use_region: true,
-                    default_route: '/b',
-                    edited_by: {
-                        id: 'user-1',
-                        name: 'Admin User',
-                        email: 'admin@example.com',
-                        domain: location.hostname,
-                        role: 'Admin',
+            expect(ts_client.metadata.update).toHaveBeenCalledWith({
+                id: 'zone-1',
+                body: {
+                    name: 'app_key',
+                    description: expect.stringMatching(
+                        /\|C\] Concierge Application Settings$/,
+                    ),
+                    details: {
+                        use_region: true,
+                        default_route: '/b',
+                        edited_by: {
+                            id: 'user-1',
+                            name: 'Admin User',
+                            email: 'admin@example.com',
+                            domain: location.hostname,
+                            role: 'Admin',
+                        },
                     },
                 },
             });
@@ -344,14 +355,14 @@ describe('application settings utilities', () => {
 
             await save();
 
-            expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-                'zone-1',
-                expect.objectContaining({
+            expect(ts_client.metadata.update).toHaveBeenCalledWith({
+                id: 'zone-1',
+                body: expect.objectContaining({
                     details: expect.objectContaining({
                         edited_by: expect.objectContaining({ role }),
                     }),
                 }),
-            );
+            });
         });
     });
 });

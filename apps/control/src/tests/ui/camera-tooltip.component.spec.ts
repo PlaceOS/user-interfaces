@@ -19,14 +19,15 @@ import {
     JoystickTilt,
 } from '../../app/ui/joystick.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import {
     BindingDirective,
     CustomTooltipData,
     IconComponent,
 } from '@placeos/components';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 
 describe('CameraTooltipComponent', () => {
     let spectator: Spectator<CameraTooltipComponent>;
@@ -62,22 +63,19 @@ describe('CameraTooltipComponent', () => {
         ],
     });
 
-    /** Mock module execute calls and return the spy */
+    let place: TestPlaceClient;
+
+    /** Answer the module calls and return the spy of the calls */
     const mockExecute = () => {
         const execute = vi.fn(async () => null);
-        vi.mocked(client.getModule).mockImplementation(
-            () =>
-                ({ execute }) as unknown as ReturnType<typeof client.getModule>,
-        );
+        place.useExecute(execute);
         return execute;
     };
 
     beforeEach(() => {
         available_cameras.set([]);
         selected_camera.set(null);
-        (client.getModule as any).mockImplementation(() => ({
-            execute: async () => null,
-        }));
+        place = startTestPlaceClient();
         spectator = createComponent();
     });
 

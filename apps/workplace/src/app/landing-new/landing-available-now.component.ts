@@ -18,6 +18,7 @@ import {
 import {
     BookingRuleset,
     currentUser,
+    jsonList,
     OrganisationService,
     rulesForResource,
     settingSignal,
@@ -27,7 +28,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addMinutes, getUnixTime } from 'date-fns';
 import { LandingStateService } from '../landing/landing-state.service';
 import {
@@ -310,9 +312,13 @@ export class LandingAvailableNowComponent {
                   )) as BookingAsset[]);
         if (!resources.length) return [];
         const [rules, booked_ids] = await Promise.all([
-            showMetadata(building_id, `${type}_booking_rules`)
-                .then((metadata): BookingRuleset[] =>
-                    metadata.details instanceof Array ? metadata.details : [],
+            metadata_v7
+                .show({ id: building_id, name: `${type}_booking_rules` })
+                .then(orThrow)
+                .then((data) =>
+                    jsonList<BookingRuleset>(
+                        data[`${type}_booking_rules`]?.details,
+                    ),
                 )
                 .catch((): BookingRuleset[] => []),
             bookedResourceList(

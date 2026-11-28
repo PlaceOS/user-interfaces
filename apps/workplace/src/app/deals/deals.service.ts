@@ -1,7 +1,8 @@
 import { effect, inject, Injectable, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Deal, OrganisationService } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { Deal, jsonList, OrganisationService } from '@placeos/common';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { DealDetailsModalComponent } from './deal-details-modal.component';
 
 @Injectable({
@@ -31,16 +32,18 @@ export class DealsService {
             this.loading.set(true);
             this.failed.set(false);
             let failed = false;
-            const { details } = await showMetadata(
-                bld.id,
-                'deals-n-offers',
-            ).catch(() => {
-                failed = true;
-                return { details: [] };
-            });
+            const { details } = await metadata
+                .show({ id: bld.id, name: 'deals-n-offers' })
+                .then(orThrow)
+                // A building without deals has no entry
+                .then((data) => data['deals-n-offers'] ?? { details: [] })
+                .catch(() => {
+                    failed = true;
+                    return { details: [] };
+                });
             if (!active) return;
             this.failed.set(failed);
-            this.deals.set(details instanceof Array ? details : []);
+            this.deals.set(jsonList<Deal>(details));
             this.loading.set(false);
         });
     }

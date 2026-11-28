@@ -1,16 +1,17 @@
-import { SignagePlaylist, SignagePlaylistSchedule } from '@placeos/ts-client';
+import { type PlaylistScheduleInput } from '@placeos/ts-client';
 import { buildDisplayScheduleDays } from '../../app/displays/display-schedule.util';
 import { buildScheduleBlocks } from '../../app/schedules/signage-schedule.util';
-import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
+import { signagePlaylist } from '../../app/signage-models';
+import { hydratedTemplateMapping } from '../../app/signage-template-mapping';
 
 const days = [new Date(2026, 8, 7)];
-const schedule = (hour: number, duration: number): SignagePlaylistSchedule => ({
+const schedule = (hour: number, duration: number): PlaylistScheduleInput => ({
     play_cron: `0 ${hour} * * *`,
     play_period: duration,
     play_takeover: false,
 });
-const mapping = (id: string, timing: SignagePlaylistSchedule | null = null) =>
-    new HydratedSignageTemplateMapping({
+const mapping = (id: string, timing: PlaylistScheduleInput | null = null) =>
+    hydratedTemplateMapping({
         id,
         template_id: `template-${id}`,
         schedule: timing,
@@ -20,7 +21,7 @@ const playlist = (hour: number, duration: number) =>
     buildScheduleBlocks(
         [
             {
-                playlist: new SignagePlaylist({
+                playlist: signagePlaylist({
                     id: 'playlist',
                     name: 'Playlist',
                     schedules: [schedule(hour, duration)],

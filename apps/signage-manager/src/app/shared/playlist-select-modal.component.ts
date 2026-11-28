@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { IconComponent } from '@placeos/components';
-import { SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { byName, PagedSearch } from './paged-search';
 import {
@@ -54,7 +54,7 @@ import {
 export class PlaylistSelectModalComponent {
     private readonly _playlist_service = inject(SignagePlaylistService);
 
-    public readonly list = new PagedSearch<SignagePlaylist>(
+    public readonly list = new PagedSearch<Playlist>(
         (search) => this._playlist_service.queryPlaylists(search),
         byName,
     );

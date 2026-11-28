@@ -4,7 +4,6 @@ import {
 } from '@ngneat/spectator/vitest';
 import { SettingsService, User } from '@placeos/common';
 import { IconComponent, UserAvatarComponent } from '@placeos/components';
-import * as ts_client from '@placeos/ts-client';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { FooterMenuComponent } from '../../app/components/footer-menu.component';
@@ -12,13 +11,20 @@ import { TopbarComponent } from '../../app/components/topbar.component';
 import { DirectoryUserListComponent } from '../../app/directory/user-list.component';
 
 // Native vitest cannot module-mock the @placeos/users workspace package.
-// `searchStaff` is the real function; it calls @placeos/ts-client `get`
-// (the only mockable layer), stubbed below.
-vi.mock('@placeos/ts-client', { spy: true });
+// `searchStaff` is the real function. The people endpoint has no 7.x
+// operation, so it reads the JSON with `fetch`, which is stubbed below.
+const fetch_mock = vi.fn<typeof fetch>();
+/** A JSON response of the people endpoint */
+const people = (list: unknown[]) =>
+    new Response(JSON.stringify(list), {
+        headers: { 'Content-Type': 'application/json' },
+    });
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 describe('DirectoryUserListComponent', () => {
+    afterEach(() => vi.unstubAllGlobals());
+
     let spectator: SpectatorRouting<DirectoryUserListComponent>;
     const settings_get = vi.fn();
     const createComponent = createRoutingFactory({
@@ -35,7 +41,8 @@ describe('DirectoryUserListComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.stubGlobal('fetch', fetch_mock);
+        fetch_mock.mockImplementation(async () => people([]));
         settings_get.mockReturnValue(undefined);
         spectator = createComponent();
     });
@@ -69,7 +76,7 @@ describe('DirectoryUserListComponent', () => {
         await wait(450);
 
         // Below the minimum => the component never reaches the query layer.
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(fetch_mock).not.toHaveBeenCalled();
         expect(spectator.component.search_results()).toEqual([]);
     });
 
@@ -77,20 +84,20 @@ describe('DirectoryUserListComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'app.users.min_search_length' ? 3 : undefined,
         );
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { name: 'Jane', email: 'jane@x.com' },
-        ] as any);
+        fetch_mock.mockImplementation(async () =>
+            people([{ name: 'Jane', email: 'jane@x.com' }]),
+        );
 
         spectator.component.search.set('jane');
         spectator.detectChanges();
         await wait(450);
 
-        // `searchStaff` (workspace fn) cannot be spied; assert the ts-client GET
-        // it issues carries the search query. It wraps results in `StaffUser`,
+        // `searchStaff` (workspace fn) cannot be spied; assert the request
+        // it sends carries the search query. It wraps results in `StaffUser`,
         // so assert the mapped fields rather than object identity.
-        expect(ts_client.get).toHaveBeenCalled();
-        const [url] = vi.mocked(ts_client.get).mock.calls[0];
-        expect(url).toContain('jane');
+        expect(fetch_mock).toHaveBeenCalled();
+        const [url] = fetch_mock.mock.calls[0];
+        expect(`${url}`).toContain('jane');
         const list = spectator.component.search_results();
         expect(list).toHaveLength(1);
         expect(list[0].name).toBe('Jane');
@@ -102,7 +109,7 @@ describe('DirectoryUserListComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'app.users.min_search_length' ? 3 : undefined,
         );
-        vi.mocked(ts_client.get).mockRejectedValue(new Error('boom'));
+        fetch_mock.mockRejectedValue(new Error('boom'));
 
         spectator.component.search.set('jane');
         spectator.detectChanges();
@@ -117,14 +124,17 @@ describe('DirectoryUserListComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'app.users.min_search_length' ? 3 : undefined,
         );
-        let resolveStale: (list: unknown) => void = () => undefined;
-        vi.mocked(ts_client.get)
+        let resolveStale: (list: unknown[]) => void = () => undefined;
+        fetch_mock
             .mockReturnValueOnce(
-                new Promise((resolve) => (resolveStale = resolve)) as any,
+                new Promise(
+                    (resolve) =>
+                        (resolveStale = (list) => resolve(people(list))),
+                ),
             )
-            .mockResolvedValueOnce([
-                { name: 'Janet', email: 'janet@x.com' },
-            ] as any);
+            .mockResolvedValueOnce(
+                people([{ name: 'Janet', email: 'janet@x.com' }]),
+            );
 
         spectator.component.search.set('jane');
         spectator.detectChanges();

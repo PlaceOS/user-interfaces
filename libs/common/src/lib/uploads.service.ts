@@ -1,8 +1,8 @@
 import { Injectable, signal, WritableSignal } from '@angular/core';
-import { apiKey, authorise, token } from '@placeos/ts-client';
-import { AsyncHandler } from './async-handler.class';
 
+import { AsyncHandler } from './async-handler.class';
 import { randomString } from './general';
+import { apiKey, authorise, token } from './place-client';
 
 export interface UploadDetails {
     /** Unique ID for the upload */
@@ -219,7 +219,7 @@ export class UploadsService extends AsyncHandler {
     private _updateUploadToken() {
         // ponytail: shared promise so concurrent failed uploads trigger one refresh
         this._token_refresh ||= (async () => {
-            if (!apiKey() && !token(false)) await authorise();
+            if (!apiKey() && !token()) await authorise();
             await this._initUploads();
         })().finally(() => (this._token_refresh = null));
         return this._token_refresh;

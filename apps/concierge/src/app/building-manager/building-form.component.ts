@@ -14,6 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
     AsyncHandler,
+    authority,
     Building,
     getInvalidSignalFields,
     i18n,
@@ -22,7 +23,8 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
-import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { TimezoneFieldComponent } from '../ui/timezone-field.component';
 
 @Component({
@@ -169,10 +171,12 @@ export class BuildingFormComponent extends AsyncHandler {
         const body = {
             ...data,
             tags: ['building'],
-            name: `BLD ${authority().description} ${data.display_name}`,
+            name: `BLD ${authority()?.description} ${data.display_name}`,
         };
         const building = await (
-            data.id ? updateZone(data.id, body) : addZone(body)
+            data.id
+                ? zones.update({ id: data.id, body }).then(orThrow)
+                : zones.create({ body }).then(orThrow)
         ).catch((e) => {
             notifyError(
                 i18n('APP.CONCIERGE.BUILDINGS_SAVE_ERROR', {

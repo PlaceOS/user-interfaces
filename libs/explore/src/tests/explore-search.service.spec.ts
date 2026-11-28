@@ -16,10 +16,42 @@ import {
     sortGlobalSearchResults,
 } from '../lib/explore-search.service';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { TestBed } from '@angular/core/testing';
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+
+/** Lists that the asset API queries give */
+interface AssetApi {
+    categories?: ts_client.AssetCategoryInput[];
+    types?: ts_client.AssetTypeInput[];
+    assets?: ts_client.AssetInput[];
+}
+
+/** Answer the asset category, type and asset queries with the given lists */
+function mockAssetApi(api: AssetApi = {}) {
+    vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+        mockPage({
+            data: (api.categories ?? []).map((_) =>
+                mockData(ts_client.AssetCategory, _),
+            ),
+        }),
+    );
+    vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+        mockPage({
+            data: (api.types ?? []).map((_) =>
+                mockData(ts_client.AssetType, _),
+            ),
+        }),
+    );
+    vi.mocked(ts_client.assets.query).mockResolvedValue(
+        mockPage({
+            data: (api.assets ?? []).map((_) => mockData(ts_client.Asset, _)),
+        }),
+    );
+}
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { MockProvider } from 'ng-mocks';
@@ -144,53 +176,66 @@ describe('ExploreSearchService', () => {
                 (key: string) =>
                     key === 'app.hide_global_search_items' ? hidden : null,
             );
-            vi.mocked(ts_client.get).mockResolvedValue([] as any);
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details: {},
-            } as any);
-            vi.mocked(ts_client.querySystems).mockResolvedValue({
-                data: [
-                    {
-                        id: 'sys-1',
-                        name: 'Alpha Room',
-                        map_id: 'm-1',
-                        zones: ['lvl-2'],
-                    },
-                    {
-                        id: 'sys-2',
-                        name: 'Alpha Lab',
-                        map_id: 'm-2',
-                        zones: ['lvl-1'],
-                    },
-                    // Spaces without a map location are not results
-                    { id: 'sys-3', name: 'Alpha Hidden', zones: ['lvl-1'] },
-                ],
-            } as any);
-            vi.mocked(ts_client.listChildMetadata).mockImplementation(
-                (_, { name }) =>
-                    Promise.resolve(
-                        name === 'desks'
-                            ? [
-                                  {
-                                      zone: { id: 'lvl-1' },
-                                      metadata: {
-                                          desks: {
-                                              details: [
-                                                  {
-                                                      id: 'desk-1',
-                                                      name: 'Alpha Desk',
-                                                  },
-                                                  {
-                                                      id: 'desk-2',
-                                                      name: 'Beta Desk',
-                                                  },
-                                              ],
+            mockAssetApi();
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        ({
+                            details: {},
+                        }) as any,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
+            vi.mocked(ts_client.systems.query).mockResolvedValue(
+                mockPage({
+                    data: [
+                        {
+                            id: 'sys-1',
+                            name: 'Alpha Room',
+                            map_id: 'm-1',
+                            zones: ['lvl-2'],
+                        },
+                        {
+                            id: 'sys-2',
+                            name: 'Alpha Lab',
+                            map_id: 'm-2',
+                            zones: ['lvl-1'],
+                        },
+                        // Spaces without a map location are not results
+                        { id: 'sys-3', name: 'Alpha Hidden', zones: ['lvl-1'] },
+                    ],
+                } as any),
+            );
+            vi.mocked(ts_client.metadata.childrenMetadata).mockImplementation(
+                fromV1Mock(
+                    (_, { name }) =>
+                        Promise.resolve(
+                            name === 'desks'
+                                ? [
+                                      {
+                                          zone: { id: 'lvl-1' },
+                                          metadata: {
+                                              desks: {
+                                                  details: [
+                                                      {
+                                                          id: 'desk-1',
+                                                          name: 'Alpha Desk',
+                                                      },
+                                                      {
+                                                          id: 'desk-2',
+                                                          name: 'Beta Desk',
+                                                      },
+                                                  ],
+                                              },
                                           },
                                       },
-                                  },
-                              ]
-                            : [],
-                    ) as any,
+                                  ]
+                                : [],
+                        ) as any,
+                    ['id', '...'],
+                ),
             );
             spectator.service.search_fn = vi.fn(() =>
                 Promise.resolve([
@@ -242,7 +287,7 @@ describe('ExploreSearchService', () => {
         vi.useFakeTimers();
         (spectator.inject(OrganisationService).module as any).mockReturnValue({
             variable: () => ({
-                bindThenSubscribe: (callback: (value: unknown) => void) =>
+                subscribe: (callback: (value: unknown) => void) =>
                     callback({
                         first_aid: [{ name: 'Jo', email: 'jo@place.tech' }],
                         fire_warden: [{ name: 'Sam', email: 'sam@place.tech' }],
@@ -263,23 +308,33 @@ describe('ExploreSearchService', () => {
 
     it('should not load the emergency contacts again for each search', async () => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.queryUsers).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+        mockAssetApi();
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.users.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([]),
+        );
         const asset_category_requests = () =>
-            vi
-                .mocked(ts_client.get)
-                .mock.calls.filter(([url]) =>
-                    `${url}`.includes('/asset_categories'),
-                ).length;
+            vi.mocked(ts_client.asset_categories.query).mock.calls.length;
         // Resources load without a reader. Reading `search_results` would
         // also need the mocks of every other search source.
         const search = spectator.service;
@@ -294,23 +349,21 @@ describe('ExploreSearchService', () => {
             await vi.advanceTimersByTimeAsync(500);
         }
         expect(asset_category_requests()).toBe(loaded);
-        expect(ts_client.querySystems).toHaveBeenCalled();
+        expect(ts_client.systems.query).toHaveBeenCalled();
         vi.useRealTimers();
     });
 
     describe('emergency contacts', () => {
-        const ASSET_API = {
-            '/asset_categories': [
-                { id: 'cat-1', name: '_EMERGENCY_CONTACTS_' },
-            ],
-            '/asset_types': [
+        const ASSET_API: AssetApi = {
+            categories: [{ id: 'cat-1', name: '_EMERGENCY_CONTACTS_' }],
+            types: [
                 {
                     id: 'type-1',
                     name: '_EMERGENCY_CONTACTS_',
                     category_id: 'cat-1',
                 },
             ],
-            '/assets': [
+            assets: [
                 {
                     id: 'asset-1',
                     asset_type_id: 'type-1',
@@ -326,22 +379,25 @@ describe('ExploreSearchService', () => {
 
         /** Mock the contact sources, then list the contact results */
         async function contacts(
-            asset_api: Record<string, unknown[]>,
+            asset_api: AssetApi,
             legacy: Record<string, unknown>,
         ) {
-            vi.mocked(ts_client.get).mockImplementation(
-                async (url: string) =>
-                    (Object.entries(asset_api).find(([path]) =>
-                        url.includes(path),
-                    )?.[1] ?? []) as any,
+            mockAssetApi(asset_api);
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    async (_, name) =>
+                        ({
+                            details:
+                                name === 'emergency_contacts' ? legacy : {},
+                        }) as any,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
             );
-            vi.mocked(ts_client.showMetadata).mockImplementation(
-                async (_, name) =>
-                    ({
-                        details: name === 'emergency_contacts' ? legacy : {},
-                    }) as any,
+            vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+                mockReply([]),
             );
-            vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
             let list = [];
             await vi.waitFor(() => {
                 TestBed.tick();

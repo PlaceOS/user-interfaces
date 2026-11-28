@@ -10,7 +10,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { i18n } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import type { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 import { format } from 'date-fns';
 import {
     displayLastSeen,
@@ -30,7 +30,7 @@ interface ReportRow {
     label: string;
     detail: string;
     route?: string[];
-    media?: SignageMedia;
+    media?: PlaylistItem;
 }
 
 /** A report section: a heading, a hint and the rows that need attention */
@@ -382,7 +382,7 @@ export class ContentReportComponent {
         return section.rows.slice(0, MAX_ROWS);
     }
 
-    public preview(media: SignageMedia) {
+    public preview(media: PlaylistItem) {
         void this._media_preview.previewMedia(media);
     }
 }

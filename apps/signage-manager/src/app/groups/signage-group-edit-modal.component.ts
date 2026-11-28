@@ -9,7 +9,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceGroup } from '@placeos/ts-client';
+import { type Group } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 
@@ -99,9 +99,7 @@ import { SignageGroupAdminService } from './signage-group-admin.service';
     ],
 })
 export class SignageGroupEditModalComponent {
-    private readonly _data = inject<{ group: Partial<PlaceGroup> }>(
-        MAT_DIALOG_DATA,
-    );
+    private readonly _data = inject<{ group: Partial<Group> }>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<SignageGroupEditModalComponent>>(MatDialogRef);
     private readonly _group_admin = inject(SignageGroupAdminService);
@@ -111,12 +109,12 @@ export class SignageGroupEditModalComponent {
     public readonly group = this._data.group || {};
     /** Current parent read by ID, for a parent that is not in the user's
      * group lists */
-    private readonly _loaded_parent = signal<PlaceGroup | null>(null);
+    private readonly _loaded_parent = signal<Group | null>(null);
     /** Groups the user can pick as the parent. Leaves out the group, its
      * children and groups the user cannot move it to. The current parent
      * always comes first, so keeping it is a choice even for users who do
      * not manage it. */
-    public readonly parent_groups = (): Pick<PlaceGroup, 'id' | 'name'>[] => {
+    public readonly parent_groups = (): Pick<Group, 'id' | 'name'>[] => {
         const parent_id = this.group.parent_id || '';
         const options = this._group_admin
             .manageable_signage_groups()

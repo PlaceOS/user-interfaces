@@ -1,4 +1,4 @@
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client', { spy: true });
 
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
@@ -6,9 +6,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { StaffUser } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { User, users } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
+import { mockData } from 'libs/common/src/tests/mock-data';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { SelectUserModalComponent } from '../lib/select-user-modal.component';
 
@@ -25,9 +27,17 @@ describe('SelectUserModalComponent', () => {
     beforeEach(() => close_fn.mockClear());
 
     it('should list matching users and close with the chosen one', async () => {
-        vi.spyOn(ts_client, 'queryUsers').mockResolvedValue({
-            data: [{ id: 'u1', name: 'Jim', email: 'jim@place.tech' }],
-        } as Awaited<ReturnType<typeof ts_client.queryUsers>>);
+        vi.mocked(users.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(User, {
+                        id: 'u1',
+                        name: 'Jim',
+                        email: 'jim@place.tech',
+                    }),
+                ],
+            }),
+        );
         spectator = createComponent();
         await spectator.fixture.whenStable();
         spectator.detectChanges();
@@ -39,7 +49,7 @@ describe('SelectUserModalComponent', () => {
     });
 
     it('should show the empty state when the user search fails', async () => {
-        vi.spyOn(ts_client, 'queryUsers').mockRejectedValue(new Error('nope'));
+        vi.mocked(users.query).mockRejectedValue(new Error('nope'));
         spectator = createComponent();
         await spectator.fixture.whenStable();
         spectator.detectChanges();
@@ -48,14 +58,16 @@ describe('SelectUserModalComponent', () => {
     });
 
     it('should query users with the typed search', async () => {
-        const queryUsers = vi.spyOn(ts_client, 'queryUsers').mockImplementation(
-            async ({ q }) =>
-                ({
-                    data: q
-                        ? [{ id: 'u2', name: 'Pat', email: 'pat@place.tech' }]
-                        : [],
-                }) as Awaited<ReturnType<typeof ts_client.queryUsers>>,
-        );
+        const pat = mockData(User, {
+            id: 'u2',
+            name: 'Pat',
+            email: 'pat@place.tech',
+        });
+        const queryUsers = vi
+            .mocked(users.query)
+            .mockImplementation(async (input) =>
+                mockPage({ data: input?.q ? [pat] : [] }),
+            );
         spectator = createComponent();
         await spectator.fixture.whenStable();
         spectator.typeInElement('Pat', 'input');

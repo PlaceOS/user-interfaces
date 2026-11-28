@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, UrlTree } from '@angular/router';
 import { setCurrentUser, StaffUser, user_groups_loaded } from '@placeos/common';
+import { mockData } from '@placeos/common/tests';
 import {
-    currentGroups,
-    PlaceCurrentGroup,
-    PlaceGroup,
-    queryGroups,
-    queryZones,
-    showZone,
+    Group,
+    groups as groups_v7,
+    type GroupsCurrentGroup,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 import { stringToTopic } from '../app/dashboards/broker-alerts';
 import {
@@ -33,16 +33,16 @@ const page = (data: unknown[]) =>
     Promise.resolve({ data, total: data.length, next: () => null }) as any;
 
 function supportGroup(id: string, parent_id = '') {
-    return new PlaceGroup({
+    return mockData(Group, {
         id,
         name: id,
         parent_id,
         subsystems: ['support'],
-    } as any);
+    });
 }
 
-function membership(id: string) {
-    return { group: supportGroup(id), permissions: 1 } as PlaceCurrentGroup;
+function membership(id: string): GroupsCurrentGroup {
+    return { group: supportGroup(id), permissions: 1 };
 }
 
 function signIn(user: Record<string, unknown> = {}) {
@@ -214,27 +214,43 @@ describe('SupportGroupsService', () => {
         localStorage.clear();
         signIn();
         user_groups_loaded.set(true);
-        vi.mocked(currentGroups).mockResolvedValue([
-            membership('g2'),
-            membership('g1'),
-        ]);
-        vi.mocked(queryGroups).mockReturnValue(
-            page([
-                supportGroup('all-2'),
-                // not a support group, so admins don't see it either
-                new PlaceGroup({
-                    id: 'signage',
-                    name: 'signage',
-                    subsystems: ['signage'],
-                }),
-                supportGroup('all-1'),
-            ]),
+        vi.mocked(groups_v7.current).mockResolvedValue(
+            mockReply([membership('g2'), membership('g1')]),
         );
-        vi.mocked(queryZones).mockImplementation((params: any) =>
-            page(params.descendants ? [building, level] : [building, level_2]),
+        vi.mocked(groups_v7.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    page([
+                        supportGroup('all-2'),
+                        // not a support group, so admins don't see it either
+                        mockData(Group, {
+                            id: 'signage',
+                            name: 'signage',
+                            subsystems: ['signage'],
+                        }),
+                        supportGroup('all-1'),
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(showZone).mockImplementation((id: string) =>
-            Promise.resolve(id === 'rgn-1' ? region : org),
+        vi.mocked(zones_v7.query).mockImplementation(
+            fromV1Mock(
+                (params: any) =>
+                    page(
+                        params.descendants
+                            ? [building, level]
+                            : [building, level_2],
+                    ),
+                ['...'],
+                'page',
+            ),
+        );
+        vi.mocked(zones_v7.show).mockImplementation(
+            fromV1Mock(
+                (id: string) => Promise.resolve(id === 'rgn-1' ? region : org),
+                ['id', '...'],
+            ),
         );
     });
 
@@ -243,7 +259,9 @@ describe('SupportGroupsService', () => {
     it("loads the user's support groups and works in the first", async () => {
         create();
         await settle();
-        expect(currentGroups).toHaveBeenCalledWith({ subsystem: 'support' });
+        expect(groups_v7.current).toHaveBeenCalledWith({
+            subsystem: 'support',
+        });
         expect(service.groups().map(({ group }) => group.id)).toEqual([
             'g1',
             'g2',
@@ -279,7 +297,7 @@ describe('SupportGroupsService', () => {
     it('loads what the group can see, and the zones above it', async () => {
         create();
         await settle();
-        expect(queryZones).toHaveBeenCalledWith(
+        expect(zones_v7.query).toHaveBeenCalledWith(
             expect.objectContaining({ group_id: 'g1', descendants: true }),
         );
         const scope = service.scope();
@@ -294,16 +312,20 @@ describe('SupportGroupsService', () => {
         await settle();
         const pending: (() => void)[] = [];
         const release = () => pending.forEach((resolve) => resolve());
-        vi.mocked(queryZones).mockImplementation(
-            () =>
-                new Promise((resolve) =>
-                    pending.push(() =>
-                        resolve({
-                            data: [other_level],
-                            next: () => null,
-                        } as any),
-                    ),
-                ) as any,
+        vi.mocked(zones_v7.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    new Promise((resolve) =>
+                        pending.push(() =>
+                            resolve({
+                                data: [other_level],
+                                next: () => null,
+                            } as any),
+                        ),
+                    ) as any,
+                ['...'],
+                'page',
+            ),
         );
         service.setSelectedGroup('g2');
         await settle();
@@ -326,9 +348,8 @@ describe('SupportGroupsService', () => {
         signIn({ sys_admin: true });
         create();
         await settle();
-        expect(queryGroups).toHaveBeenCalledWith(
-            expect.objectContaining({ subsystem: 'support' }),
-        );
+        // The query has no subsystem filter, so the service filters
+        expect(groups_v7.query).toHaveBeenCalledWith({ limit: 200 });
         expect(service.groups().map(({ group }) => group.id)).toEqual([
             'all-1',
             'all-2',
@@ -354,7 +375,7 @@ describe('SupportGroupsService', () => {
 
     it('keeps the saved group when the groups fail to load', async () => {
         localStorage.setItem(STORAGE_KEY, 'g2');
-        vi.mocked(currentGroups).mockRejectedValue(new Error('offline'));
+        vi.mocked(groups_v7.current).mockRejectedValue(new Error('offline'));
         create();
         await settle();
         expect(service.groups_failed()).toBe(true);
@@ -363,8 +384,12 @@ describe('SupportGroupsService', () => {
     });
 
     it("sees nothing, and is settled, when the group's zones fail to load", async () => {
-        vi.mocked(queryZones).mockImplementation(
-            () => Promise.reject(new Error('offline')) as any,
+        vi.mocked(zones_v7.query).mockImplementation(
+            fromV1Mock(
+                () => Promise.reject(new Error('offline')) as any,
+                ['...'],
+                'page',
+            ),
         );
         create();
         await settle();
@@ -374,7 +399,7 @@ describe('SupportGroupsService', () => {
     });
 
     it('sees nothing for a user in no group', async () => {
-        vi.mocked(currentGroups).mockResolvedValue([]);
+        vi.mocked(groups_v7.current).mockResolvedValue(mockReply([]));
         create();
         await settle();
         expect(service.group_id()).toBe('');
@@ -401,32 +426,38 @@ describe('supportGroupsGuard', () => {
                 },
             ],
         });
-        vi.mocked(queryZones).mockReturnValue(page([]));
+        vi.mocked(zones_v7.query).mockImplementation(
+            fromV1Mock(() => page([]), ['...'], 'page'),
+        );
     });
 
     afterEach(() => TestBed.resetTestingModule());
 
     it('lets in a user in a support group', async () => {
         signIn();
-        vi.mocked(currentGroups).mockResolvedValue([membership('g1')]);
+        vi.mocked(groups_v7.current).mockResolvedValue(
+            mockReply([membership('g1')]),
+        );
         expect(await run()).toBe(true);
     });
 
     it('lets in support users with no group', async () => {
         signIn({ support: true });
-        vi.mocked(queryGroups).mockReturnValue(page([]));
+        vi.mocked(groups_v7.query).mockImplementation(
+            fromV1Mock(() => page([]), ['...'], 'page'),
+        );
         expect(await run()).toBe(true);
     });
 
     it('sends a user in no support group to the unauthorised page', async () => {
         signIn();
-        vi.mocked(currentGroups).mockResolvedValue([]);
+        vi.mocked(groups_v7.current).mockResolvedValue(mockReply([]));
         expect(await run()).toBe(unauthorised);
     });
 
     it('lets the user in when the groups fail to load', async () => {
         signIn();
-        vi.mocked(currentGroups).mockRejectedValue(new Error('offline'));
+        vi.mocked(groups_v7.current).mockRejectedValue(new Error('offline'));
         expect(await run()).toBe(true);
     });
 });

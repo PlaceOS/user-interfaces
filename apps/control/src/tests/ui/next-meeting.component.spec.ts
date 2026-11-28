@@ -1,13 +1,14 @@
 import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { TranslatePipe } from '@placeos/components';
-import * as ts_client from '@placeos/ts-client';
 import { getUnixTime } from 'date-fns';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { MockPipe, MockProvider } from 'ng-mocks';
 import { ControlStateService } from '../../app/control-state.service';
 import { NextMeetingComponent } from '../../app/ui/next-meeting.component';
-
-vi.mock('@placeos/ts-client', { spy: true });
 
 const MINUTE = 60 * 1000;
 
@@ -23,8 +24,7 @@ type Booking = ReturnType<typeof eventAt>;
 
 describe('NextMeetingComponent', () => {
     let spectator: Spectator<NextMeetingComponent>;
-    /** Bookings module status values, by variable name */
-    let status: Record<string, Booking | null>;
+    let place: TestPlaceClient;
     const createComponent = createComponentFactory({
         component: NextMeetingComponent,
         declarations: [MockPipe(TranslatePipe, (v) => v)],
@@ -43,26 +43,14 @@ describe('NextMeetingComponent', () => {
         // Midday, so meetings in the next few hours are still today
         vi.useFakeTimers({ toFake: ['Date'] });
         vi.setSystemTime(new Date(2026, 0, 1, 12));
-        status = {};
-        vi.mocked(ts_client.getModule).mockImplementation(
-            (_id: string, mod: string) =>
-                ({
-                    variable: (name: string) => ({
-                        bind: () => () => undefined,
-                        listen: () =>
-                            Object.assign(() => status[`${mod}.${name}`], {
-                                subscribe: () => () => undefined,
-                            }),
-                    }),
-                }) as unknown as ReturnType<typeof ts_client.getModule>,
-        );
+        place = startTestPlaceClient();
     });
 
     afterEach(() => vi.useRealTimers());
 
     const setup = (current: Booking | null, next: Booking | null) => {
-        status['Bookings.current_booking'] = current;
-        status['Bookings.next_booking'] = next;
+        place.emit('sys-1', 'Bookings', 'current_booking', current);
+        place.emit('sys-1', 'Bookings', 'next_booking', next);
         spectator = createComponent();
         spectator.detectChanges();
     };

@@ -11,7 +11,7 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceGroup } from '@placeos/ts-client';
+import { type Group } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import {
     noGroupFeaturesOn404,
@@ -188,7 +188,7 @@ type ListKey = keyof SignageGroupFeatures;
     ],
 })
 export class SignageGroupFeaturesModalComponent {
-    private readonly _data = inject<{ group: PlaceGroup }>(MAT_DIALOG_DATA);
+    private readonly _data = inject<{ group: Group }>(MAT_DIALOG_DATA);
     private readonly _dialog_ref =
         inject<MatDialogRef<SignageGroupFeaturesModalComponent>>(MatDialogRef);
     private readonly _context = inject(SignageContextService);

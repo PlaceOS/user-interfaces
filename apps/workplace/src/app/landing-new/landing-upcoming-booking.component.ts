@@ -27,6 +27,7 @@ import {
     CalendarEvent,
     currentUser,
     formatDuration,
+    getModule,
     i18n,
     notifyError,
     notifySuccess,
@@ -44,7 +45,6 @@ import {
     EventDetailsModalComponent,
     GroupEventDetailsModalComponent,
 } from '@placeos/events';
-import { getModule } from '@placeos/ts-client';
 import { differenceInMinutes, format, isSameDay } from 'date-fns';
 import { SpacePipe } from 'libs/events/src/lib/space.pipe';
 import { timer } from 'rxjs';

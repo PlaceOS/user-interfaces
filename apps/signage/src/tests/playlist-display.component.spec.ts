@@ -1,5 +1,5 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { MediaAnimation } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 
 import { PlaylistDisplayComponent } from '../app/playlist-display.component';
 import { MediaPlayerItem } from '../app/types';

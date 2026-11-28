@@ -5,10 +5,11 @@ import { MatSelectModule } from '@angular/material/select';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import { IconComponent } from '@placeos/components';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { ControlStateService } from '../../app/control-state.service';
 import { ZoomDirection } from '../../app/ui/camera-commands';
 import { CameraControlsComponent } from '../../app/ui/camera-controls.component';
@@ -19,6 +20,7 @@ import {
 } from '../../app/ui/joystick.component';
 
 describe('CameraControlsComponent', () => {
+    let place: TestPlaceClient;
     let spectator: Spectator<CameraControlsComponent>;
     const camera_list = signal<unknown[]>([]);
     const selected_camera = signal<string | null>(null);
@@ -47,10 +49,11 @@ describe('CameraControlsComponent', () => {
     });
 
     beforeEach(() => {
+        place = startTestPlaceClient();
         camera_list.set([]);
         selected_camera.set(null);
         execute_fn.mockClear();
-        (client.getModule as any).mockReturnValue({ execute: execute_fn });
+        place.useExecute(execute_fn);
         spectator = createComponent();
     });
 
@@ -81,7 +84,7 @@ describe('CameraControlsComponent', () => {
             id: 'cam3',
             name: 'Cam 3',
         });
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
+        expect(place.modules()).toContain('sys-1|System_1');
         expect(execute_fn).toHaveBeenCalledWith('selected_camera', ['cam3']);
     });
 
@@ -96,7 +99,7 @@ describe('CameraControlsComponent', () => {
         spectator.component.moveCamera();
         expect(execute_fn).not.toHaveBeenCalled();
         await new Promise((r) => setTimeout(r, 70));
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'Camera_1');
+        expect(place.modules()).toContain('sys-1|Camera_1');
         expect(execute_fn).toHaveBeenCalledWith('stop', []);
         expect(execute_fn).toHaveBeenCalledWith('tilt', [JoystickTilt.Up]);
         expect(execute_fn).toHaveBeenCalledWith('pan', [JoystickPan.Left]);

@@ -6,6 +6,7 @@ import { MockComponent } from 'ng-mocks';
 import { SettingsService } from '@placeos/common';
 import { IconComponent, SimpleTableComponent } from '@placeos/components';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
 import { ReportsStateService } from 'apps/concierge/src/app/reports/reports-state.service';
 import { ReportSpacesSpaceListingComponent } from 'apps/concierge/src/app/reports/spaces/report-spaces-space-listing.component';
 
@@ -48,19 +49,25 @@ describe('ReportSpacesSpaceListingComponent', () => {
     }
 
     beforeEach(() => {
-        (ts_client.showSystem as any).mockImplementation((id: string) =>
-            Promise.resolve({
-                id,
-                name: id,
-                display_name: id,
-                email: id,
-                capacity: 4,
-                zones: [],
+        (ts_client.systems.show as any).mockImplementation(
+            fromV1Mock(
+                (id: string) =>
+                    Promise.resolve({
+                        id,
+                        name: id,
+                        display_name: id,
+                        email: id,
+                        capacity: 4,
+                        zones: [],
+                    }),
+                ['sys_id', '...'],
+            ),
+        );
+        (ts_client.systems.findByEmail as any).mockResolvedValue(
+            mockPage({
+                data: [],
             }),
         );
-        (ts_client.querySystemsWithEmails as any).mockResolvedValue({
-            data: [],
-        });
         stats = signal<unknown>({ events: [] });
         options = signal<unknown>({ start, end });
         spectator = createComponent({

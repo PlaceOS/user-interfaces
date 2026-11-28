@@ -9,13 +9,11 @@ import {
     setNotifyFilter,
     setNotifyOutlet,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 
 import { AppComponent } from '../app/app.component';
 import { resetWatchdog, watchdogState } from '../app/watchdog';
-
-vi.mock('@placeos/ts-client', { spy: true });
 
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
@@ -108,7 +106,8 @@ describe('AppComponent', () => {
         });
 
         it('should route a failed initialisation through the watchdog', () => {
-            vi.mocked(ts_client.isOnline).mockReturnValue(true);
+            // Mock mode is online, which lets the reload go ahead
+            startMockPlaceClient();
             spectator.component.ngOnInit();
 
             requestInitReload();

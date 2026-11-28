@@ -19,10 +19,10 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    SignageMedia,
-    SignagePlaylist,
-    type SignagePlaylistApprover,
-    SignagePlaylistMedia,
+    type Playlist,
+    type PlaylistApprover,
+    type PlaylistItem,
+    type PlaylistRevision,
 } from '@placeos/ts-client';
 import { MediaPreviewService } from '../media/media-preview.service';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -32,8 +32,8 @@ import { PlaylistApprovalPreviewComponent } from './playlist-approval-preview.co
 import { loadPlaylistApprovalVersions } from './playlist-approval.util';
 
 export interface PlaylistRequestApprovalModalData {
-    playlist: SignagePlaylist;
-    approvers: SignagePlaylistApprover[];
+    playlist: Playlist;
+    approvers: PlaylistApprover[];
     selected_approver_id?: string;
 }
 
@@ -263,7 +263,7 @@ export class PlaylistRequestApprovalModalComponent {
     public readonly can_update = this._context.can_update;
 
     /** The latest version and the last approved version, newest first */
-    public readonly playlist_versions = signal<SignagePlaylistMedia[]>([]);
+    public readonly playlist_versions = signal<PlaylistRevision[]>([]);
     public readonly playlist_media = () =>
         this.playlist_versions().map((playlist) =>
             playlistMediaItems(playlist),
@@ -313,7 +313,7 @@ export class PlaylistRequestApprovalModalComponent {
         if (undone) this._dialog_ref.close();
     }
 
-    public previewItem(item: SignageMedia) {
+    public previewItem(item: PlaylistItem) {
         this._media_preview.previewMedia(item);
     }
 }

@@ -2,7 +2,9 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { setNotifyOutlet, ShortURL } from '@placeos/common';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { short_url, ShortUrl } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { ShortUrlModalComponent } from '../../app/url-management/url-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -12,6 +14,7 @@ describe('ShortUrlModalComponent', () => {
     let dialog_ref: any;
     let dialog_data: Partial<ShortURL> | undefined;
     let notify_open: ReturnType<typeof vi.fn>;
+    const saved = mockData(ShortUrl, { id: 'url-1' });
 
     const createComponent = createComponentFactory({
         component: ShortUrlModalComponent,
@@ -34,9 +37,9 @@ describe('ShortUrlModalComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        // saveShortURL() -> post()/put() at the ts-client boundary
-        (ts_client.post as any).mockResolvedValue({ id: 'url-1' });
-        (ts_client.put as any).mockResolvedValue({ id: 'url-1' });
+        // saveShortURL() -> short_url.create()/update()
+        vi.mocked(short_url.create).mockResolvedValue(mockReply(saved));
+        vi.mocked(short_url.update).mockResolvedValue(mockReply(saved));
     });
 
     afterEach(() => setNotifyOutlet(null, true));
@@ -66,8 +69,8 @@ describe('ShortUrlModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client.post).not.toHaveBeenCalled();
-        expect(ts_client.put).not.toHaveBeenCalled();
+        expect(short_url.create).not.toHaveBeenCalled();
+        expect(short_url.update).not.toHaveBeenCalled();
     });
 
     it('should save a valid URL and close with the response', async () => {
@@ -82,11 +85,13 @@ describe('ShortUrlModalComponent', () => {
 
         await spectator.component.save();
 
-        // new URL -> createShortURL() -> post()
-        expect(ts_client.post).toHaveBeenCalledWith(
-            '/api/engine/v2/short_url',
-            expect.objectContaining({ name: 'Careers', uri: 'https://x.io' }),
-        );
-        expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'url-1' });
+        // new URL -> createShortURL() -> short_url.create()
+        expect(short_url.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
+                name: 'Careers',
+                uri: 'https://x.io',
+            }),
+        });
+        expect(dialog_ref.close).toHaveBeenCalledWith(saved);
     });
 });

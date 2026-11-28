@@ -18,6 +18,7 @@ import { Subject } from 'rxjs';
 import { BookingPanelSettingsModalComponent } from '../../../app/ui/app-settings/booking-panel-settings-modal.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -66,11 +67,17 @@ describe('BookingPanelSettingsModalComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        vi.mocked(ts_client.querySettings).mockResolvedValue({
-            data: [],
-        } as never);
-        vi.mocked(ts_client.addSettings).mockResolvedValue({} as never);
-        vi.mocked(ts_client.updateSettings).mockResolvedValue({} as never);
+        vi.mocked(ts_client.settings.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as never),
+        );
+        vi.mocked(ts_client.settings.create).mockResolvedValue(
+            mockReply({} as never),
+        );
+        vi.mocked(ts_client.settings.update).mockResolvedValue(
+            mockReply({} as never),
+        );
         spectator = createComponent();
     });
 
@@ -105,8 +112,8 @@ describe('BookingPanelSettingsModalComponent', () => {
 
     it('should load settings on init', async () => {
         await spectator.component.ngOnInit();
-        expect(ts_client.querySettings).toHaveBeenCalledWith({
-            parent_id: 'zone-1',
+        expect(ts_client.settings.query).toHaveBeenCalledWith({
+            parent_id: ['zone-1'],
         });
         expect(spectator.component.loading()).toBe('');
     });
@@ -125,39 +132,45 @@ describe('BookingPanelSettingsModalComponent', () => {
 
     it('should save new settings via addSettings when no existing settings', async () => {
         // querySettings returns empty on both init load and save load
-        (ts_client.querySettings as any).mockResolvedValueOnce({
-            data: [],
-        });
+        (ts_client.settings.query as any).mockResolvedValueOnce(
+            mockPage({
+                data: [],
+            }),
+        );
         await spectator.component.ngOnInit();
         await spectator.component.save();
-        expect(ts_client.addSettings).toHaveBeenCalled();
+        expect(ts_client.settings.create).toHaveBeenCalled();
     });
 
     it('should save existing settings via updateSettings when settings exist', async () => {
-        (ts_client.querySettings as any).mockResolvedValue({
-            data: [
-                {
-                    id: 'setting-1',
-                    encryption_level: 0,
-                    settings_string: MOCK_SETTINGS_STRING,
-                },
-            ],
-        });
+        (ts_client.settings.query as any).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'setting-1',
+                        encryption_level: 0,
+                        settings_string: MOCK_SETTINGS_STRING,
+                    },
+                ],
+            }),
+        );
         await spectator.component.ngOnInit();
         await spectator.component.save();
-        expect(ts_client.updateSettings).toHaveBeenCalled();
+        expect(ts_client.settings.update).toHaveBeenCalled();
     });
 
     it('should close dialog after save with existing settings', async () => {
-        (ts_client.querySettings as any).mockResolvedValue({
-            data: [
-                {
-                    id: 'setting-1',
-                    encryption_level: 0,
-                    settings_string: MOCK_SETTINGS_STRING,
-                },
-            ],
-        });
+        (ts_client.settings.query as any).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'setting-1',
+                        encryption_level: 0,
+                        settings_string: MOCK_SETTINGS_STRING,
+                    },
+                ],
+            }),
+        );
         await spectator.component.ngOnInit();
         await spectator.component.save();
         const dialog_ref = spectator.inject(MatDialogRef);
@@ -165,16 +178,18 @@ describe('BookingPanelSettingsModalComponent', () => {
     });
 
     it('should show error when save fails', async () => {
-        (ts_client.querySettings as any).mockResolvedValue({
-            data: [
-                {
-                    id: 'setting-1',
-                    encryption_level: 0,
-                    settings_string: MOCK_SETTINGS_STRING,
-                },
-            ],
-        });
-        (ts_client.updateSettings as any).mockRejectedValueOnce(
+        (ts_client.settings.query as any).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'setting-1',
+                        encryption_level: 0,
+                        settings_string: MOCK_SETTINGS_STRING,
+                    },
+                ],
+            }),
+        );
+        (ts_client.settings.update as any).mockRejectedValueOnce(
             new Error('Save failed') as never,
         );
         await spectator.component.ngOnInit();

@@ -6,19 +6,26 @@ import {
     Spectator,
 } from '@ngneat/spectator/vitest';
 import {
+    clientId,
+    initialisationComplete,
     initialisationFailure,
     LocaleService,
     OrganisationService,
     PlaceOS_Service,
     setCurrentUser,
     SettingsService,
+    setToken,
     StaffUser,
+    token,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { startFakePlaceClient } from '@placeos/common/tests';
+import { createAuthSession } from '@placeos/ts-client';
+import { of } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
 
-// Mock ts-client so that no token is stored.
+// A fake login session keeps the tokens in memory. The tests read them with
+// `token()`.
 vi.mock('@placeos/ts-client', { spy: true });
 // Mock MSAL so that no request leaves the test.
 vi.mock('@azure/msal-browser', { spy: true });
@@ -54,6 +61,8 @@ function stubDialog(opens = true, naa_supported = true) {
         ) => cb({ status: opens ? 'succeeded' : 'failed', value: dialog }),
     );
     vi.stubGlobal('Office', {
+        onReady: async () => ({ host: 'Outlook' }),
+        HostType: { Outlook: 'Outlook' },
         AsyncResultStatus: { Succeeded: 'succeeded', Failed: 'failed' },
         EventType: {
             DialogMessageReceived: 'dialogMessageReceived',
@@ -90,15 +99,17 @@ describe('AppComponent sign in', () => {
 
     /** Open the PlaceOS sign-in dialog from the task pane */
     const signIn = () => spectator.component['_signInWithDialog']();
-    /** Sign in from the task pane in Outlook, with an Entra client ID */
-    const signInWithOutlook = () => {
+    /** Get the Entra token through Outlook, with an Entra client ID */
+    const naaToken = () => {
         spectator.component['_naa_client_id'] = CLIENT_ID;
-        return spectator.component['_signInWithOutlook']();
+        return spectator.component['_naaToken']();
     };
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.setToken).mockImplementation(() => undefined);
+        startFakePlaceClient();
+        // Only the calls of the test count
+        vi.mocked(createAuthSession).mockClear();
         // Startup is not under test. Zoneless change detection would run it.
         vi.spyOn(AppComponent.prototype, 'ngOnInit').mockResolvedValue();
         spectator = createComponent();
@@ -109,16 +120,32 @@ describe('AppComponent sign in', () => {
         vi.unstubAllGlobals();
     });
 
-    it('signs in with the Outlook account and does not open the dialog', async () => {
+    it('stops single sign-on once the sign-in dialog opens', async () => {
+        stubDialog();
+        let endSso: (entra_token: string) => void = () => undefined;
+        const get_token = vi.fn(
+            () => new Promise<string>((resolve) => (endSso = resolve)),
+        );
+        stubMsal(get_token);
+        const pending = naaToken();
+        await vi.waitFor(() => expect(get_token).toHaveBeenCalledOnce());
+
+        void signIn();
+        // The attempt from before the dialog ends after it opened
+        endSso('late-entra-token');
+
+        await expect(pending).resolves.toBeNull();
+        // A later attempt, such as a retry of the user load, asks nothing
+        await expect(naaToken()).resolves.toBeNull();
+        expect(get_token).toHaveBeenCalledOnce();
+    });
+
+    it('gets the Entra token of the Outlook account for single sign-on', async () => {
         const office = stubDialog();
         stubMsal(async () => 'entra-token');
-        vi.mocked(ts_client.exchangeEntraToken).mockResolvedValue();
 
-        await expect(signInWithOutlook()).resolves.toBe(true);
+        await expect(naaToken()).resolves.toBe('entra-token');
 
-        expect(ts_client.exchangeEntraToken).toHaveBeenCalledWith(
-            'entra-token',
-        );
         expect(office.displayDialogAsync).not.toBeCalled();
     });
 
@@ -131,41 +158,61 @@ describe('AppComponent sign in', () => {
                 return stubDialog();
             },
         ],
-        [
-            'PlaceOS rejects the Entra token',
-            () => {
-                stubMsal(async () => 'entra-token');
-                vi.mocked(ts_client.exchangeEntraToken).mockRejectedValue(
-                    new Error('Unknown tenant'),
-                );
-                return stubDialog();
-            },
-        ],
-    ])('uses the sign-in dialog when %s', async (_, setup) => {
-        const office = setup();
-        const result = signInWithOutlook();
+    ])('gives no Entra token when %s', async (_, setup) => {
+        setup();
 
-        await vi.waitFor(() =>
-            expect(office.displayDialogAsync).toHaveBeenCalled(),
-        );
-        office.send({ message: 'place-token' });
+        // Then the login has no token, and the task pane opens the dialog
+        await expect(naaToken()).resolves.toBeNull();
+    });
 
-        await expect(result).resolves.toBe(true);
-        expect(ts_client.setToken).toHaveBeenCalledWith('place-token');
+    /** The login grant of each session that `setupPlace` made */
+    const grants = () =>
+        vi.mocked(createAuthSession).mock.calls.map(([config]) => config.grant);
+
+    it('asks the login for single sign-on only when it is in Outlook', async () => {
+        spectator.component['_naa_client_id'] = CLIENT_ID;
+
+        await spectator.component['_initialiseAuth'](true, true);
+        await spectator.component['_initialiseAuth'](false);
+
+        expect(grants()).toEqual([
+            { kind: 'entra', entraToken: expect.any(Function) },
+            { kind: 'code' },
+        ]);
+    });
+
+    it('keeps the tokens over a reload only in the task pane, in its own storage', async () => {
+        const trusted = `${clientId()}_trusted`;
+
+        await spectator.component['_initialiseAuth'](true, true);
+        expect(sessionStorage.getItem(trusted)).toBe('true');
+        expect(localStorage.getItem(trusted)).toBeNull();
+
+        // A browser outside Outlook does not get the trust of the task pane
+        sessionStorage.removeItem(trusted);
+        await spectator.component['_initialiseAuth'](false);
+        expect(sessionStorage.getItem(trusted)).toBeNull();
+        expect(localStorage.getItem(trusted)).toBeNull();
+    });
+
+    it('does not ask for single sign-on without an Entra client ID', async () => {
+        spectator.component['_naa_client_id'] = '';
+
+        await spectator.component['_initialiseAuth'](true, true);
+
+        expect(grants()).toEqual([{ kind: 'code' }]);
     });
 
     it('signs out when the current user cannot load', () => {
-        vi.mocked(ts_client.invalidateToken).mockImplementation(
-            () => undefined,
-        );
+        setToken('place-token');
         setCurrentUser(new StaffUser({ is_logged_in: true }));
         spectator.component['onInitError']();
-        expect(ts_client.invalidateToken).not.toBeCalled();
+        expect(token()).toBe('place-token');
 
         setCurrentUser(new StaffUser());
         spectator.component['onInitError']();
 
-        expect(ts_client.invalidateToken).toHaveBeenCalledOnce();
+        expect(token()).toBe('');
         expect(initialisationFailure()()).toContain(
             'could not load the current user',
         );
@@ -190,9 +237,7 @@ describe('AppComponent sign in', () => {
             expect.anything(),
             expect.any(Function),
         );
-        expect(ts_client.setToken).toHaveBeenCalledExactlyOnceWith(
-            'place-token',
-        );
+        expect(token()).toBe('place-token');
         expect(office.dialog.close).toHaveBeenCalledOnce();
     });
 
@@ -203,7 +248,7 @@ describe('AppComponent sign in', () => {
         office.send({ message: 'place-token' });
 
         await expect(result).resolves.toBe(true);
-        expect(ts_client.setToken).toHaveBeenCalledWith('place-token');
+        expect(token()).toBe('place-token');
     });
 
     it.each([
@@ -233,7 +278,7 @@ describe('AppComponent sign in', () => {
 
         await expect(signIn()).resolves.toBe(false);
 
-        expect(ts_client.setToken).not.toBeCalled();
+        expect(token()).toBe('');
         expect(initialisationFailure()()).toContain(message);
     });
 
@@ -247,5 +292,110 @@ describe('AppComponent sign in', () => {
         await expect(result).resolves.toBe(false);
         expect(office.dialog.close).toHaveBeenCalledOnce();
         expect(initialisationFailure()()).toContain('did not finish');
+    });
+});
+
+describe('AppComponent startup in Outlook', () => {
+    /** The status of the token endpoint for the Entra exchange */
+    let exchange_status = 200;
+    const { replaceState, pushState } = window.history;
+
+    const createComponent = createComponentFactory({
+        component: AppComponent,
+        providers: [
+            mockProvider(SettingsService, {
+                initialised: of(true),
+                get: (key: string) =>
+                    key === 'composer'
+                        ? {
+                              protocol: 'https:',
+                              domain: 'example.com',
+                              port: 443,
+                              use_domain: true,
+                          }
+                        : undefined,
+            }),
+            mockProvider(OrganisationService),
+            mockProvider(SwUpdate),
+            mockProvider(LocaleService),
+            mockProvider(PlaceOS_Service),
+        ],
+    });
+
+    /** Runs the startup of the task pane. Resolves when it ends. */
+    function start() {
+        const init = vi.spyOn(AppComponent.prototype, 'ngOnInit');
+        createComponent();
+        return init.mock.results[0].value as Promise<void>;
+    }
+
+    beforeEach(() => {
+        // The real ngOnInit and login session, not the stubs of other tests
+        vi.restoreAllMocks();
+        vi.mocked(createAuthSession).mockReset();
+        // The task pane keeps its tokens in the session storage
+        localStorage.clear();
+        sessionStorage.clear();
+        window.history.replaceState(null, '', `/?ms_client_id=${CLIENT_ID}`);
+        setCurrentUser(new StaffUser({ id: 'user-1', email: 'a@b.c' }));
+        stubMsal(async () => 'entra-token');
+        exchange_status = 200;
+        vi.stubGlobal(
+            'fetch',
+            vi.fn(async (input: RequestInfo | URL) => {
+                const url = String(input);
+                if (url.endsWith('/auth/authority')) {
+                    return Response.json({
+                        id: 'authority-1',
+                        name: 'example.com',
+                        domain: 'example.com',
+                        login_url: '/login?continue={{url}}',
+                        logout_url: '/logout',
+                        session: false,
+                        config: {},
+                    });
+                }
+                if (url.endsWith('/auth/oauth/token')) {
+                    return exchange_status === 200
+                        ? Response.json({ access_token: 'place-token' })
+                        : Response.json(
+                              { error: 'invalid_grant' },
+                              { status: 400 },
+                          );
+                }
+                return new Response(null, { status: 404 });
+            }),
+        );
+    });
+
+    afterEach(() => {
+        // Startup replaces these with functions that do nothing
+        window.history.replaceState = replaceState;
+        window.history.pushState = pushState;
+        window.history.replaceState(null, '', '/');
+        vi.unstubAllGlobals();
+    });
+
+    it('signs in with single sign-on and does not open the dialog', async () => {
+        const office = stubDialog();
+
+        await start();
+
+        expect(office.displayDialogAsync).not.toBeCalled();
+        expect(token()).toBe('place-token');
+        expect(initialisationComplete()()).toBe(true);
+    });
+
+    it('opens the dialog and uses its token when the exchange is rejected', async () => {
+        exchange_status = 400;
+        const office = stubDialog();
+
+        const started = start();
+        await vi.waitFor(() => expect(office.displayDialogAsync).toBeCalled());
+        office.send({ message: 'dialog-token', origin: location.origin });
+        await started;
+
+        expect(token()).toBe('dialog-token');
+        expect(initialisationComplete()()).toBe(true);
     });
 });

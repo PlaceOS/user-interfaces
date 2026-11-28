@@ -12,12 +12,13 @@ import {
     SettingsService,
 } from '@placeos/common';
 import { BuildingPipe, LevelPipe, TranslatePipe } from '@placeos/components';
-import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { MockPipe, MockProvider } from 'ng-mocks';
 
 import { NewDeskFlowSuccessComponent } from '../../app/book/desk-flow-new/desk-flow-success.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('NewDeskFlowSuccessComponent', () => {
     const group_members = [
@@ -217,7 +218,7 @@ describe('NewDeskFlowSuccessComponent', () => {
     it('should not report a success count when booking details cannot be loaded', async () => {
         localStorage.setItem(
             'PLACEOS.last_group_booking_ids',
-            JSON.stringify(['group-1', 'booking-1']),
+            JSON.stringify(['101', '102']),
         );
         localStorage.setItem(
             'PLACEOS.last_group_booking_errors',
@@ -229,7 +230,7 @@ describe('NewDeskFlowSuccessComponent', () => {
                 },
             ]),
         );
-        vi.mocked(ts_client_mod.get).mockRejectedValue(
+        vi.mocked(staff_bookings.show).mockRejectedValue(
             new Error('Network unavailable'),
         );
 
@@ -247,7 +248,7 @@ describe('NewDeskFlowSuccessComponent', () => {
     it('should use current desk names for group booking details', async () => {
         localStorage.setItem(
             'PLACEOS.last_group_booking_ids',
-            JSON.stringify(['group-1', 'booking-1']),
+            JSON.stringify(['101', '102']),
         );
         localStorage.setItem(
             'PLACEOS.last_group_booking_errors',
@@ -261,17 +262,23 @@ describe('NewDeskFlowSuccessComponent', () => {
                 },
             ]),
         );
-        vi.mocked(ts_client_mod.get).mockImplementation(async (url) => {
-            const is_group = `${url}`.endsWith('/group-1');
-            return {
-                id: is_group ? 'group-1' : 'booking-1',
-                booking_type: is_group ? 'group' : 'desk',
-                user_email: 'member.one@example.com',
-                user_name: 'Member One',
-                asset_id: 'desk-1',
-                asset_name: 'Stale Desk One',
-            } as any;
-        });
+        // Staff booking ids are integers: 101 is the group, 102 the member
+        vi.mocked(staff_bookings.show).mockImplementation(
+            fromV1Mock(
+                async (id: number) => {
+                    const is_group = id === 101;
+                    return {
+                        id,
+                        booking_type: is_group ? 'group' : 'desk',
+                        user_email: 'member.one@example.com',
+                        user_name: 'Member One',
+                        asset_id: 'desk-1',
+                        asset_name: 'Stale Desk One',
+                    };
+                },
+                ['id'],
+            ),
+        );
 
         await (spectator.component as any)._loadGroupBookings();
 

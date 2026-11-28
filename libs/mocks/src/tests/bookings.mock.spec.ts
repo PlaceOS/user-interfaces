@@ -1,10 +1,13 @@
-import { MockHttpRequest, registerMockEndpoint } from '@placeos/ts-client';
+import {
+    type MockHttpRequest,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
 
 import { registerMockBookings } from '../lib/api/bookings.mock';
 import { ACTIVE_USER } from '../lib/api/users.data';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const API = '/api/staff/v1/bookings';
 /** Far after the generated mock bookings, so only test bookings match */

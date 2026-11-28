@@ -3,8 +3,11 @@ vi.mock('@placeos/ts-client', { spy: true });
 import { TestBed } from '@angular/core/testing';
 import { NavigationEnd, Router } from '@angular/router';
 import * as ts_client from '@placeos/ts-client';
-import { PlaceUser } from '@placeos/ts-client';
+import { User } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { Subject } from 'rxjs';
+
+import { mockData } from '../tests/mock-data';
 import { StaffUser } from './types/user.class';
 import { watchUserGroupSync } from './user-group-sync';
 import { setCurrentUser } from './user-state';
@@ -22,9 +25,9 @@ describe('watchUserGroupSync', () => {
         setCurrentUser(
             new StaffUser({ id: 'user-1', email: 'a@b.c', groups: [] }),
         );
-        vi.mocked(ts_client.currentGroups).mockResolvedValue([]);
-        vi.mocked(ts_client.showUser).mockResolvedValue(
-            new PlaceUser({ id: 'user-1', groups: ['staff'] }),
+        vi.mocked(ts_client.groups.current).mockResolvedValue(mockReply([]));
+        vi.mocked(ts_client.users.current).mockResolvedValue(
+            mockReply(mockData(User, { id: 'user-1', groups: ['staff'] })),
         );
     });
 
@@ -37,10 +40,10 @@ describe('watchUserGroupSync', () => {
         events.next(new NavigationEnd(2, '/unauthorised', '/unauthorised'));
 
         await vi.advanceTimersByTimeAsync(1_999);
-        expect(ts_client.showUser).not.toHaveBeenCalled();
+        expect(ts_client.users.current).not.toHaveBeenCalled();
 
         await vi.advanceTimersByTimeAsync(1);
-        expect(ts_client.showUser).toHaveBeenCalledWith('current');
+        expect(ts_client.users.current).toHaveBeenCalled();
         expect(router.navigateByUrl).toHaveBeenCalledWith('/');
     });
 });

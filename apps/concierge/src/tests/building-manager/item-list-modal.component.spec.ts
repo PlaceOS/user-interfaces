@@ -6,6 +6,7 @@ import { MockProvider } from 'ng-mocks';
 import { ItemListModalComponent } from '../../app/building-manager/item-list-modal.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -29,15 +30,26 @@ describe('ItemListModalComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client.showMetadata as any).mockReset();
-        (ts_client.updateMetadata as any).mockReset();
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: {
-                support_issue_types: [{ name: 'IT', email: 'it@example.com' }],
-            },
-            description: '',
-        });
-        (ts_client.updateMetadata as any).mockResolvedValue({ id: 'meta' });
+        (ts_client.metadata.show as any).mockReset();
+        (ts_client.metadata.update as any).mockReset();
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {
+                        support_issue_types: [
+                            { name: 'IT', email: 'it@example.com' },
+                        ],
+                    },
+                    description: '',
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client.metadata.update as any).mockResolvedValue(
+            mockReply({ id: 'meta' }),
+        );
         spectator = createComponent();
         spectator.inject(MatDialogRef).close.mockClear();
     });
@@ -55,17 +67,23 @@ describe('ItemListModalComponent', () => {
     });
 
     it('should load the concierge list when workplace has none', async () => {
-        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
-            Promise.resolve({
-                details:
-                    key === 'concierge_app'
-                        ? {
-                              support_issue_types: [
-                                  { name: 'HR', email: 'hr@x' },
-                              ],
-                          }
-                        : {},
-            }),
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                (_id, key) =>
+                    Promise.resolve({
+                        details:
+                            key === 'concierge_app'
+                                ? {
+                                      support_issue_types: [
+                                          { name: 'HR', email: 'hr@x' },
+                                      ],
+                                  }
+                                : {},
+                    }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
 
         await spectator.component.ngOnInit();
@@ -76,15 +94,21 @@ describe('ItemListModalComponent', () => {
     });
 
     it('should ignore an empty workplace list when concierge has one', async () => {
-        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
-            Promise.resolve({
-                details: {
-                    support_issue_types:
-                        key === 'concierge_app'
-                            ? [{ name: 'HR', email: 'hr@x' }]
-                            : [],
-                },
-            }),
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                (_id, key) =>
+                    Promise.resolve({
+                        details: {
+                            support_issue_types:
+                                key === 'concierge_app'
+                                    ? [{ name: 'HR', email: 'hr@x' }]
+                                    : [],
+                        },
+                    }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
 
         await spectator.component.ngOnInit();
@@ -118,8 +142,9 @@ describe('ItemListModalComponent', () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledTimes(2);
-        const [, first_body] = (ts_client.updateMetadata as any).mock.calls[0];
+        expect(ts_client.metadata.update).toHaveBeenCalledTimes(2);
+        const [{ body: first_body }] = (ts_client.metadata.update as any).mock
+            .calls[0];
         expect(first_body.details.support_issue_types).toEqual([
             { name: 'IT', email: 'it@example.com' },
         ]);
@@ -128,14 +153,20 @@ describe('ItemListModalComponent', () => {
     });
 
     it('should keep the settings of each app key when saving', async () => {
-        (ts_client.showMetadata as any).mockImplementation((_id, key) =>
-            Promise.resolve({ details: { key }, description: '' }),
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                (_id, key) =>
+                    Promise.resolve({ details: { key }, description: '' }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
         );
 
         await spectator.component.save();
 
-        const bodies = (ts_client.updateMetadata as any).mock.calls.map(
-            ([, body]) => body,
+        const bodies = (ts_client.metadata.update as any).mock.calls.map(
+            ([input]) => input.body,
         );
         expect(bodies.map((body) => [body.name, body.details.key])).toEqual([
             ['workplace_app', 'workplace_app'],
@@ -145,7 +176,7 @@ describe('ItemListModalComponent', () => {
 
     it('should notify and not close when saving fails', async () => {
         await spectator.component.ngOnInit();
-        (ts_client.updateMetadata as any).mockRejectedValueOnce('boom');
+        (ts_client.metadata.update as any).mockRejectedValueOnce('boom');
 
         await spectator.component.save();
 

@@ -1,10 +1,10 @@
 import { Component, inject, input } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { getModule } from '@placeos/common';
 import {
     AuthenticatedImageDirective,
     BindingDirective,
 } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
 import { ControlStateService } from '../control-state.service';
 
 @Component({

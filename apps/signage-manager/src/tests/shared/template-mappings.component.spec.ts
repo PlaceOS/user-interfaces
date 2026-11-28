@@ -3,12 +3,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { TemplateMappingsComponent } from '../../app/shared/template-mappings.component';
 import { SignageContextService } from '../../app/signage-context.service';
-import { HydratedSignageTemplateMapping } from '../../app/signage-template-mapping';
+import { hydratedTemplateMapping } from '../../app/signage-template-mapping';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 
 describe('TemplateMappingsComponent', () => {
-    const mapping = new HydratedSignageTemplateMapping({
+    const mapping = hydratedTemplateMapping({
         id: 'mapping-1',
         template_id: 'template-1',
         control_system_id: 'display-1',
@@ -137,7 +137,7 @@ describe('TemplateMappingsComponent', () => {
 
     it('shows delete for a direct display mapping', async () => {
         list_mappings.mockResolvedValue([
-            new HydratedSignageTemplateMapping({
+            hydratedTemplateMapping({
                 id: 'mapping-2',
                 template_id: 'template-2',
                 control_system_id: 'display-1',

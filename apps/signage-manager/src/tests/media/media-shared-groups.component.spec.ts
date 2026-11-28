@@ -1,6 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { showSignageMedia, SignageMedia } from '@placeos/ts-client';
+import { playlist_media, type PlaylistItem } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { MediaSharedGroupsComponent } from '../../app/media/media-shared-groups.component';
 import { SignageContextService } from '../../app/signage-context.service';
 
@@ -8,9 +9,11 @@ vi.mock('@placeos/ts-client', { spy: true });
 
 /** Serve the media item as shared with `groups` */
 function sharedWith(groups: { id: string; name: string }[]) {
-    vi.mocked(showSignageMedia).mockResolvedValue({
-        shared_with: groups,
-    } as unknown as SignageMedia);
+    vi.mocked(playlist_media.show).mockResolvedValue(
+        mockReply({
+            shared_with: groups,
+        } as unknown as PlaylistItem),
+    );
 }
 
 describe('MediaSharedGroupsComponent', () => {
@@ -70,13 +73,15 @@ describe('MediaSharedGroupsComponent', () => {
         const fixture = make();
         await settle(fixture);
 
-        expect(showSignageMedia).not.toHaveBeenCalled();
+        expect(playlist_media.show).not.toHaveBeenCalled();
 
         showRow();
         await settle(fixture);
 
-        expect(showSignageMedia).toHaveBeenCalledExactlyOnceWith('media-1', {
-            group_id: 'group-1',
+        // The server checks access through the groups of the media, so the
+        // lookup takes only the id
+        expect(playlist_media.show).toHaveBeenCalledExactlyOnceWith({
+            id: 'media-1',
         });
     });
 

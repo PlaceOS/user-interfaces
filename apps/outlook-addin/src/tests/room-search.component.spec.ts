@@ -17,13 +17,14 @@ import {
     StaffUser,
 } from '@placeos/common';
 import { EventFormOptions, EventFormService } from '@placeos/events';
-import * as ts_client from '@placeos/ts-client';
+
+import { type StubApi, startStubApi } from '@placeos/common/tests';
 
 import { OutlookEventService } from '../app/calendar/outlook-event.service';
 import { MemoryItemAdapter } from '../app/calendar/outlook-item.adapter';
 import { RoomSearchComponent } from '../app/calendar/room-search.component';
 
-// Mock the HTTP boundary used by `showEvent`.
+// `showEvent` runs for real. A stub API answers its request.
 vi.mock('@placeos/ts-client', { spy: true });
 
 const START = new Date(2026, 9, 1, 9).valueOf();
@@ -43,6 +44,7 @@ const room = (id: string, capacity: number, details: Partial<Space> = {}) =>
 describe('RoomSearchComponent', () => {
     let spectator: Spectator<RoomSearchComponent>;
     let adapter: MemoryItemAdapter;
+    let api: StubApi;
     /** Snackbar that `notifyError` shows its message in */
     const snackbar = {
         open: vi.fn(() => ({
@@ -77,6 +79,8 @@ describe('RoomSearchComponent', () => {
 
     beforeEach(async () => {
         vi.clearAllMocks();
+        // No saved event, so a request gets a 404
+        api = startStubApi();
         setNotifyOutlet(snackbar as unknown as MatSnackBar, true);
         options.set({});
         favourites.set([]);
@@ -202,13 +206,17 @@ describe('RoomSearchComponent', () => {
     it('shows the Exchange response of a room on the saved event', async () => {
         setCurrentUser(new StaffUser({ email: 'jon@place.tech' }));
         adapter.item_id = 'item-1';
+        // The API sends the rooms as attendees that are resources
         const saved: HashMap = {
-            resources: [
-                { email: 'On-Event@place.tech', response_status: 'accepted' },
+            attendees: [
+                {
+                    email: 'On-Event@place.tech',
+                    response_status: 'accepted',
+                    resource: true,
+                },
             ],
         };
-        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
-            Promise.resolve(saved)) as typeof ts_client.get);
+        api.on('GET', '/api/staff/v1/events/:id', () => saved);
 
         await spectator.inject(OutlookEventService).refresh();
 

@@ -9,7 +9,9 @@ import {
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { SettingsService, notifyError } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 
 @Component({
@@ -138,14 +140,19 @@ export class ItemListModalComponent implements OnInit {
             // Write the list into each app's own metadata key.
             for (const key of [metadata_key, concierge_key]) {
                 const metadata = await showMetadata(this._bld_id, key);
-                await updateMetadata(this._bld_id, {
-                    name: key,
-                    details: {
-                        ...(metadata.details || {}),
-                        support_issue_types: items,
-                    },
-                    description: metadata.description || '',
-                });
+                await metadata_v7
+                    .update({
+                        id: this._bld_id,
+                        body: {
+                            name: key,
+                            details: toJsonValue({
+                                ...jsonRecord(metadata.details),
+                                support_issue_types: items,
+                            }),
+                            description: metadata.description || '',
+                        },
+                    })
+                    .then(orThrow);
             }
             this._dialog_ref.close();
         } catch (e) {

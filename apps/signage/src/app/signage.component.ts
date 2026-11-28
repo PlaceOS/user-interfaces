@@ -12,6 +12,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
     AsyncHandler,
+    isOnline,
     log,
     setAutoReloadGate,
     SettingsService,
@@ -19,7 +20,6 @@ import {
     VERSION,
 } from '@placeos/common';
 import { IconComponent } from '@placeos/components';
-import { isOnline } from '@placeos/ts-client';
 import {
     clearDebugOverlayLayouts,
     DebugOverlayComponent,

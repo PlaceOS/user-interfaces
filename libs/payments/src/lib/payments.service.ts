@@ -1,23 +1,17 @@
-import {
-    computed,
-    inject,
-    Injectable,
-    InjectionToken,
-    resource,
-} from '@angular/core';
+import { computed, inject, Injectable, resource } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
 import { errorMessage, i18n, OrganisationService } from '@placeos/common';
 import {
     CheckoutCancelledError,
     openPaymentWindow,
-    PaymentCheckoutData,
-    PaymentCheckoutModalComponent,
+    PAYMENT_CHECKOUT,
     PaymentEndedError,
     PaymentWindowClosedError,
-    PayOptions,
-    ResumeOptions,
-} from './payment-checkout-modal.component';
+    type PaymentCheckoutData,
+    type PayOptions,
+    type ResumeOptions,
+} from './payment-checkout';
 import {
     FINAL_PAYMENT_STATES,
     Payment,
@@ -32,16 +26,6 @@ import {
 /** Zone binding of the payment driver. Set `mod` on the binding to use another module name */
 export const PAYMENT_BINDING = 'payments';
 export const PAYMENT_MODULE = 'Payments';
-
-/**
- * Whether bookings and events made in this app ask the user to pay. Only
- * apps where users book for themselves provide `true`. Booking panels and
- * staff apps keep the default, `false`.
- */
-export const PAYMENT_CHECKOUT = new InjectionToken<boolean>(
-    'PAYMENT_CHECKOUT',
-    { factory: () => false },
-);
 
 /** Hosts that can take payments over plain HTTP, for local development */
 const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]']);
@@ -206,8 +190,11 @@ export class PaymentsService {
             resume: (id, options) => this._resume(id, options),
             cancel: (id) => this.call('cancel_payment', id),
         };
+        // Loaded on use, so that the modal is not in the initial bundle
+        const { PaymentCheckoutModalComponent } =
+            await import('./payment-checkout-modal.component');
         const ref = this._dialog.open<
-            PaymentCheckoutModalComponent,
+            InstanceType<typeof PaymentCheckoutModalComponent>,
             PaymentCheckoutData,
             Payment | undefined
         >(PaymentCheckoutModalComponent, { data, disableClose: true });

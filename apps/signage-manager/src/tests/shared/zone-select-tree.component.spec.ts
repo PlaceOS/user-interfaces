@@ -1,6 +1,6 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 import { PagedSearch } from '../../app/shared/paged-search';
 import { ZoneSelectTreeComponent } from '../../app/shared/zone-select-tree.component';
 
@@ -13,14 +13,12 @@ describe('ZoneSelectTreeComponent', () => {
     };
 
     async function make(
-        zones: PlaceZone[],
+        zones: Zone[],
         exclude_ids: string[] = [],
-        roots: PlaceZone[] | null = null,
-        load_children:
-            | ((parent_id: string) => Promise<PlaceZone[]>)
-            | null = null,
+        roots: Zone[] | null = null,
+        load_children: ((parent_id: string) => Promise<Zone[]>) | null = null,
         scoped_search = false,
-        selected: PlaceZone | null = null,
+        selected: Zone | null = null,
     ) {
         await TestBed.configureTestingModule({
             imports: [ZoneSelectTreeComponent],
@@ -39,7 +37,7 @@ describe('ZoneSelectTreeComponent', () => {
             error: signal(false),
             loadMore: vi.fn(),
             refresh: vi.fn(),
-        } as unknown as PagedSearch<PlaceZone>;
+        } as unknown as PagedSearch<Zone>;
         fixture.componentRef.setInput('list', list);
         fixture.componentRef.setInput('exclude_ids', exclude_ids);
         fixture.componentRef.setInput('roots', roots);
@@ -55,12 +53,12 @@ describe('ZoneSelectTreeComponent', () => {
             .fn()
             .mockRejectedValueOnce(new Error('Network'))
             .mockResolvedValueOnce([
-                { id: 'child', name: 'Child', parent_id: 'root' } as PlaceZone,
+                { id: 'child', name: 'Child', parent_id: 'root' } as Zone,
             ]);
         const component = await make(
             [],
             [],
-            [{ id: 'root', name: 'Root', children_count: 1 } as PlaceZone],
+            [{ id: 'root', name: 'Root', children_count: 1 } as Zone],
             load_children,
         );
         await vi.waitFor(() =>
@@ -96,7 +94,7 @@ describe('ZoneSelectTreeComponent', () => {
             has_more: signal(false),
             error: signal(false),
             loadMore: vi.fn(),
-        } as unknown as PagedSearch<PlaceZone>);
+        } as unknown as PagedSearch<Zone>);
         const selected = vi.fn();
         fixture.componentInstance.zoneSelected.subscribe(selected);
         await fixture.whenStable();
@@ -125,14 +123,14 @@ describe('ZoneSelectTreeComponent', () => {
 
     it('displays loaded zones as an expandable hierarchy', async () => {
         const component = await make([
-            { id: 'root', name: 'Root' } as PlaceZone,
-            { id: 'child', name: 'Child', parent_id: 'root' } as PlaceZone,
+            { id: 'root', name: 'Root' } as Zone,
+            { id: 'child', name: 'Child', parent_id: 'root' } as Zone,
             {
                 id: 'grandchild',
                 name: 'Grandchild',
                 parent_id: 'child',
-            } as PlaceZone,
-            { id: 'other', name: 'Other' } as PlaceZone,
+            } as Zone,
+            { id: 'other', name: 'Other' } as Zone,
         ]);
 
         expect(
@@ -162,12 +160,12 @@ describe('ZoneSelectTreeComponent', () => {
     it('excludes existing assignments while keeping their children visible', async () => {
         const component = await make(
             [
-                { id: 'root', name: 'Root' } as PlaceZone,
+                { id: 'root', name: 'Root' } as Zone,
                 {
                     id: 'child',
                     name: 'Child',
                     parent_id: 'root',
-                } as PlaceZone,
+                } as Zone,
             ],
             ['root'],
         );
@@ -184,7 +182,7 @@ describe('ZoneSelectTreeComponent', () => {
                 name: 'Child',
                 parent_id: 'root',
                 children_count: 1,
-            } as PlaceZone,
+            } as Zone,
         ]);
         const component = await make(
             [],
@@ -194,7 +192,7 @@ describe('ZoneSelectTreeComponent', () => {
                     id: 'root',
                     name: 'Root',
                     children_count: 1,
-                } as PlaceZone,
+                } as Zone,
             ],
             load_children,
         );
@@ -218,7 +216,7 @@ describe('ZoneSelectTreeComponent', () => {
     });
 
     it('searches every zone until one is selected, then within it', async () => {
-        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const root = { id: 'root', name: 'Root' } as Zone;
         const component = await make([], [], [root], null, true);
 
         expect(component.search_label().key).toBe(
@@ -240,7 +238,7 @@ describe('ZoneSelectTreeComponent', () => {
     });
 
     it('searches every zone again when the scope is cleared', async () => {
-        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const root = { id: 'root', name: 'Root' } as Zone;
         const component = await make([], [], [root], null, true, root);
 
         component.clearScope();
@@ -251,7 +249,7 @@ describe('ZoneSelectTreeComponent', () => {
     });
 
     it('keeps the tree until the query for the search runs', async () => {
-        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const root = { id: 'root', name: 'Root' } as Zone;
         const component = await make([], [], [root], null, true);
 
         component.list().search.set('lobby');
@@ -263,18 +261,18 @@ describe('ZoneSelectTreeComponent', () => {
     });
 
     it('lists nested matches flat when no zone is selected', async () => {
-        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const root = { id: 'root', name: 'Root' } as Zone;
         const wing = {
             id: 'wing',
             name: 'Lobby Wing',
             parent_id: 'root',
             children_count: 1,
-        } as PlaceZone;
+        } as Zone;
         const lobby = {
             id: 'lobby',
             name: 'Lobby A',
             parent_id: 'wing',
-        } as PlaceZone;
+        } as Zone;
         const component = await make([wing, lobby], [], [root], null, true);
 
         searchFor(component, 'lobby');
@@ -290,12 +288,12 @@ describe('ZoneSelectTreeComponent', () => {
     });
 
     it('lists scoped search results when no zone is selected', async () => {
-        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const root = { id: 'root', name: 'Root' } as Zone;
         const result = {
             id: 'result',
             name: 'Result',
             parent_id: 'nested-parent',
-        } as PlaceZone;
+        } as Zone;
         const component = await make([result], [], [root], null, true);
 
         searchFor(component, 'result');
@@ -308,12 +306,12 @@ describe('ZoneSelectTreeComponent', () => {
     });
 
     it('shows scoped search results beneath the selected zone', async () => {
-        const root = { id: 'root', name: 'Root' } as PlaceZone;
+        const root = { id: 'root', name: 'Root' } as Zone;
         const result = {
             id: 'result',
             name: 'Result',
             parent_id: 'nested-parent',
-        } as PlaceZone;
+        } as Zone;
         const component = await make([result], [], [root], null, true, root);
 
         searchFor(component, 'result');
@@ -339,13 +337,13 @@ describe('ZoneSelectTreeComponent errors', () => {
         const retry = vi.fn();
         const list = {
             search: signal(''),
-            items: signal<PlaceZone[]>([]),
+            items: signal<Zone[]>([]),
             loading: signal(false),
             has_more: signal(false),
             error: signal(true),
             loadMore: vi.fn(),
             retry,
-        } as unknown as PagedSearch<PlaceZone>;
+        } as unknown as PagedSearch<Zone>;
         fixture.componentRef.setInput('list', list);
         fixture.detectChanges();
 

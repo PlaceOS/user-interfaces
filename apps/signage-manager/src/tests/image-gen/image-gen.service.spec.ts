@@ -1,6 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { i18n, setNotifyOutlet, UploadsService } from '@placeos/common';
-import { del, get, post, updateMetadata } from '@placeos/ts-client';
+import {
+    assert,
+    Metadata,
+    metadata as metadata_v7,
+    parseResponse,
+    signage_ai,
+    SignageAiCapabilities,
+    type SignageAiCapabilitiesInput,
+    SignageAiJobResponse,
+    type SignageAiJobResponseInput,
+    uploads,
+} from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 import {
     ImageGenService,
@@ -8,9 +20,7 @@ import {
 } from '../../app/image-gen/image-gen.service';
 import {
     ImageGenBrandKit,
-    ImageGenCapabilities,
     ImageGenJob,
-    ImageGenModelCapabilities,
 } from '../../app/image-gen/image-gen.types';
 
 function runningJob(id = 'job-1'): ImageGenJob {
@@ -26,6 +36,36 @@ function runningJob(id = 'job-1'): ImageGenJob {
 }
 
 vi.mock('@placeos/ts-client', { spy: true });
+
+/** A job as the API sends it, from the fields a test sets */
+function apiJob(job: SignageAiJobResponseInput) {
+    const result = parseResponse(SignageAiJobResponse, job, {
+        missing_fields: 'zero',
+    });
+    assert(result.ok, 'the test job matches the schema');
+    return mockReply(result.value);
+}
+
+/** Capabilities with the fields a test sets, and empty values for the others */
+function capabilitiesOf(capabilities: SignageAiCapabilitiesInput) {
+    const result = parseResponse(SignageAiCapabilities, capabilities, {
+        missing_fields: 'zero',
+    });
+    assert(result.ok, 'the test capabilities match the schema');
+    return result.value;
+}
+
+/** Capabilities as the API sends them, from the fields a test sets */
+function apiCapabilities(capabilities: SignageAiCapabilitiesInput) {
+    return mockReply(capabilitiesOf(capabilities));
+}
+
+/** The reply of a metadata write */
+function metadataReply() {
+    const result = parseResponse(Metadata, {}, { missing_fields: 'zero' });
+    assert(result.ok, 'the test metadata matches the schema');
+    return mockReply(result.value);
+}
 /**
  * A service with a stored kit it can write to. jsdom cannot draw, so a
  * flipped logo is stood in for by an upload named after its slot.
@@ -60,14 +100,9 @@ function captureNotices() {
 /** the details of each brand kit write, in order */
 function writtenKits() {
     return vi
-        .mocked(updateMetadata)
-        .mock.calls.map(([, metadata]) => metadata.details);
+        .mocked(metadata_v7.update)
+        .mock.calls.map(([input]) => input.body.details);
 }
-
-/** the overloads type every response as a string; these return JSON */
-type JsonRequest = (...args: unknown[]) => Promise<unknown>;
-const json_get = vi.mocked(get as JsonRequest);
-const json_post = vi.mocked(post as JsonRequest);
 
 describe('ImageGenService', () => {
     beforeEach(() => {
@@ -94,9 +129,7 @@ describe('ImageGenService', () => {
     });
 
     beforeEach(() => {
-        vi.mocked(updateMetadata).mockResolvedValue(
-            {} as Awaited<ReturnType<typeof updateMetadata>>,
-        );
+        vi.mocked(metadata_v7.update).mockResolvedValue(metadataReply());
     });
 
     it('reuses a key only when the complete request is unchanged', () => {
@@ -140,16 +173,17 @@ describe('ImageGenService', () => {
         const request = { prompt: 'A summer party', aspect_ratio: '16:9' };
         const first = service.intentKey('generate', request);
 
-        json_post.mockRejectedValueOnce(new Error('offline'));
+        vi.mocked(signage_ai.generate).mockRejectedValueOnce(
+            new Error('offline'),
+        );
         await expect(
             service.generate({ ...request, idempotency_key: first }),
         ).rejects.toThrow('offline');
         expect(service.intentKey('generate', request)).toBe(first);
 
-        json_post.mockResolvedValueOnce({
-            ...runningJob(),
-            state: 'cancelled',
-        });
+        vi.mocked(signage_ai.generate).mockResolvedValueOnce(
+            apiJob({ ...runningJob(), state: 'cancelled' }),
+        );
         await service.generate({ ...request, idempotency_key: first });
 
         expect(service.intentKey('generate', request)).not.toBe(first);
@@ -157,13 +191,11 @@ describe('ImageGenService', () => {
 
     it('reads the capabilities again after a failed read', async () => {
         vi.useFakeTimers();
-        const enabled = {
-            enabled: true,
-            providers: [],
-        } as unknown as ImageGenCapabilities;
-        json_get
+        vi.mocked(signage_ai.capabilities)
             .mockRejectedValueOnce(new Error('offline'))
-            .mockResolvedValueOnce(enabled);
+            .mockResolvedValueOnce(
+                apiCapabilities({ enabled: true, providers: [] }),
+            );
         const service = TestBed.inject(ImageGenService);
 
         await service.load();
@@ -172,7 +204,7 @@ describe('ImageGenService', () => {
         await vi.advanceTimersByTimeAsync(5_000);
 
         expect(service.enabled()).toBe(true);
-        expect(get).toHaveBeenCalledTimes(2);
+        expect(signage_ai.capabilities).toHaveBeenCalledTimes(2);
     });
 
     it('gives up on a job that runs past the deadline', async () => {
@@ -187,13 +219,15 @@ describe('ImageGenService', () => {
             service as unknown as { _poll: (id: string) => Promise<void> }
         )._poll(job.id);
 
-        expect(get).not.toHaveBeenCalled();
+        expect(signage_ai.showJob).not.toHaveBeenCalled();
         expect(service.jobs()[job.id].state).toBe('failed');
     });
 
     it('propagates a failed claim', async () => {
         vi.useFakeTimers();
-        vi.mocked(post).mockRejectedValue(new Error('claim failed'));
+        vi.mocked(signage_ai.claim).mockRejectedValue(
+            new Error('claim failed'),
+        );
         const service = TestBed.inject(ImageGenService);
         const claim = expect(
             service.claim('job-1', 'upload-1', 'media-1'),
@@ -205,7 +239,9 @@ describe('ImageGenService', () => {
     });
 
     it('marks a job failed when status polling exhausts its retries', async () => {
-        vi.mocked(get).mockRejectedValue(new Error('network unavailable'));
+        vi.mocked(signage_ai.showJob).mockRejectedValue(
+            new Error('network unavailable'),
+        );
         const service = TestBed.inject(ImageGenService);
         const job = runningJob();
         service.jobs.set({ [job.id]: job });
@@ -224,20 +260,17 @@ describe('ImageGenService', () => {
     it('writes brand kit changes one at a time, each on top of the last', async () => {
         const service = kitService({ organisation: 'Acme' });
         let first_done: () => void = () => undefined;
-        vi.mocked(updateMetadata).mockImplementationOnce(
+        vi.mocked(metadata_v7.update).mockImplementationOnce(
             () =>
                 new Promise((resolve) => {
-                    first_done = () =>
-                        resolve(
-                            {} as Awaited<ReturnType<typeof updateMetadata>>,
-                        );
+                    first_done = () => resolve(metadataReply());
                 }),
         );
 
         const palette = service.saveBrandKit({ palette: { primary: '#111' } });
         const logo = service.saveBrandKit({ logo_upload_id: 'logo-1' });
         await Promise.resolve();
-        expect(updateMetadata).toHaveBeenCalledTimes(1);
+        expect(metadata_v7.update).toHaveBeenCalledTimes(1);
         first_done();
         await Promise.all([palette, logo]);
 
@@ -325,14 +358,17 @@ describe('ImageGenService', () => {
         await expect(service.deriveBrandLogo('on_light')).rejects.toThrow(
             i18n('SIGNAGE_MANAGER.IMAGE_GEN_NO_LOGO_YET'),
         );
-        expect(updateMetadata).not.toHaveBeenCalled();
+        expect(metadata_v7.update).not.toHaveBeenCalled();
     });
 
     it('picks the configured provider and model, or the first of each', () => {
         const service = TestBed.inject(ImageGenService);
-        const model = (id: string, generate: boolean, edit: boolean) =>
-            ({ id, generate, edit }) as ImageGenModelCapabilities;
-        const capabilities = {
+        const model = (id: string, generate: boolean, edit: boolean) => ({
+            id,
+            generate,
+            edit,
+        });
+        const capabilities = capabilitiesOf({
             enabled: true,
             providers: [
                 {
@@ -350,7 +386,7 @@ describe('ImageGenService', () => {
                 },
             ],
             default_provider_id: 'chosen',
-        } as ImageGenCapabilities;
+        });
 
         service.capabilities.set(capabilities);
         expect(service.default_model()?.id).toBe('editor');
@@ -388,7 +424,9 @@ describe('ImageGenService', () => {
     it('does not announce a finished job that an open screen shows', async () => {
         const notify_open = captureNotices();
         const done = { ...runningJob(), state: 'done' as const, version: 2 };
-        json_get.mockResolvedValue({ ...done, images_produced: 1 });
+        vi.mocked(signage_ai.showJob).mockResolvedValue(
+            apiJob({ ...done, images_produced: 1 }),
+        );
         const service = TestBed.inject(ImageGenService);
         service.jobs.set({ [done.id]: runningJob() });
         service.setJobOnScreen(done.id, true);
@@ -409,28 +447,24 @@ describe('ImageGenService', () => {
     it('keeps watching a job it could not cancel, then clears it quietly', async () => {
         vi.useFakeTimers();
         const notify_open = captureNotices();
-        json_post.mockRejectedValue(new Error('cancel refused'));
-        vi.mocked(del).mockResolvedValue(undefined);
+        vi.mocked(signage_ai.cancel).mockRejectedValue(
+            new Error('cancel refused'),
+        );
+        vi.mocked(uploads.destroy).mockResolvedValue(mockReply(''));
         const service = TestBed.inject(ImageGenService);
         const job = runningJob();
         service.jobs.set({ [job.id]: job });
         service.watch(job.id);
 
         await service.abandon(job.id, ['inc-1']);
-        json_get.mockResolvedValue({
-            ...job,
-            state: 'done',
-            images_produced: 1,
-            version: 2,
-        });
+        vi.mocked(signage_ai.showJob).mockResolvedValue(
+            apiJob({ ...job, state: 'done', images_produced: 1, version: 2 }),
+        );
         await (
             service as unknown as { _poll: (id: string) => Promise<void> }
         )._poll(job.id);
 
-        expect(del).toHaveBeenCalledWith(
-            expect.stringContaining('/uploads/inc-1'),
-            expect.anything(),
-        );
+        expect(uploads.destroy).toHaveBeenCalledWith({ id: 'inc-1' });
         expect(notify_open).not.toHaveBeenCalled();
     });
 
@@ -438,8 +472,11 @@ describe('ImageGenService', () => {
         const notify_open = captureNotices();
         const job = runningJob();
         let answer: (value: ImageGenJob) => void = () => undefined;
-        json_get.mockImplementation(
-            () => new Promise((resolve) => (answer = resolve)),
+        vi.mocked(signage_ai.showJob).mockImplementation(
+            () =>
+                new Promise((resolve) => {
+                    answer = (value) => resolve(apiJob(value));
+                }),
         );
         const service = TestBed.inject(ImageGenService);
         service.jobs.set({ [job.id]: job });

@@ -17,7 +17,10 @@ import {
 import { getUnixTime } from 'date-fns';
 import { NEVER, of } from 'rxjs';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import { Booking as StaffBooking, bookings } from '@placeos/ts-client/staff';
 import { UserPipe } from '@placeos/users';
 import { MockProvider } from 'ng-mocks';
 import { ParkingBookingModalComponent } from '../../app/parking/parking-booking-modal.component';
@@ -32,6 +35,10 @@ import { buildingDayEnd, buildingDayStart } from '../../app/ui/building-time';
 import { captureDownloads } from '../reports/download-capture.helper';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+/** A staff API booking reply. Staff API booking IDs are integers */
+const bookingReply = (id = 1) => mockReply(mockData(StaffBooking, { id }));
 
 const CATEGORY_STUB = {
     data: [{ id: 'cat-parking', name: '_PARKING_', hidden: true }],
@@ -101,59 +108,75 @@ describe('ParkingStateService', () => {
 
     /** Reset ts-client boundary spies with safe defaults for service bootstrap */
     const stubTsClient = () => {
-        (ts_client.queryAssetCategories as any).mockReset();
-        (ts_client.queryAssetCategories as any).mockResolvedValue(
-            CATEGORY_STUB,
+        (ts_client.asset_categories.query as any).mockReset();
+        (ts_client.asset_categories.query as any).mockResolvedValue(
+            mockPage(CATEGORY_STUB),
         );
-        (ts_client.queryAssetTypes as any).mockReset();
-        (ts_client.queryAssetTypes as any).mockResolvedValue(TYPE_STUB);
-        (ts_client.queryAssets as any).mockReset();
-        (ts_client.queryAssets as any).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        (ts_client.get as any).mockReset();
-        (ts_client.get as any).mockResolvedValue([]);
-        (ts_client.query as any).mockReset();
-        (ts_client.query as any).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        (ts_client.post as any).mockReset();
-        (ts_client.post as any).mockResolvedValue({});
-        (ts_client.patch as any).mockReset();
-        (ts_client.patch as any).mockResolvedValue({});
-        (ts_client.put as any).mockReset();
-        (ts_client.put as any).mockResolvedValue({});
-        (ts_client.del as any).mockReset();
-        (ts_client.del as any).mockResolvedValue(undefined);
-        (ts_client.addAsset as any).mockReset();
-        (ts_client.addAsset as any).mockResolvedValue({ id: 'new-asset' });
-        (ts_client.updateAsset as any).mockReset();
-        (ts_client.updateAsset as any).mockResolvedValue({
-            id: 'updated-asset',
-        });
-        (ts_client.removeAsset as any).mockReset();
-        (ts_client.removeAsset as any).mockResolvedValue(undefined);
+        (ts_client.asset_types.query as any).mockReset();
+        (ts_client.asset_types.query as any).mockResolvedValue(
+            mockPage(TYPE_STUB),
+        );
+        (ts_client.assets.query as any).mockReset();
+        (ts_client.assets.query as any).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        // @placeos/bookings calls the staff API booking operations
+        for (const op of [
+            bookings.query,
+            bookings.booked,
+            bookings.create,
+            bookings.update,
+            bookings.updateInstance,
+            bookings.approve,
+            bookings.approveInstance,
+            bookings.reject,
+            bookings.rejectInstance,
+            bookings.destroy,
+            bookings.destroyInstance,
+        ]) {
+            vi.mocked(op).mockReset();
+        }
+        vi.mocked(bookings.query).mockResolvedValue(mockPage({ data: [] }));
+        vi.mocked(bookings.booked).mockResolvedValue(mockPage({ data: [] }));
+        vi.mocked(bookings.create).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.update).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.updateInstance).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.approve).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.approveInstance).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.reject).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.rejectInstance).mockResolvedValue(bookingReply());
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
+        vi.mocked(bookings.destroyInstance).mockResolvedValue(mockReply(''));
+        (ts_client.assets.create as any).mockReset();
+        (ts_client.assets.create as any).mockResolvedValue(
+            mockReply({ id: 'new-asset' }),
+        );
+        (ts_client.assets.update as any).mockReset();
+        (ts_client.assets.update as any).mockResolvedValue(
+            mockReply({
+                id: 'updated-asset',
+            }),
+        );
+        (ts_client.assets.destroy as any).mockReset();
+        (ts_client.assets.destroy as any).mockResolvedValue(
+            mockReply(undefined),
+        );
     };
 
-    /** URL of the most recent booking listing request (queryPagedBookings -> query) */
-    const lastBookingsUrl = () => {
-        const calls = (ts_client.query as any).mock.calls.filter((c: any[]) =>
-            String(c[0]?.endpoint || '').includes('/bookings'),
-        );
-        if (!calls.length) return '';
-        const { endpoint, query_params } = calls[calls.length - 1][0];
+    /** Input of the most recent booking listing request (queryPagedBookings -> bookings.query) */
+    const lastBookingsQuery = () =>
+        vi.mocked(bookings.query).mock.calls.at(-1)?.[0] ?? null;
+    const bookingsParams = () => {
         const params = new URLSearchParams();
-        for (const key of Object.keys(query_params || {})) {
-            params.set(key, String(query_params[key]));
+        for (const [key, value] of Object.entries(lastBookingsQuery() ?? {})) {
+            if (value !== undefined) params.set(key, String(value));
         }
-        return `${endpoint}?${params.toString()}`;
+        return params;
     };
-    const bookingsParams = () =>
-        new URLSearchParams((lastBookingsUrl().split('?')[1] as string) || '');
 
     beforeEach(() => {
         notify_open = vi.fn(() => ({
@@ -315,9 +338,17 @@ describe('ParkingStateService', () => {
     it('should wait for parking users before loading bookings', async () => {
         vi.restoreAllMocks();
         stubTsClient();
-        let resolve_assets: (value: any) => void;
-        (ts_client.queryAssets as any).mockReturnValue(
-            new Promise((resolve) => (resolve_assets = resolve)),
+        // Hold each asset query (parking users and spaces) until released
+        const pending_assets: ((value: unknown) => void)[] = [];
+        const resolve_assets = (value: unknown) => {
+            for (const resolve of pending_assets.splice(0)) resolve(value);
+        };
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                () => new Promise((resolve) => pending_assets.push(resolve)),
+                ['...'],
+                'page',
+            ),
         );
         vi.useFakeTimers();
         spectator = createService();
@@ -325,7 +356,7 @@ describe('ParkingStateService', () => {
         TestBed.flushEffects();
         await vi.advanceTimersByTimeAsync(1100);
         TestBed.flushEffects();
-        expect(lastBookingsUrl()).toBe('');
+        expect(lastBookingsQuery()).toBeNull();
 
         resolve_assets({ data: [], total: 0, next: null });
         await Promise.resolve();
@@ -334,7 +365,7 @@ describe('ParkingStateService', () => {
         TestBed.flushEffects();
         await vi.advanceTimersByTimeAsync(1100);
 
-        expect(lastBookingsUrl()).not.toBe('');
+        expect(lastBookingsQuery()).not.toBeNull();
         vi.useRealTimers();
     });
 
@@ -514,10 +545,12 @@ describe('ParkingStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (ts_client.updateAsset as any).mockResolvedValue({
-            id: 'space-1',
-            name: 'Bay 1',
-        });
+        (ts_client.assets.update as any).mockResolvedValue(
+            mockReply({
+                id: 'space-1',
+                name: 'Bay 1',
+            }),
+        );
         vi.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
             name: 'Staff Name',
@@ -526,15 +559,10 @@ describe('ParkingStateService', () => {
 
         await spectator.service.editSpace({ id: 'space-0' } as any);
 
-        // saveBooking(no id) -> createBooking -> post(url, data)
-        const booking_post = (ts_client.post as any).mock.calls.find(
-            (c: any[]) =>
-                typeof c[0] === 'string' &&
-                c[0].includes('/bookings') &&
-                !c[0].includes('/approve'),
-        );
+        // saveBooking(no id) -> createBooking -> bookings.create()
+        const booking_post = vi.mocked(bookings.create).mock.calls[0];
         expect(booking_post).toBeTruthy();
-        expect(booking_post[1]).toEqual(
+        expect(booking_post[0].body).toEqual(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(assigned_start + 22 * 60 * 60 * 1000),
@@ -544,13 +572,13 @@ describe('ParkingStateService', () => {
 
     it('should keep the level but refresh the zones when editing a parking space', async () => {
         spectator.service.setOptions({ zones: ['lvl-selected'] });
-        const original_space = {
+        const original_space: ParkingSpace = mockData(ts_client.Asset, {
             id: 'space-1',
             identifier: 'Bay 1',
             zone_id: 'lvl-original',
             zones: ['org-1', 'region-1', 'bld-1', 'lvl-original'],
             bookable: true,
-        } as ParkingSpace;
+        });
         const dialog_ref = {
             afterClosed: () => NEVER,
             componentInstance: {
@@ -572,8 +600,9 @@ describe('ParkingStateService', () => {
 
         await spectator.service.editSpace(original_space);
 
-        expect(ts_client.updateAsset).toHaveBeenCalledTimes(1);
-        const update_data = vi.mocked(ts_client.updateAsset).mock.calls[0][1];
+        expect(ts_client.assets.update).toHaveBeenCalledTimes(1);
+        const update_data = vi.mocked(ts_client.assets.update).mock.calls[0][0]
+            .body;
         expect(update_data).toEqual(
             expect.objectContaining({ id: 'space-1', bookable: false }),
         );
@@ -631,12 +660,12 @@ describe('ParkingStateService', () => {
                 data: expect.objectContaining({ zone_id: 'lvl-first' }),
             }),
         );
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 zone_id: 'lvl-chosen',
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-chosen'],
             }),
-        );
+        });
     });
 
     it('should show a new parking space before the list query includes it', async () => {
@@ -654,16 +683,20 @@ describe('ParkingStateService', () => {
             ).toEqual({ zone_ids: ['lvl-chosen'] }),
         );
         // The list query lags new records, so it keeps returning no spaces.
-        (ts_client.queryAssets as any).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        (ts_client.addAsset as any).mockResolvedValue({
-            id: 'space-new',
-            name: 'Bay 1',
-            zone_id: 'lvl-chosen',
-        });
+        (ts_client.assets.query as any).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        (ts_client.assets.create as any).mockResolvedValue(
+            mockReply({
+                id: 'space-new',
+                name: 'Bay 1',
+                zone_id: 'lvl-chosen',
+            }),
+        );
         (spectator.inject(MatDialog).open as any).mockReturnValue({
             afterClosed: () => NEVER,
             componentInstance: {
@@ -771,23 +804,29 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (ts_client.queryAssets as any).mockImplementation((q: any) => {
-            if (q?.zone_id === 'lvl-1') {
-                return Promise.resolve({
-                    data: [{ id: 'space-1', zone_id: 'lvl-1' }],
-                    total: 1,
-                    next: null,
-                });
-            }
-            if (q?.zone_id === 'lvl-2') {
-                return Promise.resolve({
-                    data: [{ id: 'space-2', zone_id: 'lvl-2' }],
-                    total: 1,
-                    next: null,
-                });
-            }
-            return Promise.resolve({ data: [], total: 0, next: null });
-        });
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) => {
+                    if (q?.zone_id === 'lvl-1') {
+                        return Promise.resolve({
+                            data: [{ id: 'space-1', zone_id: 'lvl-1' }],
+                            total: 1,
+                            next: null,
+                        });
+                    }
+                    if (q?.zone_id === 'lvl-2') {
+                        return Promise.resolve({
+                            data: [{ id: 'space-2', zone_id: 'lvl-2' }],
+                            total: 1,
+                            next: null,
+                        });
+                    }
+                    return Promise.resolve({ data: [], total: 0, next: null });
+                },
+                ['...'],
+                'page',
+            ),
+        );
 
         spectator.service.setOptions({ zones: ['lvl-1', 'lvl-2'] });
         TestBed.flushEffects();
@@ -796,10 +835,10 @@ describe('ParkingStateService', () => {
         await vi.advanceTimersByTimeAsync(50);
         TestBed.flushEffects();
 
-        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+        expect(ts_client.assets.query).toHaveBeenCalledWith(
             expect.objectContaining({ zone_id: 'lvl-1' }),
         );
-        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+        expect(ts_client.assets.query).toHaveBeenCalledWith(
             expect.objectContaining({ zone_id: 'lvl-2' }),
         );
         expect(spectator.service.spaces()).toEqual([
@@ -816,14 +855,21 @@ describe('ParkingStateService', () => {
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
             { id: 'lvl-2', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (ts_client.queryAssets as any).mockImplementation((q: any) =>
-            Promise.resolve({
-                data: [{ id: `space-${q?.zone_id}`, zone_id: q?.zone_id }],
-                total: 1,
-                next: null,
-            }),
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) =>
+                    Promise.resolve({
+                        data: [
+                            { id: `space-${q?.zone_id}`, zone_id: q?.zone_id },
+                        ],
+                        total: 1,
+                        next: null,
+                    }),
+                ['...'],
+                'page',
+            ),
         );
-        (ts_client.queryAssets as any).mockClear();
+        (ts_client.assets.query as any).mockClear();
         // Recompute the levels for the new organisation levels
         active_building.set({ ...current_building });
         TestBed.flushEffects();
@@ -831,7 +877,7 @@ describe('ParkingStateService', () => {
         TestBed.flushEffects();
         await vi.advanceTimersByTimeAsync(50);
 
-        const zone_ids = (ts_client.queryAssets as any).mock.calls
+        const zone_ids = (ts_client.assets.query as any).mock.calls
             .map(([q]: any) => q?.zone_id)
             .filter((id: string) => id?.startsWith('lvl-'));
         expect(zone_ids.sort()).toEqual(['lvl-1', 'lvl-2']);
@@ -1140,29 +1186,29 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (ts_client.queryAssets as any).mockImplementation((q: any) =>
-            q?.zone_id === 'lvl-1'
-                ? Promise.resolve({
-                      data: [
-                          {
-                              id: 'space-1',
-                              name: 'Bay 1',
-                              zone_id: 'lvl-1',
-                              bookable: true,
-                          },
-                      ],
-                      total: 1,
-                      next: null,
-                  })
-                : Promise.resolve({ data: [], total: 0, next: null }),
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) =>
+                    q?.zone_id === 'lvl-1'
+                        ? Promise.resolve({
+                              data: [
+                                  {
+                                      id: 'space-1',
+                                      name: 'Bay 1',
+                                      zone_id: 'lvl-1',
+                                      bookable: true,
+                                  },
+                              ],
+                              total: 1,
+                              next: null,
+                          })
+                        : Promise.resolve({ data: [], total: 0, next: null }),
+                ['...'],
+                'page',
+            ),
         );
-        (ts_client.query as any).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
         const request = {
-            id: 'req-1',
+            id: '1',
             asset_id: 'unallocated-1',
             status: 'tentative',
             date: new Date('2026-06-15T09:00:00').valueOf(),
@@ -1172,40 +1218,30 @@ describe('ParkingStateService', () => {
 
         await spectator.service.approveBooking(request);
 
-        // bookedResourceList -> query({ query_params, path: 'booked' })
-        expect(ts_client.query).toHaveBeenCalledWith(
-            expect.objectContaining({
-                path: 'booked',
-                query_params: expect.objectContaining({
-                    zones: 'bld-1',
-                    type: 'parking',
-                }),
-            }),
+        // bookedResourceList -> bookings.booked()
+        expect(bookings.booked).toHaveBeenCalledWith(
+            expect.objectContaining({ zones: 'bld-1', type: 'parking' }),
         );
-        expect(ts_client.queryAssets).toHaveBeenCalledWith(
+        expect(ts_client.assets.query).toHaveBeenCalledWith(
             expect.objectContaining({ zone_id: 'lvl-1' }),
         );
-        // updateBooking('req-1', patch) -> patch(url, data)
-        const patch_call = (ts_client.patch as any).mock.calls.find(
-            (c: any[]) =>
-                typeof c[0] === 'string' && c[0].includes('/bookings/req-1'),
-        );
+        // updateBooking('1', patch) -> bookings.update()
+        const patch_call = vi
+            .mocked(bookings.update)
+            .mock.calls.find(([input]) => input.id === 1);
         expect(patch_call).toBeTruthy();
-        expect(patch_call[1]).toEqual(
+        expect(patch_call[0].body).toEqual(
             expect.objectContaining({
                 asset_id: 'space-1',
-                asset_name: 'Bay 1',
+                // The staff API has no `asset_name`: it is in `extension_data`
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
                 extension_data: expect.objectContaining({
                     asset_name: 'Bay 1',
                 }),
             }),
         );
-        // approveBooking('req-1') -> post(url/approve, '')
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/req-1/approve'),
-            '',
-        );
+        // approveBooking('1') -> bookings.approve()
+        expect(bookings.approve).toHaveBeenCalledWith({ id: 1 });
     });
 
     it('should error instead of approving when no spaces are available', async () => {
@@ -1213,30 +1249,33 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (ts_client.queryAssets as any).mockImplementation((q: any) =>
-            q?.zone_id === 'lvl-1'
-                ? Promise.resolve({
-                      data: [
-                          {
-                              id: 'space-1',
-                              name: 'Bay 1',
-                              zone_id: 'lvl-1',
-                              bookable: true,
-                          },
-                      ],
-                      total: 1,
-                      next: null,
-                  })
-                : Promise.resolve({ data: [], total: 0, next: null }),
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) =>
+                    q?.zone_id === 'lvl-1'
+                        ? Promise.resolve({
+                              data: [
+                                  {
+                                      id: 'space-1',
+                                      name: 'Bay 1',
+                                      zone_id: 'lvl-1',
+                                      bookable: true,
+                                  },
+                              ],
+                              total: 1,
+                              next: null,
+                          })
+                        : Promise.resolve({ data: [], total: 0, next: null }),
+                ['...'],
+                'page',
+            ),
         );
         // Every available space is already booked
-        (ts_client.query as any).mockResolvedValue({
-            data: ['space-1'],
-            total: 1,
-            next: null,
-        });
+        vi.mocked(bookings.booked).mockResolvedValue(
+            mockPage({ data: ['space-1'], total: 1 }),
+        );
         const request = {
-            id: 'req-1',
+            id: '1',
             asset_id: 'unallocated-1',
             status: 'tentative',
             date: new Date('2026-06-15T09:00:00').valueOf(),
@@ -1246,11 +1285,8 @@ describe('ParkingStateService', () => {
 
         await spectator.service.approveBooking(request);
 
-        expect(ts_client.patch).not.toHaveBeenCalled();
-        expect(ts_client.post).not.toHaveBeenCalledWith(
-            expect.stringContaining('/approve'),
-            expect.anything(),
-        );
+        expect(bookings.update).not.toHaveBeenCalled();
+        expect(bookings.approve).not.toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
@@ -1269,7 +1305,7 @@ describe('ParkingStateService', () => {
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(confirm_ref);
         const booking = {
-            id: 'booking-1',
+            id: '2',
             asset_name: 'Bay 1',
             user_name: 'Test User',
             user_email: 'test@example.com',
@@ -1279,9 +1315,8 @@ describe('ParkingStateService', () => {
         await spectator.service.removeBooking(booking);
 
         expect(spectator.inject(MatDialog).open).toHaveBeenCalled();
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/booking-1'),
-            expect.anything(),
+        expect(bookings.destroy).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 2 }),
         );
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
@@ -1295,19 +1330,24 @@ describe('ParkingStateService', () => {
         organisation_service.levels = [
             { id: 'lvl-1', parent_id: 'bld-1', tags: ['parking'] },
         ];
-        (ts_client.queryAssets as any).mockImplementation((q: any) =>
-            q?.zone_id === 'lvl-1'
-                ? Promise.resolve({
-                      data: [
-                          {
-                              id: 'space-existing',
-                              assigned_to: 'staff@example.com',
-                          },
-                      ],
-                      total: 1,
-                      next: null,
-                  })
-                : Promise.resolve({ data: [], total: 0, next: null }),
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) =>
+                    q?.zone_id === 'lvl-1'
+                        ? Promise.resolve({
+                              data: [
+                                  {
+                                      id: 'space-existing',
+                                      assigned_to: 'staff@example.com',
+                                  },
+                              ],
+                              total: 1,
+                              next: null,
+                          })
+                        : Promise.resolve({ data: [], total: 0, next: null }),
+                ['...'],
+                'page',
+            ),
         );
         const dialog_ref = {
             afterClosed: () => NEVER,
@@ -1338,12 +1378,9 @@ describe('ParkingStateService', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client.addAsset).not.toHaveBeenCalled();
-        expect(ts_client.updateAsset).not.toHaveBeenCalled();
-        expect(ts_client.post).not.toHaveBeenCalledWith(
-            expect.stringContaining('/bookings'),
-            expect.anything(),
-        );
+        expect(ts_client.assets.create).not.toHaveBeenCalled();
+        expect(ts_client.assets.update).not.toHaveBeenCalled();
+        expect(bookings.create).not.toHaveBeenCalled();
         expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalledWith(
             false,
         );
@@ -1358,9 +1395,9 @@ describe('ParkingStateService', () => {
             disableClose: true,
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (ts_client.updateAsset as any)
+        (ts_client.assets.update as any)
             .mockRejectedValueOnce('offline')
-            .mockResolvedValueOnce({ id: 'space-1' });
+            .mockResolvedValueOnce(mockReply({ id: 'space-1' }));
         const done = { reason: 'done', metadata: { id: 'space-1' } };
 
         const saved = spectator.service.editSpace({ id: 'space-1' } as any);
@@ -1376,7 +1413,7 @@ describe('ParkingStateService', () => {
         events.emit(done);
         await saved;
 
-        expect(ts_client.updateAsset).toHaveBeenCalledTimes(2);
+        expect(ts_client.assets.update).toHaveBeenCalledTimes(2);
         expect(dialog_ref.close).toHaveBeenCalled();
     });
 
@@ -1405,26 +1442,27 @@ describe('ParkingStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        // _clearAssignedBooking -> queryAllBookings -> query -> existing booking
-        (ts_client.query as any).mockResolvedValue({
-            data: [
-                {
-                    id: 'booking-1',
-                    asset_id: 'space-1',
-                    booking_start: Math.floor(Date.now() / 1000),
-                },
-            ],
-            total: 1,
-            next: null,
-        });
+        // _clearAssignedBooking -> queryAllBookingsOrThrow -> bookings.query
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(StaffBooking, {
+                        id: 2,
+                        asset_id: 'space-1',
+                        booking_start: Math.floor(Date.now() / 1000),
+                    }),
+                ],
+                total: 1,
+            }),
+        );
         // saveParkingSpace -> updateAsset (space has id)
-        (ts_client.updateAsset as any)
-            .mockResolvedValueOnce({ id: 'space-1', name: 'Bay 1' })
-            .mockResolvedValueOnce(original_space);
-        // saveBooking -> createBooking -> post: first attempt fails, restore succeeds
-        (ts_client.post as any)
+        (ts_client.assets.update as any)
+            .mockResolvedValueOnce(mockReply({ id: 'space-1', name: 'Bay 1' }))
+            .mockResolvedValueOnce(mockReply(original_space));
+        // saveBooking -> createBooking -> bookings.create: first attempt fails, restore succeeds
+        vi.mocked(bookings.create)
             .mockRejectedValueOnce({ status: 409 })
-            .mockResolvedValueOnce({});
+            .mockResolvedValueOnce(bookingReply());
         vi.spyOn(UserPipe.prototype, 'transform').mockResolvedValue({
             id: 'user-1',
             name: 'Staff Name',
@@ -1436,29 +1474,26 @@ describe('ParkingStateService', () => {
             expect(dialog_ref.componentInstance.loading.set).toHaveBeenCalled(),
         );
 
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/bookings/booking-1'),
-            expect.anything(),
+        expect(bookings.destroy).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 2 }),
         );
-        expect(ts_client.updateAsset).toHaveBeenCalledTimes(2);
-        expect(ts_client.updateAsset).toHaveBeenNthCalledWith(
-            2,
-            'space-1',
-            expect.objectContaining({ assigned_to: 'old.staff@example.com' }),
-        );
-        const booking_posts = (ts_client.post as any).mock.calls.filter(
-            (c: any[]) =>
-                typeof c[0] === 'string' &&
-                c[0].includes('/bookings') &&
-                !c[0].includes('/approve'),
-        );
+        expect(ts_client.assets.update).toHaveBeenCalledTimes(2);
+        expect(ts_client.assets.update).toHaveBeenNthCalledWith(2, {
+            id: 'space-1',
+            body: expect.objectContaining({
+                assigned_to: 'old.staff@example.com',
+            }),
+        });
+        const booking_posts = vi.mocked(bookings.create).mock.calls;
         expect(booking_posts).toHaveLength(2);
-        expect(booking_posts[1][1]).toEqual(
+        expect(booking_posts[1][0].body).toEqual(
             expect.objectContaining({
                 user_email: 'old.staff@example.com',
                 asset_id: 'space-1',
-                asset_name: 'Bay 1',
-                extension_data: expect.objectContaining({ is_assigned: true }),
+                extension_data: expect.objectContaining({
+                    asset_name: 'Bay 1',
+                    is_assigned: true,
+                }),
             }),
         );
         expect(notify_open).toHaveBeenCalledWith(
@@ -1487,14 +1522,14 @@ describe('ParkingStateService', () => {
 
         await spectator.service.uploadSpacesCSV(event);
 
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 identifier: 'G.123',
                 features: ['Maximum Height 2.3m', 'Open Ground Level'],
                 notes: 'Car',
                 zone_id: 'lvl-1',
             }),
-        );
+        });
     });
 
     it('should skip blank CSV lines and give new spaces their zones', async () => {
@@ -1510,13 +1545,13 @@ describe('ParkingStateService', () => {
 
         await spectator.service.uploadSpacesCSV(event);
 
-        expect(ts_client.addAsset).toHaveBeenCalledTimes(1);
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledTimes(1);
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 identifier: 'A1',
                 zones: ['org-1', 'region-1', 'bld-1', 'lvl-1'],
             }),
-        );
+        });
     });
 
     it('should refresh the zones of spaces updated by CSV', async () => {
@@ -1532,7 +1567,7 @@ describe('ParkingStateService', () => {
 
         await spectator.service.uploadSpacesCSV(event);
 
-        const update = vi.mocked(ts_client.updateAsset).mock.calls[0][1];
+        const update = vi.mocked(ts_client.assets.update).mock.calls[0][0].body;
         expect(update).toEqual(
             expect.objectContaining({
                 id: 'space-1',
@@ -1555,13 +1590,13 @@ describe('ParkingStateService', () => {
 
         await spectator.service.uploadSpacesCSV(event);
 
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 identifier: '123',
                 map_id: 'G.123',
                 zone_id: 'lvl-1',
             }),
-        );
+        });
     });
 
     it('should download a parking spaces template with parking columns', async () => {

@@ -2,16 +2,17 @@ import { inject, Injectable } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
 import {
-    PlaceSystem,
-    PlaceZone,
-    querySignageMedia,
-    querySignagePlaylists,
-    querySignageTemplates,
-    queryZones,
-    SignageMedia,
-    SignagePlaylist,
-    SignageTemplate,
+    playlist,
+    type Playlist,
+    playlist_media,
+    type PlaylistItem,
+    signage_templates,
+    type SignageTemplate,
+    type System,
+    type Zone,
+    zones as zones_v7,
 } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { querySignageDisplays } from '../displays/signage-display';
 import { SignageContextService } from '../signage-context.service';
 import { searchParam } from '../signage-service.util';
@@ -19,11 +20,11 @@ import { decodeEntityNames } from './decode-entity-names.util';
 
 /** Command palette search results with no matches */
 const EMPTY_SEARCH_RESULTS = {
-    displays: [] as PlaceSystem[],
-    playlists: [] as SignagePlaylist[],
+    displays: [] as System[],
+    playlists: [] as Playlist[],
     templates: [] as SignageTemplate[],
-    zones: [] as PlaceZone[],
-    media: [] as SignageMedia[],
+    zones: [] as Zone[],
+    media: [] as PlaylistItem[],
 };
 
 /**
@@ -72,7 +73,7 @@ export class CommandPaletteService {
         if (!term || !this._context.canQueryLists()) {
             return EMPTY_SEARCH_RESULTS;
         }
-        const params = {
+        const display_params = {
             ...this._context.orgZoneQueryParams({ limit }),
             ...searchParam(term),
         };
@@ -80,7 +81,7 @@ export class CommandPaletteService {
             limit,
             ...searchParam(term),
         });
-        const settle = async <T>(query: Promise<{ data?: T[] }>) => {
+        const settle = async <T>(query: Promise<{ data?: readonly T[] }>) => {
             try {
                 const data = (await query).data || [];
                 return data.slice(0, limit).map(decodeEntityNames);
@@ -90,13 +91,23 @@ export class CommandPaletteService {
         };
         const [displays, playlists, templates, zones, media] =
             await Promise.all([
-                settle(querySignageDisplays({ ...params, signage: true })),
-                settle(querySignagePlaylists(params)),
+                settle(
+                    querySignageDisplays({ ...display_params, signage: true }),
+                ),
+                settle(playlist.query(group_params).then(orThrowPage)),
                 this._context.templates_enabled()
-                    ? settle(querySignageTemplates(group_params))
+                    ? settle(
+                          signage_templates
+                              .query(group_params)
+                              .then(orThrowPage),
+                      )
                     : Promise.resolve([] as SignageTemplate[]),
-                settle(queryZones({ ...group_params, tags: 'signage' })),
-                settle(querySignageMedia(params)),
+                settle(
+                    zones_v7
+                        .query({ ...group_params, tags: ['signage'] })
+                        .then(orThrowPage),
+                ),
+                settle(playlist_media.query(group_params).then(orThrowPage)),
             ]);
         return { displays, playlists, templates, zones, media };
     }

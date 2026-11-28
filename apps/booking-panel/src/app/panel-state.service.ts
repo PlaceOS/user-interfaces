@@ -8,15 +8,16 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { OrganisationService, randomInt } from '@placeos/common';
 import {
-    connectionState,
     getModule,
-    PlaceModuleBinding,
-    PlaceSystem,
-    showSystem,
-    status as websocketStatus,
-} from '@placeos/ts-client';
+    ModuleHandle,
+    OrganisationService,
+    placeClientStarted,
+    placeRealtime,
+    randomInt,
+} from '@placeos/common';
+import { systems } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import {
     AsyncHandler,
@@ -133,7 +134,7 @@ export interface PanelSettings {
 
 declare global {
     interface Window {
-        panel_module?: PlaceModuleBinding;
+        panel_module?: ModuleHandle;
     }
 }
 
@@ -330,20 +331,23 @@ export class PanelStateService extends AsyncHandler {
     }
 
     private async _init() {
-        this.subscription(
-            'websocket-status',
-            websocketStatus().subscribe((online) => {
-                if (online) this.offline_since.set(0);
-                else if (!this.offline_since())
-                    this.offline_since.set(Date.now());
-            }),
-        );
+        void this._watchConnection();
         await this._org.waitUntilInitialised();
         if (this._app_settings.get('app.refresh_when_websocket_unstable')) {
+            // Reload after more than 10 connections in a row that each
+            // stayed open for less than 30 seconds
             let count = 0;
+            let opened_at = 0;
             this.subscription(
                 'stability-check',
-                connectionState().subscribe(([_, time]) => {
+                placeRealtime().subscribe((status) => {
+                    if (status.kind === 'open') {
+                        opened_at = Date.now();
+                        return;
+                    }
+                    if (!opened_at) return;
+                    const time = Date.now() - opened_at;
+                    opened_at = 0;
                     if (time >= 30 * 1000) count = 0;
                     else count += 1;
                     if (count > 10) return location.reload();
@@ -352,14 +356,35 @@ export class PanelStateService extends AsyncHandler {
         }
     }
 
+    /**
+     * Track when the realtime socket goes offline. Until `setupPlace` starts
+     * the PlaceOS client, the panel is offline.
+     */
+    private async _watchConnection() {
+        if (!this.offline_since()) this.offline_since.set(Date.now());
+        await placeClientStarted();
+        const realtime = placeRealtime();
+        const update = (online: boolean) => {
+            if (online) this.offline_since.set(0);
+            else if (!this.offline_since()) this.offline_since.set(Date.now());
+        };
+        update(realtime.status().kind === 'open');
+        this.subscription(
+            'websocket-status',
+            realtime.subscribe((status) => update(status.kind === 'open')),
+        );
+    }
+
     private async _loadSystem(id: string) {
         const load_id = ++this._load_id;
         this.timeout(
             'load_system',
             async () => {
                 log('Panel', `Loading system "${id}"...`);
-                const system = await showSystem(id).catch(
-                    ({ status, message }) => {
+                const system = await systems
+                    .show({ sys_id: id })
+                    .then(orThrow)
+                    .catch(({ status, message }) => {
                         log(
                             'Panel',
                             'Error loading system details:',
@@ -375,13 +400,12 @@ export class PanelStateService extends AsyncHandler {
                                 2000 + randomInt(3000),
                             );
                         }
-                        return new PlaceSystem();
-                    },
-                );
+                        return null;
+                    });
                 if (load_id !== this._load_id) return;
                 const space = new Space({
                     ...(system as any),
-                    level: this._org.levelWithID([...(system.zones || [])]),
+                    level: this._org.levelWithID([...(system?.zones || [])]),
                 });
                 this.space.set(space);
                 // Cache the space so new bookings do not load the system again
@@ -708,11 +732,8 @@ export class PanelStateService extends AsyncHandler {
         on_change: (v: PanelSettings[K]) => void = (v) =>
             this.updateProperty(name, v),
     ) {
-        const binding = getModule(id, mod).variable(name);
-        this.subscription(
-            `listen:${name}`,
-            binding.bindThenSubscribe(on_change),
-        );
+        const binding = getModule(id, mod).variable<PanelSettings[K]>(name);
+        this.subscription(`listen:${name}`, binding.subscribe(on_change));
     }
 
     /** Update properties of the system data */
@@ -734,12 +755,11 @@ export class PanelStateService extends AsyncHandler {
         const mod = getModule(id, mod_name);
         if (window.debug) window.panel_module = mod;
         const binding = mod.variable(name);
-        this.subscription(`binding:${mod_name}:${name}`, binding.bind());
-        const listen = binding.listen();
-        update(listen());
         this.subscription(
-            `binding:${mod_name}:${name}:listen`,
-            listen.subscribe(update),
+            `binding:${mod_name}:${name}`,
+            binding.subscribe(update),
         );
+        // As in 6.x, the update gets `undefined` until the value is known
+        if (binding.value() === undefined) update(undefined);
     }
 }

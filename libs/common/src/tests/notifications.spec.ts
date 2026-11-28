@@ -1,4 +1,5 @@
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CallFailed } from '@placeos/ts-client/compat';
 import { Subject } from 'rxjs';
 import type { Mock } from 'vitest';
 
@@ -110,6 +111,35 @@ describe('notifications', () => {
         notifyError({ message: 'Broken' } as any);
         expect(snackbar.open).toHaveBeenCalledWith(
             'Broken',
+            'OK',
+            expect.anything(),
+        );
+        const debug = vi
+            .spyOn(console, 'debug')
+            .mockImplementation(() => undefined);
+        // With the log on
+        setNotifyOutlet(snackbar);
+        // A failed 7.x call has an object as its `error`
+        notifyError(
+            new CallFailed({
+                kind: 'http',
+                status: 403,
+                message: 'Forbidden',
+                body: null,
+                text: null,
+            }) as unknown as string,
+        );
+        expect(snackbar.open).toHaveBeenLastCalledWith(
+            'HTTP 403: Forbidden',
+            'OK',
+            expect.anything(),
+        );
+        // The log gets the text, not the error with the response body
+        expect(debug).toHaveBeenLastCalledWith('HTTP 403: Forbidden');
+        debug.mockRestore();
+        notifyError({ error: '', message: 'Fallback' } as any);
+        expect(snackbar.open).toHaveBeenLastCalledWith(
+            'Fallback',
             'OK',
             expect.anything(),
         );

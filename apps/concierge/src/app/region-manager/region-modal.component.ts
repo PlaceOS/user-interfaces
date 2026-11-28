@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import {
     AsyncHandler,
+    authority,
     getInvalidSignalFields,
     notifyError,
     OrganisationService,
@@ -14,7 +15,8 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { errorText } from '../ui/modal-actions';
 import { TimezoneFieldComponent } from '../ui/timezone-field.component';
 
@@ -101,12 +103,12 @@ export class RegionModalComponent extends AsyncHandler {
         this.loading.set(true);
         const body = {
             ...data,
-            name: `REGION ${authority().description} ${data.display_name}`,
+            name: `REGION ${authority()?.description} ${data.display_name}`,
         };
         try {
             const resp = await (data.id
-                ? updateZone(data.id, body)
-                : addZone(body));
+                ? zones.update({ id: data.id, body }).then(orThrow)
+                : zones.create({ body }).then(orThrow));
             this._dialog_ref.close(resp);
         } catch (e) {
             notifyError(`Failed to save region. ${errorText(e)}`);

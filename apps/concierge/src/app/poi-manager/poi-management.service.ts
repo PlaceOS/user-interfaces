@@ -1,8 +1,9 @@
 import { Injectable, computed, effect, inject, signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { OrganisationService, flatten, notifySuccess } from '@placeos/common';
+import { OrganisationService, notifySuccess } from '@placeos/common';
 import { ExplorePointOfInterestModalComponent } from '@placeos/explore';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { POIModalComponent } from './poi-modal.component';
 
 export interface POIListOptions {
@@ -24,6 +25,7 @@ export interface PointOfInterest {
     extra_details?: [string, string][];
 }
 
+import { jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { confirmAction, errorText } from '../ui/modal-actions';
 @Injectable({
     providedIn: 'root',
@@ -61,11 +63,12 @@ export class POIManagementService {
         const metadata = await showMetadata(
             this._org.organisation.id,
             'points-of-interest',
-        ).catch((_) => ({ details: {} }));
-        const mapping = metadata.details || {};
+        ).catch(() => null);
+        const mapping = jsonRecord<Record<string, PointOfInterest[]>>(
+            metadata?.details,
+        );
         const levels = this._org.levelsForBuilding(this._org.building);
-        const list = flatten(levels.map((lvl) => mapping[lvl.id] || []));
-        this._features.set(list as PointOfInterest[]);
+        this._features.set(levels.flatMap((lvl) => mapping[lvl.id] || []));
     }
 
     public setFilters(options: Partial<POIListOptions>) {
@@ -107,18 +110,25 @@ export class POIManagementService {
                         this._org.organisation.id,
                         'points-of-interest',
                     );
-                    const metadata = old_metadata.details || {};
+                    const metadata = jsonRecord<
+                        Record<string, PointOfInterest[]>
+                    >(old_metadata.details);
                     for (const lvl in metadata) {
                         if (metadata[lvl])
                             metadata[lvl] = metadata[lvl].filter(
                                 (_) => _.id !== poi.id,
                             );
                     }
-                    await updateMetadata(this._org.organisation.id, {
-                        name: 'points-of-interest',
-                        details: metadata,
-                        description: '',
-                    });
+                    await metadata_v7
+                        .update({
+                            id: this._org.organisation.id,
+                            body: {
+                                name: 'points-of-interest',
+                                details: toJsonValue(metadata),
+                                description: '',
+                            },
+                        })
+                        .then(orThrow);
                 },
                 error: (e) =>
                     `Failed to remove point of interest. ${errorText(e)}`,

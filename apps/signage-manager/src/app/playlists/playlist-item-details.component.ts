@@ -16,7 +16,7 @@ import {
     MediaDurationPipe,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceSystem, PlaceZone, SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist, type System, type Zone } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { playlistSchedules } from '../schedules/signage-schedule.util';
 import { animationLabel } from '../shared/media-labels.util';
@@ -632,7 +632,7 @@ export class PlaylistItemDetailsComponent {
     private readonly _zone_service = inject(SignageZoneService);
 
     public readonly playlist = this._playlist_service.selected_playlist;
-    public readonly active_tab = linkedSignal<SignagePlaylist | null, number>({
+    public readonly active_tab = linkedSignal<Playlist | null, number>({
         source: this.playlist,
         computation: (playlist, previous) =>
             previous && playlist?.id === previous.source?.id
@@ -732,7 +732,7 @@ export class PlaylistItemDetailsComponent {
         if (playlist) this._zone_service.addZoneToPlaylist(playlist);
     }
 
-    public removeDisplay(event: Event, display: PlaceSystem) {
+    public removeDisplay(event: Event, display: System) {
         event.preventDefault();
         event.stopPropagation();
         const playlist = this.playlist();
@@ -740,7 +740,7 @@ export class PlaylistItemDetailsComponent {
             this._display_service.removeDisplayFromPlaylist(playlist, display);
     }
 
-    public removeZone(event: Event, zone: PlaceZone) {
+    public removeZone(event: Event, zone: Zone) {
         event.preventDefault();
         event.stopPropagation();
         const playlist = this.playlist();

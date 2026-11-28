@@ -4,6 +4,7 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { AssetCategoryFormComponent } from '../../app/asset-manager/asset-category-form.component';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
@@ -30,14 +31,18 @@ describe('AssetCategoryFormComponent', () => {
 
     beforeEach(() => {
         dialog_ref = { close: vi.fn(), disableClose: false };
-        (ts_client.updateAssetCategory as any).mockReset();
-        (ts_client.addAssetCategory as any).mockReset();
-        (ts_client.updateAssetCategory as any).mockResolvedValue({
-            id: 'saved-1',
-        });
-        (ts_client.addAssetCategory as any).mockResolvedValue({
-            id: 'saved-1',
-        });
+        (ts_client.asset_categories.update as any).mockReset();
+        (ts_client.asset_categories.create as any).mockReset();
+        (ts_client.asset_categories.update as any).mockResolvedValue(
+            mockReply({
+                id: 'saved-1',
+            }),
+        );
+        (ts_client.asset_categories.create as any).mockResolvedValue(
+            mockReply({
+                id: 'saved-1',
+            }),
+        );
         spectator = createComponent({
             providers: [
                 { provide: MatDialogRef, useValue: dialog_ref },
@@ -59,10 +64,10 @@ describe('AssetCategoryFormComponent', () => {
     it('should save and close with the created category', async () => {
         await spectator.component.save();
 
-        expect(ts_client.updateAssetCategory).toHaveBeenCalledWith(
-            'c-self',
-            expect.objectContaining({ name: 'Category' }),
-        );
+        expect(ts_client.asset_categories.update).toHaveBeenCalledWith({
+            id: 'c-self',
+            body: expect.objectContaining({ name: 'Category' }),
+        });
         expect(dialog_ref.close).toHaveBeenCalledWith({ id: 'saved-1' });
         expect(spectator.component.loading()).toBe(false);
     });
@@ -72,8 +77,8 @@ describe('AssetCategoryFormComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.updateAssetCategory).not.toHaveBeenCalled();
-        expect(ts_client.addAssetCategory).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.update).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.create).not.toHaveBeenCalled();
         expect(dialog_ref.close).not.toHaveBeenCalled();
     });
 });

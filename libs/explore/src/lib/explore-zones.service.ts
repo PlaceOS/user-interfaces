@@ -17,7 +17,8 @@ import {
     ViewerLabel,
     ViewerStyles,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import {
     MapCanvasComponent,
@@ -115,7 +116,11 @@ export class ExploreZonesService extends AsyncHandler {
         );
         const zone_metadata = await Promise.all(
             this._org.levels.map((bld) =>
-                showMetadata(bld.id, 'map_regions').catch(() => null),
+                metadata
+                    .show({ id: bld.id, name: 'map_regions' })
+                    .then(orThrow)
+                    .then((data) => data['map_regions'])
+                    .catch(() => null),
             ),
         );
         this._capacity = {};
@@ -177,15 +182,15 @@ export class ExploreZonesService extends AsyncHandler {
         this._updateStatus({});
         const mod = this._org.module('area_management', 'AreaManagement');
         if (!mod) return;
-        const bind_areas = mod.variable(`${zone_id}:areas`);
-        const bind_zone = mod.variable(`${zone_id}`);
+        const bind_areas = mod.variable<ZoneBindingData>(`${zone_id}:areas`);
+        const bind_zone = mod.variable<ZoneBindingData>(`${zone_id}`);
         this.subscription(
             'binding',
-            bind_areas.bindThenSubscribe((d) => this._area_data.set(d)),
+            bind_areas.subscribe((d) => this._area_data.set(d)),
         );
         this.subscription(
             'zone-binding',
-            bind_zone.bindThenSubscribe((d) => this._zone_data.set(d)),
+            bind_zone.subscribe((d) => this._zone_data.set(d)),
         );
     }
 

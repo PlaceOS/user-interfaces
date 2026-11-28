@@ -14,9 +14,9 @@ import {
 } from '../../app/map-manager/map-editor-page.component';
 import { MapManagementService } from '../../app/map-manager/map-management.service';
 
-import * as ts_client from '@placeos/ts-client';
-
-vi.mock('@placeos/ts-client', { spy: true });
+import { startMockPlaceClient } from '@placeos/common/tests';
+import { clearMockEndpoints } from '@placeos/ts-client/compat';
+import { mockHttp, waitForMockHttp } from '../mock-http';
 
 const MAP =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 50">' +
@@ -92,6 +92,7 @@ describe('MapEditorPageComponent', () => {
     });
 
     afterEach(() => {
+        clearMockEndpoints();
         spectator?.fixture.destroy();
     });
 
@@ -105,15 +106,17 @@ describe('MapEditorPageComponent', () => {
     }
 
     async function mount(capabilities: () => Promise<unknown>) {
-        vi.mocked(ts_client.get).mockImplementation((url: string) =>
-            url.endsWith('/maps/ai/capabilities')
-                ? (capabilities() as Promise<never>)
-                : Promise.reject({ status: 404, message: 'Not found' }),
+        // Other requests get a 404 from the mock endpoints
+        startMockPlaceClient();
+        mockHttp('GET', '/api/engine/v2/maps/ai/capabilities', () =>
+            capabilities(),
         );
         spectator = createComponent({
             providers: [{ provide: MapManagementService, useValue: manager }],
         });
         spectator.detectChanges();
+        await settle();
+        await waitForMockHttp();
         await settle();
     }
 

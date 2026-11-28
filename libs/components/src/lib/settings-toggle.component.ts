@@ -2,7 +2,7 @@ import { Component, input, signal } from '@angular/core';
 import { ControlValueAccessor, FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { provideValueAccessor } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { IconComponent } from './icon.component';
 
 @Component({

@@ -8,7 +8,8 @@ import {
     reloadUserData,
     userSignal,
 } from '@placeos/common';
-import { updateUser } from '@placeos/ts-client';
+import { users } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     addDays,
     format,
@@ -26,6 +27,23 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { WFHSettingsModalComponent } from 'libs/users/src/lib/wfh-settings-modal.component';
 import { IconComponent } from './icon.component';
 import { TranslatePipe } from './translate.pipe';
+
+/** Work overrides as the JSON body of the users API */
+function workOverridesBody(overrides: Record<string, WorktimePreference>) {
+    return Object.fromEntries(
+        Object.entries(overrides).map(([date, { day_of_week, blocks }]) => [
+            date,
+            {
+                day_of_week,
+                blocks: blocks.map(({ start_time, end_time, location }) => ({
+                    start_time,
+                    end_time,
+                    location,
+                })),
+            },
+        ]),
+    );
+}
 
 /**
  * Set the location of one time block in today's work preference. Saves the
@@ -60,7 +78,12 @@ export async function saveTodayWorkLocation(
         }
     }
     try {
-        await updateUser(user.id, { ...user, work_overrides: new_overrides });
+        await users
+            .update({
+                id: user.id,
+                body: { work_overrides: workOverridesBody(new_overrides) },
+            })
+            .then(orThrow);
     } catch {
         notifyError('Unable to save your work location.');
         return user.work_overrides;

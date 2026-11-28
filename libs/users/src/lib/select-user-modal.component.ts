@@ -13,7 +13,8 @@ import { MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { StaffUser } from '@placeos/common';
-import { queryUsers } from '@placeos/ts-client';
+import { users } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 
@@ -95,7 +96,9 @@ export class SelectUserModalComponent {
     private readonly _users = resource({
         params: () => ({ q: this._debounced_search.value() }),
         loader: ({ params: { q } }) =>
-            queryUsers({ q })
+            users
+                .query({ q })
+                .then(orThrowPage)
                 .then((o) => o.data.map((u) => new StaffUser(u)))
                 .catch(() => [] as StaffUser[]),
     });

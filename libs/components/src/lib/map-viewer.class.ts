@@ -1,10 +1,12 @@
 import {
+    apiKey,
+    authority,
     isMobileSafari,
     MapElementBounds,
     Point,
     randomString,
+    token,
 } from '@placeos/common';
-import { apiKey, authority, token } from '@placeos/ts-client';
 
 import { setAuthCookie } from './authenticated-image';
 

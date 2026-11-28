@@ -8,16 +8,17 @@ import {
     UploadsService,
 } from '@placeos/common';
 import {
-    PlaceSystem,
-    query,
-    querySignageMedia,
-    querySignagePlaylists,
-    querySignageTemplates,
-    queryZones,
+    playlist,
+    playlist_media,
+    signage_templates,
+    systems,
+    zones,
 } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 
 import { SignageDisplayService } from '../app/displays/signage-display.service';
 import { CommandPaletteService } from '../app/shared/command-palette.service';
+import { signageSystem } from '../app/signage-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -33,29 +34,16 @@ describe('SignageDisplayService display search', () => {
         total = ids.length,
         next: unknown = null,
     ) => ({
-        data: ids.map((id) => new PlaceSystem({ id, name: id, signage: true })),
+        data: ids.map((id) => signageSystem({ id, name: id, signage: true })),
         total,
         next: next ? () => Promise.resolve(next) : null,
     });
 
-    /** Serve the display list query with a page, through its data mapper */
+    /** Serve the display list query with a page */
     const mockDisplayList = (page: ReturnType<typeof pageOf>) =>
-        vi
-            .mocked(query)
-            .mockImplementation(((params: {
-                path: string;
-                fn: (raw: PlaceSystem) => PlaceSystem;
-            }) =>
-                Promise.resolve(
-                    params.path === 'systems'
-                        ? { ...page, data: page.data.map(params.fn) }
-                        : { data: [], total: 0, next: null },
-                )) as unknown as typeof query);
+        vi.mocked(systems.query).mockResolvedValue(mockPage(page));
     const lastDisplayQuery = () =>
-        vi
-            .mocked(query)
-            .mock.calls.filter(([q]) => q.path === 'systems')
-            .at(-1)![0].query_params;
+        vi.mocked(systems.query).mock.calls.at(-1)![0];
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -111,14 +99,13 @@ describe('SignageDisplayService display search', () => {
 
         const params = lastDisplayQuery();
         expect(params.q).toBe('lobby');
-        expect(params.fields).toBe('id,name,display_name,description,tags');
         expect(params.limit).toBe(200);
         expect(service.filtered_displays().map((_) => _.id)).toEqual(['lobby']);
     });
 
     it('loads the first page again after it failed', async () => {
         mockDisplayList(pageOf(['lobby'], 1));
-        vi.mocked(query).mockRejectedValueOnce(new Error('offline'));
+        vi.mocked(systems.query).mockRejectedValueOnce(new Error('offline'));
         const service = TestBed.inject(SignageDisplayService);
         TestBed.tick();
         await flush();
@@ -176,16 +163,16 @@ describe('SignageDisplayService display search', () => {
         vi.clearAllMocks();
         mockDisplayList(pageOf(['lobby']));
         for (const query of [
-            querySignagePlaylists,
-            querySignageMedia,
-            querySignageTemplates,
-            queryZones,
+            playlist.query,
+            playlist_media.query,
+            signage_templates.query,
+            zones.query,
         ]) {
-            (query as any).mockResolvedValue({ data: [], total: 0 });
+            (query as any).mockResolvedValue(mockPage({ data: [], total: 0 }));
         }
 
         expect(await palette.searchAll('  ')).toMatchObject({ displays: [] });
-        expect(query).not.toHaveBeenCalled();
+        expect(systems.query).not.toHaveBeenCalled();
 
         const results = await palette.searchAll('lobby');
 

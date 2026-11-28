@@ -18,8 +18,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import {
-    SignageTemplate,
-    type SignageTemplateApprover,
+    type SignageTemplate,
+    type SignageTemplatesApprover,
 } from '@placeos/ts-client';
 import { SignageContextService } from '../signage-context.service';
 import { SignageTemplateService } from '../templates/signage-template.service';
@@ -28,7 +28,7 @@ import { loadTemplateApprovalVersions } from './template-approval.util';
 
 export interface TemplateRequestApprovalModalData {
     template: SignageTemplate;
-    approvers: SignageTemplateApprover[];
+    approvers: SignageTemplatesApprover[];
     selected_approver_id?: string;
 }
 

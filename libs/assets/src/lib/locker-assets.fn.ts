@@ -1,4 +1,5 @@
-import { PlaceAsset, removeAsset } from '@placeos/ts-client';
+import { type Asset, assets } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     queryTypeAssetsForZones,
     queryTypeAssetsInZone,
@@ -23,7 +24,7 @@ export function resolveLockerTypeId(): Promise<string> {
 
 export async function queryLockerBankAssetsForZones(
     zone_ids: string[],
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     if (!zone_ids?.length) return [];
     return queryTypeAssetsForZones(await resolveLockerBankTypeId(), zone_ids);
 }
@@ -31,32 +32,30 @@ export async function queryLockerBankAssetsForZones(
 /** Query the locker banks within a building or region, by their `zones` */
 export async function queryLockerBankAssetsInZone(
     zone_id: string,
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     // an empty `zones` filter is not a scope, e.g. the building is not loaded
     if (!zone_id) return [];
     return queryTypeAssetsInZone(await resolveLockerBankTypeId(), zone_id);
 }
 
 export async function saveLockerBankAsset(
-    bank: Partial<PlaceAsset>,
-): Promise<PlaceAsset> {
+    bank: Partial<Asset>,
+): Promise<Asset> {
     const type_id = await resolveLockerBankTypeId();
     return saveAsset({ ...bank, asset_type_id: type_id });
 }
 
 export function deleteLockerBankAsset(id: string) {
-    return removeAsset(id);
+    return assets.destroy({ id }).then(orThrow);
 }
 
-export async function queryLockerAssets(
-    zone_id: string,
-): Promise<PlaceAsset[]> {
+export async function queryLockerAssets(zone_id: string): Promise<Asset[]> {
     return queryTypeAssetsForZones(await resolveLockerTypeId(), [zone_id]);
 }
 
 export async function queryLockerAssetsForZones(
     zone_ids: string[],
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     if (!zone_ids?.length) return [];
     return queryTypeAssetsForZones(await resolveLockerTypeId(), zone_ids);
 }
@@ -64,19 +63,17 @@ export async function queryLockerAssetsForZones(
 /** Query the lockers within a building or region, by their `zones` */
 export async function queryLockerAssetsInZone(
     zone_id: string,
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     // an empty `zones` filter is not a scope, e.g. the building is not loaded
     if (!zone_id) return [];
     return queryTypeAssetsInZone(await resolveLockerTypeId(), zone_id);
 }
 
-export async function saveLockerAsset(
-    locker: Partial<PlaceAsset>,
-): Promise<PlaceAsset> {
+export async function saveLockerAsset(locker: Partial<Asset>): Promise<Asset> {
     const type_id = await resolveLockerTypeId();
     return saveAsset({ ...locker, asset_type_id: type_id });
 }
 
 export function deleteLockerAsset(id: string) {
-    return removeAsset(id);
+    return assets.destroy({ id }).then(orThrow);
 }

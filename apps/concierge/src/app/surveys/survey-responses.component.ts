@@ -22,7 +22,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateRangeFieldComponent } from '@placeos/form-fields';
-import { queryAnswers, SurveyAnswer } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { type SurveyAnswer, surveys_answers } from '@placeos/ts-client/staff';
 import { endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import { NewSurveyWidgetComponent } from './new-survey-widget.component';
 import { NewSurveyService } from './new-survey.service';
@@ -246,10 +247,13 @@ export class SurveyResponsesComponent extends AsyncHandler implements OnInit {
                 );
             }
             let failed = false;
-            const answers = await queryAnswers(q).catch(() => {
-                failed = true;
-                return [] as SurveyAnswer[];
-            });
+            const answers = await surveys_answers
+                .query(q)
+                .then(orThrow)
+                .catch(() => {
+                    failed = true;
+                    return [] as SurveyAnswer[];
+                });
             this.load_error.set(failed);
             return answers;
         },

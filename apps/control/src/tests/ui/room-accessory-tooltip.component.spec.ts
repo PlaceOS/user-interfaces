@@ -2,15 +2,17 @@ import { signal } from '@angular/core';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { CustomTooltipData, IconComponent } from '@placeos/components';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { ControlStateService } from '../../app/control-state.service';
 import { RoomAccessoryTooltipComponent } from '../../app/ui/room-accessory-tooltip.component';
 
 describe('RoomAccessoryTooltipComponent', () => {
+    let place: TestPlaceClient;
     let spectator: Spectator<RoomAccessoryTooltipComponent>;
     const room_accessories = signal<unknown[]>([]);
     const execute_fn = vi.fn(async () => null);
@@ -34,9 +36,10 @@ describe('RoomAccessoryTooltipComponent', () => {
     });
 
     beforeEach(() => {
+        place = startTestPlaceClient();
         room_accessories.set([]);
         execute_fn.mockClear();
-        (client.getModule as any).mockReturnValue({ execute: execute_fn });
+        place.useExecute(execute_fn);
         spectator = createComponent();
     });
 
@@ -70,16 +73,10 @@ describe('RoomAccessoryTooltipComponent', () => {
         ]);
         spectator.detectChanges();
         spectator.click('button[state]');
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
+        expect(place.modules()).toContain('sys-1|System_1');
         expect(execute_fn).toHaveBeenCalledWith('accessory_exec', [
             'Blinds',
             'Open',
         ]);
-    });
-
-    it('should not execute when module is missing', () => {
-        (client.getModule as any).mockReturnValue(null);
-        spectator.component.performAction('Blinds', 'Open');
-        expect(execute_fn).not.toHaveBeenCalled();
     });
 });

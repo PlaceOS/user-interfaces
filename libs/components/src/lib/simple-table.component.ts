@@ -497,7 +497,9 @@ export function rowSearchText(
 })
 export class SimpleTableComponent<T extends object = any> {
     // Inputs
-    public readonly data = input<T[] | Observable<T[]>>(undefined);
+    public readonly data = input<readonly T[] | Observable<readonly T[]>>(
+        undefined,
+    );
     public readonly columns = input<TableColumn[]>([]);
     public readonly selectable = input(false);
     /** Unique key for a row. Selection and row tracking use it. */
@@ -543,7 +545,7 @@ export class SimpleTableComponent<T extends object = any> {
     );
 
     // Signal to hold the actual data (handles both array and Observable inputs)
-    private readonly _data_signal = signal<T[]>([]);
+    private readonly _data_signal = signal<readonly T[]>([]);
     private _data_subscription: Subscription | null = null;
     /** Row keys and page size of the last data view, to detect reloads */
     private _last_row_keys = '';

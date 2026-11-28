@@ -16,7 +16,8 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
+import { alert_dashboards } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { DashboardsService } from './dashboards.service';
 
 @Component({
@@ -176,8 +177,10 @@ export class DashboardManageComponent extends AsyncHandler implements OnInit {
         // nothing from one opened before it
         const new_dash = this.model();
         const method = new_dash.id
-            ? updateAlertDashboard(new_dash.id, new_dash)
-            : addAlertDashboard(new_dash);
+            ? alert_dashboards
+                  .update({ id: new_dash.id, body: new_dash })
+                  .then(orThrow)
+            : alert_dashboards.create({ body: new_dash }).then(orThrow);
         const result = await method.catch((_) => null);
         this.loading.set('');
         if (!result) {

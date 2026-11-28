@@ -7,15 +7,8 @@ import {
     untracked,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-    authority,
-    getModule,
-    is_connected,
-    isFixedDevice,
-    isMock,
-    PlaceModuleBinding,
-    showMetadata,
-} from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { formatDistance } from 'date-fns';
 
 import { hasNewVersion } from './application';
@@ -23,9 +16,17 @@ import { AsyncHandler } from './async-handler.class';
 import { listenToConsole, type CapturedConsoleMethod } from './console-capture';
 import { deviceId } from './device-id';
 import { appName, log, setDebugLogging, withTimeout } from './general';
+import { jsonRecord } from './json';
 import { formatLogArgs } from './log-format';
 import { isNativeApp } from './native-app';
 import { OrganisationService } from './org/organisation.service';
+import {
+    authority,
+    isFixedDevice,
+    isMock,
+    realtimeConnected,
+} from './place-client';
+import { getModule, type ModuleHandle } from './realtime';
 import { scrubSecrets } from './scrub-secrets';
 import { SettingsService } from './settings.service';
 import { UploadsService } from './uploads.service';
@@ -289,10 +290,6 @@ const MAX_DURATION_MS = 60 * 60 * 1000;
 /** Tag of the log lines of this service. The service does not capture its own lines */
 const LOG_TAG = 'RemoteDebug';
 
-/** ts-client debug line of a `post_logs` or `command_result` call */
-const OWN_CALL_LINE =
-    /^\[PlaceOS\]\[WS\] \[EXEC\]\([^)]*\) [^,]*, [^,]*, (post_logs|command_result|register)\b/;
-
 /** Level of the entries from a console method */
 const CONSOLE_LEVEL: Record<CapturedConsoleMethod, RemoteLogLevel> = {
     debug: 'debug',
@@ -404,10 +401,13 @@ export function remoteDebugMediaUrl(upload_id: string) {
  */
 export async function readRemoteDebugModule(
     org_id: string,
-): Promise<PlaceModuleBinding | null | undefined> {
+): Promise<ModuleHandle | null | undefined> {
     if (!org_id) return undefined;
-    const bindings = await showMetadata(org_id, 'bindings')
-        .then((_) => (_?.details ?? {}) as Record<string, unknown>)
+    const bindings = await metadata
+        .show({ id: org_id, name: 'bindings' })
+        .then(orThrow)
+        // The reply has one entry for each metadata name
+        .then((_) => jsonRecord(_?.['bindings']?.details))
         .catch(() => null);
     if (!bindings) return undefined;
     const binding = bindings[REMOTE_DEBUG_BINDING];
@@ -635,15 +635,13 @@ export class RemoteDebugService extends AsyncHandler {
     };
     private _last_error: RemoteLogEntry | null = null;
     private _capturing = false;
-    private _module: PlaceModuleBinding | null = null;
+    private _module: ModuleHandle | null = null;
     /** Key of the module that the device listens to. `null` before the first check */
     private _module_key: string | null = null;
     private _request: RemoteLogRequest | null = null;
     /** ID of the last request that ended. The device does not apply it again */
     private _ended_id = '';
     private _sending = false;
-    /** Driver calls of this service that run now */
-    private _calls = 0;
     /** Commands from the last value of the binding */
     private _commands: RemoteDebugCommand[] = [];
     private _running_commands = false;
@@ -705,8 +703,8 @@ export class RemoteDebugService extends AsyncHandler {
     }
 
     /** Listen to the driver of the binding. `null` stops remote debugging */
-    private _connect(mod: PlaceModuleBinding | null) {
-        const key = mod ? `${mod.system.id}/${mod.id}` : '';
+    private _connect(mod: ModuleHandle | null) {
+        const key = mod ? `${mod.sys}/${mod.mod}_${mod.index}` : '';
         if (key === this._module_key) return;
         this._endRequest();
         this.unsub('state');
@@ -724,7 +722,7 @@ export class RemoteDebugService extends AsyncHandler {
             'state',
             mod
                 .variable<unknown>(remoteDebugDeviceBinding(this.device_id))
-                .bindThenSubscribe((value) => this._applyState(value)),
+                .subscribe((value) => this._applyState(value)),
         );
         this._startRegister();
     }
@@ -747,16 +745,16 @@ export class RemoteDebugService extends AsyncHandler {
     }
 
     /**
-     * Register, then wait for the next heartbeat. ts-client keeps calls that
-     * are made while the websocket is down and sends them all when it
-     * reconnects, so a device that is not connected does not call. It tries
+     * Register, then wait for the next heartbeat. A call while the websocket is down
+     * waits, and the waiting calls all go when the socket opens again,
+     * so a device that is not connected does not call. It tries
      * again after a new random wait, so devices that reconnect together
      * spread their calls. A device that is not fixed also tries again.
      */
     private _register() {
         const mod = this._module;
         if (!mod) return;
-        if (!is_connected() || !isFixedDevice()) {
+        if (!realtimeConnected() || !isFixedDevice()) {
             this._startRegister();
             return;
         }
@@ -851,46 +849,26 @@ export class RemoteDebugService extends AsyncHandler {
     }
 
     /**
-     * Whether a line is a ts-client debug line about a call of this service,
-     * or about a change of a driver binding. These lines show only with
-     * `window.debug`. If the device sent them, each `post_logs` call would
-     * cause the next one.
+     * Whether a line is a ts-client debug line about a change of a binding of
+     * the driver, such as `[PlaceOS][WS] sys-1 RemoteDebug_1 logs:<id>
+     * changed`. These lines show only with `window.debug`. A `logs:<id>`
+     * change of this device comes from its own `post_logs` call, so if the
+     * device sent them, each call would cause the next one. ts-client does not
+     * log the calls themselves.
      */
     private _isOwnCallLine(message: string) {
-        if (!message.startsWith('[PlaceOS][WS] [')) return false;
-        // Another driver can have a method of the same name, such as RemoteSetup
-        // `register`, so the line must name this module: `sys, Module_1, method`
         const mod = this._module;
-        // A change of a driver binding. A `logs:<id>` change of this device
-        // comes from its own `post_logs` call
-        if (
-            mod &&
-            message.startsWith(
-                `[PlaceOS][WS] [NOTIFY] ${mod.system.id}, ${mod.name}_${mod.index}, `,
-            )
-        ) {
-            return true;
-        }
-        if (mod && OWN_CALL_LINE.test(message)) {
-            return message.includes(
-                `) ${mod.system.id}, ${mod.name}_${mod.index}, `,
-            );
-        }
-        return this._calls > 0 && message.startsWith('[PlaceOS][WS] [SUCCESS]');
+        if (!mod) return false;
+        // The line must name this module. Another driver can have a binding
+        // of the same name.
+        return message.startsWith(
+            `[PlaceOS][WS] ${mod.sys} ${mod.mod}_${mod.index} `,
+        );
     }
 
     /** Call a method of the driver */
-    private async _call(
-        mod: PlaceModuleBinding,
-        method: string,
-        args: unknown[],
-    ) {
-        this._calls++;
-        try {
-            return await mod.execute(method, args, CALL_TIMEOUT_MS);
-        } finally {
-            this._calls--;
-        }
+    private async _call(mod: ModuleHandle, method: string, args: unknown[]) {
+        return mod.execute(method, args, { timeout_ms: CALL_TIMEOUT_MS });
     }
 
     /**
@@ -1151,7 +1129,7 @@ export class RemoteDebugService extends AsyncHandler {
             timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             language: navigator.language,
             online: navigator.onLine,
-            websocket: is_connected(),
+            websocket: realtimeConnected(),
             visible: document.visibilityState === 'visible',
             native: isNativeApp(),
             screen: {

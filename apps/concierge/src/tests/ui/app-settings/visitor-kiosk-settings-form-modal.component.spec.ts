@@ -23,6 +23,7 @@ import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-butto
 import { VisitorKioskSettingsFormModalComponent } from '../../../app/ui/app-settings/visitor-kiosk-settings-form-modal.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -65,11 +66,21 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as never);
-        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
+    beforeEach(async () => {
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.metadata.update).mockResolvedValue(
+            mockReply({} as never),
+        );
         notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
             dismiss: () => undefined,
@@ -84,6 +95,10 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
             }),
         );
         spectator = createComponent();
+        // The component loads the settings when it starts. Wait for that
+        // load, so that it does not use the mocks of the test.
+        await vi.waitFor(() => expect(spectator.component.loading()).toBe(''));
+        await new Promise((resolve) => setTimeout(resolve));
     });
 
     afterEach(() => {
@@ -94,31 +109,38 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
 
     it('should load settings on init', async () => {
         await spectator.component.ngOnInit();
-        expect(ts_client.showMetadata).toHaveBeenCalled();
+        expect(ts_client.metadata.show).toHaveBeenCalled();
         expect(spectator.component.loading()).toBe('');
     });
 
     it('should load metadata from org, parent, and zone', async () => {
         await spectator.component.ngOnInit();
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'org-1',
-            'visitor-kiosk_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-parent',
-            'visitor-kiosk_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            'visitor-kiosk_app',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'org-1',
+            name: 'visitor-kiosk_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-parent',
+            name: 'visitor-kiosk_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-1',
+            name: 'visitor-kiosk_app',
+        });
     });
 
     it('should compare organisation settings against application defaults', async () => {
-        (ts_client.showMetadata as any).mockClear();
-        (ts_client.showMetadata as any).mockResolvedValueOnce({
-            details: { welcome_message: 'Organisation welcome' },
-        });
+        (ts_client.metadata.show as any).mockClear();
+        (ts_client.metadata.show as any).mockImplementationOnce(
+            fromV1Mock(
+                () => ({
+                    details: { welcome_message: 'Organisation welcome' },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         (spectator.component as any).zone = {
             ...mock_zone,
             id: 'org-1',
@@ -131,26 +153,47 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
 
-        expect(ts_client.showMetadata).toHaveBeenCalledTimes(1);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'org-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.show).toHaveBeenCalledTimes(1);
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'org-1',
+            body: expect.objectContaining({
                 details: expect.objectContaining({
                     welcome_message: 'Organisation welcome',
                 }),
             }),
-        );
+        });
     });
 
     it('should save an empty string that clears an inherited value', async () => {
-        (ts_client.showMetadata as any)
-            .mockResolvedValueOnce({
-                details: { welcome_message: 'Organisation welcome' },
-            })
-            .mockResolvedValueOnce({
-                details: { welcome_message: 'Region welcome' },
-            })
-            .mockResolvedValueOnce({ details: {} });
+        (ts_client.metadata.show as any)
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: { welcome_message: 'Organisation welcome' },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: { welcome_message: 'Region welcome' },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({ details: {} }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
 
         await spectator.component.ngOnInit();
         spectator.component.model.update((model) => ({
@@ -159,12 +202,12 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
         }));
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: expect.objectContaining({ welcome_message: '' }),
             }),
-        );
+        });
     });
 
     it('should save settings via updateMetadata', async () => {
@@ -174,12 +217,12 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
             welcome_message: 'Hello Visitors',
         }));
         await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 name: 'visitor-kiosk_app',
             }),
-        );
+        });
     });
 
     it('should close dialog after successful save', async () => {
@@ -200,7 +243,7 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     it('should show error notification when save fails', async () => {
-        (ts_client.updateMetadata as any).mockRejectedValueOnce({
+        (ts_client.metadata.update as any).mockRejectedValueOnce({
             message: 'Network error',
         } as never);
         await spectator.component.ngOnInit();
@@ -213,9 +256,16 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     it('should reset a boolean hide_device_fields to an empty list', async () => {
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: { explore: { hide_device_fields: true } },
-        });
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: { explore: { hide_device_fields: true } },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await spectator.component.ngOnInit();
         expect(spectator.component.model().explore.hide_device_fields).toEqual(
             [],
@@ -223,9 +273,18 @@ describe('VisitorKioskSettingsFormModalComponent', () => {
     });
 
     it('should keep a list of hidden device fields', async () => {
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: { explore: { hide_device_fields: ['mac', 'ssid'] } },
-        });
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {
+                        explore: { hide_device_fields: ['mac', 'ssid'] },
+                    },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         await spectator.component.ngOnInit();
         expect(spectator.component.model().explore.hide_device_fields).toEqual([
             'mac',

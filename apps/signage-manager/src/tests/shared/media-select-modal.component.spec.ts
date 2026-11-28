@@ -1,23 +1,23 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
-import { SignageMedia } from '@placeos/ts-client';
 import { SignageMediaService } from '../../app/media/signage-media.service';
 import { MediaSelectModalComponent } from '../../app/shared/media-select-modal.component';
+import { signageMedia } from '../../app/signage-models';
 
 describe('MediaSelectModalComponent', () => {
     const flush = () => new Promise((resolve) => setTimeout(resolve));
     const queryMedia = vi.fn();
     const close = vi.fn();
-    const office = new SignageMedia({ id: 'media-1', name: 'Office photo' });
-    const welcome = new SignageMedia({ id: 'media-2', name: 'Welcome video' });
+    const office = signageMedia({ id: 'media-1', name: 'Office photo' });
+    const welcome = signageMedia({ id: 'media-2', name: 'Welcome video' });
 
     beforeEach(async () => {
         vi.clearAllMocks();
         queryMedia.mockReturnValue(
             Promise.resolve({
                 data: [
-                    new SignageMedia({ id: 'media-2', name: 'Welcome video' }),
-                    new SignageMedia({ id: 'media-1', name: 'Office photo' }),
+                    signageMedia({ id: 'media-2', name: 'Welcome video' }),
+                    signageMedia({ id: 'media-1', name: 'Office photo' }),
                 ],
                 total: 2,
                 next: null,

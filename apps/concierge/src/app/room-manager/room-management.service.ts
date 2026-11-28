@@ -1,14 +1,16 @@
 import {
-    Injectable,
-    Signal,
     computed,
     inject,
+    Injectable,
     resource,
+    Signal,
     signal,
 } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { PlaceSystem, querySystems, showMetadata } from '@placeos/ts-client';
+import { type System, systems } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
+import { showMetadata } from '../metadata';
 import { queryAllPages } from '../query-all-pages';
 import { RoomAlertModalComponent } from './room-alert-modal.component';
 import { RoomBookingHistoryModalComponent } from './room-booking-history-modal.component';
@@ -65,7 +67,7 @@ export class RoomManagementService {
                   }
                 : undefined;
         },
-        defaultValue: [] as PlaceSystem[],
+        defaultValue: [] as System[],
         loader: async ({ params }) => {
             if (!params?.building) return [];
             const zone_id =
@@ -73,7 +75,9 @@ export class RoomManagementService {
                 params.building;
             let failed = false;
             const list: any[] = await queryAllPages(
-                querySystems({ zone_id, limit: 200 }),
+                systems
+                    .query({ zone_id: [zone_id], limit: 200 })
+                    .then(orThrowPage),
             ).catch(() => {
                 failed = true;
                 return [];
@@ -91,7 +95,7 @@ export class RoomManagementService {
                 .sort((a, b) => a.name.localeCompare(b.name));
         },
     });
-    public readonly room_list: Signal<PlaceSystem[]> = this._room_list.value;
+    public readonly room_list: Signal<System[]> = this._room_list.value;
 
     public readonly filtered_rooms = computed(() => {
         let list = this._room_list.value();
@@ -122,20 +126,20 @@ export class RoomManagementService {
         this._options.update((current) => ({ ...current, search }));
     }
 
-    public editRoom(room: PlaceSystem = new PlaceSystem()) {
+    public editRoom(room: Partial<System> = {}) {
         this._refreshAfterSave(
             this._dialog.open(RoomModalComponent, { data: { room } }),
         );
     }
 
-    public setRoomAlert(room: PlaceSystem) {
+    public setRoomAlert(room: System) {
         if (!room) return;
         this._refreshAfterSave(
             this._dialog.open(RoomAlertModalComponent, { data: { room } }),
         );
     }
 
-    public viewBookingHistory(room: PlaceSystem) {
+    public viewBookingHistory(room: System) {
         if (!room) return;
         this._dialog.open(RoomBookingHistoryModalComponent, {
             data: { room },

@@ -1,5 +1,5 @@
 import { timePeriodsIntersect } from '@placeos/common';
-import { mockSystem } from '@placeos/ts-client';
+import { mockSystem } from '@placeos/ts-client/compat';
 import { mockId, persistById, registerMockEndpoint } from '../session';
 import { eventSpaces, MOCK_EVENTS } from './events.data';
 import { MOCK_SPACES } from './spaces.data';
@@ -19,7 +19,11 @@ function pollSpaces(ids: (string | undefined)[]) {
     }
 }
 
-/** IDs of the event's spaces that already have an event at the same time */
+/**
+ * IDs of the event's spaces that already have an event at the same time.
+ * With `include_time`, each clash has the room and times, as Staff API
+ * sends them.
+ */
 function clashingSpaces(event: any, include_time: boolean) {
     const space_ids = eventSpaces(event);
     const clashes = MOCK_EVENTS.filter(
@@ -34,15 +38,15 @@ function clashingSpaces(event: any, include_time: boolean) {
     ).flatMap((other) =>
         eventSpaces(other)
             .filter((id) => space_ids.includes(id))
-            .map((asset_id) => ({
-                asset_id,
-                booking_start: other.event_start,
-                booking_end: other.event_end,
+            .map((system_id) => ({
+                system_id,
+                event_start: other.event_start,
+                event_end: other.event_end,
             })),
     );
     return include_time
         ? clashes
-        : [...new Set(clashes.map((clash) => clash.asset_id))];
+        : [...new Set(clashes.map((clash) => clash.system_id))];
 }
 
 export function registerMockEvents() {

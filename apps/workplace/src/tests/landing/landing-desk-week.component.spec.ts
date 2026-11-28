@@ -11,14 +11,15 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { addDays, addWeeks, format, getDay, startOfWeek } from 'date-fns';
 import { LandingDeskWeekComponent } from '../../app/landing-new/landing-desk-week.component';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-const query_bookings = vi.mocked(ts_client.get) as any;
+const query_bookings = vi.mocked(staff_bookings.query);
 
 describe('LandingDeskWeekComponent', () => {
     let spectator: Spectator<LandingDeskWeekComponent>;
@@ -50,7 +51,7 @@ describe('LandingDeskWeekComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        query_bookings.mockResolvedValue([]);
+        query_bookings.mockImplementation(fromV1Mock(() => [], ['...']));
         org.levelWithID.mockReturnValue(null);
         org.buildings = [];
         spectator = createComponent();
@@ -104,7 +105,9 @@ describe('LandingDeskWeekComponent', () => {
     });
 
     it('should not show free days while the bookings load', async () => {
-        query_bookings.mockReturnValue(new Promise(() => null));
+        query_bookings.mockImplementation(
+            fromV1Mock(() => new Promise(() => null), ['...']),
+        );
         spectator.detectChanges();
         await new Promise((resolve) => setTimeout(resolve, 0));
         spectator.detectChanges();
@@ -261,10 +264,15 @@ describe('LandingDeskWeekComponent', () => {
 
     it('should group loaded bookings by day', async () => {
         const date = Date.now();
-        query_bookings.mockResolvedValue([
-            new Booking({ id: 'b1', date, zones: [] } as any),
-            new Booking({ id: 'b2', date, zones: [] } as any),
-        ]);
+        query_bookings.mockImplementation(
+            fromV1Mock(
+                () => [
+                    new Booking({ id: 'b1', date, zones: [] }),
+                    new Booking({ id: 'b2', date, zones: [] }),
+                ],
+                ['...'],
+            ),
+        );
         spectator.detectChanges();
         await new Promise((resolve) => setTimeout(resolve, 0));
         spectator.detectChanges();

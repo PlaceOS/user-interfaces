@@ -5,6 +5,7 @@ import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { BookingRulesModalComponent } from '../../app/ui/booking-rules-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -27,10 +28,17 @@ describe('BookingRulesModalComponent', () => {
     });
 
     beforeEach(() => {
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: [],
-        });
-        (ts_client.updateMetadata as any).mockResolvedValue({});
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: [],
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client.metadata.update as any).mockResolvedValue(mockReply({}));
         spectator = createComponent();
     });
 
@@ -98,60 +106,67 @@ describe('BookingRulesModalComponent', () => {
     });
 
     it('should move a ruleset one place and save the new order', async () => {
-        (ts_client.showMetadata as any).mockResolvedValue({
-            details: [
-                { id: 'a', name: 'A', conditions: {}, rules: {} },
-                { id: 'b', name: 'B', conditions: {}, rules: {} },
-            ],
-        });
+        (ts_client.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: [
+                        { id: 'a', name: 'A', conditions: {}, rules: {} },
+                        { id: 'b', name: 'B', conditions: {}, rules: {} },
+                    ],
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createComponent();
         await spectator.fixture.whenStable();
 
         await spectator.component.move(0, -1);
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
 
         await spectator.component.move(0, 1);
         expect(
             spectator.component.booking_rules().map((rule) => rule.id),
         ).toEqual(['b', 'a']);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'bld-1',
+            body: expect.objectContaining({
                 details: [
                     expect.objectContaining({ id: 'b' }),
                     expect.objectContaining({ id: 'a' }),
                 ],
             }),
-        );
+        });
     });
 
     it('should persist a new ruleset and return to the list view', async () => {
         await spectator.fixture.whenStable();
         await spectator.component.save({ name: 'New Rule' } as any);
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'bld-1',
+            body: expect.objectContaining({
                 name: 'desk_booking_rules',
                 details: expect.arrayContaining([
                     expect.objectContaining({ name: 'New Rule' }),
                 ]),
             }),
-        );
+        });
         expect(spectator.component.view()).toBe('list');
         expect(spectator.component.loading()).toBe(false);
         expect(spectator.component.change()).not.toBe(0);
     });
 
     it('should not save when the stored rulesets fail to load', async () => {
-        (ts_client.showMetadata as any).mockRejectedValue('offline');
-        (ts_client.updateMetadata as any).mockClear();
+        (ts_client.metadata.show as any).mockRejectedValue('offline');
+        (ts_client.metadata.update as any).mockClear();
         spectator = createComponent();
         await spectator.fixture.whenStable();
 
         await spectator.component.save({ name: 'New Rule' } as any);
 
         expect(spectator.component.load_failed()).toBe(true);
-        expect(ts_client.updateMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.update).not.toHaveBeenCalled();
     });
 
     it('should not overwrite a ruleset when a new one has the same ID', async () => {
@@ -173,8 +188,8 @@ describe('BookingRulesModalComponent', () => {
             conditions: {},
         });
 
-        const details = (ts_client.updateMetadata as any).mock.calls.at(-1)[1]
-            .details;
+        const details = (ts_client.metadata.update as any).mock.calls.at(-1)[0]
+            .body.details;
         expect(details.map((rule) => rule.name)).toEqual([
             'Existing Rule',
             'New Rule',

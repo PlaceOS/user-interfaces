@@ -41,7 +41,8 @@ import {
     User,
     user_group_names,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { AssetRequest, OrganisationService } from '@placeos/common';
 import { AssetStateService } from 'libs/assets/src/lib/asset-state.service';
@@ -72,6 +73,7 @@ import {
 import { attendeeEmails, eventDetailsKey } from './event-form-changes';
 import { EventLinkModalComponent } from './event-link-modal.component';
 import {
+    bookingRulesets,
     checkBuildingBookableHours,
     checkRecurringClashes,
     checkSpaceRules,
@@ -275,11 +277,13 @@ export class EventFormService extends AsyncHandler {
             this.addLoadingTag(Tags.BookingRules);
             return Promise.all(
                 ids.map((id) =>
-                    showMetadata(id, 'room_booking_rules')
+                    metadata
+                        .show({ id, name: 'room_booking_rules' })
+                        .then(orThrow)
+                        .then((data) => data['room_booking_rules'])
                         .then((_) => ({
                             id,
-                            details:
-                                _.details instanceof Array ? _.details : [],
+                            details: bookingRulesets(_?.details),
                         }))
                         .catch(() => ({ id, details: [] })),
                 ),
@@ -364,7 +368,10 @@ export class EventFormService extends AsyncHandler {
                 ? this._org.organisation?.id || undefined
                 : undefined,
         loader: ({ params: id }) =>
-            showMetadata(id, 'room_alerts')
+            metadata
+                .show({ id, name: 'room_alerts' })
+                .then(orThrow)
+                .then((data) => data['room_alerts'])
                 .then((r) => r.details as Record<string, [string, string]>)
                 .catch(() => ({}) as Record<string, [string, string]>),
     });

@@ -3,19 +3,27 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import {
+    events,
+    History,
+    PlaceCalendarEvent,
+    PlaceCalendarEventAttendee,
+} from '@placeos/ts-client/staff';
 import { RoomBookingHistoryModalComponent } from '../../app/room-manager/room-booking-history-modal.component';
 
 // `@placeos/events` is a workspace lib that gets inlined by the bundling test
 // builder, so its exports cannot be intercepted directly. Instead we mock the
-// `@placeos/ts-client` HTTP boundary (`get`) that its `queryEvents` /
-// `queryEventHistory` helpers call underneath.
-vi.mock('@placeos/ts-client', { spy: true });
+// staff API operations that its `queryEvents` / `queryEventHistory` call.
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+const attendee = () => mockData(PlaceCalendarEventAttendee, {});
 
 describe('RoomBookingHistoryModalComponent', () => {
     let spectator: Spectator<RoomBookingHistoryModalComponent>;
-    let events_data: any[];
-    let history_data: any[];
+    let events_data: PlaceCalendarEvent[];
+    let history_data: History[];
 
     const createComponent = createComponentFactory({
         component: RoomBookingHistoryModalComponent,
@@ -32,10 +40,11 @@ describe('RoomBookingHistoryModalComponent', () => {
         vi.clearAllMocks();
         events_data = [];
         history_data = [];
-        (ts_client.get as any).mockImplementation((url: string) =>
-            Promise.resolve(
-                url.includes('/history') ? history_data : events_data,
-            ),
+        vi.mocked(events.query).mockImplementation(async () =>
+            mockReply(events_data),
+        );
+        vi.mocked(events.history).mockImplementation(async () =>
+            mockReply(history_data),
         );
         spectator = createComponent({ detectChanges: false });
     });
@@ -52,9 +61,17 @@ describe('RoomBookingHistoryModalComponent', () => {
         // `queryEvents` wraps raw payloads in `CalendarEvent`, whose `date` is
         // derived from `event_start` (seconds -> ms).
         events_data = [
-            { id: 'e1', event_start: 100, attendees: [{}, {}] },
-            { id: 'e2', event_start: 300 },
-            { id: 'e3', event_start: 200, attendees: [{}] },
+            mockData(PlaceCalendarEvent, {
+                id: 'e1',
+                event_start: 100,
+                attendees: [attendee(), attendee()],
+            }),
+            mockData(PlaceCalendarEvent, { id: 'e2', event_start: 300 }),
+            mockData(PlaceCalendarEvent, {
+                id: 'e3',
+                event_start: 200,
+                attendees: [attendee()],
+            }),
         ];
 
         await spectator.component.loadHistory();
@@ -66,29 +83,30 @@ describe('RoomBookingHistoryModalComponent', () => {
     });
 
     it('should reload events when the period changes', async () => {
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(events.query).toHaveBeenCalledTimes(1);
         await spectator.component.setPeriod('month');
         expect(spectator.component.period()).toBe('month');
-        expect(ts_client.get).toHaveBeenCalledTimes(2);
+        expect(events.query).toHaveBeenCalledTimes(2);
     });
 
     it('should not reload events when re-selecting the current period', async () => {
         await spectator.component.setPeriod('week');
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(events.query).toHaveBeenCalledTimes(1);
     });
 
     it('should load row change history on first expand', async () => {
+        // The API sends only `created_at` for a history entry
         history_data = [
-            { id: 'c1', updated_at: 10 },
-            { id: 'c2', updated_at: 30 },
+            mockData(History, { id: 'c1', created_at: 10 }),
+            mockData(History, { id: 'c2', created_at: 30 }),
         ];
 
         spectator.component.toggleRow({ id: 'e1' });
         await new Promise((r) => setTimeout(r, 5));
 
         expect(spectator.component.expanded()['e1']).toBe(true);
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('system_ids=sys-1'),
+        expect(events.history).toHaveBeenCalledWith(
+            expect.objectContaining({ system_ids: 'sys-1' }),
         );
         expect(spectator.component.histories()['e1'].map((c) => c.id)).toEqual([
             'c2',

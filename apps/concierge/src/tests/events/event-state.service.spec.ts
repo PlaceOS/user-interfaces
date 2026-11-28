@@ -17,19 +17,16 @@ import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 import { EventStateService } from '../../app/events/event-state.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { events, PlaceCalendarEvent } from '@placeos/ts-client/staff';
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-/** Count `get` calls that hit the events listing endpoint (queryEvents -> get) */
-const eventQueryCount = () =>
-    vi
-        .mocked(ts_client.get)
-        .mock.calls.filter((args) =>
-            String(args[0]).includes('/api/staff/v1/events'),
-        ).length;
+/** Count the requests for the list of events (queryEvents -> events.query) */
+const eventQueryCount = () => vi.mocked(events.query).mock.calls.length;
 
 describe('EventStateService', () => {
     let spectator: SpectatorService<EventStateService>;
@@ -52,7 +49,7 @@ describe('EventStateService', () => {
     });
 
     beforeEach(() => {
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(events.query).mockResolvedValue(mockReply([]));
         spectator = createService();
     });
 
@@ -79,7 +76,7 @@ describe('EventStateService', () => {
         const open = vi.mocked(TestBed.inject(MatDialog).open);
         open.mockReturnValueOnce(details as any);
         open.mockReturnValueOnce(confirm as any);
-        vi.mocked(ts_client.del).mockRejectedValueOnce(
+        vi.mocked(events.destroy).mockRejectedValueOnce(
             new Error('Server down'),
         );
 
@@ -139,24 +136,23 @@ describe('EventStateService', () => {
 
     it('should filter the loaded events by the selected zones', async () => {
         const date = startOfDay(Date.now()).valueOf();
-        const event = (id: string, zone: string) => ({
-            id,
-            event_start: getUnixTime(date),
-            event_end: getUnixTime(date) + 3600,
-            system: { id: `sys-${id}`, zones: [zone] },
-            attendees: [
-                {
+        // The zones of the room come from the system of the event. The API
+        // attendees have no zones.
+        const event = (id: string, zone: string) =>
+            mockData(PlaceCalendarEvent, {
+                id,
+                event_start: getUnixTime(date),
+                event_end: getUnixTime(date) + 3600,
+                system: {
+                    id: `sys-${id}`,
                     email: `${id}@example.com`,
-                    resource: true,
                     zones: [zone],
                 },
-            ],
-            extension_data: { shared_event: true },
-        });
-        vi.mocked(ts_client.get).mockResolvedValue([
-            event('evt-1', 'lvl-1'),
-            event('evt-2', 'lvl-2'),
-        ] as any);
+                extension_data: { shared_event: true },
+            });
+        vi.mocked(events.query).mockResolvedValue(
+            mockReply([event('evt-1', 'lvl-1'), event('evt-2', 'lvl-2')]),
+        );
         spectator.service.setOptions({ date, end: endOfDay(date).valueOf() });
         TestBed.flushEffects();
         await wait(350);
@@ -184,9 +180,7 @@ describe('EventStateService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open } as any, true);
-        vi.mocked(ts_client.get).mockRejectedValueOnce(
-            new Error('Server down'),
-        );
+        vi.mocked(events.query).mockRejectedValueOnce(new Error('Server down'));
         spectator.service.setOptions({
             date: startOfDay(Date.now()).valueOf(),
             end: endOfDay(Date.now()).valueOf(),

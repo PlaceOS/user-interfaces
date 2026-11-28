@@ -6,6 +6,7 @@ import {
     getItemWithKeys,
     getTimeInTimezone,
     i18n,
+    isJsonArray,
     isWithinBookableHours,
     rulesForResource,
     type BookableHoursRange,
@@ -18,7 +19,8 @@ import {
     type Space,
     type User,
 } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7, type JsonValue } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { queryResourceAvailability } from 'libs/bookings/src/lib/bookings.fn';
 import { openRecurringClashModal } from 'libs/components/src/lib/recurring-clash-modal.component';
@@ -29,6 +31,31 @@ import {
     querySpaceAvailability,
     type CalendarEventShowParams,
 } from './events.fn';
+
+/**
+ * Whether a value from the metadata is an object, which the booking rules
+ * read as a ruleset. The metadata is free form JSON, as in 6.x it is not
+ * checked further.
+ */
+function isBookingRuleset(value: unknown): value is BookingRuleset {
+    return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+/**
+ * Rulesets in the `details` of the `room_booking_rules` metadata. Other
+ * values give an empty list.
+ * @param details Details of the metadata
+ */
+export function bookingRulesets(
+    details: JsonValue | undefined,
+): BookingRuleset[] {
+    if (!isJsonArray(details)) return [];
+    const list: BookingRuleset[] = [];
+    for (const item of details) {
+        if (isBookingRuleset(item)) list.push(item);
+    }
+    return list;
+}
 
 /** Comma separated display names of the given spaces. */
 export function spaceNames(spaces: Space[]): string {
@@ -97,11 +124,12 @@ export async function checkSpaceRules(
     for (const space of spaces) {
         const bld = buildings.find((b) => space.zones.includes(b.id));
         if (!bld || building_rules[bld.id]) continue;
-        const metadata = await showMetadata(bld.id, 'room_booking_rules').catch(
-            () => ({ details: [] }),
-        );
-        building_rules[bld.id] =
-            metadata.details instanceof Array ? metadata.details : [];
+        const metadata = await metadata_v7
+            .show({ id: bld.id, name: 'room_booking_rules' })
+            .then(orThrow)
+            .then((data) => data['room_booking_rules'])
+            .catch(() => null);
+        building_rules[bld.id] = bookingRulesets(metadata?.details);
     }
     const space_rules = spaces.map((space) => {
         const bld = buildings.find((b) => space.zones.includes(b.id));

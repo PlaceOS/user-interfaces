@@ -1,4 +1,5 @@
-import { MediaAnimation, SignagePlaylistSchedule } from '@placeos/ts-client';
+import { type PlaylistSchedule } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 
 /** Play period of a schedule that does not set one: the whole day */
 export const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
@@ -10,7 +11,9 @@ export const DEFAULT_PLAY_PERIOD_MINUTES = 24 * 60;
 export const SINGLE_PASS_TRIGGER_WINDOW_MS = 30 * 1000;
 
 /** Schedule start in Unix seconds and the mask that repeats by occurrence. */
-export type ScheduleMask = Pick<SignagePlaylistSchedule, 'valid_from' | 'mask'>;
+export type ScheduleMask = Partial<
+    Pick<PlaylistSchedule, 'valid_from' | 'mask'>
+>;
 
 /** Whether a mask is valid: 1 to 128 characters of `0` and `1`. */
 export function isValidScheduleMask(mask: string) {
@@ -37,7 +40,7 @@ export function hasPlayableScheduleMask({
 
 /** Whether the schedule plays once at `play_at` or `play_at_local`. */
 export function isPlayOnceSchedule(
-    schedule: Pick<SignagePlaylistSchedule, 'play_at' | 'play_at_local'>,
+    schedule: Partial<Pick<PlaylistSchedule, 'play_at' | 'play_at_local'>>,
 ) {
     return !!schedule.play_at || !!schedule.play_at_local;
 }
@@ -67,24 +70,32 @@ export function parsePlayAtLocal(value: string | null | undefined) {
 }
 
 const MEDIA_ANIMATIONS = Object.values(MediaAnimation);
+/** Names that the API accepts, in the order of the `MediaAnimation` values */
+const MEDIA_ANIMATION_NAMES = [
+    'default',
+    'cut',
+    'cross_fade',
+    'slide_top',
+    'slide_left',
+    'slide_right',
+    'slide_bottom',
+];
 
 /**
  * Animation as a `MediaAnimation` value. The API accepts animation names
- * but stores and returns the index of the name in `MediaAnimation`, e.g.
- * 2 for `cross_fade`.
+ * but stores and returns the index of the name, e.g. 2 for `cross_fade`.
  * @returns The default animation for an unknown name, an index out of range
  * or no value
  */
 export function mediaAnimation(value: unknown): MediaAnimation {
-    if (typeof value === 'number') {
-        return Number.isInteger(value) &&
-            value >= 0 &&
-            value < MEDIA_ANIMATIONS.length
-            ? MEDIA_ANIMATIONS[value]
-            : MediaAnimation.Default;
-    }
-    return (
-        MEDIA_ANIMATIONS.find((animation) => animation === value) ||
-        MediaAnimation.Default
-    );
+    const index =
+        typeof value === 'string'
+            ? MEDIA_ANIMATION_NAMES.indexOf(value)
+            : value;
+    return typeof index === 'number' &&
+        Number.isInteger(index) &&
+        index >= 0 &&
+        index < MEDIA_ANIMATIONS.length
+        ? MEDIA_ANIMATIONS[index]
+        : MediaAnimation.Default;
 }

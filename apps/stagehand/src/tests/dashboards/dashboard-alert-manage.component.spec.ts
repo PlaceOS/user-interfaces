@@ -10,12 +10,9 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { delay, of } from 'rxjs';
 
 import {
-    addAlert,
-    TriggerComparison,
-    TriggerConditionOperator,
-    TriggerTimeCondition,
-    TriggerTimeConditionType,
-    updateAlert,
+    alerts,
+    type TriggerConditionsComparison as TriggerComparison,
+    type TriggerConditionsTimeDependent,
 } from '@placeos/ts-client';
 
 import { setNotifyOutlet } from '@placeos/common';
@@ -31,6 +28,11 @@ import { SystemSearchFieldComponent } from '../../app/dashboards/system-search-f
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import {
+    mockReply,
+    TriggerConditionOperator,
+    TriggerTimeConditionType,
+} from '@placeos/ts-client/compat';
 
 describe('DashboardAlertManageComponent', () => {
     let spectator: SpectatorRouting<DashboardAlertManageComponent>;
@@ -98,8 +100,8 @@ describe('DashboardAlertManageComponent', () => {
         await spectator.component.save();
 
         expect(notify_open).toHaveBeenCalled();
-        expect(addAlert).not.toHaveBeenCalled();
-        expect(updateAlert).not.toHaveBeenCalled();
+        expect(alerts.create).not.toHaveBeenCalled();
+        expect(alerts.update).not.toHaveBeenCalled();
     });
 
     it('should not save when there is no active dashboard', async () => {
@@ -109,23 +111,25 @@ describe('DashboardAlertManageComponent', () => {
 
         await spectator.component.save();
 
-        expect(addAlert).not.toHaveBeenCalled();
-        expect(updateAlert).not.toHaveBeenCalled();
+        expect(alerts.create).not.toHaveBeenCalled();
+        expect(alerts.update).not.toHaveBeenCalled();
     });
 
     it('should create a new alert against the active dashboard and navigate', async () => {
-        vi.mocked(addAlert).mockResolvedValue({ id: 'alert-1' } as any);
+        vi.mocked(alerts.create).mockResolvedValue(
+            mockReply({ id: 'alert-1' } as any),
+        );
         build();
         spectator.component.model.update((m) => ({ ...m, name: 'Overheat' }));
 
         await spectator.component.save();
 
-        expect(addAlert).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(alerts.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 name: 'Overheat',
                 alert_dashboard_id: 'dash-1',
             }),
-        );
+        });
         expect(service.setDashboard).toHaveBeenCalledWith('dash-1');
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/dashboards',
@@ -135,7 +139,7 @@ describe('DashboardAlertManageComponent', () => {
     });
 
     it('should tell the user when the alert fails to save', async () => {
-        vi.mocked(addAlert).mockRejectedValue(new Error('offline'));
+        vi.mocked(alerts.create).mockRejectedValue(new Error('offline'));
         build();
         spectator.component.model.update((m) => ({ ...m, name: 'Overheat' }));
 
@@ -146,7 +150,9 @@ describe('DashboardAlertManageComponent', () => {
     });
 
     it('should update an existing alert on save', async () => {
-        vi.mocked(updateAlert).mockResolvedValue({ id: 'alert-9' } as any);
+        vi.mocked(alerts.update).mockResolvedValue(
+            mockReply({ id: 'alert-9' } as any),
+        );
         service.alert.set({ id: 'alert-9', name: 'Old' });
         build();
         spectator.component.model.update((m) => ({
@@ -157,11 +163,11 @@ describe('DashboardAlertManageComponent', () => {
 
         await spectator.component.save();
 
-        expect(updateAlert).toHaveBeenCalledWith(
-            'alert-9',
-            expect.objectContaining({ id: 'alert-9', name: 'Updated' }),
-        );
-        expect(addAlert).not.toHaveBeenCalled();
+        expect(alerts.update).toHaveBeenCalledWith({
+            id: 'alert-9',
+            body: expect.objectContaining({ id: 'alert-9', name: 'Updated' }),
+        });
+        expect(alerts.create).not.toHaveBeenCalled();
     });
 
     it('should remove a comparison, keeping the time dependents', () => {
@@ -176,9 +182,11 @@ describe('DashboardAlertManageComponent', () => {
             operator: TriggerConditionOperator.EQ,
             right: true,
         };
-        const time_dependent: TriggerTimeCondition = {
+        const time_dependent: TriggerConditionsTimeDependent = {
             type: TriggerTimeConditionType.AT,
             time: 0,
+            cron: null,
+            timezone: null,
         };
         spectator.component.model.update((m) => ({
             ...m,
@@ -271,8 +279,8 @@ describe('DashboardAlertManageComponent', () => {
         await spectator.component.save();
 
         expect(spectator.component.model().id).not.toBe('alert-1');
-        expect(ts_client.updateAlert).not.toHaveBeenCalled();
-        expect(ts_client.addAlert).not.toHaveBeenCalled();
+        expect(ts_client.alerts.update).not.toHaveBeenCalled();
+        expect(ts_client.alerts.create).not.toHaveBeenCalled();
     });
 
     it('should not leave the page when destroyed during the dashboard load', async () => {

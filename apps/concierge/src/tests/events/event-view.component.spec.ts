@@ -10,9 +10,11 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 
 import { EventViewComponent } from '../../app/events/event-view.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { events, PlaceCalendarEvent } from '@placeos/ts-client/staff';
 
 describe('EventViewComponent', () => {
     let spectator: SpectatorRouting<EventViewComponent>;
@@ -61,20 +63,18 @@ describe('EventViewComponent', () => {
     });
 
     it('should not load a group event metadata from the metadata route', async () => {
-        vi.mocked<(url: string) => Promise<unknown>>(
-            ts_client.get,
-        ).mockImplementation(async (url) =>
-            url.includes('/metadata/')
-                ? { view_access: 'PUBLIC' }
-                : {
-                      id: 'event-1',
-                      title: 'Group event',
-                      attendees: [],
-                      extension_data: {
-                          shared_event: true,
-                          view_access: 'OPEN',
-                      },
-                  },
+        vi.mocked(events.show).mockResolvedValue(
+            mockReply(
+                mockData(PlaceCalendarEvent, {
+                    id: 'event-1',
+                    title: 'Group event',
+                    attendees: [],
+                    extension_data: {
+                        shared_event: true,
+                        view_access: 'OPEN',
+                    },
+                }),
+            ),
         );
 
         await spectator.component.ngOnInit();
@@ -86,8 +86,6 @@ describe('EventViewComponent', () => {
         expect(spectator.component.event().extension_data.view_access).toBe(
             'OPEN',
         );
-        expect(ts_client.get).not.toHaveBeenCalledWith(
-            expect.stringContaining('/metadata/'),
-        );
+        expect(events.getMetadata).not.toHaveBeenCalled();
     });
 });

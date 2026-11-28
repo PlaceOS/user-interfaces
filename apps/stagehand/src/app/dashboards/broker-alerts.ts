@@ -1,9 +1,9 @@
 import { unique } from '@placeos/common';
 import {
-    PlaceAlert,
-    TriggerComparison,
-    TriggerConditionOperator,
+    type Alert as AlertV7,
+    type TriggerConditionsComparison as TriggerComparison,
 } from '@placeos/ts-client';
+import { TriggerConditionOperator } from '@placeos/ts-client/compat';
 import { ZoneFilter } from '../support-groups';
 
 type AlertSeverity = 'critical' | 'high' | 'medium' | 'low';
@@ -221,7 +221,7 @@ export function findCompareMatches(
 }
 
 /** The hot list alert that a broker value raises for a definition */
-function toAlert(alert: PlaceAlert, { time, topic }: BrokerValue): Alert {
+function toAlert(alert: AlertV7, { time, topic }: BrokerValue): Alert {
     const device = `${topic.module_name}_${topic.module_index}`;
     return {
         id: `${alert.id}+${topic.system_id}+${device}`,
@@ -246,7 +246,7 @@ function toAlert(alert: PlaceAlert, { time, topic }: BrokerValue): Alert {
  * their order and their state, so nothing here is checked again over REST.
  */
 export function raisedAlerts(
-    definitions: PlaceAlert[],
+    definitions: AlertV7[],
     values: Iterable<BrokerValue>,
 ): Alert[] {
     const list = [...values];

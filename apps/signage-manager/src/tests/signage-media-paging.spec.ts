@@ -7,9 +7,11 @@ import {
     SettingsService,
     UploadsService,
 } from '@placeos/common';
-import { querySignageMedia, SignageMedia } from '@placeos/ts-client';
+import { playlist_media } from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 
 import { SignageMediaService } from '../app/media/signage-media.service';
+import { signageMedia } from '../app/signage-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -23,9 +25,8 @@ describe('SignageMediaService media paging', () => {
      * service sorts into is alphabetical no matter which page an item is on.
      */
     const pageOf = (ids: string[], total: number, next: any = null) => ({
-        data: ids.map(
-            (id) =>
-                new SignageMedia({ id, created_at: 1000 - id.charCodeAt(0) }),
+        data: ids.map((id) =>
+            signageMedia({ id, created_at: 1000 - id.charCodeAt(0) }),
         ),
         total,
         next: next ? () => Promise.resolve(next) : null,
@@ -59,14 +60,16 @@ describe('SignageMediaService media paging', () => {
     });
 
     /** Inject the service and settle it on `first_page` as its first page. */
-    const loadFirstPage = async (first_page: unknown) => {
+    const loadFirstPage = async (
+        first_page: Parameters<typeof mockPage>[0],
+    ) => {
         // The library loads for users who can query, such as system admins
         setCurrentUser({
             id: 'user-1',
             email: 'a@b.c',
             sys_admin: true,
         } as any);
-        (querySignageMedia as any).mockResolvedValue(first_page);
+        (playlist_media.query as any).mockResolvedValue(mockPage(first_page));
         const service = TestBed.inject(SignageMediaService);
         TestBed.tick();
         await flush();
@@ -75,11 +78,11 @@ describe('SignageMediaService media paging', () => {
 
     it('should keep the list ordered by newest first across pages', async () => {
         const service = await loadFirstPage({
-            data: [new SignageMedia({ id: 'old', created_at: 1 })],
+            data: [signageMedia({ id: 'old', created_at: 1 })],
             total: 2,
             next: () =>
                 Promise.resolve({
-                    data: [new SignageMedia({ id: 'new', created_at: 9 })],
+                    data: [signageMedia({ id: 'new', created_at: 9 })],
                     total: 2,
                     next: null,
                 }),
@@ -99,11 +102,15 @@ describe('SignageMediaService media paging', () => {
             email: 'a@b.c',
             sys_admin: true,
         } as any);
-        (querySignageMedia as any).mockResolvedValue(pageOf(['a', 'b'], 9));
+        (playlist_media.query as any).mockResolvedValue(
+            mockPage(pageOf(['a', 'b'], 9)),
+        );
         const service = TestBed.inject(SignageMediaService);
         TestBed.tick();
         await flush();
-        (querySignageMedia as any).mockResolvedValue(pageOf(['c'], 5));
+        (playlist_media.query as any).mockResolvedValue(
+            mockPage(pageOf(['c'], 5)),
+        );
 
         service.search_term.set('lobby');
         await vi.advanceTimersByTimeAsync(500);
@@ -111,7 +118,7 @@ describe('SignageMediaService media paging', () => {
         await flush();
         vi.useRealTimers();
 
-        const params = (querySignageMedia as any).mock.calls.at(-1)[0];
+        const params = (playlist_media.query as any).mock.calls.at(-1)[0];
         expect(params.q).toBe('lobby');
         expect(idsOf(service)).toEqual(['c']);
         expect(service.media_total()).toBe(5);
@@ -140,9 +147,9 @@ describe('SignageMediaService media paging', () => {
             email: 'a@b.c',
             sys_admin: true,
         } as any);
-        (querySignageMedia as any)
+        (playlist_media.query as any)
             .mockRejectedValueOnce(new Error('offline'))
-            .mockResolvedValue(pageOf(['a'], 1));
+            .mockResolvedValue(mockPage(pageOf(['a'], 1)));
         const service = TestBed.inject(SignageMediaService);
         TestBed.tick();
         await flush();

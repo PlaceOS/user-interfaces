@@ -5,12 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { PlaceGroup } from '@placeos/ts-client';
+import { type Group } from '@placeos/ts-client';
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupListComponent } from '../../app/groups/signage-group-list.component';
+import { signageGroup } from '../signage-test-models';
 
-function group(id: string, extra: Partial<PlaceGroup> = {}) {
-    return new PlaceGroup({ id, name: id, ...extra });
+function group(id: string, extra: Partial<Group> = {}) {
+    return signageGroup({ id, name: id, ...extra });
 }
 
 @Component({ selector: 'icon', template: '<ng-content />' })
@@ -24,8 +25,8 @@ class TranslateStubPipe implements PipeTransform {
 }
 
 describe('SignageGroupListComponent', () => {
-    const manageable_signage_groups = signal<PlaceGroup[]>([]);
-    const managed_group = signal<PlaceGroup | undefined>(undefined);
+    const manageable_signage_groups = signal<Group[]>([]);
+    const managed_group = signal<Group | undefined>(undefined);
     const signage_group_tree_expanded = signal<Record<string, boolean>>({});
     const managed_group_id = signal('');
     const manageable_signage_groups_failed = signal(false);

@@ -1,4 +1,5 @@
-import { PlaceGroup, PlaceZone, QueryResponse } from '@placeos/ts-client';
+import { type Group, type Zone } from '@placeos/ts-client';
+import { type Page } from '@placeos/ts-client/compat';
 
 /** Zone tags that name a slot in a status topic, below the org */
 export const TOPIC_SLOTS = ['region', 'building', 'level', 'area'] as const;
@@ -22,20 +23,20 @@ export interface GroupScope {
     /** Zones the group is denied. Anything in one of them is hidden. */
     denied: Set<string>;
     /** Zones the group is granted, the roots of what it can see */
-    anchors: PlaceZone[];
+    anchors: Zone[];
     /** Every zone the group can see, and the zones above them */
-    zones: Map<string, PlaceZone>;
+    zones: Map<string, Zone>;
 }
 
 /** The topic slot a zone fills, `org` for the org, or none */
-export function zoneSlot(zone?: PlaceZone): TopicSlot | 'org' | null {
+export function zoneSlot(zone?: Zone): TopicSlot | 'org' | null {
     if (!zone) return null;
     if (zone.tags?.includes('org')) return 'org';
     return TOPIC_SLOTS.find((slot) => zone.tags?.includes(slot)) || null;
 }
 
 /** IDs of the zones above a zone, nearest first */
-export function zoneAncestors(id: string, zones: Map<string, PlaceZone>) {
+export function zoneAncestors(id: string, zones: Map<string, Zone>) {
     const ancestors: string[] = [];
     const seen = new Set([id]);
     let parent_id = zones.get(id)?.parent_id;
@@ -74,7 +75,7 @@ export function topicZoneIds(topic: string) {
     );
 }
 
-function slotFilter(zone: PlaceZone): ZoneFilter | null {
+function slotFilter(zone: Zone): ZoneFilter | null {
     const slot = zoneSlot(zone);
     if (slot === 'org') return {};
     return slot ? { [slot]: zone.id } : null;
@@ -93,7 +94,7 @@ export function scopeZoneFilters(
     filter_id = '',
 ): ZoneFilter[] {
     const picked = filter_id ? scope.zones.get(filter_id) : undefined;
-    let roots: PlaceZone[];
+    let roots: Zone[];
     if (picked && scope.reachable.has(picked.id)) {
         roots = [picked];
     } else {
@@ -133,12 +134,12 @@ export function scopeZonesTagged(scope: GroupScope, tag: TopicSlot) {
  * @param ancestors Zones above the ones it can see
  */
 export function groupScope(
-    reachable: PlaceZone[],
-    assigned: PlaceZone[],
-    ancestors: PlaceZone[] = [],
+    reachable: Zone[],
+    assigned: Zone[],
+    ancestors: Zone[] = [],
 ): GroupScope {
     const reachable_ids = new Set(reachable.map((zone) => zone.id));
-    const zones = new Map<string, PlaceZone>();
+    const zones = new Map<string, Zone>();
     for (const zone of [...ancestors, ...reachable]) zones.set(zone.id, zone);
     return {
         reachable: reachable_ids,
@@ -155,12 +156,12 @@ export function groupScope(
 /** Group and its ancestors, root first. Stops on a repeated group so a broken
  * parent chain can't loop forever. */
 export function groupHierarchy(
-    selected: PlaceGroup | undefined,
-    all_groups: PlaceGroup[],
+    selected: Group | undefined,
+    all_groups: Group[],
 ) {
     if (!selected) return [];
     const groups = new Map(all_groups.map((item) => [item.id, item]));
-    const hierarchy: PlaceGroup[] = [];
+    const hierarchy: Group[] = [];
     const seen = new Set<string>();
     let group = selected;
     while (group?.id && !seen.has(group.id)) {
@@ -175,7 +176,10 @@ export function groupHierarchy(
  * Fetch every page of a query.
  * @param max_pages Most pages to fetch, so a bad response cannot loop forever
  */
-export async function queryAll<T>(query: QueryResponse<T>, max_pages = 50) {
+export async function queryAll<T>(
+    query: Promise<Page<readonly T[]>>,
+    max_pages = 50,
+) {
     const items: T[] = [];
     let page = await query;
     for (let count = 1; ; count++) {

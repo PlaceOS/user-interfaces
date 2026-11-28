@@ -9,28 +9,22 @@ import {
     user_groups_loaded,
 } from '@placeos/common';
 import {
-    addGroupUser,
-    currentGroups,
-    get,
-    PlaceCurrentGroup,
-    PlaceGroup,
-    PlaceGroupUser,
-    queryGroups,
-    queryGroupUsers,
-    queryGroupZones,
-    removeGroup,
-    showGroup,
-    showGroupFeatures,
-    updateGroup,
-    updateGroupUser,
+    groups_users,
+    groups as groups_v7,
+    groups_zones,
+    type GroupsCurrentGroup,
 } from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import { groups as staff_groups } from '@placeos/ts-client/staff';
 
 import { NEVER, of } from 'rxjs';
 
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signageGroup, signageGroupUser } from '../signage-test-models';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 const MANAGE = 1 << 6;
 
@@ -95,7 +89,9 @@ describe('SignageGroupAdminService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(updateGroup).mockResolvedValue(new PlaceGroup());
+        vi.mocked(groups_v7.update).mockResolvedValue(
+            mockReply(signageGroup()),
+        );
     });
 
     it('does not let a group manager move the group out of its parent', async () => {
@@ -112,7 +108,7 @@ describe('SignageGroupAdminService', () => {
         await expect(
             service.saveSignageGroup(group, { parent_id: '' }),
         ).resolves.toBeNull();
-        expect(updateGroup).not.toHaveBeenCalled();
+        expect(groups_v7.update).not.toHaveBeenCalled();
     });
 
     it('lets managers of the old and new parent move a group', () => {
@@ -146,34 +142,43 @@ describe('SignageGroupAdminService', () => {
 
     it('limits saved features to what the parent group allows', async () => {
         const service = make([{ id: 'parent', permissions: MANAGE }]);
-        vi.mocked(showGroupFeatures).mockResolvedValue({
-            signage: { features: ['templates'] },
-        });
+        vi.mocked(groups_v7.features).mockResolvedValue(
+            mockReply({
+                signage: { features: ['templates'] },
+            }),
+        );
 
         await service.saveGroupFeatures(
-            new PlaceGroup({ id: 'child', parent_id: 'parent' }),
+            signageGroup({ id: 'child', parent_id: 'parent' }),
             { features: ['templates', 'ai-generation'] },
         );
 
-        expect(showGroupFeatures).toHaveBeenCalledWith('parent', {
+        expect(groups_v7.features).toHaveBeenCalledWith({
+            id: 'parent',
             subsystem: 'signage',
         });
-        expect(updateGroup).toHaveBeenCalledWith('child', {
-            features: { signage: { features: ['templates'] } },
+        expect(groups_v7.update).toHaveBeenCalledWith({
+            id: 'child',
+            body: {
+                features: { signage: { features: ['templates'] } },
+            },
         });
     });
 
     it('saves the features as they are when the backend has no features route', async () => {
         const service = make([{ id: 'parent', permissions: MANAGE }]);
-        vi.mocked(showGroupFeatures).mockRejectedValue({ status: 404 });
+        vi.mocked(groups_v7.features).mockRejectedValue({ status: 404 });
 
         await service.saveGroupFeatures(
-            new PlaceGroup({ id: 'child', parent_id: 'parent' }),
+            signageGroup({ id: 'child', parent_id: 'parent' }),
             { features: ['templates'] },
         );
 
-        expect(updateGroup).toHaveBeenCalledWith('child', {
-            features: { signage: { features: ['templates'] } },
+        expect(groups_v7.update).toHaveBeenCalledWith({
+            id: 'child',
+            body: {
+                features: { signage: { features: ['templates'] } },
+            },
         });
     });
 
@@ -184,7 +189,7 @@ describe('SignageGroupAdminService', () => {
 
         users.set({
             group_id: 'group-1',
-            items: [new PlaceGroupUser({ user_id: 'user-1' })],
+            items: [signageGroupUser({ user_id: 'user-1' })],
             failed: false,
         });
         expect(service.managed_group_users()).toEqual([]);
@@ -243,7 +248,7 @@ describe('SignageGroupAdminService', () => {
         it('saves the signage lists and keeps other subsystems', async () => {
             const service = createService();
             withSysAdmin(true);
-            vi.mocked(updateGroup).mockResolvedValue({} as any);
+            vi.mocked(groups_v7.update).mockResolvedValue(mockReply({} as any));
 
             await service.saveGroupFeatures(
                 {
@@ -256,10 +261,13 @@ describe('SignageGroupAdminService', () => {
                 { features: ['ai-generation'] },
             );
 
-            expect(updateGroup).toHaveBeenCalledWith('group-1', {
-                features: {
-                    events: { enabled: true },
-                    signage: { features: ['ai-generation'] },
+            expect(groups_v7.update).toHaveBeenCalledWith({
+                id: 'group-1',
+                body: {
+                    features: {
+                        events: { enabled: true },
+                        signage: { features: ['ai-generation'] },
+                    },
                 },
             });
         });
@@ -278,31 +286,39 @@ describe('SignageGroupAdminService', () => {
             const service = createService();
             withManage(true);
             service.managed_group_id.set('group-1');
-            vi.mocked(addGroupUser).mockResolvedValue({} as any);
+            vi.mocked(groups_users.create).mockResolvedValue(
+                mockReply({} as any),
+            );
 
             await service.addManagedGroupUser({ id: 'user-1' } as any);
 
-            expect(addGroupUser).toHaveBeenCalledWith({
-                group_id: 'group-1',
-                user_id: 'user-1',
+            expect(groups_users.create).toHaveBeenCalledWith({
+                body: {
+                    group_id: 'group-1',
+                    user_id: 'user-1',
+                },
             });
         });
 
         it('reads the access fields of a group with decoded names', async () => {
             const service = createService();
-            vi.mocked(showGroup).mockResolvedValue(
-                new PlaceGroup({
-                    id: 'group-1',
-                    default_permissions: 5,
-                    ad_group_mappings: { 'ad-1': ['Sales &amp; Marketing', 1] },
-                }),
+            vi.mocked(groups_v7.show).mockResolvedValue(
+                mockReply(
+                    signageGroup({
+                        id: 'group-1',
+                        default_permissions: 5,
+                        ad_group_mappings: {
+                            'ad-1': ['Sales &amp; Marketing', 1],
+                        },
+                    }),
+                ),
             );
 
             await expect(service.loadGroupAccess('group-1')).resolves.toEqual({
                 default_permissions: 5,
                 ad_group_mappings: { 'ad-1': ['Sales & Marketing', 1] },
             });
-            expect(showGroup).toHaveBeenCalledWith('group-1');
+            expect(groups_v7.show).toHaveBeenCalledWith({ id: 'group-1' });
         });
 
         it('saves the defaults and mappings of a managed group', async () => {
@@ -312,8 +328,8 @@ describe('SignageGroupAdminService', () => {
                 default_permissions: 1,
                 ad_group_mappings: { 'ad-1': ['Staff', 3] as [string, number] },
             };
-            vi.mocked(updateGroup).mockResolvedValue(
-                new PlaceGroup({ id: 'group-1', ...access }),
+            vi.mocked(groups_v7.update).mockResolvedValue(
+                mockReply(signageGroup({ id: 'group-1', ...access })),
             );
 
             const result = await service.saveGroupAccess(
@@ -321,7 +337,10 @@ describe('SignageGroupAdminService', () => {
                 access,
             );
 
-            expect(updateGroup).toHaveBeenCalledWith('group-1', access);
+            expect(groups_v7.update).toHaveBeenCalledWith({
+                id: 'group-1',
+                body: access,
+            });
             expect(result).toEqual(access);
         });
 
@@ -335,38 +354,52 @@ describe('SignageGroupAdminService', () => {
             );
 
             expect(result).toBeNull();
-            expect(updateGroup).not.toHaveBeenCalled();
+            expect(groups_v7.update).not.toHaveBeenCalled();
         });
 
         it('saves only the edited group fields, so access settings stay', async () => {
             const service = createService();
             withManage(true);
-            vi.mocked(updateGroup).mockResolvedValue(new PlaceGroup());
+            vi.mocked(groups_v7.update).mockResolvedValue(
+                mockReply(signageGroup()),
+            );
 
             await service.saveSignageGroup(
-                new PlaceGroup({ id: 'group-1', subsystems: ['events'] }),
+                signageGroup({ id: 'group-1', subsystems: ['events'] }),
                 { name: 'Renamed' },
             );
 
-            expect(updateGroup).toHaveBeenCalledWith('group-1', {
-                name: 'Renamed',
-                subsystems: ['events', 'signage'],
+            expect(groups_v7.update).toHaveBeenCalledWith({
+                id: 'group-1',
+                body: {
+                    name: 'Renamed',
+                    subsystems: ['events', 'signage'],
+                },
             });
         });
 
         it('searches directory groups through the staff API', async () => {
             const service = createService();
-            vi.mocked(get).mockResolvedValue([
-                { id: 'ad-1', name: 'Staff' },
-                { name: 'No ID' },
-            ] as any);
+            vi.mocked(staff_groups.query).mockResolvedValue(
+                mockReply([
+                    {
+                        id: 'ad-1',
+                        name: 'Staff',
+                        email: null,
+                        description: null,
+                    },
+                    { id: '', name: 'No ID', email: null, description: null },
+                ]),
+            );
 
             const groups = await service.searchDirectoryGroups(' staff team ');
 
-            expect(get).toHaveBeenCalledWith(
-                '/api/staff/v1/groups?q=staff%20team',
-            );
-            expect(groups).toEqual([{ id: 'ad-1', name: 'Staff' }]);
+            expect(staff_groups.query).toHaveBeenCalledWith({
+                q: 'staff team',
+            });
+            expect(groups).toEqual([
+                { id: 'ad-1', name: 'Staff', email: null, description: null },
+            ]);
         });
 
         /** Make the next confirm modal close, or confirm when `confirm` */
@@ -387,8 +420,10 @@ describe('SignageGroupAdminService', () => {
             const service = createService();
             withManage(true);
             setCurrentUser(new StaffUser({ id: 'me' }));
-            vi.mocked(updateGroupUser).mockResolvedValue({} as never);
-            const own = new PlaceGroupUser({
+            vi.mocked(groups_users.update).mockResolvedValue(
+                mockReply({} as never),
+            );
+            const own = signageGroupUser({
                 user_id: 'me',
                 group_id: 'group-1',
                 permissions: 1 | MANAGE,
@@ -398,26 +433,28 @@ describe('SignageGroupAdminService', () => {
             await service.updateManagedGroupUser(own, 1);
 
             expect(dialog.open).toHaveBeenCalledOnce();
-            expect(updateGroupUser).not.toHaveBeenCalled();
+            expect(groups_users.update).not.toHaveBeenCalled();
 
             nextConfirm(true);
             await service.updateManagedGroupUser(own, 1);
 
-            expect(updateGroupUser).toHaveBeenCalledExactlyOnceWith(
-                'me',
-                'group-1',
-                { permissions: 1 },
-            );
+            expect(groups_users.update).toHaveBeenCalledExactlyOnceWith({
+                user_id: 'me',
+                group_id: 'group-1',
+                body: { permissions: 1 },
+            });
         });
 
         it('changes the Manage permission of other users without asking', async () => {
             const service = createService();
             withManage(true);
             setCurrentUser(new StaffUser({ id: 'me' }));
-            vi.mocked(updateGroupUser).mockResolvedValue({} as never);
+            vi.mocked(groups_users.update).mockResolvedValue(
+                mockReply({} as never),
+            );
 
             await service.updateManagedGroupUser(
-                new PlaceGroupUser({
+                signageGroupUser({
                     user_id: 'other',
                     group_id: 'group-1',
                     permissions: 1 | MANAGE,
@@ -426,8 +463,12 @@ describe('SignageGroupAdminService', () => {
             );
 
             expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
-            expect(updateGroupUser).toHaveBeenCalledWith('other', 'group-1', {
-                permissions: 1,
+            expect(groups_users.update).toHaveBeenCalledWith({
+                user_id: 'other',
+                group_id: 'group-1',
+                body: {
+                    permissions: 1,
+                },
             });
         });
 
@@ -436,14 +477,16 @@ describe('SignageGroupAdminService', () => {
             withManage(true);
             const context = TestBed.inject(SignageContextService);
             context.selected_group_id.set('group-1');
-            vi.mocked(removeGroup).mockResolvedValue(undefined as never);
+            vi.mocked(groups_v7.destroy).mockResolvedValue(
+                mockReply(undefined as never),
+            );
             nextConfirm(true);
 
             await service.removeSignageGroup(
-                new PlaceGroup({ id: 'group-1', name: 'Lobby' }),
+                signageGroup({ id: 'group-1', name: 'Lobby' }),
             );
 
-            expect(removeGroup).toHaveBeenCalledWith('group-1');
+            expect(groups_v7.destroy).toHaveBeenCalledWith({ id: 'group-1' });
             expect(context.selected_group_id()).toBe('');
         });
 
@@ -451,10 +494,10 @@ describe('SignageGroupAdminService', () => {
             const service = createService();
             withManage(false);
 
-            await service.removeSignageGroup(new PlaceGroup({ id: 'group-1' }));
+            await service.removeSignageGroup(signageGroup({ id: 'group-1' }));
 
             expect(TestBed.inject(MatDialog).open).not.toHaveBeenCalled();
-            expect(removeGroup).not.toHaveBeenCalled();
+            expect(groups_v7.destroy).not.toHaveBeenCalled();
         });
     });
 
@@ -463,19 +506,19 @@ describe('SignageGroupAdminService', () => {
         const READ = 1 << 0;
         const pending = () => new Promise<never>(() => undefined);
 
-        function manager(id: string) {
+        function manager(id: string): GroupsCurrentGroup {
             return {
-                group: new PlaceGroup({
+                group: signageGroup({
                     id,
                     name: id,
                     subsystems: ['signage'],
                 }),
                 permissions: MANAGE,
-            } as PlaceCurrentGroup;
+            };
         }
 
         function member(user_id: string, group_id: string) {
-            return new PlaceGroupUser({ user_id, group_id, permissions: READ });
+            return signageGroupUser({ user_id, group_id, permissions: READ });
         }
 
         function page<T>(data: T[], next: () => unknown = () => null) {
@@ -495,15 +538,16 @@ describe('SignageGroupAdminService', () => {
             localStorage.clear();
             setCurrentUser(new StaffUser({ id: 'me', email: 'me@place.tech' }));
             user_groups_loaded.set(true);
-            vi.mocked(currentGroups).mockResolvedValue([
-                manager('a'),
-                manager('b'),
-            ]);
-            vi.mocked(showGroupFeatures).mockResolvedValue({});
-            vi.mocked(queryGroupUsers).mockImplementation((options) =>
-                page([member('user-1', options?.group_id || '')]),
+            vi.mocked(groups_v7.current).mockResolvedValue(
+                mockReply([manager('a'), manager('b')]),
             );
-            vi.mocked(queryGroupZones).mockReturnValue(page([]));
+            vi.mocked(groups_v7.features).mockResolvedValue(mockReply({}));
+            vi.mocked(groups_users.query).mockImplementation(async (input) =>
+                mockPage({ data: [member('user-1', input?.group_id || '')] }),
+            );
+            vi.mocked(groups_zones.query).mockResolvedValue(
+                mockPage({ data: [] }),
+            );
         });
 
         afterEach(() => {
@@ -531,9 +575,13 @@ describe('SignageGroupAdminService', () => {
             const [row] = service.managed_group_users();
             expect(row.group_id).toBe('b');
 
-            vi.mocked(updateGroupUser).mockResolvedValue(row);
-            vi.mocked(currentGroups).mockReturnValue(pending());
-            vi.mocked(queryGroupUsers).mockReturnValue(pending() as never);
+            vi.mocked(groups_users.update).mockResolvedValue(mockReply(row));
+            vi.mocked(groups_v7.current).mockImplementation(
+                fromV1Mock(() => pending(), ['...']),
+            );
+            vi.mocked(groups_users.query).mockImplementation(
+                fromV1Mock(() => pending() as never, ['...'], 'page'),
+            );
             await service.updateManagedGroupUser(row, READ | MANAGE);
             await settle();
 
@@ -549,7 +597,9 @@ describe('SignageGroupAdminService', () => {
             service.managed_group_id.set('b');
             await settle();
 
-            vi.mocked(currentGroups).mockResolvedValue([manager('a')]);
+            vi.mocked(groups_v7.current).mockResolvedValue(
+                mockReply([manager('a')]),
+            );
             TestBed.inject(SignageContextService).reloadSignageGroups();
             await settle();
 
@@ -559,7 +609,7 @@ describe('SignageGroupAdminService', () => {
         it('reports a failed save without a rejected promise', async () => {
             const service = createService();
             await settle();
-            vi.mocked(updateGroupUser).mockRejectedValue(new Error('down'));
+            vi.mocked(groups_users.update).mockRejectedValue(new Error('down'));
 
             await expect(
                 service.updateManagedGroupUser(member('user-1', 'a'), READ),
@@ -573,8 +623,8 @@ describe('SignageGroupAdminService', () => {
             await settle();
             const [row] = service.managed_group_users();
 
-            vi.mocked(updateGroupUser).mockResolvedValue(row);
-            vi.mocked(currentGroups).mockRejectedValue(new Error('down'));
+            vi.mocked(groups_users.update).mockResolvedValue(mockReply(row));
+            vi.mocked(groups_v7.current).mockRejectedValue(new Error('down'));
             await service.updateManagedGroupUser(row, READ | MANAGE);
             await settle();
 
@@ -594,14 +644,24 @@ describe('SignageGroupAdminService', () => {
                     groups: ['placeos_admin'],
                 }),
             );
-            vi.mocked(queryGroups).mockReturnValue(
-                page([new PlaceGroup({ id: 'a', subsystems: ['signage'] })]),
+            vi.mocked(groups_v7.query).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        page([
+                            signageGroup({
+                                id: 'a',
+                                subsystems: ['signage'],
+                            }),
+                        ]),
+                    ['...'],
+                    'page',
+                ),
             );
             const service = createService();
             await settle();
 
             expect(service.manageable_signage_groups().length).toBe(1);
-            expect(queryGroups).toHaveBeenCalledTimes(1);
+            expect(groups_v7.query).toHaveBeenCalledTimes(1);
         });
 
         it('opens the first group again for a new user', async () => {
@@ -610,7 +670,9 @@ describe('SignageGroupAdminService', () => {
             service.managed_group_id.set('');
             await settle();
 
-            vi.mocked(currentGroups).mockResolvedValue([manager('c')]);
+            vi.mocked(groups_v7.current).mockResolvedValue(
+                mockReply([manager('c')]),
+            );
             setCurrentUser(
                 new StaffUser({ id: 'other', email: 'other@place.tech' }),
             );
@@ -629,8 +691,8 @@ describe('SignageGroupAdminService', () => {
             await settle();
             const [row] = service.managed_group_users();
 
-            vi.mocked(updateGroupUser).mockResolvedValue(row);
-            vi.mocked(queryGroupUsers).mockRejectedValue(new Error('down'));
+            vi.mocked(groups_users.update).mockResolvedValue(mockReply(row));
+            vi.mocked(groups_users.query).mockRejectedValue(new Error('down'));
             await service.updateManagedGroupUser(row, READ | MANAGE);
             await settle();
 
@@ -639,9 +701,14 @@ describe('SignageGroupAdminService', () => {
         });
 
         it('reads every page of the group users', async () => {
-            vi.mocked(queryGroupUsers).mockReturnValue(
-                page([member('user-1', 'a')], () =>
-                    page([member('user-2', 'a')]),
+            vi.mocked(groups_users.query).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        page([member('user-1', 'a')], () =>
+                            page([member('user-2', 'a')]),
+                        ),
+                    ['...'],
+                    'page',
                 ),
             );
             const service = createService();

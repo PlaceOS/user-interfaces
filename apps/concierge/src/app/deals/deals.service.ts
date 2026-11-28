@@ -9,7 +9,9 @@ import {
     randomString,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { jsonList, showMetadata, toJsonValue } from '../metadata';
 import { DealModalComponent } from './deal-modal.component';
 
 @Injectable({
@@ -31,8 +33,8 @@ export class DealsService extends AsyncHandler {
             const metadata = await showMetadata(
                 params.building,
                 'deals-n-offers',
-            ).catch(() => ({ details: [] }));
-            return metadata?.details instanceof Array ? metadata.details : [];
+            ).catch(() => null);
+            return jsonList<Deal>(metadata?.details);
         },
     });
     public readonly deals: Signal<Deal[]> = this._deals.value;
@@ -43,7 +45,7 @@ export class DealsService extends AsyncHandler {
             this._org.building.id,
             'deals-n-offers',
         ).catch(() => null);
-        return metadata?.details instanceof Array ? metadata.details : [];
+        return jsonList<Deal>(metadata?.details);
     }
 
     public async saveDeal(deal: Partial<Deal>) {
@@ -53,16 +55,21 @@ export class DealsService extends AsyncHandler {
             this._org.building.id,
             'deals-n-offers',
         );
-        let deals = metadata?.details instanceof Array ? metadata.details : [];
+        let deals = jsonList<Partial<Deal>>(metadata.details);
         if (deal.id) {
             deals = deals.filter((d) => d.id !== deal.id);
         } else deal.id = `deal-${randomString(8)}`;
         deals.push(deal);
-        await updateMetadata(this._org.building.id, {
-            name: 'deals-n-offers',
-            description: 'List of deals and offers',
-            details: deals,
-        });
+        await metadata_v7
+            .update({
+                id: this._org.building.id,
+                body: {
+                    name: 'deals-n-offers',
+                    description: 'List of deals and offers',
+                    details: toJsonValue(deals),
+                },
+            })
+            .then(orThrow);
         this._changed.set(Date.now());
         return deal;
     }
@@ -88,14 +95,18 @@ export class DealsService extends AsyncHandler {
                 this._org.building.id,
                 'deals-n-offers',
             );
-            let deals =
-                metadata?.details instanceof Array ? metadata.details : [];
+            let deals = jsonList<Deal>(metadata.details);
             deals = deals.filter((d) => d.id !== deal.id);
-            await updateMetadata(this._org.building.id, {
-                name: 'deals-n-offers',
-                description: 'List of deals and offers',
-                details: deals,
-            });
+            await metadata_v7
+                .update({
+                    id: this._org.building.id,
+                    body: {
+                        name: 'deals-n-offers',
+                        description: 'List of deals and offers',
+                        details: toJsonValue(deals),
+                    },
+                })
+                .then(orThrow);
         } catch (e) {
             notifyError(`Failed to remove deal. ${e}`);
             return false;

@@ -8,16 +8,17 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { MockComponent, MockModule, MockPipe } from 'ng-mocks';
 
 import { IconComponent, TranslatePipe } from '@placeos/components';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { ControlStateService } from '../../app/control-state.service';
 import { DialpadComponent } from '../../app/ui/dialpad.component';
 import { VideoCallPageComponent } from '../../app/video-call/video-call-page.component';
 import { VideoCallStateService } from '../../app/video-call/video-call-state.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as client from '@placeos/ts-client';
-
 describe('VideoCallPageComponent', () => {
+    let place: TestPlaceClient;
     let spectator: Spectator<VideoCallPageComponent>;
     let execute_spy: any;
     const router_mock = { navigate: vi.fn() };
@@ -67,6 +68,7 @@ describe('VideoCallPageComponent', () => {
     });
 
     beforeEach(() => {
+        place = startTestPlaceClient();
         execute_spy = vi.fn().mockResolvedValue(null);
         mic_mute.set(null);
         show_camera_pip.set(null);
@@ -77,9 +79,7 @@ describe('VideoCallPageComponent', () => {
         );
         call_state.hangup.mockResolvedValue(null);
         control_state.setRoute.mockClear();
-        (client.getModule as any).mockImplementation(() => ({
-            execute: execute_spy,
-        }));
+        place.useExecute(execute_spy);
         spectator = createComponent();
     });
 
@@ -175,7 +175,7 @@ describe('VideoCallPageComponent', () => {
 
     it('should select a camera through the System module', () => {
         spectator.component.selectCamera('cam-1');
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'System');
+        expect(place.modules()).toContain('sys-1|System_1');
         expect(execute_spy).toHaveBeenCalledWith('selected_camera', ['cam-1']);
     });
 

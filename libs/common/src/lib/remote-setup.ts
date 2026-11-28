@@ -1,18 +1,12 @@
 import { computed, effect, Injectable, signal, untracked } from '@angular/core';
-import {
-    authority,
-    getModule,
-    host,
-    isMock,
-    isSecure,
-    PlaceModuleBinding,
-} from '@placeos/ts-client';
 
 import { initialisationComplete } from './application';
 import { AsyncHandler } from './async-handler.class';
 import { deviceId } from './device-id';
 import { log } from './general';
 import { getNativeSystemId, syncNativeManagedConfig } from './native-app';
+import { apiOrigin, authority, isMock } from './place-client';
+import { getModule, type ModuleHandle } from './realtime';
 import { settingSignal } from './settings.service';
 
 /** Applications that a remote setup flow can configure */
@@ -101,14 +95,18 @@ interface ClearSystemsState {
  * `remote_setup.system_id` field of the authority config. `null` when the
  * domain has no remote setup system.
  */
-export function remoteSetupModule(): PlaceModuleBinding | null {
-    const config = authority()?.config?.['remote_setup'];
+export function remoteSetupModule(): ModuleHandle | null {
+    const value = authority()?.config?.['remote_setup'];
+    const config =
+        value && typeof value === 'object' && !Array.isArray(value)
+            ? value
+            : null;
     const system_id =
-        config?.system_id || (isMock() ? REMOTE_SETUP_MOCK_SYSTEM : '');
+        config?.['system_id'] || (isMock() ? REMOTE_SETUP_MOCK_SYSTEM : '');
     if (!system_id) return null;
     return getModule(
         `${system_id}`,
-        `${config?.module || REMOTE_SETUP_MODULE}`,
+        `${config?.['module'] || REMOTE_SETUP_MODULE}`,
     );
 }
 
@@ -192,7 +190,7 @@ export class RemoteSetupService extends AsyncHandler {
         'remote_setup_url',
         '',
     );
-    private _module: PlaceModuleBinding | null = null;
+    private _module: ModuleHandle | null = null;
     private _clearing = false;
 
     /** ID that the setup flow uses to find this device */
@@ -206,8 +204,7 @@ export class RemoteSetupService extends AsyncHandler {
         const target = this._target();
         if (!target) return '';
         const base =
-            this._url_setting() ||
-            `${isSecure() ? 'https' : 'http'}://${host()}${target.default_path}`;
+            this._url_setting() || `${apiOrigin()}${target.default_path}`;
         const separator = base.includes('?') ? '&' : '?';
         return `${base}${separator}device=${encodeURIComponent(this.device_id)}`;
     });
@@ -264,27 +261,25 @@ export class RemoteSetupService extends AsyncHandler {
             'connected',
             mod
                 .variable<boolean>('connected')
-                .bindThenSubscribe((value) =>
-                    this._connected.set(value === true),
-                ),
+                .subscribe((value) => this._connected.set(value === true)),
         );
         this.subscription(
             'command',
             mod
                 .variable<unknown>(remoteSetupCommandBinding(this.device_id))
-                .bindThenSubscribe((value) => this._applyCommand(value)),
+                .subscribe((value) => this._applyCommand(value)),
         );
         this.subscription(
             'clear',
             mod
                 .variable<unknown>(REMOTE_SETUP_CLEAR_LIST)
-                .bindThenSubscribe((value) => this._applyClearList(value)),
+                .subscribe((value) => this._applyClearList(value)),
         );
         this.subscription(
             'clear_systems',
             mod
                 .variable<unknown>(REMOTE_SETUP_CLEAR_SYSTEMS)
-                .bindThenSubscribe((value) => this._applyClearSystems(value)),
+                .subscribe((value) => this._applyClearSystems(value)),
         );
     }
 

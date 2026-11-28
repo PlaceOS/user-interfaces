@@ -12,13 +12,13 @@ import {
     hasNewVersion,
     i18n,
     LocaleService,
+    logout,
     settingSignal,
     SettingsService,
     userSignal,
     VERSION,
     WorktimePreference,
 } from '@placeos/common';
-import { logout } from '@placeos/ts-client';
 import { format, set, startOfMinute } from 'date-fns';
 
 import { CommonModule } from '@angular/common';

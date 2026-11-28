@@ -8,12 +8,17 @@ import { OrganisationService, setNotifyOutlet } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of } from 'rxjs';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import {
+    surveys as staffSurveys,
+    Survey,
+    SurveyAnswer,
+    surveys_answers,
+} from '@placeos/ts-client/staff';
 import { SurveyService } from '../../app/surveys/survey.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-const { Survey } = ts_client;
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 /** Fake dialog ref shaped for `openConfirmModal` driven via MatDialog. */
 const makeConfirmRef = (reason: string) => ({
@@ -46,7 +51,7 @@ describe('SurveyService', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        vi.mocked(ts_client.removeSurvey).mockResolvedValue(undefined as never);
+        vi.mocked(staffSurveys.destroy).mockResolvedValue(mockReply(''));
         dialog_open = vi.fn(() => ({ afterClosed: () => of(true) }));
         building_list = signal<unknown[] | null>(null);
         const org: unknown = {
@@ -67,8 +72,8 @@ describe('SurveyService', () => {
 
     it('should filter surveys by the active building', () => {
         spectator.service.survey_list.set([
-            new Survey({ id: 1, building_id: 'bld-1' }),
-            new Survey({ id: 2, building_id: 'bld-2' }),
+            mockData(Survey, { id: 1, building_id: 'bld-1' }),
+            mockData(Survey, { id: 2, building_id: 'bld-2' }),
         ]);
         spectator.service.setBuilding('bld-1');
 
@@ -81,9 +86,9 @@ describe('SurveyService', () => {
         const ref = makeConfirmRef('done');
         dialog_open.mockReturnValue(ref);
 
-        await spectator.service.removeSurvey(new Survey({ id: 7 }));
+        await spectator.service.removeSurvey(mockData(Survey, { id: 7 }));
 
-        expect(ts_client.removeSurvey).toHaveBeenCalledWith('7');
+        expect(staffSurveys.destroy).toHaveBeenCalledWith({ id: 7 });
         expect(ref.close).toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
             expect.anything(),
@@ -95,11 +100,11 @@ describe('SurveyService', () => {
     it('should close the dialog and show the error when removal fails', async () => {
         const ref = makeConfirmRef('done');
         dialog_open.mockReturnValue(ref);
-        vi.mocked(ts_client.removeSurvey).mockRejectedValueOnce(
+        vi.mocked(staffSurveys.destroy).mockRejectedValueOnce(
             new Error('Server down'),
         );
 
-        await spectator.service.removeSurvey(new Survey({ id: 7 }));
+        await spectator.service.removeSurvey(mockData(Survey, { id: 7 }));
 
         expect(ref.close).toHaveBeenCalled();
         expect(notify_open).toHaveBeenCalledWith(
@@ -112,42 +117,41 @@ describe('SurveyService', () => {
     it('should not remove a survey when confirmation is cancelled', async () => {
         dialog_open.mockReturnValue(makeConfirmRef('cancel'));
 
-        await spectator.service.removeSurvey(new Survey({ id: 7 }));
+        await spectator.service.removeSurvey(mockData(Survey, { id: 7 }));
 
-        expect(ts_client.removeSurvey).not.toHaveBeenCalled();
+        expect(staffSurveys.destroy).not.toHaveBeenCalled();
         expect(notify_open).not.toHaveBeenCalled();
     });
 
     it('should load surveys at start and answers only on request, six at a time', async () => {
-        const surveys = Array.from(
-            { length: 10 },
-            (_, i) => new Survey({ id: i, building_id: 'bld-1' }),
+        const surveys = Array.from({ length: 10 }, (_, i) =>
+            mockData(Survey, { id: i, building_id: 'bld-1' }),
         );
-        vi.mocked(ts_client.querySurveys).mockResolvedValue(surveys);
+        vi.mocked(staffSurveys.query).mockResolvedValue(mockReply(surveys));
         let active = 0;
         let max_active = 0;
-        vi.mocked(ts_client.queryAnswers).mockImplementation(
-            async ({ survey_id }: any) => {
+        vi.mocked(surveys_answers.query).mockImplementation(
+            async ({ survey_id }) => {
                 max_active = Math.max(max_active, ++active);
                 await new Promise((resolve) => setTimeout(resolve, 5));
                 active--;
-                return [{ id: survey_id, survey_id }];
+                return mockReply([
+                    mockData(SurveyAnswer, { id: survey_id, survey_id }),
+                ]);
             },
         );
-        vi.mocked(ts_client.query).mockClear();
         // The service waits 300ms after start before it loads
         building_list.set([{ id: 'bld-1' }]);
 
         await vi.waitFor(() =>
             expect(spectator.service.survey_list()).toHaveLength(10),
         );
-        expect(ts_client.queryAnswers).not.toHaveBeenCalled();
-        expect(ts_client.query).not.toHaveBeenCalled();
+        expect(surveys_answers.query).not.toHaveBeenCalled();
 
         await spectator.service.loadAnswers();
         await spectator.service.loadAnswers();
 
-        expect(ts_client.queryAnswers).toHaveBeenCalledTimes(10);
+        expect(surveys_answers.query).toHaveBeenCalledTimes(10);
         expect(max_active).toBe(6);
         expect(spectator.service.answer_list()).toHaveLength(10);
     });

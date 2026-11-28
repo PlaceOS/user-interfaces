@@ -19,9 +19,11 @@ import { MockProvider } from 'ng-mocks';
 
 import { ParkingRequestModalComponent } from '../../app/parking/parking-request-modal.component';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import { bookings, Booking as StaffBooking } from '@placeos/ts-client/staff';
 
 describe('ParkingRequestModalComponent', () => {
     let spectator: Spectator<ParkingRequestModalComponent>;
@@ -32,7 +34,8 @@ describe('ParkingRequestModalComponent', () => {
     let settings_service: SettingsService;
     const post_form = vi.fn(
         async (): Promise<{ id: string; status: string }> => ({
-            id: 'req-1',
+            // Staff API booking IDs are integers
+            id: '11',
             status: 'approved',
         }),
     );
@@ -102,7 +105,7 @@ describe('ParkingRequestModalComponent', () => {
         close.mockClear();
         snackbar.open.mockClear();
         setNotifyOutlet(snackbar as unknown as MatSnackBar, true);
-        vi.mocked(ts_client.post).mockReset();
+        vi.mocked(bookings.approve).mockReset();
     });
 
     it('should seed the form with parking request defaults', async () => {
@@ -133,7 +136,7 @@ describe('ParkingRequestModalComponent', () => {
 
         expect(post_form).toHaveBeenCalled();
         expect(clear_form).toHaveBeenCalled();
-        expect(close).toHaveBeenCalledWith('req-1');
+        expect(close).toHaveBeenCalledWith('11');
     });
 
     it('should save a successful plate number for future requests', async () => {
@@ -173,28 +176,27 @@ describe('ParkingRequestModalComponent', () => {
     });
 
     it('should approve a new request that is not yet approved', async () => {
-        post_form.mockResolvedValueOnce({ id: 'req-1', status: 'tentative' });
-        vi.mocked(ts_client.post).mockResolvedValue({ id: 'req-1' } as any);
+        post_form.mockResolvedValueOnce({ id: '11', status: 'tentative' });
+        vi.mocked(bookings.approve).mockResolvedValue(
+            mockReply(mockData(StaffBooking, { id: 11, approved: true })),
+        );
         spectator = createComponent();
         await spectator.component.ngOnInit();
 
         await spectator.component.postForm();
 
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/req-1/approve'),
-            '',
-        );
+        expect(bookings.approve).toHaveBeenCalledWith({ id: 11 });
         expect(snackbar.open).toHaveBeenCalledWith(
             expect.anything(),
             expect.anything(),
             expect.objectContaining({ panelClass: ['success'] }),
         );
-        expect(close).toHaveBeenCalledWith('req-1');
+        expect(close).toHaveBeenCalledWith('11');
     });
 
     it('should warn and close the dialog when approval fails after the request is saved', async () => {
-        post_form.mockResolvedValueOnce({ id: 'req-1', status: 'tentative' });
-        vi.mocked(ts_client.post).mockRejectedValue({ status: 403 });
+        post_form.mockResolvedValueOnce({ id: '11', status: 'tentative' });
+        vi.mocked(bookings.approve).mockRejectedValue({ status: 403 });
         spectator = createComponent();
         await spectator.component.ngOnInit();
 
@@ -206,6 +208,6 @@ describe('ParkingRequestModalComponent', () => {
             expect.objectContaining({ panelClass: ['warn'] }),
         );
         expect(clear_form).toHaveBeenCalled();
-        expect(close).toHaveBeenCalledWith('req-1');
+        expect(close).toHaveBeenCalledWith('11');
     });
 });

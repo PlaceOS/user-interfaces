@@ -38,8 +38,11 @@ import { ExploreZoomControlComponent } from '../lib/explore-zoom-control.compone
 // staff.fn and notifications run for real: showStaff hits the stubbed
 // ts-client `get`, and notifications render through a fake snackbar outlet.
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { PlaceCalendarUser, staff } from '@placeos/ts-client/staff';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
 
 const fake_snackbar = {
@@ -111,9 +114,13 @@ describe('ExploreMapViewComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.get).mockResolvedValue({
-            email: 'jim@jim.com',
-        } as any);
+        const user = ts_client.parseResponse(
+            PlaceCalendarUser,
+            { email: 'jim@jim.com' },
+            { missing_fields: 'zero' },
+        );
+        if (user.ok === false) throw new Error('Bad test user');
+        vi.mocked(staff.show).mockResolvedValue(mockReply(user.value));
         spectator = createComponent();
     });
 
@@ -315,9 +322,15 @@ describe('ExploreMapViewComponent', () => {
         vi.mocked(spectator.inject(OrganisationService).module).mockReturnValue(
             { execute } as any,
         );
-        vi.mocked(ts_client.get).mockRejectedValue({
-            status: 404,
-            message: 'User not found',
+        vi.mocked(staff.show).mockResolvedValue({
+            ok: false,
+            error: {
+                kind: 'http',
+                status: 404,
+                message: 'User not found',
+                body: null,
+                text: null,
+            },
         });
         setNotifyOutlet(fake_snackbar as any, true);
         fake_snackbar.open.mockClear();

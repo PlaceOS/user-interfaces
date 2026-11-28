@@ -18,9 +18,27 @@ import {
 
 import { VisitorsStateService } from '../../app/visitors/visitors-state.service';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    Booking as StaffBooking,
+    type BookingInput as StaffBookingInput,
+} from '@placeos/ts-client/staff';
+
+/** A page of staff API bookings for `bookings.query`. Booking IDs are integers */
+const bookingPage = (list: StaffBookingInput[]) =>
+    mockPage({
+        data: list.map((item) => mockData(StaffBooking, item)),
+        total: list.length,
+    });
+/** The input of each check-in call, as `[id, state]` */
+const checkIns = () =>
+    vi
+        .mocked(bookings.checkIn)
+        .mock.calls.map(([{ id, state }]) => [id, state]);
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -53,15 +71,13 @@ describe('VisitorStateService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        vi.mocked(ts_client.post).mockResolvedValue({} as any);
-        vi.mocked(ts_client.patch).mockResolvedValue({} as any);
-        vi.mocked(ts_client.put).mockResolvedValue({} as any);
+        const reply = mockReply(mockData(StaffBooking, { id: 1 }));
+        vi.mocked(bookings.query).mockResolvedValue(bookingPage([]));
+        vi.mocked(bookings.approve).mockResolvedValue(reply);
+        vi.mocked(bookings.checkIn).mockResolvedValue(reply);
+        vi.mocked(bookings.checkInInstance).mockResolvedValue(reply);
+        vi.mocked(bookings.update).mockResolvedValue(reply);
+        vi.mocked(bookings.updateInduction).mockResolvedValue(reply);
         setNotifyOutlet(null, true);
         spectator = createService();
         spectator.service.activate();
@@ -70,34 +86,30 @@ describe('VisitorStateService', () => {
     afterEach(() => setNotifyOutlet(null, true));
 
     it('should list visitor events', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [{ guests: [{}], attendees: [{}, {}] }],
-            total: 1,
-            next: null,
-        });
-        expect(ts_client.query).not.toHaveBeenCalled();
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([{ guests: [{}], attendees: [{}, {}] }]),
+        );
+        expect(bookings.query).not.toHaveBeenCalled();
         TestBed.flushEffects();
         await wait(10);
         expect(spectator.service.bookings()).toHaveLength(1);
-        expect(ts_client.query).toHaveBeenCalledWith(
+        expect(bookings.query).toHaveBeenCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    include_checked_out: true,
-                    include_deleted: true,
-                    limit: 200,
-                }),
+                include_checked_out: true,
+                include_deleted: true,
+                limit: 200,
             }),
         );
     });
 
     it('should flag a failed visitor load', async () => {
-        vi.mocked(ts_client.query).mockRejectedValue(new Error('500'));
+        vi.mocked(bookings.query).mockRejectedValue(new Error('500'));
         TestBed.flushEffects();
         await wait(10);
         expect(spectator.service.load_error()).toBe(true);
         expect(spectator.service.loading()).toBe(false);
 
-        vi.mocked(ts_client.query).mockReturnValue(new Promise(() => {}));
+        vi.mocked(bookings.query).mockReturnValue(new Promise(() => {}));
         spectator.service.poll();
         TestBed.flushEffects();
         // Loads wait 500 ms for more filter changes
@@ -111,72 +123,60 @@ describe('VisitorStateService', () => {
         spectator.service.deactivate();
         TestBed.flushEffects();
         await wait(10);
-        expect(ts_client.query).not.toHaveBeenCalled();
+        expect(bookings.query).not.toHaveBeenCalled();
     });
 
     it('should not publish a load that a newer load replaced', async () => {
-        let resolveFirst: (value: unknown) => void = () => null;
-        vi.mocked(ts_client.query)
+        let resolveFirst: (
+            value: ReturnType<typeof bookingPage>,
+        ) => void = () => null;
+        vi.mocked(bookings.query)
             .mockImplementationOnce(
-                () => new Promise((resolve) => (resolveFirst = resolve)) as any,
+                () => new Promise((resolve) => (resolveFirst = resolve)),
             )
-            .mockResolvedValueOnce({
-                data: [new Booking({ id: 'new' })],
-                total: 1,
-                next: null,
-            });
+            .mockResolvedValueOnce(bookingPage([{ id: 2 }]));
         const building = { id: 'bld-1' } as any;
         const first = (spectator.service as any)._load(building, {});
         await (spectator.service as any)._load(building, {});
-        resolveFirst({
-            data: [new Booking({ id: 'old' })],
-            total: 1,
-            next: null,
-        });
+        resolveFirst(bookingPage([{ id: 1 }]));
         await first;
 
-        expect(spectator.service.bookings().map((_) => _.id)).toEqual(['new']);
+        // The app booking keeps the integer ID of the staff API
+        expect(spectator.service.bookings().map((_) => _.id)).toEqual([2]);
         expect(spectator.service.loading()).toBe(false);
     });
 
     it('should hide removed visitors but keep ordinary cancellations and failed removals', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [
-                new Booking({ id: 'retained', booking_type: 'visitor' }),
-                new Booking({
-                    id: 'cancelled',
-                    booking_type: 'visitor',
-                    deleted: true,
-                }),
-                new Booking({
-                    id: 'removed',
+        const [retained, cancelled, removed, failed_removal] = [1, 2, 3, 4];
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                { id: retained, booking_type: 'visitor' },
+                { id: cancelled, booking_type: 'visitor', deleted: true },
+                {
+                    id: removed,
                     booking_type: 'visitor',
                     deleted: true,
                     extension_data: { removed_from_group: true },
-                }),
-                new Booking({
-                    id: 'failed-removal',
+                },
+                {
+                    id: failed_removal,
                     booking_type: 'visitor',
                     extension_data: { removed_from_group: true },
-                }),
-            ],
-            total: 4,
-            next: null,
-        });
+                },
+            ]),
+        );
         TestBed.flushEffects();
         await wait(10);
 
         expect(
             spectator.service.bookings().map((booking) => booking.id),
-        ).toEqual(['retained', 'cancelled', 'failed-removal']);
+        ).toEqual([retained, cancelled, failed_removal]);
     });
 
     it('should apply building timezone to visitor listing requests', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [{ extension_data: {} }],
-            total: 1,
-            next: null,
-        });
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([{ extension_data: {} }]),
+        );
         const date = new Date('2026-06-15T12:00:00').valueOf();
 
         spectator.service.setFilters({ date, period: 1 });
@@ -187,23 +187,20 @@ describe('VisitorStateService', () => {
         const start = new Date('2026-06-14T14:00:00Z');
         const end = new Date('2026-06-15T14:00:00Z');
 
-        expect(ts_client.query).toHaveBeenLastCalledWith(
+        expect(bookings.query).toHaveBeenLastCalledWith(
             expect.objectContaining({
-                query_params: expect.objectContaining({
-                    period_start: getUnixTime(start),
-                    period_end: getUnixTime(end),
-                }),
+                period_start: getUnixTime(start),
+                period_end: getUnixTime(end),
             }),
         );
     });
 
     it('should allow filtering of visitor events', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [{ asset_name: 'true', extension_data: {} }],
-            total: 1,
-            next: null,
-        });
-        expect(ts_client.query).not.toHaveBeenCalled();
+        // The staff API booking has no `asset_name`: the app reads it from the extension data
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([{ extension_data: { asset_name: 'true' } }]),
+        );
+        expect(bookings.query).not.toHaveBeenCalled();
         TestBed.flushEffects();
         await wait(10);
         expect(spectator.service.filtered_bookings()).toHaveLength(1);
@@ -231,13 +228,10 @@ describe('VisitorStateService', () => {
     });
 
     it('should allow checking in visitors', async () => {
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.checkIn).not.toHaveBeenCalled();
         await spectator.service.setCheckinState({ id: '1' } as any);
 
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/1/check_in?state=true'),
-            '',
-        );
+        expect(checkIns()).toEqual([[1, true]]);
     });
 
     it('should not check in a visitor for a rejected meeting', async () => {
@@ -246,7 +240,7 @@ describe('VisitorStateService', () => {
                 new Booking({ id: '1', rejected: true }),
             ),
         ).rejects.toBe('You cannot check-in a rejected meeting');
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.checkIn).not.toHaveBeenCalled();
     });
 
     it('should approve an unapproved visitor before checking them in', async () => {
@@ -254,11 +248,11 @@ describe('VisitorStateService', () => {
             new Booking({ id: '1', approved: false }),
         );
 
-        const urls = vi.mocked(ts_client.post).mock.calls.map(([url]) => url);
-        expect(urls).toEqual([
-            expect.stringContaining('/1/approve'),
-            expect.stringContaining('/1/check_in?state=true'),
-        ]);
+        expect(bookings.approve).toHaveBeenCalledWith({ id: 1 });
+        expect(checkIns()).toEqual([[1, true]]);
+        expect(
+            vi.mocked(bookings.approve).mock.invocationCallOrder[0],
+        ).toBeLessThan(vi.mocked(bookings.checkIn).mock.invocationCallOrder[0]);
     });
 
     it('should not approve an approved visitor again on check-in', async () => {
@@ -266,49 +260,35 @@ describe('VisitorStateService', () => {
             new Booking({ id: '1', approved: true }),
         );
 
-        expect(ts_client.post).toHaveBeenCalledTimes(1);
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/1/check_in?state=true'),
-            '',
-        );
+        expect(bookings.approve).not.toHaveBeenCalled();
+        expect(checkIns()).toEqual([[1, true]]);
     });
 
     it('should allow checking out visitors', async () => {
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.checkIn).not.toHaveBeenCalled();
         await spectator.service.setCheckinState({ id: '1' } as any, false);
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/1/check_in?state=false'),
-            '',
-        );
+        expect(checkIns()).toEqual([[1, false]]);
     });
 
     it('should allow checking in all visitors', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [{ parent_id: '1', extension_data: {} }],
-            total: 1,
-            next: null,
-        });
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([{ id: 11, extension_data: { parent_id: 'evt-1' } }]),
+        );
         TestBed.flushEffects();
         await wait(10);
-        vi.mocked(ts_client.post).mockClear();
-        expect(ts_client.post).not.toHaveBeenCalled();
-        await spectator.service.setCheckinStateForEvent('1');
-        expect(ts_client.post).toHaveBeenCalledWith(
-            expect.stringContaining('/check_in?state=true'),
-            '',
-        );
+        expect(bookings.checkIn).not.toHaveBeenCalled();
+        await spectator.service.setCheckinStateForEvent('evt-1');
+        expect(checkIns()).toEqual([[11, true]]);
     });
 
     it('should check out all visitors of an event after the user confirms', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [
-                { id: 'g1', parent_id: '1', extension_data: {} },
-                { id: 'g2', parent_id: '1', extension_data: {} },
-                { id: 'other', parent_id: '2', extension_data: {} },
-            ],
-            total: 3,
-            next: null,
-        });
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                { id: 11, extension_data: { parent_id: 'evt-1' } },
+                { id: 12, extension_data: { parent_id: 'evt-1' } },
+                { id: 13, extension_data: { parent_id: 'evt-2' } },
+            ]),
+        );
         TestBed.flushEffects();
         await wait(10);
         const confirm_ref = {
@@ -323,22 +303,19 @@ describe('VisitorStateService', () => {
             confirm_ref as unknown as MatDialogRef<unknown>,
         );
 
-        await spectator.service.setCheckinStateForEvent('1', false);
+        await spectator.service.setCheckinStateForEvent('evt-1', false);
 
         expect(confirm_ref.close).toHaveBeenCalled();
-        const urls = vi.mocked(ts_client.post).mock.calls.map(([url]) => url);
-        expect(urls).toEqual([
-            expect.stringContaining('/g1/check_in?state=false'),
-            expect.stringContaining('/g2/check_in?state=false'),
+        expect(checkIns()).toEqual([
+            [11, false],
+            [12, false],
         ]);
     });
 
     it('should not check out visitors when the user cancels', async () => {
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: [{ id: 'g1', parent_id: '1', extension_data: {} }],
-            total: 1,
-            next: null,
-        });
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([{ id: 11, extension_data: { parent_id: 'evt-1' } }]),
+        );
         TestBed.flushEffects();
         await wait(10);
         vi.mocked(spectator.inject(MatDialog).open).mockReturnValue({
@@ -347,8 +324,8 @@ describe('VisitorStateService', () => {
             close: vi.fn(),
         } as unknown as MatDialogRef<unknown>);
 
-        await spectator.service.setCheckinStateForEvent('1', false);
+        await spectator.service.setCheckinStateForEvent('evt-1', false);
 
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(bookings.checkIn).not.toHaveBeenCalled();
     });
 });

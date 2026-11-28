@@ -1,24 +1,17 @@
-import { type QueryResponse } from '@placeos/ts-client';
 import { decodeEntityNames } from './shared/decode-entity-names.util';
+import { type QueryResponse } from './shared/paged-list';
 import { byDisplayName } from './shared/paged-search';
 
 /** How many items the signage services request per network page */
 export const PAGE_SIZE = 200;
 
-// Fields the backend matches a search term against. Names that don't exist on
-// a given resource are ignored, so the one list works for every search.
-const SEARCH_FIELDS = [
-    'id',
-    'name',
-    'display_name',
-    'description',
-    'tags',
-].join(',');
-
-/** Query params for a search term. Empty when the term is blank. */
-export function searchParam(search: string) {
+/**
+ * Query params for a search term. Empty when the term is blank. The server
+ * ignores the old `fields` param, so only `q` is sent.
+ */
+export function searchParam(search: string): { q?: string } {
     const term = search.trim();
-    return term ? { q: term, fields: SEARCH_FIELDS } : {};
+    return term ? { q: term } : {};
 }
 
 /**

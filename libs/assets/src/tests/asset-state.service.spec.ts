@@ -6,17 +6,21 @@ import {
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import { bookings } from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 
 import { AssetStateService } from '../lib/asset-state.service';
 
-// Workspace modules (assets.fn, bookings.fn, asset.utilities) run for real;
-// only the ts-client API layer beneath them is stubbed. Assertions that used
-// to target those workspace fns now target the ts-client calls they make:
-//   assets_mod.queryAssets        -> ts_client.queryAssets
-//   assets_mod.queryAssetCategories -> ts_client.queryAssetCategories
-//   assets_mod.queryGroupAvailability -> ts_client.queryAssetTypes
+// Workspace modules (assets.fn, asset.utilities, bookings.fn) run for real;
+// only the ts-client API layer beneath them is stubbed. Assertions target
+// the calls they make:
+//   assets_mod.queryAssets        -> ts_client.assets.query
+//   assets_mod.queryAssetCategories -> ts_client.asset_categories.query
+//   assets_mod.queryGroupAvailability -> ts_client.asset_types.query
+//   bookings_fn.queryBookings     -> staff bookings.query
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 function response(data: any[]) {
     return Promise.resolve({
@@ -45,13 +49,27 @@ describe('AssetStateService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(response([]));
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(response([]));
-        vi.mocked(ts_client.queryAssets).mockReturnValue(response([]));
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(() => response([]), ['...'], 'page'),
+        );
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(() => response([]), ['...'], 'page'),
+        );
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(() => response([]), ['...'], 'page'),
+        );
+        vi.mocked(bookings.query).mockResolvedValue(mockReply([]));
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         spectator = createService();
         // The mock is shared across tests and clearAllMocks keeps its
         // implementation, so reset it to "assets enabled"
@@ -68,15 +86,15 @@ describe('AssetStateService', () => {
         spectator.service.setOptions({ date: initial_options.date });
 
         expect(spectator.service.options()).toBe(initial_options);
-        expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
+        expect(ts_client.asset_types.query).not.toHaveBeenCalled();
     });
 
     it('should not make asset requests before asset data is consumed', () => {
-        expect(ts_client.queryAssets).not.toHaveBeenCalled();
-        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
-        expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
-        expect(ts_client.get).not.toHaveBeenCalled();
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client.assets.query).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.query).not.toHaveBeenCalled();
+        expect(ts_client.asset_types.query).not.toHaveBeenCalled();
+        expect(bookings.query).not.toHaveBeenCalled();
+        expect(ts_client.metadata.show).not.toHaveBeenCalled();
     });
 
     it('should not make asset requests when assets are disabled', () => {
@@ -88,49 +106,69 @@ describe('AssetStateService', () => {
         spectator.service.filtered_assets();
         TestBed.tick();
 
-        expect(ts_client.queryAssets).not.toHaveBeenCalled();
-        expect(ts_client.queryAssetCategories).not.toHaveBeenCalled();
-        expect(ts_client.queryAssetTypes).not.toHaveBeenCalled();
-        expect(ts_client.get).not.toHaveBeenCalled();
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
+        expect(ts_client.assets.query).not.toHaveBeenCalled();
+        expect(ts_client.asset_categories.query).not.toHaveBeenCalled();
+        expect(ts_client.asset_types.query).not.toHaveBeenCalled();
+        expect(bookings.query).not.toHaveBeenCalled();
+        expect(ts_client.metadata.show).not.toHaveBeenCalled();
     });
 
     it('should load and filter available groups once asset data is consumed', async () => {
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([
-                { id: 'c1', name: 'Audio' },
-                { id: 'c2', name: 'Video' },
-            ]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        { id: 'c1', name: 'Audio' },
+                        { id: 'c2', name: 'Video' },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                {
-                    id: 't1',
-                    name: 'Speaker',
-                    description: 'Loud',
-                    category_id: 'c1',
-                },
-                {
-                    id: 't2',
-                    name: 'Projector',
-                    description: 'HD',
-                    category_id: 'c2',
-                },
-                {
-                    id: 't3',
-                    name: 'Orphan',
-                    description: '',
-                    category_id: 'gone',
-                },
-                { id: 't4', name: 'Empty', description: '', category_id: 'c1' },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        {
+                            id: 't1',
+                            name: 'Speaker',
+                            description: 'Loud',
+                            category_id: 'c1',
+                        },
+                        {
+                            id: 't2',
+                            name: 'Projector',
+                            description: 'HD',
+                            category_id: 'c2',
+                        },
+                        {
+                            id: 't3',
+                            name: 'Orphan',
+                            description: '',
+                            category_id: 'gone',
+                        },
+                        {
+                            id: 't4',
+                            name: 'Empty',
+                            description: '',
+                            category_id: 'c1',
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            response([
-                { id: 'a1', asset_type_id: 't1' },
-                { id: 'a2', asset_type_id: 't2' },
-                { id: 'a3', asset_type_id: 't3' },
-            ]),
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        { id: 'a1', asset_type_id: 't1' },
+                        { id: 'a2', asset_type_id: 't2' },
+                        { id: 'a3', asset_type_id: 't3' },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
         const names = () =>
             spectator.service.filtered_assets().map((_) => _.name);
@@ -142,10 +180,11 @@ describe('AssetStateService', () => {
             expect(spectator.service.category_list()).toHaveLength(2),
         );
         await vi.waitFor(() =>
-            expect(spectator.service.available_groups()).toHaveLength(4),
+            expect(spectator.service.available_groups()).toHaveLength(3),
         );
 
-        // Sorted by name, without empty groups or groups in unknown categories
+        // The query leaves out the group in an unknown category. The list is
+        // sorted by name, without empty groups
         expect(names()).toEqual(['Projector', 'Speaker']);
         spectator.service.setSearch('LOUD');
         expect(names()).toEqual(['Speaker']);
@@ -157,41 +196,64 @@ describe('AssetStateService', () => {
     });
 
     it('should hide groups that fail the asset rules of the zone', async () => {
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'c1', name: 'Audio' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'c1', name: 'Audio' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                {
-                    id: 't1',
-                    name: 'Speaker',
-                    description: '',
-                    category_id: 'c1',
-                },
-                { id: 't2', name: 'Mic', description: '', category_id: 'c1' },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        {
+                            id: 't1',
+                            name: 'Speaker',
+                            description: '',
+                            category_id: 'c1',
+                        },
+                        {
+                            id: 't2',
+                            name: 'Mic',
+                            description: '',
+                            category_id: 'c1',
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            response([
-                { id: 'a1', asset_type_id: 't1' },
-                { id: 'a2', asset_type_id: 't2' },
-            ]),
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        { id: 'a1', asset_type_id: 't1' },
+                        { id: 'a2', asset_type_id: 't2' },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.showMetadata).mockImplementation((_, name) =>
-            Promise.resolve(
-                new ts_client.PlaceMetadata({
-                    name,
-                    details:
-                        name === 'assets_config'
-                            ? [
-                                  {
-                                      id: 'r1',
-                                      name: 'Speaker',
-                                      rules: [['min_length', '2 hours']],
-                                  },
-                              ]
-                            : {},
-                }),
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                (_, name) =>
+                    Promise.resolve({
+                        name,
+                        details:
+                            name === 'assets_config'
+                                ? [
+                                      {
+                                          id: 'r1',
+                                          name: 'Speaker',
+                                          rules: [['min_length', '2 hours']],
+                                      },
+                                  ]
+                                : {},
+                    }),
+                ['id', 'name'],
+                'data',
+                'name',
             ),
         );
         const names = () =>
@@ -207,10 +269,10 @@ describe('AssetStateService', () => {
             expect(spectator.service.available_groups()).toHaveLength(2);
         });
 
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-rules',
-            'assets_config',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-rules',
+            name: 'assets_config',
+        });
         expect(names()).toEqual(['Mic']);
         spectator.service.setOptions({ duration: 120 });
         expect(names()).toEqual(['Mic', 'Speaker']);
@@ -228,12 +290,15 @@ describe('AssetStateService', () => {
     // Group results are cached per zone in assets.fn, so each test below
     // uses a zone of its own
     it('should show loading while availability is pending', async () => {
-        type TypesResponse = Awaited<
-            ReturnType<typeof ts_client.queryAssetTypes>
-        >;
+        /** The 6.x page that `fromV1Mock` gives as a 7.x page */
+        type TypesResponse = { data: never[]; total: number; next: () => null };
         let resolve_types: (value: TypesResponse) => void = () => undefined;
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            new Promise<TypesResponse>((r) => (resolve_types = r)),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => new Promise<TypesResponse>((r) => (resolve_types = r)),
+                ['...'],
+                'page',
+            ),
         );
         spectator.service.setOptions({ zone: 'zone-pending' });
         spectator.service.filtered_assets();
@@ -242,7 +307,7 @@ describe('AssetStateService', () => {
             TestBed.tick();
             expect(spectator.service.loading()).toContain('[Availability]');
         });
-        expect(ts_client.queryAssetTypes).toHaveBeenCalledWith(
+        expect(ts_client.asset_types.query).toHaveBeenCalledWith(
             expect.objectContaining({ zone_id: 'zone-pending' }),
         );
 
@@ -255,7 +320,7 @@ describe('AssetStateService', () => {
 
     it('should clear loading when the availability request fails', async () => {
         const log = vi.spyOn(console, 'error').mockImplementation(() => {});
-        vi.mocked(ts_client.queryAssetTypes).mockRejectedValue(
+        vi.mocked(ts_client.asset_types.query).mockRejectedValue(
             new Error('offline'),
         );
         spectator.service.setOptions({ zone: 'zone-error' });
@@ -272,15 +337,19 @@ describe('AssetStateService', () => {
     });
 
     it('should read the disabled rooms from the building asset settings', async () => {
-        vi.mocked(ts_client.showMetadata).mockImplementation((_, name) =>
-            Promise.resolve(
-                new ts_client.PlaceMetadata({
-                    name,
-                    details:
-                        name === 'assets-settings'
-                            ? { disabled_rooms: ['room-1'] }
-                            : [],
-                }),
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                (_, name) =>
+                    Promise.resolve({
+                        name,
+                        details:
+                            name === 'assets-settings'
+                                ? { disabled_rooms: ['room-1'] }
+                                : [],
+                    }),
+                ['id', 'name'],
+                'data',
+                'name',
             ),
         );
         spectator.service.setOptions({ zone: 'zone-settings' });
@@ -290,39 +359,61 @@ describe('AssetStateService', () => {
             TestBed.tick();
             expect(spectator.service.disabled_rooms()).toEqual(['room-1']);
         });
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            'assets-settings',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-1',
+            name: 'assets-settings',
+        });
     });
 
     it('should apply visitor type zone rules without an event', async () => {
-        vi.mocked(ts_client.showMetadata).mockImplementation((_, name) =>
-            Promise.resolve(
-                new ts_client.PlaceMetadata({
-                    name,
-                    details:
-                        name === 'assets_config'
-                            ? [{ name: '*', rules: [['visitor_type', 'x']] }]
-                            : {},
-                }),
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                (_, name) =>
+                    Promise.resolve({
+                        name,
+                        details:
+                            name === 'assets_config'
+                                ? [
+                                      {
+                                          name: '*',
+                                          rules: [['visitor_type', 'x']],
+                                      },
+                                  ]
+                                : {},
+                    }),
+                ['id', 'name'],
+                'data',
+                'name',
             ),
         );
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            response([{ id: 'c1', name: 'Audio' }]),
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'c1', name: 'Audio' }]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            response([
-                {
-                    id: 't1',
-                    name: 'Speaker',
-                    description: '',
-                    category_id: 'c1',
-                },
-            ]),
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () =>
+                    response([
+                        {
+                            id: 't1',
+                            name: 'Speaker',
+                            description: '',
+                            category_id: 'c1',
+                        },
+                    ]),
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssets).mockReturnValue(
-            response([{ id: 'a1', asset_type_id: 't1' }]),
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                () => response([{ id: 'a1', asset_type_id: 't1' }]),
+                ['...'],
+                'page',
+            ),
         );
         // Rules and groups are cached per zone, so use a zone of its own
         spectator.service.setOptions({ zone: 'zone-visitor-rules' });

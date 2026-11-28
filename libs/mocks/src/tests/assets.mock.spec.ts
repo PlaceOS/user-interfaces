@@ -1,12 +1,15 @@
 import { HashMap } from '@placeos/common';
-import { MockHttpRequest, registerMockEndpoint } from '@placeos/ts-client';
+import {
+    type MockHttpRequest,
+    registerMockEndpoint,
+} from '@placeos/ts-client/compat';
 
 import { MOCK_ASSETS } from '../lib/api/assets.data';
 import { registerMockAssets } from '../lib/api/assets.mock';
 import { MOCK_LEVELS } from '../lib/api/zone.data';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const BASE = '/api/engine/v2';
 

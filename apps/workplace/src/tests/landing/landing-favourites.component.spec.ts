@@ -3,9 +3,12 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { BookingFormService } from '@placeos/bookings';
 import { OrganisationService, SettingsService } from '@placeos/common';
 import { EventFormService, SpacePipe } from '@placeos/events';
+import { metadata } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
-import { of } from 'rxjs';
 import { LandingFavouritesComponent } from '../../app/landing/landing-favourites.component';
+
+vi.mock('@placeos/ts-client', { spy: true });
 
 describe('LandingFavouritesComponent', () => {
     let spectator: Spectator<LandingFavouritesComponent>;
@@ -23,8 +26,8 @@ describe('LandingFavouritesComponent', () => {
             }),
             MockProvider(EventFormService),
             MockProvider(BookingFormService, {
-                loadResourceList: vi.fn(() => of([])),
-                loadParkingResources: vi.fn(() => of([])),
+                loadResourceList: vi.fn(async () => []),
+                loadParkingResources: vi.fn(async () => []),
                 newForm: vi.fn(),
                 setOptions: vi.fn(),
                 model: Object.assign(
@@ -41,6 +44,8 @@ describe('LandingFavouritesComponent', () => {
     });
 
     beforeEach(() => {
+        // The room alerts of the organisation
+        vi.mocked(metadata.show).mockResolvedValue(mockReply({}));
         spectator = createComponent();
     });
 

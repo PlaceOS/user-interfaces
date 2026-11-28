@@ -11,7 +11,7 @@ import {
     viewChild,
 } from '@angular/core';
 import { AsyncHandler, parseWebUrl } from '@placeos/common';
-import { SignagePlugin } from '@placeos/ts-client';
+import { type SignagePlugin } from '@placeos/ts-client';
 import { SafePipe } from './safe.pipe';
 
 const API_VERSION = 'signage-plugin/v1';

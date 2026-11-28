@@ -3,11 +3,8 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { settingSignal, SettingsService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
-import * as ts_client from '@placeos/ts-client';
 import { EnrolmentGuestConfirmComponent } from '../app/enrolment-guest-confirm.component';
 import { EnrolmentStateService } from '../app/enrolment-state.service';
-
-vi.mock('@placeos/ts-client', { spy: true });
 
 describe('EnrolmentGuestConfirmComponent', () => {
     let spectator: Spectator<EnrolmentGuestConfirmComponent>;
@@ -43,12 +40,6 @@ describe('EnrolmentGuestConfirmComponent', () => {
 
     beforeEach(() => {
         settingSignal('guests.vaccine_check').set(false);
-        (ts_client.get as any).mockReset();
-        (ts_client.get as any).mockResolvedValue({});
-        (ts_client.post as any).mockReset();
-        (ts_client.post as any).mockResolvedValue({});
-        (ts_client.patch as any).mockReset();
-        (ts_client.patch as any).mockResolvedValue({});
         spectator = createComponent();
         state = spectator.inject(EnrolmentStateService);
         spectator.detectChanges();

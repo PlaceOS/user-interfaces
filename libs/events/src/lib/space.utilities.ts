@@ -7,7 +7,8 @@ import {
     SignalFormRef,
     Space,
 } from '@placeos/common';
-import { PlaceSystem, PlaceZone, querySystems } from '@placeos/ts-client';
+import { type System, systems, type Zone } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { USER_DOMAIN } from 'libs/users/src/lib/user.utilities';
 import { from, Observable, of, throwError } from 'rxjs';
 import { catchError, map, shareReplay, tap } from 'rxjs/operators';
@@ -46,7 +47,7 @@ export interface SystemFormValue {
     images: string[];
     map_id: string;
     timezone: string;
-    zone: PlaceZone | null;
+    zone: Zone | null;
     zones: string[];
     version: number;
     approval: boolean;
@@ -55,7 +56,7 @@ export interface SystemFormValue {
 const isDigits = (value: unknown) => /^[0-9]*$/.test(`${value ?? ''}`);
 
 export function generateSystemsFormFields(
-    system?: PlaceSystem,
+    system?: System,
     injector?: Injector,
 ): SignalFormRef<SystemFormValue> {
     const has_id = !!system?.id;
@@ -69,12 +70,8 @@ export function generateSystemsFormFields(
         timetable_url: system.timetable_url || '',
         camera_url: system.camera_url || '',
         camera_snapshot_url:
-            system.camera_snapshot_urls?.find((url) => !!url) ||
-            system.camera_snapshot_url ||
-            '',
-        camera_snapshot_urls: [
-            ...(system.camera_snapshot_urls || [system.camera_snapshot_url]),
-        ],
+            system.camera_snapshot_urls?.find((url) => !!url) || '',
+        camera_snapshot_urls: [...(system.camera_snapshot_urls || [])],
         room_booking_url: system.room_booking_url || '',
         installed_ui_devices: system.installed_ui_devices || 0,
         features:
@@ -144,11 +141,9 @@ export function requestSpacesForZone(id: string): Observable<Space[]> {
     if (!id) return of([]);
     if (SPACE_LIST_REQUESTS[id]) return SPACE_LIST_REQUESTS[id];
     SPACE_LIST_REQUESTS[id] = from(
-        querySystems({
-            zone_id: id,
-            limit: 500,
-            signage: false,
-        }),
+        systems
+            .query({ zone_id: [id], limit: 500, signage: false })
+            .then(orThrowPage),
     ).pipe(
         map((_) => (_.data || []).map((_) => new Space(_ as any))),
         tap((_) => updateSpaceList(_)),

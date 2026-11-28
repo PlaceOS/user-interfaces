@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
     createServiceFactory,
@@ -11,6 +12,8 @@ import { setNotifyOutlet } from '../lib/notifications';
 import { OrganisationService } from '../lib/org/organisation.service';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import { FakeSession, startFakePlaceClient } from './fake-session';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -34,11 +37,9 @@ describe('OrganisationService offline boot', () => {
         ],
     });
 
+    let place: FakeSession;
     /** Never comes online, as on a device with no network */
-    const stayOffline = () =>
-        vi
-            .mocked(ts_client.waitForSignal)
-            .mockImplementation(() => new Promise(() => undefined));
+    const stayOffline = () => place.signOut();
 
     beforeEach(() => {
         vi.clearAllMocks();
@@ -46,20 +47,29 @@ describe('OrganisationService offline boot', () => {
         localStorage.clear();
         sessionStorage.clear();
         settings_mock.get.mockReturnValue(undefined);
-        vi.mocked(ts_client.onlineState).mockReturnValue(
-            ts_client.createSignal(true),
-        );
-        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        place = startFakePlaceClient();
         Object.defineProperty(globalThis.navigator, 'onLine', {
             configurable: true,
             value: true,
         });
-        vi.mocked(ts_client.authority).mockReturnValue({ id: 'auth-1' } as any);
-        vi.mocked(ts_client.queryZones).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.bulkMetadata).mockResolvedValue({});
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as any);
+        place.signIn({ id: 'auth-1' });
+        vi.mocked(ts_client.zones.query).mockResolvedValue(
+            mockPage({ data: [] } as any),
+        );
+        vi.mocked(ts_client.metadata.bulkFetch).mockResolvedValue(
+            mockReply({}),
+        );
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         setInitReloadHandler(reload);
     });
 
@@ -78,19 +88,19 @@ describe('OrganisationService offline boot', () => {
         };
         setNotifyOutlet(snackbar as any, true);
         stayOffline();
-        vi.mocked(ts_client.isOnline).mockReturnValue(false);
-        vi.mocked(ts_client.queryZones).mockRejectedValue(
+        place.signOut();
+        vi.mocked(ts_client.zones.query).mockRejectedValue(
             new Error('Failed to fetch'),
         );
 
         spectator = createService();
         await vi.advanceTimersByTimeAsync(40_000);
 
-        expect(ts_client.queryZones).toHaveBeenCalled();
+        expect(ts_client.zones.query).toHaveBeenCalled();
         expect(snackbar.open).not.toHaveBeenCalled();
 
         // Back online and still failing: now it is worth telling someone
-        vi.mocked(ts_client.isOnline).mockReturnValue(true);
+        place.signIn({ id: 'auth-1' });
         await vi.advanceTimersByTimeAsync(20_000);
 
         expect(snackbar.open).toHaveBeenCalled();
@@ -98,13 +108,13 @@ describe('OrganisationService offline boot', () => {
 
     it('should keep querying without an authority while offline', async () => {
         stayOffline();
-        vi.mocked(ts_client.authority).mockReturnValue(undefined);
+        place.setAuthority(null);
 
         spectator = createService();
         await vi.advanceTimersByTimeAsync(60_000);
 
-        expect(ts_client.queryZones).toHaveBeenCalledWith(
-            expect.objectContaining({ authority_id: undefined }),
+        expect(ts_client.zones.query).toHaveBeenCalledWith(
+            expect.objectContaining({ tags: ['org'] }),
         );
     });
 
@@ -114,7 +124,7 @@ describe('OrganisationService offline boot', () => {
         spectator = createService();
         await vi.advanceTimersByTimeAsync(60_000);
 
-        expect(ts_client.queryZones).toHaveBeenCalled();
+        expect(ts_client.zones.query).toHaveBeenCalled();
         expect(spectator.service.initialised()).toBe(true);
     });
 
@@ -127,12 +137,11 @@ describe('OrganisationService offline boot', () => {
         spectator = createService();
         await vi.advanceTimersByTimeAsync(60_000);
 
-        expect(ts_client.queryZones).toHaveBeenCalled();
+        expect(ts_client.zones.query).toHaveBeenCalled();
         expect(spectator.service.initialised()).toBe(true);
     });
 
     it('should still start immediately once online', async () => {
-        vi.mocked(ts_client.waitForSignal).mockResolvedValue(true);
         settings_mock.get.mockImplementation((key: string) =>
             key === 'app.offline_boot' ? true : undefined,
         );
@@ -145,29 +154,32 @@ describe('OrganisationService offline boot', () => {
     });
 
     it('should restart zone loading when authentication recovers', async () => {
-        const online = ts_client.createSignal(true);
-        vi.mocked(ts_client.onlineState).mockReturnValue(online);
-        vi.mocked(ts_client.queryZones)
-            .mockImplementationOnce(() => new Promise(() => undefined))
-            .mockResolvedValue({ data: [] } as any);
+        vi.mocked(ts_client.zones.query)
+            .mockImplementationOnce(
+                fromV1Mock(() => new Promise(() => undefined), ['...'], 'page'),
+            )
+            .mockResolvedValue(mockPage({ data: [] } as any));
 
         spectator = createService();
         await vi.advanceTimersByTimeAsync(1000);
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(1);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(1);
         expect(spectator.service.initialised()).toBe(false);
 
-        online.set(false);
-        online.set(true);
+        // Effects see the settled value, so each change needs a tick
+        place.signOut();
+        TestBed.tick();
+        place.signIn({ id: 'auth-1' });
+        TestBed.tick();
         await vi.advanceTimersByTimeAsync(1000);
 
-        expect(ts_client.queryZones).toHaveBeenCalledTimes(5);
+        expect(ts_client.zones.query).toHaveBeenCalledTimes(5);
         expect(spectator.service.initialised()).toBe(true);
     });
 
     it('should reload when zone loading remains incomplete for 30 seconds', async () => {
-        vi.mocked(ts_client.queryZones).mockImplementation(
-            () => new Promise(() => undefined),
+        vi.mocked(ts_client.zones.query).mockImplementation(
+            fromV1Mock(() => new Promise(() => undefined), ['...'], 'page'),
         );
 
         spectator = createService();

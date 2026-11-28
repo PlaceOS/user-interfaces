@@ -5,6 +5,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import {
+    authority,
     BuildingLevel,
     getInvalidSignalFields,
     i18n,
@@ -16,7 +17,8 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { addZone, authority, updateZone } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { errorText } from '../ui/modal-actions';
 
 @Component({
@@ -158,12 +160,12 @@ export class LevelModalComponent {
         data.tags = data.parking ? ['level', 'parking'] : ['level'];
         const body = {
             ...data,
-            name: `LEVEL ${authority().description} ${data.display_name}`,
+            name: `LEVEL ${authority()?.description} ${data.display_name}`,
         };
         try {
             const resp = await (data.id
-                ? updateZone(data.id, body)
-                : addZone(body));
+                ? zones.update({ id: data.id, body }).then(orThrow)
+                : zones.create({ body }).then(orThrow));
             this._dialog_ref.close(resp);
         } catch (e) {
             notifyError(`Failed to save level. ${errorText(e)}`);

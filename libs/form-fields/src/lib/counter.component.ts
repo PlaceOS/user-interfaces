@@ -1,6 +1,6 @@
 import { Component, computed, input, model, signal } from '@angular/core';
 import { ControlValueAccessor, FormsModule } from '@angular/forms';
-import { provideValueAccessor } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 

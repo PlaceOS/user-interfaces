@@ -247,12 +247,23 @@ export function storeNativePkceVerifier(key: string, verifier: string): void {
     localStorage.setItem(PKCE_STORAGE_KEY, JSON.stringify({ key, verifier }));
 }
 
-/** Re-seed the sessionStorage PKCE verifier from the localStorage backup. */
+/**
+ * Re-seed the sessionStorage PKCE verifier from the localStorage backup. A
+ * backup from 6.x has the key `<client_id>_challenge`. It goes to the 7.x key
+ * `<client_id>_code_verifier`, so a sign-in that started before an upgrade
+ * still completes.
+ */
 export function restoreNativePkceVerifier(): void {
     const raw = localStorage.getItem(PKCE_STORAGE_KEY);
     if (!raw) return;
     try {
-        const { key, verifier } = JSON.parse(raw);
+        const parsed = JSON.parse(raw);
+        const verifier = parsed?.verifier;
+        let key = parsed?.key;
+        if (typeof key !== 'string' || typeof verifier !== 'string') return;
+        if (key.endsWith('_challenge')) {
+            key = `${key.slice(0, -'_challenge'.length)}_code_verifier`;
+        }
         if (key && verifier && !sessionStorage.getItem(key)) {
             sessionStorage.setItem(key, verifier);
         }

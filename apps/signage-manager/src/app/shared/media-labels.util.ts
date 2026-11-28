@@ -1,4 +1,5 @@
-import { MediaAnimation, type MediaType } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { type MediaTypeFilter } from '../media/media-view.util';
 
 /** Label keys of the media types the library shows */
@@ -10,7 +11,9 @@ export const MEDIA_TYPE_LABELS: Record<MediaTypeFilter, string> = {
 };
 
 /** Label key of a media type. Undefined for types the library does not show. */
-export function mediaTypeLabel(type: MediaType): string | undefined {
+export function mediaTypeLabel(
+    type: PlaylistItem['media_type'],
+): string | undefined {
     return MEDIA_TYPE_LABELS[type as MediaTypeFilter];
 }
 

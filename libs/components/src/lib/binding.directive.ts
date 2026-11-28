@@ -11,14 +11,14 @@ import {
     linkedSignal,
     output,
 } from '@angular/core';
+
 import {
+    AsyncHandler,
     authority,
     getModule,
-    onlineState,
-    waitForSignal,
-} from '@placeos/ts-client';
-
-import { AsyncHandler, log } from '@placeos/common';
+    log,
+    waitForOnline,
+} from '@placeos/common';
 
 @Directive({
     selector: 'i[bind], [binding], co-bind',
@@ -57,7 +57,7 @@ export class BindingDirective<T = any>
     private _destroyed = false;
 
     public ngOnInit(): void {
-        waitForSignal(onlineState(), (_) => _).then(() => {
+        waitForOnline().then(() => {
             if (!this._destroyed) this.bindVariable();
         });
     }
@@ -108,10 +108,10 @@ export class BindingDirective<T = any>
             'bind',
             () => {
                 const module = getModule(this.sys(), this.mod(), this.index());
-                const binding = module.variable(this.bind());
+                const binding = module.variable<T>(this.bind());
                 this.subscription(
                     'on_changes',
-                    binding.bindThenSubscribe((value) => {
+                    binding.subscribe((value) => {
                         this.timeout(
                             'on_value',
                             () => {
@@ -150,7 +150,7 @@ export class BindingDirective<T = any>
                     let params = this.params();
                     if (this.bind()) params = this.params() || [this.model()];
                     module
-                        .execute(this.exec(), params || [])
+                        .execute<T>(this.exec(), params || [])
                         .then((result) => {
                             // Emit exec result if not bound to status variable
                             if (!this.bind()) {

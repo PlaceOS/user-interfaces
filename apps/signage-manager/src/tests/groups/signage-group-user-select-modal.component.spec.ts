@@ -1,11 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { PlaceUser } from '@placeos/ts-client';
+import { type User } from '@placeos/ts-client';
 import { SignageGroupAdminService } from '../../app/groups/signage-group-admin.service';
 import { SignageGroupUserSelectModalComponent } from '../../app/groups/signage-group-user-select-modal.component';
+import { signageUser } from '../signage-test-models';
 
 describe('SignageGroupUserSelectModalComponent', () => {
-    const search_group_users = vi.fn<() => Promise<PlaceUser[]>>();
+    const search_group_users = vi.fn<() => Promise<User[]>>();
     const service_stub = { searchGroupUsers: search_group_users };
     let modal_data: { exclude_ids?: string[] };
 
@@ -31,7 +32,7 @@ describe('SignageGroupUserSelectModalComponent', () => {
     }
 
     function user(id: string, email: string) {
-        return new PlaceUser({ id, email, name: id });
+        return signageUser({ id, email, name: id });
     }
 
     beforeEach(() => {

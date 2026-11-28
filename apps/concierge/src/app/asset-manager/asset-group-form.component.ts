@@ -18,7 +18,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { ImageListFieldComponent } from '@placeos/form-fields';
-import { showAssetType } from '@placeos/ts-client';
+import { asset_types } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -184,9 +185,10 @@ export class AssetGroupFormComponent extends AsyncHandler implements OnInit {
             this._route.queryParamMap.subscribe(async (params) => {
                 if (params.get('id')) {
                     this.loading.set('Loading Product Details...');
-                    const product = await showAssetType(params.get('id')).catch(
-                        () => null,
-                    );
+                    const product = await asset_types
+                        .show({ id: params.get('id') })
+                        .then(orThrow)
+                        .catch(() => null);
                     if (!product) {
                         notifyError('Unable to load product details.');
                         this._router.navigate([this.base_route]);

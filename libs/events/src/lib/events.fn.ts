@@ -4,18 +4,21 @@ import {
     CalendarEvent,
     EventExtensionData,
     GuestUser,
-    toQueryString,
+    isJsonRecord,
+    jsonRecord,
+    toJsonValue,
 } from '@placeos/common';
+import { type JsonValue } from '@placeos/ts-client';
+import { CallFailed, orThrow } from '@placeos/ts-client/compat';
 import {
-    del,
-    get,
-    patch,
-    post,
-    put,
-    query,
-    responseHeaders,
-} from '@placeos/ts-client';
+    type Attendee,
+    events,
+    type Guest,
+    PlaceCalendarEvent,
+    PlaceCalendarEventAttendee,
+} from '@placeos/ts-client/staff';
 import { addMinutes, getUnixTime } from 'date-fns';
+import { requestBody } from 'libs/bookings/src/lib/request-body';
 
 import { queryCalendarAvailability, querySpaceFreeBusy } from './calendar.fn';
 
@@ -76,7 +79,74 @@ export interface CalendarEventShowParams {
     notify_existing_attendees?: boolean;
 }
 
-const EVENTS_ENDPOINT = `/api/staff/v1/events`;
+type StaffEventQuery = Parameters<typeof events.query>[0];
+
+/**
+ * Input of the staff `events.query` operation for the given parameters. The
+ * API document has no `limit` for events, so it is not sent
+ */
+function eventQuery(q: CalendarEventQueryParams): StaffEventQuery {
+    return {
+        period_start: q.period_start,
+        period_end: q.period_end,
+        calendars: q.calendars,
+        zone_ids: q.zone_ids,
+        system_ids: q.system_ids,
+        include_cancelled: q.include_cancelled,
+        ical_uid: q.ical_uid,
+        strict: q.strict,
+    };
+}
+
+/**
+ * App `CalendarEvent` from the data of the staff API.
+ * The class reads the raw API data, as it did in 6.x. Its constructor type
+ * has the app types of the fields, such as `User` attendees, so the data
+ * needs a cast until the class accepts the staff `PlaceCalendarEvent` type.
+ * @param data Event from the staff API
+ */
+export function toCalendarEvent(data: PlaceCalendarEvent): CalendarEvent {
+    return new CalendarEvent(
+        data as unknown as ConstructorParameters<typeof CalendarEvent>[0],
+    );
+}
+
+/** App guest from a guest or an attendee of the staff API */
+function toGuestUser(
+    data: Guest | Attendee | PlaceCalendarEventAttendee,
+): GuestUser {
+    const extension_data =
+        'extension_data' in data ? jsonRecord(data.extension_data) : {};
+    return new GuestUser({
+        ...('id' in data && data.id ? { id: `${data.id}` } : {}),
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        organisation: data.organisation,
+        notes: data.notes,
+        photo: data.photo,
+        checked_in: data.checked_in,
+        visit_expected: data.visit_expected,
+        extension_data: { ...extension_data },
+    });
+}
+
+/**
+ * Extension data of an event from free form JSON. `EventExtensionData` is
+ * the app type of the JSON, which the API does not describe, so the data
+ * needs a cast
+ */
+function toEventExtensionData(value: JsonValue): EventExtensionData {
+    return { ...jsonRecord(value) } as unknown as EventExtensionData;
+}
+
+/** Request body of an event with the app version in its extension data */
+function eventBody(data: Partial<CalendarEvent>) {
+    return requestBody(
+        PlaceCalendarEvent,
+        new CalendarEvent(withAppVersion(data)).toJSON(),
+    );
+}
 
 function withAppVersion<T extends { extension_data?: Record<string, unknown> }>(
     data: T,
@@ -128,16 +198,11 @@ export interface CalendarEventList {
 export async function queryEventListOrThrow(
     q: CalendarEventQueryParams,
 ): Promise<CalendarEventList> {
-    const query = toQueryString(q);
-    const url = `${EVENTS_ENDPOINT}${query ? '?' + query : ''}`;
-    const list = await get(url);
-    // The client stores headers by the absolute URL of the response
-    const issues =
-        responseHeaders(new URL(url, document.baseURI).href)[
-            'x-calendar-issue'
-        ] || '';
+    const result = await events.query(eventQuery(q));
+    if (result.ok === false) throw new CallFailed(result.error);
+    const issues = result.value.headers.get('x-calendar-issue') || '';
     return {
-        events: list.map((e) => new CalendarEvent(e)),
+        events: result.value.data.map(toCalendarEvent),
         failed_calendars: issues
             .split(',')
             .map((id) => id.trim().toLowerCase())
@@ -148,58 +213,49 @@ export async function queryEventListOrThrow(
 export async function queryEventHistory(
     q: CalendarEventHistoryQueryParams,
 ): Promise<CalendarEventChange[]> {
-    const query = toQueryString(q);
     try {
-        return (await get(
-            `${EVENTS_ENDPOINT}/history${query ? '?' + query : ''}`,
-        )) as CalendarEventChange[];
+        const list = await events
+            .history({
+                period_start: q.period_start,
+                period_end: q.period_end,
+                zone_ids: q.zone_ids,
+                system_ids: q.system_ids,
+                calendars: q.calendars,
+                ical_uid: q.ical_uid,
+            })
+            .then(orThrow);
+        // A history entry does not change after it is made, so the API
+        // sends only `created_at`
+        return list.map((item) => ({
+            id: item.id || '',
+            created_at: item.created_at || 0,
+            updated_at: item.created_at || 0,
+            type: item.resource_type || '',
+            resource_id: item.resource_id || '',
+            action: item.action || '',
+            changed_fields: [...(item.changed_fields || [])],
+        }));
     } catch (_) {
         return [];
     }
 }
 
-/** Upper bound for event pages. 500 pages of 200 events is 100,000 events. */
-export const MAX_EVENT_PAGES = 500;
-
 /**
- * List all events
+ * List all events. The events API has no pages, so this is one request.
  * @param q Parameters to pass to the API request
- * @param options.signal Stops requests for more pages after an abort.
+ * @param options.signal Stops the request after an abort.
  * The function then returns an empty list, so callers must discard it.
  * @returns An empty list on a request error
- * @throws When the list has more than `MAX_EVENT_PAGES` pages, so that
- * callers do not show a part of the list as the full list
  */
 export async function queryAllEvents(
     q: CalendarEventQueryParams,
     options: { signal?: AbortSignal } = {},
 ): Promise<CalendarEvent[]> {
     const { signal } = options;
-    const list: CalendarEvent[] = [];
-    let complete = false;
-    try {
-        if (signal?.aborted) return [];
-        let { data, next } = await query<CalendarEvent>({
-            query_params: q,
-            fn: (item) => new CalendarEvent(item),
-            endpoint: EVENTS_ENDPOINT,
-            path: '',
-        });
-        list.push(...data);
-        for (let page = 1; next && page < MAX_EVENT_PAGES; page++) {
-            if (signal?.aborted) return [];
-            ({ data, next } = await next());
-            list.push(...data);
-        }
-        complete = !next;
-    } catch (_) {
-        return [];
-    }
     if (signal?.aborted) return [];
-    if (!complete) {
-        throw new Error(`Event list has more than ${MAX_EVENT_PAGES} pages`);
-    }
-    return list;
+    const result = await events.query(eventQuery(q), { signal });
+    if (signal?.aborted || result.ok === false) return [];
+    return result.value.data.map(toCalendarEvent);
 }
 
 /**
@@ -211,13 +267,10 @@ export async function showEvent(
     id: string,
     q: CalendarEventShowParams = {},
 ): Promise<CalendarEvent> {
-    const query = toQueryString(q);
-    const item = await get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-            query ? '?' + query : ''
-        }`,
-    );
-    return new CalendarEvent(item);
+    const item = await events
+        .show({ id, calendar: q.calendar, system_id: q.system_id })
+        .then(orThrow);
+    return toCalendarEvent(item);
 }
 
 /**
@@ -227,11 +280,8 @@ export async function showEvent(
 export async function createEvent(
     data: Partial<CalendarEvent>,
 ): Promise<CalendarEvent> {
-    const item = await post(
-        `${EVENTS_ENDPOINT}`,
-        new CalendarEvent(withAppVersion(data)).toJSON(),
-    );
-    return new CalendarEvent(item);
+    const item = await events.create({ body: eventBody(data) }).then(orThrow);
+    return toCalendarEvent(item);
 }
 
 /**
@@ -239,22 +289,22 @@ export async function createEvent(
  * @param id ID of the event to update
  * @param data New values for event fields
  * @param q Parameters to pass to the API request
- * @param method HTTP verb to use with API request
  */
 export async function updateEvent(
     id: string,
     data: Partial<CalendarEvent>,
     q: CalendarEventShowParams = {},
-    method: 'put' | 'patch' = 'patch',
 ): Promise<CalendarEvent> {
-    const query = toQueryString(q);
-    const item = await (method === 'patch' ? patch : put)(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-            query ? '?' + query : ''
-        }`,
-        new CalendarEvent(withAppVersion(data)).toJSON(),
-    );
-    return new CalendarEvent(item);
+    const item = await events
+        .update({
+            id,
+            calendar: q.calendar,
+            system_id: q.system_id,
+            notify_existing_attendees: q.notify_existing_attendees,
+            body: eventBody(data),
+        })
+        .then(orThrow);
+    return toCalendarEvent(item);
 }
 
 /**
@@ -282,34 +332,25 @@ export function removeEvent(
     id: string,
     q: CalendarEventShowParams = {},
 ): Promise<void> {
-    const query = toQueryString(q);
-    return del(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}${
-            query ? '?' + query : ''
-        }`,
-        {
-            response_type: 'void',
-        },
-    );
+    return events
+        .destroy({ id, calendar: q.calendar, system_id: q.system_id })
+        .then(orThrow)
+        .then(() => undefined);
 }
 
 /**
  * Decline the given event
  * @param id ID of the event to decline
- * @returns
+ * @returns An empty event, as the API sends no event data
  */
 export async function declineEvent(
     id: string,
     query: CalendarEventShowParams = {},
 ): Promise<CalendarEvent> {
-    const q = toQueryString(query);
-    const item = await post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/decline${
-            q ? '?' + q : ''
-        }`,
-        '',
-    );
-    return new CalendarEvent(item);
+    await events
+        .decline({ id, calendar: query.calendar, system_id: query.system_id })
+        .then(orThrow);
+    return new CalendarEvent();
 }
 
 /**
@@ -325,14 +366,16 @@ export async function checkinEventGuest(
     state: boolean,
     q: CalendarEventShowParams = {},
 ): Promise<GuestUser> {
-    const query = toQueryString({ ...q, state });
-    const item = await post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+    const item = await events
+        .guestCheckin({
             id,
-        )}/guests/${guest_id}/checkin${query ? '?' + query : ''}`,
-        '',
-    );
-    return new GuestUser(item);
+            guest_id,
+            state,
+            calendar: q.calendar,
+            system_id: q.system_id,
+        })
+        .then(orThrow);
+    return toGuestUser(item);
 }
 
 /**
@@ -345,31 +388,54 @@ export async function addEventGuest(
     guest: GuestUser,
     q: CalendarEventShowParams = {},
 ): Promise<GuestUser> {
-    const query = toQueryString(q);
-    const item = await post(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(id)}/attendee${query ? '?' + query : ''}`,
-        guest,
-    );
-    return new GuestUser(item);
+    const item = await events
+        .addAttendee({
+            id,
+            calendar: q.calendar,
+            system_id: q.system_id,
+            notify_existing_attendees: q.notify_existing_attendees,
+            body: requestBody(PlaceCalendarEventAttendee, guest),
+        })
+        .then(orThrow);
+    return toGuestUser(item);
 }
 
 /**
  * Remove an attendee from a booking
  * @param id ID of the booking
  * @param guest Guest to remove from the booking
+ * @returns An empty guest, as the API sends no guest data
  */
 export async function removeEventGuest(
     id: string,
     guest: GuestUser,
     q: CalendarEventShowParams = {},
 ): Promise<GuestUser> {
-    const query = toQueryString(q);
-    const item = await del(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+    await events
+        .deleteAttendee({
             id,
-        )}/attendee/${encodeURIComponent(guest.email)}${query ? '?' + query : ''}`,
-    );
-    return new GuestUser(item);
+            email: guest.email,
+            calendar: q.calendar,
+            system_id: q.system_id,
+        })
+        .then(orThrow);
+    return new GuestUser();
+}
+
+/**
+ * Extension data of an event, from the PlaceOS metadata of its room.
+ * `EventExtensionData` is the app type of the free form JSON, so the data
+ * needs a cast
+ */
+async function eventMetadata(
+    id: string,
+    system_id: string,
+    query: { ical_uid?: string },
+): Promise<EventExtensionData> {
+    const data = await events
+        .getMetadata({ id, system_id, ical_uid: query.ical_uid })
+        .then(orThrow);
+    return toEventExtensionData(data);
 }
 
 /**
@@ -383,12 +449,7 @@ export async function getEventMetadata(
     system_id: string,
     query: { ical_uid?: string } = {},
 ): Promise<EventExtensionData> {
-    const q = toQueryString({ ...query });
-    return (await get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-    )) as EventExtensionData;
+    return eventMetadata(id, system_id, query);
 }
 
 /**
@@ -402,12 +463,7 @@ export async function showEventMetadata(
     system_id: string,
     query: { ical_uid?: string } = {},
 ): Promise<EventExtensionData> {
-    const q = toQueryString({ ...query });
-    return (await get(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
-            id,
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-    )) as EventExtensionData;
+    return eventMetadata(id, system_id, query);
 }
 
 /**
@@ -423,13 +479,15 @@ export async function updateEventMetadata(
     metadata: Partial<EventExtensionData>,
     query: { ical_uid?: string } = {},
 ): Promise<EventExtensionData> {
-    const q = toQueryString({ ...query });
-    return (await patch(
-        `${EVENTS_ENDPOINT}/${encodeURIComponent(
+    const data = await events
+        .patchMetadata({
             id,
-        )}/metadata/${encodeURIComponent(system_id)}${q ? '?' + q : ''}`,
-        metadata,
-    )) as EventExtensionData;
+            system_id,
+            ical_uid: query.ical_uid,
+            body: jsonRecord(toJsonValue(metadata)),
+        })
+        .then(orThrow);
+    return toEventExtensionData(data);
 }
 
 /**
@@ -511,16 +569,34 @@ export async function findEventClashes(
     event: CalendarEvent,
     q: EventClashQueryOptions = {},
 ): Promise<string[] | BookingClash[]> {
-    const query = toQueryString({ ...q, limit: 10000 });
     try {
-        const list = await post(
-            `${EVENTS_ENDPOINT}/clashing-assets${query ? '?' + query : ''}`,
-            event.toJSON(),
-        );
+        const list = await events
+            .clashingAssets({
+                return_available: q.return_available,
+                include_clash_time: q.include_clash_time,
+                body: requestBody(PlaceCalendarEvent, event.toJSON()),
+            })
+            .then(orThrow);
         return q.include_clash_time
-            ? (list as BookingClash[])
-            : (list as string[]);
+            ? list.map(toEventClash).filter((_) => !!_)
+            : list.filter((_): _ is string => typeof _ === 'string');
     } catch (_) {
         return [];
     }
+}
+
+/**
+ * A clash from the JSON list of the clashing assets endpoint of events, or
+ * `null`. With `include_clash_time`, Staff API gives the room as
+ * `system_id` and the times as `event_start` and `event_end`.
+ */
+function toEventClash(item: JsonValue): BookingClash | null {
+    if (!isJsonRecord(item)) return null;
+    const { system_id, event_start, event_end } = item;
+    if (typeof system_id !== 'string') return null;
+    return {
+        asset_id: system_id,
+        booking_start: typeof event_start === 'number' ? event_start : 0,
+        booking_end: typeof event_end === 'number' ? event_end : 0,
+    };
 }

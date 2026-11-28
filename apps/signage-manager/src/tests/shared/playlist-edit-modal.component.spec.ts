@@ -7,13 +7,14 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { HotkeysService, setNotifyOutlet } from '@placeos/common';
-import { MediaAnimation, SignagePlaylist } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import { PlaylistEditModalComponent } from '../../app/shared/playlist-edit-modal.component';
 import {
     createPlaylistScheduleModel,
     PlaylistScheduleFormComponent,
 } from '../../app/shared/playlist-schedule-form.component';
 import { SignageSharedWithComponent } from '../../app/shared/signage-shared-with.component';
+import { signagePlaylist } from '../../app/signage-models';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -182,7 +183,7 @@ describe('PlaylistEditModalComponent', () => {
     it('keeps the default animation when saving other changes', async () => {
         // ts-client turns the saved index 0 into `cut`
         const { fixture, values } = await renderWithAnimation(
-            new SignagePlaylist({
+            signagePlaylist({
                 default_animation: 0 as unknown as MediaAnimation,
             }).default_animation,
         );

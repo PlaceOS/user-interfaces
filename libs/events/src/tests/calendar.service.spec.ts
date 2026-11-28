@@ -10,11 +10,24 @@ import {
     OrganisationService,
     SettingsService,
 } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
+import { httpFailure } from '@placeos/common/tests';
+import { mockReply } from '@placeos/ts-client/compat';
+import {
+    calendars,
+    type PlaceCalendarCalendar,
+} from '@placeos/ts-client/staff';
 import { CalendarService } from '../lib/calendar.service';
 
-// The real calendar.fn wrappers run; only the ts-client GET beneath them is stubbed.
-vi.mock('@placeos/ts-client', { spy: true });
+// The real calendar.fn wrappers run; only the staff calendars operation beneath them is stubbed.
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+const CALENDAR: PlaceCalendarCalendar = {
+    id: 'calendar-1',
+    ref: null,
+    summary: 'Calendar',
+    primary: true,
+    can_edit: true,
+};
 
 describe('CalendarService', () => {
     let spectator: SpectatorService<CalendarService>;
@@ -30,48 +43,44 @@ describe('CalendarService', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(calendars.query).mockResolvedValue(mockReply([]));
         spectator = createService();
     });
 
     it('should not load calendars until requested', () => {
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(calendars.query).not.toHaveBeenCalled();
     });
 
     it('should allow getting calendars', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([{}] as any);
+        vi.mocked(calendars.query).mockResolvedValue(mockReply([CALENDAR]));
         await spectator.service.loadCalendars();
         const list = spectator.service.calendar_list();
         expect(list).toEqual(spectator.service.calendars);
         expect(list).toHaveLength(1);
         expect(list[0]).toBeInstanceOf(Calendar);
-        expect(ts_client.get).toHaveBeenCalledWith(`/api/staff/v1/calendars`);
+        expect(calendars.query).toHaveBeenCalled();
     });
 
     it('should share one request between concurrent loads', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([{}] as any);
+        vi.mocked(calendars.query).mockResolvedValue(mockReply([CALENDAR]));
         await Promise.all([
             spectator.service.loadCalendars(),
             spectator.service.loadCalendars(),
         ]);
         await spectator.service.loadCalendars();
-        expect(ts_client.get).toHaveBeenCalledTimes(1);
+        expect(calendars.query).toHaveBeenCalledTimes(1);
     });
 
     it('should handle a failed calendar request and retry on the next load', async () => {
-        vi.mocked(ts_client.get).mockRejectedValueOnce(
-            new Response(null, { status: 500 }),
-        );
+        vi.mocked(calendars.query).mockResolvedValueOnce(httpFailure(500));
         await expect(
             spectator.service.loadCalendars(),
         ).resolves.toBeUndefined();
         expect(spectator.service.calendar_list()).toEqual([]);
 
-        vi.mocked(ts_client.get).mockResolvedValueOnce([
-            {},
-        ] as unknown as Awaited<ReturnType<typeof ts_client.get>>);
+        vi.mocked(calendars.query).mockResolvedValueOnce(mockReply([CALENDAR]));
         await spectator.service.loadCalendars();
         expect(spectator.service.calendar_list()).toHaveLength(1);
-        expect(ts_client.get).toHaveBeenCalledTimes(2);
+        expect(calendars.query).toHaveBeenCalledTimes(2);
     });
 });

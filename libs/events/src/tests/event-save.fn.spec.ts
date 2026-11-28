@@ -1,5 +1,6 @@
 import type { MatDialog } from '@angular/material/dialog';
 import {
+    type BookingClash,
     CalendarEvent,
     i18n,
     setCurrentUser,
@@ -17,9 +18,12 @@ import {
     isPermissionError,
 } from '../lib/event-save.fn';
 
-vi.mock('@placeos/ts-client', { spy: true });
+import { mockReply } from '@placeos/ts-client/compat';
+import { calendars, events } from '@placeos/ts-client/staff';
 
-import * as ts_client from '@placeos/ts-client';
+// The real events.fn and calendar.fn wrappers run; only the staff
+// operations beneath them are stubbed.
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 /** Form value with only the fields that the save query reads. */
 const formValue = (value: Partial<EventFormValue>) => value as EventFormValue;
@@ -147,8 +151,23 @@ describe('checkRecurringClashes', () => {
         }));
         return { open } as unknown as MatDialog & { open: typeof open };
     };
-    const mockClashes = (clashes: { booking_start: number }[]) =>
-        vi.mocked(ts_client.post).mockResolvedValue(clashes as never);
+    /** Clash of a room at the given start, as the app reads it */
+    const clash = (booking_start: number): BookingClash => ({
+        asset_id: 'room-1',
+        booking_start,
+        booking_end: booking_start + 3600,
+    });
+    /** Clashes at the given starts, as Staff API sends them */
+    const mockClashes = (starts: number[]) =>
+        vi.mocked(events.clashingAssets).mockResolvedValue(
+            mockReply(
+                starts.map((start) => ({
+                    system_id: 'room-1',
+                    event_start: start,
+                    event_end: start + 3600,
+                })),
+            ),
+        );
 
     beforeEach(() => vi.clearAllMocks());
 
@@ -160,12 +179,12 @@ describe('checkRecurringClashes', () => {
                 dialog(null),
             ),
         ).resolves.toBe(true);
-        expect(ts_client.post).not.toHaveBeenCalled();
+        expect(events.clashingAssets).not.toHaveBeenCalled();
     });
 
     it('should reject a clash on the first instance even when clashes are allowed', async () => {
         // The API does not sort clashes
-        mockClashes([{ booking_start: start + day }, { booking_start: start }]);
+        mockClashes([start + day, start]);
         const modal = dialog('done');
 
         await expect(
@@ -175,10 +194,7 @@ describe('checkRecurringClashes', () => {
     });
 
     it('should show later clashes in order and continue when the user confirms', async () => {
-        mockClashes([
-            { booking_start: start + 2 * day },
-            { booking_start: start + day },
-        ]);
+        mockClashes([start + 2 * day, start + day]);
         const modal = dialog('done');
 
         await expect(
@@ -186,16 +202,13 @@ describe('checkRecurringClashes', () => {
         ).resolves.toBe(true);
         expect(modal.open).toHaveBeenCalledWith(expect.anything(), {
             data: {
-                clashes: [
-                    { booking_start: start + day },
-                    { booking_start: start + 2 * day },
-                ],
+                clashes: [clash(start + day), clash(start + 2 * day)],
             },
         });
     });
 
     it('should stop the save when the user closes the clash modal', async () => {
-        mockClashes([{ booking_start: start + day }]);
+        mockClashes([start + day]);
 
         await expect(
             checkRecurringClashes(
@@ -223,9 +236,11 @@ describe('checkSpacesAvailable', () => {
     /** Availability response that lists the given rooms as free. */
     const mockAvailable = (...ids: string[]) =>
         vi
-            .mocked(ts_client.get)
+            .mocked(calendars.availability)
             .mockResolvedValue(
-                ids.map((id) => ({ id, resource: { id } })) as never,
+                mockReply(
+                    ids.map((id) => ({ id, system: null, availability: [] })),
+                ),
             );
 
     it('should pass when the API lists every room as available', async () => {

@@ -2,9 +2,10 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { showSignageTemplate, SignageTemplate } from '@placeos/ts-client';
+import { signage_templates } from '@placeos/ts-client';
 import { TemplateRequestApprovalModalComponent } from '../../app/shared/template-request-approval-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signageTemplate } from '../../app/signage-models';
 import { SignagePluginService } from '../../app/signage-plugin.service';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
@@ -40,7 +41,7 @@ describe('TemplateRequestApprovalModalComponent', () => {
                 {
                     provide: MAT_DIALOG_DATA,
                     useValue: {
-                        template: new SignageTemplate({
+                        template: signageTemplate({
                             id: 'template-1',
                             name: 'Welcome',
                         }),
@@ -71,7 +72,9 @@ describe('TemplateRequestApprovalModalComponent', () => {
     });
 
     it('shows an error when the preview versions fail to load', async () => {
-        vi.mocked(showSignageTemplate).mockRejectedValue(new Error('Offline'));
+        vi.mocked(signage_templates.show).mockRejectedValue(
+            new Error('Offline'),
+        );
         const fixture = TestBed.createComponent(
             TemplateRequestApprovalModalComponent,
         );
@@ -90,8 +93,8 @@ describe('TemplateRequestApprovalModalComponent', () => {
     });
 
     it('undoes the pending draft from the approval preview', async () => {
-        const pending = new SignageTemplate({ id: 'template-1' });
-        const approved = new SignageTemplate({
+        const pending = signageTemplate({ id: 'template-1' });
+        const approved = signageTemplate({
             id: 'template-1',
             approved: true,
         });

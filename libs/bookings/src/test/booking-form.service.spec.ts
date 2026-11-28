@@ -26,48 +26,75 @@ import { SettingsService } from 'libs/common/src/lib/settings.service';
 import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { BookingFormService } from '../lib/booking-form.service';
 
-// bookings.fn and booking.utilities run for real; only the ts-client API layer
-// beneath them is stubbed (queryBookings -> get, bookedResourceList -> query,
-// findBookingClashes -> post(/clashing-assets), saveBooking -> post|patch,
-// removeBooking -> del).
+// bookings.fn, events.fn and booking.utilities run for real; only the
+// ts-client operations beneath them are stubbed (queryBookings ->
+// bookings.query, bookedResourceList -> bookings.booked, findBookingClashes ->
+// bookings.clashingAssets, saveBooking -> bookings.create|update,
+// removeBooking -> bookings.destroy, removeEventGuest -> events.deleteAttendee).
+// Booking ids are integers in the staff API, so the test bookings have
+// numeric ids.
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import {
+    fromV1Mock,
+    mockPage,
+    mockReply,
+    orThrow,
+} from '@placeos/ts-client/compat';
+import {
+    bookings,
+    events,
+    type Booking as StaffBooking,
+} from '@placeos/ts-client/staff';
 import { endOfYear } from 'date-fns';
 import { MockProvider } from 'ng-mocks';
 
-// Per-test overridable results for the ts-client layer beneath bookings.fn.
+// Per-test overridable results for the staff operations beneath bookings.fn.
 let booked_result: string[] = [];
-let clash_result: unknown[] = [];
+let clash_result: string[] = [];
 
-const BOOKINGS_ENDPOINT = '/api/staff/v1/bookings';
+/** Id the mocked API gives to a new group container booking */
+const GROUP_ID = '9001';
+
+/** Booking data as the mocked staff API sends it. Test data has only some fields */
+const staffBooking = (data: object) => data as unknown as StaffBooking;
+
+/** Page of bookings for the mocked `bookings.query` */
+const bookingPage = (list: object[]) =>
+    mockPage({ data: list.map(staffBooking) });
+
+/** Failed result of a staff operation with an HTTP status and a JSON body */
+const httpFailure = (status: number, body: Record<string, string> = {}) => ({
+    ok: false as const,
+    error: {
+        kind: 'http' as const,
+        status,
+        message: body['error'] ?? null,
+        body,
+        text: null,
+    },
+});
 
 /**
- * Bookings passed to `saveBooking` are now the create/update request bodies.
- * `saveBooking` moves the id into the PATCH url for updates, so reconstruct it.
+ * Bookings sent to the create and update operations. Updates keep the id
+ * of the booking.
  */
 const savedBookings = (): Booking[] =>
     [
-        ...vi
-            .mocked(ts_client.post)
-            .mock.calls.filter(([url]) =>
-                url.startsWith(`${BOOKINGS_ENDPOINT}?`),
-            )
-            .map(([, body]) => body),
-        ...vi
-            .mocked(ts_client.patch)
-            .mock.calls.filter(([url]) =>
-                new RegExp(`^${BOOKINGS_ENDPOINT}/[^/]+$`).test(url),
-            )
-            .map(([url, body]) => ({ ...body, id: url.split('/').pop() })),
-    ] as Booking[];
+        ...vi.mocked(bookings.create).mock.calls.map(([input]) => input.body),
+        ...vi.mocked(bookings.update).mock.calls.map(([input]) => ({
+            ...input.body,
+            id: `${input.id}`,
+        })),
+    ] as unknown as Booking[];
 
-/** Booking sent to the clashing-assets endpoint (findBookingClashes body). */
-const clashBookings = (): any[] =>
+/** Bookings sent to the clashing-assets operation (findBookingClashes body). */
+const clashBookings = (): Booking[] =>
     vi
-        .mocked(ts_client.post)
-        .mock.calls.filter(([url]) => url.includes('/clashing-assets'))
-        .map(([, body]) => body);
+        .mocked(bookings.clashingAssets)
+        .mock.calls.map(([input]) => input.body) as unknown as Booking[];
 
 describe('BookingFormService', () => {
     let spectator: SpectatorService<BookingFormService>;
@@ -135,52 +162,57 @@ describe('BookingFormService', () => {
         );
         booked_result = [];
         clash_result = [];
-        vi.mocked(ts_client.cleanObject).mockImplementation((a) => a);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
-        vi.mocked(ts_client.showUser).mockReturnValue(undefined);
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [{ id: 'desk-1' }, { id: 'desk-1' }],
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.users.show).mockImplementation(
+            fromV1Mock(() => undefined, ['id', '...']),
+        );
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: {
+                        desks: {
+                            details: [{ id: 'desk-1' }, { id: 'desk-1' }],
+                        },
                     },
+                    zone: { id: 'lvl-1' },
                 },
-                zone: { id: 'lvl-1' },
-            },
-        ] as any);
-        // ts-client layer beneath the real bookings.fn functions.
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.query).mockImplementation(async () => ({
-            data: [...booked_result],
-            next: null,
-            total: booked_result.length,
-        }));
-        vi.mocked(ts_client.post).mockImplementation(
-            async (url: string, body: any) => {
-                if (url.includes('/clashing-assets')) return [...clash_result];
-                // Emulate the backend assigning an id to a newly-created group
-                // container so children can reference it as their parent_id.
-                if (
-                    url.startsWith(`${BOOKINGS_ENDPOINT}?`) &&
-                    !body?.id &&
-                    (body?.type === 'group' || body?.booking_type === 'group')
-                ) {
-                    return { ...body, id: 'booking-group' };
-                }
-                return body;
-            },
+            ] as any),
         );
-        vi.mocked(ts_client.patch).mockImplementation(
-            async (_url: string, body: any) => body,
+        // staff operations beneath the real bookings.fn functions.
+        vi.mocked(bookings.query).mockResolvedValue(bookingPage([]));
+        vi.mocked(bookings.booked).mockImplementation(async () =>
+            mockPage({ data: [...booked_result], total: booked_result.length }),
         );
-        vi.mocked(ts_client.put).mockImplementation(
-            async (_url: string, body: any) => body,
+        vi.mocked(bookings.clashingAssets).mockImplementation(async () =>
+            mockReply([...clash_result]),
         );
-        vi.mocked(ts_client.del).mockResolvedValue(undefined);
+        vi.mocked(bookings.create).mockImplementation(async ({ body }) =>
+            // Emulate the backend assigning an id to a newly-created group
+            // container so children can reference it as their parent_id.
+            mockReply(
+                staffBooking(
+                    !body?.id && body?.booking_type === 'group'
+                        ? { ...body, id: GROUP_ID }
+                        : body,
+                ),
+            ),
+        );
+        vi.mocked(bookings.update).mockImplementation(async ({ id, body }) =>
+            mockReply(staffBooking({ ...body, id })),
+        );
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
+        vi.mocked(events.deleteAttendee).mockResolvedValue(mockReply(''));
         spectator = createService();
-        vi.mocked(ts_client.cleanObject).mockImplementation((a) => a);
         vi.spyOn(spectator.inject(SettingsService), 'get').mockImplementation(
             () => undefined,
         );
@@ -193,8 +225,8 @@ describe('BookingFormService', () => {
     });
 
     it('should not make resource requests before booking data is consumed', () => {
-        expect(ts_client.showMetadata).not.toHaveBeenCalled();
-        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.show).not.toHaveBeenCalled();
+        expect(ts_client.metadata.childrenMetadata).not.toHaveBeenCalled();
     });
 
     it('should use the current form when listing available resources', async () => {
@@ -209,12 +241,14 @@ describe('BookingFormService', () => {
             zone: { id: 'lvl-1', parent_id: 'bld-1' },
             features: [],
         };
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: { desks: { details: [desk] } },
-                zone: desk.zone,
-            },
-        ] as any);
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: { desks: { details: [desk] } },
+                    zone: desk.zone,
+                },
+            ] as any),
+        );
         (spectator.service as any)._resources_resource.set([desk]);
         (spectator.service as any)._booking_rules_resource.set({});
         (spectator.service as any)._available_resource.set([]);
@@ -239,25 +273,31 @@ describe('BookingFormService', () => {
         );
         const org = spectator.inject(OrganisationService) as any;
         org.levelsForBuilding = vi.fn(() => [{ id: 'lvl-1' }]);
-        vi.mocked(ts_client.queryAssetCategories).mockResolvedValue({
-            data: [{ id: 'desk-category', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-            data: [{ id: 'desk-type', name: '_DESKS_' }],
-        } as any);
-        vi.mocked(ts_client.queryAssets).mockResolvedValue({
-            data: [
-                {
-                    id: 'asset-desk-1',
-                    asset_type_id: 'desk-type',
-                    zone_id: 'lvl-1',
-                    identifier: 'Desk One',
-                    map_id: 'desk-map-1',
-                    bookable: true,
-                    place_groups: ['engineering'],
-                },
-            ],
-        } as any);
+        vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-category', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'desk-type', name: '_DESKS_' }],
+            } as any),
+        );
+        vi.mocked(ts_client.assets.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'asset-desk-1',
+                        asset_type_id: 'desk-type',
+                        zone_id: 'lvl-1',
+                        identifier: 'Desk One',
+                        map_id: 'desk-map-1',
+                        bookable: true,
+                        place_groups: ['engineering'],
+                    },
+                ],
+            } as any),
+        );
 
         const desks = await spectator.service.loadResourceList('desks');
 
@@ -269,21 +309,23 @@ describe('BookingFormService', () => {
                 groups: ['engineering'],
             }),
         ]);
-        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
+        expect(ts_client.metadata.childrenMetadata).not.toHaveBeenCalled();
     });
 
     it('should share an in-flight resource list load between callers', async () => {
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([]),
+        );
 
         await Promise.all([
             spectator.service.loadResourceList('desks'),
             spectator.service.loadResourceList('desks'),
         ]);
-        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(1);
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledTimes(1);
 
         // A load after the first one settles gets fresh data
         await spectator.service.loadResourceList('desks');
-        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(2);
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledTimes(2);
     });
 
     it('should stop the form loads on release and not start them on clear', () => {
@@ -315,25 +357,21 @@ describe('BookingFormService', () => {
             (spectator.service as any)._bookedResourceList(query, 42),
         ]);
 
-        // The underlying booked-resource query (bookedResourceList -> query)
-        // is debounced, so it must not run until the debounce window elapses.
+        // The underlying booked-resource query (bookedResourceList) is
+        // debounced, so it must not run until the debounce window elapses.
         await new Promise((resolve) => setTimeout(resolve, 250));
-        expect(ts_client.query).not.toHaveBeenCalled();
+        expect(bookings.booked).not.toHaveBeenCalled();
         const [first, second] = await requests;
         expect(first).toEqual(['desk-1']);
         expect(second).toEqual(['desk-1']);
-        expect(ts_client.query).toHaveBeenCalledTimes(1);
-        expect(ts_client.query).toHaveBeenCalledWith(
+        expect(bookings.booked).toHaveBeenCalledTimes(1);
+        expect(bookings.booked).toHaveBeenCalledWith(
             expect.objectContaining({
-                path: 'booked',
-                endpoint: BOOKINGS_ENDPOINT,
-                query_params: expect.objectContaining({
-                    period_start: 100,
-                    period_end: 200,
-                    type: 'desk',
-                    zones: 'bld-1',
-                    limit: 200,
-                }),
+                period_start: 100,
+                period_end: 200,
+                type: 'desk',
+                zones: 'bld-1',
+                limit: 200,
             }),
         );
     });
@@ -341,7 +379,7 @@ describe('BookingFormService', () => {
     it('should report a failed resource list load until a reload succeeds', async () => {
         const previous_overrides = settings_overrides();
         settings_overrides.set([{}, {}]);
-        vi.mocked(ts_client.listChildMetadata).mockRejectedValue(
+        vi.mocked(ts_client.metadata.childrenMetadata).mockRejectedValue(
             new Error('offline'),
         );
         spectator.service.newForm('desk');
@@ -349,7 +387,9 @@ describe('BookingFormService', () => {
         await spectator.service.listResources();
         expect(spectator.service.load_failed()).toBe(true);
 
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([]);
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([]),
+        );
         spectator.service.reloadResources();
         for (let i = 0; i < 40 && spectator.service.load_failed(); i++) {
             TestBed.tick();
@@ -367,15 +407,6 @@ describe('BookingFormService', () => {
         // must clone the live model before cleaning it, otherwise empty keys
         // (e.g. `asset_id: ''`) get deleted out of the signal-forms model,
         // orphaning `[formField]` bindings (`field() is not a function`).
-        vi.mocked(ts_client.cleanObject).mockImplementation(
-            (value, exclude: unknown[] = []) => {
-                for (const key of Object.keys(value || {})) {
-                    if (exclude.includes(value[key])) delete value[key];
-                }
-                return value;
-            },
-        );
-
         spectator.service.newForm('visitor');
         spectator.service.storeForm();
 
@@ -419,7 +450,9 @@ describe('BookingFormService', () => {
                     : undefined,
         );
         const show_user = vi.fn(() => of({ email: 'other@example.com' }));
-        vi.mocked(ts_client.showUser).mockImplementation(show_user as any);
+        vi.mocked(ts_client.users.show).mockImplementation(
+            fromV1Mock(show_user as any, ['id', '...']),
+        );
 
         const immediate_host = (spectator.service as any)._bookingRulesHost({
             email: 'other@example.com',
@@ -639,11 +672,15 @@ describe('BookingFormService', () => {
     });
 
     it('should follow form updates while quick-book availability is loading', async () => {
-        const metadata = await ts_client.listChildMetadata('bld-1', {});
-        vi.mocked(ts_client.listChildMetadata).mockImplementation(async () => {
-            await new Promise((resolve) => setTimeout(resolve, 800));
-            return metadata;
-        });
+        const metadata = await ts_client.metadata
+            .childrenMetadata({ id: 'bld-1' })
+            .then(orThrow);
+        vi.mocked(ts_client.metadata.childrenMetadata).mockImplementation(
+            fromV1Mock(async () => {
+                await new Promise((resolve) => setTimeout(resolve, 800));
+                return metadata;
+            }, ['id', '...']),
+        );
         settings_overrides.set([{}, {}]);
         try {
             spectator.service.newForm('desk');
@@ -743,11 +780,7 @@ describe('BookingFormService', () => {
             },
         );
 
-        // bookedResourceList -> query(path:'booked'); findBookingClashes ->
-        // post(/clashing-assets, booking.toJSON()).
-        expect(ts_client.query).toHaveBeenCalledWith(
-            expect.objectContaining({ path: 'booked' }),
-        );
+        expect(bookings.booked).toHaveBeenCalled();
         const clash_booking = clashBookings()[0];
         expect(clash_booking.asset_ids).toEqual(['desk-1', 'desk-2', 'desk-3']);
         expect(clash_booking.recurrence_type).toBe('daily');
@@ -866,22 +899,24 @@ describe('BookingFormService', () => {
 
     it.each([
         ['checked-out', { checked_out_at: 1 }],
-        ['cancelled', { status: 'cancelled' }],
+        ['cancelled', { status: 'cancelled' as const }],
     ])(
         'should allow a visitor booking after an overlapping visit is %s',
         async (_, ended_state) => {
             const date = Date.now() + 60 * 60 * 1000;
-            vi.mocked(ts_client.get).mockResolvedValue([
-                {
-                    id: 'ended-visit',
-                    booking_type: 'visitor',
-                    asset_id: 'visitor@example.com',
-                    user_email: currentUser().email,
-                    booking_start: Math.floor(date / 1000),
-                    booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
-                    ...ended_state,
-                },
-            ] as any);
+            vi.mocked(bookings.query).mockResolvedValue(
+                bookingPage([
+                    {
+                        id: 'ended-visit',
+                        booking_type: 'visitor',
+                        asset_id: 'visitor@example.com',
+                        user_email: currentUser().email,
+                        booking_start: Math.floor(date / 1000),
+                        booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                        ...ended_state,
+                    },
+                ]),
+            );
 
             await expect(
                 (spectator.service as any)._checkResourceAvailable(
@@ -899,17 +934,19 @@ describe('BookingFormService', () => {
 
     it('should reject a visitor booking that overlaps an active visit', async () => {
         const date = Date.now() + 60 * 60 * 1000;
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {
-                id: 'active-visit',
-                booking_type: 'visitor',
-                asset_id: 'visitor@example.com',
-                user_email: currentUser().email,
-                booking_start: Math.floor(date / 1000),
-                booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
-                status: 'approved',
-            },
-        ] as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: 'active-visit',
+                    booking_type: 'visitor',
+                    asset_id: 'visitor@example.com',
+                    user_email: currentUser().email,
+                    booking_start: Math.floor(date / 1000),
+                    booking_end: Math.floor((date + 30 * 60 * 1000) / 1000),
+                    status: 'approved',
+                },
+            ]),
+        );
 
         await expect(
             (spectator.service as any)._checkResourceAvailable(
@@ -967,7 +1004,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'booking-1',
+                id: '9009',
                 booking_type: 'visitor',
                 date: booking_date,
                 duration: 60,
@@ -1082,7 +1119,7 @@ describe('BookingFormService', () => {
             spectator.service.newForm(
                 'desk',
                 new Booking({
-                    id: 'booking-1',
+                    id: '9009',
                     booking_type: 'desk',
                     date: new Date(2026, 9, 16, 9, 0).valueOf(),
                     duration: 45,
@@ -1234,10 +1271,8 @@ describe('BookingFormService', () => {
 
         it('should save the payment ID and capture the payment after the save', async () => {
             // The backend gives the new booking its ID
-            vi.mocked(ts_client.post).mockImplementation(async (url, body) =>
-                url.includes('/clashing-assets')
-                    ? []
-                    : { ...body, id: 'booking-new' },
+            vi.mocked(bookings.create).mockImplementation(async ({ body }) =>
+                mockReply(staffBooking({ ...body, id: 'booking-new' })),
             );
             newDeskForm();
             await spectator.service.postForm(true);
@@ -1258,12 +1293,9 @@ describe('BookingFormService', () => {
         });
 
         it('should release the payment when the booking fails to save', async () => {
-            vi.mocked(ts_client.post).mockImplementation((async (
-                url: string,
-            ) => {
-                if (url.includes('/clashing-assets')) return [];
-                throw { status: 500, error: 'Server error' };
-            }) as any);
+            vi.mocked(bookings.create).mockResolvedValue(
+                httpFailure(500, { error: 'Server error' }),
+            );
             newDeskForm();
 
             await expect(spectator.service.postForm(true)).rejects.toBeTruthy();
@@ -1276,12 +1308,9 @@ describe('BookingFormService', () => {
         });
 
         it('should show the payment ID in place of the save error when the release fails', async () => {
-            vi.mocked(ts_client.post).mockImplementation((async (
-                url: string,
-            ) => {
-                if (url.includes('/clashing-assets')) return [];
-                throw { status: 500, error: 'Server error' };
-            }) as any);
+            vi.mocked(bookings.create).mockResolvedValue(
+                httpFailure(500, { error: 'Server error' }),
+            );
             payments.release.mockResolvedValue('PAYMENTS.RELEASE_FAILED');
             newDeskForm();
 
@@ -1422,7 +1451,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'bkn-1',
+                id: '9005',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -1453,7 +1482,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'visitor-booking',
+                id: '9015',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -1473,7 +1502,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'bkn-1',
+                id: '9005',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -1730,21 +1759,23 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'assigned-desk',
-                                assigned_to: currentUser().email,
-                            },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: currentUser().email,
+                                },
+                            ],
+                        },
                     },
+                    zone: { id: 'lvl-1' },
                 },
-                zone: { id: 'lvl-1' },
-            },
-        ] as any);
+            ] as any),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1783,21 +1814,23 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'assigned-desk',
-                                assigned_to: currentUser().email,
-                            },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: currentUser().email,
+                                },
+                            ],
+                        },
                     },
+                    zone: { id: 'lvl-1' },
                 },
-                zone: { id: 'lvl-1' },
-            },
-        ] as any);
+            ] as any),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1845,21 +1878,23 @@ describe('BookingFormService', () => {
                 }
                 return undefined;
             });
-            vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-                {
-                    metadata: {
-                        desks: {
-                            details: [
-                                {
-                                    id: 'assigned-desk',
-                                    assigned_to: 'other.user@example.com',
-                                },
-                            ],
+            vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+                mockReply([
+                    {
+                        metadata: {
+                            desks: {
+                                details: [
+                                    {
+                                        id: 'assigned-desk',
+                                        assigned_to: 'other.user@example.com',
+                                    },
+                                ],
+                            },
                         },
+                        zone: { id: 'lvl-1' },
                     },
-                    zone: { id: 'lvl-1' },
-                },
-            ] as any);
+                ] as any),
+            );
             spectator.service.newForm(
                 'desk',
                 new Booking({
@@ -1897,21 +1932,23 @@ describe('BookingFormService', () => {
 
     it('should block self desk bookings by default when the user has an assigned desk', async () => {
         (spectator.inject(PaymentsService) as any).enabled = false;
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'assigned-desk',
-                                assigned_to: currentUser().email,
-                            },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: currentUser().email,
+                                },
+                            ],
+                        },
                     },
+                    zone: { id: 'lvl-1' },
                 },
-                zone: { id: 'lvl-1' },
-            },
-        ] as any);
+            ] as any),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -1950,21 +1987,23 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'assigned-desk',
-                                assigned_to: currentUser().email,
-                            },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: currentUser().email,
+                                },
+                            ],
+                        },
                     },
+                    zone: { id: 'lvl-1' },
                 },
-                zone: { id: 'lvl-1' },
-            },
-        ] as any);
+            ] as any),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2071,15 +2110,17 @@ describe('BookingFormService', () => {
         });
         // Permanent allocations are stored as bookings tagged `is_assigned`,
         // and can exist without a matching `assigned_to` in desk metadata.
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {
-                id: 'assigned-booking',
-                type: 'desk',
-                asset_id: 'assigned-desk',
-                user_email: 'other.user@example.com',
-                extension_data: { is_assigned: true },
-            },
-        ] as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: '9011',
+                    type: 'desk',
+                    asset_id: 'assigned-desk',
+                    user_email: 'other.user@example.com',
+                    extension_data: { is_assigned: true },
+                },
+            ]),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2122,18 +2163,24 @@ describe('BookingFormService', () => {
             if (key === 'app.bookings.allowed_daily_desk_count') return 3;
             return undefined;
         });
-        vi.mocked(ts_client.showUser).mockReturnValue(
-            Promise.resolve({ email: 'other.user@example.com' }) as any,
+        vi.mocked(ts_client.users.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({ email: 'other.user@example.com' }) as any,
+                ['id', '...'],
+            ),
         );
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {
-                id: 'assigned-booking',
-                type: 'desk',
-                asset_id: 'assigned-desk',
-                user_email: 'other.user@example.com',
-                extension_data: { is_assigned: true },
-            },
-        ] as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: '9011',
+                    type: 'desk',
+                    asset_id: 'assigned-desk',
+                    user_email: 'other.user@example.com',
+                    extension_data: { is_assigned: true },
+                },
+            ]),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2169,21 +2216,23 @@ describe('BookingFormService', () => {
             }
             return undefined;
         });
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                metadata: {
-                    desks: {
-                        details: [
-                            {
-                                id: 'assigned-desk',
-                                assigned_to: currentUser().email,
-                            },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    metadata: {
+                        desks: {
+                            details: [
+                                {
+                                    id: 'assigned-desk',
+                                    assigned_to: currentUser().email,
+                                },
+                            ],
+                        },
                     },
+                    zone: { id: 'lvl-1' },
                 },
-                zone: { id: 'lvl-1' },
-            },
-        ] as any);
+            ] as any),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2223,11 +2272,10 @@ describe('BookingFormService', () => {
     it('should clear saved host changes after a permission error', async () => {
         const current_user = currentUser();
         (spectator.inject(PaymentsService) as any).enabled = false;
-        // saveBooking -> createBooking -> post; reject it to simulate a 403.
-        vi.mocked(ts_client.post).mockImplementation((async (url: string) => {
-            if (url.includes('/clashing-assets')) return [];
-            throw { status: 403, error: 'Forbidden' };
-        }) as any);
+        // Reject the create call to simulate a 403.
+        vi.mocked(bookings.create).mockResolvedValue(
+            httpFailure(403, { error: 'Forbidden' }),
+        );
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2263,10 +2311,9 @@ describe('BookingFormService', () => {
 
     it('should keep the selected desk in the form when the save fails', async () => {
         // The confirm sheet reads `booking_asset` when the user tries again
-        vi.mocked(ts_client.post).mockImplementation((async (url: string) => {
-            if (url.includes('/clashing-assets')) return [];
-            throw { status: 504, error: 'Gateway Timeout' };
-        }) as any);
+        vi.mocked(bookings.create).mockResolvedValue(
+            httpFailure(504, { error: 'Gateway Timeout' }),
+        );
         spectator.service.newForm('desk');
         const desk = { id: 'desk-1', name: 'Desk 1', zones: ['lvl-1'] };
         spectator.service.model.update((m) => ({
@@ -2283,6 +2330,28 @@ describe('BookingFormService', () => {
         });
 
         expect(spectator.service.model().booking_asset).toEqual(desk);
+    });
+
+    it('should keep the explanation of the server when a save fails', async () => {
+        (spectator.inject(PaymentsService) as any).enabled = false;
+        // The server explains the failure in `message`, not `error`
+        vi.mocked(bookings.create).mockResolvedValue(
+            httpFailure(409, { message: 'Desk already booked' }),
+        );
+        spectator.service.newForm(
+            'desk',
+            new Booking({
+                booking_type: 'desk',
+                date: Date.now() + 60 * 60 * 1000,
+                duration: 60,
+                asset_id: 'desk-1',
+            }),
+        );
+
+        await expect(spectator.service.postForm(true)).rejects.toEqual({
+            message: 'Desk already booked',
+            status: 409,
+        });
     });
 
     it('should post current-day all-day bookings from the all-day period start', async () => {
@@ -2318,7 +2387,6 @@ describe('BookingFormService', () => {
                 booking_end: Math.floor(
                     new Date(2026, 2, 20, 17, 0, 0, 0).valueOf() / 1000,
                 ),
-                date_end: new Date(2026, 2, 20, 17, 0, 0, 0).valueOf(),
             });
         } finally {
             vi.useRealTimers();
@@ -2637,15 +2705,15 @@ describe('BookingFormService', () => {
         expect(savedBookings().length).toBe(1);
         expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
+                // `asset_name` and `type` are not in the staff schema, so
+                // the request body does not have them
                 booking_type: 'group',
-                asset_name: 'Group Booking',
-                type: 'group',
             }),
         );
         expect(
             (savedBookings()[0] as Booking).extension_data.group_resource_type,
         ).toBe('desk');
-        expect(child_parent_ids).toEqual(['booking-group', 'booking-group']);
+        expect(child_parent_ids).toEqual(['9001', '9001']);
     });
 
     it('should complete desk group bookings with child errors when rollback is disabled', async () => {
@@ -2695,25 +2763,18 @@ describe('BookingFormService', () => {
             '_checkResourceAvailable',
         ).mockResolvedValue(true);
         const saved_users: string[] = [];
-        vi.mocked(ts_client.post).mockImplementation((async (
-            url: string,
-            body: unknown,
-        ) => {
-            if (url.includes('/clashing-assets')) return [];
-            const value = body as ReturnType<Booking['toJSON']>;
-            if (value.type === 'group')
-                return { ...value, id: 'booking-group' };
-            saved_users.push(value.user_email);
-            if (value.user_email === 'member.one@example.com') {
-                throw new Response(
-                    JSON.stringify({ error: 'Member refused' }),
-                    {
-                        status: 409,
-                    },
-                );
+        vi.mocked(bookings.create).mockImplementation(async ({ body }) => {
+            if (body.booking_type === 'group') {
+                return mockReply(staffBooking({ ...body, id: GROUP_ID }));
             }
-            return { ...value, id: `booking-child-${saved_users.length}` };
-        }) as unknown as typeof ts_client.post);
+            saved_users.push(body.user_email);
+            if (body.user_email === 'member.one@example.com') {
+                return httpFailure(409, { error: 'Member refused' });
+            }
+            return mockReply(
+                staffBooking({ ...body, id: `910${saved_users.length}` }),
+            );
+        });
         spectator.service.newForm(
             'desk',
             new Booking({
@@ -2758,11 +2819,11 @@ describe('BookingFormService', () => {
             'member.one@example.com',
             'member.two@example.com',
         ]);
-        expect(ts_client.del).not.toHaveBeenCalled();
+        expect(bookings.destroy).not.toHaveBeenCalled();
         expect(spectator.service.view()).toBe('success');
         expect(
             JSON.parse(localStorage.getItem('PLACEOS.last_group_booking_ids')),
-        ).toEqual(['booking-group', 'booking-child-1', 'booking-child-3']);
+        ).toEqual(['9001', '9101', '9103']);
         expect(
             JSON.parse(
                 localStorage.getItem('PLACEOS.last_group_booking_errors'),
@@ -2917,7 +2978,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'desk',
             new Booking({
-                id: 'booking-parent',
+                id: '9002',
                 booking_type: 'desk',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -2929,7 +2990,7 @@ describe('BookingFormService', () => {
         );
         spectator.service.model.update((m) => ({
             ...m,
-            id: 'booking-parent',
+            id: '9002',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -2955,15 +3016,15 @@ describe('BookingFormService', () => {
 
         await spectator.service.editFormForGroup([
             new Booking({
-                id: 'booking-parent',
+                id: '9002',
                 booking_type: 'desk',
                 user_email: currentUser().email,
                 asset_id: 'desk-1',
                 asset_name: 'Desk 1',
             }),
             new Booking({
-                id: 'booking-child',
-                parent_id: 'booking-parent',
+                id: '9010',
+                parent_id: '9002',
                 booking_type: 'desk',
                 user_email: 'member.one@example.com',
                 asset_id: 'desk-2',
@@ -3022,8 +3083,8 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'desk',
             new Booking({
-                id: 'booking-current-child',
-                parent_id: 'booking-group',
+                id: '9006',
+                parent_id: '9001',
                 booking_type: 'desk',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3041,8 +3102,8 @@ describe('BookingFormService', () => {
         );
         spectator.service.model.update((m) => ({
             ...m,
-            id: 'booking-current-child',
-            parent_id: 'booking-group',
+            id: '9006',
+            parent_id: '9001',
             asset_id: 'desk-1',
             asset_name: 'Desk 1',
             map_id: 'map-1',
@@ -3064,8 +3125,8 @@ describe('BookingFormService', () => {
 
         await spectator.service.editFormForGroup([
             new Booking({
-                id: 'booking-current-child',
-                parent_id: 'booking-group',
+                id: '9006',
+                parent_id: '9001',
                 booking_type: 'desk',
                 user_email: currentUser().email,
                 asset_id: 'desk-1',
@@ -3076,17 +3137,16 @@ describe('BookingFormService', () => {
         expect(savedBookings().length).toBe(1);
         expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
-                id: 'booking-group',
+                id: '9001',
                 booking_type: 'group',
-                type: 'group',
             }),
         );
         expect(
             (savedBookings()[0] as Booking).extension_data.group_members,
         ).toHaveLength(2);
         expect(saved_forms).toEqual([
-            { id: 'booking-current-child', parent_id: 'booking-group' },
-            { id: '', parent_id: 'booking-group' },
+            { id: '9006', parent_id: '9001' },
+            { id: '', parent_id: '9001' },
         ]);
     });
 
@@ -3232,14 +3292,14 @@ describe('BookingFormService', () => {
                     ...value,
                     id:
                         value.asset_id === 'visitor.one@example.com'
-                            ? 'booking-parent'
-                            : 'booking-child',
+                            ? '9002'
+                            : '9010',
                 } as any);
             });
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'booking-parent',
+                id: '9002',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3249,7 +3309,7 @@ describe('BookingFormService', () => {
         );
         spectator.service.model.update((m) => ({
             ...m,
-            id: 'booking-parent',
+            id: '9002',
             booking_type: 'visitor',
             title: 'Vendor Visit',
             asset_id: 'visitor.one@example.com',
@@ -3275,13 +3335,13 @@ describe('BookingFormService', () => {
 
         await spectator.service.editFormForGroup([
             new Booking({
-                id: 'booking-parent',
+                id: '9002',
                 asset_id: 'visitor.one@example.com',
                 booking_type: 'visitor',
             }),
             new Booking({
-                id: 'booking-child',
-                parent_id: 'booking-parent',
+                id: '9010',
+                parent_id: '9002',
                 asset_id: 'visitor.two@example.com',
                 booking_type: 'visitor',
             }),
@@ -3318,7 +3378,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'booking-removed',
+                id: '9004',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3343,13 +3403,13 @@ describe('BookingFormService', () => {
 
         await spectator.service.editFormForGroup([
             new Booking({
-                id: 'booking-removed',
+                id: '9004',
                 booking_type: 'visitor',
                 asset_id: 'removed@example.com',
                 asset_name: 'Removed Visitor',
             }),
             new Booking({
-                id: 'booking-retained',
+                id: '9008',
                 booking_type: 'visitor',
                 asset_id: 'retained@example.com',
                 asset_name: 'Retained Visitor',
@@ -3359,9 +3419,9 @@ describe('BookingFormService', () => {
         expect(savedBookings()).toHaveLength(2);
         expect(savedBookings()[0]).toEqual(
             expect.objectContaining({
+                // `asset_name` and `type` are not in the staff schema, so
+                // the request body does not have them
                 booking_type: 'group',
-                asset_name: 'Group Booking',
-                type: 'group',
             }),
         );
         expect(
@@ -3374,56 +3434,57 @@ describe('BookingFormService', () => {
         ).toEqual(['retained@example.com', 'new@example.com']);
         expect(saved_forms).toEqual([
             {
-                id: 'booking-retained',
-                parent_id: 'booking-group',
+                id: '9008',
+                parent_id: '9001',
                 asset_id: 'retained@example.com',
                 asset_name: 'Retained Visitor',
             },
             {
                 id: '',
-                parent_id: 'booking-group',
+                parent_id: '9001',
                 asset_id: 'new@example.com',
                 asset_name: 'New Visitor',
             },
         ]);
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/booking-removed?'),
-            expect.anything(),
+        expect(bookings.destroy).toHaveBeenCalledWith(
+            expect.objectContaining({ id: 9004 }),
         );
     });
 
     it('should load unlinked visitor group siblings by their `grp-` description', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {
-                id: 'booking-one',
-                type: 'visitor',
-                description: 'grp-abc12345',
-                asset_id: 'visitor.one@example.com',
-            },
-            {
-                id: 'booking-two',
-                type: 'visitor',
-                description: 'grp-abc12345',
-                asset_id: 'visitor.two@example.com',
-            },
-            {
-                id: 'booking-other',
-                type: 'visitor',
-                description: 'grp-zzz99999',
-                asset_id: 'visitor.three@example.com',
-            },
-            {
-                id: 'booking-single',
-                type: 'visitor',
-                description: 'Vendor Visit',
-                asset_id: 'visitor.four@example.com',
-            },
-        ] as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: '9003',
+                    type: 'visitor',
+                    description: 'grp-abc12345',
+                    asset_id: 'visitor.one@example.com',
+                },
+                {
+                    id: '9007',
+                    type: 'visitor',
+                    description: 'grp-abc12345',
+                    asset_id: 'visitor.two@example.com',
+                },
+                {
+                    id: '9021',
+                    type: 'visitor',
+                    description: 'grp-zzz99999',
+                    asset_id: 'visitor.three@example.com',
+                },
+                {
+                    id: '9019',
+                    type: 'visitor',
+                    description: 'Vendor Visit',
+                    asset_id: 'visitor.four@example.com',
+                },
+            ]),
+        );
         spectator.service.setOptions({ type: 'visitor' });
 
         const siblings = await spectator.service.loadGroupSiblings(
             new Booking({
-                id: 'booking-one',
+                id: '9003',
                 booking_type: 'visitor',
                 description: 'grp-abc12345',
                 date: Date.now() + 60 * 60 * 1000,
@@ -3431,43 +3492,42 @@ describe('BookingFormService', () => {
             }),
         );
 
-        expect(siblings.map((_) => _.id)).toEqual([
-            'booking-one',
-            'booking-two',
-        ]);
+        expect(siblings.map((_) => _.id)).toEqual(['9003', '9007']);
     });
 
     it('should load unlinked visitor group siblings by their shared group reference', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            {
-                id: 'booking-one',
-                type: 'visitor',
-                asset_id: 'visitor.one@example.com',
-                extension_data: { group: 'host@example.com[2026-07-28]' },
-            },
-            {
-                id: 'booking-two',
-                type: 'visitor',
-                asset_id: 'visitor.two@example.com',
-                extension_data: { group: 'host@example.com[2026-07-28]' },
-            },
-            {
-                id: 'booking-other-group',
-                type: 'visitor',
-                asset_id: 'visitor.three@example.com',
-                extension_data: { group: 'host@example.com[2026-07-29]' },
-            },
-            {
-                id: 'booking-ungrouped',
-                type: 'visitor',
-                asset_id: 'visitor.four@example.com',
-            },
-        ] as any);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([
+                {
+                    id: '9003',
+                    type: 'visitor',
+                    asset_id: 'visitor.one@example.com',
+                    extension_data: { group: 'host@example.com[2026-07-28]' },
+                },
+                {
+                    id: '9007',
+                    type: 'visitor',
+                    asset_id: 'visitor.two@example.com',
+                    extension_data: { group: 'host@example.com[2026-07-28]' },
+                },
+                {
+                    id: '9020',
+                    type: 'visitor',
+                    asset_id: 'visitor.three@example.com',
+                    extension_data: { group: 'host@example.com[2026-07-29]' },
+                },
+                {
+                    id: '9018',
+                    type: 'visitor',
+                    asset_id: 'visitor.four@example.com',
+                },
+            ]),
+        );
         spectator.service.setOptions({ type: 'visitor' });
 
         const siblings = await spectator.service.loadGroupSiblings(
             new Booking({
-                id: 'booking-one',
+                id: '9003',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3475,17 +3535,14 @@ describe('BookingFormService', () => {
             }),
         );
 
-        expect(siblings.map((_) => _.id)).toEqual([
-            'booking-one',
-            'booking-two',
-        ]);
+        expect(siblings.map((_) => _.id)).toEqual(['9003', '9007']);
     });
 
     it('should exclude removed visitors when reopening a group', async () => {
         spectator.service.setOptions({ type: 'visitor' });
         const retained = new Booking({
-            id: 'visitor-retained',
-            parent_id: 'visitor-group',
+            id: '9012',
+            parent_id: '9014',
             booking_type: 'visitor',
             asset_id: 'retained@example.com',
             date: new Date('2026-09-10T09:00:00Z').valueOf(),
@@ -3493,13 +3550,13 @@ describe('BookingFormService', () => {
         });
         const removed = new Booking({
             ...retained.toJSON(),
-            id: 'visitor-removed',
+            id: '9013',
             asset_id: 'removed@example.com',
             deleted: true,
         });
-        (
-            ts_client.get as unknown as Mock<() => Promise<Booking[]>>
-        ).mockResolvedValue([retained, removed]);
+        vi.mocked(bookings.query).mockResolvedValue(
+            bookingPage([retained.toJSON(), removed.toJSON()]),
+        );
 
         const members =
             await spectator.service.loadGroupMembersForBooking(retained);
@@ -3514,7 +3571,7 @@ describe('BookingFormService', () => {
 
         await spectator.service.loadGroupSiblings(
             new Booking({
-                id: 'booking-one',
+                id: '9003',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3523,16 +3580,16 @@ describe('BookingFormService', () => {
             }),
         );
 
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining('include_booked_by=true'),
+        expect(bookings.query).toHaveBeenCalledWith(
+            expect.objectContaining({ include_booked_by: true }),
         );
     });
 
     it('should use the stored period when loading siblings after the booking period changes', async () => {
         const original_date = new Date('2026-09-10T09:00:00.000Z').valueOf();
         const booking = new Booking({
-            id: 'booking-one',
-            parent_id: 'booking-group',
+            id: '9003',
+            parent_id: '9001',
             booking_type: 'desk',
             date: original_date,
             duration: 60,
@@ -3555,13 +3612,11 @@ describe('BookingFormService', () => {
             }),
         );
 
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining(`period_start=${original_date / 1000}`),
-        );
-        expect(ts_client.get).toHaveBeenCalledWith(
-            expect.stringContaining(
-                `period_end=${original_date / 1000 + 60 * 60}`,
-            ),
+        expect(bookings.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                period_start: original_date / 1000,
+                period_end: original_date / 1000 + 60 * 60,
+            }),
         );
     });
 
@@ -3578,8 +3633,8 @@ describe('BookingFormService', () => {
             email: 'retained@example.com',
         });
         const booking = new Booking({
-            id: 'booking-removed',
-            parent_id: 'booking-group',
+            id: '9004',
+            parent_id: '9001',
             booking_type: 'visitor',
             date: Date.now() + 60 * 60 * 1000,
             duration: 60,
@@ -3608,31 +3663,32 @@ describe('BookingFormService', () => {
             booking,
             new Booking({
                 ...booking.toJSON(),
-                id: 'booking-retained',
+                id: '9008',
                 asset_id: retained.email,
                 asset_name: retained.name,
             }),
         ]);
 
-        expect(ts_client.patch).toHaveBeenCalledWith(
-            '/api/staff/v1/bookings/booking-removed',
+        expect(bookings.update).toHaveBeenCalledWith(
             expect.objectContaining({
-                extension_data: expect.objectContaining({
-                    removed_from_group: true,
+                id: 9004,
+                body: expect.objectContaining({
+                    extension_data: expect.objectContaining({
+                        removed_from_group: true,
+                    }),
                 }),
             }),
         );
-        expect(ts_client.del).toHaveBeenCalledWith(
-            '/api/staff/v1/events/calendar%2Fevent-id/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
+        expect(events.deleteAttendee).toHaveBeenCalledExactlyOnceWith({
+            id: 'calendar/event-id',
+            email: 'removed@example.com',
+            system_id: 'sys-room',
+            calendar: 'room@example.com',
+        });
+        expect(bookings.destroy).toHaveBeenCalledExactlyOnceWith(
+            expect.objectContaining({ id: 9004 }),
         );
-        expect(ts_client.del).toHaveBeenCalledWith(
-            expect.stringContaining('/booking-removed?'),
-            expect.anything(),
-        );
-        expect(ts_client.del).toHaveBeenCalledTimes(2);
-        const group = savedBookings().find(
-            (item) => item.id === 'booking-group',
-        );
+        const group = savedBookings().find((item) => item.id === '9001');
         expect(group.attendees.map((attendee) => attendee.email)).toEqual([
             retained.email,
         ]);
@@ -3641,9 +3697,7 @@ describe('BookingFormService', () => {
                 (member: User) => member.email,
             ),
         ).toEqual([retained.email]);
-        const visitor = savedBookings().find(
-            (item) => item.id === 'booking-retained',
-        );
+        const visitor = savedBookings().find((item) => item.id === '9008');
         expect(visitor.attendees.map((attendee) => attendee.email)).toEqual([
             retained.email,
         ]);
@@ -3651,8 +3705,8 @@ describe('BookingFormService', () => {
 
     it('should restore the removal marker if cancelling a removed visitor fails', async () => {
         const booking = new Booking({
-            id: 'booking-removed',
-            parent_id: 'booking-group',
+            id: '9004',
+            parent_id: '9001',
             booking_type: 'visitor',
             asset_id: 'removed@example.com',
         });
@@ -3663,27 +3717,29 @@ describe('BookingFormService', () => {
             members: [new User({ email: 'retained@example.com' })],
         });
         const error = new Error('Booking cancellation failed');
-        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+        vi.mocked(bookings.destroy).mockRejectedValueOnce(error);
 
         await expect(
             spectator.service.editFormForGroup([booking]),
         ).rejects.toThrow(error);
 
-        expect(ts_client.patch).toHaveBeenLastCalledWith(
-            '/api/staff/v1/bookings/booking-removed',
+        expect(bookings.update).toHaveBeenLastCalledWith(
             expect.objectContaining({
-                extension_data: expect.objectContaining({
-                    removed_from_group: false,
+                id: 9004,
+                body: expect.objectContaining({
+                    extension_data: expect.objectContaining({
+                        removed_from_group: false,
+                    }),
                 }),
             }),
         );
-        expect(ts_client.patch).toHaveBeenCalledTimes(2);
+        expect(bookings.update).toHaveBeenCalledTimes(2);
     });
 
     it('should leave the visitor booking active if linked event removal fails', async () => {
         const booking = new Booking({
-            id: 'booking-removed',
-            parent_id: 'booking-group',
+            id: '9004',
+            parent_id: '9001',
             booking_type: 'visitor',
             asset_id: 'removed@example.com',
             linked_event: {
@@ -3704,15 +3760,19 @@ describe('BookingFormService', () => {
             members: [new User({ email: 'retained@example.com' })],
         });
         const error = new Error('Event update failed');
-        vi.mocked(ts_client.del).mockRejectedValueOnce(error);
+        vi.mocked(events.deleteAttendee).mockRejectedValueOnce(error);
 
         await expect(
             spectator.service.editFormForGroup([booking]),
         ).rejects.toThrow(error);
 
-        expect(ts_client.del).toHaveBeenCalledExactlyOnceWith(
-            '/api/staff/v1/events/linked-event/attendee/removed%40example.com?system_id=sys-room&calendar=room%40example.com',
-        );
+        expect(events.deleteAttendee).toHaveBeenCalledExactlyOnceWith({
+            id: 'linked-event',
+            email: 'removed@example.com',
+            system_id: 'sys-room',
+            calendar: 'room@example.com',
+        });
+        expect(bookings.destroy).not.toHaveBeenCalled();
         expect(savedBookings()).toEqual([]);
     });
 
@@ -3735,9 +3795,9 @@ describe('BookingFormService', () => {
         vi.spyOn(
             spectator.service as any,
             'createGroupContainerBooking',
-        ).mockResolvedValue(new Booking({ id: 'group-1' }));
+        ).mockResolvedValue(new Booking({ id: '9017' }));
         vi.spyOn(spectator.service, 'postForm')
-            .mockResolvedValueOnce(new Booking({ id: 'visitor-1' }))
+            .mockResolvedValueOnce(new Booking({ id: '9016' }))
             .mockRejectedValueOnce('Refused');
 
         await expect(
@@ -3803,7 +3863,8 @@ describe('BookingFormService', () => {
                     (booking) =>
                         booking.extension_data.group ===
                             parents[index].asset_id &&
-                        booking.parent_id === 'booking-group',
+                        // The staff API reads `parent_id` as an integer
+                        Number(booking.parent_id) === 9001,
                 ),
             ).toBe(true);
         }
@@ -3821,8 +3882,8 @@ describe('BookingFormService', () => {
             );
             const member = new User({ email: 'alice@example.com' });
             const booking = new Booking({
-                id: 'booking-alice',
-                parent_id: 'booking-group',
+                id: '9023',
+                parent_id: '9001',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3840,13 +3901,14 @@ describe('BookingFormService', () => {
 
             expect(savedBookings()).toEqual([
                 expect.objectContaining({
-                    id: 'booking-group',
+                    id: '9001',
                     asset_id: group,
                     extension_data: expect.objectContaining({ group }),
                 }),
                 expect.objectContaining({
                     id: booking.id,
-                    parent_id: booking.parent_id,
+                    // The staff API reads `parent_id` as an integer
+                    parent_id: Number(booking.parent_id),
                     asset_id: member.email,
                     extension_data: expect.objectContaining({ group }),
                 }),
@@ -3859,8 +3921,8 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'visitor',
             new Booking({
-                id: 'booking-one',
-                parent_id: 'booking-group',
+                id: '9003',
+                parent_id: '9001',
                 booking_type: 'visitor',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -3888,15 +3950,15 @@ describe('BookingFormService', () => {
 
         await spectator.service.editFormForGroup([
             new Booking({
-                id: 'booking-one',
-                parent_id: 'booking-group',
+                id: '9003',
+                parent_id: '9001',
                 booking_type: 'visitor',
                 asset_id: 'visitor.one@example.com',
                 asset_name: 'Visitor One',
             }),
             new Booking({
-                id: 'booking-two',
-                parent_id: 'booking-group',
+                id: '9007',
+                parent_id: '9001',
                 booking_type: 'visitor',
                 asset_id: 'visitor.two@example.com',
                 asset_name: 'Visitor Two',
@@ -3920,7 +3982,7 @@ describe('BookingFormService', () => {
         spectator.service.newForm(
             'desk',
             new Booking({
-                id: 'booking-desk',
+                id: '9022',
                 booking_type: 'desk',
                 date: Date.now() + 60 * 60 * 1000,
                 duration: 60,
@@ -4233,7 +4295,7 @@ describe('BookingFormService', () => {
                 spectator.service.newForm(
                     'desk',
                     new Booking({
-                        id: 'bkn-1',
+                        id: '9005',
                         booking_type: 'desk',
                         title: 'From the booking',
                         asset_id: 'desk-1',
@@ -4255,28 +4317,29 @@ describe('BookingFormService', () => {
     });
 
     describe('asset request failures', () => {
-        /** Booking ids passed to removeBooking (-> del /bookings/<id>). */
+        /** Booking ids sent to the destroy operation (removeBooking). */
         const deletedBookingIds = () =>
             vi
-                .mocked(ts_client.del)
-                .mock.calls.map(([url]) => url)
-                .filter((url) => url.startsWith(`${BOOKINGS_ENDPOINT}/`))
-                .map((url) => url.split('/').pop().split('?')[0]);
+                .mocked(bookings.destroy)
+                .mock.calls.map(([input]) => `${input.id}`);
 
         /**
-         * Post handler that assigns an id to created bookings, and fails the
-         * `asset-request` records posted after the desk booking when `error`
-         * is given.
+         * Create handler that assigns an id to created bookings, and fails the
+         * `asset-request` records created after the desk booking with the
+         * HTTP `status` and `message` when given.
          */
-        const postBookings = (error?: unknown) =>
-            vi
-                .mocked(ts_client.post)
-                .mockImplementation(async (url: string, body: any) => {
-                    if (url.includes('/clashing-assets'))
-                        return [...clash_result];
-                    if (error && body?.type === 'asset-request') throw error;
-                    return body?.id ? body : { ...body, id: 'booking-1' };
-                });
+        const postBookings = (status?: number, message?: string) =>
+            vi.mocked(bookings.create).mockImplementation(async ({ body }) => {
+                if (status && body?.booking_type === 'asset-request') {
+                    return httpFailure(
+                        status,
+                        message ? { error: message } : {},
+                    );
+                }
+                return mockReply(
+                    staffBooking(body?.id ? body : { ...body, id: 9009 }),
+                );
+            });
 
         const useDeskFormWithAssets = (booking?: Booking) => {
             spectator.service.newForm('desk', booking);
@@ -4304,33 +4367,50 @@ describe('BookingFormService', () => {
             (spectator.inject(PaymentsService) as any).enabled = false;
             // Asset group availability is resolved from the asset APIs before
             // the requests are posted.
-            vi.mocked(ts_client.queryAssetTypes).mockResolvedValue({
-                data: [{ id: 'asset-type-1', name: 'Monitors' }],
-                next: null,
-                total: 1,
-            } as any);
-            vi.mocked(ts_client.queryAssets).mockResolvedValue({
-                data: [
-                    {
-                        id: 'asset-1',
-                        asset_type_id: 'asset-type-1',
-                    },
-                ],
-                next: null,
-                total: 1,
-            } as any);
+            vi.mocked(ts_client.asset_categories.query).mockResolvedValue(
+                mockPage({
+                    data: [{ id: 'category-1', name: 'AV' }],
+                    next: null,
+                    total: 1,
+                } as any),
+            );
+            vi.mocked(ts_client.asset_types.query).mockResolvedValue(
+                mockPage({
+                    data: [
+                        {
+                            id: 'asset-type-1',
+                            name: 'Monitors',
+                            category_id: 'category-1',
+                        },
+                    ],
+                    next: null,
+                    total: 1,
+                } as any),
+            );
+            vi.mocked(ts_client.assets.query).mockResolvedValue(
+                mockPage({
+                    data: [
+                        {
+                            id: 'asset-1',
+                            asset_type_id: 'asset-type-1',
+                        },
+                    ],
+                    next: null,
+                    total: 1,
+                } as any),
+            );
             postBookings();
         });
 
         it('should remove the new booking when its asset requests fail', async () => {
-            postBookings({ status: 422, error: 'Asset unavailable' });
+            postBookings(422, 'Asset unavailable');
             useDeskFormWithAssets();
 
             await expect(spectator.service.postForm(true)).rejects.toBe(
                 'Asset unavailable',
             );
 
-            expect(deletedBookingIds()).toEqual(['booking-1']);
+            expect(deletedBookingIds()).toEqual(['9009']);
         });
 
         it('should release the payment when the asset requests fail', async () => {
@@ -4342,7 +4422,7 @@ describe('BookingFormService', () => {
                 release: vi.fn(async (_: unknown, e: unknown) => e),
             };
             Object.assign(spectator.inject(PaymentsService), payments);
-            postBookings({ status: 422, error: 'Asset unavailable' });
+            postBookings(422, 'Asset unavailable');
             useDeskFormWithAssets();
 
             await expect(spectator.service.postForm(true)).rejects.toBe(
@@ -4357,29 +4437,24 @@ describe('BookingFormService', () => {
         });
 
         it('should report an asset clash instead of the desk being unavailable', async () => {
-            postBookings({ status: 409 });
+            postBookings(409);
             useDeskFormWithAssets();
 
             await expect(spectator.service.postForm(true)).rejects.toBe(
                 i18n('BOOKINGS.ASSETS_CLASH_ERROR'),
             );
 
-            expect(deletedBookingIds()).toEqual(['booking-1']);
+            expect(deletedBookingIds()).toEqual(['9009']);
         });
 
         it('should keep an existing booking when its asset requests fail', async () => {
-            postBookings({ status: 422, error: 'Asset unavailable' });
-            for (const method of [ts_client.patch, ts_client.put]) {
-                vi.mocked(method).mockImplementation(
-                    async (_url: string, body: any) => ({
-                        ...body,
-                        id: 'bkn-1',
-                    }),
-                );
-            }
+            postBookings(422, 'Asset unavailable');
+            vi.mocked(bookings.update).mockImplementation(async ({ body }) =>
+                mockReply(staffBooking({ ...body, id: 9005 })),
+            );
             useDeskFormWithAssets(
                 new Booking({
-                    id: 'bkn-1',
+                    id: '9005',
                     booking_type: 'desk',
                     asset_id: 'desk-1',
                 }),
@@ -4398,7 +4473,7 @@ describe('BookingFormService', () => {
             await spectator.service.postForm(true);
 
             expect(
-                savedBookings().some((_) => _.type === 'asset-request'),
+                savedBookings().some((_) => _.booking_type === 'asset-request'),
             ).toBe(true);
             expect(deletedBookingIds()).toEqual([]);
         });

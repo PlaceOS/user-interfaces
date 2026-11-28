@@ -11,6 +11,7 @@ import { OrganisationService, SettingsService } from '@placeos/common';
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 
 import { SpacesService } from '../lib/spaces.service';
 
@@ -57,15 +58,17 @@ describe('SpacesService', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         settings_get.mockReturnValue(undefined);
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: systems,
-        } as never);
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: systems,
+            } as never),
+        );
     });
 
     it('should list only the organisation spaces that are on a map', async () => {
         await loadService();
-        expect(ts_client.querySystems).toHaveBeenCalledWith({
-            zone_id: 'org-1',
+        expect(ts_client.systems.query).toHaveBeenCalledWith({
+            zone_id: ['org-1'],
             limit: 5000,
         });
         expect(spectator.service.all_spaces()).toHaveLength(3);
@@ -84,14 +87,16 @@ describe('SpacesService', () => {
     });
 
     it('should list each feature of the mapped spaces once and leave out blank ones', async () => {
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                { ...systems[0], features: ['tv', ' ', 'whiteboard'] },
-                { ...systems[1], features: ['tv', ''] },
-                // Spaces without a map ID are not listed
-                { ...systems[2], features: ['phone'] },
-            ],
-        } as never);
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { ...systems[0], features: ['tv', ' ', 'whiteboard'] },
+                    { ...systems[1], features: ['tv', ''] },
+                    // Spaces without a map ID are not listed
+                    { ...systems[2], features: ['phone'] },
+                ],
+            } as never),
+        );
 
         await loadService();
 
@@ -108,13 +113,13 @@ describe('SpacesService', () => {
             (key: string) => key === 'app.prevent_space_init',
         );
         await loadService();
-        expect(ts_client.querySystems).not.toHaveBeenCalled();
+        expect(ts_client.systems.query).not.toHaveBeenCalled();
         expect(spectator.service.list()).toEqual([]);
     });
 
     it('should log a failed space load and keep the service uninitialised', async () => {
         const error = new TypeError('Load failed');
-        vi.mocked(ts_client.querySystems).mockRejectedValue(error);
+        vi.mocked(ts_client.systems.query).mockRejectedValue(error);
         const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
         spectator = createService();
         TestBed.tick();

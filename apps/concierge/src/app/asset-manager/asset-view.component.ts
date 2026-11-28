@@ -31,7 +31,8 @@ import {
     SimpleTableComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { removeAsset, removeAssetPurchaseOrder } from '@placeos/ts-client';
+import { asset_purchase_orders, assets } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addMinutes } from 'date-fns';
 import { AssetLocationModalComponent } from './asset-location-modal.component';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -630,7 +631,7 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             {
                 loading: 'Deleting asset...',
                 action: async () => {
-                    await removeAsset(asset.id);
+                    await assets.destroy({ id: asset.id }).then(orThrow);
                     await removeAssetRequests(asset.id);
                 },
                 error: (e) => `Failed to delete asset. ${errorText(e)}`,
@@ -657,7 +658,10 @@ export class AssetViewComponent extends AsyncHandler implements OnInit {
             },
             {
                 loading: 'Deleting purchase order...',
-                action: () => removeAssetPurchaseOrder(asset.id),
+                action: () =>
+                    asset_purchase_orders
+                        .destroy({ id: asset.id })
+                        .then(orThrow),
                 error: (e) =>
                     `Failed to delete purchase order. ${errorText(e)}`,
             },

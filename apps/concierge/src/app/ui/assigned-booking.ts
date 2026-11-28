@@ -67,11 +67,9 @@ export async function clearAssignedBooking(
         ) {
             await removeBooking(booking.id);
         } else {
-            await updateBooking(
-                booking.id,
-                { recurrence_end: getUnixTime(endOfDay(subDays(now, 1))) },
-                'patch',
-            );
+            await updateBooking(booking.id, {
+                recurrence_end: getUnixTime(endOfDay(subDays(now, 1))),
+            });
         }
     }
 }

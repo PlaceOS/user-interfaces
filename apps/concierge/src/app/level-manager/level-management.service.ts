@@ -16,7 +16,8 @@ import {
     notifySuccess,
 } from '@placeos/common';
 import { requestSpacesForZone } from '@placeos/events';
-import { PlaceZone, removeZone } from '@placeos/ts-client';
+import { type Zone, zones } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { LevelModalComponent } from './level-modal.component';
 
 export interface LevelListOptions {
@@ -89,7 +90,7 @@ export class LevelManagementService {
         this._options.update((current) => ({ ...current, search }));
     }
 
-    public editLevel(level: PlaceZone = new PlaceZone()) {
+    public editLevel(level: Partial<Zone> = {}) {
         const ref = this._dialog.open(LevelModalComponent, {
             data: level,
         });
@@ -111,7 +112,7 @@ export class LevelManagementService {
             },
             {
                 loading: i18n('APP.CONCIERGE.LEVELS_REMOVE_LOADING'),
-                action: () => removeZone(level.id),
+                action: () => zones.destroy({ id: level.id }).then(orThrow),
                 error: (e) =>
                     i18n('APP.CONCIERGE.LEVELS_REMOVE_ERROR', {
                         error: errorText(e),

@@ -1,5 +1,6 @@
 import { BookingRuleDetails } from '../booking-rules';
 import { getItemWithKeys } from '../general';
+import type { ClassData } from '../types';
 
 ///////////////////////////////////////////////////////////////
 ////////////////////   Organisation   /////////////////////////
@@ -29,11 +30,11 @@ export class Organisation {
     /** Map of custom settings for the building */
     private _settings: Record<string, unknown>;
 
-    constructor(raw_data: Partial<OrganisationComplete> = {}) {
+    constructor(raw_data: ClassData<OrganisationComplete> = {}) {
         this.id = raw_data.id || '';
         this.name = raw_data.name || '';
         this.description = raw_data.description || '';
-        this.tags = raw_data.tags || [];
+        this.tags = [...(raw_data.tags || [])];
         this.count = raw_data.count || 0;
         this.children_count = raw_data.children_count || 0;
         this.capacity = raw_data.capacity || 0;
@@ -83,7 +84,7 @@ export class BuildingLevel {
     /** List of points of interest for the level */
     public readonly locations: readonly { id: string; name: string }[];
 
-    constructor(_data: Partial<BuildingLevel> = {}) {
+    constructor(_data: ClassData<BuildingLevel> = {}) {
         this.id = _data.id || '';
         this.parent_id = _data.parent_id || '';
         this.name = _data.name || '';
@@ -92,8 +93,8 @@ export class BuildingLevel {
         this.capacity = _data.capacity || 0;
         this.location = _data.location || '';
         this.locations = _data.locations || [];
-        this.tags = _data.tags || [];
-        this.images = _data.images || [];
+        this.tags = [...(_data.tags || [])];
+        this.images = [...(_data.images || [])];
         this.code = _data.code || '';
         const parts = this.display_name.split(' ');
         this.number = (
@@ -221,7 +222,7 @@ export class Building {
     /** Map of important phone numbers for the building */
     private _phone_numbers: Record<string, string>;
 
-    constructor(raw_data: Partial<BuildingComplete> = {}) {
+    constructor(raw_data: ClassData<BuildingComplete> = {}) {
         this.id = raw_data.id || '';
         this.parent_id = raw_data.parent_id || '';
         this.name = raw_data.name || '';
@@ -373,12 +374,12 @@ export class Region {
     /** Address of the region */
     public readonly address: string;
 
-    constructor(_data: Partial<Region>) {
+    constructor(_data: ClassData<Region>) {
         this.id = _data.id || '';
         this.name = _data.name || '';
         this.display_name = _data.display_name || '';
         this.timezone = _data.timezone || '';
-        this.images = _data.images || [];
+        this.images = [...(_data.images || [])];
         this.bindings = _data.bindings || {};
         this.address = _data.address || '';
     }

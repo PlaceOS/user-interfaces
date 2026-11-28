@@ -1,6 +1,7 @@
 import { effect, inject, Injectable, signal, untracked } from '@angular/core';
 import { OrganisationService } from '@placeos/common';
-import { querySystems } from '@placeos/ts-client';
+import { systems } from '@placeos/ts-client';
+import { orThrowPage } from '@placeos/ts-client/compat';
 import { inGroupScope } from './support-groups';
 import { SupportGroupsService } from './support-groups.service';
 
@@ -41,12 +42,15 @@ export class SupportService {
         if (scope && !scope.reachable.size) return this.loading.set(false);
         this.loading.set(true);
         await this._org.waitUntilInitialised();
-        const response = await querySystems({
-            ...(group_id
-                ? { group_id }
-                : { zone_id: this._org.organisation.id }),
-            limit: 5000,
-        }).catch(() => ({ data: [] as any[] }));
+        const response = await systems
+            .query({
+                ...(group_id
+                    ? { group_id }
+                    : { zone_id: [this._org.organisation.id] }),
+                limit: 5000,
+            })
+            .then(orThrowPage)
+            .catch(() => ({ data: [] as any[] }));
         if (load !== this._load_count) return;
         this.space_list.set(
             response.data

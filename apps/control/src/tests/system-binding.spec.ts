@@ -1,14 +1,13 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as client from '@placeos/ts-client';
+import type { JsonValue } from '@placeos/ts-client';
+import { startTestPlaceClient } from 'libs/components/src/tests/test-place-client';
 import { systemBinding } from '../app/system-binding';
 
 describe('systemBinding', () => {
     /** Status value for each system */
-    let values: Record<string, unknown>;
+    let values: Record<string, JsonValue>;
     /** Notifies the listener of a system that its value changed */
     let notify: Record<string, () => void>;
     /** Systems whose binding was released */
@@ -18,21 +17,14 @@ describe('systemBinding', () => {
         values = {};
         notify = {};
         released = [];
-        vi.mocked(client.getModule).mockImplementation(
-            (id: string) =>
-                ({
-                    variable: () => ({
-                        bind: () => () => released.push(`bind:${id}`),
-                        listen: () =>
-                            Object.assign(() => values[id], {
-                                subscribe: (cb: () => void) => {
-                                    notify[id] = cb;
-                                    return () => released.push(`sub:${id}`);
-                                },
-                            }),
-                    }),
-                }) as unknown as ReturnType<typeof client.getModule>,
-        );
+        const place = startTestPlaceClient();
+        place.bind.mockImplementation((target, listener) => {
+            const id = target.sys;
+            notify[id] = () => listener({ kind: 'value', value: values[id] });
+            // A known value goes to the listener at once
+            if (id in values) notify[id]();
+            return () => released.push(id);
+        });
     });
 
     const create = (id: string) => {
@@ -62,11 +54,11 @@ describe('systemBinding', () => {
         const { system_id, value } = create('sys-1');
         system_id.set('sys-2');
         TestBed.tick();
-        expect(released).toEqual(['sub:sys-1', 'bind:sys-1']);
+        expect(released).toEqual(['sys-1']);
         expect(value()).toBe(70);
         system_id.set('');
         TestBed.tick();
-        expect(released).toContain('bind:sys-2');
+        expect(released).toContain('sys-2');
         expect(value()).toBe(0);
     });
 });

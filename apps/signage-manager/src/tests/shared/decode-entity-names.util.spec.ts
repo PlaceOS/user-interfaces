@@ -1,8 +1,8 @@
-import { SignageMedia } from '@placeos/ts-client';
 import {
     decodeEntities,
     decodeEntityNames,
 } from '../../app/shared/decode-entity-names.util';
+import { signageMedia } from '../../app/signage-models';
 
 describe('decodeEntities', () => {
     it('decodes HTML entities', () => {
@@ -38,15 +38,13 @@ describe('decodeEntityNames', () => {
         expect(result.user.name).toBe('Tom & Jerry');
     });
 
-    // Edit and preview build the media address from these getters
-    it('keeps the class of the item, so its getters still work', () => {
+    it('keeps the other fields of the item', () => {
         const media = decodeEntityNames(
-            new SignageMedia({ name: 'R&amp;D', media_id: 'upload-1' }),
+            signageMedia({ name: 'R&amp;D', media_id: 'upload-1' }),
         );
 
-        expect(media).toBeInstanceOf(SignageMedia);
         expect(media.name).toBe('R&D');
-        expect(media.media_url).toBe('/api/engine/v2/uploads/upload-1/url');
+        expect(media.media_id).toBe('upload-1');
     });
 
     // Some items pass the data boundary twice, e.g. displays through queryAll

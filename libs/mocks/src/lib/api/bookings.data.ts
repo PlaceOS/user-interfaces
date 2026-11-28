@@ -89,12 +89,12 @@ const generateBookingForDay = (
         booked_by_name: user.name,
         booked_by_email: user.email,
         attendees: [],
-        checked_in: approved && predictableRandomInt(4) <= 2,
+        checked_in: approved !== 0 && predictableRandomInt(4) <= 2,
         rejected: predictableRandomInt(12) === 0,
         approved: approved !== 0,
         deleted: false,
         access: approved !== 0,
-        permission: type === 'group-event' ? 'OPEN' : 'PRIVATE',
+        permission: type === 'group-event' ? 'open' : 'private',
         approver_id: approved ? approver.id : '',
         approver_name: approved ? approver.name : '',
         approver_email: approved ? approver.email : '',
@@ -346,26 +346,24 @@ export const MOCK_CATERING_BOOKINGS = MOCK_EVENTS.flatMap((event) =>
                 location_id: space.id,
                 details: order,
             },
+            // The event metadata row of the staff API. `CalendarEvent`
+            // reads the event ID and the host from it.
             linked_event: {
-                id: event.id,
-                title: event.title,
+                event_id: event.id,
+                system_id: space.id,
+                resource_calendar: space.email,
+                host_email: event.host,
                 event_start: event.event_start,
                 event_end: event.event_end,
-                host: event.host,
-                system_id: space.id,
-                location: event.location,
-                // `CalendarEvent` finds the organiser from the attendees
-                attendees: [
-                    {
-                        id: host.id,
-                        name: host.name,
-                        email: host.email,
-                        organizer: true,
-                    },
-                ],
+                cancelled: false,
+                permission: 'private',
             },
         };
     }),
 )
     .sort((a, b) => a.booking_start - b.booking_start)
-    .map((booking, index) => ({ id: 10000 + index, ...booking }));
+    .map((booking, index) => ({
+        id: 10000 + index,
+        ...booking,
+        linked_event: { id: index + 1, ...booking.linked_event },
+    }));

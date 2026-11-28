@@ -6,6 +6,7 @@ import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { AssetGroupFormComponent } from '../../app/asset-manager/asset-group-form.component';
 import { AssetManagerStateService } from '../../app/asset-manager/asset-manager-state.service';
 
@@ -37,8 +38,10 @@ describe('AssetGroupFormComponent', () => {
 
     beforeEach(() => {
         edit_category = vi.fn(async () => null);
-        (ts_client.addAssetType as any).mockReset();
-        (ts_client.addAssetType as any).mockResolvedValue({ id: 'g-1' });
+        (ts_client.asset_types.create as any).mockReset();
+        (ts_client.asset_types.create as any).mockResolvedValue(
+            mockReply({ id: 'g-1' }),
+        );
         spectator = createComponent();
         spectator.component.model.set({
             id: '',
@@ -76,9 +79,9 @@ describe('AssetGroupFormComponent', () => {
     it('should save the product then navigate to its detail view', async () => {
         await spectator.component.save();
 
-        expect(ts_client.addAssetType).toHaveBeenCalledWith(
-            expect.objectContaining({ name: 'Desk', category_id: 'c1' }),
-        );
+        expect(ts_client.asset_types.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({ name: 'Desk', category_id: 'c1' }),
+        });
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/book/assets',
             'view',

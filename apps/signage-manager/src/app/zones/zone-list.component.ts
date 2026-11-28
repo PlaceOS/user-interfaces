@@ -19,12 +19,12 @@ import {
     LoadErrorComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { PlaceZone } from '@placeos/ts-client';
+import { type Zone } from '@placeos/ts-client';
 import { zoneSearchLabel } from '../shared/zone-select-tree.component';
 import { SignageZoneService } from './signage-zone.service';
 
 interface ZoneTreeNode {
-    zone: PlaceZone;
+    zone: Zone;
     children: ZoneTreeNode[];
     children_loaded: boolean;
     children_loading: boolean;
@@ -314,7 +314,7 @@ export class ZoneListComponent {
         return lookup;
     });
     public readonly children_lookup = computed(() => {
-        const lookup: Record<string, PlaceZone[]> = {};
+        const lookup: Record<string, Zone[]> = {};
         for (const zone of this._all_zones()) {
             if (!zone.parent_id) continue;
             lookup[zone.parent_id] ||= [];
@@ -424,13 +424,13 @@ export class ZoneListComponent {
         this.loadChildren(node.zone.id);
     }
 
-    public selectZone(zone: PlaceZone) {
+    public selectZone(zone: Zone) {
         this.search.set('');
         this.selected.set(zone);
     }
 
     /** Open a zone from the keyboard, as a click on its link does */
-    public openZone(zone: PlaceZone) {
+    public openZone(zone: Zone) {
         this.selectZone(zone);
         void this._router.navigate(['/zones', zone.id], {
             queryParamsHandling: 'merge',
@@ -442,7 +442,7 @@ export class ZoneListComponent {
         return this.childCount(node) > 0 && !this.isSearchScope(node.zone.id);
     }
 
-    public isExpanded(zone_or_node: ZoneTreeNode | PlaceZone | string) {
+    public isExpanded(zone_or_node: ZoneTreeNode | Zone | string) {
         const zone_id = this.getZoneId(zone_or_node);
         if (this.isSearchScope(zone_id)) return true;
         const expanded_zones = this.expanded_zones();
@@ -459,7 +459,7 @@ export class ZoneListComponent {
         return this.show_search_results() && this.selected()?.id === zone_id;
     }
 
-    public childCount(zone_or_id: ZoneTreeNode | PlaceZone | string) {
+    public childCount(zone_or_id: ZoneTreeNode | Zone | string) {
         if (typeof zone_or_id !== 'string' && 'children_loaded' in zone_or_id) {
             if (zone_or_id.children_loaded) {
                 return zone_or_id.children.length;
@@ -477,7 +477,7 @@ export class ZoneListComponent {
         return 0;
     }
 
-    private createNode(zone: PlaceZone): ZoneTreeNode {
+    private createNode(zone: Zone): ZoneTreeNode {
         const cached_children = this.cachedChildren(zone.id);
         const has_cached_children = this.hasUsableCachedChildren(
             zone.id,
@@ -520,14 +520,14 @@ export class ZoneListComponent {
         this.applyLoadedChildren(zone_id, children);
     }
 
-    private cacheChildren(zone_id: string, children: PlaceZone[]) {
+    private cacheChildren(zone_id: string, children: Zone[]) {
         this._children_cache.update((cache) => ({
             ...cache,
             [zone_id]: children,
         }));
     }
 
-    private applyLoadedChildren(zone_id: string, children: PlaceZone[]) {
+    private applyLoadedChildren(zone_id: string, children: Zone[]) {
         this.tree_nodes.update((nodes) =>
             this.updateNode(nodes, zone_id, (item) => ({
                 ...item,
@@ -543,7 +543,7 @@ export class ZoneListComponent {
      * Nodes for a list of zones, keeping the state of existing nodes.
      * Looks up existing nodes by id, as a zone can have thousands of children.
      */
-    private syncNodes(zones: PlaceZone[], existing_nodes: ZoneTreeNode[]) {
+    private syncNodes(zones: Zone[], existing_nodes: ZoneTreeNode[]) {
         const existing = new Map(
             existing_nodes.map((node) => [node.zone.id, node]),
         );
@@ -634,7 +634,7 @@ export class ZoneListComponent {
         }
     }
 
-    private getZoneId(zone_or_node: ZoneTreeNode | PlaceZone | string) {
+    private getZoneId(zone_or_node: ZoneTreeNode | Zone | string) {
         if (typeof zone_or_node === 'string') {
             return zone_or_node;
         }
@@ -650,8 +650,8 @@ export class ZoneListComponent {
 
     private hasUsableCachedChildren(
         zone_id: string,
-        cached_children: PlaceZone[] | null,
-    ): cached_children is PlaceZone[] {
+        cached_children: Zone[] | null,
+    ): cached_children is Zone[] {
         return (
             !!cached_children &&
             (cached_children.length > 0 || this.childCount(zone_id) === 0)

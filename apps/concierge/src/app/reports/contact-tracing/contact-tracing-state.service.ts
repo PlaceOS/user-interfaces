@@ -5,11 +5,11 @@ import {
     StaffUser,
     currentUser,
     downloadFile,
+    getModule,
     jsonToCsv,
     notifyError,
     notifyWarn,
 } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
 import { endOfDay, format, getUnixTime, startOfDay } from 'date-fns';
 import { ReportsStateService } from '../reports-state.service';
 import { GetUserPipe } from './get-user.pipe';
@@ -66,7 +66,14 @@ export class ContactTracingStateService {
                 return [];
             }
             try {
-                const list = await mod.execute('close_contacts', [
+                const list = await mod.execute<
+                    {
+                        mac_address: string;
+                        contact_time: number;
+                        duration: number;
+                        username: string;
+                    }[]
+                >('close_contacts', [
                     current_user.email,
                     current_user.username,
                     getUnixTime(start),

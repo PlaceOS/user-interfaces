@@ -314,7 +314,8 @@ export class VisitorsStateService extends AsyncHandler {
         const bookings = this.bookings() || [];
         const event_bookings = bookings.filter(
             (_) =>
-                _.parent_id === event_id ||
+                // The staff API sends a numeric parent ID
+                `${_.parent_id}` === event_id ||
                 _.extension_data.parent_id === event_id ||
                 _.linked_event?.id === event_id ||
                 _.linked_event?.event_id === event_id,

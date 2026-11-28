@@ -17,7 +17,9 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
-import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7, type System } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { showMetadata } from '../metadata';
 
 @Component({
     selector: 'room-alert-modal',
@@ -112,14 +114,14 @@ import { PlaceSystem, showMetadata, updateMetadata } from '@placeos/ts-client';
 })
 export class RoomAlertModalComponent {
     private _data = inject<{
-        room: PlaceSystem;
+        room: System;
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<RoomAlertModalComponent>>(MatDialogRef);
     private _org = inject(OrganisationService);
 
     public readonly loading = signal(false);
-    public readonly room: PlaceSystem = this._data.room;
+    public readonly room: System = this._data.room;
     public readonly model = signal({
         status: '',
         message: '',
@@ -155,20 +157,26 @@ export class RoomAlertModalComponent {
         } else {
             metadata.details[this.room.id] = [alert.status, alert.message];
         }
-        await updateMetadata(this._org.organisation.id, {
-            name: 'room_alerts',
-            details: metadata.details,
-            editors: metadata.editors || [],
-            description: 'Details for room alerts',
-        }).catch((e) => {
-            notifyError(
-                i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_ERROR', {
-                    error: e.message || e,
-                }),
-            );
-            this.loading.set(false);
-            throw e;
-        });
+        await metadata_v7
+            .update({
+                id: this._org.organisation.id,
+                body: {
+                    name: 'room_alerts',
+                    details: metadata.details,
+                    editors: metadata.editors || [],
+                    description: 'Details for room alerts',
+                },
+            })
+            .then(orThrow)
+            .catch((e) => {
+                notifyError(
+                    i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_ERROR', {
+                        error: e.message || e,
+                    }),
+                );
+                this.loading.set(false);
+                throw e;
+            });
         notifySuccess(i18n('APP.CONCIERGE.ROOMS_ALERT_SAVE_SUCCESS'));
         this._dialog_ref.close(true);
     }

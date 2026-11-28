@@ -134,10 +134,16 @@ export function notifyError(
     on_action?: () => void,
     config: Partial<MatSnackBarConfig> = {},
 ): void {
+    if (typeof msg !== 'string') {
+        // The `error` of a 7.x `CallFailed` is an object, so use only text
+        const value: { error?: unknown; message?: unknown } | null = msg;
+        const text = [value?.error, value?.message].find(
+            (_): _ is string => typeof _ === 'string' && _.length > 0,
+        );
+        msg = text || 'An error occurred';
+    }
+    // Only the text: an error object can hold the body of a response
     !_disable_logging && console.debug(msg);
-    if (typeof msg !== 'string')
-        msg =
-            (msg as any)?.error || (msg as any)?.message || 'An error occurred';
     notify('error', msg, action, on_action, config);
 }
 

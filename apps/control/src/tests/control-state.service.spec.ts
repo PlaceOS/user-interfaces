@@ -7,12 +7,14 @@ import {
 } from '@ngneat/spectator/vitest';
 import { Calendar } from '@placeos/common';
 import { CalendarService, SpacesService } from '@placeos/events';
+import type { JsonValue } from '@placeos/ts-client';
 import { NEVER, of } from 'rxjs';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
 import { Router } from '@angular/router';
-import * as client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import {
     ControlStateService,
     RoomInput,
@@ -22,6 +24,7 @@ import { CONTROL_STORE_KEY } from '../app/control-store-key';
 
 describe('ControlStateService', () => {
     let spectator: SpectatorService<ControlStateService>;
+    let place: TestPlaceClient;
     /** Latest binding callback for each bound variable name */
     let bindings: Record<string, (value: unknown) => void>;
     /** Names of bindings that were released */
@@ -69,28 +72,21 @@ describe('ControlStateService', () => {
     beforeEach(() => {
         loadSpace.mockReset().mockResolvedValue(null);
         execute.mockReset().mockResolvedValue(null);
-        vi.mocked(client.isFixedDevice).mockReturnValue(false);
         localStorage.clear();
         bindings = {};
         released = [];
         status = {};
-        vi.mocked(client.getModule).mockImplementation(
-            () =>
-                ({
-                    variable: (name: string) => ({
-                        bindThenSubscribe: (cb: (value: unknown) => void) => {
-                            bindings[name] = cb;
-                            return () => released.push(name);
-                        },
-                        bind: () => () => null,
-                        listen: () =>
-                            Object.assign(() => status[name], {
-                                subscribe: () => () => null,
-                            }),
-                    }),
-                    execute,
-                }) as unknown as ReturnType<typeof client.getModule>,
-        );
+        place = startTestPlaceClient();
+        place.bind.mockImplementation((target, listener) => {
+            const send = (value: unknown) =>
+                // Test data of the app types, as the driver sends it in JSON
+                listener({ kind: 'value', value: value as JsonValue });
+            bindings[target.name] = send;
+            // A known status value goes to the listener at once
+            if (target.name in status) send(status[target.name]);
+            return () => released.push(target.name);
+        });
+        place.useExecute(execute);
         spectator = createService();
         vi.mocked(spectator.inject(MatDialog).open).mockReset();
     });
@@ -250,7 +246,10 @@ describe('ControlStateService', () => {
             offhook_id: 'hook-1',
             ringing_id: 'ring-1',
         });
-        expect(client.getModule).toHaveBeenCalledWith('sys-1', 'Mixer');
+        expect(place.bind).toHaveBeenCalledWith(
+            expect.objectContaining({ sys: 'sys-1', mod: 'Mixer' }),
+            expect.any(Function),
+        );
         bindings['hook-1'](true);
         bindings['ring-1'](false);
         expect(spectator.service.system()).toMatchObject({
@@ -302,7 +301,7 @@ describe('ControlStateService', () => {
         });
 
         it('should not prompt on a fixed device', async () => {
-            vi.mocked(client.isFixedDevice).mockReturnValue(true);
+            place.is_fixed_device.mockReturnValue(true);
             await spectator.service.changeRoom();
             expect(spectator.inject(MatDialog).open).not.toHaveBeenCalled();
             expect(localStorage.getItem(CONTROL_STORE_KEY)).toBe('sys-1');
@@ -341,9 +340,9 @@ describe('ControlStateService', () => {
         bindings['inputs'](['a']);
         TestBed.tick();
         expect(released).toContain('input/a');
-        expect(vi.mocked(client.getModule)).toHaveBeenCalledWith(
-            'sys-2',
-            'System',
+        expect(place.bind).toHaveBeenCalledWith(
+            expect.objectContaining({ sys: 'sys-2', mod: 'System' }),
+            expect.any(Function),
         );
     });
 

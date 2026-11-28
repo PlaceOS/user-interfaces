@@ -2,12 +2,14 @@ import {
     Booking,
     CalendarEvent,
     fromEventRecurrence,
+    jsonRecord,
+    jsonText,
     OrganisationService,
     Point,
     toBookingRecurrence,
     unique,
 } from '@placeos/common';
-import { PlaceAsset } from '@placeos/ts-client';
+import { type Asset, type JsonValue } from '@placeos/ts-client';
 import {
     queryLockerAssetsForZones,
     queryLockerBankAssetsForZones,
@@ -15,13 +17,42 @@ import {
 import { getMapDetails } from 'libs/components/src/lib/map-viewer.class';
 import { Locker, LockerBank } from './locker.class';
 
-function parseJson<T>(value: string, fallback: T): T {
-    if (!value) return fallback;
+/**
+ * JSON value of a field that holds JSON as text, such as the `tags` of the
+ * `other_data` of an asset. A value that is not text stays as it is
+ */
+function parseJsonText(value: JsonValue | undefined): JsonValue {
+    if (typeof value !== 'string') return value ?? null;
+    if (!value) return null;
     try {
-        return JSON.parse(value) as T;
+        return JSON.parse(value);
     } catch {
-        return fallback;
+        return null;
     }
+}
+
+/** List of strings from a JSON text field, or `fallback` */
+function parseStringList(
+    value: JsonValue | undefined,
+    fallback: string[] = [],
+): string[] {
+    const list = parseJsonText(value);
+    return Array.isArray(list)
+        ? list.filter((_): _ is string => typeof _ === 'string')
+        : fallback;
+}
+
+/** Pair of numbers from a JSON text field, or `fallback` */
+function parseNumberPair(
+    value: JsonValue | undefined,
+    fallback: [number, number],
+): [number, number] {
+    const list = parseJsonText(value);
+    if (!Array.isArray(list) || list.length < 2) return fallback;
+    const [first, second] = list;
+    return typeof first === 'number' && typeof second === 'number'
+        ? [first, second]
+        : fallback;
 }
 
 export type ParkingRequestStatus = 'pending' | 'approval_required' | 'waitlist';
@@ -46,44 +77,43 @@ export function parkingRequestStatus(
  * Build a locker bank from its asset. The bank starts with no lockers.
  * `loadLockersForScope` adds them later, from a separate query.
  */
-export function lockerBankFromAsset(asset: PlaceAsset): LockerBank {
-    const data = asset.other_data || {};
+export function lockerBankFromAsset(asset: Asset): LockerBank {
+    const data = jsonRecord(asset.other_data);
     return {
         id: asset.id,
-        map_id: asset.map_id || data.map_id || '',
+        map_id: asset.map_id || jsonText(data.map_id),
         level_id: asset.zone_id,
-        name: asset.identifier || data.name || '',
-        height: +(data.height || 3),
+        name: asset.identifier || jsonText(data.name),
+        height: Number(data.height) || 3,
         notes: asset.notes || '',
-        zones: asset.zones || [asset.zone_id].filter((_) => _),
-        tags: (asset as any).tags || parseJson(data.tags, []),
-        images: parseJson(data.images, []),
+        zones: [...(asset.zones || [asset.zone_id].filter((_) => _))],
+        tags: parseStringList(data.tags),
+        images: parseStringList(data.images),
         lockers: [],
-    } as LockerBank;
+    };
 }
 
-export function lockerFromAsset(
-    asset: PlaceAsset,
-    banks: LockerBank[],
-): Locker {
-    const data = asset.other_data || {};
+export function lockerFromAsset(asset: Asset, banks: LockerBank[]): Locker {
+    const data = jsonRecord(asset.other_data);
     const bank_id = asset.parent_id || '';
     const bank = banks.find((_) => _.id === bank_id);
     return {
         id: asset.id,
         bank_id,
-        map_id: asset.map_id || data.map_id,
-        assigned_to: asset.assigned_to || data.assigned_to,
-        assigned_name: asset.assigned_name || data.assigned_name,
-        name: asset.identifier || data.name || '',
+        map_id: asset.map_id || jsonText(data.map_id),
+        assigned_to: asset.assigned_to || jsonText(data.assigned_to),
+        assigned_name: asset.assigned_name || jsonText(data.assigned_name),
+        name: asset.identifier || jsonText(data.name),
         accessible: data.accessible === 'true',
         bookable: asset.bookable !== false,
-        position: parseJson(data.position, [0, 0]),
-        size: parseJson(data.size, [1, 1]),
+        position: parseNumberPair(data.position, [0, 0]),
+        size: parseNumberPair(data.size, [1, 1]),
         bank,
         zone: bank?.zone,
-        features: asset.features || parseJson(data.features, []),
-    } as Locker;
+        features: asset.features
+            ? [...asset.features]
+            : parseStringList(data.features),
+    };
 }
 
 const visitorGroupMemberName = (booking: Booking) => {

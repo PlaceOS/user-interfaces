@@ -1,5 +1,5 @@
 import { HashMap } from '@placeos/common';
-import { registerMockEndpoint } from '@placeos/ts-client';
+import { registerMockEndpoint } from '@placeos/ts-client/compat';
 
 import { MOCK_SPACES } from '../lib/api/spaces.data';
 import {
@@ -12,7 +12,7 @@ import { registerMockZones } from '../lib/api/zones.mock';
 import { REMOTE_DEBUG_MOCK_SYSTEM } from '../lib/realtime/remote-debug';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const API = '/api/engine/v2';
 

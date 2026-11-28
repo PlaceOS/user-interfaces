@@ -8,6 +8,7 @@ import {
     UrlTree,
 } from '@angular/router';
 import {
+    authority,
     current_user,
     firstTruthyValueFrom,
     firstValueWhere,
@@ -15,15 +16,11 @@ import {
     hasPermission,
     log,
     OrganisationService,
+    token,
     user_groups_failed,
     user_groups_loaded,
+    waitForOnline,
 } from '@placeos/common';
-import {
-    authority,
-    onlineState,
-    token,
-    waitForSignal,
-} from '@placeos/ts-client';
 
 import { SettingsService } from 'libs/common/src/lib/settings.service';
 
@@ -154,9 +151,7 @@ export class AuthorisedUserGuard {
 
     /** The active user, or null if the backend could not be reached in time */
     private async waitForUser() {
-        const online = await this.waitForBackend(
-            waitForSignal(onlineState(), Boolean),
-        );
+        const online = await this.waitForBackend(waitForOnline());
         if (!online) return null;
         let user: any = null;
         const loaded = await this.waitForBackend(

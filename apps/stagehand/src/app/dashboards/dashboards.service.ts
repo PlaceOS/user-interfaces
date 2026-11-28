@@ -9,6 +9,7 @@ import {
 import { MatDialog } from '@angular/material/dialog';
 import {
     AsyncHandler,
+    authorise,
     i18n,
     log,
     notifyError,
@@ -16,17 +17,16 @@ import {
     OrganisationService,
 } from '@placeos/common';
 import {
-    authorise,
-    listDashboardAlerts,
-    PlaceAlert,
-    PlaceAlertDashboard,
-    queryAlertDashboards,
-    removeAlert,
-    removeAlertDashboard,
-    showAlert,
-    showAlertDashboard,
-    TriggerConditionOperator,
+    alert_dashboards,
+    type AlertDashboard,
+    alerts as alerts_v7,
+    type Alert as AlertV7,
 } from '@placeos/ts-client';
+import {
+    orThrow,
+    orThrowPage,
+    TriggerConditionOperator,
+} from '@placeos/ts-client/compat';
 
 import { openConfirmModal } from '@placeos/components';
 import mqtt from 'mqtt';
@@ -63,9 +63,19 @@ const NO_CONNECT_TIMEOUT = 2 ** 31 - 1;
 const MAX_RECONNECT_DELAY = 3 * 60_000;
 
 /** Raised when there is no dashboard, or its alerts are not loaded */
-const DISCONNECTED_ALERT = {
+const DISCONNECTED_ALERT: AlertV7 = {
+    id: null,
     name: 'Disconnected Device',
+    description: null,
+    enabled: null,
+    any_match: null,
     severity: 'medium',
+    alert_type: null,
+    debounce_period: null,
+    alert_dashboard_id: null,
+    alert_dashboard_details: null,
+    created_at: null,
+    updated_at: null,
     conditions: {
         comparisons: [
             {
@@ -74,8 +84,9 @@ const DISCONNECTED_ALERT = {
                 right: false,
             },
         ],
+        time_dependents: null,
     },
-} as PlaceAlert;
+};
 
 @Injectable({
     providedIn: 'root',
@@ -114,13 +125,11 @@ export class DashboardsService extends AsyncHandler {
     public readonly loading = signal<string[]>([]);
     public readonly region_id = signal<string>('');
     public readonly building_id = signal<string>('');
-    public readonly dashboard = signal<PlaceAlertDashboard>(undefined);
-    public readonly alert = signal<PlaceAlert>(undefined);
-    public readonly dashboard_list = signal<PlaceAlertDashboard[]>([]);
-    public readonly alerts_list = signal<PlaceAlert[]>([]);
-    public readonly dashboard_alert_map = signal<Record<string, PlaceAlert[]>>(
-        {},
-    );
+    public readonly dashboard = signal<AlertDashboard>(undefined);
+    public readonly alert = signal<AlertV7>(undefined);
+    public readonly dashboard_list = signal<AlertDashboard[]>([]);
+    public readonly alerts_list = signal<AlertV7[]>([]);
+    public readonly dashboard_alert_map = signal<Record<string, AlertV7[]>>({});
     public readonly dashboard_alerts = signal<Alert[]>([]);
 
     /**
@@ -265,7 +274,8 @@ export class DashboardsService extends AsyncHandler {
         return this._whileLoading(
             'ALERT',
             'Failed to load the alert.',
-            async () => this.alert.set(await showAlert(id)),
+            async () =>
+                this.alert.set(await alerts_v7.show({ id }).then(orThrow)),
         );
     }
 
@@ -280,7 +290,9 @@ export class DashboardsService extends AsyncHandler {
             'DASHBOARD',
             'Failed to load the dashboard.',
             async () => {
-                this.dashboard.set(await showAlertDashboard(id));
+                this.dashboard.set(
+                    await alert_dashboards.show({ id }).then(orThrow),
+                );
                 this.loadDashboardAlerts();
             },
         );
@@ -291,13 +303,15 @@ export class DashboardsService extends AsyncHandler {
             'DASHBOARD_LIST',
             'Failed to load the dashboards.',
             async () => {
-                const alerts = await queryAlertDashboards({ limit: 100 });
-                this.dashboard_list.set(alerts.data);
+                const alerts = await alert_dashboards
+                    .query({ limit: 100 })
+                    .then(orThrowPage);
+                this.dashboard_list.set([...alerts.data]);
             },
         );
     }
 
-    public async removeDashboard(dashboard: PlaceAlertDashboard) {
+    public async removeDashboard(dashboard: AlertDashboard) {
         const result = await openConfirmModal(
             {
                 title: i18n('APP.STAGEHAND.DASHBOARD_REMOVE_HEADER'),
@@ -310,10 +324,13 @@ export class DashboardsService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing dashboard...');
-        const removed = await removeAlertDashboard(dashboard.id).then(
-            () => true,
-            () => false,
-        );
+        const removed = await alert_dashboards
+            .destroy({ id: dashboard.id })
+            .then(orThrow)
+            .then(
+                () => true,
+                () => false,
+            );
         result.close();
         if (!removed) {
             return notifyError('Failed to remove the dashboard. Try again.');
@@ -322,7 +339,7 @@ export class DashboardsService extends AsyncHandler {
         this.loadDashboards();
     }
 
-    public async removeDashboardAlert(alert: PlaceAlert) {
+    public async removeDashboardAlert(alert: AlertV7) {
         const result = await openConfirmModal(
             {
                 title: i18n('APP.STAGEHAND.DASHBOARD_ALERTS_REMOVE_HEADER'),
@@ -335,10 +352,13 @@ export class DashboardsService extends AsyncHandler {
         );
         if (result.reason !== 'done') return;
         result.loading('Removing dashboard alert...');
-        const removed = await removeAlert(alert.id).then(
-            () => true,
-            () => false,
-        );
+        const removed = await alerts_v7
+            .destroy({ id: alert.id })
+            .then(orThrow)
+            .then(
+                () => true,
+                () => false,
+            );
         result.close();
         if (!removed) {
             return notifyError('Failed to remove the alert. Try again.');
@@ -358,12 +378,14 @@ export class DashboardsService extends AsyncHandler {
             'ALERT_LIST',
             'Failed to load the dashboard alerts.',
             async () => {
-                const alerts = await listDashboardAlerts(id || dashboard.id);
-                if (!id) this.alerts_list.set(alerts.data);
+                const alerts = await alert_dashboards
+                    .alerts({ id: id || dashboard.id })
+                    .then(orThrowPage);
+                if (!id) this.alerts_list.set([...alerts.data]);
                 else {
                     this.dashboard_alert_map.update((m) => ({
                         ...m,
-                        [id]: alerts.data,
+                        [id]: [...alerts.data],
                     }));
                 }
             },
@@ -541,7 +563,7 @@ export class DashboardsService extends AsyncHandler {
      * devices when it has none. The default is never stored in `alerts_list`,
      * which is replaced whenever the dashboard is set again
      */
-    private _alertDefinitions(): PlaceAlert[] {
+    private _alertDefinitions(): AlertV7[] {
         const list = this.alerts_list();
         return list.length ? list : [DISCONNECTED_ALERT];
     }

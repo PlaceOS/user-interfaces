@@ -5,18 +5,23 @@ import {
 } from '@ngneat/spectator/vitest';
 import { getUnixTime } from 'date-fns';
 
-import * as ts_client from '@placeos/ts-client';
+import { type StubApi, startStubApi } from '@placeos/common/tests';
 import { EnrolmentStateService } from '../app/enrolment-state.service';
 
-// Assert at the `@placeos/ts-client` boundary. `showGuest`/`showEvent`/
-// `checkinEventGuest`/`updateGuest` are workspace functions that run for real
-// and end in `get`/`post`/`patch`, so the requests they make are the contract
-// worth pinning here.
+// The workspace API functions run for real. A stub API answers their requests,
+// so the requests are the contract that these tests check.
 vi.mock('@placeos/ts-client', { spy: true });
 
-const GUEST_ENDPOINT = '/api/staff/v1/guests';
-const EVENTS_ENDPOINT = '/api/staff/v1/events';
-const CHECKIN_URL = `${EVENTS_ENDPOINT}/event-1/guests/guest@example.com/checkin?state=true`;
+const GUEST_PATH = '/api/staff/v1/guests/guest%40example.com';
+const EVENT_PATH = '/api/staff/v1/events/event-1';
+
+const GUEST = {
+    id: 'guest@example.com',
+    email: 'guest@example.com',
+    name: 'Guest User',
+    // Not a form field, so saving must keep it from the record
+    status: 'approved',
+};
 
 /** Build a JWT-shaped token with the payload the service expects */
 function userToken(payload: Record<string, unknown>) {
@@ -36,17 +41,17 @@ function validToken(overrides: Record<string, unknown> = {}) {
 
 describe('EnrolmentStateService', () => {
     let spectator: SpectatorService<EnrolmentStateService>;
-    let event_stub: Record<string, any>;
+    let event_stub: Record<string, unknown>;
+    let api: StubApi;
+    /** Handlers of the stub API, one for each request that the service makes */
+    const guest_show = vi.fn<() => unknown>();
+    const event_show = vi.fn<() => unknown>();
+    const guest_checkin = vi.fn<() => unknown>();
+    const guest_update = vi.fn<(body: unknown) => unknown>();
 
     const createService = createServiceFactory({
         service: EnrolmentStateService,
     });
-
-    /** Requests made through `get` for a given endpoint prefix */
-    const getCalls = (prefix: string) =>
-        (ts_client.get as any).mock.calls.filter((c: any[]) =>
-            `${c[0]}`.startsWith(prefix),
-        );
 
     beforeEach(() => {
         vi.useFakeTimers();
@@ -55,31 +60,36 @@ describe('EnrolmentStateService', () => {
             host: 'host@example.com',
             event_start: getUnixTime(Date.now()) + 3600,
         };
-        (ts_client.setToken as any).mockReset();
-        (ts_client.get as any).mockReset();
-        (ts_client.get as any).mockImplementation(async (url: string) => {
-            if (url.startsWith(GUEST_ENDPOINT)) {
-                return {
-                    id: 'guest@example.com',
-                    email: 'guest@example.com',
-                    name: 'Guest User',
-                    // Not a form field, so saving must keep it from the record
-                    status: 'approved',
-                };
-            }
-            return event_stub;
-        });
-        (ts_client.post as any).mockReset();
-        (ts_client.post as any).mockResolvedValue({});
-        (ts_client.patch as any).mockReset();
-        (ts_client.patch as any).mockResolvedValue({});
+        guest_show.mockReset().mockReturnValue(GUEST);
+        // Read when the call happens, so a test can change the stub first
+        event_show.mockReset().mockImplementation(() => event_stub);
+        guest_checkin.mockReset().mockReturnValue({});
+        guest_update.mockReset().mockImplementation((body) => body);
+        api = startStubApi();
+        api.on('GET', '/api/staff/v1/guests/:id', guest_show);
+        api.on('PATCH', '/api/staff/v1/guests/:id', (r) =>
+            guest_update(r.body),
+        );
+        api.on('GET', '/api/staff/v1/events/:id', event_show);
+        api.on(
+            'POST',
+            '/api/staff/v1/events/:id/guests/:guest_id/check_in',
+            guest_checkin,
+        );
         spectator = createService();
     });
 
     afterEach(() => {
         vi.useRealTimers();
         vi.restoreAllMocks();
+        vi.unstubAllGlobals();
     });
+
+    /** Paths of the requests with `method` */
+    const paths = (method: string) =>
+        api.requests
+            .filter((request) => request.method === method)
+            .map((request) => request.url.pathname);
 
     /** Edit the loaded details so the form is valid */
     function acceptValidDetails() {
@@ -107,7 +117,7 @@ describe('EnrolmentStateService', () => {
 
     it('should not load anything until a token is handled', async () => {
         await settle();
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(api.requests).toEqual([]);
     });
 
     describe('handleUserToken', () => {
@@ -115,10 +125,8 @@ describe('EnrolmentStateService', () => {
             spectator.service.handleUserToken(validToken());
             await settle();
 
-            expect(ts_client.setToken).toHaveBeenCalledTimes(1);
-            expect(getCalls(GUEST_ENDPOINT)[0][0]).toBe(
-                `${GUEST_ENDPOINT}/guest%40example.com`,
-            );
+            expect(api.fake.session.useToken).toHaveBeenCalledTimes(1);
+            expect(paths('GET')[0]).toBe(GUEST_PATH);
             expect(spectator.service.guest()?.email).toBe('guest@example.com');
         });
 
@@ -126,9 +134,7 @@ describe('EnrolmentStateService', () => {
             spectator.service.handleUserToken(validToken());
             await settle();
 
-            expect(getCalls(EVENTS_ENDPOINT)[0][0]).toBe(
-                `${EVENTS_ENDPOINT}/event-1`,
-            );
+            expect(paths('GET')).toContain(EVENT_PATH);
             expect(spectator.service.event()?.id).toBe('event-1');
             expect(spectator.service.error()).toBe('');
             expect(spectator.service.loading()).toBe('');
@@ -136,10 +142,8 @@ describe('EnrolmentStateService', () => {
 
         it('should show the meeting loading message until the event arrives', async () => {
             let resolveEvent: (value: unknown) => void = () => undefined;
-            (ts_client.get as any).mockImplementation(async (url: string) =>
-                url.startsWith(GUEST_ENDPOINT)
-                    ? { id: 'guest@example.com', email: 'guest@example.com' }
-                    : new Promise((resolve) => (resolveEvent = resolve)),
+            event_show.mockImplementation(
+                () => new Promise((resolve) => (resolveEvent = resolve)),
             );
             spectator.service.handleUserToken(validToken());
             await settle();
@@ -160,8 +164,8 @@ describe('EnrolmentStateService', () => {
             spectator.service.handleUserToken(validToken());
             await settle();
 
-            expect(getCalls(GUEST_ENDPOINT)).toHaveLength(1);
-            expect(getCalls(EVENTS_ENDPOINT)).toHaveLength(0);
+            expect(guest_show).toHaveBeenCalledTimes(1);
+            expect(event_show).not.toHaveBeenCalled();
             expect(spectator.service.error()).toBe('guest');
         });
 
@@ -181,7 +185,7 @@ describe('EnrolmentStateService', () => {
 
             expect(spectator.service.view()).toBe('error');
             expect(spectator.service.error()).toBe('link');
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(api.requests).toEqual([]);
         });
 
         it('should reject a malformed token without authenticating', async () => {
@@ -191,8 +195,8 @@ describe('EnrolmentStateService', () => {
             await settle();
 
             expect(spectator.service.error()).toBe('link');
-            expect(ts_client.setToken).not.toHaveBeenCalled();
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(api.fake.session.useToken).not.toHaveBeenCalled();
+            expect(api.requests).toEqual([]);
         });
 
         it.each([
@@ -204,14 +208,14 @@ describe('EnrolmentStateService', () => {
             await settle();
 
             expect(spectator.service.error()).toBe('link');
-            expect(ts_client.setToken).not.toHaveBeenCalled();
-            expect(ts_client.get).not.toHaveBeenCalled();
+            expect(api.fake.session.useToken).not.toHaveBeenCalled();
+            expect(api.requests).toEqual([]);
         });
     });
 
     describe('loading failures', () => {
         it('should show the guest error if guest details fail to load', async () => {
-            (ts_client.get as any).mockRejectedValue(new Error('offline'));
+            guest_show.mockRejectedValue(new Error('offline'));
 
             spectator.service.handleUserToken(validToken());
             await settle();
@@ -219,20 +223,11 @@ describe('EnrolmentStateService', () => {
             expect(spectator.service.error()).toBe('guest');
             expect(spectator.service.view()).toBe('error');
             expect(spectator.service.loading()).toBe('');
-            expect(getCalls(EVENTS_ENDPOINT)).toHaveLength(0);
+            expect(event_show).not.toHaveBeenCalled();
         });
 
         it('should show the meeting error if event details fail to load', async () => {
-            (ts_client.get as any).mockImplementation(async (url: string) => {
-                if (url.startsWith(GUEST_ENDPOINT)) {
-                    return {
-                        id: 'guest@example.com',
-                        email: 'guest@example.com',
-                        name: 'Guest User',
-                    };
-                }
-                throw new Error('offline');
-            });
+            event_show.mockRejectedValue(new Error('offline'));
 
             spectator.service.handleUserToken(validToken());
             await settle();
@@ -294,7 +289,7 @@ describe('EnrolmentStateService', () => {
         it('should not save while the form is invalid', async () => {
             // Terms have not been accepted, so the form is invalid
             await spectator.service.updateGuest();
-            expect(ts_client.patch).not.toHaveBeenCalled();
+            expect(guest_update).not.toHaveBeenCalled();
         });
 
         it('should mark the form as touched so errors are shown', async () => {
@@ -306,9 +301,9 @@ describe('EnrolmentStateService', () => {
             acceptValidDetails();
             await spectator.service.updateGuest();
 
-            expect(ts_client.patch).toHaveBeenCalledTimes(1);
-            const [url, body] = (ts_client.patch as any).mock.calls[0];
-            expect(url).toBe(`${GUEST_ENDPOINT}/guest%40example.com`);
+            expect(guest_update).toHaveBeenCalledTimes(1);
+            expect(paths('PATCH')).toEqual([GUEST_PATH]);
+            const [body] = guest_update.mock.calls[0];
             expect(body).toEqual(
                 expect.objectContaining({
                     id: 'guest@example.com',
@@ -321,7 +316,7 @@ describe('EnrolmentStateService', () => {
         });
 
         it('should show the update error and stop loading when the save fails', async () => {
-            (ts_client.patch as any).mockRejectedValue(new Error('offline'));
+            guest_update.mockRejectedValue(new Error('offline'));
             acceptValidDetails();
 
             await spectator.service.updateGuest();
@@ -341,9 +336,13 @@ describe('EnrolmentStateService', () => {
         it('should check the guest in without saving unedited details', async () => {
             await spectator.service.checkin();
 
-            expect(ts_client.patch).not.toHaveBeenCalled();
-            expect(ts_client.post).toHaveBeenCalledTimes(1);
-            expect((ts_client.post as any).mock.calls[0][0]).toBe(CHECKIN_URL);
+            expect(guest_update).not.toHaveBeenCalled();
+            expect(guest_checkin).toHaveBeenCalledTimes(1);
+            const [checkin] = api.requests.filter((r) => r.method === 'POST');
+            expect(checkin.url.pathname).toBe(
+                `${EVENT_PATH}/guests/guest%40example.com/check_in`,
+            );
+            expect(checkin.url.searchParams.get('state')).toBe('true');
             expect(spectator.service.view()).toBe('complete');
             expect(spectator.service.loading()).toBe('');
         });
@@ -354,28 +353,26 @@ describe('EnrolmentStateService', () => {
 
             await spectator.service.checkin();
 
-            const [patch_order] = (ts_client.patch as any).mock
-                .invocationCallOrder;
-            const [post_order] = (ts_client.post as any).mock
-                .invocationCallOrder;
-            expect(patch_order).toBeLessThan(post_order);
+            const [update_order] = guest_update.mock.invocationCallOrder;
+            const [checkin_order] = guest_checkin.mock.invocationCallOrder;
+            expect(update_order).toBeLessThan(checkin_order);
             expect(spectator.service.view()).toBe('complete');
         });
 
         it('should not check in when saving the edited details fails', async () => {
-            (ts_client.patch as any).mockRejectedValue(new Error('offline'));
+            guest_update.mockRejectedValue(new Error('offline'));
             acceptValidDetails();
             spectator.service.form().markAsDirty();
 
             await spectator.service.checkin();
 
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(guest_checkin).not.toHaveBeenCalled();
             expect(spectator.service.error()).toBe('update');
             expect(spectator.service.view()).toBe('error');
         });
 
         it('should show the error view and stop loading when check-in fails', async () => {
-            (ts_client.post as any).mockRejectedValue(new Error('offline'));
+            guest_checkin.mockRejectedValue(new Error('offline'));
 
             await spectator.service.checkin();
 

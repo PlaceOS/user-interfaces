@@ -13,7 +13,7 @@ import {
     AuthenticatedImageDirective,
     IconComponent,
 } from '@placeos/components';
-import { SignageMedia } from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
 import {
     playlistMediaIcon,
     playlistMediaThumbnailUrl,
@@ -49,7 +49,7 @@ export class MediaThumbnailComponent implements AfterViewInit, OnDestroy {
     private readonly _element = inject(ElementRef<HTMLElement>);
     private _observer?: IntersectionObserver;
 
-    public readonly item = input.required<SignageMedia>();
+    public readonly item = input.required<PlaylistItem>();
     public readonly cover = input(false);
     /** Width over height of the thumbnail image, after it loads */
     public readonly aspect_ratio = output<number>();

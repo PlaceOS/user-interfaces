@@ -2,7 +2,7 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { AssetGroup } from '@placeos/common';
-import { PlaceAsset } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { MockDirective, MockProvider } from 'ng-mocks';
 
@@ -97,7 +97,7 @@ describe('AssetListComponent', () => {
 
     // The asset list field reads these assets to check the quantity
     it('should copy the loaded assets onto the selected items', () => {
-        const units = [{ id: 'x1' }, { id: 'x2' }] as PlaceAsset[];
+        const units = [{ id: 'x1' }, { id: 'x2' }] as Asset[];
         filtered_assets.set([
             { id: '1', name: 'Projector', assets: units } as AssetGroup,
         ]);

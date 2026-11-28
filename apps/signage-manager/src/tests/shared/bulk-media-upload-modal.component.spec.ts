@@ -1,11 +1,11 @@
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import { SignageMedia } from '@placeos/ts-client';
 import {
     BulkMediaUploadModalComponent,
     BulkMediaUploadModalData,
 } from '../../app/shared/bulk-media-upload-modal.component';
+import { signageMedia } from '../../app/signage-models';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -32,7 +32,7 @@ describe('BulkMediaUploadModalComponent', () => {
         vi.clearAllMocks();
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
-        onUpload.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
+        onUpload.mockResolvedValue(signageMedia({ id: 'media-1' }));
         modal_data = {
             items: [uploadItem('one.png'), uploadItem('two.png')],
             onUpload,
@@ -74,7 +74,7 @@ describe('BulkMediaUploadModalComponent', () => {
     it('keeps the dialog open when uploads fail and retries only failures', async () => {
         onUpload
             .mockRejectedValueOnce(new Error('Network error'))
-            .mockResolvedValue(new SignageMedia({ id: 'media-1' }));
+            .mockResolvedValue(signageMedia({ id: 'media-1' }));
         const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
         const component = fixture.componentInstance;
 
@@ -103,7 +103,7 @@ describe('BulkMediaUploadModalComponent', () => {
         const component = fixture.componentInstance;
         onUpload.mockImplementationOnce(async () => {
             component.stop();
-            return new SignageMedia({ id: 'media-1' });
+            return signageMedia({ id: 'media-1' });
         });
 
         await component.uploadAll();
@@ -118,7 +118,7 @@ describe('BulkMediaUploadModalComponent', () => {
     it('tracks upload progress for the active row', async () => {
         onUpload.mockImplementation(async (_item, on_progress) => {
             on_progress(42.5);
-            return new SignageMedia({ id: 'media-1' });
+            return signageMedia({ id: 'media-1' });
         });
         const fixture = TestBed.createComponent(BulkMediaUploadModalComponent);
         const component = fixture.componentInstance;
@@ -126,7 +126,7 @@ describe('BulkMediaUploadModalComponent', () => {
         onUpload.mockImplementationOnce(async (_item, on_progress) => {
             on_progress(42.5);
             progress_values.push(component.rows()[0].progress);
-            return new SignageMedia({ id: 'media-1' });
+            return signageMedia({ id: 'media-1' });
         });
 
         await component.uploadAll();

@@ -32,7 +32,8 @@ import {
     EventFormService,
     queryEvents,
 } from '@placeos/events';
-import { showSystem } from '@placeos/ts-client';
+import { systems, type System } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addMinutes, endOfDay, getUnixTime } from 'date-fns';
 
 import { FormsModule } from '@angular/forms';
@@ -378,9 +379,9 @@ export class BookCodeFlowComponent
             this._router.navigate(['/book', 'code', 'success']);
             this.loading.set(false);
         } else {
-            let space: Awaited<ReturnType<typeof showSystem>>;
+            let space: System;
             try {
-                space = await showSystem(space_id);
+                space = await systems.show({ sys_id: space_id }).then(orThrow);
             } catch {
                 this.loading.set(false);
                 this._router.navigate(['/book', 'code', 'error'], {

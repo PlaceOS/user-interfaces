@@ -1,5 +1,10 @@
-import { mapWithLimit, StaffUser } from '@placeos/common';
-import { PlaceMetadata, showMetadata, showUser } from '@placeos/ts-client';
+import { jsonList, mapWithLimit, StaffUser } from '@placeos/common';
+import {
+    type Metadata,
+    metadata as metadata_v7,
+    users as users_v7,
+} from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 /** Maximum number of requests for each colleague that run at one time */
 export const COLLEAGUE_REQUEST_LIMIT = 6;
@@ -25,14 +30,18 @@ export function loadContacts(
         return _contacts_request.promise;
     }
     const promise = (async () => {
-        const metadata: PlaceMetadata = await showMetadata(user_id, 'contacts');
-        const list: Partial<StaffUser>[] =
-            metadata?.details instanceof Array ? metadata.details : [];
+        const metadata: Metadata = await metadata_v7
+            .show({ id: user_id, name: 'contacts' })
+            .then(orThrow)
+            .then((data) => data['contacts']);
+        const list = jsonList<Partial<StaffUser>>(metadata?.details);
         const users = await mapWithLimit(
             list,
             COLLEAGUE_REQUEST_LIMIT,
             (contact) =>
-                Promise.resolve(showUser(contact.email)).catch(() => contact),
+                Promise.resolve(
+                    users_v7.show({ id: contact.email }).then(orThrow),
+                ).catch(() => contact),
         );
         return users.map((user) => new StaffUser(user));
     })().finally(() => {

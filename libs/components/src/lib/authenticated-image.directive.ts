@@ -7,9 +7,8 @@ import {
     inject,
     input,
 } from '@angular/core';
-import { authority } from '@placeos/ts-client';
 
-import { AsyncHandler } from '@placeos/common';
+import { AsyncHandler, authority } from '@placeos/common';
 import {
     getCachedAuthenticatedImage,
     loadAuthenticatedImage,

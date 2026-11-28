@@ -2,6 +2,7 @@ import { Injector } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { AssetGroup, CalendarEvent } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { addHours, subHours } from 'date-fns';
 import { AttachedResourceRuleset } from 'libs/components/src/lib/attached-resource-config-modal.component';
 
@@ -125,17 +126,25 @@ describe('asset.utilities', () => {
     describe('getAssetRulesForZone', () => {
         // zoneRulesetLoader caching and fallbacks are covered in libs/components
         it('should load the rules from the assets_config metadata', async () => {
-            vi.mocked(ts_client.showMetadata).mockResolvedValue({
-                details: [{ name: '*', rules: [] }],
-            } as any);
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    () =>
+                        ({
+                            details: [{ name: '*', rules: [] }],
+                        }) as any,
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
 
             expect(await getAssetRulesForZone('zone-1')).toEqual([
                 { name: '*', rules: [] },
             ]);
-            expect(ts_client.showMetadata).toHaveBeenCalledWith(
-                'zone-1',
-                'assets_config',
-            );
+            expect(ts_client.metadata.show).toHaveBeenCalledWith({
+                id: 'zone-1',
+                name: 'assets_config',
+            });
         });
     });
 

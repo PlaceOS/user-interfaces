@@ -26,7 +26,7 @@ import {
     ViewerFeature,
     ViewerStyles,
 } from '@placeos/common';
-import { PlaceAsset } from '@placeos/ts-client';
+import { type Asset } from '@placeos/ts-client';
 import {
     addMinutes,
     endOfDay,
@@ -50,7 +50,7 @@ import { ExploreParkingInfoComponent } from './explore-parking-info.component';
 import { DEFAULT_COLOURS } from './explore-spaces.service';
 import { ExploreStateService } from './explore-state.service';
 
-export type ParkingSpace = PlaceAsset;
+export type ParkingSpace = Asset;
 
 export interface ParkingOptions {
     enable_booking?: boolean;

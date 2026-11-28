@@ -1,7 +1,7 @@
 import { effect, untracked, type WritableSignal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n, notifyError, notifySuccess } from '@placeos/common';
-import { type SignagePlaylist } from '@placeos/ts-client';
+import { type Playlist } from '@placeos/ts-client';
 import { type SignagePlaylistService } from '../playlists/signage-playlist.service';
 import { type SignageContextService } from '../signage-context.service';
 import { dialogClosed } from '../signage-service.util';
@@ -10,8 +10,7 @@ import { decodeEntityNames } from './decode-entity-names.util';
 /** Display or zone that holds a list of playlist IDs */
 interface PlaylistHolder {
     id: string;
-    version: number;
-    playlists?: readonly string[];
+    playlists?: readonly string[] | null;
 }
 
 /** Parts that differ between display and zone playlist assignment */
@@ -98,7 +97,7 @@ export class PlaylistAssignments<T extends PlaylistHolder> {
      */
     public async add(
         item: T,
-        change: { playlist_id: string; playlist?: SignagePlaylist },
+        change: { playlist_id: string; playlist?: Playlist },
         success_key: string,
     ) {
         if (item.playlists?.includes(change.playlist_id)) {

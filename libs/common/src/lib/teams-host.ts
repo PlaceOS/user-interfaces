@@ -1,8 +1,7 @@
 import { signal } from '@angular/core';
-import { exchangeEntraToken, setToken, token } from '@placeos/ts-client';
-
 import { failInitialisation } from './application';
 import { log, withTimeout } from './general';
+import { placeSession, setToken, token } from './place-client';
 
 /**
  * Microsoft Teams and Microsoft 365 (Outlook, Microsoft 365 app) personal tab
@@ -13,8 +12,9 @@ import { log, withTimeout } from './general';
  *
  * The tab runs in a frame that cannot show the Microsoft login page. When the
  * tab has no PlaceOS token it signs in through the host:
- * 1. Silent SSO with `authentication.getAuthToken()`. ts-client exchanges
- *    the Microsoft Entra token for PlaceOS tokens.
+ * 1. Silent SSO with `authentication.getAuthToken()`. `setupPlace` gets
+ *    `teamsEntraToken`, so the login exchanges the Microsoft Entra token for
+ *    PlaceOS tokens with the `entra` grant.
  * 2. Else a sign-in window from `authentication.authenticate()`. That window
  *    loads the app with `?host=teams-auth`, runs the normal PlaceOS login and
  *    sends the PlaceOS token back with `authentication.notifySuccess()`.
@@ -23,7 +23,9 @@ import { log, withTimeout } from './general';
  * ```ts
  * const mode = await startTeamsHost();
  * if (mode) settings.local_login = mode === 'tab';
- * await setupPlace(settings);
+ * await setupPlace(settings, timeout_ms, {
+ *     entra_token: mode === 'tab' ? teamsEntraToken : undefined,
+ * });
  * if (mode && !(await finishTeamsSignIn(mode))) return;
  * ```
  */
@@ -45,6 +47,12 @@ const MAX_SIGN_IN_ATTEMPTS = 5;
 const EXPIRY_MARGIN_MS = 5 * 60 * 1000;
 
 let _teams: TeamsJs | null = null;
+/**
+ * True while the sign-in window is in use. A request that needs a token then
+ * gets no Entra token, so a late SSO exchange cannot replace the token of
+ * the window.
+ */
+let _sso_paused = false;
 let _sign_in_resolve: (() => void) | null = null;
 const SIGN_IN_REQUIRED = signal(false);
 
@@ -109,35 +117,49 @@ export async function finishTeamsSignIn(mode: TeamsHostMode): Promise<boolean> {
     if (!_teams) throw new Error('Call startTeamsHost() first.');
     if (mode === 'auth') {
         // No token means ts-client is redirecting to the login page.
-        const place_token = token(false);
+        const place_token = token();
         if (place_token) {
             sessionStorage.removeItem(AUTH_STORE_KEY);
             _teams.authentication.notifySuccess(place_token);
         }
         return false;
     }
-    if (token(false)) return true;
-    if (await signInTeamsTab(_teams)) return true;
+    if (token()) return true;
+    // `setupPlace` can stop waiting before the SSO attempt ends. While that
+    // attempt runs, `authorize` joins it, so the window opens only after SSO
+    // failed. After a failed attempt, `authorize` would start a new one, so
+    // it is not called then.
+    const session = placeSession();
+    if (session?.status().kind === 'loading') await session.authorize();
+    if (token()) return true;
+    _sso_paused = true;
+    const signed_in = await signInTeamsTab(_teams).finally(
+        () => (_sso_paused = false),
+    );
+    if (signed_in) return true;
     failInitialisation('Sign in did not finish. Select Try again to sign in.');
     return false;
 }
 
-async function signInTeamsTab(teams: TeamsJs): Promise<boolean> {
-    const sso_signed_in = await withTimeout(
-        teams.authentication.getAuthToken(),
+/**
+ * The Microsoft Entra SSO token of the host, for the `entra` grant of the
+ * login. Resolves null when the host is not connected, SSO fails, or the
+ * sign-in window is in use.
+ */
+export async function teamsEntraToken(): Promise<string | null> {
+    if (!_teams || _sso_paused) return null;
+    return withTimeout(
+        _teams.authentication.getAuthToken(),
         SSO_TIMEOUT_MS,
         'Microsoft single sign-on timed out.',
-    )
-        .then(async (entra_token) => {
-            if (!entra_token) return false;
-            await exchangeEntraToken(entra_token);
-            return true;
-        })
-        .catch((error) => {
-            log('Teams', 'SSO failed.', error, 'warn');
-            return false;
-        });
-    if (sso_signed_in) return true;
+    ).catch((error) => {
+        log('Teams', 'SSO failed.', error, 'warn');
+        return null;
+    });
+}
+
+/** Signs in with the sign-in window, after SSO in `setupPlace` failed. */
+async function signInTeamsTab(teams: TeamsJs): Promise<boolean> {
     const url = `${location.origin}${location.pathname}?${TEAMS_HOST_PARAM}=teams-auth`;
     for (let attempt = 0; attempt < MAX_SIGN_IN_ATTEMPTS; attempt++) {
         // Try without a click first. Later attempts wait for the button.

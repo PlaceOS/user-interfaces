@@ -1,10 +1,10 @@
 import { Component, inject } from '@angular/core';
+import { getModule } from '@placeos/common';
 import {
     CustomTooltipData,
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { getModule } from '@placeos/ts-client';
 
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';

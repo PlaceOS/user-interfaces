@@ -1,27 +1,31 @@
 import {
     Component,
+    input,
     OnChanges,
     OnInit,
-    SimpleChanges,
-    input,
     signal,
+    SimpleChanges,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { FormField } from '@angular/forms/signals';
 import {
-    PlaceModule,
-    PlaceSystem,
-    TriggerConditionOperator,
-    TriggerStatusVariable,
-    queryModules,
-    systemModuleState,
+    type Module,
+    modules,
+    type System,
+    systems,
+    type TriggerConditionsComparisonStatusVariable as TriggerStatusVariable,
 } from '@placeos/ts-client';
+import {
+    orThrow,
+    orThrowPage,
+    TriggerConditionOperator,
+} from '@placeos/ts-client/compat';
 
 import { CommonModule } from '@angular/common';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { Identity, i18n, notifyError } from '@placeos/common';
+import { i18n, Identity, notifyError } from '@placeos/common';
 import { TranslatePipe } from '@placeos/components';
 
 type ComparisonSide = 'left' | 'right';
@@ -32,16 +36,15 @@ type ComparisonSide = 'left' | 'right';
  * @param module Module to work out index
  */
 export function calculateModuleIndex(
-    module_list: PlaceModule[],
-    module: PlaceModule,
+    module_list: readonly Module[],
+    module: Module,
 ): number {
-    const driver = module.driver || { class_name: 'System' };
-    const module_class = module.custom_name || module.name || driver.class_name;
-    const modules_with_class = module_list.filter((mod) => {
-        const d = mod.driver || { class_name: 'System' };
-        const mod_class = mod.custom_name || mod.name || d.class_name;
-        return mod_class === module_class;
-    });
+    const moduleClass = (mod: Module) =>
+        mod.custom_name || mod.name || mod.driver?.module_name || 'System';
+    const module_class = moduleClass(module);
+    const modules_with_class = module_list.filter(
+        (mod) => moduleClass(mod) === module_class,
+    );
     return Math.max(
         1,
         modules_with_class.findIndex((mod) => mod.id === module.id) + 1,
@@ -239,9 +242,9 @@ export class AlertConditionComparisonFormComponent
     /** Group of form fields used for creating the system */
     public readonly form = input<any>(undefined);
     /** Systems used for templating the status variables */
-    public readonly system = input<PlaceSystem>(undefined);
+    public readonly system = input<System>(undefined);
     /** List of modules associated with the template system */
-    public modules: PlaceModule[] = [];
+    public modules: Module[] = [];
     /** List of modules available for selection */
     public readonly module_list = signal<Identity[]>([]);
     /** List of status variables associated with the selected left module */
@@ -370,34 +373,36 @@ export class AlertConditionComparisonFormComponent
     public loadSystemStatusVariables(mod_name: string, side: ComparisonSide) {
         const name = (mod_name || '').split('_');
         if (!name[0]?.length) return;
-        systemModuleState(
-            this.system().id,
-            name.length > 1
-                ? name.slice(0, name.length - 1).join('_')
-                : name[0],
-            +name[name.length - 1] || 1,
-        ).then(
-            (var_map) => {
-                if (Object.keys(var_map || {}).length <= 0) {
-                    var_map = { connected: true };
-                }
-                this._setStatusVars(
-                    side,
-                    Object.keys(var_map).map((key) => ({
-                        id: key,
-                        name: key,
-                    })),
-                );
-                this.addExistingStatusVariables();
-            },
-            () =>
-                notifyError(
-                    i18n('TRIGGERS.COMPARE_VARIABLE_LOAD_ERROR', {
-                        system: this.system().id,
-                        module: mod_name,
-                    }),
-                ),
-        );
+        systems
+            .state({
+                sys_id: this.system().id,
+                module_slug: `${
+                    name.length > 1
+                        ? name.slice(0, name.length - 1).join('_')
+                        : name[0]
+                }_${+name[name.length - 1] || 1}`,
+            })
+            .then(orThrow)
+            .then(
+                (var_map) => {
+                    const names = Object.keys(var_map || {});
+                    this._setStatusVars(
+                        side,
+                        (names.length ? names : ['connected']).map((key) => ({
+                            id: key,
+                            name: key,
+                        })),
+                    );
+                    this.addExistingStatusVariables();
+                },
+                () =>
+                    notifyError(
+                        i18n('TRIGGERS.COMPARE_VARIABLE_LOAD_ERROR', {
+                            system: this.system().id,
+                            module: mod_name,
+                        }),
+                    ),
+            );
     }
 
     /**
@@ -408,10 +413,12 @@ export class AlertConditionComparisonFormComponent
         if (!system) {
             return;
         }
-        queryModules({ control_system_id: system.id })
+        modules
+            .query({ control_system_id: system.id })
+            .then(orThrowPage)
             .then((resp) => resp.data)
             .then((module_list) => {
-                this.modules = module_list;
+                this.modules = [...module_list];
                 const mod_list = this.system().modules;
                 this.modules.sort(
                     (a, b) => mod_list.indexOf(a.id) - mod_list.indexOf(b.id),

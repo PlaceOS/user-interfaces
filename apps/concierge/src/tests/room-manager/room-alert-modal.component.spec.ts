@@ -4,6 +4,7 @@ import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { RoomAlertModalComponent } from '../../app/room-manager/room-alert-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -32,7 +33,7 @@ describe('RoomAlertModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (ts_client_mod.updateMetadata as any).mockResolvedValue({});
+        (ts_client_mod.metadata.update as any).mockResolvedValue(mockReply({}));
     });
 
     it('should pre-fill the form from an existing room alert', () => {
@@ -50,10 +51,17 @@ describe('RoomAlertModalComponent', () => {
     });
 
     it('should write the alert to metadata and close on save', async () => {
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {},
-            editors: [],
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {},
+                    editors: [],
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         build({ id: 'sys-1' });
         spectator.component.model.set({
             status: 'closed',
@@ -62,30 +70,37 @@ describe('RoomAlertModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'org-1',
-            expect.objectContaining({
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'org-1',
+            body: expect.objectContaining({
                 name: 'room_alerts',
                 details: { 'sys-1': ['closed', 'Flooded'] },
             }),
-        );
+        });
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
     });
 
     it('should remove the alert entry when the status is cleared', async () => {
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: { 'sys-1': ['warn', 'old'] },
-            editors: [],
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: { 'sys-1': ['warn', 'old'] },
+                    editors: [],
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         build({ id: 'sys-1' });
         spectator.component.model.set({ status: '', message: '' });
 
         await spectator.component.save();
 
-        expect(ts_client_mod.updateMetadata).toHaveBeenCalledWith(
-            'org-1',
-            expect.objectContaining({ details: {} }),
-        );
+        expect(ts_client_mod.metadata.update).toHaveBeenCalledWith({
+            id: 'org-1',
+            body: expect.objectContaining({ details: {} }),
+        });
         expect(dialog_ref.close).toHaveBeenCalledWith(true);
     });
 });

@@ -1,10 +1,7 @@
 import { Pipe, PipeTransform } from '@angular/core';
 import { OrganisationService, Space } from '@placeos/common';
-import {
-    PlaceSystem,
-    querySystemsWithEmails,
-    showSystem,
-} from '@placeos/ts-client';
+import { type System, systems as systems_v7 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 
 const MAX_CACHED_SPACES = 5000;
 const MAX_FAILED_LOOKUPS = 500;
@@ -108,14 +105,20 @@ export class SpacePipe implements PipeTransform {
 
     private async _loadSpace(space_id: string): Promise<Space> {
         if (!space_id.includes('@')) {
-            const system = await showSystem(space_id).catch(() => null);
+            const system = await systems_v7
+                .show({ sys_id: space_id })
+                .then(orThrow)
+                .catch(() => null);
             if (system) return this._cacheSystem(system);
         }
 
         const systems = (
-            await querySystemsWithEmails({ in: space_id }).catch(() => ({
-                data: [],
-            }))
+            await systems_v7
+                .findByEmail({ in: [space_id] })
+                .then(orThrowPage)
+                .catch(() => ({
+                    data: [],
+                }))
         ).data;
         if (systems.length === 1) return this._cacheSystem(systems[0]);
 
@@ -123,7 +126,7 @@ export class SpacePipe implements PipeTransform {
         return EMPTY_SPACE;
     }
 
-    private _cacheSystem(system: PlaceSystem): Space {
+    private _cacheSystem(system: System): Space {
         const space = new Space({
             ...(system as unknown as Partial<Space>),
             zones: [...(system.zones || [])],

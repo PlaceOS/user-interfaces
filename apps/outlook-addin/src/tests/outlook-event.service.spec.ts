@@ -3,12 +3,16 @@ import {
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import { HashMap, setCurrentUser, StaffUser } from '@placeos/common';
-import * as ts_client from '@placeos/ts-client';
 
+import {
+    type StubApi,
+    type StubRequest,
+    startStubApi,
+} from '@placeos/common/tests';
 import { OutlookEventService } from '../app/calendar/outlook-event.service';
 import { MemoryItemAdapter } from '../app/calendar/outlook-item.adapter';
 
-// Mock the HTTP boundary used by `showEvent`.
+// `showEvent` runs for real. A stub API answers its request.
 vi.mock('@placeos/ts-client', { spy: true });
 
 const MIDNIGHT = new Date(2026, 9, 1).valueOf();
@@ -20,10 +24,18 @@ describe('OutlookEventService', () => {
 
     const createService = createServiceFactory(OutlookEventService);
 
+    let api: StubApi;
+    /** Gives the saved event */
+    const event_show = vi.fn<(request: StubRequest) => unknown>();
+
     beforeEach(() => {
         vi.clearAllMocks();
         setCurrentUser(new StaffUser({ email: 'jon@place.tech' }));
-        vi.mocked(ts_client.get).mockRejectedValue('Not found');
+        event_show.mockReset().mockImplementation(() => {
+            throw { status: 404 };
+        });
+        api = startStubApi();
+        api.on('GET', '/api/staff/v1/events/:id', event_show);
         adapter = new MemoryItemAdapter({
             subject: 'Working from London office',
             start: MIDNIGHT,
@@ -36,7 +48,10 @@ describe('OutlookEventService', () => {
         spectator.service.useAdapter(adapter);
     });
 
-    afterEach(() => vi.useRealTimers());
+    afterEach(() => {
+        vi.useRealTimers();
+        vi.unstubAllGlobals();
+    });
 
     it('reads the latest subject from Outlook on refresh', async () => {
         await spectator.service.refresh();
@@ -57,7 +72,7 @@ describe('OutlookEventService', () => {
     it('keeps All day unknown for an unsaved event', async () => {
         await spectator.service.refresh();
         expect(spectator.service.event()?.all_day).toBeNull();
-        expect(ts_client.get).not.toHaveBeenCalled();
+        expect(event_show).not.toHaveBeenCalled();
     });
 
     it('uses the saved All day flag only when the saved times match', async () => {
@@ -67,12 +82,11 @@ describe('OutlookEventService', () => {
             event_end: (MIDNIGHT + DAY) / 1000,
             all_day: true,
         };
-        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
-            Promise.resolve(saved)) as typeof ts_client.get);
+        event_show.mockReturnValue(saved);
         await spectator.service.refresh();
-        expect(ts_client.get).toHaveBeenCalledWith(
-            '/api/staff/v1/events/item-1?calendar=jon%40place.tech',
-        );
+        const [show] = api.requests;
+        expect(show.url.pathname).toBe('/api/staff/v1/events/item-1');
+        expect(show.url.searchParams.get('calendar')).toBe('jon@place.tech');
         expect(spectator.service.event()?.all_day).toBe(true);
 
         adapter.update({ start: MIDNIGHT + DAY, end: MIDNIGHT + 2 * DAY });
@@ -88,22 +102,29 @@ describe('OutlookEventService', () => {
             event_end: (MIDNIGHT + DAY) / 1000,
             all_day: true,
         };
-        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
-            Promise.resolve(saved)) as typeof ts_client.get);
+        event_show.mockReturnValue(saved);
         await spectator.service.refresh();
         expect(spectator.service.event()?.all_day).toBe(false);
     });
 
     it('groups saved room responses by lower-case email', async () => {
         adapter.item_id = 'item-1';
+        // The API sends the rooms as attendees that are resources
         const saved: HashMap = {
-            resources: [
-                { email: 'Room.A@place.tech', response_status: 'accepted' },
-                { email: 'room.b@place.tech', response_status: 'declined' },
+            attendees: [
+                {
+                    email: 'Room.A@place.tech',
+                    response_status: 'accepted',
+                    resource: true,
+                },
+                {
+                    email: 'room.b@place.tech',
+                    response_status: 'declined',
+                    resource: true,
+                },
             ],
         };
-        vi.mocked(ts_client.get).mockImplementation(((_url: string) =>
-            Promise.resolve(saved)) as typeof ts_client.get);
+        event_show.mockReturnValue(saved);
         await spectator.service.refresh();
         expect(spectator.service.room_responses()).toEqual({
             'room.a@place.tech': 'accepted',

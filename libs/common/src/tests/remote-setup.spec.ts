@@ -1,50 +1,85 @@
 import { TestBed } from '@angular/core/testing';
-import * as ts_client from '@placeos/ts-client';
+import {
+    deregisterSystem,
+    mockSystem,
+    registerSystem,
+} from '@placeos/ts-client/compat';
 
 import { markInitialisationComplete } from '../lib/application';
 import { deviceId } from '../lib/device-id';
-import { RemoteSetupService, RemoteSetupTarget } from '../lib/remote-setup';
+import {
+    REMOTE_SETUP_MOCK_SYSTEM,
+    remoteSetupModule,
+    RemoteSetupService,
+    RemoteSetupTarget,
+} from '../lib/remote-setup';
 import { settingSignal } from '../lib/settings.service';
+import { startFakePlaceClient } from './fake-session';
+import { startMockPlaceClient } from './test-helpers';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
-/** Driver module whose bindings the test sets */
-function fakeModule() {
-    const listeners: Record<string, (value: unknown) => void> = {};
-    const execute = vi.fn((_method: string, _args?: unknown[]) =>
-        Promise.resolve(),
-    );
-    const mod = {
-        execute,
-        variable: (name: string) => ({
-            bindThenSubscribe: (next: (value: unknown) => void) => {
-                listeners[name] = next;
-                return () => delete listeners[name];
+/**
+ * Short wait before a check that something did not occur. Use it only
+ * after a positive signal, such as `waitForBinding`.
+ */
+const flush = () => new Promise((resolve) => setTimeout(resolve, 10));
+
+/** Value that the realtime client has for a binding of the driver */
+function bindingValue(name: string) {
+    return remoteSetupModule()?.variable<unknown>(name).value();
+}
+
+/**
+ * Wait until the service binding has the value. The client gives each
+ * value to the listeners of the binding when it gets the value.
+ */
+async function waitForBinding(name: string, value: unknown) {
+    await vi.waitFor(() => expect(bindingValue(name)).toEqual(value));
+}
+
+/**
+ * RemoteSetup driver in the mock system of mock mode. The test sets its
+ * bindings, and reads the calls of its functions.
+ * @param bindings Values of the bindings at the first check
+ */
+function mockDriver(bindings: Record<string, unknown> = {}) {
+    const register = vi.fn(() => null);
+    const complete = vi.fn(() => null);
+    registerSystem(REMOTE_SETUP_MOCK_SYSTEM, {
+        RemoteSetup: [
+            {
+                connected: false,
+                clear_list: [],
+                clear_systems: [],
+                [`device_${deviceId()}`]: null,
+                register,
+                complete,
+                ...bindings,
             },
-        }),
-    };
+        ],
+    });
     return {
-        mod,
-        execute,
-        emit: (name: string, value: unknown) => listeners[name]?.(value),
+        register,
+        complete,
+        emit: (name: string, value: unknown) => {
+            const mod = mockSystem(REMOTE_SETUP_MOCK_SYSTEM)?.[
+                'RemoteSetup'
+            ]?.[0];
+            if (mod) mod[name] = value;
+        },
     };
 }
 
 describe('RemoteSetupService', () => {
-    let driver: ReturnType<typeof fakeModule>;
+    let driver: ReturnType<typeof mockDriver>;
     let target: RemoteSetupTarget;
     let service: RemoteSetupService;
     const command_binding = `device_${deviceId()}`;
 
     beforeEach(async () => {
-        driver = fakeModule();
-        vi.mocked(ts_client.authority).mockReturnValue({
-            config: { remote_setup: { system_id: 'sys-rs' } },
-        } as never);
-        vi.mocked(ts_client.isMock).mockReturnValue(false);
-        vi.mocked(ts_client.isSecure).mockReturnValue(true);
-        vi.mocked(ts_client.host).mockReturnValue('placeos.test');
-        vi.mocked(ts_client.getModule).mockReturnValue(driver.mod as never);
+        startMockPlaceClient();
+        driver = mockDriver();
         target = {
             app: 'control',
             default_path: '/concierge/#/remote-setup',
@@ -55,28 +90,30 @@ describe('RemoteSetupService', () => {
         service = TestBed.inject(RemoteSetupService);
         service.start(target);
         TestBed.tick();
-        await vi.waitFor(() => expect(ts_client.getModule).toHaveBeenCalled());
+        await vi.waitFor(() => {
+            expect(bindingValue('connected')).toBe(false);
+            expect(bindingValue(command_binding)).toBeNull();
+            expect(bindingValue('clear_list')).toEqual([]);
+            expect(bindingValue('clear_systems')).toEqual([]);
+        });
     });
 
     afterEach(() => {
         vi.useRealTimers();
+        deregisterSystem(REMOTE_SETUP_MOCK_SYSTEM);
         localStorage.clear();
         settingSignal('remote_setup_url').set(undefined);
         vi.restoreAllMocks();
     });
 
-    it('should show only when the driver is connected', () => {
-        expect(ts_client.getModule).toHaveBeenCalledWith(
-            'sys-rs',
-            'RemoteSetup',
-        );
+    it('should show only when the driver is connected', async () => {
         expect(service.available()).toBe(false);
 
         driver.emit('connected', true);
+        await vi.waitFor(() => expect(service.available()).toBe(true));
 
-        expect(service.available()).toBe(true);
         expect(service.setup_url()).toBe(
-            `https://placeos.test/concierge/#/remote-setup?device=${deviceId()}`,
+            `${location.origin}/concierge/#/remote-setup?device=${deviceId()}`,
         );
     });
 
@@ -88,30 +125,28 @@ describe('RemoteSetupService', () => {
         );
     });
 
-    it('should register after a random wait only while a setup screen shows', () => {
+    it('should register after a random wait only while a setup screen shows', async () => {
+        driver.emit('connected', true);
+        await vi.waitFor(() => expect(service.available()).toBe(true));
         vi.useFakeTimers();
         vi.spyOn(Math, 'random').mockReturnValue(0.5);
-        const registers = () =>
-            driver.execute.mock.calls.filter(([name]) => name === 'register');
-
-        driver.emit('connected', true);
         TestBed.tick();
-        vi.advanceTimersByTime(60 * 60 * 1000);
-        expect(registers()).toHaveLength(0);
+        await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+        expect(driver.register).not.toHaveBeenCalled();
 
         const close = service.showSetupScreen();
         TestBed.tick();
-        vi.advanceTimersByTime(5_000 - 1);
-        expect(registers()).toHaveLength(0);
-        vi.advanceTimersByTime(1);
-        expect(registers()).toEqual([['register', [deviceId(), 'control']]]);
-        vi.advanceTimersByTime(15 * 60 * 1000);
-        expect(registers()).toHaveLength(2);
+        await vi.advanceTimersByTimeAsync(5_000 - 1);
+        expect(driver.register).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(100);
+        expect(driver.register.mock.calls).toEqual([[deviceId(), 'control']]);
+        await vi.advanceTimersByTimeAsync(15 * 60 * 1000);
+        expect(driver.register).toHaveBeenCalledTimes(2);
 
         close();
         TestBed.tick();
-        vi.advanceTimersByTime(60 * 60 * 1000);
-        expect(registers()).toHaveLength(2);
+        await vi.advanceTimersByTimeAsync(60 * 60 * 1000);
+        expect(driver.register).toHaveBeenCalledTimes(2);
     });
 
     it('should apply a configure command once and complete it', async () => {
@@ -122,14 +157,18 @@ describe('RemoteSetupService', () => {
         };
 
         driver.emit(command_binding, command);
-        driver.emit(command_binding, command);
         await vi.waitFor(() =>
-            expect(driver.execute).toHaveBeenCalledWith('complete', [
+            expect(driver.complete).toHaveBeenCalledWith(
                 deviceId(),
                 'cmd-1',
                 'control',
-            ]),
+            ),
         );
+        // The same command again. A new `issued_at` lets the test see that
+        // the value arrived.
+        driver.emit(command_binding, { ...command, issued_at: 2 });
+        await waitForBinding(command_binding, { ...command, issued_at: 2 });
+        await flush();
 
         expect(target.apply).toHaveBeenCalledTimes(1);
         expect(target.apply).toHaveBeenCalledWith({ system_id: 'sys-2' });
@@ -142,26 +181,29 @@ describe('RemoteSetupService', () => {
             config: { system_id: 'sys-2' },
         });
         await vi.waitFor(() => expect(target.apply).toHaveBeenCalled());
-        await Promise.resolve();
+        await flush();
 
-        expect(driver.execute).not.toHaveBeenCalledWith(
-            'complete',
-            expect.anything(),
-        );
+        expect(driver.complete).not.toHaveBeenCalled();
     });
 
     it('should ignore values that are not commands', async () => {
-        driver.emit(command_binding, null);
-        driver.emit(command_binding, { config: { system_id: 'sys-2' } });
-        driver.emit(command_binding, { id: 'cmd-3', config: {} });
-        await Promise.resolve();
+        for (const value of [
+            { config: { system_id: 'sys-2' } },
+            { id: 'cmd-3', config: {} },
+            null,
+        ]) {
+            driver.emit(command_binding, value);
+            await waitForBinding(command_binding, value);
+        }
+        await flush();
 
         expect(target.apply).not.toHaveBeenCalled();
     });
 
     it('should clear the device when its ID is in the clear list', async () => {
         driver.emit('clear_list', ['DEV-OTHER']);
-        await Promise.resolve();
+        await waitForBinding('clear_list', ['DEV-OTHER']);
+        await flush();
         expect(target.apply).not.toHaveBeenCalled();
 
         driver.emit('clear_list', ['DEV-OTHER', deviceId()]);
@@ -170,19 +212,24 @@ describe('RemoteSetupService', () => {
 
     it('should clear once for an entry with its app and system', async () => {
         const entry = { id: 'clr-1', app: 'control', system_id: 'sys-1' };
-        driver.emit('clear_systems', [
+        const other = [
             { ...entry, id: 'clr-0', app: 'signage' },
             { ...entry, id: 'clr-0', system_id: 'sys-2' },
-        ]);
-        await Promise.resolve();
+        ];
+        driver.emit('clear_systems', other);
+        await waitForBinding('clear_systems', other);
+        await flush();
         expect(target.apply).not.toHaveBeenCalled();
 
         driver.emit('clear_systems', [entry]);
         await vi.waitFor(() => expect(target.apply).toHaveBeenCalledWith(null));
 
-        // A person sets the device up with the same system again
-        driver.emit('clear_systems', [entry]);
-        await Promise.resolve();
+        // A person sets the device up with the same system again. The entry
+        // of the other app lets the test see that the value arrived.
+        const again = [other[0], entry];
+        driver.emit('clear_systems', again);
+        await waitForBinding('clear_systems', again);
+        await flush();
         expect(target.apply).toHaveBeenCalledTimes(1);
     });
 
@@ -190,14 +237,14 @@ describe('RemoteSetupService', () => {
         const entry = { id: 'clr-1', app: 'control', system_id: 'sys-1' };
         vi.mocked(target.system_id).mockReturnValue(null);
         driver.emit('clear_systems', [entry]);
+        await waitForBinding('clear_systems', [entry]);
 
         // A person sets the device up with the system of the entry
         vi.mocked(target.system_id).mockReturnValue('sys-1');
-        driver.emit('clear_systems', [
-            entry,
-            { ...entry, id: 'clr-2', app: 'signage' },
-        ]);
-        await Promise.resolve();
+        const later = [entry, { ...entry, id: 'clr-2', app: 'signage' }];
+        driver.emit('clear_systems', later);
+        await waitForBinding('clear_systems', later);
+        await flush();
         expect(target.apply).not.toHaveBeenCalled();
 
         driver.emit('clear_systems', [entry, { ...entry, id: 'clr-3' }]);
@@ -205,10 +252,23 @@ describe('RemoteSetupService', () => {
     });
 
     it('should not clear for entries in the list at its first check', async () => {
-        driver.emit('clear_systems', [
+        // A new device, which binds to a list that already has the entry.
+        // A new client too: the client of `beforeEach` keeps the empty list
+        // of its binding, and would give it to the new service first.
+        TestBed.resetTestingModule();
+        localStorage.clear();
+        startMockPlaceClient();
+        mockDriver({
+            clear_systems: [
+                { id: 'clr-1', app: 'control', system_id: 'sys-1' },
+            ],
+        });
+        TestBed.inject(RemoteSetupService).start(target);
+        TestBed.tick();
+        await waitForBinding('clear_systems', [
             { id: 'clr-1', app: 'control', system_id: 'sys-1' },
         ]);
-        await Promise.resolve();
+        await flush();
 
         expect(target.apply).not.toHaveBeenCalled();
     });
@@ -216,7 +276,8 @@ describe('RemoteSetupService', () => {
     it('should not clear again while the setup screen shows', async () => {
         service.showSetupScreen();
         driver.emit('clear_list', [deviceId()]);
-        await Promise.resolve();
+        await waitForBinding('clear_list', [deviceId()]);
+        await flush();
 
         expect(target.apply).not.toHaveBeenCalled();
     });
@@ -238,29 +299,26 @@ describe('RemoteSetupService on a device it does not set up', () => {
         return service;
     }
 
-    beforeEach(() => {
-        vi.clearAllMocks();
-        vi.mocked(ts_client.isMock).mockReturnValue(false);
+    afterEach(() => {
+        deregisterSystem(REMOTE_SETUP_MOCK_SYSTEM);
+        localStorage.clear();
     });
 
-    afterEach(() => localStorage.clear());
-
     it('should not bind when the domain has no remote setup system', async () => {
-        vi.mocked(ts_client.authority).mockReturnValue({ config: {} } as never);
+        startFakePlaceClient().signIn({ id: 'auth-1', config: {} });
         const service = await start();
 
-        expect(ts_client.getModule).not.toHaveBeenCalled();
+        expect(remoteSetupModule()).toBeNull();
         expect(service.available()).toBe(false);
     });
 
     it('should not bind when MDM managed config sets the system', async () => {
-        vi.mocked(ts_client.authority).mockReturnValue({
-            config: { remote_setup: { system_id: 'sys-rs' } },
-        } as never);
+        startMockPlaceClient();
+        mockDriver().emit('connected', true);
         localStorage.setItem('PlaceOS.native.system_id', 'sys-mdm');
         const service = await start();
+        await flush();
 
-        expect(ts_client.getModule).not.toHaveBeenCalled();
         expect(service.available()).toBe(false);
     });
 });

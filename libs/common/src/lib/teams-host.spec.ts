@@ -9,12 +9,16 @@ vi.mock('@microsoft/teams-js', () => ({
 }));
 
 import * as teams from '@microsoft/teams-js';
-import * as ts_client from '@placeos/ts-client';
+import { createAuthSession } from '@placeos/ts-client';
 
+import { FakeSession, startFakePlaceClient } from '../tests/fake-session';
+import { authorise, token } from './place-client';
+import { setupPlace, type PlaceSettings } from './placeos';
 import {
     continueTeamsSignIn,
     finishTeamsSignIn,
     startTeamsHost,
+    teamsEntraToken,
     teamsHostMode,
     teamsSignInRequired,
     tokenExpiry,
@@ -70,13 +74,12 @@ describe('tokenExpiry', () => {
 });
 
 describe('Teams host startup', () => {
+    let place: FakeSession;
     beforeEach(() => {
         vi.clearAllMocks();
         sessionStorage.clear();
         vi.mocked(teams.app.initialize).mockResolvedValue(undefined);
-        vi.mocked(ts_client.token).mockReturnValue('');
-        vi.mocked(ts_client.setToken).mockImplementation(() => undefined);
-        vi.mocked(ts_client.exchangeEntraToken).mockResolvedValue(undefined);
+        place = startFakePlaceClient();
     });
 
     afterEach(() => vi.useRealTimers());
@@ -94,33 +97,32 @@ describe('Teams host startup', () => {
         expect(await mode).toBeNull();
     });
 
-    it('exchanges the SSO token without a sign-in window', async () => {
+    it('gives the SSO token of the host to the login', async () => {
         getAuthToken.mockResolvedValue('entra-token');
         await startTeamsHost('tab');
 
-        expect(await finishTeamsSignIn('tab')).toBe(true);
-        expect(ts_client.exchangeEntraToken).toHaveBeenCalledWith(
-            'entra-token',
-        );
-        expect(ts_client.setToken).not.toHaveBeenCalled();
-        expect(authenticate).not.toHaveBeenCalled();
+        expect(await teamsEntraToken()).toBe('entra-token');
     });
 
-    it('opens the sign-in window when PlaceOS rejects the SSO token', async () => {
-        getAuthToken.mockResolvedValue('entra-token');
-        vi.mocked(ts_client.exchangeEntraToken).mockRejectedValue(undefined);
+    it('gives no SSO token when SSO fails', async () => {
+        getAuthToken.mockRejectedValue(new Error('resourceRequiresConsent'));
+        await startTeamsHost('tab');
+
+        expect(await teamsEntraToken()).toBeNull();
+    });
+
+    it('opens the sign-in window when the login gave no token', async () => {
         authenticate.mockResolvedValue('place-token');
         await startTeamsHost('tab');
 
         expect(await finishTeamsSignIn('tab')).toBe(true);
-        expect(ts_client.setToken).toHaveBeenCalledWith(
+        expect(place.session.useToken).toHaveBeenCalledWith(
             'place-token',
             undefined,
         );
     });
 
-    it('opens the sign-in window when SSO fails, then waits for a click after a blocked window', async () => {
-        getAuthToken.mockRejectedValue(new Error('resourceRequiresConsent'));
+    it('waits for a click after a blocked sign-in window', async () => {
         authenticate
             .mockRejectedValueOnce(new Error('FailedToOpenWindow'))
             .mockResolvedValueOnce('place-token');
@@ -136,14 +138,14 @@ describe('Teams host startup', () => {
         continueTeamsSignIn();
         expect(await signed_in).toBe(true);
         expect(teamsSignInRequired()()).toBe(false);
-        expect(ts_client.setToken).toHaveBeenCalledWith(
+        expect(place.session.useToken).toHaveBeenCalledWith(
             'place-token',
             undefined,
         );
     });
 
     it('skips host sign in when the tab already has a token', async () => {
-        vi.mocked(ts_client.token).mockReturnValue('stored-token');
+        place.setCredential({ kind: 'bearer', token: 'stored-token' });
         await startTeamsHost('tab');
 
         expect(await finishTeamsSignIn('tab')).toBe(true);
@@ -153,12 +155,150 @@ describe('Teams host startup', () => {
     it('sends the PlaceOS token from the sign-in window to the tab', async () => {
         await startTeamsHost('auth');
         expect(sessionStorage.getItem('PLACEOS.teams_auth')).toBe('true');
-        vi.mocked(ts_client.token).mockReturnValue('place-token');
+        place.setCredential({ kind: 'bearer', token: 'place-token' });
 
         expect(await finishTeamsSignIn('auth')).toBe(false);
         expect(teams.authentication.notifySuccess).toHaveBeenCalledWith(
             'place-token',
         );
         expect(sessionStorage.getItem('PLACEOS.teams_auth')).toBeNull();
+    });
+});
+
+describe('Teams tab startup with a real session', () => {
+    const settings: PlaceSettings = {
+        protocol: 'https:',
+        domain: 'example.com',
+        port: 443,
+        route: '/',
+        use_domain: true,
+        // `startTeamsHost` gives local login for a tab
+        local_login: true,
+        mock: false,
+    };
+    const real_fetch = window.fetch;
+    /** The status of the token endpoint for the Entra exchange */
+    let exchange_status = 200;
+
+    beforeEach(() => {
+        vi.clearAllMocks();
+        localStorage.clear();
+        sessionStorage.clear();
+        // The real session, not the fake one of the other tests
+        vi.mocked(createAuthSession).mockReset();
+        vi.mocked(teams.app.initialize).mockResolvedValue(undefined);
+        getAuthToken.mockResolvedValue('entra-token');
+        authenticate.mockResolvedValue('window-token');
+        exchange_status = 200;
+        window.fetch = vi.fn(async (input: RequestInfo | URL) => {
+            const url = String(input);
+            if (url.endsWith('/auth/authority')) {
+                return Response.json({
+                    id: 'authority-1',
+                    name: 'example.com',
+                    domain: 'example.com',
+                    login_url: '/login?continue={{url}}',
+                    logout_url: '/logout',
+                    session: false,
+                    config: {},
+                });
+            }
+            if (url.endsWith('/auth/oauth/token')) {
+                return exchange_status === 200
+                    ? Response.json({ access_token: 'place-token' })
+                    : Response.json(
+                          { error: 'invalid_grant' },
+                          { status: 400 },
+                      );
+            }
+            return new Response(null, { status: 404 });
+        });
+    });
+
+    afterEach(() => (window.fetch = real_fetch));
+
+    it('signs in with the Entra exchange and does not open the window', async () => {
+        await startTeamsHost('tab');
+        await setupPlace(settings, 0, { entra_token: teamsEntraToken });
+
+        expect(await finishTeamsSignIn('tab')).toBe(true);
+        expect(authenticate).not.toHaveBeenCalled();
+        expect(token()).toBe('place-token');
+    });
+
+    it('opens the window without a second SSO when the exchange was rejected', async () => {
+        exchange_status = 400;
+        await startTeamsHost('tab');
+        await setupPlace(settings, 0, { entra_token: teamsEntraToken });
+
+        expect(await finishTeamsSignIn('tab')).toBe(true);
+        expect(getAuthToken).toHaveBeenCalledTimes(1);
+        expect(authenticate).toHaveBeenCalledTimes(1);
+        expect(token()).toBe('window-token');
+    });
+
+    it('waits for the SSO attempt that setup stopped waiting for', async () => {
+        let resolveSso: (value: string) => void = () => undefined;
+        getAuthToken.mockReturnValue(
+            new Promise((resolve) => (resolveSso = resolve)),
+        );
+        // Setup stops waiting at its time limit, here before the authority
+        // loads. The login attempt continues, and its SSO starts after that.
+        let releaseAuthority: () => void = () => undefined;
+        const authority_loaded = new Promise<void>(
+            (resolve) => (releaseAuthority = resolve),
+        );
+        const serve = window.fetch;
+        window.fetch = vi.fn(
+            async (input: RequestInfo | URL, init?: RequestInit) => {
+                if (String(input).endsWith('/auth/authority')) {
+                    await authority_loaded;
+                }
+                return serve(input, init);
+            },
+        );
+        await startTeamsHost('tab');
+        await expect(
+            setupPlace(settings, 20, { entra_token: teamsEntraToken }),
+        ).rejects.toThrow('timed out');
+        releaseAuthority();
+
+        const signed_in = finishTeamsSignIn('tab');
+        resolveSso('entra-token');
+
+        expect(await signed_in).toBe(true);
+        expect(authenticate).not.toHaveBeenCalled();
+        expect(token()).toBe('place-token');
+    });
+
+    it('does not use SSO while the sign-in window is open', async () => {
+        exchange_status = 400;
+        const entra_token = vi.fn(teamsEntraToken);
+        await startTeamsHost('tab');
+        await setupPlace(settings, 0, { entra_token });
+        let resolveWindow: (value: string) => void = () => undefined;
+        authenticate.mockReturnValue(
+            new Promise((resolve) => (resolveWindow = resolve)),
+        );
+        let resolveSso: (value: string) => void = () => undefined;
+        getAuthToken.mockReturnValue(
+            new Promise((resolve) => (resolveSso = resolve)),
+        );
+        // A late SSO exchange would now give a token
+        exchange_status = 200;
+
+        const signed_in = finishTeamsSignIn('tab');
+        await vi.waitFor(() => expect(authenticate).toHaveBeenCalledTimes(1));
+        // A background request that needs a token
+        const background = authorise().catch(() => undefined);
+        await vi.waitFor(() => expect(entra_token).toHaveBeenCalledTimes(2));
+        resolveWindow('window-token');
+        expect(await signed_in).toBe(true);
+        resolveSso('entra-token');
+        await background;
+
+        await expect(entra_token.mock.results[1].value).resolves.toBeNull();
+        expect(getAuthToken).toHaveBeenCalledTimes(1);
+        expect(token()).toBe('window-token');
     });
 });

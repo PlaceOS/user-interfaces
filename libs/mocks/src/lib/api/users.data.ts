@@ -786,12 +786,13 @@ export const MOCK_GUESTS = VISITOR_PROFILES.map((profile, i) => {
             .slice(0, 12) + '.com';
 
     return {
-        id: `guest-${i + 1}`,
+        // Staff API guest IDs are integers
+        id: i + 1,
         name: `${profile.first_name} ${profile.last_name}`,
         email: `${emailName}@${companyDomain}`,
         first_name: profile.first_name,
         last_name: profile.last_name,
-        company: profile.company,
+        organisation: profile.company,
         purpose: profile.purpose,
         visit_expected: predictableRandomInt(99999) % 3 !== 0, // 66% expected
         phone: `+61 ${predictableRandomInt(8) + 2} ${String(predictableRandomInt(9000) + 1000).slice(0, 4)} ${String(predictableRandomInt(9000) + 1000).slice(0, 4)}`,

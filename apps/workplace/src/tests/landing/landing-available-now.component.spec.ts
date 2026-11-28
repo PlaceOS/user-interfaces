@@ -19,8 +19,11 @@ import { CalendarService } from 'libs/events/src/lib/calendar.service';
 import { MockProvider } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { LandingAvailableNowComponent } from '../../app/landing-new/landing-available-now.component';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 
@@ -98,41 +101,53 @@ describe('LandingAvailableNowComponent', () => {
         free_space_list.set([]);
         setCurrentUser(new StaffUser({ id: 'me', groups: ['staff'] }));
         // Desk list of the building: one request for all levels
-        vi.mocked(ts_client.listChildMetadata).mockResolvedValue([
-            {
-                zone: { id: 'lvl-1' },
-                metadata: {
-                    desks: {
-                        details: [
-                            { id: 'desk-1', bookable: true },
-                            { id: 'desk-2', bookable: true },
-                            { id: 'desk-3', bookable: false },
-                            {
-                                id: 'desk-4',
-                                bookable: true,
-                                groups: ['managers'],
-                            },
-                        ],
+        vi.mocked(ts_client.metadata.childrenMetadata).mockResolvedValue(
+            mockReply([
+                {
+                    zone: { id: 'lvl-1' },
+                    metadata: {
+                        desks: {
+                            details: [
+                                { id: 'desk-1', bookable: true },
+                                { id: 'desk-2', bookable: true },
+                                { id: 'desk-3', bookable: false },
+                                {
+                                    id: 'desk-4',
+                                    bookable: true,
+                                    groups: ['managers'],
+                                },
+                            ],
+                        },
                     },
                 },
-            },
-            {
-                zone: { id: 'lvl-2' },
-                metadata: {
-                    desks: { details: [{ id: 'desk-5', bookable: true }] },
+                {
+                    zone: { id: 'lvl-2' },
+                    metadata: {
+                        desks: { details: [{ id: 'desk-5', bookable: true }] },
+                    },
                 },
-            },
-        ] as any);
+            ] as any),
+        );
         // Booking rules of the building
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         // Booked desk IDs for the time from now
-        vi.mocked(ts_client.query).mockResolvedValue({
-            data: ['desk-2'],
-            next: null,
-            total: 1,
-        } as any);
+        vi.mocked(staff_bookings.booked).mockImplementation(
+            fromV1Mock(
+                () => ({ data: ['desk-2'], next: null, total: 1 }),
+                ['...'],
+                'page',
+            ),
+        );
         spectator = createComponent();
     });
 
@@ -147,7 +162,7 @@ describe('LandingAvailableNowComponent', () => {
             'lvl-2': 1,
         });
         expect(levelRows()).toHaveLength(2);
-        const { query_params } = vi.mocked(ts_client.query).mock.calls[0][0];
+        const [query_params] = vi.mocked(staff_bookings.booked).mock.calls[0];
         expect(query_params).toMatchObject({ type: 'desk', zones: 'bld-1' });
         expect(Math.abs(query_params.period_start - now)).toBeLessThan(5);
         expect(query_params.period_end - query_params.period_start).toBe(3600);
@@ -157,16 +172,17 @@ describe('LandingAvailableNowComponent', () => {
         await settle();
         await settle();
 
-        expect(ts_client.listChildMetadata).toHaveBeenCalledTimes(1);
-        expect(ts_client.listChildMetadata).toHaveBeenCalledWith('bld-1', {
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledTimes(1);
+        expect(ts_client.metadata.childrenMetadata).toHaveBeenCalledWith({
+            id: 'bld-1',
             name: 'desks',
         });
-        expect(ts_client.showMetadata).toHaveBeenCalledTimes(1);
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'bld-1',
-            'desk_booking_rules',
-        );
-        expect(ts_client.query).toHaveBeenCalledTimes(1);
+        expect(ts_client.metadata.show).toHaveBeenCalledTimes(1);
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'bld-1',
+            name: 'desk_booking_rules',
+        });
+        expect(staff_bookings.booked).toHaveBeenCalledTimes(1);
     });
 
     it('should open on the first enabled tab and make no desk request without the desks feature', async () => {
@@ -181,8 +197,8 @@ describe('LandingAvailableNowComponent', () => {
         expect(spectator.component.active_tab()).toBe('rooms');
         expect(spectator.component.free_by_level()).toEqual({ 'lvl-2': 2 });
         expect(levelRows()).toHaveLength(1);
-        expect(ts_client.listChildMetadata).not.toHaveBeenCalled();
-        expect(ts_client.query).not.toHaveBeenCalled();
+        expect(ts_client.metadata.childrenMetadata).not.toHaveBeenCalled();
+        expect(staff_bookings.booked).not.toHaveBeenCalled();
     });
 
     it('should watch live room statuses only while the rooms tab is open', async () => {

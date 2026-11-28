@@ -13,7 +13,8 @@ import {
     IconComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { approveSignageTemplate, SignageTemplate } from '@placeos/ts-client';
+import { signage_templates, type SignageTemplate } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { SignageContextService } from '../signage-context.service';
 import { SignageTemplateService } from '../templates/signage-template.service';
 import { TemplateApprovalPreviewComponent } from './template-approval-preview.component';
@@ -160,9 +161,9 @@ export class TemplateApproveModalComponent {
         this.loading.set(i18n('SIGNAGE_MANAGER.APPROVING_TEMPLATE'));
         this._dialog_ref.disableClose = true;
         try {
-            const template = await approveSignageTemplate(
-                this._data.template.id,
-            );
+            const template = await signage_templates
+                .approve({ id: this._data.template.id })
+                .then(orThrow);
             this._template_service.updateCachedTemplate(template);
             notifySuccess(i18n('SIGNAGE_MANAGER.TEMPLATE_APPROVED'));
             this._dialog_ref.close(true);

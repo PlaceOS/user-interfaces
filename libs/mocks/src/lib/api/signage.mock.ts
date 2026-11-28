@@ -1079,7 +1079,12 @@ export function registerMockSignage() {
                 description: display.description,
                 hardware: display.hardware,
                 status: display.status,
-                location: display.location,
+                // A zone location is text
+                location: [
+                    display.location.building,
+                    display.location.level,
+                    display.location.area,
+                ].join(', '),
             });
         }
     });

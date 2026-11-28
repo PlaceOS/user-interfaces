@@ -6,7 +6,8 @@ import {
 } from '@ngneat/spectator/vitest';
 import { MockComponent, MockProvider } from 'ng-mocks';
 
-import { addAlertDashboard, updateAlertDashboard } from '@placeos/ts-client';
+import { alert_dashboards } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 import { setNotifyOutlet } from '@placeos/common';
 import { IconComponent, SettingsToggleComponent } from '@placeos/components';
@@ -67,12 +68,14 @@ describe('DashboardManageComponent', () => {
         await spectator.component.save();
 
         expect(notify_open).toHaveBeenCalled();
-        expect(addAlertDashboard).not.toHaveBeenCalled();
-        expect(updateAlertDashboard).not.toHaveBeenCalled();
+        expect(alert_dashboards.create).not.toHaveBeenCalled();
+        expect(alert_dashboards.update).not.toHaveBeenCalled();
     });
 
     it('should create a new dashboard and navigate to it on save', async () => {
-        vi.mocked(addAlertDashboard).mockResolvedValue({ id: 'new-1' } as any);
+        vi.mocked(alert_dashboards.create).mockResolvedValue(
+            mockReply({ id: 'new-1' } as any),
+        );
         build();
         spectator.component.model.set({
             id: '',
@@ -83,10 +86,10 @@ describe('DashboardManageComponent', () => {
 
         await spectator.component.save();
 
-        expect(addAlertDashboard).toHaveBeenCalledWith(
-            expect.objectContaining({ name: 'Reception' }),
-        );
-        expect(updateAlertDashboard).not.toHaveBeenCalled();
+        expect(alert_dashboards.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({ name: 'Reception' }),
+        });
+        expect(alert_dashboards.update).not.toHaveBeenCalled();
         expect(service.loadDashboards).toHaveBeenCalled();
         expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
             '/dashboards',
@@ -96,9 +99,11 @@ describe('DashboardManageComponent', () => {
     });
 
     it('should update an existing dashboard on save', async () => {
-        vi.mocked(updateAlertDashboard).mockResolvedValue({
-            id: 'dash-1',
-        } as any);
+        vi.mocked(alert_dashboards.update).mockResolvedValue(
+            mockReply({
+                id: 'dash-1',
+            } as any),
+        );
         service.dashboard.set({ id: 'dash-1', name: 'Old' });
         build();
         spectator.component.model.set({
@@ -110,15 +115,15 @@ describe('DashboardManageComponent', () => {
 
         await spectator.component.save();
 
-        expect(updateAlertDashboard).toHaveBeenCalledWith(
-            'dash-1',
-            expect.objectContaining({ id: 'dash-1', name: 'Renamed' }),
-        );
-        expect(addAlertDashboard).not.toHaveBeenCalled();
+        expect(alert_dashboards.update).toHaveBeenCalledWith({
+            id: 'dash-1',
+            body: expect.objectContaining({ id: 'dash-1', name: 'Renamed' }),
+        });
+        expect(alert_dashboards.create).not.toHaveBeenCalled();
     });
 
     it('should tell the user and stay put when the save request fails', async () => {
-        vi.mocked(addAlertDashboard).mockRejectedValue(new Error('nope'));
+        vi.mocked(alert_dashboards.create).mockRejectedValue(new Error('nope'));
         build();
         spectator.component.model.set({
             id: '',
@@ -160,8 +165,8 @@ describe('DashboardManageComponent', () => {
         await spectator.component.save();
 
         expect(spectator.component.model().id).not.toBe('dash-1');
-        expect(updateAlertDashboard).not.toHaveBeenCalled();
-        expect(addAlertDashboard).not.toHaveBeenCalled();
+        expect(alert_dashboards.update).not.toHaveBeenCalled();
+        expect(alert_dashboards.create).not.toHaveBeenCalled();
     });
 
     it('should not load a dashboard when the route has no id', () => {

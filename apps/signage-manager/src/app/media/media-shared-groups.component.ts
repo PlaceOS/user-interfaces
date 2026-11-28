@@ -96,8 +96,7 @@ export class MediaSharedGroupsComponent {
                       shared_groups_change: signage_shared_groups_change(),
                   }
                 : undefined,
-        loader: ({ params }) =>
-            listSignageSharedGroups('media', params.id, params.group_id),
+        loader: ({ params }) => listSignageSharedGroups('media', params.id),
         defaultValue: [] as SignageSharedGroup[],
     });
 

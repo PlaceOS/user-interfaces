@@ -2,11 +2,13 @@ import { signal } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { OrganisationService, setNotifyOutlet } from '@placeos/common';
+import { startMockPlaceClient } from '@placeos/common/tests';
 import { MockProvider } from 'ng-mocks';
 
 import { LevelModalComponent } from '../../app/level-manager/level-modal.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -40,11 +42,16 @@ describe('LevelModalComponent', () => {
             dismiss: () => undefined,
         }));
         setNotifyOutlet({ open: notify_open } as any, true);
-        (ts_client.authority as any).mockReturnValue({ description: 'ACME' });
-        (ts_client.addZone as any).mockReset();
-        (ts_client.updateZone as any).mockReset();
-        (ts_client.addZone as any).mockResolvedValue({ id: 'lvl-new' });
-        (ts_client.updateZone as any).mockResolvedValue({ id: 'lvl-1' });
+        // The authority of mock mode has an empty description
+        startMockPlaceClient();
+        (ts_client.zones.create as any).mockReset();
+        (ts_client.zones.update as any).mockReset();
+        (ts_client.zones.create as any).mockResolvedValue(
+            mockReply({ id: 'lvl-new' }),
+        );
+        (ts_client.zones.update as any).mockResolvedValue(
+            mockReply({ id: 'lvl-1' }),
+        );
     });
 
     afterEach(() => {
@@ -77,7 +84,7 @@ describe('LevelModalComponent', () => {
             expect.anything(),
             expect.objectContaining({ panelClass: ['error'] }),
         );
-        expect(ts_client.addZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
     });
 
     it('should create a new level with parking tag and close on success', async () => {
@@ -92,12 +99,12 @@ describe('LevelModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.addZone).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.zones.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 tags: ['level', 'parking'],
-                name: 'LEVEL ACME Ground Floor',
+                name: 'LEVEL  Ground Floor',
             }),
-        );
+        });
         expect(spectator.inject(MatDialogRef).close).toHaveBeenCalledWith({
             id: 'lvl-new',
         });
@@ -115,10 +122,10 @@ describe('LevelModalComponent', () => {
 
         await spectator.component.save();
 
-        expect(ts_client.updateZone).toHaveBeenCalledWith(
-            'lvl-1',
-            expect.objectContaining({ tags: ['level'] }),
-        );
-        expect(ts_client.addZone).not.toHaveBeenCalled();
+        expect(ts_client.zones.update).toHaveBeenCalledWith({
+            id: 'lvl-1',
+            body: expect.objectContaining({ tags: ['level'] }),
+        });
+        expect(ts_client.zones.create).not.toHaveBeenCalled();
     });
 });

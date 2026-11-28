@@ -1,9 +1,9 @@
 import { HashMap } from '@placeos/common';
 import {
-    MockPlaceWebsocketSystem,
+    type MockPlaceWebsocketSystem,
     mockSystem,
     registerSystem,
-} from '@placeos/ts-client';
+} from '@placeos/ts-client/compat';
 
 import { createCameraModule } from './realtime/camera';
 import { createCaptureModule } from './realtime/capture';
@@ -42,20 +42,24 @@ const isPlainData = (value: unknown) =>
     Object.getPrototypeOf(value) === Object.prototype;
 
 /**
- * Public binding values of a mock module, without its methods. ts-client
- * keeps each binding in a `_<name>` signal. Names that start with `_` are
+ * Public binding values of a mock module, without its functions. ts-client
+ * makes each status variable a property with a getter and a setter, and
+ * keeps each function under a `$` name. Names that start with `_` are
  * internal state of the mock, such as a `Set`, and are left out.
  */
 export function moduleState(mod: HashMap): HashMap {
     const values: HashMap = {};
     for (const key of Object.keys(mod)) {
-        if (key[0] !== '_' || key[1] === '_') continue;
-        if (typeof mod[key]?.set !== 'function') continue;
-        const value = mod[key].value;
-        if (isPlainData(value)) values[key.slice(1)] = value;
+        if (key[0] === '_' || key[0] === '$') continue;
+        const value = mod[key];
+        if (typeof value === 'function') continue;
+        if (isPlainData(value)) values[key] = value;
     }
     return values;
 }
+
+/** The `$` commands that run now, with the commands that they call */
+let command_depth = 0;
 
 /**
  * Keep the binding values of the mock modules that receive a command, for
@@ -89,7 +93,12 @@ function persistSystem(id: string, system: MockPlaceWebsocketSystem) {
                         if (!mod) continue;
                         (called[name] ||= new Set()).add(+index);
                         for (const prop in values) {
-                            if (`_${prop}` in mod) mod[prop] = values[prop];
+                            if (
+                                prop in mod &&
+                                typeof mod[prop] !== 'function'
+                            ) {
+                                mod[prop] = values[prop];
+                            }
                         }
                     }
                 }
@@ -101,16 +110,30 @@ function persistSystem(id: string, system: MockPlaceWebsocketSystem) {
     for (const [name, modules] of Object.entries(system)) {
         if (!Array.isArray(modules)) continue;
         modules.forEach((mod, index) => {
-            // Commands from the app arrive through `call`. Internal polling
-            // calls the `$` methods directly, so it does not save.
-            const call = mod.call.bind(mod);
-            mod.call = (command: string, args?: unknown[]) => {
-                const result = call(command, args);
-                (called[name] ||= new Set()).add(index);
-                track();
-                saveMockSession();
-                return result;
-            };
+            // Commands from the app call the `$` functions. Polling keeps a
+            // reference to the function from before this wrap, so it does
+            // not save.
+            for (const key of Object.keys(mod)) {
+                const fn = mod[key];
+                if (key[0] !== '$' || typeof fn !== 'function') continue;
+                mod[key] = (...args: unknown[]) => {
+                    // A command can call other `$` functions. Save one time,
+                    // when the outermost command returns.
+                    command_depth += 1;
+                    let result: unknown;
+                    try {
+                        result = fn.apply(mod, args);
+                    } finally {
+                        command_depth -= 1;
+                    }
+                    (called[name] ||= new Set()).add(index);
+                    if (command_depth === 0) {
+                        track();
+                        saveMockSession();
+                    }
+                    return result;
+                };
+            }
         });
     }
 }
@@ -136,11 +159,17 @@ export function createSystem(space: HashMap) {
     });
 
     const system = mockSystem(space.id);
+    // Taken before `persistSystem` wraps the functions, so polling does not
+    // save the polled modules.
+    const bookings = system.Bookings[0];
+    const pollBookings = bookings.$poll_bookings;
+    const areas = system.AreaManagement[0];
+    const updateAreas = areas.$update;
     persistSystem(space.id, system);
 
-    system.Bookings[0].$poll_bookings();
-    setInterval(() => system.Bookings[0].$poll_bookings(), 30 * 1000);
+    pollBookings.call(bookings);
+    setInterval(() => pollBookings.call(bookings), 30 * 1000);
 
-    system.AreaManagement[0].$update();
-    setInterval(() => system.AreaManagement[0].$update(), 30 * 1000);
+    updateAreas.call(areas);
+    setInterval(() => updateAreas.call(areas), 30 * 1000);
 }

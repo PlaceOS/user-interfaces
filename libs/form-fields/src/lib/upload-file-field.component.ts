@@ -1,6 +1,7 @@
 import { Component, input, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
-import { Attachment, provideValueAccessor } from '@placeos/common';
+import { Attachment } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { IconComponent } from 'libs/components/src/lib/icon.component';

@@ -5,8 +5,8 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService, Space } from '@placeos/common';
+import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
 import { SpacesService } from '@placeos/events';
-import { isOnline } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { BehaviorSubject } from 'rxjs';
 
@@ -22,6 +22,8 @@ describe('AppTimetableComponent', () => {
     const time_format = signal<'h:mm a' | 'HH:mm'>('h:mm a');
     /** Value of `SpacesService.initialised` */
     const spaces_ready = signal(true);
+    /** Login session that sets the result of `isOnline` */
+    let place: FakeSession;
     const createComponent = createRoutingFactory({
         component: AppTimetableComponent,
         detectChanges: false,
@@ -62,7 +64,8 @@ describe('AppTimetableComponent', () => {
         space_list = [];
         time_format.set('h:mm a');
         spaces_ready.set(true);
-        vi.mocked(isOnline).mockReturnValue(true);
+        place = startFakePlaceClient();
+        place.signIn();
     });
 
     afterEach(() => {
@@ -258,7 +261,7 @@ describe('AppTimetableComponent', () => {
 
         it('should record when the connection drops and clear it on reconnect', async () => {
             const component = await init();
-            vi.mocked(isOnline).mockReturnValue(false);
+            place.signOut();
 
             vi.advanceTimersByTime(2000);
             const offline_at = start.valueOf() + 2000;
@@ -269,7 +272,7 @@ describe('AppTimetableComponent', () => {
             spectator.detectChanges();
             expect('[offline]').toContainText('Offline since 10:00 AM');
 
-            vi.mocked(isOnline).mockReturnValue(true);
+            place.signIn();
             vi.advanceTimersByTime(2000);
             expect(component.offline_since()).toBe(0);
             spectator.detectChanges();

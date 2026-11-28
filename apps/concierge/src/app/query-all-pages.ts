@@ -1,13 +1,16 @@
-import type { ShortURL } from '@placeos/common';
-import { query, SurveyQuestion, type QueryResponse } from '@placeos/ts-client';
+import { short_url } from '@placeos/ts-client';
+import { orThrow, orThrowPage, type Page } from '@placeos/ts-client/compat';
+import { surveys_questions } from '@placeos/ts-client/staff';
 
 const MAX_QUERY_PAGES = 50;
 
-type QueryParams = Record<string, string | number | boolean | null | undefined>;
-
-/** Load each page until the API is exhausted or returns an empty page. */
+/**
+ * Load each page until the API is exhausted or returns an empty page.
+ * Give it the first page of a paged call, such as
+ * `systems.query({ limit: 500 }).then(orThrowPage)`. Stops after 50 pages.
+ */
 export async function queryAllPages<T>(
-    first_page: QueryResponse<T>,
+    first_page: Promise<Page<readonly T[]>>,
 ): Promise<T[]> {
     let response = await first_page;
     let page_data = response?.data || [];
@@ -30,24 +33,16 @@ export async function queryAllPages<T>(
     return list;
 }
 
-export function queryAllSurveyQuestions(query_params: QueryParams = {}) {
-    return queryAllPages(
-        query<SurveyQuestion>({
-            query_params,
-            endpoint: '/api/staff/v1/surveys/questions',
-            path: '',
-            fn: (item) => new SurveyQuestion(item),
-        }),
-    );
+/** Survey questions. The staff API sends every question in one response. */
+export async function queryAllSurveyQuestions(
+    query_params: Parameters<typeof surveys_questions.query>[0] = {},
+) {
+    return [...(await surveys_questions.query(query_params).then(orThrow))];
 }
 
-export function queryAllShortURLs(query_params: QueryParams = {}) {
-    return queryAllPages(
-        query<ShortURL>({
-            query_params,
-            endpoint: '/api/engine/v2/short_url',
-            path: '',
-            fn: (item) => item as ShortURL,
-        }),
-    );
+/** Every short URL of the domain that matches the query. */
+export function queryAllShortURLs(
+    query_params: Parameters<typeof short_url.query>[0] = {},
+) {
+    return queryAllPages(short_url.query(query_params).then(orThrowPage));
 }

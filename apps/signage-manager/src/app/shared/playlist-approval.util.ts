@@ -1,7 +1,5 @@
-import {
-    listSignagePlaylistMediaRevisions,
-    SignagePlaylistMedia,
-} from '@placeos/ts-client';
+import { playlist, type PlaylistRevision } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 /** Most revisions to read when looking for the last approved revision */
 const PLAYLIST_REVISION_LIMIT = 25;
@@ -15,11 +13,10 @@ const PLAYLIST_REVISION_LIMIT = 25;
  */
 export async function loadPlaylistApprovalVersions(
     playlist_id: string,
-): Promise<SignagePlaylistMedia[]> {
-    const [latest, ...older] = await listSignagePlaylistMediaRevisions(
-        playlist_id,
-        { limit: PLAYLIST_REVISION_LIMIT },
-    );
+): Promise<PlaylistRevision[]> {
+    const [latest, ...older] = await playlist
+        .mediaRevisions({ id: playlist_id, limit: PLAYLIST_REVISION_LIMIT })
+        .then(orThrow);
     if (!latest) return [];
     const approved = older.find((revision) => revision.approved);
     return approved ? [latest, approved] : [latest];
@@ -33,10 +30,10 @@ export async function loadPlaylistApprovalVersions(
  */
 export async function playlistChangedSince(
     playlist_id: string,
-    shown: SignagePlaylistMedia | undefined,
+    shown: PlaylistRevision | undefined,
 ) {
-    const [latest] = await listSignagePlaylistMediaRevisions(playlist_id, {
-        limit: 1,
-    });
+    const [latest] = await playlist
+        .mediaRevisions({ id: playlist_id, limit: 1 })
+        .then(orThrow);
     return latest?.id !== shown?.id || latest?.updated_at !== shown?.updated_at;
 }

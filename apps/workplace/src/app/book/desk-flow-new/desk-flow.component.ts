@@ -34,7 +34,8 @@ import {
 } from '@placeos/common';
 import { IconComponent, TranslatePipe } from '@placeos/components';
 import { SpacePipe } from '@placeos/events';
-import { listChildMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { set } from 'date-fns';
 import { notifyInvalidBookingFields } from '../booking-invalid-fields';
 import { DeskFlowAutoAssignComponent } from './desk-flow-auto-assign.component';
@@ -326,9 +327,10 @@ export class DeskFlowNewComponent extends AsyncHandler implements OnInit {
             return this._findDeskAssetFromBuildings(asset_id);
         }
         for (const building of this._org.buildings || []) {
-            const data = await listChildMetadata(building.id, {
-                name: 'desks',
-            }).catch(() => []);
+            const data = await metadata_v7
+                .childrenMetadata({ id: building.id, name: 'desks' })
+                .then(orThrow)
+                .catch(() => []);
             const resources = flatten<BookingAsset>(
                 data.map((metadata) =>
                     (metadata?.metadata?.desks?.details instanceof Array

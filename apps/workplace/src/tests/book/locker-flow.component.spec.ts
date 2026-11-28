@@ -11,6 +11,8 @@ import {
     StaffUser,
 } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
+import { bookings as staff_bookings } from '@placeos/ts-client/staff';
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BookLockerFlowComponent } from '../../app/book/locker-flow.component';
 import { BookLockerFlowConfirmComponent } from '../../app/book/locker-flow/locker-flow-confirm.component';
@@ -18,6 +20,7 @@ import { BookLockerFlowFormComponent } from '../../app/book/locker-flow/locker-f
 import { BookLockerFlowSuccessComponent } from '../../app/book/locker-flow/locker-flow-success.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 describe('BookLockerFlowComponent', () => {
     let spectator: SpectatorRouting<BookLockerFlowComponent>;
@@ -70,15 +73,28 @@ describe('BookLockerFlowComponent', () => {
                 name: 'Me',
             }),
         );
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
-        vi.mocked(ts_client.query).mockResolvedValue({ data: [] } as any);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.post).mockResolvedValue({ id: 'x' } as any);
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(() => [], ['...']),
+        );
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(staff_bookings.create).mockImplementation(
+            fromV1Mock(() => ({ id: 1 }), ['...']),
+        );
         model = signal<Record<string, unknown>>({ id: '', booking_type: '' });
         view = signal<string>('form');
         set_view = vi.fn((v: string) => view.set(v));
@@ -144,7 +160,9 @@ describe('BookLockerFlowComponent', () => {
     });
 
     it('should flag when the user already has a locker booking today', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([{ id: 'b-1' }] as any);
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(() => [{ id: 1 }], ['...']),
+        );
         build();
         await spectator.fixture.whenStable();
         expect(spectator.component.has_booking()).toBe(true);

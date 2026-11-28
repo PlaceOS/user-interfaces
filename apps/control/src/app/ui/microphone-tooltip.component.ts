@@ -10,7 +10,7 @@ import {
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSliderModule } from '@angular/material/slider';
-import { getModule } from '@placeos/ts-client';
+import { getModule } from '@placeos/common';
 import { ControlStateService } from '../control-state.service';
 
 @Component({

@@ -5,19 +5,21 @@ import {
     inject,
     OnInit,
     signal,
+    untracked,
 } from '@angular/core';
 import {
     AsyncHandler,
+    authority,
     autoConfirmNativeDomain,
     getLoadingMessage,
     initialisationComplete,
     initialisationFailure,
     nativeDomainError,
     needsNativeDomain,
+    onlineState,
     PlaceOS_Service,
     retryInitialisation,
 } from '@placeos/common';
-import { authority, onlineState } from '@placeos/ts-client';
 
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { NativeDomainOverlayComponent } from './native-domain-overlay.component';
@@ -201,39 +203,44 @@ export class GlobalLoadingComponent extends AsyncHandler implements OnInit {
         retryInitialisation();
     }
 
+    /**
+     * The client loads the domain before it reports online, so one effect
+     * updates both. It runs now and on each online change.
+     */
+    private readonly _track_online = effect(() => {
+        const is_online = onlineState()();
+        untracked(() => {
+            this.online.set(is_online);
+            if (is_online) {
+                this.connection_checked.set(true);
+                this.clearTimeout('initial-connection');
+            }
+            this.updateGradient();
+        });
+    });
+
     public ngOnInit() {
-        const online_state = onlineState();
         // The client reports offline while the first authority request is pending.
         this.timeout(
             'initial-connection',
             () => {
-                this.online.set(online_state());
+                this.online.set(onlineState()());
                 this.connection_checked.set(true);
             },
             5000,
         );
-        // Settings load after this screen shows, so the colours come from
-        // the domain. Keep the last known gradient until the domain loads.
-        const update_gradient = () => {
-            const domain = authority();
-            if (!domain) return;
-            const gradient = loadingGradient(domain.config?.loading_gradient);
-            if (gradient === this.gradient()) return;
-            this.gradient.set(gradient);
-            localStorage.setItem(GRADIENT_CACHE_KEY, gradient);
-        };
-        // The client loads the domain before it reports online, so one
-        // listener updates both. It runs now and on each online change.
-        this.subscription(
-            'online',
-            online_state.subscribe((is_online) => {
-                this.online.set(is_online);
-                if (is_online) {
-                    this.connection_checked.set(true);
-                    this.clearTimeout('initial-connection');
-                }
-                update_gradient();
-            }),
-        );
+    }
+
+    /**
+     * Settings load after this screen shows, so the colours come from the
+     * domain. Keeps the last known gradient until the domain loads.
+     */
+    private updateGradient() {
+        const domain = authority();
+        if (!domain) return;
+        const gradient = loadingGradient(domain.config?.loading_gradient);
+        if (gradient === this.gradient()) return;
+        this.gradient.set(gradient);
+        localStorage.setItem(GRADIENT_CACHE_KEY, gradient);
     }
 }

@@ -14,12 +14,16 @@ import {
 import { getUnixTime } from 'date-fns';
 import { NEVER, Observable, of } from 'rxjs';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import { Booking as StaffBooking, bookings } from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 import { LockerStateService } from '../../app/lockers/locker-state.service';
 import { buildingDayEnd, buildingDayStart } from '../../app/ui/building-time';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 const CATEGORY_STUB = {
     data: [{ id: 'cat-lockers', name: '_LOCKERS_', hidden: true }],
@@ -70,47 +74,55 @@ describe('LockerStateService', () => {
 
     /** Reset ts-client boundary spies with safe defaults for service bootstrap */
     const stubTsClient = () => {
-        (ts_client.queryAssetCategories as any).mockReset();
-        (ts_client.queryAssetCategories as any).mockResolvedValue(
-            CATEGORY_STUB,
+        (ts_client.asset_categories.query as any).mockReset();
+        (ts_client.asset_categories.query as any).mockResolvedValue(
+            mockPage(CATEGORY_STUB),
         );
-        (ts_client.queryAssetTypes as any).mockReset();
-        (ts_client.queryAssetTypes as any).mockResolvedValue(TYPE_STUB);
-        (ts_client.queryAssets as any).mockReset();
-        (ts_client.queryAssets as any).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        (ts_client.query as any).mockReset();
-        (ts_client.query as any).mockResolvedValue({
-            data: [],
-            total: 0,
-            next: null,
-        });
-        (ts_client.get as any).mockReset();
-        (ts_client.get as any).mockResolvedValue([]);
-        (ts_client.post as any).mockReset();
-        (ts_client.post as any).mockResolvedValue({});
-        (ts_client.patch as any).mockReset();
-        (ts_client.patch as any).mockResolvedValue({});
-        (ts_client.del as any).mockReset();
-        (ts_client.del as any).mockResolvedValue(undefined);
-        (ts_client.addAsset as any).mockReset();
-        (ts_client.addAsset as any).mockResolvedValue({ id: 'locker-1' });
-        (ts_client.updateAsset as any).mockReset();
-        (ts_client.updateAsset as any).mockResolvedValue({ id: 'locker-1' });
+        (ts_client.asset_types.query as any).mockReset();
+        (ts_client.asset_types.query as any).mockResolvedValue(
+            mockPage(TYPE_STUB),
+        );
+        (ts_client.assets.query as any).mockReset();
+        (ts_client.assets.query as any).mockResolvedValue(
+            mockPage({
+                data: [],
+                total: 0,
+                next: null,
+            }),
+        );
+        // @placeos/bookings calls the staff `bookings` operations
+        const booking = mockReply(mockData(StaffBooking, { id: 1 }));
+        vi.mocked(bookings.query).mockReset();
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockPage({ data: [], total: 0 }),
+        );
+        vi.mocked(bookings.create).mockReset();
+        vi.mocked(bookings.create).mockResolvedValue(booking);
+        vi.mocked(bookings.update).mockReset();
+        vi.mocked(bookings.update).mockResolvedValue(booking);
+        vi.mocked(bookings.approve).mockReset();
+        vi.mocked(bookings.approve).mockResolvedValue(booking);
+        vi.mocked(bookings.reject).mockReset();
+        vi.mocked(bookings.reject).mockResolvedValue(booking);
+        vi.mocked(bookings.rejectInstance).mockReset();
+        vi.mocked(bookings.rejectInstance).mockResolvedValue(booking);
+        vi.mocked(bookings.destroy).mockReset();
+        vi.mocked(bookings.destroy).mockResolvedValue(mockReply(''));
+        (ts_client.assets.create as any).mockReset();
+        (ts_client.assets.create as any).mockResolvedValue(
+            mockReply({ id: 'locker-1' }),
+        );
+        (ts_client.assets.update as any).mockReset();
+        (ts_client.assets.update as any).mockResolvedValue(
+            mockReply({ id: 'locker-1' }),
+        );
     };
 
-    /** Paged booking listing requests (queryPagedBookings -> query path '') */
-    const pagedBookingCalls = () =>
-        (ts_client.query as any).mock.calls.filter(
-            (c: any[]) =>
-                c[0]?.path === '' && c[0]?.endpoint?.includes('booking'),
-        );
+    /** Paged booking listing requests (queryPagedBookings -> bookings.query) */
+    const pagedBookingCalls = () => vi.mocked(bookings.query).mock.calls;
     /** Locker asset queries by resolved asset type */
     const assetQueryCalls = (type_id: string) =>
-        (ts_client.queryAssets as any).mock.calls.filter(
+        (ts_client.assets.query as any).mock.calls.filter(
             (c: any[]) => c[0]?.type_id === type_id,
         );
 
@@ -190,7 +202,7 @@ describe('LockerStateService', () => {
         const timezone = spectator.service.timezone;
         const paged = pagedBookingCalls();
         expect(paged.length).toBeGreaterThan(0);
-        expect(paged[paged.length - 1][0].query_params).toEqual(
+        expect(paged[paged.length - 1][0]).toEqual(
             expect.objectContaining({
                 period_start: getUnixTime(buildingDayStart(date, timezone)),
                 period_end: getUnixTime(buildingDayEnd(date, timezone)),
@@ -241,12 +253,20 @@ describe('LockerStateService', () => {
 
     it('should wait for locker banks before loading lockers', async () => {
         let resolve_banks: (value: any) => void;
-        (ts_client.queryAssets as any).mockImplementation((q: any) => {
-            if (q?.type_id === 'type-locker-banks') {
-                return new Promise((resolve) => (resolve_banks = resolve));
-            }
-            return Promise.resolve({ data: [], total: 0, next: null });
-        });
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) => {
+                    if (q?.type_id === 'type-locker-banks') {
+                        return new Promise(
+                            (resolve) => (resolve_banks = resolve),
+                        );
+                    }
+                    return Promise.resolve({ data: [], total: 0, next: null });
+                },
+                ['...'],
+                'page',
+            ),
+        );
         spectator = createService();
         await settle();
         expect(assetQueryCalls('type-lockers')).toHaveLength(0);
@@ -262,15 +282,21 @@ describe('LockerStateService', () => {
         organisation_service.levelsForBuilding.mockReturnValue([
             { id: 'lvl-1' },
         ]);
-        (ts_client.queryAssets as any).mockImplementation((q: any) =>
-            Promise.resolve({
-                data:
-                    q?.type_id === 'type-locker-banks' && q.zone_id === 'lvl-1'
-                        ? [{ id: 'bank-on-level', zone_id: 'lvl-1' }]
-                        : [],
-                total: 0,
-                next: null,
-            }),
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) =>
+                    Promise.resolve({
+                        data:
+                            q?.type_id === 'type-locker-banks' &&
+                            q.zone_id === 'lvl-1'
+                                ? [{ id: 'bank-on-level', zone_id: 'lvl-1' }]
+                                : [],
+                        total: 0,
+                        next: null,
+                    }),
+                ['...'],
+                'page',
+            ),
         );
 
         spectator = createService();
@@ -286,12 +312,14 @@ describe('LockerStateService', () => {
     });
 
     it('should show a new locker bank before the list query includes it', async () => {
-        (ts_client.addAsset as any).mockResolvedValue({
-            id: 'bank-new',
-            identifier: 'Bank New',
-            zone_id: 'lvl-1',
-            zones: ['lvl-1'],
-        });
+        (ts_client.assets.create as any).mockResolvedValue(
+            mockReply({
+                id: 'bank-new',
+                identifier: 'Bank New',
+                zone_id: 'lvl-1',
+                zones: ['lvl-1'],
+            }),
+        );
         spectator = createService();
         await settle();
         const events = new EventEmitter<any>();
@@ -316,39 +344,45 @@ describe('LockerStateService', () => {
             'bank-new',
         );
         // banks list every zone they are in so they can be found by building
-        expect(ts_client.addAsset).toHaveBeenCalledWith(
-            expect.objectContaining({
+        expect(ts_client.assets.create).toHaveBeenCalledWith({
+            body: expect.objectContaining({
                 zone_id: 'lvl-1',
                 zones: expect.arrayContaining(['bld-1', 'lvl-1']),
             }),
-        );
+        });
     });
 
     it('should tolerate malformed locker metadata', async () => {
-        (ts_client.queryAssets as any).mockImplementation((q: any) => {
-            if (q?.type_id === 'type-locker-banks') {
-                return Promise.resolve({
-                    data: [{ id: 'bank-1', zone_id: 'bld-1' }],
-                    total: 1,
-                    next: null,
-                });
-            }
-            return Promise.resolve({
-                data: [
-                    {
-                        id: 'locker-1',
-                        parent_id: 'bank-1',
-                        other_data: {
-                            position: '1,2',
-                            size: '1x1',
-                            features: 'power',
-                        },
-                    },
-                ],
-                total: 1,
-                next: null,
-            });
-        });
+        (ts_client.assets.query as any).mockImplementation(
+            fromV1Mock(
+                (q: any) => {
+                    if (q?.type_id === 'type-locker-banks') {
+                        return Promise.resolve({
+                            data: [{ id: 'bank-1', zone_id: 'bld-1' }],
+                            total: 1,
+                            next: null,
+                        });
+                    }
+                    return Promise.resolve({
+                        data: [
+                            {
+                                id: 'locker-1',
+                                parent_id: 'bank-1',
+                                other_data: {
+                                    position: '1,2',
+                                    size: '1x1',
+                                    features: 'power',
+                                },
+                            },
+                        ],
+                        total: 1,
+                        next: null,
+                    });
+                },
+                ['...'],
+                'page',
+            ),
+        );
 
         spectator = createService();
         await settle();
@@ -389,18 +423,17 @@ describe('LockerStateService', () => {
             close: vi.fn(),
         };
         (spectator.inject(MatDialog).open as any).mockReturnValue(dialog_ref);
-        (ts_client.addAsset as any).mockResolvedValue({ id: 'locker-1' });
+        (ts_client.assets.create as any).mockResolvedValue(
+            mockReply({ id: 'locker-1' }),
+        );
         vi.spyOn(Date, 'now').mockReturnValue(mock_now);
 
         await spectator.service.editLocker({ id: 'bank-1', tags: [] } as any);
 
-        // saveBooking(no id) -> createBooking -> post(url, data)
-        const booking_post = (ts_client.post as any).mock.calls.find(
-            (c: any[]) =>
-                typeof c[0] === 'string' && c[0].includes('/bookings'),
-        );
+        // saveBooking(no id) -> createBooking -> bookings.create({ body })
+        const booking_post = vi.mocked(bookings.create).mock.calls[0];
         expect(booking_post).toBeTruthy();
-        expect(booking_post[1]).toEqual(
+        expect(booking_post[0].body).toEqual(
             expect.objectContaining({
                 booking_start: getUnixTime(assigned_start),
                 booking_end: getUnixTime(assigned_start + 20 * 60 * 60 * 1000),
@@ -424,8 +457,10 @@ describe('LockerStateService', () => {
             },
             close: vi.fn(),
         });
-        (ts_client.updateAsset as any).mockResolvedValue({ id: 'locker-1' });
-        (ts_client.query as any).mockRejectedValue(new Error('500'));
+        (ts_client.assets.update as any).mockResolvedValue(
+            mockReply({ id: 'locker-1' }),
+        );
+        vi.mocked(bookings.query).mockRejectedValue(new Error('500'));
 
         // A failed save keeps the modal open, so the edit does not end
         void spectator.service.editLocker(
@@ -438,7 +473,7 @@ describe('LockerStateService', () => {
         );
         await settle();
 
-        const saves = (ts_client.updateAsset as any).mock.calls;
+        const saves = (ts_client.assets.update as any).mock.calls;
         expect(saves).toHaveLength(2);
         expect(JSON.stringify(saves[1])).toContain('old@example.com');
         expect(JSON.stringify(saves[1])).not.toContain('new@example.com');
@@ -501,10 +536,11 @@ describe('LockerStateService', () => {
                 ({ id, status: 'tentative', deleted: false, ...extra }) as any;
             Object.defineProperty(spectator.service, 'filtered_bookings', {
                 value: () => [
-                    booking('b-1', { instance: 1_740_000_000 }),
-                    booking('b-2', { status: 'declined' }),
-                    booking('b-3', { status: 'cancelled' }),
-                    booking('b-4', { deleted: true }),
+                    // The staff API takes integer booking IDs
+                    booking('1', { instance: 1_740_000_000 }),
+                    booking('2', { status: 'declined' }),
+                    booking('3', { status: 'cancelled' }),
+                    booking('4', { deleted: true }),
                 ],
             });
             (spectator.inject(MatDialog).open as any).mockReturnValue({
@@ -518,11 +554,12 @@ describe('LockerStateService', () => {
 
             await spectator.service.rejectAllBookings();
 
-            expect(ts_client.post).toHaveBeenCalledOnce();
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/bookings/b-1/reject/1740000000'),
-                expect.anything(),
-            );
+            expect(bookings.reject).not.toHaveBeenCalled();
+            expect(bookings.rejectInstance).toHaveBeenCalledOnce();
+            expect(bookings.rejectInstance).toHaveBeenCalledWith({
+                id: 1,
+                instance: 1_740_000_000,
+            });
         });
 
         it('sends nothing when another date loads while the user confirms', async () => {
@@ -530,7 +567,7 @@ describe('LockerStateService', () => {
             const params = service._bookings_params();
             service._bookings_loaded_for = params;
             Object.defineProperty(spectator.service, 'filtered_bookings', {
-                value: () => [{ id: 'b-1', status: 'tentative' }],
+                value: () => [{ id: '1', status: 'tentative' }],
             });
             let confirm: (value: unknown) => void = () => {};
             (spectator.inject(MatDialog).open as any).mockReturnValue({
@@ -552,24 +589,20 @@ describe('LockerStateService', () => {
             confirm({ reason: 'done' });
             await rejecting;
 
-            const rejects = (ts_client.post as any).mock.calls.filter(
-                ([url]: [string]) => url.includes('/reject'),
-            );
-            expect(rejects).toEqual([]);
+            expect(bookings.reject).not.toHaveBeenCalled();
+            expect(bookings.rejectInstance).not.toHaveBeenCalled();
         });
 
         it('does not reject a list from an earlier date', async () => {
             const service = spectator.service as any;
             service._bookings_loaded_for = { stale: true };
             Object.defineProperty(spectator.service, 'filtered_bookings', {
-                value: () => [{ id: 'b-1', status: 'tentative' }],
+                value: () => [{ id: '1', status: 'tentative' }],
             });
             await spectator.service.rejectAllBookings();
 
-            const rejects = (ts_client.post as any).mock.calls.filter(
-                ([url]: [string]) => url.includes('/reject'),
-            );
-            expect(rejects).toEqual([]);
+            expect(bookings.reject).not.toHaveBeenCalled();
+            expect(bookings.rejectInstance).not.toHaveBeenCalled();
         });
     });
 });

@@ -1,29 +1,30 @@
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     EMPTY_USER,
+    isMock,
     setCurrentUser,
     SettingsService,
     StaffUser,
 } from '@placeos/common';
+import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
 import {
-    authority,
-    PlaceApplication,
-    type PlaceAuthority,
-    queryApplications,
-    registerMockEndpoint,
-    setAPI_Key,
-    setup,
+    configure,
+    createAuthSession,
+    oauth_applications,
 } from '@placeos/ts-client';
+import {
+    clearMockEndpoints,
+    listMockedEndpoints,
+    mockPage,
+} from '@placeos/ts-client/compat';
 import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from './app.component';
 import { LauncherApplication } from './application-loader.util';
 
-// Only the external `@placeos/ts-client` package can be intercepted under the
-// zoneless unit-test builder; workspace modules (`@placeos/common`) run for
-// real. `setupPlace()` ultimately calls `setup()`, so stubbing `setup` keeps
-// the real setup flow from touching the network. The current user is seeded
-// through the `setCurrentUser` test seam rather than mocking the store.
+// The real `setupPlace` runs with a fake login session, so no request leaves
+// the test. The current user is seeded through the `setCurrentUser` test
+// seam rather than mocking the store.
 vi.mock('@placeos/ts-client', { spy: true });
 
 const settings_mock = {
@@ -31,13 +32,13 @@ const settings_mock = {
     get: vi.fn(),
 };
 
-/** Resolve `queryApplications` with the given applications. */
-function respondWith(apps: Partial<PlaceApplication>[]) {
-    vi.mocked(queryApplications).mockResolvedValue({
-        total: apps.length,
-        next: () => null,
-        data: apps.map((_) => new PlaceApplication(_)),
-    });
+/** Resolve `oauth_applications.query` with the given applications. */
+function respondWith(
+    apps: { id: string; name: string; redirect_uri: string }[],
+) {
+    vi.mocked(oauth_applications.query).mockResolvedValue(
+        mockPage({ total: apps.length, data: apps }),
+    );
 }
 
 /** Return the given values from the settings mock, by key. */
@@ -60,6 +61,7 @@ function makeApp(
 
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
+    let fake: FakeSession;
 
     const create_component = createComponentFactory({
         component: AppComponent,
@@ -86,12 +88,12 @@ describe('AppComponent', () => {
             mock: false,
             'app.application_restrictions': [],
         });
-        vi.mocked(authority).mockReturnValue({
-            id: 'auth-1',
-        } as PlaceAuthority);
+        fake = startFakePlaceClient();
+        fake.setAuthority({ id: 'auth-1' });
+        // Only the calls of the test count
+        vi.mocked(createAuthSession).mockClear();
+        clearMockEndpoints();
         respondWith([]);
-        vi.mocked(setup).mockResolvedValue(undefined);
-        vi.mocked(setAPI_Key).mockReturnValue(undefined);
         setCurrentUser(
             new StaffUser({ email: 'user@example.com', groups: [] }),
         );
@@ -131,7 +133,7 @@ describe('AppComponent', () => {
 
         await runInit();
 
-        expect(queryApplications).toHaveBeenCalledWith({
+        expect(oauth_applications.query).toHaveBeenCalledWith({
             authority_id: 'auth-1',
         });
         expect(spectator.component.loading()).toBe(false);
@@ -261,7 +263,7 @@ describe('AppComponent', () => {
             vi.useRealTimers();
         }
 
-        expect(queryApplications).not.toHaveBeenCalled();
+        expect(oauth_applications.query).not.toHaveBeenCalled();
         expect(spectator.component.loading()).toBe(false);
         expect(spectator.component.error()).toBe(
             'Unable to load applications right now.',
@@ -277,23 +279,30 @@ describe('AppComponent', () => {
     });
 
     it('shows the empty-state message when there is no active authority', async () => {
-        vi.mocked(authority).mockReturnValue(undefined);
+        fake.setAuthority(null);
 
         await runInit();
 
-        expect(queryApplications).not.toHaveBeenCalled();
+        expect(oauth_applications.query).not.toHaveBeenCalled();
         expect(spectator.query('section')).toHaveText(
             'No applications configured for this domain.',
         );
     });
 
     it.each([
-        ['setup', () => vi.mocked(setup).mockRejectedValue(new Error('boom'))],
+        [
+            'setup',
+            () =>
+                vi.mocked(fake.session.start).mockResolvedValue({
+                    ok: false,
+                    error: { kind: 'authority_unavailable', reason: 'offline' },
+                }),
+        ],
         [
             'the application query',
             () =>
                 vi
-                    .mocked(queryApplications)
+                    .mocked(oauth_applications.query)
                     .mockRejectedValue(new Error('boom')),
         ],
     ])('surfaces an error message when %s fails', async (_, fail) => {
@@ -311,17 +320,6 @@ describe('AppComponent', () => {
         );
     });
 
-    it('registers an x-api-key from the query string before setup', async () => {
-        window.history.replaceState({}, '', '/?x-api-key=secret-key');
-
-        await runInit();
-
-        expect(setAPI_Key).toHaveBeenCalledWith('secret-key');
-        expect(vi.mocked(setAPI_Key).mock.invocationCallOrder[0]).toBeLessThan(
-            vi.mocked(setup).mock.invocationCallOrder[0],
-        );
-    });
-
     it('sets up PlaceOS with the composer settings of the app', async () => {
         useSettings({
             composer: {
@@ -335,14 +333,12 @@ describe('AppComponent', () => {
 
         await runInit();
 
-        expect(setup).toHaveBeenCalledWith(
+        expect(vi.mocked(createAuthSession).mock.lastCall?.[0]).toEqual(
             expect.objectContaining({
-                host: 'placeos.example.com:8443',
-                auth_uri:
-                    'https://placeos.example.com:8443/auth/oauth/authorize',
-                mock: false,
+                base_url: 'https://placeos.example.com:8443',
             }),
         );
+        expect(isMock()).toBe(false);
     });
 
     it.each([
@@ -355,27 +351,29 @@ describe('AppComponent', () => {
     ])('sets up PlaceOS in mock mode when %s', async (_, values, url) => {
         useSettings(values);
         window.history.replaceState({}, '', url);
+        // `setupPlace` configures the client for mock mode. It also reads the
+        // URL, so check that the mock endpoints exist first.
+        const actual =
+            await vi.importActual<typeof import('@placeos/ts-client')>(
+                '@placeos/ts-client',
+            );
+        let endpoints_at_setup = 0;
+        vi.mocked(configure).mockImplementationOnce((config) => {
+            endpoints_at_setup = listMockedEndpoints().length;
+            return actual.configure(config);
+        });
 
+        const errors = vi.spyOn(console, 'error');
         await runInit();
         // The mock data module loads lazily, so setup runs a few ticks later.
         await vi.waitFor(() =>
             expect(spectator.component.loading()).toBe(false),
         );
 
+        expect(errors.mock.calls.map((c) => `${c[0]}`)).toEqual([]);
         expect(spectator.component.error()).toBe('');
-        expect(setup).toHaveBeenCalledWith(
-            expect.objectContaining({ mock: true }),
-        );
-        // `setupPlace` also reads the URL, so check the mock endpoints exist first.
-        expect(
-            vi.mocked(registerMockEndpoint).mock.invocationCallOrder[0],
-        ).toBeLessThan(vi.mocked(setup).mock.invocationCallOrder[0]);
-    });
-
-    it('does not register an api key when none is provided', async () => {
-        await runInit();
-
-        expect(setAPI_Key).not.toHaveBeenCalled();
+        expect(isMock()).toBe(true);
+        expect(endpoints_at_setup).toBeGreaterThan(0);
     });
 
     describe('icon fallback', () => {

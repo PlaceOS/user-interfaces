@@ -4,28 +4,24 @@ import {
     Booking,
     CalendarEvent,
     flatten,
+    toJsonValue,
     unique,
 } from '@placeos/common';
 import {
-    addAsset,
-    addAssetCategory,
-    addAssetPurchaseOrder,
-    addAssets,
-    addAssetType,
-    PlaceAsset,
-    PlaceAssetCategory,
-    PlaceAssetPurchaseOrder,
-    queryAssetCategories as queryAssetCategoriesAPI,
-    queryAssetPurchaseOrders as queryAssetPurchaseOrdersAPI,
-    queryAssets as queryAssetsAPI,
-    queryAssetTypes as queryAssetTypesAPI,
-    showAssetType,
-    updateAsset,
-    updateAssetCategory,
-    updateAssetPurchaseOrder,
-    updateAssets,
-    updateAssetType,
+    type Asset,
+    asset_categories,
+    asset_purchase_orders,
+    asset_types,
+    type AssetCategory,
+    type AssetCategoryInput,
+    type AssetInput,
+    type AssetPurchaseOrder,
+    type AssetPurchaseOrderInput,
+    assets as assets_v7,
+    type AssetType,
+    type AssetTypeInput,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage, type Page } from '@placeos/ts-client/compat';
 import { addMinutes, endOfDay, getUnixTime, startOfDay } from 'date-fns';
 import {
     BookingsQueryParams,
@@ -35,8 +31,129 @@ import {
     removeBooking,
 } from 'libs/bookings/src/lib/bookings.fn';
 
-export async function queryAssetPurchaseOrders(query: unknown = {}) {
-    return queryAssetPurchaseOrdersAPI(query);
+/** Query parameters of the asset list, and whether to include hidden assets */
+export type AssetQuery = NonNullable<Parameters<typeof assets_v7.query>[0]> & {
+    hidden?: boolean;
+};
+
+/** Query parameters of the asset type list, and whether to include hidden types */
+export type AssetTypeQuery = NonNullable<
+    Parameters<typeof asset_types.query>[0]
+> & { hidden?: boolean };
+
+/** Query parameters of the asset category list */
+export type AssetCategoryQuery = NonNullable<
+    Parameters<typeof asset_categories.query>[0]
+>;
+
+/** Query parameters of the asset purchase order list */
+export type AssetPurchaseOrderQuery = NonNullable<
+    Parameters<typeof asset_purchase_orders.query>[0]
+>;
+
+/** Filters of `queryAssetGroupsExtended` */
+export interface AssetGroupQuery {
+    /** Comma separated zone ids. The first one filters the lists */
+    zones?: string;
+    zone_id?: string;
+    category_id?: string;
+    type_id?: string;
+    q?: string;
+}
+
+/**
+ * The fields of `value` that are in `keys`. The API rejects a request body
+ * with a field that its schema does not have, so the save functions send only
+ * the fields of the schema, as the 6.x model classes did.
+ */
+function pickFields<T, K extends keyof T>(
+    value: T,
+    keys: readonly K[],
+): Partial<Pick<T, K>> {
+    const result: Partial<Pick<T, K>> = {};
+    for (const key of keys) {
+        if (value[key] !== undefined) result[key] = value[key];
+    }
+    return result;
+}
+
+const ASSET_FIELDS = [
+    'id',
+    'identifier',
+    'serial_number',
+    'other_data',
+    'barcode',
+    'name',
+    'client_ids',
+    'map_id',
+    'bookable',
+    'accessible',
+    'zones',
+    'place_groups',
+    'assigned_to',
+    'assigned_name',
+    'features',
+    'images',
+    'notes',
+    'security_system_groups',
+    'parent_id',
+    'asset_type_id',
+    'purchase_order_id',
+    'zone_id',
+] as const satisfies readonly (keyof Asset & keyof AssetInput)[];
+
+/**
+ * The request body of an asset. The JSON fields are copied as plain JSON, as
+ * the API rejects class instances and `undefined` values in them.
+ */
+function assetBody(asset: Partial<Asset>): AssetInput {
+    const body = pickFields(asset, ASSET_FIELDS);
+    return {
+        ...body,
+        ...('other_data' in body
+            ? { other_data: toJsonValue(body.other_data) }
+            : {}),
+        ...('client_ids' in body
+            ? { client_ids: toJsonValue(body.client_ids) }
+            : {}),
+    };
+}
+
+const ASSET_TYPE_FIELDS = [
+    'id',
+    'name',
+    'brand',
+    'description',
+    'model_number',
+    'images',
+    'category_id',
+] as const satisfies readonly (keyof AssetType & keyof AssetTypeInput)[];
+
+const ASSET_CATEGORY_FIELDS = [
+    'id',
+    'name',
+    'description',
+    'hidden',
+    'parent_category_id',
+] as const satisfies readonly (keyof AssetCategory &
+    keyof AssetCategoryInput)[];
+
+const PURCHASE_ORDER_FIELDS = [
+    'id',
+    'purchase_order_number',
+    'invoice_number',
+    'supplier_details',
+    'purchase_date',
+    'unit_price',
+    'expected_service_start_date',
+    'expected_service_end_date',
+] as const satisfies readonly (keyof AssetPurchaseOrder &
+    keyof AssetPurchaseOrderInput)[];
+
+export async function queryAssetPurchaseOrders(
+    query: AssetPurchaseOrderQuery = {},
+) {
+    return asset_purchase_orders.query(query).then(orThrowPage);
 }
 
 /**
@@ -44,7 +161,9 @@ export async function queryAssetPurchaseOrders(query: unknown = {}) {
  * duplicates to the oldest (lowest `created_at`) so every client converges
  * on the same record.
  */
-export function findOldestByName(list: any[], name: string = '') {
+export function findOldestByName<
+    T extends { readonly name?: string; readonly created_at?: number },
+>(list: readonly T[], name: string = ''): T | undefined {
     const match_name = name.trim().toLowerCase();
     return list
         .filter((_) => (_.name || '').trim().toLowerCase() === match_name)
@@ -59,7 +178,7 @@ export function findOldestByName(list: any[], name: string = '') {
  * `authority()`, which can still be unset when the list loads. Types belong
  * to a category, so this choice also sets which types are used.
  */
-function findHiddenCategory(list: any[], name: string) {
+function findHiddenCategory(list: readonly AssetCategory[], name: string) {
     const own = list.filter((_) => _.authority_id);
     return findOldestByName(own, name) || findOldestByName(list, name);
 }
@@ -68,16 +187,16 @@ function findHiddenCategory(list: any[], name: string) {
 // catering) as assets. The lookups below are shared so each list is only
 // requested once. A failed list request rejects and is not cached, so a
 // network error never causes a duplicate category or type to be created.
-let _hidden_categories: Promise<any[]> | null = null;
-const _category_types = new Map<string, Promise<any[]>>();
+let _hidden_categories: Promise<readonly AssetCategory[]> | null = null;
+const _category_types = new Map<string, Promise<readonly AssetType[]>>();
 const _hidden_type_ids = new Map<string, Promise<string>>();
 
 function queryHiddenCategories() {
     if (!_hidden_categories) {
-        const request = queryAssetCategoriesAPI({
-            hidden: true,
-            limit: 500,
-        }).then((_) => _.data);
+        const request = asset_categories
+            .query({ hidden: true, limit: 500 })
+            .then(orThrowPage)
+            .then((_) => _.data);
         request.catch(() => {
             if (_hidden_categories === request) _hidden_categories = null;
         });
@@ -88,9 +207,10 @@ function queryHiddenCategories() {
 
 function queryCategoryTypes(category_id: string) {
     if (!_category_types.has(category_id)) {
-        const request = queryAssetTypesAPI({ category_id, limit: 500 }).then(
-            (_) => _.data,
-        );
+        const request = asset_types
+            .query({ category_id, limit: 500 })
+            .then(orThrowPage)
+            .then((_) => _.data);
         request.catch(() => {
             if (_category_types.get(category_id) === request) {
                 _category_types.delete(category_id);
@@ -154,7 +274,7 @@ export function resolveHiddenAssetTypeId(
     if (!_hidden_type_ids.has(key)) {
         const request = ensureHiddenCategory(category_name)
             .then((category) => ensureAssetType(category.id, type_name))
-            .then((type) => type.id as string);
+            .then((type) => type.id);
         request.catch(() => _hidden_type_ids.delete(key));
         _hidden_type_ids.set(key, request);
     }
@@ -165,13 +285,13 @@ export function resolveHiddenAssetTypeId(
 export async function queryTypeAssetsForZones(
     type_id: string,
     zone_ids: string[],
-): Promise<PlaceAsset[]> {
+): Promise<Asset[]> {
     const results = await Promise.all(
         zone_ids.map((zone_id) =>
             queryAllAssetPages({ zone_id, type_id }).then((_) => _.data),
         ),
     );
-    return flatten<PlaceAsset>(results);
+    return flatten<Asset>(results);
 }
 
 /**
@@ -181,52 +301,80 @@ export async function queryTypeAssetsForZones(
 export async function queryTypeAssetsInZone(
     type_id: string,
     zone_id: string,
-): Promise<PlaceAsset[]> {
-    const response = await queryAllAssetPages({ zones: zone_id, type_id });
+): Promise<Asset[]> {
+    const response = await queryAllAssetPages({ zones: [zone_id], type_id });
     return response.data;
 }
 
-function filter_hidden_items<T extends { data: any[] }>(response: T): T {
+function filter_hidden_items<T extends { data: readonly AssetCategory[] }>(
+    response: T,
+): T {
     return {
         ...response,
         data: response.data.filter((item) => !item?.hidden),
     };
 }
 
+/** Page size of the queries that load each page */
+const PAGE_LIMIT = 500;
+/** Upper bound on pages loaded by `loadAllPages` (100 × 500 items) */
+const MAX_PAGES = 100;
+
+/**
+ * Data of `first` and of the pages after it, up to `MAX_PAGES` pages.
+ * `total` is the total of the last page loaded.
+ */
+async function loadAllPages<T>(first: Page<readonly T[]>) {
+    let response = first;
+    const data: T[] = [...response.data];
+    for (let page = 1; page < MAX_PAGES; page++) {
+        const next = response.next?.();
+        if (!next) break;
+        response = await next;
+        data.push(...response.data);
+    }
+    return { total: response.total, next: () => null, data };
+}
+
+/** IDs of the categories that are not hidden, from all pages */
 async function visible_category_ids() {
-    const response = await queryAssetCategoriesAPI({});
+    const response = await loadAllPages(
+        await asset_categories.query({ limit: PAGE_LIMIT }).then(orThrowPage),
+    );
     return new Set(
         response.data.filter((item) => !item?.hidden).map((item) => item.id),
     );
 }
 
-export async function queryAssetCategories(query: any = {}) {
-    if (query.hidden === true) return queryAssetCategoriesAPI(query);
+export async function queryAssetCategories(query: AssetCategoryQuery = {}) {
+    if (query.hidden === true)
+        return asset_categories.query(query).then(orThrowPage);
     const { hidden, ...rest } = query;
-    return filter_hidden_items(await queryAssetCategoriesAPI(rest));
+    return filter_hidden_items(
+        await asset_categories.query(rest).then(orThrowPage),
+    );
 }
 
-export async function queryAssetTypes(query: any = {}) {
-    if (query.hidden === true) return queryAssetTypesAPI(query);
+export async function queryAssetTypes(query: AssetTypeQuery = {}) {
+    // The asset type API has no `hidden` filter: hidden types are the types
+    // of hidden categories
     const { hidden, ...rest } = query;
+    if (hidden === true) return asset_types.query(rest).then(orThrowPage);
     const [response, visible_ids] = await Promise.all([
-        queryAssetTypesAPI(rest),
+        asset_types.query(rest).then(orThrowPage),
         visible_category_ids(),
     ]);
     return {
         ...response,
-        data: response.data.filter(
-            (item) =>
-                !(item as any)?.hidden && visible_ids.has(item.category_id),
-        ),
+        data: response.data.filter((item) => visible_ids.has(item.category_id)),
     };
 }
 
-export async function queryAssets(query: any = {}) {
-    if (query.hidden === true) return queryAssetsAPI(query);
+export async function queryAssets(query: AssetQuery = {}) {
     const { hidden, ...rest } = query;
+    if (hidden === true) return assets_v7.query(rest).then(orThrowPage);
     const [response, types] = await Promise.all([
-        queryAssetsAPI(rest),
+        assets_v7.query(rest).then(orThrowPage),
         queryAssetTypes({
             ...(rest.zone_id ? { zone_id: rest.zone_id } : {}),
             limit: 2000,
@@ -235,10 +383,8 @@ export async function queryAssets(query: any = {}) {
     const visible_type_ids = new Set(types.data.map((item) => item.id));
     return {
         ...response,
-        data: response.data.filter(
-            (item) =>
-                !(item as any)?.hidden &&
-                visible_type_ids.has(item.asset_type_id),
+        data: response.data.filter((item) =>
+            visible_type_ids.has(item.asset_type_id),
         ),
     };
 }
@@ -247,10 +393,11 @@ export async function queryAssets(query: any = {}) {
 ////    Asset Categories    ////
 ////////////////////////////////
 
-export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
+export function saveAssetCategory(category: Partial<AssetCategory>) {
+    const body = pickFields(category, ASSET_CATEGORY_FIELDS);
     return category.id
-        ? updateAssetCategory(category.id, category)
-        : addAssetCategory(category);
+        ? asset_categories.update({ id: category.id, body }).then(orThrow)
+        : asset_categories.create({ body }).then(orThrow);
 }
 
 //////////////////////////////
@@ -258,37 +405,21 @@ export function saveAssetCategory(category: Partial<PlaceAssetCategory>) {
 //////////////////////////////
 
 const _GROUPS_CACHE = new Map<string, AssetGroup[]>();
-const REMOVE_QUERY_KEYS = ['period_start', 'period_end', 'type', 'rejected'];
-
-/** Upper bound on pages loaded by `queryAllAssetPages` (100 × 500 assets) */
-const MAX_ASSET_PAGES = 100;
 
 /**
  * Query assets, following pagination until every page is loaded.
  * `zones` is a comma separated list, assets must be in every zone listed.
  */
-async function queryAllAssetPages(
-    query: Parameters<typeof queryAssetsAPI>[0] & { zones?: string } = {},
-) {
-    let response = await queryAssetsAPI({
-        ...query,
-        limit: query.limit || 500,
-    });
-    let total = response.total;
-    const data: PlaceAsset[] = [...response.data];
-    for (let page = 1; page < MAX_ASSET_PAGES; page++) {
-        if (typeof response.next !== 'function') break;
-        const next = response.next();
-        if (!next) break;
-        response = await next;
-        total = response.total;
-        data.push(...response.data);
-    }
-    return { total, next: () => null, data };
+async function queryAllAssetPages(query: AssetQuery = {}) {
+    return loadAllPages(
+        await assets_v7
+            .query({ ...query, limit: query.limit || PAGE_LIMIT })
+            .then(orThrowPage),
+    );
 }
 
 export async function queryAssetGroupsExtended(
-    query: any = {},
+    query: AssetGroupQuery = {},
 ): Promise<AssetGroup[]> {
     const cache_key = JSON.stringify({
         zones: query.zones || query.zone_id || '',
@@ -299,101 +430,108 @@ export async function queryAssetGroupsExtended(
     if (_GROUPS_CACHE.has(cache_key)) {
         return _GROUPS_CACHE.get(cache_key);
     }
-    const q = { ...query };
-    for (const key of REMOVE_QUERY_KEYS) {
-        if (key in q) delete q[key];
-    }
     // Booking availability uses `zones`, while asset APIs use `zone_id`.
-    if (q.zones && !q.zone_id) q.zone_id = q.zones;
-    if (q.zones) delete q.zones;
+    const zone_id = query.zone_id || query.zones || undefined;
+    const filters = { zone_id, q: query.q || undefined };
     const [types, assets] = await Promise.all([
-        queryAssetTypesAPI(q),
-        queryAllAssetPages(q),
+        // Leaves out the types of hidden categories, such as desks
+        queryAssetTypes({
+            ...filters,
+            category_id: query.category_id || undefined,
+        }),
+        queryAllAssetPages({ ...filters, type_id: query.type_id || undefined }),
     ]);
-    let groups = types.data.filter((item) => !(item as any)?.hidden);
-    if (q.type_id) groups = groups.filter((item) => item.id === q.type_id);
+    let groups = [...types.data];
+    if (query.type_id) {
+        groups = groups.filter((item) => item.id === query.type_id);
+    }
     const visible_type_ids = new Set(groups.map((item) => item.id));
-    const assets_by_type = new Map<string, PlaceAsset[]>();
+    const assets_by_type = new Map<string, Asset[]>();
     for (const asset of assets.data) {
-        if (
-            (asset as any)?.hidden ||
-            !visible_type_ids.has(asset.asset_type_id)
-        ) {
-            continue;
-        }
+        if (!visible_type_ids.has(asset.asset_type_id)) continue;
         const list = assets_by_type.get(asset.asset_type_id) || [];
         list.push(asset);
         assets_by_type.set(asset.asset_type_id, list);
     }
-    const list = groups.map(
-        (group) =>
-            ({
-                ...group,
-                assets: assets_by_type.get(group.id) || [],
-            }) as AssetGroup,
-    );
+    const list: AssetGroup[] = groups.map((group) => ({
+        ...group,
+        assets: assets_by_type.get(group.id) || [],
+    }));
     _GROUPS_CACHE.set(cache_key, list);
     // Clear cache after 5 minutes
     setTimeout(() => _GROUPS_CACHE.delete(cache_key), 5 * 60 * 1000);
     return list;
 }
 
-export function saveAssetType(product: Partial<AssetGroup>) {
+export function saveAssetType(
+    product: Partial<AssetType> & Partial<AssetGroup>,
+) {
+    const body = pickFields(product, ASSET_TYPE_FIELDS);
     return product.id
-        ? updateAssetType(product.id, product)
-        : addAssetType(product);
+        ? asset_types.update({ id: product.id, body }).then(orThrow)
+        : asset_types.create({ body }).then(orThrow);
 }
 
 ////////////////////////////////
 ////          Assets        ////
 ////////////////////////////////
 //
-export function saveAsset(asset: Partial<PlaceAsset>) {
-    return asset.id ? updateAsset(asset.id, asset) : addAsset(asset);
+export function saveAsset(asset: Partial<Asset>) {
+    const body = assetBody(asset);
+    return asset.id
+        ? assets_v7.update({ id: asset.id, body }).then(orThrow)
+        : assets_v7.create({ body }).then(orThrow);
 }
 
 ////////////////////////////////
 ////      Assets (Bulk)     ////
 ////////////////////////////////
 
-export function saveAssetsInBulk(assets: Partial<PlaceAsset>[]) {
+export function saveAssetsInBulk(assets: Partial<Asset>[]) {
     if (!assets?.length) return Promise.resolve([]);
+    const body = assets.map(assetBody);
     return assets.every((item) => item?.id)
-        ? updateAssets(assets)
-        : addAssets(assets);
+        ? assets_v7.bulkUpdate({ body }).then(orThrow)
+        : assets_v7.bulkCreate({ body }).then(orThrow);
 }
 
 /////////////////////////////////
 ////  Asset Purchase Orders  ////
 /////////////////////////////////
 
-export function saveAssetPurchaseOrder(
-    order: Partial<PlaceAssetPurchaseOrder>,
-) {
+export function saveAssetPurchaseOrder(order: Partial<AssetPurchaseOrder>) {
+    const fields = pickFields(order, PURCHASE_ORDER_FIELDS);
+    const body: AssetPurchaseOrderInput =
+        'supplier_details' in fields
+            ? {
+                  ...fields,
+                  supplier_details: toJsonValue(fields.supplier_details),
+              }
+            : fields;
     return order.id
-        ? updateAssetPurchaseOrder(order.id, order)
-        : addAssetPurchaseOrder(order);
+        ? asset_purchase_orders.update({ id: order.id, body }).then(orThrow)
+        : asset_purchase_orders.create({ body }).then(orThrow);
 }
 
 //////////////////////////////////////
 ////     Asset Helper Methods     ////
 //////////////////////////////////////
 
-export function getGroupsWithAssets(query: unknown = {}) {
+export function getGroupsWithAssets(query: AssetTypeQuery = {}) {
     return queryAssetTypes(query);
 }
 
 const _GROUP_FULL_CACHE: Map<string, AssetGroup> = new Map();
 
-export async function showGroupFull(id: string, query: any = {}) {
+export async function showGroupFull(id: string, query: AssetQuery = {}) {
     if (_GROUP_FULL_CACHE.has(id)) return _GROUP_FULL_CACHE.get(id);
     const [type, categories, assets, purchase_orders] = await Promise.all([
-        showAssetType(id),
+        asset_types.show({ id }).then(orThrow),
         queryAssetCategories(),
         queryAssets({ ...query, type_id: id, limit: 2000 }),
         queryAssetPurchaseOrders(),
     ]);
-    const product = type as AssetGroup;
+    const product: AssetGroup = { ...type };
     product.category = categories.data.find(
         (category) => category.id === product.category_id,
     );
@@ -412,10 +550,17 @@ export async function showGroupFull(id: string, query: any = {}) {
     return product;
 }
 
+/**
+ * Asset groups with the assets that are free in the period of `query`.
+ * @param ignore IDs of assets, and of bookings that do not make an asset
+ * unavailable, such as the requests of the edited booking. The ID of a
+ * `Booking` from the API is a number, so the IDs are compared as strings
+ */
 export async function queryGroupAvailability(
     query: BookingsQueryParams,
-    ignore: string[] = [],
+    ignore: readonly (string | number)[] = [],
 ) {
+    const ignored = new Set(ignore.map((id) => `${id}`));
     const [products, bookings] = await Promise.all([
         queryAssetGroupsExtended(query),
         queryBookings({ ...query, type: 'asset-request' }),
@@ -427,10 +572,10 @@ export async function queryGroupAvailability(
         ...product,
         assets: product.assets.filter(
             (asset) =>
-                ignore?.includes(asset.id) ||
+                ignored.has(asset.id) ||
                 !active_bookings.find(
                     (booking) =>
-                        !ignore.includes(booking.id) &&
+                        !ignored.has(`${booking.id}`) &&
                         (booking.asset_id === asset.id ||
                             booking.asset_ids?.includes(asset.id)),
                 ),

@@ -20,7 +20,8 @@ import {
     FullscreenModalShellComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showAsset, showAssetType } from '@placeos/ts-client';
+import { asset_types, assets } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { AssetManagerStateService } from './asset-manager-state.service';
 
 @Component({
@@ -176,9 +177,10 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                     this.loading.set(
                         i18n('APP.CONCIERGE.ASSETS_BULK_ASSET_LOADING'),
                     );
-                    const asset = await showAsset(params.get('id')).catch(
-                        () => null,
-                    );
+                    const asset = await assets
+                        .show({ id: params.get('id') })
+                        .then(orThrow)
+                        .catch(() => null);
                     if (!asset) {
                         notifyError('Unable to load asset details.');
                         this._router.navigate([this.base_route]);
@@ -189,9 +191,10 @@ export class AssetBulkFormComponent extends AsyncHandler implements OnInit {
                 }
                 if (params.get('group_id')) {
                     this.loading.set(i18n('APP.CONCIERGE.ASSETS_ITEM_LOADING'));
-                    const product = await showAssetType(
-                        params.get('group_id'),
-                    ).catch(() => null);
+                    const product = await asset_types
+                        .show({ id: params.get('group_id') })
+                        .then(orThrow)
+                        .catch(() => null);
                     if (!product) {
                         notifyError(
                             'Unable to load associated product details.',

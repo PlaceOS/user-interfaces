@@ -9,9 +9,10 @@ import {
     visitorMemberPatch,
 } from '../lib/booking-group.utilities';
 
-vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { bookings } from '@placeos/ts-client/staff';
 
 describe('isGroupBooking', () => {
     it('is true for a parent, a group reference or group members', () => {
@@ -187,14 +188,15 @@ describe('rollbackGroupBookings', () => {
 
     it('should try to remove every booking and only log the failures', async () => {
         const del = vi
-            .spyOn(ts_client, 'del')
-            .mockImplementation(async (url: string) => {
-                if (url.includes('bkn-2')) throw new Error('offline');
+            .mocked(bookings.destroy)
+            .mockImplementation(async ({ id }) => {
+                if (id === 2) throw new Error('offline');
+                return mockReply('');
             });
         const log = vi.spyOn(console, 'error').mockImplementation(() => {});
 
         await expect(
-            rollbackGroupBookings(['bkn-1', 'bkn-2', 'bkn-3']),
+            rollbackGroupBookings(['1', '2', '3']),
         ).resolves.toBeUndefined();
 
         expect(del).toHaveBeenCalledTimes(3);

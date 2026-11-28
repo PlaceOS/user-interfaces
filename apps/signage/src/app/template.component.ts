@@ -12,19 +12,23 @@ import {
 } from '@placeos/common';
 import { PluginConfigPayload, PluginEmbedComponent } from '@placeos/components';
 import {
-    MediaAnimation,
-    querySignagePlugins,
-    showSignageMedia,
-    showSignageTemplate,
-    SignageMedia,
-    SignagePlugin,
-    SignageTemplate,
-    SignageTemplateLayout,
-    SignageTemplateMapping,
+    playlist_media,
+    signage_plugins,
+    signage_templates,
+    type SignagePlugin,
+    type SignageTemplate,
+    type SignageTemplateLayout,
+    type SignageTemplateMapping,
 } from '@placeos/ts-client';
+import {
+    MediaAnimation,
+    orThrow,
+    orThrowPage,
+} from '@placeos/ts-client/compat';
 import { isDebugEnabled } from './debug-state';
 import { MediaCacheService } from './media-cache.service';
 import { MediaPlayerComponent } from './media-player.component';
+import { type DisplayMedia, displayMedia } from './signage-data';
 import { SignagePanelComponent } from './signage.component';
 import { SignageService } from './signage.service';
 import { MediaPlayerItem } from './types';
@@ -35,6 +39,20 @@ const RETRY_BASE_MS = 15_000;
 /** Longest delay between template load retries */
 const RETRY_MAX_MS = 5 * 60_000;
 
+/** Mapping that shows the template with `template_id` all the time */
+function templateMapping(template_id: string): SignageTemplateMapping {
+    return {
+        id: '',
+        created_at: '',
+        updated_at: '',
+        control_system_id: '',
+        zone_id: '',
+        template_id,
+        schedule: null,
+        template_details: null,
+    };
+}
+
 interface RenderedLayoutItem {
     plugin: SignagePlugin;
     config: PluginConfigPayload;
@@ -42,7 +60,7 @@ interface RenderedLayoutItem {
 }
 
 function backgroundPlayerItem(
-    media: SignageMedia,
+    media: DisplayMedia,
     plugins: SignagePlugin[],
     media_cache: MediaCacheService,
     cache_owner: string,
@@ -179,7 +197,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     private readonly _template_mappings = computed(() => {
         const template_id = this._route_template_id();
         return template_id
-            ? [new SignageTemplateMapping({ template_id })]
+            ? [templateMapping(template_id)]
             : this._signage.active_templates();
     });
     private readonly _template_mappings$ = toObservable(
@@ -187,11 +205,11 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
     );
 
     private readonly _layout = computed(() =>
-        computeTemplateLayout(
-            (this.debug() && this._preview_layouts()) ||
+        computeTemplateLayout([
+            ...((this.debug() && this._preview_layouts()) ||
                 this.template()?.layouts ||
-                [],
-        ),
+                []),
+        ]),
     );
 
     public readonly player_rect = computed(() => this._layout().player);
@@ -199,7 +217,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         const template_id = this.template()?.id || 'template';
         const plugins = this._plugins();
         return this._layout()
-            .items.map(({ layout, rect }, index) => {
+            .items.map(({ layout, rect }, index): RenderedLayoutItem | null => {
                 const plugin = plugins.find(
                     (item) => item.id === layout.plugin_id,
                 );
@@ -359,10 +377,12 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         // Preview the pending template even before its first approval.
         const results = await Promise.allSettled(
             mappings.map((mapping) =>
-                showSignageTemplate(
-                    mapping.template_id,
-                    this.debug() ? {} : { approved: true },
-                ),
+                signage_templates
+                    .show({
+                        id: mapping.template_id,
+                        ...(this.debug() ? {} : { approved: true }),
+                    })
+                    .then(orThrow),
             ),
         );
         if (load_id !== this._load_id) return false;
@@ -399,24 +419,30 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
             return false;
         }
         const template = merge.length
-            ? new SignageTemplate({
+            ? {
                   ...base.template,
                   layouts: [
-                      ...base.template.layouts,
-                      ...merge.flatMap(({ template }) => template.layouts),
+                      ...(base.template.layouts || []),
+                      ...merge.flatMap(
+                          ({ template }) => template.layouts || [],
+                      ),
                   ],
-              })
+              }
             : base.template;
         const failedPart = (part: string) => (error: unknown) => {
             log('SIGNAGE', `Unable to load template ${part}`, [error], 'error');
             return null;
         };
         const [plugin_result, background] = await Promise.all([
-            querySignagePlugins({ limit: 500 }).catch(failedPart('plugins')),
+            signage_plugins
+                .query({ limit: 500 })
+                .then(orThrowPage)
+                .catch(failedPart('plugins')),
             template.background_item_id
-                ? showSignageMedia(template.background_item_id).catch(
-                      failedPart('background'),
-                  )
+                ? playlist_media
+                      .show({ id: template.background_item_id })
+                      .then(orThrow)
+                      .catch(failedPart('background'))
                 : null,
         ]);
         if (load_id !== this._load_id) return false;
@@ -430,7 +456,7 @@ export class SignageTemplateComponent extends AsyncHandler implements OnInit {
         if (background) {
             this.background_playlist.set([
                 backgroundPlayerItem(
-                    background,
+                    displayMedia(background),
                     plugins,
                     this._media_cache,
                     `template:${template.id}`,

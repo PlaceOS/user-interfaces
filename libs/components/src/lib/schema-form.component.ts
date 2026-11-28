@@ -16,7 +16,7 @@ import {
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { provideValueAccessor } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { Subscription } from 'rxjs';
 import { SettingsToggleComponent } from './settings-toggle.component';
 

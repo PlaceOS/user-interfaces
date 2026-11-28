@@ -8,6 +8,7 @@ import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockPage } from '@placeos/ts-client/compat';
 import { GroupScope, groupScope } from '../app/support-groups';
 import { SupportGroupsService } from '../app/support-groups.service';
 import { SupportService } from '../app/support.service';
@@ -57,27 +58,35 @@ describe('SupportService', () => {
     });
 
     it('should query systems scoped to the active organisation zone', async () => {
-        (ts_client.querySystems as any).mockReturnValue(
-            Promise.resolve({ data: [] }),
+        (ts_client.systems.query as any).mockImplementation(
+            fromV1Mock(() => Promise.resolve({ data: [] }), ['...'], 'page'),
         );
         await create();
-        expect(ts_client.querySystems).toHaveBeenCalledWith({
-            zone_id: 'org-1',
+        expect(ts_client.systems.query).toHaveBeenCalledWith({
+            zone_id: ['org-1'],
             limit: 5000,
         });
     });
 
     it('should keep only systems that expose a support surface', async () => {
-        (ts_client.querySystems as any).mockReturnValue(
-            Promise.resolve({
-                data: [
-                    { id: 'support', support_url: 'http://x' },
-                    { id: 'camera', camera_url: 'http://cam' },
-                    { id: 'timetable', timetable_url: 'http://tt' },
-                    { id: 'snapshot', camera_snapshot_urls: ['http://snap'] },
-                    { id: 'plain', name: 'Nothing supportable' },
-                ],
-            }),
+        (ts_client.systems.query as any).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({
+                        data: [
+                            { id: 'support', support_url: 'http://x' },
+                            { id: 'camera', camera_url: 'http://cam' },
+                            { id: 'timetable', timetable_url: 'http://tt' },
+                            {
+                                id: 'snapshot',
+                                camera_snapshot_urls: ['http://snap'],
+                            },
+                            { id: 'plain', name: 'Nothing supportable' },
+                        ],
+                    }),
+                ['...'],
+                'page',
+            ),
         );
         await create();
         const ids = spectator.service.space_list().map((s) => s.id);
@@ -85,15 +94,24 @@ describe('SupportService', () => {
     });
 
     it('should normalise camera snapshot urls, dropping empty entries', async () => {
-        (ts_client.querySystems as any).mockReturnValue(
-            Promise.resolve({
-                data: [
-                    {
-                        id: 'snapshot',
-                        camera_snapshot_urls: ['http://one', '', 'http://two'],
-                    },
-                ],
-            }),
+        (ts_client.systems.query as any).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({
+                        data: [
+                            {
+                                id: 'snapshot',
+                                camera_snapshot_urls: [
+                                    'http://one',
+                                    '',
+                                    'http://two',
+                                ],
+                            },
+                        ],
+                    }),
+                ['...'],
+                'page',
+            ),
         );
         await create();
         expect(spectator.service.space_list()[0].camera_snapshot_urls).toEqual([
@@ -103,8 +121,12 @@ describe('SupportService', () => {
     });
 
     it('should finish loading with no systems when the query fails', async () => {
-        (ts_client.querySystems as any).mockReturnValue(
-            Promise.reject(new Error('boom')),
+        (ts_client.systems.query as any).mockImplementation(
+            fromV1Mock(
+                () => Promise.reject(new Error('boom')),
+                ['...'],
+                'page',
+            ),
         );
         await create();
         expect(spectator.service.space_list()).toEqual([]);
@@ -123,34 +145,38 @@ describe('SupportService', () => {
         });
 
         it("queries the selected group's systems", async () => {
-            (ts_client.querySystems as any).mockResolvedValue({ data: [] });
+            (ts_client.systems.query as any).mockResolvedValue(
+                mockPage({ data: [] }),
+            );
             await create();
-            expect(ts_client.querySystems).toHaveBeenCalledWith({
+            expect(ts_client.systems.query).toHaveBeenCalledWith({
                 group_id: 'group-1',
                 limit: 5000,
             });
         });
 
         it('leaves out systems in a zone the group is denied', async () => {
-            (ts_client.querySystems as any).mockResolvedValue({
-                data: [
-                    {
-                        id: 'in',
-                        zones: ['org-1', 'bld-1', 'lvl-1'],
-                        support_url: 'x',
-                    },
-                    {
-                        id: 'denied',
-                        zones: ['org-1', 'bld-1', 'lvl-2'],
-                        support_url: 'x',
-                    },
-                    {
-                        id: 'other',
-                        zones: ['org-1', 'bld-9'],
-                        support_url: 'x',
-                    },
-                ],
-            });
+            (ts_client.systems.query as any).mockResolvedValue(
+                mockPage({
+                    data: [
+                        {
+                            id: 'in',
+                            zones: ['org-1', 'bld-1', 'lvl-1'],
+                            support_url: 'x',
+                        },
+                        {
+                            id: 'denied',
+                            zones: ['org-1', 'bld-1', 'lvl-2'],
+                            support_url: 'x',
+                        },
+                        {
+                            id: 'other',
+                            zones: ['org-1', 'bld-9'],
+                            support_url: 'x',
+                        },
+                    ],
+                }),
+            );
             await create();
             expect(spectator.service.space_list().map((s) => s.id)).toEqual([
                 'in',
@@ -159,15 +185,17 @@ describe('SupportService', () => {
 
         it('waits for the group to load, then loads again on a switch', async () => {
             scope_ready.set(false);
-            (ts_client.querySystems as any).mockResolvedValue({ data: [] });
+            (ts_client.systems.query as any).mockResolvedValue(
+                mockPage({ data: [] }),
+            );
             await create();
-            expect(ts_client.querySystems).not.toHaveBeenCalled();
+            expect(ts_client.systems.query).not.toHaveBeenCalled();
             expect(spectator.service.loading()).toBe(true);
 
             scope_ready.set(true);
             TestBed.tick();
             await flush();
-            expect(ts_client.querySystems).toHaveBeenCalledTimes(1);
+            expect(ts_client.systems.query).toHaveBeenCalledTimes(1);
             expect(spectator.service.loading()).toBe(false);
 
             // the next group's zones are loading
@@ -180,7 +208,7 @@ describe('SupportService', () => {
             scope_ready.set(true);
             TestBed.tick();
             await flush();
-            expect(ts_client.querySystems).toHaveBeenLastCalledWith({
+            expect(ts_client.systems.query).toHaveBeenLastCalledWith({
                 group_id: 'group-2',
                 limit: 5000,
             });
@@ -188,8 +216,12 @@ describe('SupportService', () => {
 
         it("drops the previous group's systems that arrive after a switch", async () => {
             let resolve_old: (_: unknown) => void;
-            (ts_client.querySystems as any).mockReturnValue(
-                new Promise((resolve) => (resolve_old = resolve)),
+            (ts_client.systems.query as any).mockImplementation(
+                fromV1Mock(
+                    () => new Promise((resolve) => (resolve_old = resolve)),
+                    ['...'],
+                    'page',
+                ),
             );
             await create();
 
@@ -207,7 +239,7 @@ describe('SupportService', () => {
             group_id.set('');
             scope.set(groupScope([], []));
             await create();
-            expect(ts_client.querySystems).not.toHaveBeenCalled();
+            expect(ts_client.systems.query).not.toHaveBeenCalled();
             expect(spectator.service.space_list()).toEqual([]);
             expect(spectator.service.loading()).toBe(false);
         });

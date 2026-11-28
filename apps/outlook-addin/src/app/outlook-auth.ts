@@ -4,13 +4,16 @@
  *
  * The manifest generator adds `?ms_client_id=<guid>` to the task pane URL.
  * With this value, and when Outlook supports NAA, MSAL asks Outlook for a
- * Microsoft Entra token for the PlaceOS API. ts-client exchanges this token
- * for PlaceOS tokens. Without it, the add-in uses the PlaceOS sign-in dialog.
+ * Microsoft Entra token for the PlaceOS API. The ts-client login session
+ * exchanges this token for PlaceOS tokens (the `entra` grant). Without it,
+ * the add-in uses the PlaceOS sign-in dialog.
  *
- * Usage, after `Office.onReady()` and `setupPlace()`:
+ * Usage, after `Office.onReady()`:
  * ```ts
- * const entra_token = await acquireNaaToken(naaClientId());
- * if (entra_token) await exchangeEntraToken(entra_token);
+ * const client_id = naaClientId();
+ * await setupPlace(settings, timeout_ms, {
+ *     entra_token: async () => (await acquireNaaToken(client_id)) || null,
+ * });
  * ```
  */
 

@@ -25,28 +25,12 @@ export const NOT_FOUND_URL = '/#/not-found';
  * Sets localStorage mock flag and establishes the app.
  */
 export async function initializeAppWithMock(page: Page): Promise<void> {
-    // Set localStorage mock flag BEFORE navigating
-    // This ensures mock mode is detected on first load
-    await page.goto('/');
-    // Wait for page to be stable before evaluating
-    await page.waitForLoadState('domcontentloaded');
-    await page
-        .evaluate(() => {
-            localStorage.setItem('mock', 'true');
-        })
-        .catch(() => {
-            // Retry if context was destroyed due to navigation
-        });
-
-    // Navigate to the app with mock mode in URL as backup
+    // Set before the first load: without mock mode the app starts the login
+    // at once, and that redirect would interrupt a later navigation.
+    await page.addInitScript(() => localStorage.setItem('mock', 'true'));
     await page.goto('/?mock=true');
     await page.waitForLoadState('domcontentloaded');
-    // Ensure localStorage is set (retry)
-    await page
-        .evaluate(() => {
-            localStorage.setItem('mock', 'true');
-        })
-        .catch(() => {});
+
     await page.waitForTimeout(1000);
 
     // Wait for app to initialize

@@ -5,15 +5,13 @@ import {
     MatDialogRef,
 } from '@angular/material/dialog';
 import { HotkeysService, setNotifyOutlet } from '@placeos/common';
-import {
-    MediaAnimation,
-    SignageMedia,
-    SignagePlugin,
-} from '@placeos/ts-client';
+import { type PlaylistItem } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import {
     MediaEditModalComponent,
     MediaEditModalData,
 } from '../../app/shared/media-edit-modal.component';
+import { signageMedia, signagePlugin } from '../../app/signage-models';
 
 const notify_open = vi.fn(() => ({
     onAction: () => ({ subscribe: () => ({ unsubscribe: () => {} }) }),
@@ -37,7 +35,7 @@ describe('MediaEditModalComponent', () => {
         setNotifyOutlet({ open: notify_open } as any, true);
         dialog_ref.disableClose = false;
         dialog.openDialogs = [dialog_ref];
-        onAdd.mockResolvedValue(new SignageMedia({ id: 'media-1' }));
+        onAdd.mockResolvedValue(signageMedia({ id: 'media-1' }));
         onEdit.mockResolvedValue(undefined);
         hotkey_listen.mockImplementation(
             (_combo: string[], callback: () => void) => {
@@ -46,7 +44,7 @@ describe('MediaEditModalComponent', () => {
             },
         );
         modal_data = {
-            media: new SignageMedia({}),
+            media: signageMedia({}),
             file: new File(['image'], 'poster.png', { type: 'image/png' }),
             file_metadata: {
                 is_landscape: true,
@@ -141,7 +139,7 @@ describe('MediaEditModalComponent', () => {
 
     // The animation is stored as a name, such as "cut", not a number
     it('offers the saved animation of the media as an option', () => {
-        modal_data.media = new SignageMedia({
+        modal_data.media = signageMedia({
             id: 'media-1',
             name: 'Poster',
             animation: MediaAnimation.Cut,
@@ -194,13 +192,13 @@ describe('MediaEditModalComponent', () => {
     });
 
     it('uses plugin-reported schema ahead of catalogue params', () => {
-        modal_data.media = new SignageMedia({
+        modal_data.media = signageMedia({
             media_type: 'plugin',
             plugin_id: 'weather',
         });
         modal_data.file = undefined;
         modal_data.file_metadata = undefined;
-        modal_data.plugin = new SignagePlugin({
+        modal_data.plugin = signagePlugin({
             id: 'weather',
             params: {
                 type: 'object',
@@ -228,13 +226,13 @@ describe('MediaEditModalComponent', () => {
     });
 
     it('populates plugin params with default values for new plugin media', () => {
-        modal_data.media = new SignageMedia({
+        modal_data.media = signageMedia({
             media_type: 'plugin',
             plugin_id: 'weather',
         });
         modal_data.file = undefined;
         modal_data.file_metadata = undefined;
-        modal_data.plugin = new SignagePlugin({
+        modal_data.plugin = signagePlugin({
             id: 'weather',
             defaults: { size: 'large' },
             params: {
@@ -255,14 +253,14 @@ describe('MediaEditModalComponent', () => {
     });
 
     it('keeps existing plugin params when seeding defaults', () => {
-        modal_data.media = new SignageMedia({
+        modal_data.media = signageMedia({
             media_type: 'plugin',
             plugin_id: 'weather',
             plugin_params: { units: 'imperial' },
         });
         modal_data.file = undefined;
         modal_data.file_metadata = undefined;
-        modal_data.plugin = new SignagePlugin({
+        modal_data.plugin = signagePlugin({
             id: 'weather',
             params: {
                 type: 'object',
@@ -282,14 +280,14 @@ describe('MediaEditModalComponent', () => {
     });
 
     it('saves plugin config using defaults from the plugin schema', async () => {
-        modal_data.media = new SignageMedia({
+        modal_data.media = signageMedia({
             media_type: 'plugin',
             media_uri: '/plugins/weather/index.html',
             plugin_id: 'weather',
         });
         modal_data.file = undefined;
         modal_data.file_metadata = undefined;
-        modal_data.plugin = new SignagePlugin({
+        modal_data.plugin = signagePlugin({
             id: 'weather',
             defaults: { units: 'imperial', size: 'large' },
         });
@@ -312,7 +310,7 @@ describe('MediaEditModalComponent', () => {
         await component.saveMedia();
 
         expect(onAdd).toHaveBeenCalled();
-        const media = onAdd.mock.calls[0][1] as SignageMedia;
+        const media = onAdd.mock.calls[0][1] as PlaylistItem;
         expect(media.plugin_params).toEqual({
             units: 'metric',
             size: 'large',
@@ -334,7 +332,7 @@ describe('MediaEditModalComponent', () => {
             modal_data.file = undefined;
             modal_data.file_metadata = undefined;
             modal_data.generateThumbnail = generateThumbnail;
-            modal_data.media = new SignageMedia({
+            modal_data.media = signageMedia({
                 media_type: 'webpage',
                 media_uri: 'https://example.com',
                 name: 'Example',
@@ -363,7 +361,7 @@ describe('MediaEditModalComponent', () => {
         });
 
         it('sends the picked image when updating an existing item', async () => {
-            modal_data.media = new SignageMedia({
+            modal_data.media = signageMedia({
                 id: 'media-1',
                 media_type: 'webpage',
                 media_uri: 'https://example.com',
@@ -396,7 +394,7 @@ describe('MediaEditModalComponent', () => {
         beforeEach(() => {
             modal_data.file = undefined;
             modal_data.file_metadata = undefined;
-            modal_data.media = new SignageMedia({
+            modal_data.media = signageMedia({
                 id: 'media-1',
                 media_type: 'webpage',
                 media_uri: 'javascript:alert(1)',
@@ -463,7 +461,7 @@ describe('MediaEditModalComponent', () => {
 
     describe('default play time hint', () => {
         /** Hint next to the play time label, for media without a play time */
-        async function renderHint(media: SignageMedia) {
+        async function renderHint(media: PlaylistItem) {
             const element = await renderModal({ media });
             const label = element.querySelector('label[for="media-play-time"]');
             return label.nextElementSibling.textContent.trim();
@@ -472,7 +470,7 @@ describe('MediaEditModalComponent', () => {
         // The playlist default, else 15 seconds, applies to an image
         it('shows no fixed length for an image', async () => {
             const hint = await renderHint(
-                new SignageMedia({
+                signageMedia({
                     id: 'm-1',
                     name: 'Poster',
                     media_type: 'image',
@@ -485,7 +483,7 @@ describe('MediaEditModalComponent', () => {
 
         it('shows the video length for a video', async () => {
             const hint = await renderHint(
-                new SignageMedia({
+                signageMedia({
                     id: 'm-1',
                     name: 'Clip',
                     media_type: 'video',
@@ -497,24 +495,21 @@ describe('MediaEditModalComponent', () => {
         });
     });
 
-    // The API stores an animation name but returns its index
-    it.each([2, 'cross_fade'])(
-        'shows a saved animation of %s by name',
-        async (animation) => {
-            const element = await renderModal({
-                media: new SignageMedia({
-                    id: 'm-1',
-                    name: 'Poster',
-                    media_type: 'image',
-                    animation: animation as MediaAnimation,
-                }),
-            });
+    // The API returns the index of the animation
+    it('shows a saved animation by name', async () => {
+        const element = await renderModal({
+            media: signageMedia({
+                id: 'm-1',
+                name: 'Poster',
+                media_type: 'image',
+                animation: MediaAnimation.CrossFade,
+            }),
+        });
 
-            expect(
-                element.querySelector('#media-animation').textContent,
-            ).toContain('Cross Fade');
-        },
-    );
+        expect(element.querySelector('#media-animation').textContent).toContain(
+            'Cross Fade',
+        );
+    });
 
     // A notification would sit under the full screen modal
     it('shows the 4K warning for a large new file in the modal', async () => {
@@ -541,7 +536,7 @@ describe('MediaEditModalComponent', () => {
 
     it('points every label at a control', async () => {
         const element = await renderModal({
-            media: new SignageMedia({
+            media: signageMedia({
                 id: 'm-1',
                 name: 'Clip',
                 media_type: 'video',

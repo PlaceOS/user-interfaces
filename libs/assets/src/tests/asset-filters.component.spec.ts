@@ -3,6 +3,11 @@ import { TestBed } from '@angular/core/testing';
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
 import { createSettingsServiceMock } from '@placeos/common/tests';
+import {
+    AssetCategory,
+    type AssetCategoryInput,
+    parseResponse,
+} from '@placeos/ts-client';
 import { SettingsToggleComponent } from 'libs/components/src/lib/settings-toggle.component';
 import { DurationFieldComponent } from 'libs/form-fields/src/lib/duration-field.component';
 import { MockComponent, MockProvider } from 'ng-mocks';
@@ -10,11 +15,20 @@ import { MockComponent, MockProvider } from 'ng-mocks';
 import { AssetFiltersComponent } from '../lib/asset-select-modal/asset-filters.component';
 import { AssetStateService } from '../lib/asset-state.service';
 
+/** An asset category with the given fields. The other fields are empty */
+function category(data: AssetCategoryInput): AssetCategory {
+    const result = parseResponse(AssetCategory, data, {
+        missing_fields: 'zero',
+    });
+    if (result.ok === false) throw new Error(result.error.path);
+    return result.value;
+}
+
 describe('AssetFiltersComponent', () => {
     let spectator: Spectator<AssetFiltersComponent>;
     let state_options: { date: number; duration: number };
     let settings_mock: ReturnType<typeof createSettingsServiceMock>;
-    const category_list = signal<{ id: string; name: string }[]>([]);
+    const category_list = signal<AssetCategory[]>([]);
     const options = signal<any>({});
 
     const createComponent = createComponentFactory({
@@ -43,8 +57,8 @@ describe('AssetFiltersComponent', () => {
         };
         options.set(state_options);
         category_list.set([
-            { id: 'cat-1', name: 'Audio' },
-            { id: 'cat-2', name: 'Video' },
+            category({ id: 'cat-1', name: 'Audio' }),
+            category({ id: 'cat-2', name: 'Video' }),
         ]);
         spectator = createComponent();
     });

@@ -22,11 +22,24 @@ import {
 import { EventBookModalComponent } from '../../app/day-view/event-book-modal.component';
 import { EventsStateService } from '../../app/day-view/events-state.service';
 
-import * as ts_client from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { System, systems } from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import { events, PlaceCalendarEvent } from '@placeos/ts-client/staff';
 import { MockProvider } from 'ng-mocks';
 import { NEVER, of, Subject } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
+
+/** A reply of `events.query`, with the calendars that did not load */
+const eventsReply = (list: PlaceCalendarEvent[], calendar_issue?: string) => {
+    const reply = mockReply(list);
+    if (reply.ok && calendar_issue) {
+        reply.value.headers.set('x-calendar-issue', calendar_issue);
+    }
+    return reply;
+};
 
 import {
     Building,
@@ -56,16 +69,12 @@ describe('EventsStateService', () => {
     let week_start = 0;
 
     // `queryEvents` is a workspace fn (not mockable under the bundling
-    // builder); it resolves to ts-client `get('/…/events?<query>')`, so both
-    // stubbing and assertions happen at that boundary.
-    const event_get_calls = () =>
-        vi
-            .mocked(ts_client.get)
-            .mock.calls.filter(([url]) => String(url).includes('/events?'));
-    const last_event_params = (): Record<string, string> => {
+    // builder); it calls the staff API `events.query`, so both stubbing and
+    // assertions happen at that boundary.
+    const event_get_calls = () => vi.mocked(events.query).mock.calls;
+    const last_event_params = () => {
         const calls = event_get_calls();
-        const url = String(calls[calls.length - 1]?.[0] || '');
-        return Object.fromEntries(new URLSearchParams(url.split('?')[1]));
+        return calls[calls.length - 1]?.[0];
     };
     const createService = createServiceFactory({
         service: EventsStateService,
@@ -98,13 +107,23 @@ describe('EventsStateService', () => {
         week_start = 0;
         // `requestSpacesForZone` calls ts-client `querySystems`; return
         // spaces without room_booking_url so the API-event loader runs.
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                { id: 'space-1', email: '1', bookable: true },
-                { id: 'space-2', email: '2', bookable: true },
-            ],
-        } as any);
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(System, {
+                        id: 'space-1',
+                        email: '1',
+                        bookable: true,
+                    }),
+                    mockData(System, {
+                        id: 'space-2',
+                        email: '2',
+                        bookable: true,
+                    }),
+                ],
+            }),
+        );
+        vi.mocked(events.query).mockResolvedValue(eventsReply([]));
         spectator = createService();
     });
 
@@ -119,10 +138,19 @@ describe('EventsStateService', () => {
         await settle();
         spectator.service.stopPolling();
         expect(spectator.service.event_list()).toHaveLength(0);
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { resources: [{ email: '1' }] },
-            { resources: [{ email: '2' }] },
-        ] as any);
+        // Rooms are the resource attendees of an event
+        vi.mocked(events.query).mockResolvedValue(
+            eventsReply([
+                mockData(PlaceCalendarEvent, {
+                    id: 'e1',
+                    attendees: [{ email: '1', resource: true }],
+                }),
+                mockData(PlaceCalendarEvent, {
+                    id: 'e2',
+                    attendees: [{ email: '2', resource: true }],
+                }),
+            ]),
+        );
         spectator.service.setZones(['bld-234']);
         await settle();
         expect(spectator.service.event_list()).toHaveLength(2);
@@ -131,16 +159,18 @@ describe('EventsStateService', () => {
     it('should list the pending approvals of the active building', async () => {
         const org = TestBed.inject(OrganisationService) as any;
         const unbind = vi.fn();
-        const bindings: Record<string, unknown> = {};
-        // One binding for each module, as ts-client caches them
-        const binding = (id: string) =>
-            (bindings[id] ||= {
-                bind: () => unbind,
-                listen: () =>
-                    Object.assign(() => ({ [id]: [{ id: `evt-${id}` }] }), {
-                        subscribe: () => ({ unsubscribe: vi.fn() }),
-                    }),
-            });
+        // A module handle gives the value now when it is known
+        const moduleOf = (sys: string) => ({
+            sys,
+            mod: 'RoomBookingApproval',
+            index: 1,
+            variable: () => ({
+                subscribe: (listener: (value: unknown) => void) => {
+                    listener({ [sys]: [{ id: `evt-${sys}` }] });
+                    return unbind;
+                },
+            }),
+        });
         const module_of: Record<string, string> = {
             'bld-1': 'sys-1',
             'bld-2': 'sys-2',
@@ -148,9 +178,7 @@ describe('EventsStateService', () => {
         };
         const loaded = signal(true);
         org.active_building_loaded = loaded;
-        org.module = vi.fn(() => ({
-            binding: () => binding(module_of[org.active_building().id]),
-        }));
+        org.module = vi.fn(() => moduleOf(module_of[org.active_building().id]));
         const pendingIds = () => spectator.service.pending().map((_) => _.id);
 
         org.active_building.set({ id: 'bld-1' });
@@ -175,16 +203,20 @@ describe('EventsStateService', () => {
     });
 
     it('should keep the loaded events on screen while a poll loads', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { resources: [{ email: '1' }] },
-        ] as any);
+        vi.mocked(events.query).mockResolvedValue(
+            eventsReply([
+                mockData(PlaceCalendarEvent, {
+                    attendees: [{ email: '1', resource: true }],
+                }),
+            ]),
+        );
         spectator.service.setZones(['bld-123']);
         spectator.service.startPolling('day');
         await settle();
         expect(spectator.service.event_list()).toHaveLength(1);
 
         // The next poll's request does not end
-        vi.mocked(ts_client.get).mockReturnValue(new Promise(() => {}) as any);
+        vi.mocked(events.query).mockReturnValue(new Promise(() => {}));
         await vi.advanceTimersByTimeAsync(3 * 60 * 1000);
         TestBed.tick();
 
@@ -195,12 +227,12 @@ describe('EventsStateService', () => {
     });
 
     it('should show a retry as loading', async () => {
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(events.query).mockResolvedValue(eventsReply([]));
         spectator.service.setZones(['bld-123']);
         spectator.service.startPolling('day');
         await settle();
 
-        vi.mocked(ts_client.get).mockReturnValue(new Promise(() => {}) as any);
+        vi.mocked(events.query).mockReturnValue(new Promise(() => {}));
         spectator.service.reload();
         TestBed.tick();
 
@@ -209,15 +241,14 @@ describe('EventsStateService', () => {
     });
 
     it('should only flag shown rooms whose calendars did not load', async () => {
-        vi.mocked(ts_client.responseHeaders).mockReturnValue({
-            'x-calendar-issue': '1,group-events@place.com',
-        });
+        vi.mocked(events.query).mockResolvedValue(
+            eventsReply([], '1,group-events@place.com'),
+        );
         spectator.service.setZones(['bld-123']);
         await settle();
         expect(
             spectator.service.failed_spaces().map((space) => space.id),
         ).toEqual(['space-1']);
-        vi.mocked(ts_client.responseHeaders).mockReset();
     });
 
     it('should filter events by period, room, zone and type', () => {
@@ -457,8 +488,8 @@ describe('EventsStateService', () => {
             expect.objectContaining({
                 zone_ids: 'bld-123',
                 strict: 'limit',
-                period_start: `${getUnixTime(startOfDay(Date.now()))}`,
-                period_end: `${getUnixTime(endOfDay(Date.now()))}`,
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
             }),
         );
     });
@@ -472,8 +503,8 @@ describe('EventsStateService', () => {
             expect.objectContaining({
                 zone_ids: 'bld-123',
                 strict: 'limit',
-                period_start: `${getUnixTime(startOfDay(Date.now()))}`,
-                period_end: `${getUnixTime(endOfDay(Date.now()))}`,
+                period_start: getUnixTime(startOfDay(Date.now())),
+                period_end: getUnixTime(endOfDay(Date.now())),
             }),
         );
     });
@@ -501,8 +532,8 @@ describe('EventsStateService', () => {
             expect.objectContaining({
                 zone_ids: 'bld-123',
                 strict: 'limit',
-                period_start: `${getUnixTime(startOfWeek(Date.now()))}`,
-                period_end: `${getUnixTime(endOfWeek(Date.now()))}`,
+                period_start: getUnixTime(startOfWeek(Date.now())),
+                period_end: getUnixTime(endOfWeek(Date.now())),
             }),
         );
     });
@@ -517,12 +548,12 @@ describe('EventsStateService', () => {
             expect.objectContaining({
                 zone_ids: 'bld-123',
                 strict: 'limit',
-                period_start: `${getUnixTime(
+                period_start: getUnixTime(
                     startOfWeek(Date.now(), { weekStartsOn: 1 }),
-                )}`,
-                period_end: `${getUnixTime(
+                ),
+                period_end: getUnixTime(
                     endOfWeek(Date.now(), { weekStartsOn: 1 }),
-                )}`,
+                ),
             }),
         );
     });
@@ -536,8 +567,8 @@ describe('EventsStateService', () => {
             expect.objectContaining({
                 zone_ids: 'bld-123',
                 strict: 'limit',
-                period_start: `${getUnixTime(startOfMonth(Date.now()))}`,
-                period_end: `${getUnixTime(endOfMonth(Date.now()))}`,
+                period_start: getUnixTime(startOfMonth(Date.now())),
+                period_end: getUnixTime(endOfMonth(Date.now())),
             }),
         );
     });
@@ -556,9 +587,17 @@ describe('EventsStateService', () => {
             spectator.service.filtered().map((event) => event.id);
         /** Load the booking from the API, as the day view does */
         const loadBooking = async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([
-                booking().toJSON(),
-            ] as never);
+            vi.mocked(events.query).mockResolvedValue(
+                eventsReply([
+                    mockData(PlaceCalendarEvent, {
+                        id: 'evt-1',
+                        event_start: booking().event_start,
+                        event_end: booking().event_end,
+                        host: 'host@place.tech',
+                        attendees: [{ email: '1', resource: true }],
+                    }),
+                ]),
+            );
             spectator.service.startPolling('day');
             await settle();
             spectator.service.stopPolling();
@@ -578,17 +617,17 @@ describe('EventsStateService', () => {
         });
 
         it('should decline the event and drop it from the list', async () => {
-            vi.mocked(ts_client.post).mockResolvedValue({
-                id: 'evt-1',
-            } as never);
+            vi.mocked(events.decline).mockResolvedValue(mockReply(''));
             const event = await loadBooking();
             expect(listed_ids()).toEqual(['evt-1']);
 
             expect(await spectator.service.removeBooking(event)).toBe(true);
 
-            expect(ts_client.post).toHaveBeenCalledWith(
-                expect.stringContaining('/events/evt-1/decline?calendar=host'),
-                '',
+            expect(events.decline).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    id: 'evt-1',
+                    calendar: 'host@place.tech',
+                }),
             );
             expect(listed_ids()).toEqual([]);
             expect(spectator.inject(MatDialog).closeAll).toHaveBeenCalled();
@@ -596,13 +635,13 @@ describe('EventsStateService', () => {
 
         it('should hide the event while the decline runs and show it again on failure', async () => {
             let rejectDecline: (error: Error) => void;
-            vi.mocked(ts_client.post).mockReturnValue(
-                new Promise((_, reject) => (rejectDecline = reject)) as never,
+            vi.mocked(events.decline).mockReturnValue(
+                new Promise((_, reject) => (rejectDecline = reject)),
             );
             const event = await loadBooking();
 
             const removal = spectator.service.removeBooking(event);
-            await vi.waitFor(() => expect(ts_client.post).toHaveBeenCalled());
+            await vi.waitFor(() => expect(events.decline).toHaveBeenCalled());
             expect(listed_ids()).toEqual([]);
 
             const error = new Error('502');
@@ -638,23 +677,25 @@ describe('EventsStateService levels', () => {
 
     beforeEach(() => {
         vi.useFakeTimers();
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                {
-                    id: 'room',
-                    email: 'room@place.os',
-                    bookable: true,
-                    zones: ['bld-levels', 'lvl-rooms'],
-                },
-                {
-                    id: 'desk-area',
-                    email: 'desks@place.os',
-                    bookable: false,
-                    zones: ['bld-levels', 'lvl-desks'],
-                },
-            ],
-        } as any);
-        vi.mocked(ts_client.get).mockResolvedValue([] as any);
+        vi.mocked(systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(System, {
+                        id: 'room',
+                        email: 'room@place.os',
+                        bookable: true,
+                        zones: ['bld-levels', 'lvl-rooms'],
+                    }),
+                    mockData(System, {
+                        id: 'desk-area',
+                        email: 'desks@place.os',
+                        bookable: false,
+                        zones: ['bld-levels', 'lvl-desks'],
+                    }),
+                ],
+            }),
+        );
+        vi.mocked(events.query).mockResolvedValue(eventsReply([]));
         spectator = createService();
     });
 
@@ -669,8 +710,8 @@ describe('EventsStateService levels', () => {
             'lvl-rooms',
         ]);
         const zone_ids = vi
-            .mocked(ts_client.querySystems)
+            .mocked(systems.query)
             .mock.calls.map(([query]) => query?.zone_id);
-        expect(zone_ids).toEqual(['bld-levels']);
+        expect(zone_ids).toEqual([['bld-levels']]);
     });
 });

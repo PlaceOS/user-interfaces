@@ -2,11 +2,13 @@ import { NO_ERRORS_SCHEMA, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslatePipe } from '@placeos/components';
-import { PlaceZone, showZone } from '@placeos/ts-client';
+import { zones } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { SignageDisplayService } from '../../app/displays/signage-display.service';
 import { SignagePlaylistService } from '../../app/playlists/signage-playlist.service';
 import { SectionTabsComponent } from '../../app/shared/section-tabs.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signageZone } from '../../app/signage-models';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 import { SignageZoneService } from '../../app/zones/signage-zone.service';
 import { ZonesSectionComponent } from '../../app/zones/zones.component';
@@ -181,8 +183,8 @@ describe('ZonesSectionComponent', () => {
 
     it('loads a routed zone that the zone list does not include', async () => {
         all_zones.set([{ id: 'z1' }]);
-        vi.mocked(showZone).mockResolvedValue(
-            new PlaceZone({ id: 'z-far', name: 'R&amp;D' }),
+        vi.mocked(zones.show).mockResolvedValue(
+            mockReply(signageZone({ id: 'z-far', name: 'R&amp;D' })),
         );
         const [, fixture] = await make();
         fixture.componentRef.setInput('id', 'z-far');
@@ -191,13 +193,13 @@ describe('ZonesSectionComponent', () => {
 
         await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
         expect(selected_zone().name).toBe('R&D');
-        expect(showZone).toHaveBeenCalledExactlyOnceWith('z-far');
+        expect(zones.show).toHaveBeenCalledExactlyOnceWith({ id: 'z-far' });
     });
 
     it('loads a linked zone again after going back to it', async () => {
         all_zones.set([{ id: 'z1' }]);
-        vi.mocked(showZone).mockResolvedValue(
-            new PlaceZone({ id: 'z-far', name: 'Far' }),
+        vi.mocked(zones.show).mockResolvedValue(
+            mockReply(signageZone({ id: 'z-far', name: 'Far' })),
         );
         const [, fixture] = await make();
         const route = (id: string) => {
@@ -213,7 +215,7 @@ describe('ZonesSectionComponent', () => {
         route('z-far');
 
         await vi.waitFor(() => expect(selected_zone()?.id).toBe('z-far'));
-        expect(showZone).toHaveBeenCalledTimes(2);
+        expect(zones.show).toHaveBeenCalledTimes(2);
     });
 
     it('clears the selection when navigating back to the list', async () => {

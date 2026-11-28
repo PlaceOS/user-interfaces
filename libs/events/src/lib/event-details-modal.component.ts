@@ -25,6 +25,7 @@ import {
     CateringOrder,
     formatRecurrence,
     fromEventRecurrence,
+    getModule,
     getTimezoneOffsetString,
     i18n,
     notifyError,
@@ -33,7 +34,6 @@ import {
     SettingsService,
     Space,
 } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
 
 import { OrganisationService } from '@placeos/common';
 import { BindingDirective } from 'libs/components/src/lib/binding.directive';
@@ -1079,9 +1079,12 @@ export class EventDetailsModalComponent implements OnInit {
         ) {
             return;
         }
-        const metadata = await getEventMetadata(
-            this.event().id,
-            this.space().id,
+        // The client rejects an empty id, and the metadata is optional
+        const event_id = this.event().id;
+        const space_id = this.space()?.id;
+        if (!event_id || !space_id) return;
+        const metadata = await getEventMetadata(event_id, space_id).catch(
+            () => null,
         );
         if (metadata) {
             this.event.set(

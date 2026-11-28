@@ -6,11 +6,13 @@ import {
     SpectatorService,
 } from '@ngneat/spectator/vitest';
 import { OrganisationService, SettingsService } from '@placeos/common';
-import { PlaceSystem } from '@placeos/ts-client';
+import { mockData } from '@placeos/common/tests';
+import { System } from '@placeos/ts-client';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { RoomAlertModalComponent } from '../../app/room-manager/room-alert-modal.component';
 import { RoomBookingHistoryModalComponent } from '../../app/room-manager/room-booking-history-modal.component';
 import { RoomManagementService } from '../../app/room-manager/room-management.service';
@@ -47,11 +49,18 @@ describe('RoomManagementService', () => {
         organisation_service.active_region = signal({ id: 'region-1' });
         dialog_open = vi.fn(() => ({ afterClosed: () => of(null) }));
         vi.clearAllMocks();
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {},
-        });
-        (ts_client_mod.querySystems as any).mockReturnValue(
-            Promise.resolve({ data: [] }),
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {},
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client_mod.systems.query as any).mockImplementation(
+            fromV1Mock(() => Promise.resolve({ data: [] }), ['...'], 'page'),
         );
         spectator = createService();
         (spectator.inject(MatDialog) as any).open = dialog_open;
@@ -67,7 +76,7 @@ describe('RoomManagementService', () => {
     });
 
     it('should open the room modal when editing a room', () => {
-        const room = new PlaceSystem({ id: 'sys-1' });
+        const room = mockData(System, { id: 'sys-1' });
         spectator.service.editRoom(room);
         expect(dialog_open).toHaveBeenCalledWith(RoomModalComponent, {
             data: { room },
@@ -78,7 +87,7 @@ describe('RoomManagementService', () => {
         spectator.service.setRoomAlert(null);
         expect(dialog_open).not.toHaveBeenCalled();
 
-        const room = new PlaceSystem({ id: 'sys-1' });
+        const room = mockData(System, { id: 'sys-1' });
         spectator.service.setRoomAlert(room);
         expect(dialog_open).toHaveBeenCalledWith(RoomAlertModalComponent, {
             data: { room },
@@ -89,7 +98,7 @@ describe('RoomManagementService', () => {
         spectator.service.viewBookingHistory(null);
         expect(dialog_open).not.toHaveBeenCalled();
 
-        const room = new PlaceSystem({ id: 'sys-1' });
+        const room = mockData(System, { id: 'sys-1' });
         spectator.service.viewBookingHistory(room);
         expect(dialog_open).toHaveBeenCalledWith(
             RoomBookingHistoryModalComponent,
@@ -103,16 +112,36 @@ describe('RoomManagementService', () => {
     });
 
     it('should apply search and zone filters to the loaded room list', async () => {
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {},
-        });
-        (ts_client_mod.querySystems as any).mockReturnValue(
-            Promise.resolve({
-                data: [
-                    { id: 'a', name: 'Alpha', zones: ['bld-1', 'lvl-1'] },
-                    { id: 'b', name: 'Beta', zones: ['bld-1', 'lvl-2'] },
-                ],
-            }),
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {},
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client_mod.systems.query as any).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({
+                        data: [
+                            {
+                                id: 'a',
+                                name: 'Alpha',
+                                zones: ['bld-1', 'lvl-1'],
+                            },
+                            {
+                                id: 'b',
+                                name: 'Beta',
+                                zones: ['bld-1', 'lvl-2'],
+                            },
+                        ],
+                    }),
+                ['...'],
+                'page',
+            ),
         );
 
         spectator = createService();
@@ -135,13 +164,25 @@ describe('RoomManagementService', () => {
     });
 
     it('should apply saved alerts onto matching rooms in the list', async () => {
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: { a: ['warn', 'Closed for maintenance'] },
-        });
-        (ts_client_mod.querySystems as any).mockReturnValue(
-            Promise.resolve({
-                data: [{ id: 'a', name: 'Alpha', zones: ['bld-1'] }],
-            }),
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: { a: ['warn', 'Closed for maintenance'] },
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        (ts_client_mod.systems.query as any).mockImplementation(
+            fromV1Mock(
+                () =>
+                    Promise.resolve({
+                        data: [{ id: 'a', name: 'Alpha', zones: ['bld-1'] }],
+                    }),
+                ['...'],
+                'page',
+            ),
         );
 
         spectator = createService();

@@ -18,14 +18,21 @@ import { of } from 'rxjs';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
+import { mockData } from '@placeos/common/tests';
 import { CalendarService } from '@placeos/events';
 import * as ts_client from '@placeos/ts-client';
-import { PlaceMetadata, PlaceUser } from '@placeos/ts-client';
+import { Metadata, User, type JsonValue } from '@placeos/ts-client';
+import { fromV1Mock, mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { LandingStateService } from '../../app/landing/landing-state.service';
 import { ScheduleStateService } from '../../app/schedule/schedule-state.service';
 
 describe('LandingStateService', () => {
     let spectator: SpectatorService<LandingStateService>;
+    let place: TestPlaceClient;
     const active_building = signal<any>(null);
     const filtered_bookings = signal<(Booking | CalendarEvent)[]>([]);
     const flush = async () => {
@@ -65,23 +72,32 @@ describe('LandingStateService', () => {
         // `requestSpacesForZone` (a workspace fn that can't be spied) calls
         // ts-client `querySystems` under the hood, so control the space list
         // one layer down.
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [],
-        } as any);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [],
-        } as any);
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [],
+            } as any),
+        );
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
         // Contacts load users with `showUser`. The real call asks ts-client
         // for a token, which schedules a re-authorise timer that can fire
         // after this file's window is gone.
-        vi.mocked(ts_client.showUser).mockImplementation(
-            async (email: string) => new PlaceUser({ id: email, email }),
+        vi.mocked(ts_client.users.show).mockImplementation(
+            fromV1Mock(
+                async (email: string) => ({ id: email, email }),
+                ['id', '...'],
+            ),
         );
-        vi.mocked(ts_client.getModule).mockReturnValue({
-            variable: vi.fn(() => ({
-                bindThenSubscribe: vi.fn(() => vi.fn()),
-            })),
-        } as any);
+        place = startTestPlaceClient();
     });
 
     // Root effects from a previous test's service stay alive on the shared
@@ -180,29 +196,31 @@ describe('LandingStateService', () => {
 
     it('should list the free spaces that the booking rules allow', async () => {
         // The live statuses have the order of the allowed spaces
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                { id: 'space-hidden', bookable: true, zones: ['lvl-a'] },
-                { id: 'space-free', bookable: true, zones: ['lvl-b'] },
-                { id: 'space-busy', bookable: true, zones: ['lvl-b'] },
-            ],
-        } as any);
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: [{ zone: 'lvl-a', rules: { hidden: true } }],
-        } as any);
-        vi.mocked(ts_client.getModule).mockImplementation(
-            (id: string) =>
-                ({
-                    variable: () => ({
-                        bindThenSubscribe: (
-                            callback: (status: string) => void,
-                        ) => {
-                            callback(id === 'space-free' ? 'free' : 'busy');
-                            return vi.fn();
-                        },
-                    }),
-                }) as any,
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'space-hidden', bookable: true, zones: ['lvl-a'] },
+                    { id: 'space-free', bookable: true, zones: ['lvl-b'] },
+                    { id: 'space-busy', bookable: true, zones: ['lvl-b'] },
+                ],
+            } as any),
         );
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: [{ zone: 'lvl-a', rules: { hidden: true } }],
+                    }) as any,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        place.bind.mockImplementation((target, listener) => {
+            const value = target.sys === 'space-free' ? 'free' : 'busy';
+            listener({ kind: 'value', value });
+            return () => undefined;
+        });
 
         active_building.set({ id: 'bld-rules' });
         spectator = createService();
@@ -217,23 +235,25 @@ describe('LandingStateService', () => {
     });
 
     it('should not rebind space status when a status value is received', async () => {
-        const bindThenSubscribe = vi.fn((callback) => {
+        const subscribe = vi.fn((callback) => {
             callback('free');
             return vi.fn();
         });
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                {
-                    id: 'space-1',
-                    bookable: true,
-                    capacity: 2,
-                    zones: ['bld-1'],
-                },
-            ],
-        } as any);
-        vi.mocked(ts_client.getModule).mockReturnValue({
-            variable: vi.fn(() => ({ bindThenSubscribe })),
-        } as any);
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    {
+                        id: 'space-1',
+                        bookable: true,
+                        capacity: 2,
+                        zones: ['bld-1'],
+                    },
+                ],
+            } as any),
+        );
+        place.bind.mockImplementation((_target, listener) =>
+            subscribe((value: JsonValue) => listener({ kind: 'value', value })),
+        );
 
         active_building.set({ id: 'bld-1' });
         spectator = createService();
@@ -244,10 +264,10 @@ describe('LandingStateService', () => {
         // settles. Assert stability after settling instead of an absolute
         // count: a status emission re-triggering the
         // binding effect would add calls on every flush round.
-        const settled_count = bindThenSubscribe.mock.calls.length;
+        const settled_count = subscribe.mock.calls.length;
         expect(settled_count).toBeGreaterThanOrEqual(1);
         await flush();
-        expect(bindThenSubscribe.mock.calls.length).toBe(settled_count);
+        expect(subscribe.mock.calls.length).toBe(settled_count);
         release();
         await flush();
     });
@@ -256,25 +276,27 @@ describe('LandingStateService', () => {
         // The effect can rebind when the booking rules settle, so count the
         // bindings that are open
         let open = 0;
-        const bindThenSubscribe = vi.fn((callback) => {
+        const subscribe = vi.fn((callback) => {
             open++;
             callback('free');
             return () => open--;
         });
-        vi.mocked(ts_client.querySystems).mockResolvedValue({
-            data: [
-                { id: 'space-1', bookable: true, zones: ['bld-watch'] },
-                { id: 'space-2', bookable: true, zones: ['bld-watch'] },
-            ],
-        } as any);
-        vi.mocked(ts_client.getModule).mockReturnValue({
-            variable: vi.fn(() => ({ bindThenSubscribe })),
-        } as any);
+        vi.mocked(ts_client.systems.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'space-1', bookable: true, zones: ['bld-watch'] },
+                    { id: 'space-2', bookable: true, zones: ['bld-watch'] },
+                ],
+            } as any),
+        );
+        place.bind.mockImplementation((_target, listener) =>
+            subscribe((value: JsonValue) => listener({ kind: 'value', value })),
+        );
 
         active_building.set({ id: 'bld-watch' });
         spectator = createService();
         await flush();
-        expect(bindThenSubscribe).not.toHaveBeenCalled();
+        expect(subscribe).not.toHaveBeenCalled();
         expect(spectator.service.space_list()).toHaveLength(2);
 
         const release_home = spectator.service.watchSpaceStatuses();
@@ -296,11 +318,15 @@ describe('LandingStateService', () => {
     });
 
     describe('colleague search', () => {
-        type QueryResult = Awaited<ReturnType<typeof ts_client.queryUsers>>;
+        interface QueryResult {
+            total: number;
+            next: null;
+            data: User[];
+        }
         const users = (...emails: string[]): QueryResult => ({
             total: emails.length,
-            next: () => null,
-            data: emails.map((email) => new PlaceUser({ id: email, email })),
+            next: null,
+            data: emails.map((email) => mockData(User, { id: email, email })),
         });
         const emails = () =>
             spectator.service.search_results().map((user) => user.email);
@@ -311,8 +337,8 @@ describe('LandingStateService', () => {
         });
 
         it('should search after the user stops typing', async () => {
-            vi.mocked(ts_client.queryUsers).mockResolvedValue(
-                users('ann@example.com'),
+            vi.mocked(ts_client.users.query).mockResolvedValue(
+                mockPage(users('ann@example.com')),
             );
             spectator.service.setOptions({ search: 'a' });
             TestBed.flushEffects();
@@ -320,10 +346,10 @@ describe('LandingStateService', () => {
             spectator.service.setOptions({ search: 'an' });
             TestBed.flushEffects();
             await vi.advanceTimersByTimeAsync(499);
-            expect(ts_client.queryUsers).not.toHaveBeenCalled();
+            expect(ts_client.users.query).not.toHaveBeenCalled();
 
             await vi.advanceTimersByTimeAsync(1);
-            expect(ts_client.queryUsers).toHaveBeenCalledExactlyOnceWith(
+            expect(ts_client.users.query).toHaveBeenCalledExactlyOnceWith(
                 expect.objectContaining({ q: 'an' }),
             );
             expect(emails()).toEqual(['ann@example.com']);
@@ -332,11 +358,15 @@ describe('LandingStateService', () => {
 
         it('should ignore the late response of a replaced search', async () => {
             let resolveOld: (result: QueryResult) => void;
-            vi.mocked(ts_client.queryUsers)
-                .mockReturnValueOnce(
-                    new Promise((resolve) => (resolveOld = resolve)),
+            vi.mocked(ts_client.users.query)
+                .mockImplementationOnce(
+                    fromV1Mock(
+                        () => new Promise((resolve) => (resolveOld = resolve)),
+                        ['...'],
+                        'page',
+                    ),
                 )
-                .mockResolvedValueOnce(users('new@example.com'));
+                .mockResolvedValueOnce(mockPage(users('new@example.com')));
             spectator.service.setOptions({ search: 'old' });
             TestBed.flushEffects();
             await vi.advanceTimersByTimeAsync(500);
@@ -351,15 +381,15 @@ describe('LandingStateService', () => {
         });
 
         it('should flag a failed search and clear the results', async () => {
-            vi.mocked(ts_client.queryUsers).mockResolvedValueOnce(
-                users('ann@example.com'),
+            vi.mocked(ts_client.users.query).mockResolvedValueOnce(
+                mockPage(users('ann@example.com')),
             );
             spectator.service.setOptions({ search: 'ann' });
             TestBed.flushEffects();
             await vi.advanceTimersByTimeAsync(500);
             expect(emails()).toEqual(['ann@example.com']);
 
-            vi.mocked(ts_client.queryUsers).mockRejectedValueOnce(
+            vi.mocked(ts_client.users.query).mockRejectedValueOnce(
                 new Error('offline'),
             );
             spectator.service.setOptions({ search: 'bob' });
@@ -372,25 +402,35 @@ describe('LandingStateService', () => {
     });
 
     describe('contacts', () => {
-        const saved = () =>
-            vi
-                .mocked(ts_client.updateMetadata)
-                .mock.lastCall?.[1].details.map(
-                    (user: StaffUser) => user.email,
-                );
+        /** Emails of the contacts in the last metadata update */
+        const saved = () => {
+            const details = vi.mocked(ts_client.metadata.update).mock
+                .lastCall?.[0].body.details;
+            if (!Array.isArray(details)) return undefined;
+            return details.map((user) =>
+                typeof user === 'object' && user && !Array.isArray(user)
+                    ? user['email']
+                    : null,
+            );
+        };
 
         beforeEach(async () => {
             setCurrentUser(
                 new StaffUser({ id: 'me', email: 'me@example.com' }),
             );
-            vi.mocked(ts_client.showMetadata).mockResolvedValue(
-                new PlaceMetadata({
-                    name: 'contacts',
-                    details: [{ email: 'ann@example.com' }],
-                }),
+            vi.mocked(ts_client.metadata.show).mockImplementation(
+                fromV1Mock(
+                    () => ({
+                        name: 'contacts',
+                        details: [{ email: 'ann@example.com' }],
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
             );
-            vi.mocked(ts_client.updateMetadata).mockResolvedValue(
-                new PlaceMetadata(),
+            vi.mocked(ts_client.metadata.update).mockResolvedValue(
+                mockReply(mockData(Metadata, {})),
             );
             spectator = createService();
             await flush();
@@ -408,10 +448,10 @@ describe('LandingStateService', () => {
                 new StaffUser({ email: 'bob@example.com' }),
             ]);
 
-            expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-                'me',
-                expect.objectContaining({ name: 'contacts' }),
-            );
+            expect(ts_client.metadata.update).toHaveBeenCalledWith({
+                id: 'me',
+                body: expect.objectContaining({ name: 'contacts' }),
+            });
             expect(saved()).toEqual(['ann@example.com', 'bob@example.com']);
         });
 

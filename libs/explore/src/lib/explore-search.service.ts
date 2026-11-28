@@ -20,29 +20,32 @@ import {
     Space,
     StaffUser,
     User,
+    authority,
     firstValueWhere,
     flatten,
+    jsonRecord,
+    jsonRecords,
+    jsonStrings,
+    jsonText,
 } from '@placeos/common';
 import {
-    PlaceZoneMetadata,
-    authority,
-    get,
-    listChildMetadata,
-    querySystems,
-    queryUsers,
-    showMetadata,
+    asset_categories,
+    asset_types,
+    assets as assets_v7,
+    metadata as metadata_v7,
+    systems,
+    users as users_v7,
+    type MetadataChildren,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import {
     deskFromAsset,
     queryDeskAssetsInZone,
 } from 'libs/assets/src/lib/desk-assets.fn';
-
-import { toQueryString } from '@placeos/common';
 import { searchStaff } from 'libs/users/src/lib/staff.fn';
 import { ExploreStateService } from './explore-state.service';
 
 const EMERGENCY_CONTACTS_CATEGORY_NAME = '_EMERGENCY_CONTACTS_';
-const BASE_ENDPOINT = '/api/engine/v2';
 const ASCENDING_NAME_SORTER = new Intl.Collator(undefined, {
     numeric: true,
     sensitivity: 'base',
@@ -58,27 +61,33 @@ interface EmergencyContactFromAsset {
 }
 
 /** Query asset categories directly to avoid circular dependency */
-function queryAssetCategoriesLocal(query: Record<string, unknown> = {}) {
-    const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_categories${q ? '?' + q : ''}`).then(
-        (_) => _ as AssetCategory[],
-    );
+function queryAssetCategoriesLocal(
+    query: Parameters<typeof asset_categories.query>[0] = {},
+): Promise<AssetCategory[]> {
+    return asset_categories
+        .query(query)
+        .then(orThrow)
+        .then((_) => [..._]);
 }
 
 /** Query asset types/groups directly to avoid circular dependency */
-function queryAssetTypesLocal(query: Record<string, unknown> = {}) {
-    const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/asset_types${q ? '?' + q : ''}`).then(
-        (_) => _ as AssetGroup[],
-    );
+function queryAssetTypesLocal(
+    query: Parameters<typeof asset_types.query>[0] = {},
+): Promise<AssetGroup[]> {
+    return asset_types
+        .query(query)
+        .then(orThrow)
+        .then((_) => [..._]);
 }
 
 /** Query assets directly to avoid circular dependency */
-function queryAssetsLocal(query: Record<string, unknown> = {}) {
-    const q = toQueryString(query);
-    return get(`${BASE_ENDPOINT}/assets${q ? '?' + q : ''}`).then(
-        (_) => _ as Asset[],
-    );
+function queryAssetsLocal(
+    query: Parameters<typeof assets_v7.query>[0] = {},
+): Promise<Asset[]> {
+    return assets_v7
+        .query(query)
+        .then(orThrow)
+        .then((_) => [..._]);
 }
 
 export interface PointOfInterest {
@@ -195,10 +204,10 @@ export class ExploreSearchService {
     private _asset_based_contacts = resource({
         params: () => this._building() || undefined,
         loader: async ({ params: bld }) => {
-            // First get the category
-            const categories = await queryAssetCategoriesLocal({
-                zone_id: bld.id,
-            }).catch(() => [] as AssetCategory[]);
+            // First get the category. The categories API has no zone filter.
+            const categories = await queryAssetCategoriesLocal().catch(
+                () => [] as AssetCategory[],
+            );
             const category =
                 categories.find(
                     (c) => c.name === EMERGENCY_CONTACTS_CATEGORY_NAME,
@@ -225,15 +234,17 @@ export class ExploreSearchService {
             return assets
                 .filter((a) => a.asset_type_id === asset_type.id)
                 .map((a) => {
+                    const zones = [...(a.zones || [])];
                     const zone =
-                        this._org.levelWithID(a.zones) ||
-                        this._org.buildings.find((_) => a.zones.includes(_.id));
+                        this._org.levelWithID(zones) ||
+                        this._org.buildings.find((_) => zones.includes(_.id));
+                    const other_data = jsonRecord(a.other_data);
                     return {
                         id: a.id,
                         name: a.identifier || '',
-                        email: a.other_data?.email || '',
-                        phone: a.other_data?.phone || '',
-                        roles: a.other_data?.roles || [],
+                        email: jsonText(other_data['email']),
+                        phone: jsonText(other_data['phone']),
+                        roles: jsonStrings(other_data['roles']),
                         zone: zone?.id,
                         zone_name: zone?.display_name || zone?.name,
                     };
@@ -245,12 +256,14 @@ export class ExploreSearchService {
     private _legacy_metadata_contacts = resource({
         params: () => this._building() || undefined,
         loader: async ({ params: bld }) => {
-            const { details } = await showMetadata(
-                bld.id,
-                'emergency_contacts',
-            ).catch(() => ({
-                details: { contacts: [], migrated: false },
-            }));
+            const { details } = await metadata_v7
+                .show({ id: bld.id, name: 'emergency_contacts' })
+                .then(orThrow)
+                // A building without emergency contacts has no entry
+                .then((data) => data['emergency_contacts'] ?? { details: {} })
+                .catch(() => ({
+                    details: { contacts: [], migrated: false },
+                }));
             const data = details as any;
             // If migrated flag is set, return empty (use asset-based contacts)
             if (data?.migrated) return [];
@@ -279,7 +292,9 @@ export class ExploreSearchService {
         params: () => ({ q: this._debounced_filter.value() }),
         loader: ({ params: { q } }) =>
             q?.length > 2
-                ? querySystems({ q, zone_id: this._org.organisation.id })
+                ? systems
+                      .query({ q, zone_id: [this._org.organisation.id] })
+                      .then(orThrowPage)
                       .then(({ data }) =>
                           data
                               .filter((_) => _.map_id)
@@ -315,11 +330,13 @@ export class ExploreSearchService {
                     )
                     .catch(() => [] as Desk[]);
             }
-            return listChildMetadata(bld.id, { name: 'desks' })
+            return metadata_v7
+                .childrenMetadata({ id: bld.id, name: 'desks' })
+                .then(orThrow)
                 .then((i) =>
                     flatten(
                         i.map((j) =>
-                            (j.metadata.desks?.details || []).map(
+                            jsonRecords(j.metadata['desks']?.details).map(
                                 (k) => new Desk({ ...k, zone: j.zone }),
                             ),
                         ),
@@ -366,20 +383,22 @@ export class ExploreSearchService {
     private _map_features = resource({
         params: () => this._building() || undefined,
         loader: async () => {
-            const data = await listChildMetadata(this._org.building.id, {
-                name: 'map_features',
-            }).catch(() => [] as PlaceZoneMetadata[]);
+            const data = await metadata_v7
+                .childrenMetadata({
+                    id: this._org.building.id,
+                    name: 'map_features',
+                })
+                .then(orThrow)
+                .catch(() => [] as MetadataChildren[]);
             const list = [];
             for (const item of data) {
                 const metadata = item.metadata.map_features;
                 if (!metadata) continue;
-                const feature_list =
-                    metadata.details instanceof Array ? metadata.details : [];
-                for (const feature of feature_list) {
+                for (const feature of jsonRecords(metadata.details)) {
                     list.push({
-                        id: feature.id,
+                        id: jsonText(feature['id']),
                         type: 'feature',
-                        name: feature.name,
+                        name: jsonText(feature['name']),
                         description: '',
                         zone: item.zone,
                     });
@@ -392,9 +411,14 @@ export class ExploreSearchService {
     private _poi_metadata = resource({
         params: () => this._initialised() || undefined,
         loader: () =>
-            showMetadata(this._org.organisation.id, 'points-of-interest').catch(
-                (_) => ({ details: {} }),
-            ),
+            metadata_v7
+                .show({
+                    id: this._org.organisation.id,
+                    name: 'points-of-interest',
+                })
+                .then(orThrow)
+                .then((data) => data['points-of-interest'])
+                .catch((_) => ({ details: {} })),
     });
 
     private _poi_list = computed(() => {
@@ -611,9 +635,10 @@ export class ExploreSearchService {
         signal?: AbortSignal,
     ): Promise<StaffUser[]> =>
         this._settings.get('app.basic_user_search')
-            ? queryUsers({ q, authority_id: authority()?.id }).then(
-                  (_) => _.data as any as StaffUser[],
-              )
+            ? users_v7
+                  .query({ q, authority_id: authority()?.id })
+                  .then(orThrowPage)
+                  .then((_) => _.data as any as StaffUser[])
             : searchStaff(q, { signal });
 
     public hideItem(name: string) {
@@ -634,10 +659,11 @@ export class ExploreSearchService {
         const mod = this._org.module('location_services', 'LocationServices');
         if (mod) {
             const binding = mod.variable('emergency_contacts');
-            binding.bindThenSubscribe((contacts_map) => {
+            binding.subscribe((contacts_map) => {
                 const list = [];
-                for (const type in contacts_map) {
-                    for (const user of contacts_map[type]) {
+                const types = jsonRecord(contacts_map);
+                for (const type in types) {
+                    for (const user of jsonRecords(types[type])) {
                         list.push({ ...user, type });
                     }
                 }

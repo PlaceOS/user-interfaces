@@ -1,12 +1,12 @@
 import { Spectator, createComponentFactory } from '@ngneat/spectator/vitest';
 import { MockProvider } from 'ng-mocks';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import { authority } from '@placeos/ts-client';
-
 import { LocaleService } from 'libs/common/src/lib/locale.service';
 import { ImageCarouselComponent } from '../lib/image-carousel.component';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 const TEST_IMAGES = [
     'https://images.example.com/1.png',
@@ -15,6 +15,10 @@ const TEST_IMAGES = [
 ];
 
 describe('ImageCarouselComponent', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: Spectator<ImageCarouselComponent>;
     const createComponent = createComponentFactory({
         component: ImageCarouselComponent,
@@ -22,7 +26,7 @@ describe('ImageCarouselComponent', () => {
     });
 
     beforeEach(() => {
-        vi.mocked(authority).mockReturnValue({ id: 'test' } as any);
+        place.setAuthority({ id: 'test' });
         spectator = createComponent();
     });
 

@@ -10,12 +10,10 @@ import {
     SettingsService,
     unique,
 } from '@placeos/common';
-import {
-    PlaceMetadata,
-    showMetadata,
-    updateMetadata,
-} from '@placeos/ts-client';
+import { type Metadata, metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { getUnixTime } from 'date-fns';
+import { jsonList, jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { confirmAction, errorText } from '../ui/modal-actions';
 
 export interface EmailTemplate {
@@ -72,9 +70,9 @@ export class EmailTemplatesStateService extends AsyncHandler {
                 this._org.organisation.id,
                 'email_template_fields',
             ).catch(() => null);
-            const definitions =
-                metadata?.details ||
-                ({} as Record<string, EmailTemplateDefinition>);
+            const definitions = jsonRecord<
+                Record<string, EmailTemplateDefinition>
+            >(metadata?.details);
             return Object.keys(definitions).map(
                 (key) =>
                     ({
@@ -103,10 +101,9 @@ export class EmailTemplatesStateService extends AsyncHandler {
         }));
     });
 
-    private _processTemplates(metadata: PlaceMetadata, zone_id: string) {
-        const data = metadata.details;
-        return ((data instanceof Array ? data : '') || []).map(
-            (template) => ({ ...template, zone_id }) as EmailTemplate,
+    private _processTemplates(metadata: Metadata, zone_id: string) {
+        return jsonList<EmailTemplate>(metadata.details).map(
+            (template): EmailTemplate => ({ ...template, zone_id }),
         );
     }
 
@@ -120,12 +117,18 @@ export class EmailTemplatesStateService extends AsyncHandler {
         update: (list: EmailTemplate[]) => EmailTemplate[],
     ) {
         const metadata = await showMetadata(zone_id, 'email_templates');
-        const list = metadata.details instanceof Array ? metadata.details : [];
-        await updateMetadata(zone_id, {
-            name: 'email_templates',
-            details: update(list),
-            description: metadata.description || 'Email Templates for Zone',
-        });
+        const list = jsonList<EmailTemplate>(metadata.details);
+        await metadata_v7
+            .update({
+                id: zone_id,
+                body: {
+                    name: 'email_templates',
+                    details: toJsonValue(update(list)),
+                    description:
+                        metadata.description || 'Email Templates for Zone',
+                },
+            })
+            .then(orThrow);
     }
 
     /** Query the merged list of templates for the given building/region */

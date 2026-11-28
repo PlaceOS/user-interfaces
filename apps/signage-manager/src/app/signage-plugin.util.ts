@@ -1,4 +1,37 @@
+import { type JsonValue } from '@placeos/ts-client';
+
 type PluginSchema = Record<string, unknown>;
+
+/** Most levels of nesting `jsonRecord` reads, so a cycle cannot loop */
+const JSON_DEPTH_MAX = 32;
+
+function isJsonValue(value: unknown, depth = 0): value is JsonValue {
+    if (depth > JSON_DEPTH_MAX) return false;
+    if (value === null) return true;
+    if (['string', 'boolean'].includes(typeof value)) return true;
+    if (typeof value === 'number') return Number.isFinite(value);
+    if (Array.isArray(value)) {
+        return value.every((item) => isJsonValue(item, depth + 1));
+    }
+    return (
+        isRecord(value) &&
+        Object.values(value).every((item) => isJsonValue(item, depth + 1))
+    );
+}
+
+/**
+ * The JSON values of a record, such as plugin params from a form. Values
+ * that JSON cannot hold, such as `undefined` or a function, are left out.
+ */
+export function jsonRecord(
+    record: Record<string, unknown>,
+): Record<string, JsonValue> {
+    const result: Record<string, JsonValue> = {};
+    for (const [key, value] of Object.entries(record || {})) {
+        if (isJsonValue(value)) result[key] = value;
+    }
+    return result;
+}
 
 function isRecord(value: unknown): value is PluginSchema {
     return !!value && typeof value === 'object' && !Array.isArray(value);

@@ -1,8 +1,9 @@
 import {
-    showSignageTemplate,
-    SignageTemplate,
+    signage_templates,
+    type SignageTemplate,
     SignageTemplateLayout,
 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     layoutAxisPercentage,
     layoutPositionAxes,
@@ -98,11 +99,12 @@ export function signageTemplateVersionsEqual(
 
 export async function loadTemplateApprovalVersions(template_id: string) {
     const [pending_template, approved_template] = await Promise.all([
-        showSignageTemplate(template_id),
+        signage_templates.show({ id: template_id }).then(orThrow),
         // A new template has no approved version to compare or restore.
-        showSignageTemplate(template_id, { approved: true }).catch(
-            (): SignageTemplate | null => null,
-        ),
+        signage_templates
+            .show({ id: template_id, approved: true })
+            .then(orThrow)
+            .catch((): SignageTemplate | null => null),
     ]);
     return approved_template &&
         !signageTemplateVersionsEqual(pending_template, approved_template)

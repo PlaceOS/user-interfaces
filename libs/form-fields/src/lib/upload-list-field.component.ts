@@ -2,7 +2,8 @@ import { Component, input, signal } from '@angular/core';
 import { ControlValueAccessor } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Attachment, provideValueAccessor, randomInt } from '@placeos/common';
+import { Attachment, randomInt } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';

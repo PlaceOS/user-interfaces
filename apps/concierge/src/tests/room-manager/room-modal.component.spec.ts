@@ -10,6 +10,7 @@ import { OrganisationService } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
 import * as ts_client_mod from '@placeos/ts-client';
+import { fromV1Mock } from '@placeos/ts-client/compat';
 import { RoomModalComponent } from '../../app/room-manager/room-modal.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
@@ -40,9 +41,16 @@ describe('RoomModalComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        (ts_client_mod.showMetadata as any).mockResolvedValue({
-            details: {},
-        });
+        (ts_client_mod.metadata.show as any).mockImplementation(
+            fromV1Mock(
+                () => ({
+                    details: {},
+                }),
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
     });
 
     it('should flag a room without an id as new', () => {

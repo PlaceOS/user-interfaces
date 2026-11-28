@@ -11,11 +11,11 @@ import {
 import {
     AsyncHandler,
     CalendarEvent,
+    getModule,
     MAP_FEATURE_DATA,
     settingSignal,
     Space,
 } from '@placeos/common';
-import { getModule } from '@placeos/ts-client';
 import { isSameDay } from 'date-fns';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { UserPipe } from 'libs/users/src/lib/user.pipe';
@@ -277,9 +277,7 @@ export class ExploreSpaceInfoComponent extends AsyncHandler implements OnInit {
                 name,
                 module
                     .variable<boolean>(name)
-                    .bindThenSubscribe((value) =>
-                        this[name].set(value !== false),
-                    ),
+                    .subscribe((value) => this[name].set(value !== false)),
             );
         }
         this.timeout('update_offset', () => this.updateOffset(), 200);

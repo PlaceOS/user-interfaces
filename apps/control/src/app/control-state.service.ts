@@ -9,7 +9,6 @@ import {
     untracked,
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { getModule, isFixedDevice } from '@placeos/ts-client';
 
 import { Router } from '@angular/router';
 import {
@@ -18,8 +17,10 @@ import {
     CalendarEvent,
     currentUser,
     firstValueWhere,
+    getModule,
     HashMap,
     i18n,
+    isFixedDevice,
     log,
 } from '@placeos/common';
 import { openConfirmModal } from '@placeos/components';
@@ -662,10 +663,7 @@ export class ControlStateService extends AsyncHandler {
         on_change: (v: any) => void = (v) => this.updateProperty(name, v),
     ) {
         const module = getModule(id, mod).variable(name);
-        this.subscription(
-            `listen:${name}`,
-            module.bindThenSubscribe(on_change),
-        );
+        this.subscription(`listen:${name}`, module.subscribe(on_change));
     }
 
     /** Update properties of the system data */

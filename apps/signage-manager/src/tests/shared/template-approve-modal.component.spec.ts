@@ -2,13 +2,11 @@ import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { setNotifyOutlet } from '@placeos/common';
-import {
-    approveSignageTemplate,
-    showSignageTemplate,
-    SignageTemplate,
-} from '@placeos/ts-client';
+import { signage_templates } from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { TemplateApproveModalComponent } from '../../app/shared/template-approve-modal.component';
 import { SignageContextService } from '../../app/signage-context.service';
+import { signageTemplate } from '../../app/signage-models';
 import { SignagePluginService } from '../../app/signage-plugin.service';
 import { SignageTemplateService } from '../../app/templates/signage-template.service';
 
@@ -44,7 +42,7 @@ describe('TemplateApproveModalComponent', () => {
                 {
                     provide: MAT_DIALOG_DATA,
                     useValue: {
-                        template: new SignageTemplate({ id: 'template-1' }),
+                        template: signageTemplate({ id: 'template-1' }),
                     },
                 },
                 { provide: MatDialogRef, useValue: dialog_ref },
@@ -56,18 +54,22 @@ describe('TemplateApproveModalComponent', () => {
     });
 
     it('approves the template and updates the cached item', async () => {
-        const approved = new SignageTemplate({
+        const approved = signageTemplate({
             id: 'template-1',
             approved: true,
         });
-        vi.mocked(approveSignageTemplate).mockResolvedValue(approved);
+        vi.mocked(signage_templates.approve).mockResolvedValue(
+            mockReply(approved),
+        );
         const component = TestBed.createComponent(
             TemplateApproveModalComponent,
         ).componentInstance;
 
         await component.approve();
 
-        expect(approveSignageTemplate).toHaveBeenCalledWith('template-1');
+        expect(signage_templates.approve).toHaveBeenCalledWith({
+            id: 'template-1',
+        });
         expect(template_service.updateCachedTemplate).toHaveBeenCalledWith(
             approved,
         );
@@ -75,8 +77,8 @@ describe('TemplateApproveModalComponent', () => {
     });
 
     it('undoes the pending draft through the service', async () => {
-        const pending = new SignageTemplate({ id: 'template-1' });
-        const approved = new SignageTemplate({
+        const pending = signageTemplate({ id: 'template-1' });
+        const approved = signageTemplate({
             id: 'template-1',
             approved: true,
         });
@@ -96,7 +98,7 @@ describe('TemplateApproveModalComponent', () => {
     });
 
     it('shows an error and blocks approval when versions fail to load', async () => {
-        vi.mocked(showSignageTemplate).mockRejectedValueOnce(
+        vi.mocked(signage_templates.show).mockRejectedValueOnce(
             new Error('Denied'),
         );
         const fixture = TestBed.createComponent(TemplateApproveModalComponent);
@@ -115,6 +117,6 @@ describe('TemplateApproveModalComponent', () => {
 
         await component.approve();
 
-        expect(approveSignageTemplate).not.toHaveBeenCalled();
+        expect(signage_templates.approve).not.toHaveBeenCalled();
     });
 });

@@ -17,8 +17,14 @@ import { EventFormService } from '@placeos/events';
 import { MockProvider } from 'ng-mocks';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings as staff_bookings,
+    events as staff_events,
+} from '@placeos/ts-client/staff';
 
 import { BookCodeFlowComponent } from '../../app/book/code-flow.component';
 
@@ -55,8 +61,11 @@ describe('BookCodeFlowComponent', () => {
 
     it('should report the wrong resource when the current booking is for another desk', async () => {
         setCurrentUser(new StaffUser({ id: 'me', email: 'me@test.com' }));
-        vi.mocked(ts_client.get).mockImplementation(
-            () => Promise.resolve([{ id: 'b-1', asset_id: 'desk-2' }]) as any,
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => Promise.resolve([{ id: 'b-1', asset_id: 'desk-2' }]),
+                ['...'],
+            ),
         );
         const router = spectator.inject(Router);
 
@@ -81,31 +90,48 @@ describe('BookCodeFlowComponent', () => {
         ).mockReturnValue({ id: 'org-1' } as any);
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
         // the booked desk can be in any building, so search the org
-        vi.mocked(ts_client.queryAssets).mockImplementation(
-            (query: any) =>
-                page(
-                    query.zones === 'org-1'
-                        ? [
-                              {
-                                  id: 'asset-1',
-                                  zone_id: 'level-1',
-                                  map_id: 'desk-1',
-                              },
-                          ]
-                        : [],
-                ) as any,
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                (query: any) =>
+                    page(
+                        `${query.zones}` === 'org-1'
+                            ? [
+                                  {
+                                      id: 'asset-1',
+                                      zone_id: 'level-1',
+                                      map_id: 'desk-1',
+                                  },
+                              ]
+                            : [],
+                    ) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.get).mockImplementation(
-            () => Promise.resolve([{ id: 'b-1', asset_id: 'asset-1' }]) as any,
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => Promise.resolve([{ id: 1, asset_id: 'asset-1' }]),
+                ['...'],
+            ),
         );
-        vi.mocked(ts_client.post).mockResolvedValue({} as any);
+        vi.mocked(staff_bookings.checkIn).mockImplementation(
+            fromV1Mock(() => ({}), ['...']),
+        );
         const router = spectator.inject(Router);
 
         await (spectator.component as any)._checkinBooking('desk-1');
@@ -130,32 +156,49 @@ describe('BookCodeFlowComponent', () => {
         ).mockReturnValue({ id: 'org-1' } as any);
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });
-        vi.mocked(ts_client.queryAssetCategories).mockReturnValue(
-            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        vi.mocked(ts_client.asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.queryAssetTypes).mockReturnValue(
-            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        vi.mocked(ts_client.asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
         // the booked desk can be in any building, so search the org
-        vi.mocked(ts_client.queryAssets).mockImplementation(
-            (query: any) =>
-                page(
-                    query.zones === 'org-1'
-                        ? [
-                              {
-                                  id: 'asset-1',
-                                  zone_id: 'level-1',
-                                  map_id: 'map-1',
-                                  client_ids: { place_id: 'desk-1' },
-                              },
-                          ]
-                        : [],
-                ) as any,
+        vi.mocked(ts_client.assets.query).mockImplementation(
+            fromV1Mock(
+                (query: any) =>
+                    page(
+                        `${query.zones}` === 'org-1'
+                            ? [
+                                  {
+                                      id: 'asset-1',
+                                      zone_id: 'level-1',
+                                      map_id: 'map-1',
+                                      client_ids: { place_id: 'desk-1' },
+                                  },
+                              ]
+                            : [],
+                    ) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(ts_client.get).mockImplementation(
-            () => Promise.resolve([{ id: 'b-1', asset_id: 'asset-1' }]) as any,
+        vi.mocked(staff_bookings.query).mockImplementation(
+            fromV1Mock(
+                () => Promise.resolve([{ id: 1, asset_id: 'asset-1' }]),
+                ['...'],
+            ),
         );
-        vi.mocked(ts_client.post).mockResolvedValue({} as any);
+        vi.mocked(staff_bookings.checkIn).mockImplementation(
+            fromV1Mock(() => ({}), ['...']),
+        );
         const router = spectator.inject(Router);
 
         await (spectator.component as any)._checkinBooking('desk-1');
@@ -173,11 +216,14 @@ describe('BookCodeFlowComponent', () => {
         );
 
         it('should report a booking for the desk that has not started yet', async () => {
-            vi.mocked(ts_client.get)
-                .mockResolvedValueOnce([] as any)
-                .mockResolvedValueOnce([
-                    { id: 'b-1', asset_id: 'desk-1' },
-                ] as any);
+            vi.mocked(staff_bookings.query)
+                .mockImplementationOnce(fromV1Mock(() => [], ['...']))
+                .mockImplementationOnce(
+                    fromV1Mock(
+                        () => [{ id: 'b-1', asset_id: 'desk-1' }],
+                        ['...'],
+                    ),
+                );
 
             await (spectator.component as any)._checkinBooking('desk-1');
 
@@ -185,11 +231,13 @@ describe('BookCodeFlowComponent', () => {
                 ['/book', 'code', 'error'],
                 { queryParams: { type: 'not_started', asset_id: 'desk-1' } },
             );
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(staff_bookings.checkIn).not.toHaveBeenCalled();
         });
 
         it('should start a desk booking when the user has no booking today', async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([] as any);
+            vi.mocked(staff_bookings.query).mockImplementation(
+                fromV1Mock(() => [], ['...']),
+            );
             const booking_form = spectator.inject(BookingFormService);
 
             await (spectator.component as any)._checkinBooking('desk-1');
@@ -214,18 +262,24 @@ describe('BookCodeFlowComponent', () => {
         );
 
         it('should check the user in to the current meeting in the space', async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([
-                { id: 'ev-1', resources: [{ id: 'sys-1' }] },
-            ] as any);
-            vi.mocked(ts_client.post).mockResolvedValue({} as any);
+            vi.mocked(staff_events.query).mockImplementation(
+                fromV1Mock(
+                    () => [{ id: 'ev-1', resources: [{ id: 'sys-1' }] }],
+                    ['...'],
+                ),
+            );
+            vi.mocked(staff_events.guestCheckin).mockImplementation(
+                fromV1Mock(() => ({}), ['...']),
+            );
 
             await (spectator.component as any)._checkinEvent('sys-1');
 
-            expect(ts_client.post).toHaveBeenCalledExactlyOnceWith(
-                expect.stringMatching(
-                    /\/events\/ev-1\/guests\/me@test\.com\/checkin\?state=true/,
-                ),
-                '',
+            expect(staff_events.guestCheckin).toHaveBeenCalledExactlyOnceWith(
+                expect.objectContaining({
+                    id: 'ev-1',
+                    guest_id: 'me@test.com',
+                    state: true,
+                }),
             );
             expect(spectator.inject(Router).navigate).toHaveBeenCalledWith([
                 '/book',
@@ -235,11 +289,15 @@ describe('BookCodeFlowComponent', () => {
         });
 
         it('should start a meeting in the space when it has no current meeting', async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([] as any);
-            vi.mocked(ts_client.showSystem).mockResolvedValue({
-                id: 'sys-1',
-                name: 'Room 1',
-            } as any);
+            vi.mocked(staff_events.query).mockImplementation(
+                fromV1Mock(() => [], ['...']),
+            );
+            vi.mocked(ts_client.systems.show).mockResolvedValue(
+                mockReply({
+                    id: 'sys-1',
+                    name: 'Room 1',
+                } as any),
+            );
             const event_form = spectator.inject(EventFormService);
 
             await (spectator.component as any)._checkinEvent('sys-1');
@@ -251,12 +309,16 @@ describe('BookCodeFlowComponent', () => {
                 '/book',
                 'meeting',
             ]);
-            expect(ts_client.post).not.toHaveBeenCalled();
+            expect(staff_events.guestCheckin).not.toHaveBeenCalled();
         });
 
         it('should report a space that does not load', async () => {
-            vi.mocked(ts_client.get).mockResolvedValue([] as any);
-            vi.mocked(ts_client.showSystem).mockRejectedValue(new Error('404'));
+            vi.mocked(staff_events.query).mockImplementation(
+                fromV1Mock(() => [], ['...']),
+            );
+            vi.mocked(ts_client.systems.show).mockRejectedValue(
+                new Error('404'),
+            );
 
             await (spectator.component as any)._checkinEvent('sys-1');
 

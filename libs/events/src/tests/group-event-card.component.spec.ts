@@ -6,6 +6,7 @@ import {
     settingSignal,
 } from '@placeos/common';
 import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
 import { mockComponent } from 'libs/common/src/tests/test-helpers';
 import { AuthenticatedImageDirective } from 'libs/components/src/lib/authenticated-image.directive';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
@@ -48,11 +49,13 @@ describe('GroupEventCardComponent', () => {
 
     beforeEach(() => {
         vi.clearAllMocks();
-        vi.mocked(ts_client.showSystem).mockResolvedValue({
-            id: 'space-1',
-            name: 'Space One',
-            zones: [],
-        } as any);
+        vi.mocked(ts_client.systems.show).mockResolvedValue(
+            mockReply({
+                id: 'space-1',
+                name: 'Space One',
+                zones: [],
+            } as any),
+        );
         settingSignal('group_events_calendar').set('calendar@place.tech');
         spectator = createComponent({ props: { event } });
         spectator.detectChanges();

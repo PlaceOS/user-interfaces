@@ -18,15 +18,18 @@ import {
     User,
 } from '@placeos/common';
 import {
-    authority,
-    listChildMetadata,
-    queryAssetCategories,
-    queryAssets,
-    queryAssetTypes,
-    querySystemsWithEmails,
-    showSystem,
+    asset_categories,
+    asset_types,
+    assets,
+    metadata,
+    systems,
 } from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 import { setNotifyOutlet } from 'libs/common/src/lib/notifications';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from 'libs/components/src/tests/test-place-client';
 import { MockProvider } from 'ng-mocks';
 import { of } from 'rxjs';
 import { DeskFlowNewComponent } from '../../app/book/desk-flow-new/desk-flow.component';
@@ -34,6 +37,23 @@ import { DeskFlowNewComponent } from '../../app/book/desk-flow-new/desk-flow.com
 vi.mock('@placeos/ts-client', { spy: true });
 
 describe('DeskFlowNewComponent', () => {
+    // The map of the level, and no data for the API requests that no test
+    // stubs. The `SettingsService` of a test can load the user settings
+    // after the test ends, so this stays for the whole file.
+    const fetch_spy = vi
+        .spyOn(globalThis, 'fetch')
+        .mockImplementation(async (url) =>
+            `${url}` === 'level-map-1'
+                ? new Response('<svg viewBox="0 0 100 100"></svg>')
+                : new Response('{}', {
+                      headers: { 'Content-Type': 'application/json' },
+                  }),
+        );
+
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let spectator: Spectator<DeskFlowNewComponent>;
     let model: WritableSignal<BookingFormValue>;
     let form: BookingForm;
@@ -223,17 +243,25 @@ describe('DeskFlowNewComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         resource_list = [desk_resource];
-        vi.mocked(listChildMetadata).mockResolvedValue([] as any);
-        vi.mocked(showSystem).mockReturnValue(
-            of({
-                id: 'room-1',
-                email: 'room@example.com',
-                map_id: 'room-map-1',
-                zones: ['level-1'],
-            }) as any,
+        vi.mocked(metadata.childrenMetadata).mockResolvedValue(
+            mockReply([] as any),
         );
-        vi.mocked(querySystemsWithEmails).mockReturnValue(
-            of({ data: [] }) as any,
+        // The settings of the user, which `SettingsService` loads
+        vi.mocked(metadata.show).mockResolvedValue(mockReply({}));
+        vi.mocked(systems.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    of({
+                        id: 'room-1',
+                        email: 'room@example.com',
+                        map_id: 'room-map-1',
+                        zones: ['level-1'],
+                    }) as any,
+                ['sys_id', '...'],
+            ),
+        );
+        vi.mocked(systems.findByEmail).mockImplementation(
+            fromV1Mock(() => of({ data: [] }) as any, ['...'], 'page'),
         );
         query_params = { asset_id: 'desk-123' };
         edit_booking = null;
@@ -291,23 +319,28 @@ describe('DeskFlowNewComponent', () => {
             features: [],
         };
         resource_list = [];
-        vi.mocked(listChildMetadata).mockImplementation(
-            (building_id: string) =>
-                Promise.resolve(
-                    building_id === 'building-2'
-                        ? [
-                              {
-                                  metadata: {
-                                      desks: { details: [other_building_desk] },
+        vi.mocked(metadata.childrenMetadata).mockImplementation(
+            fromV1Mock(
+                (building_id: string) =>
+                    Promise.resolve(
+                        building_id === 'building-2'
+                            ? [
+                                  {
+                                      metadata: {
+                                          desks: {
+                                              details: [other_building_desk],
+                                          },
+                                      },
+                                      zone: {
+                                          id: 'level-2',
+                                          parent_id: 'building-2',
+                                      },
                                   },
-                                  zone: {
-                                      id: 'level-2',
-                                      parent_id: 'building-2',
-                                  },
-                              },
-                          ]
-                        : [],
-                ) as any,
+                              ]
+                            : [],
+                    ) as any,
+                ['id', '...'],
+            ),
         );
 
         spectator = createComponent();
@@ -335,29 +368,41 @@ describe('DeskFlowNewComponent', () => {
         resource_list = [];
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });
-        vi.mocked(queryAssetCategories).mockReturnValue(
-            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        vi.mocked(asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(queryAssetTypes).mockReturnValue(
-            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        vi.mocked(asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(queryAssets).mockImplementation(
-            (query: any) =>
-                page(
-                    // desk assets list the org in their zones
-                    query.zones === 'org-1'
-                        ? [
-                              {
-                                  id: 'asset-456',
-                                  asset_type_id: 'type-1',
-                                  zone_id: 'level-2',
-                                  zones: ['org-1', 'building-2', 'level-2'],
-                                  identifier: 'Desk 456',
-                                  map_id: 'desk-456',
-                              },
-                          ]
-                        : [],
-                ) as any,
+        vi.mocked(assets.query).mockImplementation(
+            fromV1Mock(
+                (query: any) =>
+                    page(
+                        // desk assets list the org in their zones
+                        `${query.zones}` === 'org-1'
+                            ? [
+                                  {
+                                      id: 'asset-456',
+                                      asset_type_id: 'type-1',
+                                      zone_id: 'level-2',
+                                      zones: ['org-1', 'building-2', 'level-2'],
+                                      identifier: 'Desk 456',
+                                      map_id: 'desk-456',
+                                  },
+                              ]
+                            : [],
+                    ) as any,
+                ['...'],
+                'page',
+            ),
         );
         query_params = { asset_id: 'desk-456' };
         const settings = TestBed.inject(SettingsService);
@@ -383,30 +428,42 @@ describe('DeskFlowNewComponent', () => {
         resource_list = [];
         const page = (data: any[]) =>
             Promise.resolve({ data, total: data.length, next: () => null });
-        vi.mocked(queryAssetCategories).mockReturnValue(
-            page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+        vi.mocked(asset_categories.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'cat-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(queryAssetTypes).mockReturnValue(
-            page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+        vi.mocked(asset_types.query).mockImplementation(
+            fromV1Mock(
+                () => page([{ id: 'type-1', name: '_DESKS_' }]) as any,
+                ['...'],
+                'page',
+            ),
         );
-        vi.mocked(queryAssets).mockImplementation(
-            (query: any) =>
-                page(
-                    // desk assets list the org in their zones
-                    query.zones === 'org-1'
-                        ? [
-                              {
-                                  id: 'asset-456',
-                                  asset_type_id: 'type-1',
-                                  zone_id: 'level-2',
-                                  zones: ['org-1', 'building-2', 'level-2'],
-                                  identifier: 'Desk 456',
-                                  map_id: 'map-456',
-                                  client_ids: { place_id: 'desk-456' },
-                              },
-                          ]
-                        : [],
-                ) as any,
+        vi.mocked(assets.query).mockImplementation(
+            fromV1Mock(
+                (query: any) =>
+                    page(
+                        // desk assets list the org in their zones
+                        `${query.zones}` === 'org-1'
+                            ? [
+                                  {
+                                      id: 'asset-456',
+                                      asset_type_id: 'type-1',
+                                      zone_id: 'level-2',
+                                      zones: ['org-1', 'building-2', 'level-2'],
+                                      identifier: 'Desk 456',
+                                      map_id: 'map-456',
+                                      client_ids: { place_id: 'desk-456' },
+                                  },
+                              ]
+                            : [],
+                    ) as any,
+                ['...'],
+                'page',
+            ),
         );
         query_params = { asset_id: 'desk-456' };
         const settings = TestBed.inject(SettingsService);
@@ -435,11 +492,8 @@ describe('DeskFlowNewComponent', () => {
             features: [],
             zone: { id: 'level-1', parent_id: 'building-1' },
         };
-        vi.mocked(authority).mockReturnValue({} as any);
-        const fetch_spy = vi.spyOn(globalThis, 'fetch').mockResolvedValue({
-            ok: true,
-            text: () => Promise.resolve('<svg viewBox="0 0 100 100"></svg>'),
-        } as any);
+        place.setAuthority({});
+
         resource_list = [desk_without_map_id];
         query_params = {};
 

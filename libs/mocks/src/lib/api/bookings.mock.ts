@@ -1,6 +1,6 @@
 import { timePeriodsIntersect } from '@placeos/common';
 import { getUnixTime } from 'date-fns';
-import { mockId, persistById, registerMockEndpoint } from '../session';
+import { persistById, registerMockEndpoint } from '../session';
 
 import { MOCK_BOOKINGS, MOCK_CATERING_BOOKINGS } from './bookings.data';
 import { ACTIVE_USER } from './users.data';
@@ -261,9 +261,14 @@ export function registerMockBookings() {
         path: '/api/staff/v1/bookings',
         method: 'POST',
         callback: (request) => {
+            // The staff API gives bookings integer ids
             const new_event = {
                 ...request.body,
-                id: mockId('-booking-'),
+                id:
+                    ALL_BOOKINGS.reduce(
+                        (max, _) => Math.max(max, Number(_.id) || 0),
+                        0,
+                    ) + 1,
             };
             ALL_BOOKINGS.push(new_event);
             return new_event;

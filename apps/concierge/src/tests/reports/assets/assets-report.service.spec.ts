@@ -11,27 +11,34 @@ import {
 } from '@placeos/common';
 import { MockProvider } from 'ng-mocks';
 
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
+import { mockPage, mockReply } from '@placeos/ts-client/compat';
+import {
+    bookings,
+    Booking as StaffBooking,
+    type BookingInput,
+} from '@placeos/ts-client/staff';
 import { AssetsReportService } from 'apps/concierge/src/app/reports/assets/assets-report.service';
 
 vi.mock('@placeos/ts-client', { spy: true });
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
 const day_1 = new Date('2026-04-06T09:00:00').valueOf();
 
-function makeBooking(overrides: any = {}) {
-    return {
-        date: day_1,
+let booking_id = 0;
+function makeBooking(overrides: BookingInput = {}) {
+    return mockData(StaffBooking, {
+        id: ++booking_id,
         deleted: false,
         rejected: false,
-        status: 'approved',
+        approved: true,
         asset_id: 'a1',
         asset_ids: [],
-        booking_start: 1,
-        booking_end: 2,
-        linked_event: null,
-        linked_bookings: [],
+        booking_start: day_1 / 1000,
+        booking_end: day_1 / 1000 + 3600,
         ...overrides,
-    };
+    });
 }
 
 describe('AssetsReportService', () => {
@@ -76,26 +83,44 @@ describe('AssetsReportService', () => {
             });
 
         // queryAssetGroupsExtended -> queryAssetTypes + queryAssets (ts-client)
-        (ts_client.queryAssetTypes as any).mockResolvedValue({
-            data: [{ id: 't1', name: 'Laptop' }],
-            total: 1,
-        });
-        (ts_client.queryAssets as any).mockResolvedValue({
-            data: [
-                { id: 'a1', asset_type_id: 't1' },
-                { id: 'a2', asset_type_id: 't1' },
-            ],
-            total: 2,
-        });
+        (ts_client.asset_categories.query as any).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'c1', name: 'IT' }],
+                total: 1,
+            }),
+        );
+        (ts_client.asset_types.query as any).mockResolvedValue(
+            mockPage({
+                data: [{ id: 't1', name: 'Laptop', category_id: 'c1' }],
+                total: 1,
+            }),
+        );
+        (ts_client.assets.query as any).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'a1', asset_type_id: 't1' },
+                    { id: 'a2', asset_type_id: 't1' },
+                ],
+                total: 2,
+            }),
+        );
         // queryAssetPurchaseOrders (ts-client)
-        (ts_client.queryAssetPurchaseOrders as any).mockResolvedValue({
-            data: [{ expected_service_end_date: 100 }],
-        });
-        // queryBookings -> get (ts-client)
-        (ts_client.get as any).mockResolvedValue([
-            makeBooking({ asset_ids: ['a1'] }),
-            makeBooking({ asset_ids: ['a2'], status: 'cancelled' }),
-        ]);
+        (ts_client.asset_purchase_orders.query as any).mockResolvedValue(
+            mockPage({
+                data: [{ expected_service_end_date: 100 }],
+            }),
+        );
+        // queryBookings -> bookings.query (staff API)
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockReply([
+                makeBooking({ asset_ids: ['a1'] }),
+                makeBooking({
+                    asset_ids: ['a2'],
+                    approved: false,
+                    rejected: true,
+                }),
+            ]),
+        );
         spectator = createService();
     });
 
@@ -115,10 +140,13 @@ describe('AssetsReportService', () => {
         spectator.service.generateReport();
         await settle();
 
-        const url = (ts_client.get as any).mock.calls[0][0];
-        expect(url).toContain('type=asset-request');
-        expect(url).toContain('include_checked_out=true');
-        expect(url).toContain('zones=building-1');
+        expect(bookings.query).toHaveBeenCalledWith(
+            expect.objectContaining({
+                type: 'asset-request',
+                include_checked_out: true,
+                zones: 'building-1',
+            }),
+        );
         expect(spectator.service.bookings()).toHaveLength(2);
         expect(spectator.service.products()).toHaveLength(1);
     });
@@ -135,9 +163,9 @@ describe('AssetsReportService', () => {
     });
 
     it('should count every asset of a multi-asset booking', async () => {
-        (ts_client.get as any).mockResolvedValue([
-            makeBooking({ asset_ids: ['a1', 'a2'] }),
-        ]);
+        vi.mocked(bookings.query).mockResolvedValue(
+            mockReply([makeBooking({ asset_ids: ['a1', 'a2'] })]),
+        );
         spectator.service.setOptions({ start: day_1, end: day_1 });
         spectator.service.generateReport();
         await settle();
@@ -148,12 +176,14 @@ describe('AssetsReportService', () => {
     });
 
     it('should list purchase orders whose service ended before the start', async () => {
-        (ts_client.queryAssetPurchaseOrders as any).mockResolvedValue({
-            data: [
-                { id: 'expired', expected_service_end_date: 100 },
-                { id: 'current', expected_service_end_date: 9_999_999_999 },
-            ],
-        });
+        (ts_client.asset_purchase_orders.query as any).mockResolvedValue(
+            mockPage({
+                data: [
+                    { id: 'expired', expected_service_end_date: 100 },
+                    { id: 'current', expected_service_end_date: 9_999_999_999 },
+                ],
+            }),
+        );
         spectator.service.setOptions({ start: day_1, end: day_1 });
         spectator.service.generateReport();
         await settle();
@@ -164,7 +194,7 @@ describe('AssetsReportService', () => {
     });
 
     it('should notify when no bookings are returned', async () => {
-        (ts_client.get as any).mockResolvedValue([]);
+        vi.mocked(bookings.query).mockResolvedValue(mockReply([]));
         spectator.service.generateReport();
         await settle();
 

@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { i18n } from '@placeos/common';
-import { PlaceGroupUser } from '@placeos/ts-client';
+import { type GroupUser } from '@placeos/ts-client';
 import { dialogClosed } from '../signage-service.util';
 import { SignageGroupAdminService } from './signage-group-admin.service';
 import { SignageGroupMembersComponent } from './signage-group-members.component';
@@ -60,7 +60,7 @@ export class SignageGroupUsersComponent {
         if (user) await this._group_admin.addManagedGroupUser(user);
     }
 
-    public async editUserPermissions(row: PlaceGroupUser) {
+    public async editUserPermissions(row: GroupUser) {
         const result = await dialogClosed(
             this._dialog.open(SignageGroupPermissionsModalComponent, {
                 data: {
@@ -77,7 +77,7 @@ export class SignageGroupUsersComponent {
         }
     }
 
-    public removeUser(row: PlaceGroupUser) {
+    public removeUser(row: GroupUser) {
         this._group_admin.removeManagedGroupUser(row);
     }
 }

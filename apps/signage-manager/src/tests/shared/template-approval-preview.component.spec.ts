@@ -1,7 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { SignageTemplate } from '@placeos/ts-client';
 import { TemplateApprovalPreviewComponent } from '../../app/shared/template-approval-preview.component';
+import { signageTemplate } from '../../app/signage-models';
 import { SignagePluginService } from '../../app/signage-plugin.service';
 
 describe('TemplateApprovalPreviewComponent', () => {
@@ -26,7 +26,7 @@ describe('TemplateApprovalPreviewComponent', () => {
             TemplateApprovalPreviewComponent,
         );
         fixture.componentRef.setInput('versions', [
-            new SignageTemplate({
+            signageTemplate({
                 id: 'template-1',
                 name: 'Pending',
                 layouts: [
@@ -51,7 +51,7 @@ describe('TemplateApprovalPreviewComponent', () => {
                     },
                 ],
             }),
-            new SignageTemplate({
+            signageTemplate({
                 id: 'template-1',
                 name: 'Approved',
                 layouts: [
@@ -134,8 +134,8 @@ describe('TemplateApprovalPreviewComponent', () => {
             ],
         };
         fixture.componentRef.setInput('versions', [
-            new SignageTemplate({ ...version, updated_at: '2026-08-20' }),
-            new SignageTemplate({ ...version, updated_at: '2026-08-19' }),
+            signageTemplate({ ...version, updated_at: '2026-08-20' }),
+            signageTemplate({ ...version, updated_at: '2026-08-19' }),
         ]);
 
         await fixture.whenStable();
@@ -155,8 +155,8 @@ describe('TemplateApprovalPreviewComponent', () => {
             TemplateApprovalPreviewComponent,
         );
         fixture.componentRef.setInput('versions', [
-            new SignageTemplate({ id: 'template-1', merge: true }),
-            new SignageTemplate({ id: 'template-1', merge: false }),
+            signageTemplate({ id: 'template-1', merge: true }),
+            signageTemplate({ id: 'template-1', merge: false }),
         ]);
         await fixture.whenStable();
 
@@ -187,6 +187,9 @@ describe('TemplateApprovalPreviewComponent', () => {
         expect(
             component.positionValues({
                 position: 'floating',
+                plugin_id: null,
+                x_pos: null,
+                y_pos: null,
                 plugin_params: {},
             }),
         ).toEqual([
@@ -210,14 +213,14 @@ describe('TemplateApprovalPreviewComponent', () => {
 
         expect(
             component.backgroundUrl(
-                new SignageTemplate({
+                signageTemplate({
                     id: 'template-1',
                     background_item_id: 'media-1',
                 }),
             ),
         ).toMatch(/\/api\/engine\/v2\/signage\/media\/media-1\/thumbnail$/);
         expect(
-            component.backgroundUrl(new SignageTemplate({ id: 'template-2' })),
+            component.backgroundUrl(signageTemplate({ id: 'template-2' })),
         ).toBe('');
     });
 });

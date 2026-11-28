@@ -28,8 +28,10 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { ImageFieldComponent } from 'libs/form-fields/src/lib/image-field.component';
+import { jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { UploadButtonComponent } from '../ui/app-settings/upload-button.component';
 import { errorText } from '../ui/modal-actions';
 import { SelectMapItemModalComponent } from '../ui/select-map-item-modal.component';
@@ -431,7 +433,10 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 this._org.organisation.id,
                 'points-of-interest',
             );
-            const metadata = old_metadata.details || {};
+            // Only the ID and name of the stored points are read
+            const metadata = jsonRecord<
+                Record<string, Pick<PointOfInterest, 'id' | 'name'>[]>
+            >(old_metadata.details);
             if (!metadata[data.level_id]) metadata[data.level_id] = [];
             if (this._data?.id) {
                 for (const lvl in metadata) {
@@ -445,11 +450,16 @@ export class POIModalComponent extends AsyncHandler implements OnInit {
                 ...metadata[data.level_id].filter((_) => _.id !== data.id),
                 data,
             ].sort((a, b) => a.name.localeCompare(b.name));
-            const resp = await updateMetadata(this._org.organisation.id, {
-                name: 'points-of-interest',
-                details: metadata,
-                description: 'Point of Interests for maps',
-            });
+            const resp = await metadata_v7
+                .update({
+                    id: this._org.organisation.id,
+                    body: {
+                        name: 'points-of-interest',
+                        details: toJsonValue(metadata),
+                        description: 'Point of Interests for maps',
+                    },
+                })
+                .then(orThrow);
             this._dialog_ref.close(resp);
         } catch (e) {
             notifyError(`Failed to save point of interest. ${errorText(e)}`);

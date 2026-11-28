@@ -32,13 +32,16 @@ import {
 import { isValidUrl } from '@placeos/events';
 import { DurationFieldComponent } from '@placeos/form-fields';
 import {
-    addSettings,
-    EncryptionLevel,
-    PlaceSettings,
-    PlaceZone,
-    querySettings,
-    updateSettings,
+    type Settings,
+    settings as settings_v7,
+    type SettingsInput,
+    type Zone,
 } from '@placeos/ts-client';
+import {
+    EncryptionLevel,
+    orThrow,
+    orThrowPage,
+} from '@placeos/ts-client/compat';
 import { parse as parseYaml, stringify as stringifyYaml } from 'yaml';
 
 @Component({
@@ -365,7 +368,7 @@ export class BookingPanelSettingsModalComponent
     private _injector = inject(Injector);
     private _uploads = inject(UploadsService);
     private _data = inject<{
-        zone: PlaceZone;
+        zone: Zone;
     }>(MAT_DIALOG_DATA);
     private _dialog_ref =
         inject<MatDialogRef<BookingPanelSettingsModalComponent>>(MatDialogRef);
@@ -439,9 +442,11 @@ export class BookingPanelSettingsModalComponent
         );
         this._defaults = { ...this.model() };
         this.loading.set('Loading existing panel settings...');
-        let settings: PlaceSettings[] = [];
+        let settings: readonly Settings[] = [];
         try {
-            const response = await querySettings({ parent_id: this.zone.id });
+            const response = await settings_v7
+                .query({ parent_id: [this.zone.id] })
+                .then(orThrowPage);
             settings = response?.data || [];
         } catch {}
         const unencrypted_settings = settings.find(
@@ -504,20 +509,18 @@ export class BookingPanelSettingsModalComponent
         const form_value = this.model();
         this._dialog_ref.disableClose = true;
         this.loading.set('Loading existing booking panel settings...');
-        let settings: PlaceSettings[] = [];
+        let settings: readonly Settings[] = [];
         try {
-            const response = await querySettings({ parent_id: this.zone.id });
+            const response = await settings_v7
+                .query({ parent_id: [this.zone.id] })
+                .then(orThrowPage);
             settings = response?.data || [];
         } catch {}
-        let unencrypted_settings = settings.find(
+        const unencrypted_settings = settings.find(
             (block) => block.encryption_level === EncryptionLevel.None,
         );
-        if (!unencrypted_settings)
-            unencrypted_settings = new PlaceSettings({
-                encryption_level: EncryptionLevel.None,
-            });
         const setting_value =
-            parseYaml(unencrypted_settings.settings_string) || {};
+            parseYaml(unencrypted_settings?.settings_string ?? '') || {};
         const new_settings_blob = {
             ...setting_value,
             ...form_value,
@@ -528,15 +531,17 @@ export class BookingPanelSettingsModalComponent
         //         delete new_settings_blob[key];
         //     }
         // }
-        const new_setting = {
-            ...unencrypted_settings,
+        const new_setting: SettingsInput = {
             parent_id: this._data.zone.id,
+            encryption_level: EncryptionLevel.None,
             settings_string: stringifyYaml(new_settings_blob),
         };
         this.loading.set('Saving changes to booking panel settings...');
-        const update = unencrypted_settings.id
-            ? updateSettings(unencrypted_settings.id, new_setting)
-            : addSettings(new_setting);
+        const update = unencrypted_settings?.id
+            ? settings_v7
+                  .update({ id: unencrypted_settings.id, body: new_setting })
+                  .then(orThrow)
+            : settings_v7.create({ body: new_setting }).then(orThrow);
         try {
             await update;
         } catch (e) {

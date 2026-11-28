@@ -7,7 +7,8 @@ import {
     untracked,
 } from '@angular/core';
 import { AsyncHandler, flatten, OrganisationService } from '@placeos/common';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { MatDialog } from '@angular/material/dialog';
 import { ExploreDeskInfoComponent } from './explore-desk-info.component';
@@ -30,10 +31,15 @@ export class ExplorePointOfInterestService extends AsyncHandler {
     private _features = resource({
         params: () => this._building() || undefined,
         loader: async () => {
-            const metadata = await showMetadata(
-                this._org.organisation.id,
-                'points-of-interest',
-            ).catch((_) => ({ details: {} }));
+            const metadata = await metadata_v7
+                .show({
+                    id: this._org.organisation.id,
+                    name: 'points-of-interest',
+                })
+                .then(orThrow)
+                // A building without points of interest has no entry
+                .then((data) => data['points-of-interest'] ?? { details: {} })
+                .catch((_) => ({ details: {} }));
             const mapping = metadata.details || {};
             const levels = this._org.levelsForBuilding(this._org.building);
             const list = flatten(

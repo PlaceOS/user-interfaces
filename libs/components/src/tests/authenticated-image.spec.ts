@@ -5,11 +5,16 @@ import {
     UNKNOWN_UPLOAD_TYPE,
 } from '../lib/authenticated-image';
 
-vi.mock('@placeos/ts-client', { spy: true });
-
-import * as ts_client from '@placeos/ts-client';
+import {
+    startTestPlaceClient,
+    type TestPlaceClient,
+} from './test-place-client';
 
 describe('authenticated image loading', () => {
+    let place: TestPlaceClient;
+    beforeEach(() => {
+        place = startTestPlaceClient();
+    });
     let create_url: ReturnType<typeof vi.spyOn>;
     let revoke_url: ReturnType<typeof vi.spyOn>;
 
@@ -68,8 +73,7 @@ describe('authenticated image loading', () => {
     });
 
     it('does not follow redirects with an API key header', async () => {
-        vi.mocked(ts_client.token).mockReturnValue('x-api-key');
-        vi.mocked(ts_client.apiKey).mockReturnValue('device-key');
+        place.setApiKey('device-key');
         const fetch_mock = vi
             .fn()
             .mockResolvedValue(new Response(new Blob(['image'])));

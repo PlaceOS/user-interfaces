@@ -8,11 +8,13 @@ import { EMPTY_USER, StaffUser, User } from '@placeos/common';
 import { setCurrentUser } from 'libs/common/src/lib/user-state';
 import { HostSelectFieldComponent } from '../lib/host-select-field.component';
 
-// queryCalendars (libs/events) runs for real; only the ts-client `get` it
-// calls beneath is stubbed.
-vi.mock('@placeos/ts-client', { spy: true });
+// queryCalendars (libs/events) runs for real; only the staff API operation
+// it calls beneath is stubbed.
+vi.mock('@placeos/ts-client/staff', { spy: true });
 
-import * as ts_client from '@placeos/ts-client';
+import { mockReply } from '@placeos/ts-client/compat';
+import { calendars, PlaceCalendarCalendar } from '@placeos/ts-client/staff';
+import { mockData } from 'libs/common/src/tests/mock-data';
 
 describe('HostSelectFieldComponent', () => {
     let spectator: Spectator<HostSelectFieldComponent>;
@@ -29,12 +31,16 @@ describe('HostSelectFieldComponent', () => {
     beforeEach(async () => {
         vi.clearAllMocks();
         setCurrentUser(me);
-        vi.mocked(ts_client.get).mockResolvedValue([
-            { id: 'me@place.tech', primary: true, can_edit: true },
-            { id: 'zoe@place.tech', summary: 'Zoe', can_edit: true },
-            { id: 'read-only@place.tech', summary: 'Read Only' },
-            { id: 'amy@place.tech', summary: 'Amy', can_edit: true },
-        ] as any);
+        vi.mocked(calendars.query).mockResolvedValue(
+            mockReply(
+                [
+                    { id: 'me@place.tech', primary: true, can_edit: true },
+                    { id: 'zoe@place.tech', summary: 'Zoe', can_edit: true },
+                    { id: 'read-only@place.tech', summary: 'Read Only' },
+                    { id: 'amy@place.tech', summary: 'Amy', can_edit: true },
+                ].map((item) => mockData(PlaceCalendarCalendar, item)),
+            ),
+        );
         spectator = createComponent();
         await spectator.fixture.whenStable();
     });

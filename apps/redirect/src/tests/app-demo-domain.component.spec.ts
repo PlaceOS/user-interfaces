@@ -3,16 +3,20 @@
  * @vitest-environment-options { "url": "https://demo.place.tech/" }
  */
 import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
-import { setCurrentUser, SettingsService, StaffUser } from '@placeos/common';
-import { authority, setup } from '@placeos/ts-client';
+import {
+    isMock,
+    setCurrentUser,
+    SettingsService,
+    StaffUser,
+} from '@placeos/common';
+import { startFakePlaceClient } from '@placeos/common/tests';
 import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
 
-// Only `@placeos/ts-client` can be intercepted under the zoneless unit-test
-// builder; `setupPlace()` runs for real and calls `setup(config)`, so we assert
-// the resolved `mock` flag on that config. The demo-origin branch relies on the
-// jsdom `url` set by the `@vitest-environment-options` docblock above.
+// The real `setupPlace` runs with a fake login session. The demo-origin
+// branch relies on the jsdom `url` set by the `@vitest-environment-options`
+// docblock above.
 vi.mock('@placeos/ts-client', { spy: true });
 
 const settings_get = vi.fn();
@@ -43,16 +47,13 @@ describe('AppComponent (demo domain)', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        vi.mocked(setup).mockResolvedValue(undefined);
-        vi.mocked(authority).mockReturnValue(undefined);
+        startFakePlaceClient();
         setCurrentUser(new StaffUser({ email: 'user@example.com' }));
         spectator = create_component();
     });
 
     it('should enable mock mode on the demo domain even when the setting is off', async () => {
         await spectator.component.ngOnInit();
-        expect(setup).toHaveBeenCalledWith(
-            expect.objectContaining({ mock: true }),
-        );
+        expect(isMock()).toBe(true);
     });
 });

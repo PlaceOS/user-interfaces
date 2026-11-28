@@ -2,29 +2,29 @@ import { createComponentFactory, Spectator } from '@ngneat/spectator/vitest';
 import {
     failInitialisation,
     initialisationComplete,
+    isMock,
     setCurrentUser,
     SettingsService,
     StaffUser,
 } from '@placeos/common';
+import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
 import {
-    authority,
-    clientId,
-    registerMockEndpoint,
-    setAPI_Key,
-    setup,
+    configure,
+    createAuthSession,
+    type DomainAuthorityInput,
 } from '@placeos/ts-client';
+import {
+    clearMockEndpoints,
+    listMockedEndpoints,
+} from '@placeos/ts-client/compat';
 import { BehaviorSubject } from 'rxjs';
 
 import { AppComponent } from '../app/app.component';
 
-// Workspace modules run for real under the zoneless unit-test builder — only
-// the external `@placeos/ts-client` package can be intercepted. `setupPlace()`
-// runs for real and ultimately calls `setup(config)`, so we stub `setup` (and
-// assert the resolved `mock` flag on the config it receives) instead of spying
-// the workspace `setupPlace`. The current user is seeded via `setCurrentUser`.
+// The real `setupPlace` runs with a fake login session, so no request leaves
+// the test. The tests check the session settings that it makes. The current
+// user is seeded via `setCurrentUser`.
 vi.mock('@placeos/ts-client', { spy: true });
-
-type Authority = NonNullable<ReturnType<typeof authority>>;
 
 const settings_get = vi.fn();
 const settings_mock = {
@@ -38,13 +38,27 @@ function setQuery(params: Record<string, string>): void {
     history.replaceState(null, '', query ? `/?${query}` : '/');
 }
 
-// Give the component an authority with the given redirect configuration.
-function setAuthorityConfig(config: Authority['config']): void {
-    vi.mocked(authority).mockReturnValue({ config } as Authority);
-}
-
 describe('AppComponent', () => {
     let spectator: Spectator<AppComponent>;
+    let fake: FakeSession;
+
+    // Give the component an authority with the given redirect configuration.
+    function setAuthorityConfig(config: DomainAuthorityInput['config']) {
+        fake.setAuthority({ id: 'authority-1', config });
+    }
+
+    /** Makes the first login fail as when the server is offline */
+    function failSetup() {
+        vi.mocked(fake.session.start).mockResolvedValue({
+            ok: false,
+            error: { kind: 'authority_unavailable', reason: 'offline' },
+        });
+    }
+
+    /** Settings of the login session that `setupPlace` made */
+    function sessionConfig() {
+        return vi.mocked(createAuthSession).mock.lastCall?.[0];
+    }
     let log_spy: ReturnType<typeof vi.spyOn>;
 
     // The component logs `console.log('Redirect:', url)` immediately before
@@ -78,8 +92,11 @@ describe('AppComponent', () => {
         settings_get.mockImplementation((key: string) =>
             key === 'composer' ? {} : undefined,
         );
-        vi.mocked(setup).mockResolvedValue(undefined);
-        vi.mocked(setAPI_Key).mockReturnValue(undefined);
+        fake = startFakePlaceClient();
+        // Only the calls of the test count
+        vi.mocked(createAuthSession).mockClear();
+        vi.mocked(configure).mockClear();
+        clearMockEndpoints();
         setAuthorityConfig({});
         setCurrentUser(new StaffUser({ email: 'user@example.com' }));
         spectator = create_component();
@@ -94,11 +111,11 @@ describe('AppComponent', () => {
         settings_mock.initialised = new BehaviorSubject<boolean>(false);
         const init = spectator.component.ngOnInit();
         await Promise.resolve();
-        expect(setup).not.toHaveBeenCalled();
+        expect(createAuthSession).not.toHaveBeenCalled();
 
         settings_mock.initialised.next(true);
         await init;
-        expect(setup).toHaveBeenCalledTimes(1);
+        expect(createAuthSession).toHaveBeenCalledTimes(1);
         expect(initialisationComplete()()).toBe(true);
     });
 
@@ -123,20 +140,6 @@ describe('AppComponent', () => {
             await spectator.component.ngOnInit();
             expect(new URL(redirectUrl() ?? '').host).toBe('localhost:3000');
         });
-
-        it('should set the API key when x-api-key is provided', async () => {
-            setQuery({ 'x-api-key': 'secret-key' });
-            await spectator.component.ngOnInit();
-            expect(setAPI_Key).toHaveBeenCalledWith('secret-key');
-        });
-
-        it('should remove the API key from the URL when setup fails', async () => {
-            setQuery({ 'x-api-key': 'secret-key' });
-            vi.mocked(clientId).mockReturnValue('client-id');
-            vi.mocked(setup).mockRejectedValue(new Error('offline'));
-            await spectator.component.ngOnInit();
-            expect(location.search).not.toContain('x-api-key');
-        });
     });
 
     it('should pass the composer settings to PlaceOS setup', async () => {
@@ -151,10 +154,9 @@ describe('AppComponent', () => {
                 : undefined,
         );
         await spectator.component.ngOnInit();
-        expect(setup).toHaveBeenCalledWith(
+        expect(sessionConfig()).toEqual(
             expect.objectContaining({
-                host: 'api.example.com:8443',
-                auth_uri: 'https://api.example.com:8443/auth/oauth/authorize',
+                base_url: 'https://api.example.com:8443',
             }),
         );
     });
@@ -162,9 +164,10 @@ describe('AppComponent', () => {
     it('should set up PlaceOS when there are no composer settings', async () => {
         settings_get.mockReturnValue(undefined);
         await spectator.component.ngOnInit();
-        expect(setup).toHaveBeenCalledWith(
-            expect.objectContaining({ mock: false }),
+        expect(sessionConfig()).toEqual(
+            expect.objectContaining({ base_url: '' }),
         );
+        expect(isMock()).toBe(false);
         expect(initialisationComplete()()).toBe(true);
     });
 
@@ -176,30 +179,32 @@ describe('AppComponent', () => {
                 return undefined;
             });
             await spectator.component.ngOnInit();
-            expect(setup).toHaveBeenCalledWith(
-                expect.objectContaining({ mock: true }),
-            );
+            expect(isMock()).toBe(true);
+            expect(createAuthSession).not.toHaveBeenCalled();
         });
 
-        // The mocks register their endpoints through ts-client, so the first
-        // registration marks when the lazy loaded mocks start.
         it('should register the mocks before it sets up PlaceOS in mock mode', async () => {
             settings_get.mockImplementation((key: string) =>
                 key === 'composer' ? {} : key === 'mock',
             );
+            // `setupPlace` configures the client for mock mode
+            const actual =
+                await vi.importActual<typeof import('@placeos/ts-client')>(
+                    '@placeos/ts-client',
+                );
+            let endpoints_at_setup = 0;
+            vi.mocked(configure).mockImplementationOnce((config) => {
+                endpoints_at_setup = listMockedEndpoints().length;
+                return actual.configure(config);
+            });
             await spectator.component.ngOnInit();
-            const [first_mock] =
-                vi.mocked(registerMockEndpoint).mock.invocationCallOrder;
-            const [first_setup] = vi.mocked(setup).mock.invocationCallOrder;
-            expect(first_mock).toBeLessThan(first_setup);
+            expect(endpoints_at_setup).toBeGreaterThan(0);
         });
 
         it('should leave mock mode disabled when the setting is falsy and not on the demo domain', async () => {
             await spectator.component.ngOnInit();
-            expect(setup).toHaveBeenCalledWith(
-                expect.objectContaining({ mock: false }),
-            );
-            expect(registerMockEndpoint).not.toHaveBeenCalled();
+            expect(isMock()).toBe(false);
+            expect(listMockedEndpoints()).toEqual([]);
         });
     });
 
@@ -248,7 +253,7 @@ describe('AppComponent', () => {
 
     describe('startup failures', () => {
         it('should show an error and not redirect when there is no authority', async () => {
-            vi.mocked(authority).mockReturnValue(undefined);
+            fake.setAuthority(null);
             await spectator.component.ngOnInit();
             expect(redirectUrl()).toBeUndefined();
             expect(initialisationComplete()()).toBe(false);
@@ -258,7 +263,7 @@ describe('AppComponent', () => {
         });
 
         it('should show an error and not redirect when PlaceOS setup fails', async () => {
-            vi.mocked(setup).mockRejectedValue(new Error('offline'));
+            failSetup();
             await spectator.component.ngOnInit();
             expect(redirectUrl()).toBeUndefined();
             expect(initialisationComplete()()).toBe(false);

@@ -1,4 +1,4 @@
-import { MediaAnimation } from '@placeos/ts-client';
+import { MediaAnimation } from '@placeos/ts-client/compat';
 import {
     findValidPlaylistIndex,
     isMediaValid,

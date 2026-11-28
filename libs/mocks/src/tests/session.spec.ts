@@ -1,4 +1,4 @@
-import { registerMockEndpoint as registerEndpoint } from '@placeos/ts-client';
+import { registerMockEndpoint as registerEndpoint } from '@placeos/ts-client/compat';
 
 import {
     markChanged,
@@ -10,7 +10,7 @@ import {
     whenSaved,
 } from '../lib/session';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 /** Callback that the session wrapper handed to ts-client for `path` */
 const lastCallback = () =>

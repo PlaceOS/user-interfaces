@@ -15,7 +15,8 @@ import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { AsyncHandler, HotkeysService } from '@placeos/common';
-import { showSystem } from '@placeos/ts-client';
+import { systems as systems_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import {
     BindingRecord,
     ExecuteMessage,
@@ -901,9 +902,10 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
                 await Promise.all(
                     params.map(async (id) => {
                         if (!system_name_cache.has(id)) {
-                            const system = await showSystem(id).catch(
-                                () => null,
-                            );
+                            const system = await systems_v7
+                                .show({ sys_id: id })
+                                .then(orThrow)
+                                .catch(() => null);
                             system_name_cache.set(
                                 id,
                                 system?.display_name || system?.name || id,
@@ -999,7 +1001,7 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
                     record.module_name,
                     record.module_index,
                 );
-                const count = record.binding.count;
+                const count = record.count;
                 const row: BindingRow = {
                     ...record,
                     active: count > 0,
@@ -1113,7 +1115,8 @@ export class BindingDebugPanelComponent extends AsyncHandler implements OnInit {
     public clearOverride(row: BindingRow | BindingRecord) {
         const record = records_by_key.get(row.key) || row;
         record.overridden.set(false);
-        record.emit(record.driver_value);
+        if (record.driver_value === undefined) record.value.set(undefined);
+        else record.emit(record.driver_value);
     }
 
     public clearAllOverrides() {

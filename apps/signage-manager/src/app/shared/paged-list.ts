@@ -1,6 +1,9 @@
 import { signal } from '@angular/core';
-import { QueryResponse } from '@placeos/ts-client';
+import { type Page } from '@placeos/ts-client/compat';
 import { decodeEntityNames } from './decode-entity-names.util';
+
+/** First page of a paged query, as `orThrowPage` gives it */
+export type QueryResponse<T> = Promise<Page<readonly T[]>>;
 
 export interface PagedListOptions<T> {
     /** Order of the loaded items. Without it, items keep their load order. */

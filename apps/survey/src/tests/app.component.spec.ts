@@ -11,6 +11,7 @@ import {
     HotkeysService,
     initialisationComplete,
     initialisationFailure,
+    isMock,
     LocaleService,
     OrganisationService,
     PlaceOS_Service,
@@ -19,6 +20,7 @@ import {
     SettingsService,
     StaffUser,
 } from '@placeos/common';
+import { type FakeSession, startFakePlaceClient } from '@placeos/common/tests';
 import {
     GlobalBannerComponent,
     GlobalLoadingComponent,
@@ -26,11 +28,10 @@ import {
 import { MockComponent, MockProvider } from 'ng-mocks';
 import { BehaviorSubject, of, Subject } from 'rxjs';
 
-// Only the external ts-client package can be intercepted by the bundler; the
-// workspace `@placeos/common` helpers run for real. `setupPlace` ends in the
-// ts-client `setup`, so tests stub `setup` to drive the startup chain. The
-// default `initialised` Subject never emits, which blocks `ngOnInit` at its
-// first await, so the synchronous setup work is asserted on its own.
+// The real `setupPlace` runs with a fake login session, so no request leaves
+// the test. The default `initialised` Subject never emits, which blocks
+// `ngOnInit` at its first await, so the synchronous setup work is asserted on
+// its own.
 vi.mock('@placeos/ts-client', { spy: true });
 
 // The app reads the page query once, when its module loads. Set it before the
@@ -40,11 +41,22 @@ vi.hoisted(() => {
     history.replaceState(null, '', '/?ref=page&shared=page');
 });
 
-import * as ts_client from '@placeos/ts-client';
+import { createAuthSession } from '@placeos/ts-client';
+import {
+    clearMockEndpoints,
+    listMockedEndpoints,
+} from '@placeos/ts-client/compat';
 
 import { AppComponent } from '../app/app.component';
 
 describe('AppComponent', () => {
+    let fake: FakeSession;
+    /** Makes the first login fail as when the server is offline */
+    const failSetup = () =>
+        vi.mocked(fake.session.start).mockResolvedValue({
+            ok: false,
+            error: { kind: 'authority_unavailable', reason: 'offline' },
+        });
     let spectator: SpectatorRouting<AppComponent>;
     let setting_values: Record<string, unknown>;
     const listens: { combo: string[]; cb: () => void }[] = [];
@@ -112,9 +124,10 @@ describe('AppComponent', () => {
         setting_values = {};
         settings.initialised = new Subject<boolean>();
         locale.zone_id = '';
-        vi.mocked(ts_client.setAPI_Key).mockReturnValue(undefined);
-        vi.mocked(ts_client.setup).mockResolvedValue(undefined);
-        vi.mocked(ts_client.clientId).mockReturnValue('');
+        fake = startFakePlaceClient();
+        // Only the calls of the test count
+        vi.mocked(createAuthSession).mockClear();
+        clearMockEndpoints();
         setCurrentUser(new StaffUser({ email: 'user@example.com' }));
         spectator = create_component();
         vi.mocked(spectator.router.parseUrl).mockImplementation((url) =>
@@ -136,14 +149,15 @@ describe('AppComponent', () => {
         it('should complete initialisation once PlaceOS, organisation and user load', async () => {
             await spectator.component.ngOnInit();
 
-            expect(ts_client.setup).toHaveBeenCalledWith(
-                expect.objectContaining({ mock: false }),
-            );
-            expect(ts_client.registerMockEndpoint).not.toHaveBeenCalled();
+            expect(createAuthSession).toHaveBeenCalledTimes(1);
+            expect(isMock()).toBe(false);
+            expect(listMockedEndpoints()).toEqual([]);
             expect(locale.zone_id).toBe('org-1');
             expect(locale.init).toHaveBeenCalled();
             expect(initialisationComplete()()).toBe(true);
             expect(initialisationFailure()()).toBe('');
+            // The hash route has no API key to remove
+            expect(spectator.router.navigate).not.toHaveBeenCalled();
         });
 
         it('should start PlaceOS in mock mode when the mock setting is on', async () => {
@@ -151,9 +165,7 @@ describe('AppComponent', () => {
 
             await spectator.component.ngOnInit();
 
-            expect(ts_client.setup).toHaveBeenCalledWith(
-                expect.objectContaining({ mock: true }),
-            );
+            expect(isMock()).toBe(true);
         });
 
         it('should start PlaceOS in mock mode when the stored mock flag is on', async () => {
@@ -163,10 +175,8 @@ describe('AppComponent', () => {
 
             // PlaceOS setup reads the flag too, so check that the app itself
             // registered the mock endpoints.
-            expect(ts_client.registerMockEndpoint).toHaveBeenCalled();
-            expect(ts_client.setup).toHaveBeenCalledWith(
-                expect.objectContaining({ mock: true }),
-            );
+            expect(listMockedEndpoints().length).toBeGreaterThan(0);
+            expect(isMock()).toBe(true);
         });
 
         it('should copy the page query into the hash route, with hash values first', async () => {
@@ -187,18 +197,25 @@ describe('AppComponent', () => {
 
         it('should pass the composer settings to PlaceOS setup', async () => {
             setting_values = {
-                composer: { domain: 'place.example', port: '8443' },
+                composer: {
+                    domain: 'place.example',
+                    port: '8443',
+                    protocol: 'https:',
+                    use_domain: true,
+                },
             };
 
             await spectator.component.ngOnInit();
 
-            expect(ts_client.setup).toHaveBeenCalledWith(
-                expect.objectContaining({ host: 'place.example:8443' }),
+            expect(vi.mocked(createAuthSession).mock.lastCall?.[0]).toEqual(
+                expect.objectContaining({
+                    base_url: 'https://place.example:8443',
+                }),
             );
         });
 
         it('should fail initialisation and stop when PlaceOS setup fails', async () => {
-            vi.mocked(ts_client.setup).mockRejectedValue(new Error('offline'));
+            failSetup();
 
             await spectator.component.ngOnInit();
 
@@ -230,17 +247,11 @@ describe('AppComponent', () => {
             spectator.setRouteQueryParam('x-api-key', 'secret');
         });
 
-        it('should store the key and remove it from the URL once PlaceOS has a client ID', async () => {
-            // Setup computes the client ID. Clear the write from the query
-            // param subscription, so only the write after setup is checked.
-            vi.mocked(ts_client.setup).mockImplementation(async () => {
-                vi.mocked(ts_client.clientId).mockReturnValue('client-1');
-                vi.mocked(ts_client.setAPI_Key).mockClear();
-            });
-
+        // The login session keeps the key and removes it from the page URL.
+        // The router state still has the copy in the hash route.
+        it('should remove the key from the hash route once PlaceOS setup settles', async () => {
             await spectator.component.ngOnInit();
 
-            expect(ts_client.setAPI_Key).toHaveBeenCalledWith('secret');
             expect(spectator.router.navigate).toHaveBeenCalledWith([], {
                 queryParams: { 'x-api-key': null },
                 queryParamsHandling: 'merge',
@@ -248,24 +259,13 @@ describe('AppComponent', () => {
             });
         });
 
-        it('should store the key when PlaceOS setup fails after it sets a client ID', async () => {
+        it('should remove the key from the hash route when PlaceOS setup fails', async () => {
             vi.spyOn(console, 'error').mockImplementation(() => undefined);
-            vi.mocked(ts_client.setup).mockImplementation(async () => {
-                vi.mocked(ts_client.clientId).mockReturnValue('client-1');
-                vi.mocked(ts_client.setAPI_Key).mockClear();
-                throw new Error('offline');
-            });
+            failSetup();
 
             await spectator.component.ngOnInit();
 
-            expect(ts_client.setAPI_Key).toHaveBeenCalledWith('secret');
             expect(spectator.router.navigate).toHaveBeenCalled();
-        });
-
-        it('should keep the key in the URL when PlaceOS has no client ID', async () => {
-            await spectator.component.ngOnInit();
-
-            expect(spectator.router.navigate).not.toHaveBeenCalled();
         });
     });
 
@@ -386,12 +386,6 @@ describe('AppComponent', () => {
 
             expect(locale.setLocale).toHaveBeenCalledWith('fr');
             expect(localStorage.getItem('PLACEOS.locale')).toBe('fr');
-        });
-
-        it('should set the API key from the x-api-key query param', () => {
-            spectator.setRouteQueryParam('x-api-key', 'secret');
-
-            expect(ts_client.setAPI_Key).toHaveBeenCalledWith('secret');
         });
     });
 });

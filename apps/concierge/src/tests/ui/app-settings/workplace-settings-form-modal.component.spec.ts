@@ -23,6 +23,7 @@ import { UploadButtonComponent } from '../../../app/ui/app-settings/upload-butto
 import { WorkplaceSettingsFormModalComponent } from '../../../app/ui/app-settings/workplace-settings-form-modal.component';
 
 import * as ts_client from '@placeos/ts-client';
+import { fromV1Mock, mockReply } from '@placeos/ts-client/compat';
 
 vi.mock('@placeos/ts-client', { spy: true });
 
@@ -65,11 +66,21 @@ describe('WorkplaceSettingsFormModalComponent', () => {
         ],
     });
 
-    beforeEach(() => {
-        vi.mocked(ts_client.showMetadata).mockResolvedValue({
-            details: {},
-        } as never);
-        vi.mocked(ts_client.updateMetadata).mockResolvedValue({} as never);
+    beforeEach(async () => {
+        vi.mocked(ts_client.metadata.show).mockImplementation(
+            fromV1Mock(
+                () =>
+                    ({
+                        details: {},
+                    }) as never,
+                ['id', 'name'],
+                'data',
+                'name',
+            ),
+        );
+        vi.mocked(ts_client.metadata.update).mockResolvedValue(
+            mockReply({} as never),
+        );
         notify_open = vi.fn(() => ({
             onAction: () => ({ subscribe: () => undefined }),
             dismiss: () => undefined,
@@ -84,6 +95,10 @@ describe('WorkplaceSettingsFormModalComponent', () => {
             }),
         );
         spectator = createComponent();
+        // The component loads the settings when it starts. Wait for that
+        // load, so that it does not use the mocks of the test.
+        await vi.waitFor(() => expect(spectator.component.loading()).toBe(''));
+        await new Promise((resolve) => setTimeout(resolve));
     });
 
     afterEach(() => {
@@ -104,24 +119,24 @@ describe('WorkplaceSettingsFormModalComponent', () => {
 
     it('should load settings on init', async () => {
         await spectator.component.ngOnInit();
-        expect(ts_client.showMetadata).toHaveBeenCalled();
+        expect(ts_client.metadata.show).toHaveBeenCalled();
         expect(spectator.component.loading()).toBe('');
     });
 
     it('should load metadata from org, parent, and zone', async () => {
         await spectator.component.ngOnInit();
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'org-1',
-            'workplace_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-parent',
-            'workplace_app',
-        );
-        expect(ts_client.showMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            'workplace_app',
-        );
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'org-1',
+            name: 'workplace_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-parent',
+            name: 'workplace_app',
+        });
+        expect(ts_client.metadata.show).toHaveBeenCalledWith({
+            id: 'zone-1',
+            name: 'workplace_app',
+        });
     });
 
     it('should hide devices and sensors on the explore map by default', () => {
@@ -131,24 +146,45 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should merge groups and replace atomic setting values', async () => {
-        (ts_client.showMetadata as any)
-            .mockResolvedValueOnce({
-                details: {
-                    events: {
-                        allow_all_day: true,
-                        bookable_hours: { start: 8, end: 17 },
-                    },
-                },
-            })
-            .mockResolvedValueOnce({
-                details: {
-                    events: {
-                        hide_notes: true,
-                        bookable_hours: { start: 9, end: 18 },
-                    },
-                },
-            })
-            .mockResolvedValueOnce({ details: {} });
+        (ts_client.metadata.show as any)
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: {
+                            events: {
+                                allow_all_day: true,
+                                bookable_hours: { start: 8, end: 17 },
+                            },
+                        },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: {
+                            events: {
+                                hide_notes: true,
+                                bookable_hours: { start: 9, end: 18 },
+                            },
+                        },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({ details: {} }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
 
         await spectator.component.ngOnInit();
 
@@ -162,40 +198,61 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should only save settings that override the inherited values', async () => {
-        (ts_client.showMetadata as any)
-            .mockResolvedValueOnce({
-                details: { events: { allow_all_day: true } },
-            })
-            .mockResolvedValueOnce({
-                details: { events: { hide_notes: true } },
-            })
-            .mockResolvedValueOnce({
-                details: { events: { allow_all_day: false } },
-            });
+        (ts_client.metadata.show as any)
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: { events: { allow_all_day: true } },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: { events: { hide_notes: true } },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            )
+            .mockImplementationOnce(
+                fromV1Mock(
+                    () => ({
+                        details: { events: { allow_all_day: false } },
+                    }),
+                    ['id', 'name'],
+                    'data',
+                    'name',
+                ),
+            );
 
         await spectator.component.ngOnInit();
         await spectator.component.save();
 
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 details: {
                     events: { allow_all_day: false },
                     edited_by: expect.any(Object),
                 },
             }),
-        );
+        });
     });
 
     it('should save settings via updateMetadata', async () => {
         await spectator.component.ngOnInit();
         await spectator.component.save();
-        expect(ts_client.updateMetadata).toHaveBeenCalledWith(
-            'zone-1',
-            expect.objectContaining({
+        expect(ts_client.metadata.update).toHaveBeenCalledWith({
+            id: 'zone-1',
+            body: expect.objectContaining({
                 name: 'workplace_app',
             }),
-        );
+        });
     });
 
     it('should close dialog after successful save', async () => {
@@ -216,7 +273,7 @@ describe('WorkplaceSettingsFormModalComponent', () => {
     });
 
     it('should show error notification when save fails', async () => {
-        (ts_client.updateMetadata as any).mockRejectedValueOnce({
+        (ts_client.metadata.update as any).mockRejectedValueOnce({
             message: 'Network error',
         } as never);
         await spectator.component.ngOnInit();

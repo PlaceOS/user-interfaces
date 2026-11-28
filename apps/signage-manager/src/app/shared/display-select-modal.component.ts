@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
 import { MatDialogModule } from '@angular/material/dialog';
 import { IconComponent } from '@placeos/components';
-import { PlaceSystem } from '@placeos/ts-client';
+import { type System } from '@placeos/ts-client';
 import { SignageDisplayService } from '../displays/signage-display.service';
 import { byDisplayName, PagedSearch } from './paged-search';
 import {
@@ -56,7 +56,7 @@ import {
 export class DisplaySelectModalComponent {
     private readonly _display_service = inject(SignageDisplayService);
 
-    public readonly list = new PagedSearch<PlaceSystem>(
+    public readonly list = new PagedSearch<System>(
         (search) => this._display_service.queryDisplays(search),
         byDisplayName,
     );

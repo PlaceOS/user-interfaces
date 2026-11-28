@@ -15,7 +15,7 @@ import {
 } from '@angular/material/autocomplete';
 import { MatChipInputEvent, MatChipsModule } from '@angular/material/chips';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { provideValueAccessor } from '@placeos/common';
+import { provideValueAccessor } from '@placeos/common/value-accessor';
 import { IconComponent } from 'libs/components/src/lib/icon.component';
 import { TranslatePipe } from 'libs/components/src/lib/translate.pipe';
 

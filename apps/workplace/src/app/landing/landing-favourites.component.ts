@@ -11,7 +11,8 @@ import {
     Space,
 } from '@placeos/common';
 import { EventFormService } from '@placeos/events';
-import { showMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 
 import { CommonModule } from '@angular/common';
 import { MatRippleModule } from '@angular/material/core';
@@ -341,11 +342,11 @@ export class LandingFavouritesComponent extends AsyncHandler implements OnInit {
     }
 
     public async ngOnInit() {
-        const metadata = await showMetadata(
-            this._org.organisation.id,
-            'room_alerts',
-        );
-        this._room_alerts = metadata.details as any;
+        const metadata = await metadata_v7
+            .show({ id: this._org.organisation.id, name: 'room_alerts' })
+            .then(orThrow)
+            .then((data) => data['room_alerts']);
+        this._room_alerts = metadata?.details as any;
         await this.loadSpaces();
         await this.loadAssets();
     }

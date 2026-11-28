@@ -5,8 +5,17 @@ import {
     SpectatorRouting,
 } from '@ngneat/spectator/vitest';
 import { SettingsService } from '@placeos/common';
+import { mockData } from '@placeos/common/tests';
 import * as ts_client from '@placeos/ts-client';
-import { SignageTemplateMapping } from '@placeos/ts-client';
+import {
+    PlaylistItem,
+    SignagePlugin,
+    SignageTemplate,
+    type SignageTemplateInput,
+    SignageTemplateMapping,
+    type SignageTemplateMappingInput,
+} from '@placeos/ts-client';
+import { MediaAnimation, mockPage, mockReply } from '@placeos/ts-client/compat';
 import { MockProvider } from 'ng-mocks';
 
 import { MediaCacheService } from '../app/media-cache.service';
@@ -14,6 +23,11 @@ import { SignageService } from '../app/signage.service';
 import { SignageTemplateComponent } from '../app/template.component';
 
 vi.mock('@placeos/ts-client', { spy: true });
+
+const template = (value: SignageTemplateInput) =>
+    mockData(SignageTemplate, value);
+const templateMapping = (value: SignageTemplateMappingInput) =>
+    mockData(SignageTemplateMapping, value);
 
 describe('SignageTemplateComponent', () => {
     let spectator: SpectatorRouting<SignageTemplateComponent>;
@@ -51,48 +65,58 @@ describe('SignageTemplateComponent', () => {
         localStorage.clear();
         debug.set(false);
         active_templates.set([]);
-        (ts_client.showSignageTemplate as any).mockResolvedValue({
-            id: 'template-1',
-            background_item_id: 'background-1',
-            layouts: [
-                {
-                    position: 'top',
-                    y_pos: 0.2,
-                    plugin_id: 'plugin-1',
-                    plugin_params: { title: 'Welcome' },
-                },
-                {
-                    position: 'left',
-                    x_pos: 0.25,
-                    plugin_id: 'missing-plugin',
+        vi.mocked(ts_client.signage_templates.show).mockResolvedValue(
+            mockReply(
+                template({
+                    id: 'template-1',
+                    background_item_id: 'background-1',
+                    layouts: [
+                        {
+                            position: 'top',
+                            y_pos: 0.2,
+                            plugin_id: 'plugin-1',
+                            plugin_params: { title: 'Welcome' },
+                        },
+                        {
+                            position: 'left',
+                            x_pos: 0.25,
+                            plugin_id: 'missing-plugin',
+                            plugin_params: {},
+                        },
+                    ],
+                }),
+            ),
+        );
+        vi.mocked(ts_client.signage_plugins.query).mockResolvedValue(
+            mockPage({
+                data: [
+                    mockData(SignagePlugin, {
+                        id: 'plugin-1',
+                        name: 'Header',
+                        uri: 'https://plugins.test/header',
+                        defaults: { colour: 'blue', title: 'Default' },
+                    }),
+                ],
+            }),
+        );
+        vi.mocked(ts_client.playlist_media.show).mockResolvedValue(
+            mockReply(
+                mockData(PlaylistItem, {
+                    id: 'background-1',
+                    name: 'Background',
+                    animation: MediaAnimation.Cut,
+                    media_type: 'image',
+                    media_uri: '/api/background',
+                    start_time: 0,
+                    play_time: 30_000,
+                    video_length: 0,
+                    valid_from: 0,
+                    valid_until: 0,
+                    plugin_id: '',
                     plugin_params: {},
-                },
-            ],
-        });
-        (ts_client.querySignagePlugins as any).mockResolvedValue({
-            data: [
-                {
-                    id: 'plugin-1',
-                    name: 'Header',
-                    uri: 'https://plugins.test/header',
-                    defaults: { colour: 'blue', title: 'Default' },
-                },
-            ],
-        });
-        (ts_client.showSignageMedia as any).mockResolvedValue({
-            id: 'background-1',
-            name: 'Background',
-            animation: ts_client.MediaAnimation.Cut,
-            media_type: 'image',
-            media_url: '/api/background',
-            start_time: 0,
-            play_time: 30_000,
-            video_length: 0,
-            valid_from: 0,
-            valid_until: 0,
-            plugin_id: '',
-            plugin_params: {},
-        });
+                }),
+            ),
+        );
     });
 
     let shell_frame: HTMLIFrameElement | null = null;
@@ -142,11 +166,13 @@ describe('SignageTemplateComponent', () => {
             expect(spectator.component.template()?.id).toBe('template-1');
         });
 
-        expect(ts_client.showSignageTemplate).toHaveBeenCalledWith(
-            'template-1',
-            { approved: true },
-        );
-        expect(ts_client.showSignageMedia).toHaveBeenCalledWith('background-1');
+        expect(ts_client.signage_templates.show).toHaveBeenCalledWith({
+            id: 'template-1',
+            approved: true,
+        });
+        expect(ts_client.playlist_media.show).toHaveBeenCalledWith({
+            id: 'background-1',
+        });
         expect(spectator.component.background_playlist()[0]).toMatchObject({
             id: 'background-1',
             type: 'image',
@@ -175,7 +201,7 @@ describe('SignageTemplateComponent', () => {
 
         await spectator.fixture.whenStable();
 
-        expect(ts_client.showSignageTemplate).not.toHaveBeenCalled();
+        expect(ts_client.signage_templates.show).not.toHaveBeenCalled();
         expect(spectator.query('signage-panel')).toBeTruthy();
         expect(spectator.component.player_rect()).toEqual({
             left: 0,
@@ -190,17 +216,15 @@ describe('SignageTemplateComponent', () => {
             params: { system_id: 'display-1' },
         });
 
-        active_templates.set([
-            new SignageTemplateMapping({ template_id: 'template-1' }),
-        ]);
+        active_templates.set([templateMapping({ template_id: 'template-1' })]);
         await vi.waitFor(() => {
             expect(spectator.component.template()?.id).toBe('template-1');
         });
 
-        expect(ts_client.showSignageTemplate).toHaveBeenCalledWith(
-            'template-1',
-            { approved: true },
-        );
+        expect(ts_client.signage_templates.show).toHaveBeenCalledWith({
+            id: 'template-1',
+            approved: true,
+        });
         expect(spectator.query('signage-panel')).toBeTruthy();
 
         active_templates.set([]);
@@ -223,8 +247,8 @@ describe('SignageTemplateComponent', () => {
     ])(
         'merges active layouts into $base_id',
         async ({ base_id, non_merge }) => {
-            const template = (id: string, merge: boolean) =>
-                new ts_client.SignageTemplate({
+            const mergeTemplate = (id: string, merge: boolean) =>
+                template({
                     id,
                     merge,
                     background_item_id: `${id}-background`,
@@ -238,29 +262,29 @@ describe('SignageTemplateComponent', () => {
                     ],
                 });
             const templates = [
-                ...(non_merge ? [template('base-default', false)] : []),
-                template('merge-default', true),
-                ...(non_merge ? [template('base-older', false)] : []),
-                template('merge-early', true),
-                ...(non_merge ? [template('base-latest', false)] : []),
-                template('merge-late', true),
+                ...(non_merge ? [mergeTemplate('base-default', false)] : []),
+                mergeTemplate('merge-default', true),
+                ...(non_merge ? [mergeTemplate('base-older', false)] : []),
+                mergeTemplate('merge-early', true),
+                ...(non_merge ? [mergeTemplate('base-latest', false)] : []),
+                mergeTemplate('merge-late', true),
             ];
-            vi.mocked(ts_client.showSignageTemplate).mockImplementation(
-                async (id) => templates.find((template) => template.id === id)!,
+            vi.mocked(ts_client.signage_templates.show).mockImplementation(
+                async ({ id }) =>
+                    mockReply(templates.find((template) => template.id === id)),
             );
-            const mappings = templates.map(
-                (template) =>
-                    new SignageTemplateMapping({
-                        template_id: template.id,
-                        schedule: template.id.endsWith('default')
-                            ? null
-                            : {
-                                  play_at: 1,
-                                  play_cron: '',
-                                  play_period: 60,
-                                  play_takeover: false,
-                              },
-                    }),
+            const mappings = templates.map((template) =>
+                templateMapping({
+                    template_id: template.id,
+                    schedule: template.id.endsWith('default')
+                        ? null
+                        : {
+                              play_at: 1,
+                              play_cron: '',
+                              play_period: 60,
+                              play_takeover: false,
+                          },
+                }),
             );
             active_templates.set(mappings);
             spectator = create_component({
@@ -280,9 +304,9 @@ describe('SignageTemplateComponent', () => {
                 'merge-early',
                 'merge-late',
             ]);
-            expect(ts_client.showSignageMedia).toHaveBeenCalledWith(
-                `${base_id}-background`,
-            );
+            expect(ts_client.playlist_media.show).toHaveBeenCalledWith({
+                id: `${base_id}-background`,
+            });
             expect(
                 templates.find((template) => template.id === base_id)?.layouts,
             ).toHaveLength(1);
@@ -308,11 +332,15 @@ describe('SignageTemplateComponent', () => {
     );
 
     it('uses the player background when the template has no background item', async () => {
-        (ts_client.showSignageTemplate as any).mockResolvedValue({
-            id: 'template-1',
-            background_item_id: '',
-            layouts: [],
-        });
+        vi.mocked(ts_client.signage_templates.show).mockResolvedValue(
+            mockReply(
+                template({
+                    id: 'template-1',
+                    background_item_id: '',
+                    layouts: [],
+                }),
+            ),
+        );
         spectator = create_component({
             params: { template_id: 'template-1', system_id: 'display-1' },
         });
@@ -323,7 +351,7 @@ describe('SignageTemplateComponent', () => {
 
         expect(spectator.component.background_playlist()).toEqual([]);
         expect(spectator.element.classList).toContain('bg-[var(--bg)]');
-        expect(ts_client.showSignageMedia).not.toHaveBeenCalled();
+        expect(ts_client.playlist_media.show).not.toHaveBeenCalled();
     });
 
     it('should not let a template overlay capture debug controls', async () => {
@@ -373,15 +401,12 @@ describe('SignageTemplateComponent', () => {
     });
 
     it('previews the pending version of an unapproved template in debug mode', async () => {
-        const pending = new ts_client.SignageTemplate({
-            id: 'template-1',
-            layouts: [],
-        });
-        vi.mocked(ts_client.showSignageTemplate).mockImplementation(
-            (_: string, query?: { approved?: boolean }) =>
-                query?.approved
+        const pending = template({ id: 'template-1', layouts: [] });
+        vi.mocked(ts_client.signage_templates.show).mockImplementation(
+            (input) =>
+                input.approved
                     ? Promise.reject(new Error('Not found'))
-                    : Promise.resolve(pending),
+                    : Promise.resolve(mockReply(pending)),
         );
         const shell = embedInShell();
         spectator = create_component({
@@ -391,10 +416,9 @@ describe('SignageTemplateComponent', () => {
         await vi.waitFor(() => {
             expect(spectator.component.template()).toBe(pending);
         });
-        expect(ts_client.showSignageTemplate).toHaveBeenCalledExactlyOnceWith(
-            'template-1',
-            {},
-        );
+        expect(
+            ts_client.signage_templates.show,
+        ).toHaveBeenCalledExactlyOnceWith({ id: 'template-1' });
 
         postLayouts(
             [{ position: 'top', y_pos: 0.2, plugin_id: 'plugin-1' }],
@@ -480,15 +504,15 @@ describe('SignageTemplateComponent', () => {
     });
     describe('when loading fails', () => {
         const mapping = (template_id: string) =>
-            new SignageTemplateMapping({ template_id });
-        const showTemplate = vi.mocked(ts_client.showSignageTemplate);
+            templateMapping({ template_id });
+        const showTemplate = vi.mocked(ts_client.signage_templates.show);
+        type ShowResult = Awaited<ReturnType<typeof showTemplate>>;
 
         /** A template request that the test settles by hand */
         const deferred = () => {
-            let resolve: (template: ts_client.SignageTemplate) => void = () =>
-                undefined;
+            let resolve: (result: ShowResult) => void = () => undefined;
             let reject: (error: Error) => void = () => undefined;
-            const promise = new Promise<ts_client.SignageTemplate>(
+            const promise = new Promise<ShowResult>(
                 (res, rej) => ((resolve = res), (reject = rej)),
             );
             return { promise, resolve, reject };
@@ -515,8 +539,8 @@ describe('SignageTemplateComponent', () => {
         });
 
         it('shows the templates that load when another fails', async () => {
-            const base = await showTemplate('template-1');
-            showTemplate.mockImplementation(async (id) => {
+            const base = await showTemplate({ id: 'template-1' });
+            showTemplate.mockImplementation(async ({ id }) => {
                 if (id === 'merge-1') throw new Error('server error');
                 return base;
             });
@@ -530,8 +554,8 @@ describe('SignageTemplateComponent', () => {
         });
 
         it('keeps the template on screen when a retry fails', async () => {
-            const base = await showTemplate('template-1');
-            showTemplate.mockImplementation(async (id) => {
+            const base = await showTemplate({ id: 'template-1' });
+            showTemplate.mockImplementation(async ({ id }) => {
                 if (id === 'merge-1') throw new Error('server error');
                 return base;
             });
@@ -551,7 +575,7 @@ describe('SignageTemplateComponent', () => {
         });
 
         it('keeps the background on screen when a retry cannot load it', async () => {
-            vi.mocked(ts_client.querySignagePlugins).mockRejectedValueOnce(
+            vi.mocked(ts_client.signage_plugins.query).mockRejectedValueOnce(
                 new Error('offline'),
             );
             spectator = create_component({
@@ -560,12 +584,12 @@ describe('SignageTemplateComponent', () => {
             await flush();
             expect(spectator.component.background_playlist()).toHaveLength(1);
 
-            vi.mocked(ts_client.showSignageMedia).mockRejectedValue(
+            vi.mocked(ts_client.playlist_media.show).mockRejectedValue(
                 new Error('offline'),
             );
             await vi.advanceTimersByTimeAsync(15_000);
 
-            expect(ts_client.showSignageMedia).toHaveBeenCalledTimes(2);
+            expect(ts_client.playlist_media.show).toHaveBeenCalledTimes(2);
             expect(spectator.component.background_playlist()).toHaveLength(1);
         });
 
@@ -596,13 +620,15 @@ describe('SignageTemplateComponent', () => {
             );
 
             showTemplate.mockResolvedValue(
-                new ts_client.SignageTemplate({
-                    id: 'template-2',
-                    background_item_id: 'background-2',
-                    layouts: [],
-                }),
+                mockReply(
+                    template({
+                        id: 'template-2',
+                        background_item_id: 'background-2',
+                        layouts: [],
+                    }),
+                ),
             );
-            vi.mocked(ts_client.showSignageMedia).mockRejectedValue(
+            vi.mocked(ts_client.playlist_media.show).mockRejectedValue(
                 new Error('offline'),
             );
             active_templates.set([mapping('template-2')]);
@@ -613,7 +639,7 @@ describe('SignageTemplateComponent', () => {
         });
 
         it('fills the plugin layout once a failed plugin query succeeds', async () => {
-            vi.mocked(ts_client.querySignagePlugins).mockRejectedValueOnce(
+            vi.mocked(ts_client.signage_plugins.query).mockRejectedValueOnce(
                 new Error('offline'),
             );
             spectator = create_component({
@@ -630,12 +656,11 @@ describe('SignageTemplateComponent', () => {
 
         it('ignores a load that finishes after the mappings changed', async () => {
             const { promise, resolve } = deferred();
-            const second = new ts_client.SignageTemplate({
-                id: 'template-2',
-                layouts: [],
-            });
-            showTemplate.mockImplementation((id) =>
-                id === 'template-1' ? promise : Promise.resolve(second),
+            const second = template({ id: 'template-2', layouts: [] });
+            showTemplate.mockImplementation(({ id }) =>
+                id === 'template-1'
+                    ? promise
+                    : Promise.resolve(mockReply(second)),
             );
             spectator = create_component({
                 params: { system_id: 'display-1' },
@@ -645,7 +670,7 @@ describe('SignageTemplateComponent', () => {
             active_templates.set([mapping('template-2')]);
             await flush();
 
-            resolve(new ts_client.SignageTemplate({ id: 'template-1' }));
+            resolve(mockReply(template({ id: 'template-1' })));
             await flush();
 
             expect(spectator.component.template()?.id).toBe('template-2');

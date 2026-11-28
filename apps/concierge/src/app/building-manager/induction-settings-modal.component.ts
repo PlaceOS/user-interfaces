@@ -21,7 +21,9 @@ import {
     SettingsToggleComponent,
     TranslatePipe,
 } from '@placeos/components';
-import { showMetadata, updateMetadata } from '@placeos/ts-client';
+import { metadata as metadata_v7 } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
+import { jsonRecord, showMetadata, toJsonValue } from '../metadata';
 import { appMetadataKey } from '../ui/app-settings/app-settings.utilities';
 import { errorText } from '../ui/modal-actions';
 
@@ -127,9 +129,9 @@ export class InductionSettingsModalComponent implements OnInit {
                     showMetadata(this._org.organisation.id, 'settings'),
                 ]);
             const settings: Record<string, any> = {
-                ...org_settings.details,
-                ...org_metadata.details,
-                ...bld_metadata.details,
+                ...jsonRecord(org_settings.details),
+                ...jsonRecord(org_metadata.details),
+                ...jsonRecord(bld_metadata.details),
             };
             this.settings.set(settings);
             this.induction_details.set(settings.induction_details || '');
@@ -160,11 +162,19 @@ export class InductionSettingsModalComponent implements OnInit {
             // Both apps read the induction settings, so both must be saved.
             for (const key of [visitor_kiosk_app, concierge_app]) {
                 const metadata = await showMetadata(this._zone_id, key);
-                await updateMetadata(this._zone_id, {
-                    name: metadata.name || key,
-                    description: metadata.description || '',
-                    details: { ...metadata.details, ...induction },
-                });
+                await metadata_v7
+                    .update({
+                        id: this._zone_id,
+                        body: {
+                            name: metadata.name || key,
+                            description: metadata.description || '',
+                            details: toJsonValue({
+                                ...jsonRecord(metadata.details),
+                                ...induction,
+                            }),
+                        },
+                    })
+                    .then(orThrow);
             }
             notifySuccess(i18n('APP.CONCIERGE.INDUCTION_SUCCESS'));
             this._dialog_ref.close();

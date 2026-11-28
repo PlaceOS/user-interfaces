@@ -24,7 +24,8 @@ import {
     TranslatePipe,
 } from '@placeos/components';
 import { DateFieldComponent } from '@placeos/form-fields';
-import { showAssetPurchaseOrder } from '@placeos/ts-client';
+import { asset_purchase_orders } from '@placeos/ts-client';
+import { orThrow } from '@placeos/ts-client/compat';
 import { addYears, getUnixTime } from 'date-fns';
 import { queryAllPages } from '../query-all-pages';
 import { AssetManagerStateService } from './asset-manager-state.service';
@@ -257,9 +258,10 @@ export class AssetPurchaseOrderFormComponent
                     this.loading.set(
                         i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOADING'),
                     );
-                    const asset = await showAssetPurchaseOrder(
-                        params.get('id'),
-                    ).catch(() => null);
+                    const asset = await asset_purchase_orders
+                        .show({ id: params.get('id') })
+                        .then(orThrow)
+                        .catch(() => null);
                     if (!asset) {
                         notifyError(
                             i18n('APP.CONCIERGE.ASSETS_PURCHASE_LOAD_ERROR'),

@@ -1,8 +1,9 @@
-import { HydratedSignageTemplateMapping } from '../app/signage-template-mapping';
+import { hydratedTemplateMapping } from '../app/signage-template-mapping';
+import { mediaUrl } from '../app/signage-url.util';
 
 describe('HydratedSignageTemplateMapping', () => {
     it('keeps the hydrated template and background media from the response', () => {
-        const mapping = new HydratedSignageTemplateMapping({
+        const mapping = hydratedTemplateMapping({
             id: 'mapping-1',
             template_id: 'template-1',
             zone_id: 'zone-1',
@@ -26,7 +27,7 @@ describe('HydratedSignageTemplateMapping', () => {
 
         expect(mapping.template_details.id).toBe('template-1');
         expect(mapping.template_details.name).toBe('Welcome');
-        expect(mapping.template_details.background_media?.media_url).toBe(
+        expect(mediaUrl(mapping.template_details.background_media)).toBe(
             '/api/engine/v2/uploads/media-1/url',
         );
         expect(mapping.template_details.layouts[0].plugin_id).toBe('clock');

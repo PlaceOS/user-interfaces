@@ -1,8 +1,8 @@
+import { registerMockEndpoint } from '@placeos/ts-client/compat';
 import {
-    registerMockEndpoint,
-    SurveyAnswer,
-    SurveyQuestion,
-} from '@placeos/ts-client';
+    type SurveyAnswer,
+    type SurveyQuestion,
+} from '@placeos/ts-client/staff';
 
 import {
     MOCK_ANSWERS,
@@ -11,7 +11,7 @@ import {
 } from '../lib/api/surveys.mock';
 import { endpoint } from './endpoints';
 
-vi.mock('@placeos/ts-client');
+vi.mock('@placeos/ts-client/compat');
 
 const API = '/api/staff/v1/surveys';
 

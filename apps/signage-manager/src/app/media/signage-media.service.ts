@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import {
+    cleanObject,
     i18n,
     mapWithLimit,
     notifyError,
@@ -24,20 +25,13 @@ import {
 } from '@placeos/common';
 import { loadAuthenticatedImage } from '@placeos/components';
 import {
-    addSignageMedia,
-    apiEndpoint,
-    post,
-    type QueryResponse,
-    querySignageMedia,
-    removeSignageMedia,
-    removeSignageMediaTag,
-    renameSignageMediaTag,
-    showSignageMedia,
-    SignageMedia,
-    SignagePlaylist,
-    SignagePlugin,
-    updateSignageMedia,
+    type Playlist,
+    playlist_media,
+    type PlaylistItem,
+    type SignagePlugin,
+    uploads,
 } from '@placeos/ts-client';
+import { orThrow, orThrowPage } from '@placeos/ts-client/compat';
 import type { ImageGenModalData } from '../image-gen/image-gen-modal.component';
 import { removeSignageUpload } from '../image-gen/image-gen.fn';
 import { SignagePlaylistService } from '../playlists/signage-playlist.service';
@@ -54,7 +48,7 @@ import type {
     MediaTagModalData,
     MediaTagModalResult,
 } from '../shared/media-tag-modal.component';
-import { PagedList } from '../shared/paged-list';
+import { PagedList, type QueryResponse } from '../shared/paged-list';
 import { storedSignal } from '../shared/stored-signal';
 import { SignageContextService } from '../signage-context.service';
 import {
@@ -73,6 +67,7 @@ import {
     validateSignageMediaDimensions,
     validateSignageMediaFile,
 } from '../signage-media-upload.util';
+import { signageMedia } from '../signage-models';
 import { SignagePluginService } from '../signage-plugin.service';
 import { dialogClosed, PAGE_SIZE, searchParam } from '../signage-service.util';
 import { uploadUrl } from '../signage-url.util';
@@ -256,7 +251,7 @@ export class SignageMediaService {
     // library; filtering the loaded pages would only search media that has
     // already been fetched.
     private readonly _media_search_debounced = debounced(this.search_term, 400);
-    private readonly _media_list = new PagedList<SignageMedia>({
+    private readonly _media_list = new PagedList<PlaylistItem>({
         sort: (a, b) => b.created_at - a.created_at,
     });
     // Bumped to fetch the first page again after it failed.
@@ -293,7 +288,7 @@ export class SignageMediaService {
         untracked(() =>
             this._media_list.reset(
                 initialised && can_query
-                    ? querySignageMedia(query_params)
+                    ? playlist_media.query(query_params).then(orThrowPage)
                     : null,
             ),
         );
@@ -325,7 +320,7 @@ export class SignageMediaService {
     // A separate list, so local changes to the library list are kept.
     /** Tag of the open tag folder, or null when no tag folder is open */
     public readonly folder_tag = signal<string | null>(null);
-    private readonly _folder_list = new PagedList<SignageMedia>({
+    private readonly _folder_list = new PagedList<PlaylistItem>({
         sort: (a, b) => b.created_at - a.created_at,
     });
     private readonly _folder_reload = signal(0);
@@ -347,7 +342,11 @@ export class SignageMediaService {
         const group_id = this._context.api_group_id_debounced.value();
         const search = this._media_search_debounced.value().trim();
         const query_params = this._context.contentQueryParams(
-            { limit: PAGE_SIZE, tags: tag || '', ...searchParam(search) },
+            {
+                limit: PAGE_SIZE,
+                tags: tag ? [tag] : [],
+                ...searchParam(search),
+            },
             group_id,
         );
         this._context.data_change();
@@ -355,7 +354,7 @@ export class SignageMediaService {
         untracked(() =>
             this._folder_list.reset(
                 tag && initialised && can_query
-                    ? querySignageMedia(query_params)
+                    ? playlist_media.query(query_params).then(orThrowPage)
                     : null,
             ),
         );
@@ -411,12 +410,14 @@ export class SignageMediaService {
         () => this._media_tags.value()?.counts || {},
     );
 
-    public queryMedia(search = ''): QueryResponse<SignageMedia> | null {
+    public queryMedia(search = ''): QueryResponse<PlaylistItem> | null {
         if (!this._context.canQueryLists()) return null;
-        return querySignageMedia({
-            ...this._context.orgZoneQueryParams({ limit: PAGE_SIZE }),
-            ...searchParam(search),
-        });
+        return playlist_media
+            .query({
+                ...this._context.groupQueryParams({ limit: PAGE_SIZE }),
+                ...searchParam(search),
+            })
+            .then(orThrowPage);
     }
 
     /**
@@ -425,16 +426,21 @@ export class SignageMediaService {
      * false, the caller reloads the tag counts.
      */
     private async _createMedia(
-        fields: Partial<SignageMedia>,
+        fields: Partial<PlaylistItem>,
         reload_tags = true,
     ) {
-        const data = { ...new SignageMedia(fields) };
-        for (const key in data) {
-            if (!data[key]) delete data[key];
-        }
+        const data = cleanObject({ ...signageMedia(fields) }, [
+            undefined,
+            null,
+            '',
+            0,
+            false,
+        ]);
         const query_params = this._context.groupQueryParams({});
         const result = await retryMediaRequest(() =>
-            addSignageMedia(data, query_params),
+            playlist_media
+                .create({ ...query_params, body: data })
+                .then(orThrow),
         );
         this._addMediaToList(result, reload_tags);
         return result;
@@ -445,7 +451,7 @@ export class SignageMediaService {
      * loses the item whenever the backend index lags the write, which reads as
      * a failed upload.
      */
-    private _addMediaToList(media: SignageMedia, reload_tags = true) {
+    private _addMediaToList(media: PlaylistItem, reload_tags = true) {
         if (!media?.id) return;
         const item = decodeEntityNames(media);
         if (!this._media_list.items().some(({ id }) => id === item.id)) {
@@ -480,7 +486,7 @@ export class SignageMediaService {
      * @param removed_ids IDs of deleted media
      */
     private _syncFolderList(
-        changed: SignageMedia[],
+        changed: PlaylistItem[],
         removed_ids: string[] = [],
     ) {
         const tag = this.folder_tag();
@@ -512,11 +518,10 @@ export class SignageMediaService {
      * show route. A failed lookup only leaves out the playlists of that item.
      */
     private async _playlistsUsingMedia(media_ids: string[]) {
-        const query_params = this._context.groupQueryParams({});
         const results = await settleEach(media_ids, (id) =>
-            showSignageMedia(id, query_params),
+            playlist_media.show({ id }).then(orThrow),
         );
-        const by_id = new Map<string, SignagePlaylist>();
+        const by_id = new Map<string, Playlist>();
         for (const result of results) {
             if (result.status !== 'fulfilled') continue;
             for (const playlist of result.value?.playlists || []) {
@@ -532,7 +537,7 @@ export class SignageMediaService {
      */
     private _withMediaUsage(
         content: string,
-        playlists: SignagePlaylist[],
+        playlists: Playlist[],
         item_count = 1,
     ) {
         if (!playlists.length) return content;
@@ -558,7 +563,7 @@ export class SignageMediaService {
         notifyWarn(`${shortList(large.map(bulkItemName))}: ${error}`);
     }
 
-    public previewMedia(item: SignageMedia) {
+    public previewMedia(item: PlaylistItem) {
         return this._preview.previewMedia(item);
     }
 
@@ -613,7 +618,7 @@ export class SignageMediaService {
      */
     private async _uploadFiles(
         files: ArrayLike<File> | Iterable<File> | null | undefined,
-    ): Promise<SignageMedia[]> {
+    ): Promise<PlaylistItem[]> {
         if (
             !this._context.requirePermission(
                 this._context.can_create(),
@@ -633,7 +638,7 @@ export class SignageMediaService {
         const prepared = await this._prepareUploadMedia(file);
         if (!prepared) return [];
         const created = await this.editMedia(
-            new SignageMedia({ video_length: videoLength(prepared.metadata) }),
+            signageMedia({ video_length: videoLength(prepared.metadata) }),
             prepared.file,
             prepared.metadata,
         );
@@ -706,17 +711,17 @@ export class SignageMediaService {
     private async _openBulkUpload(
         items: BulkMediaUploadItem[],
         { auto_start = false } = {},
-    ): Promise<SignageMedia[]> {
+    ): Promise<PlaylistItem[]> {
         if (!items.length) return [];
         this._warnLargeMedia(items);
         // A retry reuses the stored file, so only the failed step runs again
         const stored = new Map<BulkMediaUploadItem, StoredMediaUpload>();
-        const created = new Map<BulkMediaUploadItem, SignageMedia>();
+        const created = new Map<BulkMediaUploadItem, PlaylistItem>();
         const data: BulkMediaUploadModalData = {
             items,
             auto_start,
             onUpload: async (item, on_progress) => {
-                const media_item = new SignageMedia({
+                const media_item = signageMedia({
                     name: bulkItemName(item),
                     tags: item.tags,
                 });
@@ -771,7 +776,7 @@ export class SignageMediaService {
         )
             return;
         const url_obj = new URL(url);
-        const media = new SignageMedia({
+        const media = signageMedia({
             name: url_obj.hostname,
             media_uri: url,
             media_type: 'webpage',
@@ -787,7 +792,7 @@ export class SignageMediaService {
      */
     public async addMediaFromUpload(
         upload_id: string,
-        media_item: Partial<SignageMedia> = {},
+        media_item: Partial<PlaylistItem> = {},
     ) {
         if (
             !this._context.requirePermission(
@@ -828,7 +833,7 @@ export class SignageMediaService {
 
     /** Remove a media row when the generated upload could not be claimed. */
     public async discardCreatedMedia(id: string) {
-        await removeSignageMedia(id);
+        await playlist_media.destroy({ id }).then(orThrow);
         this._removeMediaFromList([id]);
     }
 
@@ -874,7 +879,7 @@ export class SignageMediaService {
         }
     }
 
-    public async editMediaWithImageGen(media: SignageMedia) {
+    public async editMediaWithImageGen(media: PlaylistItem) {
         if (!media?.media_id) return;
         return this.generateMediaWithImageGen({
             source_upload_id: media.media_id,
@@ -893,7 +898,7 @@ export class SignageMediaService {
             )
         )
             return;
-        const media = new SignageMedia({
+        const media = signageMedia({
             name: '',
             media_uri: plugin.uri,
             media_type: 'plugin',
@@ -910,11 +915,11 @@ export class SignageMediaService {
      * @returns The media created, when the modal adds new media
      */
     public async editMedia(
-        media: SignageMedia = new SignageMedia({}),
+        media: PlaylistItem = signageMedia({}),
         file?: File,
         prepared_file_metadata?: SignageMediaMetadata,
         plugin?: SignagePlugin,
-    ): Promise<SignageMedia | undefined> {
+    ): Promise<PlaylistItem | undefined> {
         if (media.id) {
             if (
                 !this._context.requirePermission(
@@ -947,7 +952,7 @@ export class SignageMediaService {
         const file_thumbnail = file
             ? this._generateThumbnail(file, 1280, 720).catch(() => '')
             : undefined;
-        let created: SignageMedia | undefined;
+        let created: PlaylistItem | undefined;
         const { MediaEditModalComponent } =
             await import('../shared/media-edit-modal.component');
         const ref = this._dialog.open(MediaEditModalComponent, {
@@ -963,7 +968,7 @@ export class SignageMediaService {
                 generateThumbnail: (f: File) => this._generateThumbnailImage(f),
                 onAdd: (
                     f: File,
-                    m: SignageMedia,
+                    m: PlaylistItem,
                     file_metadata?: SignageMediaMetadata,
                     thumbnail?: string,
                     fallback_thumbnail?: () => Promise<string>,
@@ -1007,7 +1012,7 @@ export class SignageMediaService {
             if (thumbnail_id) update.thumbnail_id = thumbnail_id;
         }
         const updated_media = decodeEntityNames(
-            await updateSignageMedia(id, update),
+            await playlist_media.update({ id, body: update }).then(orThrow),
         );
         this._media_list.update((items) =>
             items.map((item) => (item.id === id ? updated_media : item)),
@@ -1025,7 +1030,7 @@ export class SignageMediaService {
      */
     private async _addMedia(
         file: File | undefined,
-        media_item: SignageMedia,
+        media_item: PlaylistItem,
         file_metadata?: SignageMediaMetadata,
         url_thumbnail?: string,
         upload_options?: SignageUploadOptions,
@@ -1077,7 +1082,7 @@ export class SignageMediaService {
      */
     public async addMedia(
         file: File,
-        media_item: SignageMedia = new SignageMedia({}),
+        media_item: PlaylistItem = signageMedia({}),
         file_metadata?: SignageMediaMetadata,
         upload_options?: SignageUploadOptions,
     ) {
@@ -1117,9 +1122,9 @@ export class SignageMediaService {
 
     /** Create the media record of a file and thumbnail that are stored */
     private _createStoredMedia(
-        media_item: Partial<SignageMedia>,
+        media_item: Partial<PlaylistItem>,
         { media_id, thumbnail_id }: StoredMediaUpload,
-        media_type: SignageMedia['media_type'],
+        media_type: PlaylistItem['media_type'],
         is_landscape: boolean,
         reload_tags?: boolean,
     ) {
@@ -1250,7 +1255,7 @@ export class SignageMediaService {
         }
     }
 
-    public async removeMedia(item: SignageMedia) {
+    public async removeMedia(item: PlaylistItem) {
         if (!item?.id) return false;
         return this._removeMediaItems(
             [item],
@@ -1258,7 +1263,7 @@ export class SignageMediaService {
         );
     }
 
-    public async removeMediaItems(items: SignageMedia[]) {
+    public async removeMediaItems(items: PlaylistItem[]) {
         const media_items = items.filter((item) => !!item?.id);
         if (!media_items.length) return false;
         return this._removeMediaItems(
@@ -1278,7 +1283,7 @@ export class SignageMediaService {
      * @returns Whether every item was deleted
      */
     private async _removeMediaItems(
-        media_items: SignageMedia[],
+        media_items: PlaylistItem[],
         content: string,
     ) {
         if (
@@ -1306,10 +1311,12 @@ export class SignageMediaService {
                 error_key: 'SIGNAGE_MANAGER.SVC_ERR_REMOVE_MEDIA',
                 action: async () => {
                     const results = await settleEach(media_ids, (id) =>
-                        removeSignageMedia(
-                            id,
-                            this._context.groupQueryParams({}),
-                        ),
+                        playlist_media
+                            .destroy({
+                                id,
+                                ...this._context.groupQueryParams({}),
+                            })
+                            .then(orThrow),
                     );
                     const removed_ids = media_ids.filter(
                         (_, index) => results[index].status === 'fulfilled',
@@ -1332,13 +1339,13 @@ export class SignageMediaService {
         return true;
     }
 
-    public async shareMediaItems(items: SignageMedia[]) {
+    public async shareMediaItems(items: PlaylistItem[]) {
         const media_ids = items.map((item) => item.id).filter(Boolean);
         if (!media_ids.length) return false;
         return this._context.shareItems('media', media_ids);
     }
 
-    public async addMediaTags(items: SignageMedia[]) {
+    public async addMediaTags(items: PlaylistItem[]) {
         const media_items = items.filter((item) => !!item?.id);
         if (!media_items.length) return false;
         if (
@@ -1361,7 +1368,7 @@ export class SignageMediaService {
             tags: [...new Set([...(item.tags || []), ...tags])],
         }));
         const results = await settleEach(changes, ({ id, tags }) =>
-            updateSignageMedia(id, { tags }),
+            playlist_media.update({ id, body: { tags } }).then(orThrow),
         );
         // Show the new tags on the items that saved, in place
         const saved = new Map(
@@ -1370,9 +1377,9 @@ export class SignageMediaService {
                 .map(({ id, tags }) => [id, tags]),
         );
         if (saved.size) {
-            const withTags = (item: SignageMedia) =>
+            const withTags = (item: PlaylistItem): PlaylistItem =>
                 saved.has(item.id)
-                    ? new SignageMedia({ ...item, tags: saved.get(item.id) })
+                    ? { ...item, tags: saved.get(item.id) }
                     : item;
             this._media_list.update((items) => items.map(withTags));
             this._syncFolderList(
@@ -1396,9 +1403,7 @@ export class SignageMediaService {
     }
 
     public async renameMediaTag(tag: string, count: number) {
-        const scope = this._context.groupQueryParams(
-            this._context.childContentQueryParams(),
-        );
+        const scope = this._context.contentQueryParams({});
         const result = await this._openMediaTagModal({
             action: 'rename',
             tag,
@@ -1408,19 +1413,19 @@ export class SignageMediaService {
         if (result?.action !== 'rename') return false;
         return this._saveMediaTagChange(
             () =>
-                renameSignageMediaTag({
-                    current_tag: tag,
-                    new_tag: result.new_tag,
-                    ...scope,
-                }),
+                playlist_media
+                    .renameTag({
+                        current_tag: tag,
+                        new_tag: result.new_tag,
+                        ...scope,
+                    })
+                    .then(orThrow),
             'SIGNAGE_MANAGER.SVC_MEDIA_TAG_RENAMED',
         );
     }
 
     public async removeMediaTag(tag: string, count: number) {
-        const scope = this._context.groupQueryParams(
-            this._context.childContentQueryParams(),
-        );
+        const scope = this._context.contentQueryParams({});
         const can_delete_media = this._context.can_delete_tagged_media();
         const result = await this._openMediaTagModal({
             action: 'remove',
@@ -1440,11 +1445,13 @@ export class SignageMediaService {
             return false;
         return this._saveMediaTagChange(
             () =>
-                removeSignageMediaTag({
-                    tag,
-                    ...(result.remove_media ? { remove_media: true } : {}),
-                    ...scope,
-                }),
+                playlist_media
+                    .removeTag({
+                        tag,
+                        ...(result.remove_media ? { remove_media: true } : {}),
+                        ...scope,
+                    })
+                    .then(orThrow),
             'SIGNAGE_MANAGER.SVC_MEDIA_TAG_REMOVED',
         );
     }
@@ -1561,12 +1568,16 @@ export class SignageMediaService {
         if (!page) return '';
         let screenshot_id = '';
         try {
-            const upload = await post(`${apiEndpoint()}/uploads/screenshot`, {
-                url: page,
-                width: 1920,
-                height: 1080,
-                format: 'jpeg',
-            });
+            const upload = await uploads
+                .screenshot({
+                    body: {
+                        url: page,
+                        width: 1920,
+                        height: 1080,
+                        format: 'jpeg',
+                    },
+                })
+                .then(orThrow);
             screenshot_id = `${upload?.id || ''}`;
             if (!screenshot_id) return '';
             const blob = await this._fetchUpload(screenshot_id);

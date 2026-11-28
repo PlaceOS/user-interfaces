@@ -9,6 +9,7 @@ import {
 vi.mock('@placeos/ts-client', { spy: true });
 
 import * as ts_client from '@placeos/ts-client';
+import { mockPage } from '@placeos/ts-client/compat';
 
 describe('isValidUrl', () => {
     it('should treat empty values as valid', () => {
@@ -99,16 +100,18 @@ describe('requestSpacesForZone', () => {
     it('should return an empty list for a falsy zone ID', async () => {
         const spaces = await requestSpacesForZone('').toPromise();
         expect(spaces).toEqual([]);
-        expect(ts_client.querySystems).not.toHaveBeenCalled();
+        expect(ts_client.systems.query).not.toHaveBeenCalled();
     });
 
     it('should query and map systems in the zone to spaces', async () => {
-        (ts_client.querySystems as any).mockResolvedValue({
-            data: [{ id: 'sys-zone-1', name: 'Space 1' }],
-        });
+        (ts_client.systems.query as any).mockResolvedValue(
+            mockPage({
+                data: [{ id: 'sys-zone-1', name: 'Space 1' }],
+            }),
+        );
         const spaces = await requestSpacesForZone('zone-a').toPromise();
-        expect(ts_client.querySystems).toHaveBeenCalledWith({
-            zone_id: 'zone-a',
+        expect(ts_client.systems.query).toHaveBeenCalledWith({
+            zone_id: ['zone-a'],
             limit: 500,
             signage: false,
         });
@@ -117,21 +120,23 @@ describe('requestSpacesForZone', () => {
     });
 
     it('should reuse the request for repeated calls with the same zone', async () => {
-        (ts_client.querySystems as any).mockResolvedValue({ data: [] });
+        (ts_client.systems.query as any).mockResolvedValue(
+            mockPage({ data: [] }),
+        );
         await requestSpacesForZone('zone-b').toPromise();
         await requestSpacesForZone('zone-b').toPromise();
-        expect(ts_client.querySystems).toHaveBeenCalledTimes(1);
+        expect(ts_client.systems.query).toHaveBeenCalledTimes(1);
     });
 
     it('should query again after a failed request', async () => {
-        (ts_client.querySystems as any)
+        (ts_client.systems.query as any)
             .mockRejectedValueOnce(new Error('offline'))
-            .mockResolvedValueOnce({ data: [{ id: 'sys-zone-c' }] });
+            .mockResolvedValueOnce(mockPage({ data: [{ id: 'sys-zone-c' }] }));
         await expect(
             requestSpacesForZone('zone-c').toPromise(),
         ).rejects.toThrow('offline');
         const spaces = await requestSpacesForZone('zone-c').toPromise();
-        expect(ts_client.querySystems).toHaveBeenCalledTimes(2);
+        expect(ts_client.systems.query).toHaveBeenCalledTimes(2);
         expect(spaces[0].id).toBe('sys-zone-c');
     });
 });
