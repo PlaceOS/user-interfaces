@@ -1546,6 +1546,7 @@
             "MAPS_3D_REMOVE_TITLE": "Supprimer la vue 3D?",
             "MAPS_3D_REMOVE_MSG": "Une fois enregistrée, cette carte ne s'affiche plus qu'en 2D. Le dessin lui-même n'est pas modifié.",
             "MAPS_3D_FOUND": "Sur cette carte",
+            "MAPS_3D_SELECT_KIND": "Sélectionner tous les éléments de ce type",
             "MAPS_3D_AUTO_HINT": "Les murs, le mobilier et les étiquettes ont été déduits de la carte. Vérifiez le résultat, corrigez ce qui est faux, puis enregistrez.",
             "MAPS_3D_SCALE": "Échelle",
             "MAPS_3D_WIDTH": "Largeur de la carte",
