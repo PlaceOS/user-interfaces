@@ -34238,14 +34238,7 @@ var Map3DViewer = class {
     this._listen(this.container, "pointermove", (e) => this._onPointerMove(e));
     this._listen(this.container, "pointerleave", () => this._setHover(null));
     this._listen(this.canvas, "webglcontextrestored", () => {
-      for (const texture of [
-        this._texture,
-        this._label_texture,
-        this._space_texture
-      ]) {
-        if (texture)
-          texture.needsUpdate = true;
-      }
+      this._renderMapImage();
       this._invalidate();
     });
     this._onResize();
@@ -34845,13 +34838,14 @@ var Map3DViewer = class {
     const [floor, labels, spaces] = await Promise.all([
       this._rasterise(svg_text, width, height, FLOOR_CSS),
       has_labels ? this._rasterise(svg_text, width, height, LABEL_CSS) : null,
-      has_spaces ? this._rasterise(svg_text, width, height, SPACE_CSS) : null
+      // Spaces are flat fills, so half the size loses only edge sharpness
+      has_spaces ? this._rasterise(svg_text, Math.max(1, Math.round(width / 2)), Math.max(1, Math.round(height / 2)), SPACE_CSS) : null
     ]);
     if (generation !== this._image_generation || this._destroyed)
       return;
     if (!floor)
       return console.error("Failed to load map image");
-    this.map_image = floor;
+    this.map_image = { width: floor.width, height: floor.height };
     (_b = this._texture) == null ? void 0 : _b.dispose();
     this._texture = this._textureOf(floor);
     for (const mesh of [this._floor, this._solid, this._glass]) {
@@ -34879,8 +34873,16 @@ var Map3DViewer = class {
     this._labels.visible = !!labels;
     this._invalidate();
   }
+  /**
+   * A texture of a canvas. The canvas is emptied once the GPU has it, as
+   * nothing reads it again; a lost WebGL context draws the map again.
+   */
   _textureOf(canvas) {
     const texture = new CanvasTexture(canvas);
+    texture.onUpdate = () => {
+      canvas.width = 0;
+      canvas.height = 0;
+    };
     texture.colorSpace = SRGBColorSpace;
     texture.anisotropy = this._renderer.capabilities.getMaxAnisotropy();
     texture.minFilter = LinearMipmapLinearFilter;
@@ -35177,5 +35179,5 @@ export {
   turnAbout,
   turnTarget
 };
-//# debugId=e1a6cb0a-0b06-5f29-b92d-adf17e78a5c4
-//# sourceMappingURL=viewer-P2TISLMQ.js.map
+//# debugId=d7a837a9-3399-5800-9904-9e94607cf829
+//# sourceMappingURL=viewer-F5KCXRIZ.js.map
