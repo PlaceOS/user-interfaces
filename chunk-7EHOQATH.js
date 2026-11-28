@@ -5660,15 +5660,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "0f7537f",
-  "hash": "0f7537f",
+  "raw": "c0010c2",
+  "hash": "c0010c2",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "0f7537f",
+  "suffix": "c0010c2",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795852003365
+  "time": 1795881615516
 };
 
 // libs/common/src/lib/placeos.ts
@@ -7648,5 +7648,5 @@ export {
   themedLogo,
   SettingsService
 };
-//# debugId=a075abd0-5004-5bdf-ad52-0478790c1d00
-//# sourceMappingURL=chunk-3QUSSKPD.js.map
+//# debugId=f4fa8410-2462-5893-845d-605b715c9207
+//# sourceMappingURL=chunk-7EHOQATH.js.map
