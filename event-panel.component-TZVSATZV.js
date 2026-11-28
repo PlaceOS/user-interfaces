@@ -2,7 +2,7 @@ import {
   AuthenticatedImageDirective,
   PanelStateService,
   dayTimeFormat
-} from "./chunk-D6GEPBXA.js";
+} from "./chunk-SLD6J42G.js";
 import "./chunk-YRS34B4W.js";
 import "./chunk-6SVTW7BM.js";
 import {
@@ -11,20 +11,20 @@ import {
 import "./chunk-V7ZB2DHD.js";
 import "./chunk-LD3NN2QZ.js";
 import "./chunk-XPXIQO3T.js";
-import "./chunk-TYMHIYHK.js";
-import "./chunk-F2GDWNLO.js";
+import "./chunk-T6SWTMNY.js";
+import "./chunk-GQJFJNHH.js";
 import {
   TranslatePipe
-} from "./chunk-CQ6QFVRP.js";
+} from "./chunk-BYUP2VRA.js";
 import {
   OrganisationService
-} from "./chunk-LQRP5RHQ.js";
+} from "./chunk-O6YLBH3X.js";
 import {
   AsyncHandler,
   SettingsService,
   startOfMinute,
   themedLogo
-} from "./chunk-IRQRS4TO.js";
+} from "./chunk-DFV3ZWU5.js";
 import "./chunk-PGER6XBG.js";
 import "./chunk-NRYDNNQ3.js";
 import "./chunk-JNAOAAEL.js";
@@ -553,4 +553,4 @@ export {
   EventPanelComponent
 };
 //# debugId=73081770-8080-50fa-a0dd-d27ab73dbe87
-//# sourceMappingURL=event-panel.component-ULL4HLYB.js.map
+//# sourceMappingURL=event-panel.component-TZVSATZV.js.map
