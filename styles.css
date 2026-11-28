@@ -2704,6 +2704,9 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .top-1\/2 {
   top: calc(1 / 2 * 100%);
 }
+#placeos .top-1\/3 {
+  top: calc(1 / 3 * 100%);
+}
 #placeos .top-2 {
   top: calc(var(--spacing) * 2);
 }
@@ -3285,6 +3288,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-28 {
   height: calc(var(--spacing) * 28);
+}
+#placeos .h-30 {
+  height: calc(var(--spacing) * 30);
 }
 #placeos .h-32 {
   height: calc(var(--spacing) * 32);
@@ -4014,6 +4020,12 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .-translate-y-full {
   --tw-translate-y: -100%;
   translate: var(--tw-translate-x) var(--tw-translate-y);
+}
+#placeos .scale-75 {
+  --tw-scale-x: 75%;
+  --tw-scale-y: 75%;
+  --tw-scale-z: 75%;
+  scale: var(--tw-scale-x) var(--tw-scale-y);
 }
 #placeos .scale-150 {
   --tw-scale-x: 150%;
@@ -4908,8 +4920,36 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .bg-white\/30 {
   background-color: color-mix(in oklab, #ffffff 30%, transparent);
 }
+#placeos .bg-linear-to-t {
+  --tw-gradient-position: to top;
+}
+@supports (background-image: linear-gradient(in lab, red, red)) {
+  #placeos .bg-linear-to-t {
+    --tw-gradient-position: to top in oklab;
+  }
+}
+#placeos .bg-linear-to-t {
+  background-image: linear-gradient(var(--tw-gradient-stops));
+}
 #placeos .bg-none {
   background-image: none;
+}
+#placeos .from-black\/80 {
+  --tw-gradient-from: color-mix(in oklab, #000000 80%, transparent);
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+}
+#placeos .via-black\/50 {
+  --tw-gradient-via: color-mix(in oklab, #000000 50%, transparent);
+  --tw-gradient-via-stops:
+    var(--tw-gradient-position),
+    var(--tw-gradient-from) var(--tw-gradient-from-position),
+    var(--tw-gradient-via) var(--tw-gradient-via-position),
+    var(--tw-gradient-to) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-via-stops);
+}
+#placeos .to-transparent {
+  --tw-gradient-to: transparent;
+  --tw-gradient-stops: var(--tw-gradient-via-stops, var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
 }
 #placeos .bg-cover {
   background-size: cover;
@@ -7099,6 +7139,15 @@ select:focus-visible,
 @property --tw-divide-x-reverse { syntax: "*"; inherits: false; initial-value: 0; }
 @property --tw-border-style { syntax: "*"; inherits: false; initial-value: solid; }
 @property --tw-divide-y-reverse { syntax: "*"; inherits: false; initial-value: 0; }
+@property --tw-gradient-position { syntax: "*"; inherits: false; }
+@property --tw-gradient-from { syntax: "<color>"; inherits: false; initial-value: #0000; }
+@property --tw-gradient-via { syntax: "<color>"; inherits: false; initial-value: #0000; }
+@property --tw-gradient-to { syntax: "<color>"; inherits: false; initial-value: #0000; }
+@property --tw-gradient-stops { syntax: "*"; inherits: false; }
+@property --tw-gradient-via-stops { syntax: "*"; inherits: false; }
+@property --tw-gradient-from-position { syntax: "<length-percentage>"; inherits: false; initial-value: 0%; }
+@property --tw-gradient-via-position { syntax: "<length-percentage>"; inherits: false; initial-value: 50%; }
+@property --tw-gradient-to-position { syntax: "<length-percentage>"; inherits: false; initial-value: 100%; }
 @property --tw-leading { syntax: "*"; inherits: false; }
 @property --tw-font-weight { syntax: "*"; inherits: false; }
 @property --tw-tracking { syntax: "*"; inherits: false; }
@@ -7197,6 +7246,15 @@ select:focus-visible,
       --tw-divide-x-reverse: 0;
       --tw-border-style: solid;
       --tw-divide-y-reverse: 0;
+      --tw-gradient-position: initial;
+      --tw-gradient-from: #0000;
+      --tw-gradient-via: #0000;
+      --tw-gradient-to: #0000;
+      --tw-gradient-stops: initial;
+      --tw-gradient-via-stops: initial;
+      --tw-gradient-from-position: 0%;
+      --tw-gradient-via-position: 50%;
+      --tw-gradient-to-position: 100%;
       --tw-leading: initial;
       --tw-font-weight: initial;
       --tw-tracking: initial;
