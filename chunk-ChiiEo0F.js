@@ -1,0 +1,1 @@
+import{t as Fo}from"./main-DUYG4TA6.js";function n(){Fo(`MOCKS`,`No mocks available in production`)}export{n as mocksInit};
