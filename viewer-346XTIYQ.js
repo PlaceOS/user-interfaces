@@ -33962,6 +33962,15 @@ function turnAbout(point, centre, degrees) {
     centre[1] - x * Math.sin(angle) + z * Math.cos(angle)
   ];
 }
+function panCentre(centre, zoom, bearing, aspect2, across, down) {
+  const step = 0.1 / zoom;
+  const angle = bearing * Math.PI / 180;
+  const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+  return {
+    x: centre.x + step * (across * cos - down * sin),
+    y: centre.y + step * aspect2 * (across * sin + down * cos)
+  };
+}
 function reducedMotion() {
   return typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 }
@@ -34205,6 +34214,8 @@ var Map3DViewer = class {
     if (this._map_path !== path || this._destroyed)
       return;
     this.setMapData(map);
+    if (!await this.draw())
+      throw new Error("Failed to draw the map");
   }
   /**
    * Show a map that is already loaded.
@@ -34213,7 +34224,21 @@ var Map3DViewer = class {
   setMapData(map, parsed) {
     this.map = map;
     this.parsed = parsed || parseMap(map.raw_data);
+    this._image_generation++;
+    this._setTextures(null, null, null);
     this.refresh();
+  }
+  /**
+   * Draw the map's textures now, not on the next frame. Resolves `false`
+   * when the browser cannot draw the map, and `true` when drawn or when a
+   * later change replaced this drawing.
+   */
+  draw() {
+    if (this._image_frame_id !== null) {
+      cancelAnimationFrame(this._image_frame_id);
+      this._image_frame_id = null;
+    }
+    return this._doRenderMapImage();
   }
   /**
    * Rebuild the raised elements from the annotations on the parsed map.
@@ -34381,6 +34406,11 @@ var Map3DViewer = class {
   }
   setDebugHighlight(ref) {
     this.debug_info.highlight_id = ref;
+  }
+  /** Pan along the screen, in steps of a tenth of the view. */
+  panBy(across, down) {
+    this.setCenter(panCentre(this.center, this.zoom, this.bearing, this.aspect, across, down));
+    this._notifyViewChange();
   }
   focusOn(ref) {
     const bounds = this.map?.element_bounds.get(ref);
@@ -34754,9 +34784,10 @@ var Map3DViewer = class {
       this._doRenderMapImage();
     });
   }
+  /** Draw the textures. Resolves `false` only when the floor cannot be drawn. */
   async _doRenderMapImage() {
     if (!this.map?.raw_data || !this.parsed)
-      return;
+      return true;
     const generation = ++this._image_generation;
     const { width, height } = this._textureSize();
     const has_labels = !!this.parsed.svg.querySelector(`[${KIND_ATTR}="label"]`);
@@ -34768,18 +34799,26 @@ var Map3DViewer = class {
       // Spaces are flat fills, so half the size loses only edge sharpness
       has_spaces ? this._rasterise(svg_text, Math.max(1, Math.round(width / 2)), Math.max(1, Math.round(height / 2)), SPACE_CSS) : null
     ]);
-    if (generation !== this._image_generation || this._destroyed)
-      return;
-    if (!floor)
-      return console.error("Failed to load map image");
-    this.map_image = { width: floor.width, height: floor.height };
+    if (generation !== this._image_generation || this._destroyed) {
+      return true;
+    }
+    if (!floor) {
+      console.error("Failed to load map image");
+      return false;
+    }
+    this._setTextures(floor, spaces, labels);
+    return true;
+  }
+  /** Replace the textures. A layer with no canvas is not drawn. */
+  _setTextures(floor, spaces, labels) {
+    this.map_image = floor ? { width: floor.width, height: floor.height } : null;
     this._texture?.dispose();
-    this._texture = this._textureOf(floor);
+    this._texture = floor ? this._textureOf(floor) : null;
     for (const mesh of [this._floor, this._solid, this._glass]) {
       mesh.material.map = this._texture;
       mesh.material.needsUpdate = true;
     }
-    this._floor.visible = true;
+    this._floor.visible = !!floor;
     this._space_texture?.dispose();
     this._space_texture = null;
     if (spaces) {
@@ -35098,9 +35137,10 @@ ${css}`;
 export {
   DEFAULT_TILT,
   Map3DViewer,
+  panCentre,
   shapeContains,
   turnAbout,
   turnTarget
 };
-//# debugId=e03244b2-8850-5903-9a1e-9590ac617bae
-//# sourceMappingURL=viewer-22GV32QO.js.map
+//# debugId=2e4b9c92-ff6b-58e5-91d4-83c4444179ef
+//# sourceMappingURL=viewer-346XTIYQ.js.map

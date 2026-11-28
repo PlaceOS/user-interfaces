@@ -6905,15 +6905,15 @@ var DEFAULT_SETTINGS = {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "01a45bd",
-  "hash": "01a45bd",
+  "raw": "0f7537f",
+  "hash": "0f7537f",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "01a45bd",
+  "suffix": "0f7537f",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795843103774
+  "time": 1795851918550
 };
 
 // libs/common/src/lib/placeos.ts
@@ -9119,6 +9119,7 @@ export {
   notifySuccess,
   notifyError,
   notifyWarn,
+  notifyInfo,
   LOCAL_TIMEZONE,
   localToTimezone,
   startOfDayInTimezone,
@@ -9230,5 +9231,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=6b15d856-4139-5ffc-8db5-8fe4ebfacfd1
-//# sourceMappingURL=chunk-V2AQYBTJ.js.map
+//# debugId=57cb2892-f98c-51cf-84e1-aea1ca0c9f14
+//# sourceMappingURL=chunk-EBNBNZC3.js.map
