@@ -2366,6 +2366,7 @@ html {
   --text-8xl--line-height: 1;
   --font-weight-normal: 400;
   --font-weight-medium: 500;
+  --font-weight-semibold: 600;
   --font-weight-bold: 700;
   --tracking-wider: 0.05em;
   --leading-tight: 1.25;
@@ -3168,6 +3169,9 @@ input:where([type=button], [type=reset], [type=submit]),
 }
 #placeos .h-28 {
   height: calc(var(--spacing) * 28);
+}
+#placeos .h-30 {
+  height: calc(var(--spacing) * 30);
 }
 #placeos .h-32 {
   height: calc(var(--spacing) * 32);
@@ -4735,6 +4739,10 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .font-normal {
   --tw-font-weight: var(--font-weight-normal);
   font-weight: var(--font-weight-normal);
+}
+#placeos .font-semibold {
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
 }
 #placeos .tracking-wider {
   --tw-tracking: var(--tracking-wider);

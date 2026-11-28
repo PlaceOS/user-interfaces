@@ -1,4 +1,11 @@
 import {
+  MatTooltip,
+  MatTooltipModule
+} from "./chunk-ARPRPAVO.js";
+import {
+  CustomTooltipComponent
+} from "./chunk-5OL7TFX7.js";
+import {
   MatMenu,
   MatMenuItem,
   MatMenuModule,
@@ -29,13 +36,6 @@ import {
   MatSuffix
 } from "./chunk-5BOIFWXM.js";
 import {
-  CustomTooltipComponent
-} from "./chunk-5OL7TFX7.js";
-import {
-  MatTooltip,
-  MatTooltipModule
-} from "./chunk-ARPRPAVO.js";
-import {
   ErrorStateMatcher,
   MAT_OPTGROUP,
   MAT_OPTION_PARENT_COMPONENT,
@@ -57,25 +57,16 @@ import {
   orderLocation,
   requestSpacesForZone,
   subDays
-} from "./chunk-MUNSXYAF.js";
+} from "./chunk-HXWLHTIL.js";
 import {
   AnnounceDirective
 } from "./chunk-O2GWJOFJ.js";
-import {
-  TranslatePipe
-} from "./chunk-FHLLKAVB.js";
-import {
-  FORM_FIELD,
-  FormField,
-  form,
-  required
-} from "./chunk-CCPVKGTT.js";
 import {
   Clipboard,
   OrganisationService,
   PushNotificationService,
   UploadsService
-} from "./chunk-BUSML3OX.js";
+} from "./chunk-A2RNZ6JF.js";
 import {
   AssetRequest,
   CalendarEvent,
@@ -101,7 +92,10 @@ import {
   toJsonValue,
   token,
   user_group_names
-} from "./chunk-E3XO2FFS.js";
+} from "./chunk-H3ZW6WJV.js";
+import {
+  TranslatePipe
+} from "./chunk-FHLLKAVB.js";
 import {
   AsyncHandler,
   CallFailed,
@@ -175,6 +169,12 @@ import {
   unique,
   warnOrThrowProtectedError
 } from "./chunk-MPKWKRGC.js";
+import {
+  FORM_FIELD,
+  FormField,
+  form,
+  required
+} from "./chunk-CCPVKGTT.js";
 import "./chunk-COFQG2BS.js";
 import {
   DefaultValueAccessor,
@@ -22021,5 +22021,5 @@ var CateringComponent = class _CateringComponent {
 export {
   CateringComponent
 };
-//# debugId=461f6075-b50d-5489-a15a-b9289f601c7c
-//# sourceMappingURL=catering.component-BJTJTU3M.js.map
+//# debugId=efb0ad75-531a-510d-9709-66bbbe626615
+//# sourceMappingURL=catering.component-XRACIXXW.js.map

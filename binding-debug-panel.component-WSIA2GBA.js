@@ -1,12 +1,12 @@
 import {
+  DebugPanelResize
+} from "./chunk-RB5GLZX2.js";
+import {
   binding_records,
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-UKCR5TLA.js";
-import {
-  DebugPanelResize
-} from "./chunk-RB5GLZX2.js";
+} from "./chunk-3GMDLNYB.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -14,10 +14,10 @@ import {
 import "./chunk-O5BFB2JT.js";
 import {
   Clipboard
-} from "./chunk-BUSML3OX.js";
+} from "./chunk-A2RNZ6JF.js";
 import {
   HotkeysService
-} from "./chunk-E3XO2FFS.js";
+} from "./chunk-H3ZW6WJV.js";
 import {
   AsyncHandler,
   orThrow,
@@ -1920,4 +1920,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=6b7575db-43b4-5c58-9319-8174f8aba00d
-//# sourceMappingURL=binding-debug-panel.component-6EXRTFVN.js.map
+//# sourceMappingURL=binding-debug-panel.component-WSIA2GBA.js.map

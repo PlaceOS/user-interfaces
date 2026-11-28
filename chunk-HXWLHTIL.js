@@ -1,13 +1,13 @@
 import {
-  TranslatePipe
-} from "./chunk-FHLLKAVB.js";
-import {
   OrganisationService
-} from "./chunk-BUSML3OX.js";
+} from "./chunk-A2RNZ6JF.js";
 import {
   SettingsService,
   Space
-} from "./chunk-E3XO2FFS.js";
+} from "./chunk-H3ZW6WJV.js";
+import {
+  TranslatePipe
+} from "./chunk-FHLLKAVB.js";
 import {
   addDays,
   orThrow,
@@ -781,4 +781,4 @@ export {
   CateringOrderDocketsComponent
 };
 //# debugId=960e9582-9796-5e16-b3cd-96139aaaf729
-//# sourceMappingURL=chunk-MUNSXYAF.js.map
+//# sourceMappingURL=chunk-HXWLHTIL.js.map

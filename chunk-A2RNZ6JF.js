@@ -34,7 +34,7 @@ import {
   token,
   waitForCurrentUser,
   waitForOnline
-} from "./chunk-E3XO2FFS.js";
+} from "./chunk-H3ZW6WJV.js";
 import {
   AsyncHandler,
   LocaleService,
@@ -2478,7 +2478,8 @@ function scrubEnvelope(envelope) {
 var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
 var IGNORED_ERRORS = [
   /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
-  /^Non-Error promise rejection captured with value: cannot communicate with background$/
+  /^Non-Error promise rejection captured with value: cannot communicate with background$/,
+  /^Invalid call to runtime\.sendMessage\(\)\. Tab not found\.$/
 ];
 function sampleRate(value, fallback) {
   return typeof value === "number" ? value : fallback;
@@ -3415,6 +3416,20 @@ var OrganisationService = class _OrganisationService {
         []
       )
     );
+    this._settings_applied_for = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_settings_applied_for" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_settings_ready = computed(
+      () => this.active_building_loaded() && this._settings_applied_for() === (this._active_building()?.id || ""),
+      ...ngDevMode ? [{ debugName: "active_settings_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.active_buildings = computed(
       () => {
         const region = this._active_region();
@@ -3820,6 +3835,9 @@ var OrganisationService = class _OrganisationService {
     bld.booking_rules = booking_rules;
     this._loaded_data[bld.id] = true;
     this._loaded_buildings.update((ids) => ids.includes(bld.id) ? ids : [...ids, bld.id]);
+    if (bld.id === this._settings_applied_for()) {
+      this._settings_applied_for.set(null);
+    }
     this._updateSettingOverrides();
     if (from_cache)
       this._refresh(() => this.loadBuildingData(bld));
@@ -3861,6 +3879,7 @@ var OrganisationService = class _OrganisationService {
       this._override_timer = null;
     }
     this._service.setOverrides([...this._settings]);
+    this._settings_applied_for.set(null);
     if (!this._refreshing)
       await this._setDefaultBuilding();
     this._updateSettingOverrides();
@@ -3995,11 +4014,15 @@ var OrganisationService = class _OrganisationService {
       clearTimeout(this._override_timer);
     if (this._destroyed)
       return;
-    this._override_timer = setTimeout(() => this._service.setOverrides([
-      this.buildingSettings(this.building?.id),
-      this.regionSettings(this.region?.id),
-      ...this._settings
-    ]), 300);
+    this._override_timer = setTimeout(() => {
+      const building_id = this.building?.id || "";
+      this._service.setOverrides([
+        this.buildingSettings(building_id),
+        this.regionSettings(this.region?.id),
+        ...this._settings
+      ]);
+      this._settings_applied_for.set(this.active_building_loaded() ? building_id : null);
+    }, 300);
   }
   async _bulkMetadataDetails(name, ids) {
     const parent_ids = ids.filter(Boolean);
@@ -4250,5 +4273,5 @@ export {
   PushNotificationService,
   toQueryString
 };
-//# debugId=c0226121-3244-568e-9c91-d2bc32cdc7ca
-//# sourceMappingURL=chunk-BUSML3OX.js.map
+//# debugId=4741c564-6e23-54dc-8e27-b66e1b295d8c
+//# sourceMappingURL=chunk-A2RNZ6JF.js.map

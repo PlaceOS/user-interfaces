@@ -1,11 +1,8 @@
 import "./chunk-O5BFB2JT.js";
 import {
-  TranslatePipe
-} from "./chunk-FHLLKAVB.js";
-import {
   OrganisationService,
   getModule
-} from "./chunk-BUSML3OX.js";
+} from "./chunk-A2RNZ6JF.js";
 import {
   SettingsService,
   User,
@@ -14,7 +11,10 @@ import {
   current_user,
   settingSignal,
   token
-} from "./chunk-E3XO2FFS.js";
+} from "./chunk-H3ZW6WJV.js";
+import {
+  TranslatePipe
+} from "./chunk-FHLLKAVB.js";
 import {
   AsyncHandler,
   differenceInMinutes,
@@ -3259,4 +3259,4 @@ export {
   ChatComponent
 };
 //# debugId=530153e3-27e7-5821-a2d6-179711e9e30b
-//# sourceMappingURL=chat.component-KTGFHD6E.js.map
+//# sourceMappingURL=chat.component-SJQBM6E7.js.map

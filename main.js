@@ -4,14 +4,10 @@ import {
   MatProgressBarModule,
   generateMockSpace,
   subDays
-} from "./chunk-MUNSXYAF.js";
+} from "./chunk-HXWLHTIL.js";
 import {
   AnnounceDirective
 } from "./chunk-O2GWJOFJ.js";
-import {
-  TranslatePipe
-} from "./chunk-FHLLKAVB.js";
-import "./chunk-CCPVKGTT.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -37,7 +33,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-BUSML3OX.js";
+} from "./chunk-A2RNZ6JF.js";
 import {
   GroupPermission,
   SettingsService,
@@ -55,7 +51,10 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-E3XO2FFS.js";
+} from "./chunk-H3ZW6WJV.js";
+import {
+  TranslatePipe
+} from "./chunk-FHLLKAVB.js";
 import {
   AsyncHandler,
   addDays,
@@ -76,6 +75,7 @@ import {
   toDate,
   unique
 } from "./chunk-MPKWKRGC.js";
+import "./chunk-CCPVKGTT.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
@@ -6888,7 +6888,10 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterContentByGroup(MOCK_MEDIA, request.query_params).map(toEngineMedia)
+    callback: (request) => {
+      const tags = String(request.query_params.tags || "").split(",").filter((tag) => !!tag);
+      return filterContentByGroup(MOCK_MEDIA, request.query_params).filter((item) => !tags.length || (item.tags || []).some((tag) => tags.includes(tag))).map(toEngineMedia);
+    }
   });
   registerMockEndpoint2({
     path: "/api/engine/v2/signage/media/tags",
@@ -11005,11 +11008,11 @@ function mocksInit() {
 // apps/caterer-ui/src/app/app.component.ts
 var AppComponent_Defer_6_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-KTGFHD6E.js").then((m) => m.ChatComponent)
+  import("./chat.component-SJQBM6E7.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_11_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-RFOWXXXK.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-BESKTITE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_4_Template(rf, ctx) {
   if (rf & 1) {
@@ -11074,9 +11077,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-KTGFHD6E.js").then((m) => m.ChatComponent),
+    import("./chat.component-SJQBM6E7.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-RFOWXXXK.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-BESKTITE.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11124,7 +11127,7 @@ var environment = {
 };
 
 // apps/caterer-ui/src/app/app.routes.ts
-var loadCatering = () => import("./catering.component-BJTJTU3M.js").then((m) => m.CateringComponent);
+var loadCatering = () => import("./catering.component-XRACIXXW.js").then((m) => m.CateringComponent);
 var routes = [
   {
     path: "unauthorised",
@@ -11163,5 +11166,5 @@ if (environment.production) {
   enableProdMode();
 }
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=b57ec809-1883-5ff2-8872-bae78d1d06a4
+//# debugId=33891b2e-9bba-586c-a2c7-df4e4c43e42d
 //# sourceMappingURL=main.js.map
