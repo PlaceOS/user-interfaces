@@ -26,8 +26,13 @@ class FakeViewer {
     public turnBy = vi.fn();
     public setZoom = vi.fn();
     public resetView = vi.fn();
+    public panBy = vi.fn();
+    public draw = vi.fn(async () => draws);
     public destroy = vi.fn();
 }
+
+/** What the fake viewer's draw() resolves to */
+let draws = true;
 
 const MAP =
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">' +
@@ -106,6 +111,7 @@ describe('Map3DPageComponent', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         map_text = MAP;
+        draws = true;
     });
 
     afterEach(() => spectator?.fixture.destroy());
@@ -202,5 +208,64 @@ describe('Map3DPageComponent', () => {
         expect(viewer.setAngles).toHaveBeenLastCalledWith(0, 0);
         spectator.component.setPlanView(false);
         expect(viewer.setAngles).toHaveBeenLastCalledWith(48, 0);
+    });
+
+    it('shows a load error when the browser cannot draw the map', async () => {
+        draws = false;
+        await mount();
+        expect(spectator.component.ready()).toBe(false);
+        expect(spectator.component.error()).toContain(
+            'APP.CONCIERGE.MAPS_3D_DRAW_ERROR',
+        );
+    });
+
+    it('does not save when it cannot check the map on the server', async () => {
+        await mount();
+        const { component } = spectator;
+        manager['currentMapId'].mockRejectedValue(new Error('offline'));
+        await component.save();
+        expect(manager['saveLevelMap']).not.toHaveBeenCalled();
+        expect(component.dirty()).toBe(true);
+    });
+
+    it('lists the parts of an expanded group and adds one with shift', async () => {
+        await mount();
+        const { component } = spectator;
+        const [furniture] = component
+            .layers()
+            .filter((_) => _.name === 'furniture');
+        component.selectElement(furniture.element);
+        component.toggleLayer(furniture.element);
+        spectator.detectChanges();
+        const part = spectator.query<HTMLButtonElement>(
+            '[layer-shape] button',
+        )!;
+        expect(part).toHaveText('table-1');
+        part.dispatchEvent(new MouseEvent('click', { shiftKey: true }));
+        expect(component.targets().map((_) => _.id)).toEqual([
+            'furniture',
+            'table-1',
+        ]);
+        part.dispatchEvent(new MouseEvent('click', { shiftKey: true }));
+        expect(component.targets().map((_) => _.id)).toEqual(['furniture']);
+    });
+
+    it('pans the preview with the arrow keys', async () => {
+        await mount();
+        const preview = spectator.query<HTMLElement>('[preview]')!;
+        expect(preview.tabIndex).toBe(0);
+        preview.dispatchEvent(
+            new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true }),
+        );
+        expect(viewer.panBy).toHaveBeenCalledWith(-1, 0);
+    });
+
+    it('moves focus to the preview when the selection is cleared', async () => {
+        await mount();
+        const { component } = spectator;
+        component.selectElement(component.layers()[0].element);
+        spectator.detectChanges();
+        spectator.click('[clear-selection]');
+        expect(document.activeElement).toBe(spectator.query('[preview]'));
     });
 });

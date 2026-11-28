@@ -117,6 +117,16 @@ describe('MapEditorPageComponent', () => {
         await settle();
     }
 
+    it('does not save when it cannot check the map on the server', async () => {
+        await mount(async () => CAPABILITIES);
+        const session = spectator.component.session()!;
+        vi.spyOn(session, 'dirty').mockReturnValue(true);
+        manager['currentMapId'].mockRejectedValue(new Error('offline'));
+        await spectator.component.save();
+        expect(manager['saveLevelMap']).not.toHaveBeenCalled();
+        expect(spectator.component.saving()).toBe('');
+    });
+
     it('mounts the AI panel in the editor on the level session', async () => {
         await mount(async () => CAPABILITIES);
         const session = spectator.component.session();

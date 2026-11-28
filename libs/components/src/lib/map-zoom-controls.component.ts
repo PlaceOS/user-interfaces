@@ -1,5 +1,6 @@
 import { Component, input, model, output } from '@angular/core';
 import { MatRippleModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { IconComponent } from './icon.component';
@@ -20,17 +21,22 @@ export const MAP_ZOOM_STEP = 1.25;
                     matRipple
                     toggle-3d
                     [matTooltip]="
-                        (mode() === '3d'
-                            ? 'EXPLORE.VIEW_2D'
-                            : 'EXPLORE.VIEW_3D'
+                        (loading3d()
+                            ? 'EXPLORE.VIEW_3D_LOADING'
+                            : mode() === '3d'
+                              ? 'EXPLORE.VIEW_2D'
+                              : 'EXPLORE.VIEW_3D'
                         ) | translate
                     "
                     [attr.aria-label]="
-                        (mode() === '3d'
-                            ? 'EXPLORE.VIEW_2D'
-                            : 'EXPLORE.VIEW_3D'
+                        (loading3d()
+                            ? 'EXPLORE.VIEW_3D_LOADING'
+                            : mode() === '3d'
+                              ? 'EXPLORE.VIEW_2D'
+                              : 'EXPLORE.VIEW_3D'
                         ) | translate
                     "
+                    [attr.aria-busy]="loading3d()"
                     matTooltipPosition="left"
                     class="hover:bg-base-200 text-sm font-semibold"
                     (click)="
@@ -38,9 +44,14 @@ export const MAP_ZOOM_STEP = 1.25;
                         $event.stopPropagation()
                     "
                 >
-                    {{ mode() === '3d' ? '2D' : '3D' }}
+                    @if (loading3d()) {
+                        <mat-spinner class="mx-auto" [diameter]="16" />
+                    } @else {
+                        {{ mode() === '3d' ? '2D' : '3D' }}
+                    }
                 </button>
-                @if (mode() === '3d') {
+                <!-- The 3D controls do nothing until the 3D view is on show -->
+                @if (mode() === '3d' && !loading3d()) {
                     <button
                         icon
                         matRipple
@@ -136,7 +147,13 @@ export const MAP_ZOOM_STEP = 1.25;
             }
         `,
     ],
-    imports: [IconComponent, TranslatePipe, MatRippleModule, MatTooltipModule],
+    imports: [
+        IconComponent,
+        TranslatePipe,
+        MatRippleModule,
+        MatTooltipModule,
+        MatProgressSpinnerModule,
+    ],
 })
 export class MapZoomControlsComponent {
     public readonly step = MAP_ZOOM_STEP;
@@ -147,6 +164,8 @@ export class MapZoomControlsComponent {
     public isometric = model(false);
     /** Whether the map on show has a 3D view to switch to */
     public can3d = input(false);
+    /** Whether the 3D view is still loading after the switch to it */
+    public loading3d = input(false);
     /** Degrees clockwise to turn the 3D view by */
     public rotate = output<number>();
 }

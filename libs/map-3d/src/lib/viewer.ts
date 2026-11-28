@@ -226,6 +226,32 @@ export function turnAbout(
     ];
 }
 
+/**
+ * The centre of the view after a keyboard pan along the screen. A step is a
+ * tenth of the view. The step turns with the view in map units, then is
+ * scaled to each axis, so it goes straight across the screen of any map.
+ * @param bearing Degrees the view is turned, as `Map3DViewer.bearing`
+ * @param aspect Width over depth of the map
+ * @param across Steps to the right of the screen
+ * @param down Steps down the screen
+ */
+export function panCentre(
+    centre: Map3DPoint,
+    zoom: number,
+    bearing: number,
+    aspect: number,
+    across: number,
+    down: number,
+): Map3DPoint {
+    const step = 0.1 / zoom;
+    const angle = (bearing * Math.PI) / 180;
+    const [cos, sin] = [Math.cos(angle), Math.sin(angle)];
+    return {
+        x: centre.x + step * (across * cos - down * sin),
+        y: centre.y + step * aspect * (across * sin + down * cos),
+    };
+}
+
 function reducedMotion(): boolean {
     return (
         typeof window !== 'undefined' &&
@@ -614,6 +640,7 @@ export class Map3DViewer {
         const map = await this._load(path);
         if (this._map_path !== path || this._destroyed) return;
         this.setMapData(map);
+        if (!(await this.draw())) throw new Error('Failed to draw the map');
     }
 
     /**
@@ -623,7 +650,23 @@ export class Map3DViewer {
     public setMapData(map: Map3DDetails, parsed?: ParsedMap) {
         this.map = map;
         this.parsed = parsed || parseMap(map.raw_data);
+        // The previous map's textures do not fit this one
+        this._image_generation++;
+        this._setTextures(null, null, null);
         this.refresh();
+    }
+
+    /**
+     * Draw the map's textures now, not on the next frame. Resolves `false`
+     * when the browser cannot draw the map, and `true` when drawn or when a
+     * later change replaced this drawing.
+     */
+    public draw(): Promise<boolean> {
+        if (this._image_frame_id !== null) {
+            cancelAnimationFrame(this._image_frame_id);
+            this._image_frame_id = null;
+        }
+        return this._doRenderMapImage();
     }
 
     /**
@@ -823,6 +866,21 @@ export class Map3DViewer {
 
     public setDebugHighlight(ref: string) {
         this.debug_info.highlight_id = ref;
+    }
+
+    /** Pan along the screen, in steps of a tenth of the view. */
+    public panBy(across: number, down: number) {
+        this.setCenter(
+            panCentre(
+                this.center,
+                this.zoom,
+                this.bearing,
+                this.aspect,
+                across,
+                down,
+            ),
+        );
+        this._notifyViewChange();
     }
 
     public focusOn(ref: string) {
@@ -1283,8 +1341,9 @@ export class Map3DViewer {
         });
     }
 
-    private async _doRenderMapImage() {
-        if (!this.map?.raw_data || !this.parsed) return;
+    /** Draw the textures. Resolves `false` only when the floor cannot be drawn. */
+    private async _doRenderMapImage(): Promise<boolean> {
+        if (!this.map?.raw_data || !this.parsed) return true;
         const generation = ++this._image_generation;
         const { width, height } = this._textureSize();
         const has_labels = !!this.parsed.svg.querySelector(
@@ -1309,17 +1368,33 @@ export class Map3DViewer {
                   )
                 : null,
         ]);
-        if (generation !== this._image_generation || this._destroyed) return;
-        if (!floor) return console.error('Failed to load map image');
+        if (generation !== this._image_generation || this._destroyed) {
+            return true;
+        }
+        if (!floor) {
+            console.error('Failed to load map image');
+            return false;
+        }
+        this._setTextures(floor, spaces, labels);
+        return true;
+    }
 
-        this.map_image = { width: floor.width, height: floor.height };
+    /** Replace the textures. A layer with no canvas is not drawn. */
+    private _setTextures(
+        floor: HTMLCanvasElement | null,
+        spaces: HTMLCanvasElement | null,
+        labels: HTMLCanvasElement | null,
+    ) {
+        this.map_image = floor
+            ? { width: floor.width, height: floor.height }
+            : null;
         this._texture?.dispose();
-        this._texture = this._textureOf(floor);
+        this._texture = floor ? this._textureOf(floor) : null;
         for (const mesh of [this._floor, this._solid, this._glass]) {
             mesh.material.map = this._texture;
             mesh.material.needsUpdate = true;
         }
-        this._floor.visible = true;
+        this._floor.visible = !!floor;
 
         this._space_texture?.dispose();
         this._space_texture = null;

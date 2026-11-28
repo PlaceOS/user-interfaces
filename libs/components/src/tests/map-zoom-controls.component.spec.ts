@@ -59,6 +59,19 @@ describe('MapZoomControlsComponent', () => {
         expect(spectator.component.isometric()).toBe(false);
     });
 
+    it('should show the 3D view loading, without its controls', () => {
+        spectator.setInput({ can3d: true, mode: '3d', loading3d: true });
+        expect(spectator.query('[toggle-3d] mat-spinner')).toBeTruthy();
+        expect(spectator.query('[toggle-3d]')).toHaveAttribute(
+            'aria-busy',
+            'true',
+        );
+        expect(spectator.query('[rotate-left]')).toBeNull();
+        spectator.setInput('loading3d', false);
+        expect(spectator.query('[toggle-3d]')).toHaveText('2D');
+        expect(spectator.query('[rotate-left]')).toBeTruthy();
+    });
+
     it('should turn the 3D view an eighth of a circle at a time', () => {
         const turns: number[] = [];
         spectator.component.rotate.subscribe((degrees) => turns.push(degrees));

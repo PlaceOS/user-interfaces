@@ -103,7 +103,7 @@ function localised(
     },
     template: `
         <header
-            class="border-base-200 bg-base-100 flex h-16 flex-none items-center gap-3 border-b pr-4 pl-2"
+            class="border-base-200 bg-base-100 flex min-h-16 flex-none flex-wrap items-center gap-x-3 gap-y-1 border-b py-2 pr-4 pl-2"
         >
             <a
                 icon
@@ -143,7 +143,7 @@ function localised(
                     {{ 'APP.CONCIERGE.MAPS_CHANGED_ELSEWHERE' | translate }}
                 </span>
             }
-            <div class="ml-auto flex items-center gap-2">
+            <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
                 @if (session()) {
                     <p
                         class="mr-2 flex items-center gap-1.5 text-sm"
@@ -349,9 +349,8 @@ export class MapEditorPageComponent implements OnInit, HasUnsavedChanges {
         if (!session || !level || !session.dirty() || this.saving()) return;
         this.saving.set(i18n('COMMON.SAVING'));
         try {
-            const current_map_id = await this._manager
-                .currentMapId(level.id)
-                .catch(() => this._loaded_map_id);
+            // A failed lookup stops the save, which could replace a newer map
+            const current_map_id = await this._manager.currentMapId(level.id);
             if (current_map_id !== this._loaded_map_id) {
                 this.changed_elsewhere.set(true);
                 const ok = await this._confirm(

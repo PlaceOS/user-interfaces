@@ -195,6 +195,18 @@ describe('InteractiveMapComponent', () => {
             expect(spectator.component.mode()).toBe('2d');
         });
 
+        it('should keep the switch after a failed download and drop it where 3D cannot start', async () => {
+            await show(`/maps/${run}/raised.svg`);
+            spectator.component.setMode('3d');
+            spectator.component.on3dFailed('load');
+            expect(spectator.component.mode()).toBe('2d');
+            expect(spectator.component.can_3d()).toBe(true);
+            // The saved choice still asks for 3D next visit
+            expect(localStorage.getItem('PLACEOS.map_view_mode')).toBe('3d');
+            spectator.component.on3dFailed('unsupported');
+            expect(spectator.component.can_3d()).toBe(false);
+        });
+
         it('should stay in 2D on a map without its own switch back', async () => {
             spectator.setInput('options', {});
             spectator.component.setMode('3d');

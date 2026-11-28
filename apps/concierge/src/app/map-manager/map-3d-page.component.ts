@@ -92,7 +92,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
     },
     template: `
         <header
-            class="border-base-200 bg-base-100 flex h-16 flex-none items-center gap-3 border-b pr-4 pl-2"
+            class="border-base-200 bg-base-100 flex min-h-16 flex-none flex-wrap items-center gap-x-3 gap-y-1 border-b py-2 pr-4 pl-2"
         >
             <a
                 icon
@@ -115,7 +115,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                     {{ 'APP.CONCIERGE.MAPS_3D_SUBTITLE' | translate }}
                 </div>
             </div>
-            <div class="ml-auto flex items-center gap-2">
+            <div class="ml-auto flex flex-wrap items-center justify-end gap-2">
                 @if (ready()) {
                     <p
                         class="mr-2 flex items-center gap-1.5 text-sm"
@@ -221,9 +221,12 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 <p class="mt-2">{{ error() }}</p>
             </div>
         }
-        <div class="flex min-h-0 flex-1" [class.hidden]="!!error()">
+        <div
+            class="flex min-h-0 flex-1 flex-col md:flex-row"
+            [class.hidden]="!!error()"
+        >
             <aside
-                class="border-base-200 bg-base-100 flex w-80 flex-none flex-col overflow-y-auto border-r text-sm"
+                class="border-base-200 bg-base-100 flex max-h-[45%] w-full flex-none flex-col overflow-y-auto border-b text-sm md:max-h-none md:w-80 md:border-r md:border-b-0"
             >
                 @if (ready()) {
                     <section class="border-base-200 border-b p-4">
@@ -371,7 +374,10 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                     <button
                                         icon
                                         class="size-6 flex-none"
-                                        [class.invisible]="!layer.has_children"
+                                        [class.invisible]="
+                                            !layer.has_children &&
+                                            !layer_shapes().has(layer.element)
+                                        "
                                         [attr.aria-expanded]="
                                             expanded().has(layer.element)
                                         "
@@ -390,7 +396,15 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                     <button
                                         class="min-w-0 flex-1 truncate text-left"
                                         [title]="layer.name"
-                                        (click)="selectElement(layer.element)"
+                                        [attr.aria-pressed]="
+                                            isTarget(layer.element)
+                                        "
+                                        (click)="
+                                            selectElement(
+                                                layer.element,
+                                                $event.shiftKey
+                                            )
+                                        "
                                     >
                                         {{
                                             layer.name ||
@@ -455,15 +469,85 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                         }
                                     </select>
                                 </li>
+                                @if (expanded().has(layer.element)) {
+                                    @let shapes =
+                                        layer_shapes().get(layer.element) || [];
+                                    @for (
+                                        shape of shapes.slice(
+                                            0,
+                                            max_listed_shapes
+                                        );
+                                        track shape.index
+                                    ) {
+                                        <li
+                                            layer-shape
+                                            class="hover:bg-base-200 flex h-8 items-center rounded pr-1"
+                                            [class.bg-base-200]="
+                                                isTarget(shape.element)
+                                            "
+                                            [style.padding-left.rem]="
+                                                (layer.depth + 1) * 0.75 + 1.75
+                                            "
+                                        >
+                                            <button
+                                                class="min-w-0 flex-1 truncate text-left text-xs"
+                                                [attr.aria-pressed]="
+                                                    isTarget(shape.element)
+                                                "
+                                                (click)="
+                                                    selectElement(
+                                                        shape.element,
+                                                        $event.shiftKey
+                                                    )
+                                                "
+                                            >
+                                                {{ shapeName(shape) }}
+                                            </button>
+                                        </li>
+                                    }
+                                    @if (shapes.length > max_listed_shapes) {
+                                        <li
+                                            class="flex h-8 items-center text-xs opacity-70"
+                                            [style.padding-left.rem]="
+                                                (layer.depth + 1) * 0.75 + 1.75
+                                            "
+                                        >
+                                            {{
+                                                'APP.CONCIERGE.MAPS_3D_MORE_SHAPES'
+                                                    | translate
+                                                        : {
+                                                              count:
+                                                                  shapes.length -
+                                                                  max_listed_shapes,
+                                                          }
+                                            }}
+                                        </li>
+                                    }
+                                }
                             }
                         </ul>
+                        <p class="mt-2 text-xs leading-4 opacity-70">
+                            {{
+                                'APP.CONCIERGE.MAPS_3D_LAYERS_HINT' | translate
+                            }}
+                        </p>
                     </section>
                 } @else if (!error()) {
                     <div class="p-4 opacity-70">{{ loading() }}</div>
                 }
             </aside>
             <main class="bg-base-200 relative min-w-0 flex-1">
-                <div #map class="absolute inset-0"></div>
+                <div
+                    #map
+                    preview
+                    tabindex="0"
+                    role="region"
+                    class="focus-visible:outline-info absolute inset-0 focus-visible:outline-2 focus-visible:-outline-offset-2"
+                    [attr.aria-label]="
+                        'APP.CONCIERGE.MAPS_3D_PREVIEW' | translate
+                    "
+                    (keydown)="onPreviewKeydown($event)"
+                ></div>
                 @if (ready()) {
                     <p
                         class="bg-base-100/90 border-base-300 pointer-events-none absolute top-3 left-3 rounded-full border px-3 py-1 text-xs shadow-sm"
@@ -617,6 +701,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 }}
                             </button>
                             <button
+                                clear-selection
                                 icon
                                 matRipple
                                 [matTooltip]="
@@ -625,7 +710,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 [attr.aria-label]="
                                     'APP.CONCIERGE.MAPS_3D_CLEAR' | translate
                                 "
-                                (click)="clearSelection()"
+                                (click)="clearSelection(); focusPreview()"
                             >
                                 <icon>close</icon>
                             </button>
@@ -726,6 +811,8 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
 
     public readonly kinds = MAP_3D_KIND_OPTIONS;
     public readonly raised_kinds = RAISED_KINDS;
+    /** Most drawn elements listed under one group, to keep the list short */
+    public readonly max_listed_shapes = 200;
 
     public readonly level_id = signal('');
     public readonly level = signal<BuildingLevel | null>(null);
@@ -790,6 +877,24 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             }
         }
         return visible;
+    });
+    /** Drawn elements of each listed group that no listed group inside it holds */
+    public readonly layer_shapes = computed(() => {
+        const session = this._session;
+        const by_layer = new Map<Element, MapShape[]>();
+        if (!session) return by_layer;
+        const listed = new Set(this.layers().map((layer) => layer.element));
+        for (const shape of session.map.shapes) {
+            let current = shape.element.parentElement;
+            while (current && !listed.has(current)) {
+                current = current.parentElement;
+            }
+            if (!current) continue;
+            const shapes = by_layer.get(current) || [];
+            shapes.push(shape);
+            by_layer.set(current, shapes);
+        }
+        return by_layer;
     });
     /** Drawn elements the targets cover */
     public readonly selected = computed(() => {
@@ -966,9 +1071,41 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         return this.targets().includes(element);
     }
 
-    public selectElement(element: Element) {
-        this.targets.set([element]);
+    /** Select an element, or with `add`, add it to the selection or take it out. */
+    public selectElement(element: Element, add = false) {
+        const targets = this.targets();
+        if (!add) this.targets.set([element]);
+        else if (targets.includes(element)) {
+            this.targets.set(targets.filter((_) => _ !== element));
+        } else this.targets.set([...targets, element]);
         this._showSelection();
+    }
+
+    public shapeName(shape: MapShape): string {
+        return nameOf(shape.element) || shape.element.localName;
+    }
+
+    public focusPreview() {
+        this._map()?.nativeElement.focus();
+    }
+
+    /** Pan with the arrow keys and zoom with + and - while the preview has focus */
+    public onPreviewKeydown(event: KeyboardEvent) {
+        if (event.ctrlKey || event.metaKey || event.altKey) return;
+        const viewer = this._viewer;
+        if (!viewer) return;
+        const changes: Record<string, () => void> = {
+            ArrowUp: () => viewer.panBy(0, -1),
+            ArrowDown: () => viewer.panBy(0, 1),
+            ArrowLeft: () => viewer.panBy(-1, 0),
+            ArrowRight: () => viewer.panBy(1, 0),
+            '+': () => this.zoomBy(1.25),
+            '=': () => this.zoomBy(1.25),
+            '-': () => this.zoomBy(0.8),
+        };
+        if (!changes[event.key]) return;
+        event.preventDefault();
+        changes[event.key]();
     }
 
     public selectSimilar() {
@@ -1028,9 +1165,8 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         if (!session || !level || !session.dirty || this.saving()) return;
         this.saving.set(i18n('COMMON.SAVING'));
         try {
-            const current_map_id = await this._manager
-                .currentMapId(level.id)
-                .catch(() => this._loaded_map_id);
+            // A failed lookup stops the save, which could replace a newer map
+            const current_map_id = await this._manager.currentMapId(level.id);
             if (current_map_id !== this._loaded_map_id) {
                 const ok = await this._confirm(
                     i18n('APP.CONCIERGE.MAPS_CHANGED_ELSEWHERE_TITLE'),
@@ -1110,21 +1246,16 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             session.detect();
             this.auto_converted.set(true);
         }
+        if (!(await viewer.draw())) {
+            throw new Error(i18n('APP.CONCIERGE.MAPS_3D_DRAW_ERROR'));
+        }
         this._revision.update((revision) => revision + 1);
         this.ready.set(true);
     }
 
     private _pick(shape: MapShape | null, add: boolean) {
-        if (!shape) {
-            if (!add) this.clearSelection();
-            return;
-        }
-        const targets = this.targets();
-        if (!add) this.targets.set([shape.element]);
-        else if (targets.includes(shape.element)) {
-            this.targets.set(targets.filter((_) => _ !== shape.element));
-        } else this.targets.set([...targets, shape.element]);
-        this._showSelection();
+        if (shape) this.selectElement(shape.element, add);
+        else if (!add) this.clearSelection();
     }
 
     private _showSelection() {
