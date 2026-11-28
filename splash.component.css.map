@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["splash.component.ts"],
+  "sourcesContent": ["\n            /* One of the crossfade colours, for the reduced motion setting */\n            :host {\n                background-color: #1976d2;\n            }\n\n            /* The fade in is here, as this rule overrides animate.enter classes */\n            @media (prefers-reduced-motion: no-preference) {\n                :host {\n                    animation:\n                        motion-fade-in var(--motion-fast) var(--motion-ease),\n                        crossfade 10s linear infinite;\n                }\n            }\n        "],
+  "mappings": ";AAEY;AACI,oBAAA;AACJ;AAGA,QAAA,wBAAA;AACI;AACI;AAGJ;AACJ;",
+  "names": []
+}
