@@ -273,7 +273,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                     type="number"
                                     name="map-width"
                                     min="1"
-                                    step="1"
+                                    step="0.1"
                                     class="border-base-300 bg-base-100 h-8 w-20 rounded border px-2 text-right"
                                     [attr.aria-label]="
                                         'APP.CONCIERGE.MAPS_3D_WIDTH'
@@ -329,7 +329,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                             [name]="'height-' + option.id"
                                             min="0.05"
                                             max="20"
-                                            step="0.05"
+                                            step="0.01"
                                             class="border-base-300 bg-base-100 h-8 w-20 rounded border px-2 text-right"
                                             [attr.aria-label]="
                                                 option.name | translate
@@ -364,7 +364,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                             ) {
                                 <li
                                     class="hover:bg-base-200 flex h-9 items-center gap-1 rounded pr-1"
-                                    [class.bg-base-200]="
+                                    [class.selected-row]="
                                         isTarget(layer.element)
                                     "
                                     [style.padding-left.rem]="
@@ -482,7 +482,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                         <li
                                             layer-shape
                                             class="hover:bg-base-200 flex h-8 items-center rounded pr-1"
-                                            [class.bg-base-200]="
+                                            [class.selected-row]="
                                                 isTarget(shape.element)
                                             "
                                             [style.padding-left.rem]="
@@ -501,7 +501,11 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                                     )
                                                 "
                                             >
-                                                {{ shapeName(shape) }}
+                                                {{
+                                                    shape_names().get(
+                                                        shape.element
+                                                    )
+                                                }}
                                             </button>
                                         </li>
                                     }
@@ -550,7 +554,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 ></div>
                 @if (ready()) {
                     <p
-                        class="bg-base-100/90 border-base-300 pointer-events-none absolute top-3 left-3 rounded-full border px-3 py-1 text-xs shadow-sm"
+                        class="bg-base-100/90 border-base-300 pointer-events-none absolute top-3 left-3 max-w-[calc(100%-9rem)] rounded-2xl border px-3 py-1 text-xs shadow-sm"
                     >
                         {{ 'APP.CONCIERGE.MAPS_3D_PICK_HINT' | translate }}
                     </p>
@@ -585,7 +589,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                             </button>
                         </div>
                         <div
-                            class="bg-base-100 divide-base-300 border-base-300 flex flex-col divide-y overflow-hidden rounded-lg border shadow-sm"
+                            class="bg-base-100 divide-base-300 border-base-300 flex divide-x overflow-hidden rounded-lg border shadow-sm md:flex-col md:divide-x-0 md:divide-y"
                         >
                             <button
                                 icon
@@ -655,7 +659,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 @if (targets().length) {
                     <div
                         selection
-                        class="bg-base-100 border-base-300 absolute bottom-4 left-1/2 flex w-[44rem] max-w-[calc(100%-2rem)] -translate-x-1/2 flex-col gap-3 rounded-xl border p-4 text-sm shadow-lg"
+                        class="bg-base-100 border-base-300 absolute bottom-2 left-1/2 flex w-[44rem] max-w-[calc(100%-1rem)] -translate-x-1/2 flex-col gap-2 rounded-xl border p-3 text-sm shadow-lg md:bottom-4 md:max-w-[calc(100%-2rem)] md:gap-3 md:p-4"
                     >
                         <div class="flex items-center gap-2">
                             <div class="min-w-0 flex-1">
@@ -715,10 +719,12 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 <icon>close</icon>
                             </button>
                         </div>
-                        <div class="flex flex-wrap items-center gap-1.5">
+                        <div
+                            class="-mx-3 flex items-center gap-1.5 overflow-x-auto px-3 pb-1 md:mx-0 md:flex-wrap md:overflow-visible md:px-0 md:pb-0"
+                        >
                             @for (option of kinds; track option.id) {
                                 <button
-                                    class="border-base-300 hover:bg-base-200 flex h-8 items-center gap-1.5 rounded-full border px-3 text-xs"
+                                    class="border-base-300 hover:bg-base-200 flex h-8 flex-none items-center gap-1.5 rounded-full border px-3 text-xs"
                                     [class.!bg-secondary]="
                                         selection_kind() === option.id
                                     "
@@ -738,7 +744,9 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                 </button>
                             }
                             @if (selection_raised()) {
-                                <div class="ml-auto flex items-center gap-1">
+                                <div
+                                    class="ml-auto flex flex-none items-center gap-1"
+                                >
                                     <span class="text-xs opacity-70">{{
                                         'APP.CONCIERGE.MAPS_3D_HEIGHT'
                                             | translate
@@ -748,7 +756,7 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                                         name="selection-height"
                                         min="0.05"
                                         max="20"
-                                        step="0.05"
+                                        step="0.01"
                                         class="border-base-300 bg-base-100 h-8 w-20 rounded border px-2 text-right"
                                         [attr.aria-label]="
                                             'APP.CONCIERGE.MAPS_3D_HEIGHT'
@@ -778,6 +786,17 @@ const RAISED_KINDS = MAP_3D_KIND_OPTIONS.filter(
                 height: 100%;
                 width: 100%;
                 background-color: var(--base-100);
+            }
+
+            /* A selected layer or part, set apart from a hovered row */
+            .selected-row {
+                background-color: color-mix(
+                    in srgb,
+                    var(--info) 18%,
+                    transparent
+                );
+                box-shadow: inset 3px 0 0 var(--info);
+                font-weight: 500;
             }
         `,
     ],
@@ -855,7 +874,7 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         this._revision();
         const heights = {} as Record<Map3DKind, number>;
         for (const kind of MAP_3D_KINDS) {
-            heights[kind] = this._session?.kindHeight(kind) || 0;
+            heights[kind] = toStep(this._session?.kindHeight(kind) || 0);
         }
         return heights;
     });
@@ -896,6 +915,31 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
         }
         return by_layer;
     });
+    /**
+     * Names of the parts listed under expanded groups. A part with no id is
+     * named by its kind and a count, such as "Furniture 3".
+     */
+    public readonly shape_names = computed(() => {
+        this._revision();
+        const session = this._session;
+        const names = new Map<Element, string>();
+        if (!session) return names;
+        const by_layer = this.layer_shapes();
+        for (const layer of this.expanded()) {
+            const shapes = (by_layer.get(layer) || []).slice(
+                0,
+                this.max_listed_shapes,
+            );
+            const counts = new Map<Map3DKind, number>();
+            for (const { element } of shapes) {
+                const kind = session.kindOf(element);
+                const count = (counts.get(kind) || 0) + 1;
+                counts.set(kind, count);
+                names.set(element, nameOf(element) || kindName(kind, count));
+            }
+        }
+        return names;
+    });
     /** Drawn elements the targets cover */
     public readonly selected = computed(() => {
         const session = this._session;
@@ -928,7 +972,7 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
                 this._session!.heightOf(shape.element),
             ),
         );
-        return heights.size === 1 ? [...heights][0] : null;
+        return heights.size === 1 ? toStep([...heights][0]) : null;
     });
     /** Named groups around a single selected element or group */
     public readonly path = computed(() => {
@@ -941,7 +985,13 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
     });
     public readonly path_leaf = computed(() => {
         const [target] = this.targets();
-        return target ? nameOf(target) || target.localName : '';
+        if (!target) return '';
+        this._revision();
+        return (
+            nameOf(target) ||
+            this.shape_names().get(target) ||
+            (this._session ? kindName(this._session.kindOf(target)) : '')
+        );
     });
 
     constructor() {
@@ -1079,10 +1129,6 @@ export class Map3DPageComponent implements OnInit, HasUnsavedChanges {
             this.targets.set(targets.filter((_) => _ !== element));
         } else this.targets.set([...targets, element]);
         this._showSelection();
-    }
-
-    public shapeName(shape: MapShape): string {
-        return nameOf(shape.element) || shape.element.localName;
     }
 
     public focusPreview() {
@@ -1280,6 +1326,18 @@ function nameOf(element: Element): string {
     return (
         element.getAttribute('data-name') || element.getAttribute('id') || ''
     );
+}
+
+/** The translated name of a kind, with a count after it when given */
+function kindName(kind: Map3DKind, count?: number): string {
+    const option = MAP_3D_KIND_OPTIONS.find((_) => _.id === kind);
+    const name = option ? i18n(option.name) : kind;
+    return count ? `${name} ${count}` : name;
+}
+
+/** Rounds a height or width to the 0.01 step of its field */
+function toStep(value: number): number {
+    return Math.round(value * 100) / 100;
 }
 
 function errorText(error: unknown): string {

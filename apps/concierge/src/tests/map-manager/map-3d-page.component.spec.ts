@@ -250,6 +250,20 @@ describe('Map3DPageComponent', () => {
         expect(component.targets().map((_) => _.id)).toEqual(['furniture']);
     });
 
+    it('names parts with no id by their kind and a count', async () => {
+        await mount();
+        const { component } = spectator;
+        const [walls] = component.layers().filter((_) => _.name === 'walls');
+        component.toggleLayer(walls.element);
+        spectator.detectChanges();
+        const names = spectator
+            .queryAll('[layer-shape] button')
+            .map((_) => _.textContent!.trim());
+        const kind = names[0].replace(/ 1$/, '');
+        expect(kind).not.toBe('line');
+        expect(names).toEqual([`${kind} 1`, `${kind} 2`]);
+    });
+
     it('pans the preview with the arrow keys', async () => {
         await mount();
         const preview = spectator.query<HTMLElement>('[preview]')!;
