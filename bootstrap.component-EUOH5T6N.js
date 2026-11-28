@@ -25,25 +25,25 @@ import {
   BOOKING_STORE_KEY,
   EVENT_KEY,
   RemoteSetupService
-} from "./chunk-ZF3VXPQJ.js";
+} from "./chunk-T4LV3NZJ.js";
 import {
   AnnounceDirective
 } from "./chunk-RCJMLNWY.js";
 import {
-  TranslatePipe
-} from "./chunk-D6EWFVMJ.js";
-import "./chunk-PGER6XBG.js";
-import {
   OrganisationService
-} from "./chunk-TAV5J43V.js";
+} from "./chunk-XQ6N6ZEW.js";
 import {
   Space,
   VERSION
-} from "./chunk-4IYAVQON.js";
+} from "./chunk-2XXGN2RQ.js";
+import {
+  TranslatePipe
+} from "./chunk-D6EWFVMJ.js";
 import {
   orThrowPage,
   systems_exports
 } from "./chunk-7KIZO25G.js";
+import "./chunk-PGER6XBG.js";
 import {
   getNativeSystemId,
   syncNativeManagedConfig
@@ -887,4 +887,4 @@ export {
   BootstrapComponent
 };
 //# debugId=026d5c0e-4a21-53ec-a024-9e2ee12bbc8e
-//# sourceMappingURL=bootstrap.component-GB35SG6O.js.map
+//# sourceMappingURL=bootstrap.component-EUOH5T6N.js.map

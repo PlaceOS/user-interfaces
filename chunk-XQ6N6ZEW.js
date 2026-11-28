@@ -34,7 +34,7 @@ import {
   token,
   waitForCurrentUser,
   waitForOnline
-} from "./chunk-4IYAVQON.js";
+} from "./chunk-2XXGN2RQ.js";
 import {
   AsyncHandler,
   LocaleService,
@@ -2484,7 +2484,8 @@ function scrubEnvelope(envelope) {
 var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
 var IGNORED_ERRORS = [
   /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
-  /^Non-Error promise rejection captured with value: cannot communicate with background$/
+  /^Non-Error promise rejection captured with value: cannot communicate with background$/,
+  /^Invalid call to runtime\.sendMessage\(\)\. Tab not found\.$/
 ];
 function sampleRate(value, fallback) {
   return typeof value === "number" ? value : fallback;
@@ -3432,6 +3433,23 @@ var _OrganisationService = class _OrganisationService {
         []
       )
     );
+    this._settings_applied_for = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_settings_applied_for" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_settings_ready = computed(
+      () => {
+        var _a;
+        return this.active_building_loaded() && this._settings_applied_for() === (((_a = this._active_building()) == null ? void 0 : _a.id) || "");
+      },
+      ...ngDevMode ? [{ debugName: "active_settings_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.active_buildings = computed(
       () => {
         const region = this._active_region();
@@ -3842,6 +3860,9 @@ var _OrganisationService = class _OrganisationService {
     bld.booking_rules = booking_rules;
     this._loaded_data[bld.id] = true;
     this._loaded_buildings.update((ids) => ids.includes(bld.id) ? ids : [...ids, bld.id]);
+    if (bld.id === this._settings_applied_for()) {
+      this._settings_applied_for.set(null);
+    }
     this._updateSettingOverrides();
     if (from_cache)
       this._refresh(() => this.loadBuildingData(bld));
@@ -3884,6 +3905,7 @@ var _OrganisationService = class _OrganisationService {
       this._override_timer = null;
     }
     this._service.setOverrides([...this._settings]);
+    this._settings_applied_for.set(null);
     if (!this._refreshing)
       await this._setDefaultBuilding();
     this._updateSettingOverrides();
@@ -4027,11 +4049,13 @@ var _OrganisationService = class _OrganisationService {
       return;
     this._override_timer = setTimeout(() => {
       var _a, _b;
-      return this._service.setOverrides([
-        this.buildingSettings((_a = this.building) == null ? void 0 : _a.id),
+      const building_id = ((_a = this.building) == null ? void 0 : _a.id) || "";
+      this._service.setOverrides([
+        this.buildingSettings(building_id),
         this.regionSettings((_b = this.region) == null ? void 0 : _b.id),
         ...this._settings
       ]);
+      this._settings_applied_for.set(this.active_building_loaded() ? building_id : null);
     }, 300);
   }
   async _bulkMetadataDetails(name, ids) {
@@ -4194,5 +4218,5 @@ export {
   OrganisationService,
   toQueryString
 };
-//# debugId=7a691496-7f63-5981-b086-65ddd7c1a30e
-//# sourceMappingURL=chunk-TAV5J43V.js.map
+//# debugId=1cb667a9-5647-59a9-93aa-a0f879d6821c
+//# sourceMappingURL=chunk-XQ6N6ZEW.js.map

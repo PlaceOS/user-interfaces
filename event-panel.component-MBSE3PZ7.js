@@ -1,35 +1,35 @@
 import {
-  generateQRCode
-} from "./chunk-U4IEQFFG.js";
-import {
   AuthenticatedImageDirective,
   PanelStateService,
   dayTimeFormat
-} from "./chunk-2JGFKZ2B.js";
+} from "./chunk-SAVZIND7.js";
+import "./chunk-YRS34B4W.js";
 import "./chunk-6SVTW7BM.js";
 import "./chunk-JF73YPBQ.js";
+import {
+  generateQRCode
+} from "./chunk-U4IEQFFG.js";
 import "./chunk-FBLQBSB7.js";
 import "./chunk-H2AOTDCT.js";
 import "./chunk-LD3NN2QZ.js";
-import "./chunk-YRS34B4W.js";
 import "./chunk-XPXIQO3T.js";
-import "./chunk-UEZMDRO4.js";
+import "./chunk-72LKQYBE.js";
 import "./chunk-RCJMLNWY.js";
 import {
-  TranslatePipe
-} from "./chunk-D6EWFVMJ.js";
-import "./chunk-PGER6XBG.js";
-import {
   OrganisationService
-} from "./chunk-TAV5J43V.js";
+} from "./chunk-XQ6N6ZEW.js";
 import {
   SettingsService,
   themedLogo
-} from "./chunk-4IYAVQON.js";
+} from "./chunk-2XXGN2RQ.js";
+import {
+  TranslatePipe
+} from "./chunk-D6EWFVMJ.js";
 import {
   AsyncHandler,
   startOfMinute
 } from "./chunk-7KIZO25G.js";
+import "./chunk-PGER6XBG.js";
 import "./chunk-NRYDNNQ3.js";
 import "./chunk-QYNSWC4X.js";
 import "./chunk-JNAOAAEL.js";
@@ -557,4 +557,4 @@ export {
   EventPanelComponent
 };
 //# debugId=39e0e103-fad9-576a-84fa-c810efe695f2
-//# sourceMappingURL=event-panel.component-DFDGVOLG.js.map
+//# sourceMappingURL=event-panel.component-MBSE3PZ7.js.map
