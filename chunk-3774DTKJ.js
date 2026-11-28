@@ -9863,15 +9863,15 @@ async function lookupNativeDomainByEmail(email) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "49abe29",
-  "hash": "49abe29",
+  "raw": "0231d4d",
+  "hash": "0231d4d",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "49abe29",
+  "suffix": "0231d4d",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795588140423
+  "time": 1795840179119
 };
 
 // libs/common/src/lib/settings.ts
@@ -14257,7 +14257,8 @@ function scrubEnvelope(envelope) {
 var TRACE_PROPAGATION_TARGET = /^\/api\/(?!engine\/v2\/(?:uploads(?:\/|$)|signage\/media\/[^/]+\/))/;
 var IGNORED_ERRORS = [
   /^Non-Error promise rejection captured with value: unknown action: (?:getLibItems|setLibItem|removeLibItem)$/,
-  /^Non-Error promise rejection captured with value: cannot communicate with background$/
+  /^Non-Error promise rejection captured with value: cannot communicate with background$/,
+  /^Invalid call to runtime\.sendMessage\(\)\. Tab not found\.$/
 ];
 function sampleRate(value, fallback) {
   return typeof value === "number" ? value : fallback;
@@ -15194,6 +15195,20 @@ var OrganisationService = class _OrganisationService {
         []
       )
     );
+    this._settings_applied_for = signal(
+      null,
+      ...ngDevMode ? [{ debugName: "_settings_applied_for" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.active_settings_ready = computed(
+      () => this.active_building_loaded() && this._settings_applied_for() === (this._active_building()?.id || ""),
+      ...ngDevMode ? [{ debugName: "active_settings_ready" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.active_buildings = computed(
       () => {
         const region = this._active_region();
@@ -15599,6 +15614,9 @@ var OrganisationService = class _OrganisationService {
     bld.booking_rules = booking_rules;
     this._loaded_data[bld.id] = true;
     this._loaded_buildings.update((ids) => ids.includes(bld.id) ? ids : [...ids, bld.id]);
+    if (bld.id === this._settings_applied_for()) {
+      this._settings_applied_for.set(null);
+    }
     this._updateSettingOverrides();
     if (from_cache)
       this._refresh(() => this.loadBuildingData(bld));
@@ -15640,6 +15658,7 @@ var OrganisationService = class _OrganisationService {
       this._override_timer = null;
     }
     this._service.setOverrides([...this._settings]);
+    this._settings_applied_for.set(null);
     if (!this._refreshing)
       await this._setDefaultBuilding();
     this._updateSettingOverrides();
@@ -15774,11 +15793,15 @@ var OrganisationService = class _OrganisationService {
       clearTimeout(this._override_timer);
     if (this._destroyed)
       return;
-    this._override_timer = setTimeout(() => this._service.setOverrides([
-      this.buildingSettings(this.building?.id),
-      this.regionSettings(this.region?.id),
-      ...this._settings
-    ]), 300);
+    this._override_timer = setTimeout(() => {
+      const building_id = this.building?.id || "";
+      this._service.setOverrides([
+        this.buildingSettings(building_id),
+        this.regionSettings(this.region?.id),
+        ...this._settings
+      ]);
+      this._settings_applied_for.set(this.active_building_loaded() ? building_id : null);
+    }, 300);
   }
   async _bulkMetadataDetails(name, ids) {
     const parent_ids = ids.filter(Boolean);
@@ -17404,5 +17427,5 @@ export {
   SafePipe,
   IconComponent
 };
-//# debugId=e4a34b6a-8804-5f9d-8774-feb9f34460e5
-//# sourceMappingURL=chunk-DW4HTMGE.js.map
+//# debugId=23562554-3a3b-54b4-95c1-336f21e32f44
+//# sourceMappingURL=chunk-3774DTKJ.js.map

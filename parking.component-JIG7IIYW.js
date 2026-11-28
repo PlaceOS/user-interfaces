@@ -3,29 +3,33 @@ import {
   ExploreParkingService,
   ExploreStateService,
   MapZoomControlsComponent,
-  SpacesService
-} from "./chunk-3DMNYJD3.js";
+  SpacesService,
+  getMapDetails
+} from "./chunk-LXY77Y6I.js";
+import "./chunk-XVX4X6PV.js";
 import "./chunk-Q55EQISX.js";
 import {
   MatDialog,
   MatProgressSpinner,
   MatProgressSpinnerModule
-} from "./chunk-BXUZXOMN.js";
+} from "./chunk-BN5VMAYD.js";
 import {
   VirtualKeyboardComponent,
   toSignal
-} from "./chunk-7QGBIDSP.js";
+} from "./chunk-HFZVZFSF.js";
+import "./chunk-24ANXC53.js";
 import "./chunk-PXDR2Z3C.js";
+import {
+  hasMap3D
+} from "./chunk-IOXIRZG4.js";
 import "./chunk-4QVIDHKP.js";
 import "./chunk-SRLM37YD.js";
-import "./chunk-P4LA2OHK.js";
-import "./chunk-24ANXC53.js";
 import "./chunk-2BIJ6DLE.js";
-import "./chunk-F5NPLP6V.js";
-import "./chunk-UPA5V4EQ.js";
+import "./chunk-HS2F2VWB.js";
+import "./chunk-ARF73L3G.js";
 import {
   TranslatePipe
-} from "./chunk-3BR4PDKG.js";
+} from "./chunk-NVBTUWRX.js";
 import "./chunk-OSRII6NJ.js";
 import "./chunk-XDYJDWHO.js";
 import {
@@ -41,7 +45,7 @@ import {
   notifyError,
   notifyWarn,
   randomString
-} from "./chunk-DW4HTMGE.js";
+} from "./chunk-3774DTKJ.js";
 import "./chunk-X3O2ONMK.js";
 import "./chunk-AJBEQOPT.js";
 import {
@@ -60,6 +64,7 @@ import {
   ViewChild,
   computed,
   effect,
+  forwardRef,
   inject,
   input,
   linkedSignal,
@@ -959,6 +964,10 @@ function InteractiveMapComponent_Conditional_2_Template(rf, ctx) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
       return \u0275\u0275resetView(ctx_r1.center.set($event));
+    })("mode3dFailed", function InteractiveMapComponent_Conditional_2_Template_dynamic_map_mode3dFailed_0_listener() {
+      \u0275\u0275restoreView(_r3);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.unsupported_3d.set(true));
     })("mapInfo", function InteractiveMapComponent_Conditional_2_Template_dynamic_map_mapInfo_0_listener($event) {
       \u0275\u0275restoreView(_r3);
       const ctx_r1 = \u0275\u0275nextContext();
@@ -969,29 +978,60 @@ function InteractiveMapComponent_Conditional_2_Template(rf, ctx) {
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275property("src", ctx_r1.src())("zoom", ctx_r1.zoom())("center", ctx_r1.center())("reset", ctx_r1.reset())("styles", ctx_r1.styles())("features", ctx_r1.features())("actions", ctx_r1.actions())("labels", ctx_r1.labels())("options", ctx_r1.renderer_options())("focus", ctx_r1.focus())("fixedResolution", ctx_r1.fixedResolution());
+    \u0275\u0275property("src", ctx_r1.src())("zoom", ctx_r1.zoom())("center", ctx_r1.center())("reset", ctx_r1.reset())("styles", ctx_r1.styles())("features", ctx_r1.features())("actions", ctx_r1.actions())("labels", ctx_r1.labels())("options", ctx_r1.renderer_options())("focus", ctx_r1.focus())("fixedResolution", ctx_r1.fixedResolution())("mode", ctx_r1.mode())("isometric", ctx_r1.isometric());
   }
 }
 function InteractiveMapComponent_Conditional_3_Template(rf, ctx) {
   if (rf & 1) {
     const _r4 = \u0275\u0275getCurrentView();
     \u0275\u0275elementStart(0, "map-zoom-controls", 5);
-    \u0275\u0275twoWayListener("zoomChange", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_zoomChange_0_listener($event) {
+    \u0275\u0275listener("zoomChange", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_zoomChange_0_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
-      \u0275\u0275twoWayBindingSet(ctx_r1.zoom, $event) || (ctx_r1.zoom = $event);
-      return \u0275\u0275resetView($event);
-    })("resetChange", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_resetChange_0_listener($event) {
+      return \u0275\u0275resetView(ctx_r1.zoomTo($event));
+    });
+    \u0275\u0275twoWayListener("resetChange", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_resetChange_0_listener($event) {
       \u0275\u0275restoreView(_r4);
       const ctx_r1 = \u0275\u0275nextContext();
       \u0275\u0275twoWayBindingSet(ctx_r1.reset, $event) || (ctx_r1.reset = $event);
       return \u0275\u0275resetView($event);
     });
+    \u0275\u0275listener("modeChange", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_modeChange_0_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setMode($event));
+    })("isometricChange", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_isometricChange_0_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.setIsometric($event));
+    })("rotate", function InteractiveMapComponent_Conditional_3_Template_map_zoom_controls_rotate_0_listener($event) {
+      \u0275\u0275restoreView(_r4);
+      const ctx_r1 = \u0275\u0275nextContext();
+      return \u0275\u0275resetView(ctx_r1.rotate($event));
+    });
     \u0275\u0275elementEnd();
   }
   if (rf & 2) {
     const ctx_r1 = \u0275\u0275nextContext();
-    \u0275\u0275twoWayProperty("zoom", ctx_r1.zoom)("reset", ctx_r1.reset);
+    \u0275\u0275property("zoom", ctx_r1.zoom());
+    \u0275\u0275twoWayProperty("reset", ctx_r1.reset);
+    \u0275\u0275property("can3d", ctx_r1.can_3d())("mode", ctx_r1.mode())("isometric", ctx_r1.isometric());
+  }
+}
+var MODE_KEY = "PLACEOS.map_view_mode";
+var ISOMETRIC_KEY = "PLACEOS.map_view_isometric";
+function storedMode() {
+  try {
+    return localStorage.getItem(MODE_KEY) === "3d" ? "3d" : "2d";
+  } catch {
+    return "2d";
+  }
+}
+function storedIsometric() {
+  try {
+    return localStorage.getItem(ISOMETRIC_KEY) === "true";
+  } catch {
+    return false;
   }
 }
 var InteractiveMapComponent = class _InteractiveMapComponent {
@@ -1079,6 +1119,55 @@ var InteractiveMapComponent = class _InteractiveMapComponent {
     );
     this.mapInfo = output();
     this.use_mapsindoors = this._mapspeople.available;
+    this.has_3d = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "has_3d" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.unsupported_3d = signal(
+      false,
+      ...ngDevMode ? [{ debugName: "unsupported_3d" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.preferred_mode = signal(
+      storedMode(),
+      ...ngDevMode ? [{ debugName: "preferred_mode" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.isometric = signal(
+      storedIsometric(),
+      ...ngDevMode ? [{ debugName: "isometric" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.can_3d = computed(
+      () => this.has_3d() && !this.unsupported_3d() && !this.options()?.disable_zoom && !this.use_mapsindoors() && !this.use_cisco_maps,
+      ...ngDevMode ? [{ debugName: "can_3d" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this.mode = computed(
+      () => this.can_3d() && this.preferred_mode() === "3d" ? "3d" : "2d",
+      ...ngDevMode ? [{ debugName: "mode" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
+    this._map = viewChild(
+      DynamicMapComponent,
+      ...ngDevMode ? [{ debugName: "_map" }] : (
+        /* istanbul ignore next */
+        []
+      )
+    );
     this.metadata = computed(
       () => ({
         actions: this.actions() || [],
@@ -1108,6 +1197,42 @@ var InteractiveMapComponent = class _InteractiveMapComponent {
       )
     );
     this._use_cisco_maps = this._settings.signal("explore.cisco_maps.enabled", false);
+    effect((onCleanup) => {
+      const src = this.src();
+      let current = true;
+      onCleanup(() => current = false);
+      if (!src)
+        return this.has_3d.set(false);
+      getMapDetails(src).then((details) => hasMap3D(details.raw_data)).catch(() => false).then((has_3d) => {
+        if (current)
+          this.has_3d.set(has_3d);
+      });
+    });
+  }
+  setMode(mode) {
+    this.preferred_mode.set(mode);
+    try {
+      localStorage.setItem(MODE_KEY, mode);
+    } catch {
+    }
+  }
+  setIsometric(isometric) {
+    this.isometric.set(isometric);
+    try {
+      localStorage.setItem(ISOMETRIC_KEY, `${isometric}`);
+    } catch {
+    }
+  }
+  rotate(degrees) {
+    this._map()?.rotateBy(degrees);
+  }
+  /** Change the zoom, as a short animation where the map on show can. */
+  zoomTo(zoom) {
+    const map = this._map();
+    if (map)
+      map.zoomTo(zoom);
+    else
+      this.zoom.set(zoom);
   }
   get use_cisco_maps() {
     return this._use_cisco_maps();
@@ -1122,11 +1247,18 @@ var InteractiveMapComponent = class _InteractiveMapComponent {
     };
   }
   static {
-    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _InteractiveMapComponent, selectors: [["interactive-map"]], inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], reset: [1, "reset"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"], fixedResolution: [1, "fixedResolution"] }, outputs: { zoom: "zoomChange", center: "centerChange", reset: "resetChange", mapInfo: "mapInfo" }, ngContentSelectors: _c03, decls: 4, vars: 2, consts: [[3, "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "src", "zoom", "center", "reset", "styles", "features", "actions", "labels", "options", "focus", "fixedResolution"], [3, "zoom", "reset"], [3, "zoneChange", "zoomChange", "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "zoomChange", "centerChange", "mapInfo", "src", "zoom", "center", "reset", "styles", "features", "actions", "labels", "options", "focus", "fixedResolution"], [3, "zoomChange", "resetChange", "zoom", "reset"]], template: function InteractiveMapComponent_Template(rf, ctx) {
+    this.\u0275cmp = /* @__PURE__ */ \u0275\u0275defineComponent({ type: _InteractiveMapComponent, selectors: [["interactive-map"]], viewQuery: function InteractiveMapComponent_Query(rf, ctx) {
+      if (rf & 1) {
+        \u0275\u0275viewQuerySignal(ctx._map, DynamicMapComponent, 5);
+      }
+      if (rf & 2) {
+        \u0275\u0275queryAdvance();
+      }
+    }, inputs: { src: [1, "src"], zoom: [1, "zoom"], center: [1, "center"], reset: [1, "reset"], styles: [1, "styles"], features: [1, "features"], labels: [1, "labels"], actions: [1, "actions"], options: [1, "options"], focus: [1, "focus"], fixedResolution: [1, "fixedResolution"] }, outputs: { zoom: "zoomChange", center: "centerChange", reset: "resetChange", mapInfo: "mapInfo" }, ngContentSelectors: _c03, decls: 4, vars: 2, consts: [[3, "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "src", "zoom", "center", "reset", "styles", "features", "actions", "labels", "options", "focus", "fixedResolution", "mode", "isometric"], [3, "zoom", "reset", "can3d", "mode", "isometric"], [3, "zoneChange", "zoomChange", "zone", "zoom", "options", "reset", "focus", "metadata"], [3, "zoomChange", "centerChange", "mode3dFailed", "mapInfo", "src", "zoom", "center", "reset", "styles", "features", "actions", "labels", "options", "focus", "fixedResolution", "mode", "isometric"], [3, "zoomChange", "resetChange", "modeChange", "isometricChange", "rotate", "zoom", "reset", "can3d", "mode", "isometric"]], template: function InteractiveMapComponent_Template(rf, ctx) {
       if (rf & 1) {
         \u0275\u0275projectionDef(_c03);
-        \u0275\u0275conditionalCreate(0, InteractiveMapComponent_Conditional_0_Template, 2, 6, "maps-indoors", 0)(1, InteractiveMapComponent_Conditional_1_Template, 2, 0, "cisco-map")(2, InteractiveMapComponent_Conditional_2_Template, 2, 11, "dynamic-map", 1);
-        \u0275\u0275conditionalCreate(3, InteractiveMapComponent_Conditional_3_Template, 1, 2, "map-zoom-controls", 2);
+        \u0275\u0275conditionalCreate(0, InteractiveMapComponent_Conditional_0_Template, 2, 6, "maps-indoors", 0)(1, InteractiveMapComponent_Conditional_1_Template, 2, 0, "cisco-map")(2, InteractiveMapComponent_Conditional_2_Template, 2, 13, "dynamic-map", 1);
+        \u0275\u0275conditionalCreate(3, InteractiveMapComponent_Conditional_3_Template, 1, 5, "map-zoom-controls", 2);
       }
       if (rf & 2) {
         \u0275\u0275conditional(ctx.use_mapsindoors() ? 0 : ctx.use_cisco_maps ? 1 : 2);
@@ -1177,13 +1309,26 @@ var InteractiveMapComponent = class _InteractiveMapComponent {
                 [options]="renderer_options()"
                 [focus]="focus()"
                 [fixedResolution]="fixedResolution()"
+                [mode]="mode()"
+                [isometric]="isometric()"
+                (mode3dFailed)="unsupported_3d.set(true)"
                 (mapInfo)="mapInfo.emit($event)"
             >
                 <ng-content />
             </dynamic-map>
         }
         @if (options()?.controls) {
-            <map-zoom-controls [(zoom)]="zoom" [(reset)]="reset" />
+            <map-zoom-controls
+                [zoom]="zoom()"
+                (zoomChange)="zoomTo($event)"
+                [(reset)]="reset"
+                [can3d]="can_3d()"
+                [mode]="mode()"
+                (modeChange)="setMode($event)"
+                [isometric]="isometric()"
+                (isometricChange)="setIsometric($event)"
+                (rotate)="rotate($event)"
+            />
         }
     `, imports: [
       MapsIndoorsComponent,
@@ -1191,10 +1336,10 @@ var InteractiveMapComponent = class _InteractiveMapComponent {
       CiscoMapComponent,
       MapZoomControlsComponent
     ] }]
-  }], null, { src: [{ type: Input, args: [{ isSignal: true, alias: "src", required: false }] }], zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], center: [{ type: Input, args: [{ isSignal: true, alias: "center", required: false }] }, { type: Output, args: ["centerChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }], styles: [{ type: Input, args: [{ isSignal: true, alias: "styles", required: false }] }], features: [{ type: Input, args: [{ isSignal: true, alias: "features", required: false }] }], labels: [{ type: Input, args: [{ isSignal: true, alias: "labels", required: false }] }], actions: [{ type: Input, args: [{ isSignal: true, alias: "actions", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], focus: [{ type: Input, args: [{ isSignal: true, alias: "focus", required: false }] }], fixedResolution: [{ type: Input, args: [{ isSignal: true, alias: "fixedResolution", required: false }] }], mapInfo: [{ type: Output, args: ["mapInfo"] }] });
+  }], () => [], { src: [{ type: Input, args: [{ isSignal: true, alias: "src", required: false }] }], zoom: [{ type: Input, args: [{ isSignal: true, alias: "zoom", required: false }] }, { type: Output, args: ["zoomChange"] }], center: [{ type: Input, args: [{ isSignal: true, alias: "center", required: false }] }, { type: Output, args: ["centerChange"] }], reset: [{ type: Input, args: [{ isSignal: true, alias: "reset", required: false }] }, { type: Output, args: ["resetChange"] }], styles: [{ type: Input, args: [{ isSignal: true, alias: "styles", required: false }] }], features: [{ type: Input, args: [{ isSignal: true, alias: "features", required: false }] }], labels: [{ type: Input, args: [{ isSignal: true, alias: "labels", required: false }] }], actions: [{ type: Input, args: [{ isSignal: true, alias: "actions", required: false }] }], options: [{ type: Input, args: [{ isSignal: true, alias: "options", required: false }] }], focus: [{ type: Input, args: [{ isSignal: true, alias: "focus", required: false }] }], fixedResolution: [{ type: Input, args: [{ isSignal: true, alias: "fixedResolution", required: false }] }], mapInfo: [{ type: Output, args: ["mapInfo"] }], _map: [{ type: ViewChild, args: [forwardRef(() => DynamicMapComponent), { isSignal: true }] }] });
 })();
 (() => {
-  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(InteractiveMapComponent, { className: "InteractiveMapComponent", filePath: "libs/components/src/lib/interactive-map.component.ts", lineNumber: 83 });
+  (typeof ngDevMode === "undefined" || ngDevMode) && \u0275setClassDebugInfo(InteractiveMapComponent, { className: "InteractiveMapComponent", filePath: "libs/components/src/lib/interactive-map.component.ts", lineNumber: 120 });
 })();
 
 // apps/map-kiosk/src/app/parking.component.ts
@@ -1398,5 +1543,5 @@ var ParkingComponent = class _ParkingComponent {
 export {
   ParkingComponent
 };
-//# debugId=9b54bed0-3170-5025-9fd8-5583af5205a3
-//# sourceMappingURL=parking.component-LRNLVV5R.js.map
+//# debugId=b6187044-96a9-52fc-872f-12fcdc3e0892
+//# sourceMappingURL=parking.component-JIG7IIYW.js.map

@@ -1,12 +1,12 @@
 import {
+  DebugPanelResize
+} from "./chunk-43VRVJUU.js";
+import {
   binding_records,
   execute_messages,
   installBindingDebugHooks,
   records_by_key
-} from "./chunk-FLBXKRUI.js";
-import {
-  DebugPanelResize
-} from "./chunk-43VRVJUU.js";
+} from "./chunk-67BHZRBL.js";
 import {
   MatTooltip,
   MatTooltipModule
@@ -25,7 +25,7 @@ import {
   IconComponent,
   orThrow,
   systems_exports
-} from "./chunk-DW4HTMGE.js";
+} from "./chunk-3774DTKJ.js";
 import "./chunk-X3O2ONMK.js";
 import "./chunk-AJBEQOPT.js";
 import {
@@ -1913,4 +1913,4 @@ export {
   pairExecuteMessages
 };
 //# debugId=98b226be-7e51-5d3a-a9ab-e8cb036d8091
-//# sourceMappingURL=binding-debug-panel.component-SM4YJNPP.js.map
+//# sourceMappingURL=binding-debug-panel.component-HPYMNK5Y.js.map
