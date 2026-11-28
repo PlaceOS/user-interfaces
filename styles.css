@@ -3481,9 +3481,6 @@ input:where([type=button], [type=reset], [type=submit]),
 #placeos .max-h-\[32rem\] {
   max-height: 32rem;
 }
-#placeos .max-h-\[45\%\] {
-  max-height: 45%;
-}
 #placeos .max-h-\[50vh\] {
   max-height: 50vh;
 }
@@ -6079,6 +6076,11 @@ input:where([type=button], [type=reset], [type=submit]),
     border-width: 0;
   }
 }
+@media (width < 48rem) {
+  #placeos .max-md\:hidden {
+    display: none;
+  }
+}
 @media (width >= 40rem) {
   #placeos .sm\:relative {
     position: relative;
@@ -6369,8 +6371,8 @@ input:where([type=button], [type=reset], [type=submit]),
   }
 }
 @media (width >= 48rem) {
-  #placeos .md\:max-h-none {
-    max-height: none;
+  #placeos .md\:hidden {
+    display: none;
   }
 }
 @media (width >= 48rem) {
@@ -6391,6 +6393,11 @@ input:where([type=button], [type=reset], [type=submit]),
 @media (width >= 48rem) {
   #placeos .md\:max-w-\[calc\(100\%-2rem\)\] {
     max-width: calc(100% - 2rem);
+  }
+}
+@media (width >= 48rem) {
+  #placeos .md\:flex-none {
+    flex: none;
   }
 }
 @media (width >= 48rem) {
@@ -6449,12 +6456,6 @@ input:where([type=button], [type=reset], [type=submit]),
   #placeos .md\:border-r {
     border-right-style: var(--tw-border-style);
     border-right-width: 1px;
-  }
-}
-@media (width >= 48rem) {
-  #placeos .md\:border-b-0 {
-    border-bottom-style: var(--tw-border-style);
-    border-bottom-width: 0px;
   }
 }
 @media (width >= 48rem) {
