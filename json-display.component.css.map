@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["json-display.component.ts"],
+  "sourcesContent": ["\n            pre {\n                white-space: pre-wrap; /* Since CSS 2.1 */\n                white-space: -moz-pre-wrap; /* Mozilla, since 1999 */\n                white-space: -pre-wrap; /* Opera 4-6 */\n                white-space: -o-pre-wrap; /* Opera 7 */\n                word-wrap: break-word; /* Internet Explorer 5.5+ */\n            }\n        "],
+  "mappings": ";AACY;AACI,eAAA;AACA,eAAA;AACA,eAAA;AACA,eAAA;AACA,aAAA;AACJ;",
+  "names": []
+}
