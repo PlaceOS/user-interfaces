@@ -26,27 +26,31 @@ import {
 } from "./chunk-EEOTK5BU.js";
 import {
   RemoteSetupService
-} from "./chunk-SN6AK5TW.js";
+} from "./chunk-BAG4NPWD.js";
 import {
   AnnounceDirective
 } from "./chunk-H6EH6T67.js";
 import {
-  TranslatePipe
-} from "./chunk-MEGG2SM3.js";
-import {
-  FORM_FIELD
-} from "./chunk-WL6FKRFH.js";
-import {
   OrganisationService
-} from "./chunk-LT6VOXAD.js";
+} from "./chunk-O2XDZPZH.js";
 import {
   Space,
   VERSION
-} from "./chunk-V34EUQF4.js";
+} from "./chunk-HHHUFFRZ.js";
+import {
+  TranslatePipe
+} from "./chunk-MEGG2SM3.js";
 import {
   orThrowPage,
   systems_exports
 } from "./chunk-CGHBOMPQ.js";
+import {
+  FORM_FIELD
+} from "./chunk-WL6FKRFH.js";
+import {
+  getNativeSystemId,
+  syncNativeManagedConfig
+} from "./chunk-COFQG2BS.js";
 import {
   DefaultValueAccessor,
   FormGroupDirective,
@@ -58,10 +62,6 @@ import {
   NgModel,
   Validators
 } from "./chunk-SGCMNCCJ.js";
-import {
-  getNativeSystemId,
-  syncNativeManagedConfig
-} from "./chunk-COFQG2BS.js";
 import {
   CdkConnectedOverlay,
   CdkOverlayOrigin,
@@ -4188,4 +4188,4 @@ export {
   BootstrapComponent
 };
 //# debugId=8dec41da-3ffd-5858-ae89-46babb3038c3
-//# sourceMappingURL=bootstrap.component-NDABNDKC.js.map
+//# sourceMappingURL=bootstrap.component-XWKBOSDV.js.map

@@ -1,21 +1,25 @@
 import {
-  CustomTooltipComponent
-} from "./chunk-4N7SBS2Z.js";
-import {
   DebugPanelResize,
   MatTooltip,
   MatTooltipModule
 } from "./chunk-4LIEJVD3.js";
+import {
+  CustomTooltipComponent
+} from "./chunk-NXMWV5YG.js";
 import "./chunk-EEOTK5BU.js";
 import {
   Clipboard,
   OrganisationService
-} from "./chunk-LT6VOXAD.js";
+} from "./chunk-O2XDZPZH.js";
 import {
   DEFAULT_SETTINGS,
   SettingsService
-} from "./chunk-V34EUQF4.js";
+} from "./chunk-HHHUFFRZ.js";
 import "./chunk-CGHBOMPQ.js";
+import {
+  IconComponent
+} from "./chunk-CDNQX7A6.js";
+import "./chunk-COFQG2BS.js";
 import {
   DefaultValueAccessor,
   FormsModule,
@@ -26,10 +30,6 @@ import {
   SelectControlValueAccessor,
   ɵNgSelectMultipleOption
 } from "./chunk-SGCMNCCJ.js";
-import {
-  IconComponent
-} from "./chunk-CDNQX7A6.js";
-import "./chunk-COFQG2BS.js";
 import "./chunk-H7GPLWOJ.js";
 import "./chunk-MCFTQV7A.js";
 import {
@@ -1249,4 +1249,4 @@ export {
   SettingsDebugPanelComponent
 };
 //# debugId=48e770fb-f65e-54eb-ab55-fb90a021bb9f
-//# sourceMappingURL=settings-debug-panel.component-EUQRZTDB.js.map
+//# sourceMappingURL=settings-debug-panel.component-J73MM57L.js.map

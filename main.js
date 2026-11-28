@@ -2,14 +2,10 @@ import {
   REMOTE_SETUP_MOCK_SYSTEM,
   REMOTE_SETUP_MODULE,
   remoteSetupCommandBinding
-} from "./chunk-SN6AK5TW.js";
+} from "./chunk-BAG4NPWD.js";
 import {
   AnnounceDirective
 } from "./chunk-H6EH6T67.js";
-import {
-  TranslatePipe
-} from "./chunk-MEGG2SM3.js";
-import "./chunk-WL6FKRFH.js";
 import {
   LazySentryErrorHandler,
   MAX_REMOTE_DEBUG_COMMANDS,
@@ -33,7 +29,7 @@ import {
   serviceWorkerUpdate,
   setMocks,
   toQueryString
-} from "./chunk-LT6VOXAD.js";
+} from "./chunk-O2XDZPZH.js";
 import {
   AsyncHandler,
   GroupPermission,
@@ -50,7 +46,10 @@ import {
   user_groups_failed,
   user_groups_loaded,
   waitForOnline
-} from "./chunk-V34EUQF4.js";
+} from "./chunk-HHHUFFRZ.js";
+import {
+  TranslatePipe
+} from "./chunk-MEGG2SM3.js";
 import {
   addDays,
   addMinutes,
@@ -70,11 +69,12 @@ import {
   toDate,
   unique
 } from "./chunk-CGHBOMPQ.js";
-import "./chunk-SGCMNCCJ.js";
+import "./chunk-WL6FKRFH.js";
 import {
   IconComponent
 } from "./chunk-CDNQX7A6.js";
 import "./chunk-COFQG2BS.js";
+import "./chunk-SGCMNCCJ.js";
 import {
   BidiModule,
   _getAnimationsState
@@ -872,7 +872,7 @@ var ServiceWorkerUpdateCardComponent = class _ServiceWorkerUpdateCardComponent {
 // libs/components/src/lib/global-loading.component.ts
 var NativeDomainOverlayLoaderComponent_Conditional_0_Defer_1_DepsFn = () => [
   /* @ts-ignore */
-  import("./native-domain-overlay.component-HXAWXZJT.js").then((m) => m.NativeDomainOverlayComponent)
+  import("./native-domain-overlay.component-6EU7P23P.js").then((m) => m.NativeDomainOverlayComponent)
 ];
 function NativeDomainOverlayLoaderComponent_Conditional_0_Defer_0_Template(rf, ctx) {
   if (rf & 1) {
@@ -1000,7 +1000,7 @@ var NativeDomainOverlayLoaderComponent = class _NativeDomainOverlayLoaderCompone
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(NativeDomainOverlayLoaderComponent, () => [
     /* @ts-ignore */
-    import("./native-domain-overlay.component-HXAWXZJT.js").then((m) => m.NativeDomainOverlayComponent)
+    import("./native-domain-overlay.component-6EU7P23P.js").then((m) => m.NativeDomainOverlayComponent)
   ], (NativeDomainOverlayComponent) => {
     setClassMetadata(NativeDomainOverlayLoaderComponent, [{
       type: Component,
@@ -6919,7 +6919,10 @@ function registerMockSignage() {
     path: "/api/engine/v2/signage/media",
     method: "GET",
     page_size: MOCK_PAGE_SIZE,
-    callback: (request) => filterContentByGroup(MOCK_MEDIA, request.query_params).map(toEngineMedia)
+    callback: (request) => {
+      const tags = String(request.query_params.tags || "").split(",").filter((tag) => !!tag);
+      return filterContentByGroup(MOCK_MEDIA, request.query_params).filter((item) => !tags.length || (item.tags || []).some((tag) => tags.includes(tag))).map(toEngineMedia);
+    }
   });
   registerMockEndpoint2({
     path: "/api/engine/v2/signage/media/tags",
@@ -11036,11 +11039,11 @@ function mocksInit() {
 // apps/assistant-panel/src/app/app.component.ts
 var AppComponent_Defer_5_DepsFn = () => [
   /* @ts-ignore */
-  import("./chat.component-SHPZ6JDO.js").then((m) => m.ChatComponent)
+  import("./chat.component-SEHFVYJN.js").then((m) => m.ChatComponent)
 ];
 var AppComponent_Defer_10_DepsFn = () => [
   /* @ts-ignore */
-  import("./settings-debug-panel-launcher.component-4G5ROE5D.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+  import("./settings-debug-panel-launcher.component-HX3OKBX7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
 ];
 function AppComponent_Defer_3_Template(rf, ctx) {
   if (rf & 1) {
@@ -11104,9 +11107,9 @@ var AppComponent = class _AppComponent {
 (() => {
   (typeof ngDevMode === "undefined" || ngDevMode) && setClassMetadataAsync(AppComponent, () => [
     /* @ts-ignore */
-    import("./chat.component-SHPZ6JDO.js").then((m) => m.ChatComponent),
+    import("./chat.component-SEHFVYJN.js").then((m) => m.ChatComponent),
     /* @ts-ignore */
-    import("./settings-debug-panel-launcher.component-4G5ROE5D.js").then((m) => m.SettingsDebugPanelLauncherComponent)
+    import("./settings-debug-panel-launcher.component-HX3OKBX7.js").then((m) => m.SettingsDebugPanelLauncherComponent)
   ], (ChatComponent, SettingsDebugPanelLauncherComponent) => {
     setClassMetadata(AppComponent, [{
       type: Component,
@@ -11156,12 +11159,12 @@ var routes = [
   { path: "unauthorised", component: UnauthorisedComponent },
   {
     path: "bootstrap",
-    loadComponent: () => import("./bootstrap.component-NDABNDKC.js").then((m) => m.BootstrapComponent),
+    loadComponent: () => import("./bootstrap.component-XWKBOSDV.js").then((m) => m.BootstrapComponent),
     canActivate: [AuthorisedUserGuard]
   },
   {
     path: "panel/:system_id",
-    loadComponent: () => import("./panel-view.component-W7R4CUQ7.js").then((m) => m.PanelViewComponent),
+    loadComponent: () => import("./panel-view.component-QEDV4FC7.js").then((m) => m.PanelViewComponent),
     canActivate: [AuthorisedUserGuard]
   },
   { path: "**", redirectTo: "bootstrap" }
@@ -11189,5 +11192,5 @@ if (environment.production) {
 }
 console.log("Production:", !!environment.production);
 bootstrapApplication(AppComponent, appConfig).catch((err) => console.error(err));
-//# debugId=dda652e6-30a0-5f0a-be08-a10813f6df53
+//# debugId=f39364bc-6d58-5577-b0a0-9d329714d396
 //# sourceMappingURL=main.js.map

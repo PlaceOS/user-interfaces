@@ -1,30 +1,30 @@
 import {
   ChatService,
   DateFromPipe
-} from "./chunk-WBYGR3GD.js";
+} from "./chunk-BZRGKPQ6.js";
 import "./chunk-EEOTK5BU.js";
-import {
-  TranslatePipe
-} from "./chunk-MEGG2SM3.js";
-import "./chunk-LT6VOXAD.js";
+import "./chunk-O2XDZPZH.js";
 import {
   AsyncHandler,
   SettingsService,
   User,
   current_user,
   settingSignal
-} from "./chunk-V34EUQF4.js";
+} from "./chunk-HHHUFFRZ.js";
+import {
+  TranslatePipe
+} from "./chunk-MEGG2SM3.js";
 import "./chunk-CGHBOMPQ.js";
+import {
+  IconComponent
+} from "./chunk-CDNQX7A6.js";
+import "./chunk-COFQG2BS.js";
 import {
   DefaultValueAccessor,
   FormsModule,
   NgControlStatus,
   NgModel
 } from "./chunk-SGCMNCCJ.js";
-import {
-  IconComponent
-} from "./chunk-CDNQX7A6.js";
-import "./chunk-COFQG2BS.js";
 import "./chunk-MCFTQV7A.js";
 import {
   MatRipple,
@@ -695,4 +695,4 @@ export {
   ChatComponent
 };
 //# debugId=aa573282-4e60-5e7c-94fc-39376fd060af
-//# sourceMappingURL=chat.component-SHPZ6JDO.js.map
+//# sourceMappingURL=chat.component-SEHFVYJN.js.map
