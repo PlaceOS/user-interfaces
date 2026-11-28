@@ -2480,6 +2480,7 @@
             "MAPS_3D_REMOVE_TITLE": "Remove the 3D view?",
             "MAPS_3D_REMOVE_MSG": "People see this map in 2D only once you save. The drawing itself is not changed.",
             "MAPS_3D_FOUND": "On this map",
+            "MAPS_3D_SELECT_KIND": "Select all of this type",
             "MAPS_3D_AUTO_HINT": "Walls, furniture and labels were worked out from the map. Check the result, fix anything that is wrong, then save.",
             "MAPS_3D_SCALE": "Scale",
             "MAPS_3D_WIDTH": "Map width",
