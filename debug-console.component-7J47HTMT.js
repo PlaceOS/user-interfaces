@@ -1,20 +1,20 @@
 import {
   CustomTooltipComponent,
   CustomTooltipData
-} from "./chunk-5532C2B3.js";
+} from "./chunk-3I4VRHAJ.js";
 import {
   ConsoleHistoryService
-} from "./chunk-FCNOIOPX.js";
+} from "./chunk-HXCQJV4Q.js";
 import "./chunk-XPXIQO3T.js";
 import {
   TranslatePipe
-} from "./chunk-7JNULFWK.js";
-import "./chunk-IH6NX7SG.js";
+} from "./chunk-KIHWADDS.js";
+import "./chunk-NNPTSMHE.js";
 import {
   AsyncHandler,
   HotkeysService,
   SettingsService
-} from "./chunk-A77QVGTW.js";
+} from "./chunk-DCOI6ZR5.js";
 import {
   IconComponent
 } from "./chunk-NRYDNNQ3.js";
@@ -676,4 +676,4 @@ export {
   DebugConsoleComponent
 };
 //# debugId=501bd4a0-26c7-5bf0-85d3-770dbe7054d5
-//# sourceMappingURL=debug-console.component-2I4BGCUQ.js.map
+//# sourceMappingURL=debug-console.component-7J47HTMT.js.map
