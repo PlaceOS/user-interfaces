@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["space-map.component.ts"],
+  "sourcesContent": ["\n            :host {\n                position: relative;\n                background: rgba(0, 0, 0, 0.05);\n                display: flex;\n                flex-direction: column;\n            }\n        "],
+  "mappings": ";AACY;AACI,YAAA;AACA,cAAA,KAAA,CAAA,EAAA,CAAA,EAAA,CAAA,EAAA;AACA,WAAA;AACA,kBAAA;AACJ;",
+  "names": []
+}
