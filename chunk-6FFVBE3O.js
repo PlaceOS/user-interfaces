@@ -6049,15 +6049,15 @@ function isEmptyUser(user) {
 // libs/common/src/lib/version.ts
 var VERSION = {
   "dirty": false,
-  "raw": "ebf2bec",
-  "hash": "ebf2bec",
+  "raw": "01a45bd",
+  "hash": "01a45bd",
   "distance": null,
   "tag": null,
   "semver": null,
-  "suffix": "ebf2bec",
+  "suffix": "01a45bd",
   "semverString": null,
   "version": "1.12.0",
-  "time": 1795842791522
+  "time": 1795843103362
 };
 
 // libs/common/src/lib/placeos.ts
@@ -7928,5 +7928,5 @@ export {
   settingSignal,
   SettingsService
 };
-//# debugId=48c0c6e7-859d-5955-ad77-a64cc958275e
-//# sourceMappingURL=chunk-L3AKP2R3.js.map
+//# debugId=82d9c890-0c5c-5771-a7a2-a27ac68bad43
+//# sourceMappingURL=chunk-6FFVBE3O.js.map
